@@ -4,6 +4,7 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/standard_material3d.hpp>
+#include <godot_cpp/classes/plane_mesh.hpp>
 #include <godot_cpp/classes/image_texture.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -42,10 +43,11 @@ void MatchNode::create_pitch() {
     material->set_transparency(StandardMaterial3D::TRANSPARENCY_ALPHA);
     material->set_alpha_scissor_threshold(ALPHA_SCISSOR_THRESHOLD);
     
-    // Create mesh (box for now, will be replaced with stadium mesh later)
-    Ref<BoxMesh> mesh;
+    // A plane has clean 0..1 UVs; BoxMesh packs every face into a 1/3 UV
+    // atlas, which cropped the center circle and stretched the markings.
+    Ref<PlaneMesh> mesh;
     mesh.instantiate();
-    mesh->set_size(Vector3(PITCH_LENGTH, 0.1, PITCH_WIDTH));
+    mesh->set_size(Vector2(PITCH_LENGTH, PITCH_WIDTH));
     
     // Create MeshInstance3D
     pitch_mesh = memnew(MeshInstance3D);
