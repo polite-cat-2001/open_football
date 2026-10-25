@@ -235,7 +235,7 @@ bool GpfRuntimeNode::start_runtime() {
         UtilityFunctions::printerr(last_error);
         return false;
     }
-    match->SetFixedPresentationCamera(blunted::Vector3(0.0f, -80.0f, 55.0f), 0.969f, 45.0f);
+    match->SetAutoUpdateIngameCamera(true);
 
     sim_time_ms = 0;
     match->SetPresentationClock(true, TICK_MS, TICK_MS);
@@ -397,6 +397,11 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["tick"] = get_tick();
     result["match_time_ms"] = (int)match->GetMatchTime_ms();
     result["in_play"] = match->IsInPlay();
+    result["in_set_piece"] = match->IsInSetPiece();
+    result["match_phase"] = (int)match->GetMatchPhase();
+    Player *taker = match->GetTeam(0)->GetController()->GetPieceTaker();
+    result["set_piece_taker"] = taker ? taker->GetID() : -1;
+    result["set_piece_type"] = (int)match->GetTeam(0)->GetController()->GetSetPieceType();
     result["score0"] = match->GetScore(0);
     result["score1"] = match->GetScore(1);
 

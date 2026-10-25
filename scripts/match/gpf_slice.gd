@@ -66,7 +66,6 @@ func _ready() -> void:
 			break
 	if display_player_id >= 0:
 		runtime.select_player(display_player_id)
-		runtime.start_open_play(display_player_id)
 		print("display_player_id=", display_player_id, " human_after_select=", runtime.get_human_player_id())
 	_spawn_actors(ids)
 	runtime.set("manual_step", false)
@@ -126,7 +125,15 @@ func _process(_delta: float) -> void:
 			player = pose
 	_update_camera(snap)
 	if hud != null:
-		hud.text = "GPF slice  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   Q switch" % [
+		var status := "PRE-MATCH"
+		if bool(snap.get("in_set_piece", false)):
+			status = "KICKOFF — S pass / D shot"
+			if int(snap.get("set_piece_taker", -1)) != int(player.get("id", -1)):
+				status = "KICKOFF — waiting"
+		elif bool(snap.get("in_play", false)):
+			status = "LIVE"
+		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   Q switch" % [
+			status,
 			int(snap.get("tick", 0)),
 			(snap.get("ball_pos", Vector3.ZERO) as Vector3).x,
 			(snap.get("ball_pos", Vector3.ZERO) as Vector3).y,
