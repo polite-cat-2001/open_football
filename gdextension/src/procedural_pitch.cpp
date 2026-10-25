@@ -112,8 +112,8 @@ Ref<Image> ProceduralPitch::generate(int width, int height) {
         }
     }
     
-    // Center circle
-    int radius = width / 10;
+    // Center circle (9.15 m radius, same as the original pitch markings)
+    int radius = (int)((float)width * 9.15f / (float)PITCH_LENGTH);
     int cx = width / 2;
     int cy = height / 2;
     for (int y = cy - radius; y <= cy + radius; y++) {

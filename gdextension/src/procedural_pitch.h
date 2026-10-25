@@ -6,11 +6,12 @@
 
 namespace godot {
 
-// Constants (mirrors GDScript FootballConstants autoload)
+// Original GameplayFootball playing field: gamedefines.hpp pitchHalfW/pitchHalfH
+// are 55/36 (inside the lines), so the plane must be 110 x 72.
 namespace PitchConstants {
     const float ALPHA_SCISSOR_THRESHOLD = 0.12f;
-    const int PITCH_LENGTH = 105;
-    const int PITCH_WIDTH = 68;
+    const int PITCH_LENGTH = 110;
+    const int PITCH_WIDTH = 72;
     const float NOISE_SCALE = 10.0f;
     const float NOISE_INTENSITY = 0.1f;
     const int NOISE_SEED = 42;

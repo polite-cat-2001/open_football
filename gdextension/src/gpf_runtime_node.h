@@ -4,6 +4,7 @@
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/vector3.hpp>
 
 class Match;
 
@@ -16,6 +17,7 @@ private:
     bool runtime_ready = false;
     bool runtime_failed = false;
     bool manual_step = false;
+    bool game_over_seen = false;
     double accumulator_ms = 0.0;
     unsigned long sim_time_ms = 0;
     int seed = 42;
@@ -59,6 +61,11 @@ public:
     int get_tick() const;
     void set_button(int index, bool pressed);
     void set_move(double x, double y);
+
+    // Debug/test hooks. Positions and momentum are in the original C++ (raw) space:
+    // raw X = pitch length, raw Y = pitch width, raw Z = up.
+    void debug_set_ball(const Vector3 &position, const Vector3 &momentum);
+    void debug_set_last_touch_team(int team_id);
 };
 
 } // namespace godot
