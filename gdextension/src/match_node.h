@@ -2,7 +2,7 @@
 
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/classes/mesh_instance3d.hpp>
-#include <godot_cpp/classes/box_mesh.hpp>
+#include <godot_cpp/classes/plane_mesh.hpp>
 
 namespace godot {
 

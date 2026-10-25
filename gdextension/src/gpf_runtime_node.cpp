@@ -235,7 +235,7 @@ bool GpfRuntimeNode::start_runtime() {
         UtilityFunctions::printerr(last_error);
         return false;
     }
-    match->SetCameraParams(0.2f, 0.0f, 1.0f, 0.0f);
+    match->SetFixedPresentationCamera(blunted::Vector3(0.0f, -80.0f, 55.0f), 0.969f, 45.0f);
 
     sim_time_ms = 0;
     match->SetPresentationClock(true, TICK_MS, TICK_MS);
