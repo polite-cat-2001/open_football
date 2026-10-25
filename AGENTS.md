@@ -4,6 +4,15 @@
 > поддерживаемый слой (страница на подсистему, перекрёстные `[[ссылки]]`, `константы.md` сверена с
 > кодом). Хронология — `log.md` в корне. Правила поддержки вики и краткие трип-вайры — в `CLAUDE.md`.
 > Разделы ниже — исторический подробный гайд; при расхождении доверяй вике и коду, и правь вику.
+>
+> **2026-10-25:** действующий путь — оригинальный C++ runtime внутри GDExtension, см.
+> [[порт-gdextension]]. Первый срез: `scenes/gpf_slice.tscn`, кнопка **GPF Gameplay Slice** в меню.
+
+## GDExtension slice
+
+- **Сборка расширения:** `cmake -S gdextension -B gdextension/build-runtime -G "Visual Studio 17 2022" -A x64 -DGODOTCPP_TARGET=template_release -DGPF_REPO="<GameplayFootball checkout>" -DGPF_BUILD="<GameplayFootball checkout>/build-x64"`, затем `cmake --build gdextension/build-runtime --config Release --target open_football_gdext`. C++-библиотеки должны быть собраны из того же дерева (Release x64).
+- **Запуск:** `godot --path . res://scenes/gpf_slice.tscn`; данные — `GPF_DATA_ROOT` или свойство `data_root` (по умолчанию путь к `GameplayFootball-of_port/data`).
+- **Ограничение:** runtime одноразовый — второй матч/возврат в меню без перезапуска Godot не поддерживается.
 
 ## Dev commands
 - **Validate, menu-load only (headless):** `& "C:\Users\User\Desktop\Godot_v4.7.1-stable_mono_win64\Godot_v4.7.1-stable_mono_win64_console.exe" --path "<project>" --headless --quit`

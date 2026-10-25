@@ -101,25 +101,23 @@ def unpose_matrices(arm_obj):
 
 
 def unpose_vertex(co, bones, mats):
-    """Вершина из базовой позы в рест: (Σ wᵢ·Mᵢ)⁻¹ · v.
+    """Вершина из базовой позы в рест: Σ wᵢ·(Mᵢ⁻¹ · v).
 
-    Смешиваем матрицы, а не результаты — так обратное преобразование точное
-    для той же LBS, которой вершина была спозирована.
+    Обратное к LBS смешивает уже обратные матрицы по-костно. Обратная к
+    смешанной матрице (Σ wᵢ·Mᵢ)⁻¹ — другая операция и даёт до 3 см ошибки
+    на многосуставных вершинах; именно это ломало стык с оригинальным
+    CPU-скиннингом.
     """
-    blended = Matrix(((0,) * 4,) * 4)
-    total = 0.0
-    for joint, weight in bones:
-        m = mats[JOINT_BONES[joint]]
-        for r in range(4):
-            for c in range(4):
-                blended[r][c] += m[r][c] * weight
-        total += weight
+    if not bones:
+        return Vector(co)
+    total = sum(weight for _joint, weight in bones)
     if total <= 0.0:
         return Vector(co)
-    for r in range(4):
-        for c in range(4):
-            blended[r][c] /= total
-    return blended.inverted() @ Vector(co)
+    result = Vector((0.0, 0.0, 0.0))
+    for joint, weight in bones:
+        m = mats[JOINT_BONES[joint]].inverted()
+        result += (m @ Vector(co)) * (weight / total)
+    return result
 
 
 def build_kit_image(objects):

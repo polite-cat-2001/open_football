@@ -32,6 +32,16 @@ func _build_ui() -> void:
 	if not btn.pressed.is_connected(_on_start):
 		btn.pressed.connect(_on_start)
 
+	var gpf_btn := Button.new()
+	gpf_btn.name = "GpfSliceBtn"
+	gpf_btn.text = "GPF Gameplay Slice"
+	gpf_btn.set_position(Vector2(490, 500))
+	gpf_btn.set_size(Vector2(300, 80))
+	gpf_btn.add_theme_font_size_override("font_size", 24)
+	add_child(gpf_btn)
+	if not gpf_btn.pressed.is_connected(_on_gpf_slice):
+		gpf_btn.pressed.connect(_on_gpf_slice)
+
 	print("Main menu ready")
 
 
@@ -40,6 +50,17 @@ func _on_start() -> void:
 	var packed := load("res://scenes/match.tscn")
 	if not packed:
 		push_error("Failed to load match.tscn")
+		return
+	var err := get_tree().change_scene_to_packed(packed)
+	if err != OK:
+		push_error("change_scene_to_packed failed: " + str(err))
+
+
+func _on_gpf_slice() -> void:
+	print("GPF Gameplay Slice clicked")
+	var packed := load("res://scenes/gpf_slice.tscn")
+	if not packed:
+		push_error("Failed to load gpf_slice.tscn")
 		return
 	var err := get_tree().change_scene_to_packed(packed)
 	if err != OK:
