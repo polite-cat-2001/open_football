@@ -74,6 +74,8 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_tick"), &GpfRuntimeNode::get_tick);
     ClassDB::bind_method(D_METHOD("set_button", "index", "pressed"), &GpfRuntimeNode::set_button);
     ClassDB::bind_method(D_METHOD("set_move", "x", "y"), &GpfRuntimeNode::set_move);
+    ClassDB::bind_method(D_METHOD("debug_set_ball", "position", "momentum"), &GpfRuntimeNode::debug_set_ball);
+    ClassDB::bind_method(D_METHOD("debug_set_last_touch_team", "team_id"), &GpfRuntimeNode::debug_set_last_touch_team);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "data_root"), "set_data_root", "get_data_root");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "seed"), "set_seed", "get_seed");
@@ -237,6 +239,16 @@ bool GpfRuntimeNode::start_runtime() {
     }
     match->SetAutoUpdateIngameCamera(true);
 
+    // The original game pauses for an extended replay six seconds after a goal and
+    // unpauses when the replay page closes. This slice has no replay UI, so resume
+    // immediately; otherwise the whole match freezes forever after the first goal.
+    game_over_seen = false;
+    match->sig_OnExtendedReplayMoment.connect([](Match *m) { if (m) m->Pause(false); });
+    match->sig_OnGameOver.connect([this](Match *m) {
+        game_over_seen = true;
+        if (m) m->Pause(true);
+    });
+
     sim_time_ms = 0;
     match->SetPresentationClock(true, TICK_MS, TICK_MS);
     runtime_ready = true;
@@ -287,7 +299,9 @@ int GpfRuntimeNode::get_human_player_id() const {
             return players[i]->GetID();
         }
     }
-    return players.empty() ? -1 : players[0]->GetID();
+    // -1, not the first player: when nobody is selected (goal celebration,
+    // opponent set piece) the caller must keep the last real selection.
+    return -1;
 }
 
 void GpfRuntimeNode::select_player(int player_id) {
@@ -402,12 +416,30 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     Player *taker = match->GetTeam(0)->GetController()->GetPieceTaker();
     result["set_piece_taker"] = taker ? taker->GetID() : -1;
     result["set_piece_type"] = (int)match->GetTeam(0)->GetController()->GetSetPieceType();
+    const RefereeBuffer &referee_buffer = match->GetRefereeBuffer();
+    result["referee_active"] = referee_buffer.active;
+    result["referee_set_piece"] = (int)referee_buffer.desiredSetPiece;
+    result["referee_team"] = (int)referee_buffer.teamID;
+    result["referee_end_phase"] = referee_buffer.endPhase;
+    result["referee_stop_time"] = (int)referee_buffer.stopTime;
+    result["referee_prepare_time"] = (int)referee_buffer.prepareTime;
+    result["referee_start_time"] = (int)referee_buffer.startTime;
+    result["referee_taker"] = referee_buffer.taker ? referee_buffer.taker->GetID() : -1;
     result["score0"] = match->GetScore(0);
     result["score1"] = match->GetScore(1);
+    result["actual_time_ms"] = (int)match->GetActualTime_ms();
+    result["match_duration_factor"] = match->GetMatchDurationFactor();
+    result["paused"] = match->GetPause();
+    result["game_over"] = game_over_seen;
+    result["goal_scored"] = match->IsGoalScored();
+    result["ball_in_goal"] = match->IsBallInGoal();
+    result["last_goal_team"] = match->GetLastGoalTeamID();
+    result["last_touch_team"] = match->GetLastTouchTeamID();
 
     boost::intrusive_ptr<blunted::Geometry> ball_geom = match->GetBall()->GetBallGeom();
     result["ball_pos"] = to_godot(ball_geom->GetDerivedPosition());
     result["ball_rot"] = to_godot(ball_geom->GetDerivedRotation());
+    result["ball_vel"] = to_godot(match->GetBall()->GetMovement());
 
     result["camera_pos"] = to_godot(match->GetPresentationCameraPosition());
     result["camera_rot"] = to_godot(match->GetPresentationCameraRotation());
@@ -469,4 +501,22 @@ void GpfRuntimeNode::set_move(double x, double y) {
     set_button(e_ButtonFunction_Right, x > threshold);
     set_button(e_ButtonFunction_Up, y > threshold);
     set_button(e_ButtonFunction_Down, y < -threshold);
+}
+
+void GpfRuntimeNode::debug_set_ball(const Vector3 &position, const Vector3 &momentum) {
+    if (!runtime_ready || !match) {
+        return;
+    }
+    match->SetBallRetainer(nullptr);
+    Ball *ball = match->GetBall();
+    ball->SetPosition(blunted::Vector3((float)position.x, (float)position.y, (float)position.z));
+    ball->SetMomentum(blunted::Vector3((float)momentum.x, (float)momentum.y, (float)momentum.z));
+    match->UpdateLatestMentalImageBallPredictions();
+}
+
+void GpfRuntimeNode::debug_set_last_touch_team(int team_id) {
+    if (!runtime_ready || !match || team_id < 0 || team_id > 1) {
+        return;
+    }
+    match->SetLastTouchTeamID(team_id);
 }

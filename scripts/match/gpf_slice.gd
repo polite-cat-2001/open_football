@@ -27,6 +27,34 @@ const TEAM_COLORS := {
 	-1: Color(0.95, 0.8, 0.15),
 }
 
+# Original C++ field geometry (gamedefines.hpp): playing field is 110 x 72,
+# goal line at raw X = +-55, goal mouth 7.4 m wide, 2.5 m high, 2.55 m deep.
+const GOAL_LINE_RAW := 55.0
+const GOAL_HALF_WIDTH := 3.7
+const GOAL_HEIGHT := 2.5
+const GOAL_DEPTH := 2.55
+const POST_RADIUS := 0.07
+const NET_GRID_STEP := 0.5
+
+const PHASE_NAMES := [
+	"PRE-MATCH",
+	"1ST HALF",
+	"2ND HALF",
+	"EXTRA TIME 1",
+	"EXTRA TIME 2",
+	"PENALTIES",
+]
+
+const SET_PIECE_NAMES := [
+	"",
+	"KICKOFF",
+	"GOAL KICK",
+	"FREE KICK",
+	"CORNER",
+	"THROW-IN",
+	"PENALTY",
+]
+
 var gpf_space: Node3D
 var body_scene: PackedScene
 var ball_root: Node3D
@@ -41,6 +69,7 @@ var shot_frame := int(OS.get_environment("GPF_SHOT_FRAME")) if OS.get_environmen
 var shot_taken := false
 var demo := OS.get_environment("GPF_DEMO") != ""
 var hud: Label
+var score_hud: Label
 
 func _ready() -> void:
 	gpf_space = Node3D.new()
@@ -53,6 +82,7 @@ func _ready() -> void:
 	ball_root = ball_scene.instantiate()
 	gpf_space.add_child(ball_root)
 
+	_build_goals()
 	_build_hud()
 	runtime.start_runtime_now()
 	if not runtime.is_runtime_ready():
@@ -125,13 +155,14 @@ func _process(_delta: float) -> void:
 			player = pose
 	_update_camera(snap)
 	if hud != null:
-		var status := "PRE-MATCH"
-		if bool(snap.get("in_set_piece", false)):
-			status = "KICKOFF — S pass / D shot"
-			if int(snap.get("set_piece_taker", -1)) != int(player.get("id", -1)):
-				status = "KICKOFF — waiting"
-		elif bool(snap.get("in_play", false)):
-			status = "LIVE"
+		var status := _status_text(snap, player)
+		if score_hud != null:
+			score_hud.text = "%d : %d    %s    %s" % [
+				int(snap.get("score0", 0)),
+				int(snap.get("score1", 0)),
+				_format_clock(int(snap.get("match_time_ms", 0))),
+				_phase_name(int(snap.get("match_phase", 0))),
+			]
 		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   Q switch" % [
 			status,
 			int(snap.get("tick", 0)),
@@ -203,11 +234,154 @@ func _run_demo() -> void:
 	elif frames == 125:
 		runtime.set_button(7, false)
 
+func _status_text(snap: Dictionary, player: Dictionary) -> String:
+	if bool(snap.get("game_over", false)):
+		return "FULL TIME"
+	if bool(snap.get("paused", false)):
+		return "PAUSED"
+	if bool(snap.get("goal_scored", false)):
+		return "GOAL — restart"
+	var piece := int(snap.get("referee_set_piece", 0))
+	if bool(snap.get("in_set_piece", false)):
+		var piece_name := _set_piece_name(piece)
+		if piece_name == "":
+			piece_name = _set_piece_name(int(snap.get("set_piece_type", 0)))
+		if piece_name == "":
+			piece_name = "SET PIECE"
+		var taker := int(snap.get("referee_taker", -1))
+		if taker < 0:
+			taker = int(snap.get("set_piece_taker", -1))
+		if taker == int(player.get("id", -1)):
+			return "%s — S pass / D shot" % piece_name
+		return "%s — waiting" % piece_name
+	if bool(snap.get("referee_active", false)) and piece != 0:
+		return "%s — setup" % _set_piece_name(piece)
+	if bool(snap.get("in_play", false)):
+		return "LIVE"
+	return "PRE-MATCH"
+
+func _format_clock(milliseconds: int) -> String:
+	var total_seconds := int(maxf(0.0, float(milliseconds)) / 1000.0)
+	return "%02d:%02d" % [total_seconds / 60, total_seconds % 60]
+
+func _phase_name(phase: int) -> String:
+	if phase >= 0 and phase < PHASE_NAMES.size():
+		return PHASE_NAMES[phase]
+	return "PHASE %d" % phase
+
+func _set_piece_name(piece: int) -> String:
+	if piece > 0 and piece < SET_PIECE_NAMES.size():
+		return SET_PIECE_NAMES[piece]
+	return ""
+
+func _build_goals() -> void:
+	var goals := Node3D.new()
+	goals.name = "Goals"
+	add_child(goals)
+
+	var frame_material := StandardMaterial3D.new()
+	frame_material.albedo_color = Color(0.96, 0.96, 0.96)
+	frame_material.roughness = 0.45
+	frame_material.metallic = 0.15
+
+	var net_material := StandardMaterial3D.new()
+	net_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	net_material.albedo_color = Color(0.9, 0.94, 1.0, 0.38)
+	net_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	net_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+
+	for raw_side in [-1, 1]:
+		_build_goal(goals, float(raw_side), frame_material, net_material)
+
+func _build_goal(parent: Node3D, raw_side: float, frame_material: Material, net_material: Material) -> void:
+	var front_x := -GOAL_LINE_RAW * raw_side
+	var back_x := front_x - GOAL_DEPTH * raw_side
+	for z in [-GOAL_HALF_WIDTH, GOAL_HALF_WIDTH]:
+		_add_goal_bar(parent, Vector3(front_x, 0.0, z), Vector3(front_x, GOAL_HEIGHT, z), frame_material)
+		_add_goal_bar(parent, Vector3(back_x, 0.0, z), Vector3(back_x, GOAL_HEIGHT, z), frame_material)
+		_add_goal_bar(parent, Vector3(front_x, 0.03, z), Vector3(back_x, 0.03, z), frame_material)
+	_add_goal_bar(parent, Vector3(front_x, GOAL_HEIGHT, -GOAL_HALF_WIDTH), Vector3(front_x, GOAL_HEIGHT, GOAL_HALF_WIDTH), frame_material)
+	_add_goal_bar(parent, Vector3(back_x, GOAL_HEIGHT, -GOAL_HALF_WIDTH), Vector3(back_x, GOAL_HEIGHT, GOAL_HALF_WIDTH), frame_material)
+	for z in [-GOAL_HALF_WIDTH, GOAL_HALF_WIDTH]:
+		_add_goal_bar(parent, Vector3(front_x, GOAL_HEIGHT, z), Vector3(back_x, GOAL_HEIGHT, z), frame_material)
+	_add_goal_bar(parent, Vector3(back_x, 0.03, -GOAL_HALF_WIDTH), Vector3(back_x, 0.03, GOAL_HALF_WIDTH), frame_material)
+	_build_goal_net(parent, front_x, back_x, net_material)
+
+func _build_goal_net(parent: Node3D, front_x: float, back_x: float, material: Material) -> void:
+	var mesh := ImmediateMesh.new()
+	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+
+	var width_steps := int(ceil((GOAL_HALF_WIDTH * 2.0) / NET_GRID_STEP))
+	var height_steps := int(ceil(GOAL_HEIGHT / NET_GRID_STEP))
+	var depth_steps := int(ceil(GOAL_DEPTH / NET_GRID_STEP))
+
+	for i in range(width_steps + 1):
+		var z := lerpf(-GOAL_HALF_WIDTH, GOAL_HALF_WIDTH, float(i) / float(width_steps))
+		_add_net_line(mesh, Vector3(back_x, 0.0, z), Vector3(back_x, GOAL_HEIGHT, z))
+		_add_net_line(mesh, Vector3(front_x, GOAL_HEIGHT, z), Vector3(back_x, GOAL_HEIGHT, z))
+
+	for i in range(height_steps + 1):
+		var y := lerpf(0.0, GOAL_HEIGHT, float(i) / float(height_steps))
+		_add_net_line(mesh, Vector3(back_x, y, -GOAL_HALF_WIDTH), Vector3(back_x, y, GOAL_HALF_WIDTH))
+
+	for z in [-GOAL_HALF_WIDTH, GOAL_HALF_WIDTH]:
+		for i in range(depth_steps + 1):
+			var x := lerpf(front_x, back_x, float(i) / float(depth_steps))
+			_add_net_line(mesh, Vector3(x, 0.0, z), Vector3(x, GOAL_HEIGHT, z))
+		for i in range(height_steps + 1):
+			var y := lerpf(0.0, GOAL_HEIGHT, float(i) / float(height_steps))
+			_add_net_line(mesh, Vector3(front_x, y, z), Vector3(back_x, y, z))
+
+	mesh.surface_end()
+	var net := MeshInstance3D.new()
+	net.mesh = mesh
+	net.material_override = material
+	net.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(net)
+
+func _add_net_line(mesh: ImmediateMesh, a: Vector3, b: Vector3) -> void:
+	mesh.surface_add_vertex(a)
+	mesh.surface_add_vertex(b)
+
+func _add_goal_bar(parent: Node3D, from: Vector3, to: Vector3, material: Material) -> void:
+	var delta := to - from
+	var length := delta.length()
+	if length < 0.001:
+		return
+	var cylinder := CylinderMesh.new()
+	cylinder.top_radius = POST_RADIUS
+	cylinder.bottom_radius = POST_RADIUS
+	cylinder.height = length
+	cylinder.radial_segments = 12
+	cylinder.rings = 1
+	var bar := MeshInstance3D.new()
+	bar.mesh = cylinder
+	bar.material_override = material
+	var direction := delta / length
+	var basis := Basis.IDENTITY
+	if absf(direction.dot(Vector3.UP)) < 0.9999:
+		basis = Basis(Quaternion(Vector3.UP, direction))
+	elif direction.y < 0.0:
+		basis = Basis(Vector3.RIGHT, PI)
+	bar.transform = Transform3D(basis, (from + to) * 0.5)
+	parent.add_child(bar)
+
 func _build_hud() -> void:
 	var layer := CanvasLayer.new()
 	add_child(layer)
+
+	score_hud = Label.new()
+	score_hud.position = Vector2(24, 14)
+	score_hud.add_theme_font_size_override("font_size", 34)
+	score_hud.add_theme_color_override("font_color", Color(0.97, 0.97, 0.97))
+	score_hud.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	score_hud.add_theme_constant_override("outline_size", 5)
+	layer.add_child(score_hud)
+
 	hud = Label.new()
-	hud.position = Vector2(24, 20)
-	hud.add_theme_font_size_override("font_size", 20)
+	hud.position = Vector2(24, 64)
+	hud.add_theme_font_size_override("font_size", 18)
 	hud.add_theme_color_override("font_color", Color(0.95, 0.95, 0.95))
+	hud.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	hud.add_theme_constant_override("outline_size", 4)
 	layer.add_child(hud)
