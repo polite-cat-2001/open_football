@@ -19,6 +19,8 @@ private:
     bool manual_step = false;
     bool game_over_seen = false;
     bool ended_in_regular_time = false;
+    bool phase_break_pending = false;
+    int phase_break_next_phase = 0;
     int last_match_phase = 0;
     bool human_control = true;
     float match_duration = 1.0f;
@@ -67,6 +69,8 @@ public:
     int get_human_team_id() const;
     void select_player(int player_id);
     void start_open_play(int player_id);
+    bool begin_phase_break();
+    void continue_after_phase_break();
     bool is_set_piece_taker_menu_available() const;
     bool is_set_piece_taker_menu_open() const;
     bool open_set_piece_taker_menu();
@@ -82,6 +86,8 @@ public:
     void debug_set_ball(const Vector3 &position, const Vector3 &momentum);
     void debug_set_last_touch_team(int team_id);
     void debug_force_set_piece(int set_piece_type, int team_id);
+    void debug_force_phase_break(int next_phase);
+    void debug_force_game_over();
 };
 
 } // namespace godot

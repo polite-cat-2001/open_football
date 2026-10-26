@@ -76,6 +76,16 @@ var taker_menu_label: Label
 var taker_menu_open := false
 var taker_menu_candidates: Array = []
 var taker_menu_index := 0
+var phase_menu_layer: CanvasLayer
+var phase_menu_title: Label
+var phase_menu_subtitle: Label
+var phase_menu_score: Label
+var phase_menu_details: Label
+var phase_menu_hint: Label
+var phase_menu_continue: Button
+var phase_menu_quit: Button
+var phase_menu_open := false
+var phase_menu_game_over := false
 
 func _ready() -> void:
 	gpf_space = Node3D.new()
@@ -92,6 +102,7 @@ func _ready() -> void:
 	_build_penalty_reticle()
 	_build_hud()
 	_build_taker_menu()
+	_build_phase_menu()
 	runtime.start_runtime_now()
 	if not runtime.is_runtime_ready():
 		push_error("GpfRuntime failed: " + str(runtime.get_last_error()))
@@ -164,6 +175,7 @@ func _process(_delta: float) -> void:
 			player = pose
 	_update_camera(snap)
 	_update_penalty_reticle(snap)
+	_sync_phase_menu(snap)
 	_sync_taker_ui(snap)
 	if hud != null:
 		var status := _status_text(snap, player)
@@ -171,6 +183,8 @@ func _process(_delta: float) -> void:
 			var phase_text := _phase_name(int(snap.get("match_phase", 0)))
 			if bool(snap.get("game_over", false)):
 				phase_text = "FULL TIME"
+			elif bool(snap.get("phase_break_pending", false)) or bool(snap.get("phase_break", false)):
+				phase_text = "BREAK"
 			score_hud.text = "%d : %d    %s    %s" % [
 				int(snap.get("score0", 0)),
 				int(snap.get("score1", 0)),
@@ -231,6 +245,14 @@ func _input(event: InputEvent) -> void:
 	var human_team: int = runtime.get_human_team_id()
 	if human_team < 0:
 		human_team = 0
+	if phase_menu_open:
+		if key_event.pressed:
+			if phase_menu_game_over:
+				if key_event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_ESCAPE]:
+					_quit_game()
+			elif key_event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_ESCAPE]:
+				_continue_phase_break()
+		return
 	if key_event.keycode == KEY_TAB:
 		if key_event.pressed:
 			_toggle_taker_menu()
@@ -330,7 +352,111 @@ func _sync_taker_ui(snap: Dictionary) -> void:
 		_close_taker_menu(false)
 	if taker_hint != null:
 		taker_hint.visible = bool(snap.get("set_piece_local_taker", false)) \
-			and not taker_menu_open and bool(snap.get("in_set_piece", false))
+			and not taker_menu_open and not phase_menu_open \
+			and bool(snap.get("in_set_piece", false))
+
+func _sync_phase_menu(snap: Dictionary) -> void:
+	var game_over := bool(snap.get("game_over", false))
+	var phase_break := bool(snap.get("phase_break_pending", false)) \
+		or bool(snap.get("phase_break", false))
+	if not game_over and not phase_break:
+		if phase_menu_open:
+			_close_phase_menu()
+		return
+	if not phase_menu_open:
+		if not game_over and not bool(snap.get("phase_break", false)):
+			runtime.begin_phase_break()
+		_open_phase_menu(snap)
+	else:
+		_refresh_phase_menu(snap)
+
+func _open_phase_menu(snap: Dictionary) -> void:
+	if taker_menu_open:
+		_close_taker_menu(false)
+	phase_menu_open = true
+	phase_menu_layer.visible = true
+	_refresh_phase_menu(snap)
+	if phase_menu_game_over:
+		phase_menu_quit.grab_focus()
+	else:
+		phase_menu_continue.grab_focus()
+
+func _refresh_phase_menu(snap: Dictionary) -> void:
+	phase_menu_game_over = bool(snap.get("game_over", false))
+	var game_over := phase_menu_game_over
+	var next_phase := int(snap.get("phase_break_next_phase", 0))
+	if game_over:
+		var after_extra := int(snap.get("match_time_ms", 0)) >= 7200000 \
+			or int(snap.get("match_phase", 0)) == 5
+		phase_menu_title.text = "AFTER EXTRA TIME" if after_extra else "FULL TIME"
+		phase_menu_subtitle.text = "Final score"
+	else:
+		phase_menu_title.text = _phase_break_title(next_phase)
+		phase_menu_subtitle.text = _phase_break_subtitle(next_phase)
+	var home := String(snap.get("team0_name", ""))
+	if home == "":
+		home = "HOME"
+	var away := String(snap.get("team1_name", ""))
+	if away == "":
+		away = "AWAY"
+	phase_menu_score.text = "%s   %d : %d   %s" % [
+		home,
+		int(snap.get("score0", 0)),
+		int(snap.get("score1", 0)),
+		away,
+	]
+	var possession0 := int(snap.get("possession0_ms", 0))
+	var possession1 := int(snap.get("possession1_ms", 0))
+	var possession_total := possession0 + possession1
+	var possession_pct0 := 50
+	if possession_total > 0:
+		possession_pct0 = int(round(100.0 * float(possession0) / float(possession_total)))
+	phase_menu_details.text = "Possession   %d%% - %d%%\nShots        %d - %d" % [
+		possession_pct0,
+		100 - possession_pct0,
+		int(snap.get("shots0", 0)),
+		int(snap.get("shots1", 0)),
+	]
+	phase_menu_continue.visible = not game_over
+	if game_over:
+		phase_menu_hint.text = "Enter / Esc: exit"
+		phase_menu_quit.text = "Exit"
+	else:
+		phase_menu_hint.text = "Enter / Space: continue"
+		phase_menu_quit.text = "Quit"
+
+func _phase_break_title(next_phase: int) -> String:
+	match next_phase:
+		2:
+			return "HALF TIME"
+		3:
+			return "END OF 90"
+		4:
+			return "EXTRA TIME"
+	return "BREAK"
+
+func _phase_break_subtitle(next_phase: int) -> String:
+	match next_phase:
+		2:
+			return "Begin second half"
+		3:
+			return "Begin extra time"
+		4:
+			return "Begin second extra time"
+	return "Continue"
+
+func _close_phase_menu() -> void:
+	phase_menu_open = false
+	phase_menu_layer.visible = false
+
+func _continue_phase_break() -> void:
+	if not phase_menu_open or phase_menu_game_over:
+		return
+	runtime.continue_after_phase_break()
+	_close_phase_menu()
+
+func _quit_game() -> void:
+	get_tree().quit()
 
 func _save_screenshot() -> void:
 	await RenderingServer.frame_post_draw
@@ -608,3 +734,88 @@ func _build_taker_menu() -> void:
 	box.add_child(hint)
 
 	taker_menu_layer.visible = false
+
+func _build_phase_menu() -> void:
+	phase_menu_layer = CanvasLayer.new()
+	phase_menu_layer.layer = 3
+	add_child(phase_menu_layer)
+
+	var backdrop := ColorRect.new()
+	backdrop.color = Color(0.02, 0.03, 0.06, 0.78)
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	phase_menu_layer.add_child(backdrop)
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	phase_menu_layer.add_child(center)
+
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(560, 0)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.06, 0.10, 0.97)
+	style.set_corner_radius_all(8)
+	style.set_border_width_all(2)
+	style.border_color = Color(1.0, 0.85, 0.25, 0.9)
+	panel.add_theme_stylebox_override("panel", style)
+	center.add_child(panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 24)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	panel.add_child(margin)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 10)
+	margin.add_child(box)
+
+	phase_menu_title = Label.new()
+	phase_menu_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	phase_menu_title.add_theme_font_size_override("font_size", 32)
+	phase_menu_title.add_theme_color_override("font_color", Color(1.0, 0.86, 0.2))
+	box.add_child(phase_menu_title)
+
+	phase_menu_subtitle = Label.new()
+	phase_menu_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	phase_menu_subtitle.add_theme_font_size_override("font_size", 18)
+	phase_menu_subtitle.add_theme_color_override("font_color", Color(0.8, 0.84, 0.9))
+	box.add_child(phase_menu_subtitle)
+
+	phase_menu_score = Label.new()
+	phase_menu_score.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	phase_menu_score.add_theme_font_size_override("font_size", 28)
+	phase_menu_score.add_theme_color_override("font_color", Color(0.97, 0.97, 0.97))
+	box.add_child(phase_menu_score)
+
+	phase_menu_details = Label.new()
+	phase_menu_details.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	phase_menu_details.add_theme_font_size_override("font_size", 18)
+	phase_menu_details.add_theme_color_override("font_color", Color(0.88, 0.9, 0.95))
+	box.add_child(phase_menu_details)
+
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 16)
+	box.add_child(buttons)
+
+	phase_menu_continue = Button.new()
+	phase_menu_continue.text = "Continue"
+	phase_menu_continue.custom_minimum_size = Vector2(160, 40)
+	buttons.add_child(phase_menu_continue)
+	phase_menu_continue.pressed.connect(_continue_phase_break)
+
+	phase_menu_quit = Button.new()
+	phase_menu_quit.text = "Quit"
+	phase_menu_quit.custom_minimum_size = Vector2(160, 40)
+	buttons.add_child(phase_menu_quit)
+	phase_menu_quit.pressed.connect(_quit_game)
+
+	phase_menu_hint = Label.new()
+	phase_menu_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	phase_menu_hint.add_theme_font_size_override("font_size", 14)
+	phase_menu_hint.add_theme_color_override("font_color", Color(0.75, 0.78, 0.85))
+	box.add_child(phase_menu_hint)
+
+	phase_menu_layer.visible = false
