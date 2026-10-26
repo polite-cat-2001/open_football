@@ -78,6 +78,8 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_human_team_id"), &GpfRuntimeNode::get_human_team_id);
     ClassDB::bind_method(D_METHOD("select_player", "player_id"), &GpfRuntimeNode::select_player);
     ClassDB::bind_method(D_METHOD("start_open_play", "player_id"), &GpfRuntimeNode::start_open_play);
+    ClassDB::bind_method(D_METHOD("begin_phase_break"), &GpfRuntimeNode::begin_phase_break);
+    ClassDB::bind_method(D_METHOD("continue_after_phase_break"), &GpfRuntimeNode::continue_after_phase_break);
     ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_available"), &GpfRuntimeNode::is_set_piece_taker_menu_available);
     ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_open"), &GpfRuntimeNode::is_set_piece_taker_menu_open);
     ClassDB::bind_method(D_METHOD("open_set_piece_taker_menu"), &GpfRuntimeNode::open_set_piece_taker_menu);
@@ -90,6 +92,8 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("debug_set_ball", "position", "momentum"), &GpfRuntimeNode::debug_set_ball);
     ClassDB::bind_method(D_METHOD("debug_set_last_touch_team", "team_id"), &GpfRuntimeNode::debug_set_last_touch_team);
     ClassDB::bind_method(D_METHOD("debug_force_set_piece", "set_piece_type", "team_id"), &GpfRuntimeNode::debug_force_set_piece);
+    ClassDB::bind_method(D_METHOD("debug_force_phase_break", "next_phase"), &GpfRuntimeNode::debug_force_phase_break);
+    ClassDB::bind_method(D_METHOD("debug_force_game_over"), &GpfRuntimeNode::debug_force_game_over);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "data_root"), "set_data_root", "get_data_root");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "seed"), "set_seed", "get_seed");
@@ -279,11 +283,22 @@ bool GpfRuntimeNode::start_runtime() {
     // immediately; otherwise the whole match freezes forever after the first goal.
     game_over_seen = false;
     ended_in_regular_time = false;
+    phase_break_pending = false;
+    phase_break_next_phase = 0;
     last_match_phase = (int)match->GetMatchPhase();
     match->sig_OnExtendedReplayMoment.connect([](Match *m) { if (m) m->Pause(false); });
     match->sig_OnGameOver.connect([this](Match *m) {
         game_over_seen = true;
         if (m) m->Pause(true);
+    });
+    // The original UI opens its phase menu from sig_OnMatchPhaseChange. The
+    // runtime only records the request here: the Godot presentation decides
+    // when to show the overlay and calls begin_phase_break(). Headless tests
+    // must keep simulating straight through the break.
+    match->sig_OnMatchPhaseChange.connect([this](Match *m) {
+        if (!m) return;
+        phase_break_pending = true;
+        phase_break_next_phase = (int)m->GetMatchPhase();
     });
 
     sim_time_ms = 0;
@@ -606,9 +621,19 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["referee_taker"] = referee_buffer.taker ? referee_buffer.taker->GetID() : -1;
     result["score0"] = match->GetScore(0);
     result["score1"] = match->GetScore(1);
+    result["team0_name"] = String(match->GetTeam(0)->GetTeamData()->GetName().c_str());
+    result["team1_name"] = String(match->GetTeam(1)->GetTeamData()->GetName().c_str());
+    MatchData *match_data = match->GetMatchData();
+    result["possession0_ms"] = (int)match_data->GetPossessionTime_ms(0);
+    result["possession1_ms"] = (int)match_data->GetPossessionTime_ms(1);
+    result["shots0"] = match_data->GetShots(0);
+    result["shots1"] = match_data->GetShots(1);
     result["actual_time_ms"] = (int)match->GetActualTime_ms();
     result["match_duration_factor"] = match->GetMatchDurationFactor();
     result["paused"] = match->GetPause();
+    result["phase_break_pending"] = phase_break_pending;
+    result["phase_break"] = match->IsPhaseBreak();
+    result["phase_break_next_phase"] = phase_break_next_phase;
     result["game_over"] = game_over_seen;
     result["goal_scored"] = match->IsGoalScored();
     result["ball_in_goal"] = match->IsBallInGoal();
@@ -664,6 +689,25 @@ void GpfRuntimeNode::start_open_play(int player_id) {
             break;
         }
     }
+}
+
+bool GpfRuntimeNode::begin_phase_break() {
+    if (!runtime_ready || !match || game_over_seen || !phase_break_pending) {
+        return false;
+    }
+    match->SetPhaseBreak(true);
+    match->Pause(true);
+    return true;
+}
+
+void GpfRuntimeNode::continue_after_phase_break() {
+    if (!runtime_ready || !match || game_over_seen) {
+        return;
+    }
+    phase_break_pending = false;
+    phase_break_next_phase = 0;
+    match->SetPhaseBreak(false);
+    match->Pause(false);
 }
 
 Dictionary GpfRuntimeNode::get_player_pose(int player_id) const {
@@ -748,4 +792,21 @@ void GpfRuntimeNode::debug_force_set_piece(int set_piece_type, int team_id) {
         break;
     }
     match->GetReferee()->DebugForceSetPiece(type, team_id, restart);
+}
+
+void GpfRuntimeNode::debug_force_phase_break(int next_phase) {
+    if (!runtime_ready || !match || game_over_seen) {
+        return;
+    }
+    phase_break_pending = true;
+    phase_break_next_phase = next_phase;
+}
+
+void GpfRuntimeNode::debug_force_game_over() {
+    if (!runtime_ready || !match) {
+        return;
+    }
+    game_over_seen = true;
+    match->GameOver();
+    match->Pause(true);
 }

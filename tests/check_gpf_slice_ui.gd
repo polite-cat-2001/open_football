@@ -1,6 +1,7 @@
 extends SceneTree
-# Smoke test for the Godot-side set-piece UI: the aim line for free kicks/corners/goal kicks
-# and the Tab taker menu. Loads the real slice scene, forces a free kick through the bridge.
+# Smoke test for the Godot-side in-match UI: the Tab taker menu, debug throw-ins and
+# the half-time/full-time phase menu. Loads the real slice scene, forces the states
+# through the bridge.
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 
@@ -91,6 +92,26 @@ func _run() -> void:
 	throw_snap = await _wait_for_set_piece(5)
 	_check(not throw_snap.is_empty(), "Alt+O forces a throw-in")
 	_check(int(throw_snap.get("referee_team", -1)) == 1, "Alt+O gives the throw-in to the opponent")
+
+	runtime.debug_force_phase_break(2)
+	for i in 10:
+		await process_frame
+	_check(bool(scene.get("phase_menu_open")), "phase break opens the menu")
+	var phase_title := scene.get("phase_menu_title") as Label
+	_check(phase_title != null and phase_title.text == "HALF TIME", "half-time title is shown")
+	_check(bool(runtime.get_snapshot().get("paused", false)), "phase break pauses the match")
+	scene.call("_input", _key(KEY_ENTER))
+	await process_frame
+	_check(not bool(scene.get("phase_menu_open")), "Enter continues after the phase break")
+	_check(not bool(runtime.get_snapshot().get("paused", false)), "continue unpauses the match")
+
+	runtime.debug_force_game_over()
+	for i in 10:
+		await process_frame
+	_check(bool(scene.get("phase_menu_open")), "game over opens the result menu")
+	_check(phase_title != null and phase_title.text in ["FULL TIME", "AFTER EXTRA TIME"], "full-time title is shown")
+	var continue_button := scene.get("phase_menu_continue") as Button
+	_check(continue_button != null and not continue_button.visible, "result menu has no continue button")
 	_finish()
 
 func _wait_for_set_piece(type: int) -> Dictionary:
@@ -110,7 +131,7 @@ func _key(code: int) -> InputEventKey:
 
 func _finish() -> void:
 	if failures.is_empty():
-		print("CHECK PASS: slice set-piece UI")
+		print("CHECK PASS: slice UI")
 		quit(0)
 	else:
 		for failure in failures:
