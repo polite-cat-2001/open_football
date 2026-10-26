@@ -23,8 +23,9 @@
 # МАТЕРИАЛЫ. Объекты клеятся ПО МАТЕРИАЛУ: один меш на *MATERIAL_REF (SplitGeometry
 # оригинала — движковый CPU-куллинг, не портируется). Слот материала называется `mat<NN>`,
 # где NN — индекс в *MATERIAL_LIST; имя объекта несёт ещё и читаемое имя материала.
-# Карты и скаляры В .GLB НЕ ЕДУТ: текстуры назначает рантайм-загрузчик лабы, иначе
-# генератору газона некуда писать (решение 6 спеки фазы 7).
+# Для стадиона карты и скаляры ЗАПЕКАЮТСЯ в .GLB (TARGETS: bake_textures=True):
+# базовый цвет, normal, self-illum и реальные ad-текстуры. Газон и ворота остаются
+# без текстур — газон получает процедурную текстуру C++, ворота рисует NetSim.
 #
 # ODE-коллизия из .object игнорируется — отскок считает Gpf.Ball.
 #
@@ -53,10 +54,10 @@ MEDIA = os.path.join(REPO, "assets", "gpf", "media")
 MODELS = os.path.join(REPO, "assets", "models")
 
 TARGETS = [
-    ("objects/stadiums/test/test.ase", "gpf_stadium.glb"),
-    ("objects/stadiums/test/pitch.ase", "gpf_pitch.glb"),
-    ("objects/stadiums/goals.ase", "gpf_goals.glb"),
-    ("objects/balls/generic.ase", "gpf_ball.glb"),
+    ("objects/stadiums/test/test.ase", "gpf_stadium.glb", True),
+    ("objects/stadiums/test/pitch.ase", "gpf_pitch.glb", False),
+    ("objects/stadiums/goals.ase", "gpf_goals.glb", False),
+    ("objects/balls/generic.ase", "gpf_ball.glb", False),
 ]
 
 # Порог `PrepareGoalNetting` (match.cpp:2149-2151): pitchHalfW + 0.06, отсекает штанги.
@@ -96,7 +97,83 @@ def normalized_rows(tm):
     return rows if len(rows) == 3 else []
 
 
-def merge_by_material(objects, material_index, material_name):
+def resolve_bitmap(bitmap):
+    path = bitmap.replace("\\", "/")
+    if path.startswith("media/"):
+        return os.path.join(REPO, "assets", "gpf", path)
+    return os.path.join(MEDIA, path)
+
+
+def adboard_files():
+    directory = os.path.join(MEDIA, "textures", "adboards")
+    if not os.path.isdir(directory):
+        return []
+    return sorted(name for name in os.listdir(directory)
+                  if name.lower().endswith(".png"))
+
+
+def create_material(material_index, material, bake_textures):
+    mat = bpy.data.materials.new("mat%02d" % material_index)
+    if not bake_textures:
+        return mat
+
+    maps = material.get("maps", {})
+    diffuse = maps.get("MAP_DIFFUSE", "")
+    if "ad_placeholder" in diffuse:
+        files = adboard_files()
+        if files:
+            diffuse = "media/textures/adboards/" + files[material_index % len(files)]
+    normal = maps.get("MAP_BUMP", "")
+    selfillum = maps.get("MAP_SELFILLUM", "")
+
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+    bsdf = next((node for node in nodes if node.type == "BSDF_PRINCIPLED"), None)
+    if bsdf is None:
+        return mat
+
+    bsdf.inputs["Roughness"].default_value = max(0.0, min(1.0, 1.0 - material.get("shine", 0.0)))
+    bsdf.inputs["Metallic"].default_value = 0.0
+    # Ad panels contain a coplanar front/back pair in test.ase; keep the pair
+    # single-sided so the two faces cannot z-fight.
+    mat.use_backface_culling = 3 <= material_index <= 25
+
+    def image_node(path, non_color=False):
+        if not path:
+            return None
+        full = resolve_bitmap(path)
+        if not os.path.exists(full):
+            print("  !! нет текстуры: %s" % full)
+            return None
+        image = bpy.data.images.load(full, check_existing=True)
+        image.colorspace_settings.name = "Non-Color" if non_color else "sRGB"
+        node = nodes.new("ShaderNodeTexImage")
+        node.image = image
+        node.location = (-420, -260 if non_color else 220)
+        return node
+
+    diffuse_node = image_node(diffuse)
+    if diffuse_node is not None:
+        links.new(diffuse_node.outputs["Color"], bsdf.inputs["Base Color"])
+    else:
+        mat.diffuse_color = (0.5, 0.5, 0.5, 1.0)
+
+    normal_node = image_node(normal, non_color=True)
+    if normal_node is not None:
+        normal_map = nodes.new("ShaderNodeNormalMap")
+        normal_map.location = (-180, -260)
+        links.new(normal_node.outputs["Color"], normal_map.inputs["Color"])
+        links.new(normal_map.outputs["Normal"], bsdf.inputs["Normal"])
+
+    emission_node = image_node(selfillum)
+    if emission_node is not None:
+        links.new(emission_node.outputs["Color"], bsdf.inputs["Emission Color"])
+        bsdf.inputs["Emission Strength"].default_value = 1.0
+    return mat
+
+
+def merge_by_material(objects, material_index, material_name, material_meta, bake_textures):
     """Объекты одного *MATERIAL_REF → один меш. Вершины НЕ свариваются: счёт вершин сетки
     ворот на сторону — контрактное число приёмки (1138), сварка его уронит."""
     verts = []
@@ -152,10 +229,7 @@ def merge_by_material(objects, material_index, material_name):
     ob = bpy.data.objects.new(name, mesh)
     bpy.context.collection.objects.link(ob)
 
-    # Материал — пустышка, несущая только ИМЯ: карты и скаляры читает рантайм-загрузчик
-    # лабы из *MATERIAL_LIST того же .ase. Никаких текстурных нод, иначе они запекутся
-    # в .glb и переживут подмену материала (в том числе газонную).
-    mat = bpy.data.materials.new("mat%02d" % material_index)
+    mat = create_material(material_index, material_meta, bake_textures)
     ob.data.materials.append(mat)
     return ob
 
@@ -164,7 +238,7 @@ def sanitize(name):
     return "".join(c if c.isalnum() else "_" for c in name).strip("_").lower()
 
 
-def build(rel, out_name):
+def build(rel, out_name, bake_textures=False):
     src = os.path.join(MEDIA, rel.replace("/", os.sep))
     if not os.path.exists(src):
         raise SystemExit("нет исходника %s — сначала тикет 01" % src)
@@ -186,7 +260,8 @@ def build(rel, out_name):
     print("\n=== %s: %d объектов, %d материалов ===" % (rel, len(objects), len(materials)))
     parts = []
     for ref in sorted(by_material):
-        ob = merge_by_material(by_material[ref], ref, materials[ref]["name"])
+        ob = merge_by_material(by_material[ref], ref, materials[ref]["name"],
+                               materials[ref], bake_textures)
         parts.append(ob)
         print("  %-34s из %4d объектов: %6d вершин, %6d граней"
               % (ob.name, len(by_material[ref]), len(ob.data.vertices),
@@ -241,10 +316,10 @@ def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     wanted = set(argv)
 
-    for rel, out_name in TARGETS:
+    for rel, out_name, bake_textures in TARGETS:
         if wanted and out_name not in wanted:
             continue
-        build(rel, out_name)
+        build(rel, out_name, bake_textures)
 
 
 if __name__ == "__main__":

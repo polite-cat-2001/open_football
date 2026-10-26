@@ -35,6 +35,12 @@
   ```
 - Границу набора стережёт `tests/check_gpf_media.gd`.
 
+## Окружение GDExtension-слайса (assets/models/gpf_stadium.glb, gpf_pitch.glb)
+
+- Источник: GameplayFootball, `data/media/objects/stadiums/test/test.ase` и `pitch.ase`; Apache 2.0 (см. `assets/gpf/LICENSE-GameplayFootball`).
+- `gpf_stadium.glb` собран `tools/build_gpf_stadium.py`; текстуры (`greenish_floor`, `concrete`, `floor01wall`, `seat01`, рекламные щиты) запечены в GLB.
+- `gpf_pitch.glb` хранит только геометрию четырёх чанков; видимую траву и разметку генерирует процедурный C++-генератор.
+
 ## Модель игрока-заглушки (assets/models/gpf_fullbody.glb)
 
 - Источник: та же GameplayFootball, Apache 2.0 (лицензия там же). Геометрия и веса —

@@ -9,8 +9,6 @@ script = ExtResource("1_slice")
 manual_step = true
 match_duration = 0.0
 
-[node name="MatchNode" type="MatchNode" parent="."]
-
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, 40)
 current = true

@@ -143,7 +143,8 @@ func _bounds(surfaces: Array) -> Dictionary:
 
 # Набор материалов `.glb` обязан быть ровно `mat00..mat<N-1>` по `*MATERIAL_LIST` того же
 # `.ase`, и мешей столько же: один меш на материал (решение 5 спеки).
-func _check_materials(label: String, surfaces: Array, ase_rel: String) -> void:
+func _check_materials(label: String, surfaces: Array, ase_rel: String,
+		expect_textures := false) -> void:
 	var names := _ase_material_names(ase_rel)
 	if names.is_empty():
 		return
@@ -152,14 +153,16 @@ func _check_materials(label: String, surfaces: Array, ase_rel: String) -> void:
 	var baked: Array[String] = []
 	for s in surfaces:
 		got.append(s["name"])
-		# Текстуры в .glb не запекаются: карты назначает рантайм-загрузчик лабы, иначе
-		# генератору газона некуда писать (решение 6 спеки). Запечённый диффуз — ошибка
-		# конвейера, а не мелочь: он молча переживёт подмену материала.
 		if s["albedo"] != null:
 			baked.append(s["name"])
-	if not baked.is_empty():
-		_fail("%s: в .glb запечены текстуры (%s) — конвейер обязан отдавать только геометрию"
-				% [label, ", ".join(baked.slice(0, 5))])
+	if expect_textures:
+		if baked.size() != surfaces.size():
+			_fail("%s: текстуры запечены только в %d из %d поверхностей"
+					% [label, baked.size(), surfaces.size()])
+	else:
+		if not baked.is_empty():
+			_fail("%s: в .glb запечены текстуры (%s) — конвейер обязан отдавать только геометрию"
+					% [label, ", ".join(baked.slice(0, 5))])
 
 	var missing: Array[String] = []
 	for i in names.size():
@@ -249,7 +252,7 @@ func _check_stadium() -> void:
 	var surfaces := _surfaces("gpf_stadium.glb")
 	if surfaces.is_empty():
 		return
-	_check_materials("стадион", surfaces, "objects/stadiums/test/test.ase")
+	_check_materials("стадион", surfaces, "objects/stadiums/test/test.ase", true)
 
 	var b := _bounds(surfaces)
 	if not (feq(b["lo"].x, -STADIUM_HALF_X) and feq(b["hi"].x, STADIUM_HALF_X)

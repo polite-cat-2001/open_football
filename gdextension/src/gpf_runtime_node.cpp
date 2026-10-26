@@ -16,6 +16,7 @@
 #include "onthepitch/referee.hpp"
 #include "onthepitch/setpiece/setpiecepresentation.hpp"
 #include "onthepitch/team.hpp"
+#include "procedural_pitch.h"
 #include "base/math/bluntmath.hpp"
 #include "managers/usereventmanager.hpp"
 #include "gamedefines.hpp"
@@ -91,6 +92,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_snapshot"), &GpfRuntimeNode::get_snapshot);
     ClassDB::bind_method(D_METHOD("get_goal_net_positions", "goal"), &GpfRuntimeNode::get_goal_net_positions);
     ClassDB::bind_method(D_METHOD("get_goal_net_edges"), &GpfRuntimeNode::get_goal_net_edges);
+    ClassDB::bind_method(D_METHOD("generate_pitch_texture", "width", "height"), &GpfRuntimeNode::generate_pitch_texture);
     ClassDB::bind_method(D_METHOD("get_player_pose", "player_id"), &GpfRuntimeNode::get_player_pose);
     ClassDB::bind_method(D_METHOD("get_player_ids"), &GpfRuntimeNode::get_player_ids);
     ClassDB::bind_method(D_METHOD("get_human_player_id"), &GpfRuntimeNode::get_human_player_id);
@@ -816,6 +818,10 @@ PackedInt32Array GpfRuntimeNode::get_goal_net_edges() const {
         edges[i] = source[i];
     }
     return edges;
+}
+
+Ref<Image> GpfRuntimeNode::generate_pitch_texture(int width, int height) const {
+    return ProceduralPitch::generate(width, height);
 }
 
 Dictionary GpfRuntimeNode::get_player_pose(int player_id) const {
