@@ -3,8 +3,12 @@
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/packed_int32_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/vector3.hpp>
+
+#include "onthepitch/net/netsim.hpp"
 
 class Match;
 
@@ -21,6 +25,7 @@ private:
     bool ended_in_regular_time = false;
     bool phase_break_pending = false;
     int phase_break_next_phase = 0;
+    bool park_opponents = false;
     int last_match_phase = 0;
     bool human_control = true;
     float match_duration = 1.0f;
@@ -31,10 +36,16 @@ private:
     String last_error;
 
     Match *match = nullptr;
+    netsim::Net goal_nets[2];
+    netsim::Params goal_net_params;
+    blunted::Vector3 goal_net_prev_ball;
+    unsigned long goal_net_prev_time_ms = 0;
+    bool goal_nets_ready = false;
 
     bool start_runtime();
     void step_one_tick();
     void put_frame(unsigned long put_time_ms);
+    void update_goal_nets(unsigned long put_time_ms);
     Dictionary build_player(int player_id) const;
 
 protected:
@@ -63,12 +74,15 @@ public:
     void start_runtime_now();
     void step_fixed(int ticks);
     Dictionary get_snapshot() const;
+    PackedVector3Array get_goal_net_positions(int goal) const;
+    PackedInt32Array get_goal_net_edges() const;
     Dictionary get_player_pose(int player_id) const;
     Array get_player_ids() const;
     int get_human_player_id() const;
     int get_human_team_id() const;
     void select_player(int player_id);
     void start_open_play(int player_id);
+    bool toggle_debug_park_opponents();
     bool begin_phase_break();
     void continue_after_phase_break();
     bool is_set_piece_taker_menu_available() const;

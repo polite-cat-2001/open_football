@@ -29,19 +29,42 @@ func _run() -> void:
 	runtime.set("data_root", DATA_ROOT)
 	for i in 4:
 		await process_frame
+	var net0 := scene.get_node_or_null("Goals/GoalNet0") as MeshInstance3D
+	_check(net0 != null and net0.mesh != null and net0.mesh.get_surface_count() > 0,
+		"dynamic goal net is built")
 
 	var ids: Array = runtime.get_player_ids()
 	var outfield := -1
+	var opponent_outfield := -1
 	for entry in ids:
-		if int(entry.get("team", -1)) == 0 and String(entry.get("role", "")) == "player":
+		if String(entry.get("role", "")) != "player":
+			continue
+		if int(entry.get("team", -1)) == 0 and outfield < 0:
 			outfield = int(entry.get("id", -1))
-			break
+		elif int(entry.get("team", -1)) == 1 and opponent_outfield < 0:
+			opponent_outfield = int(entry.get("id", -1))
 	_check(outfield >= 0, "outfield exists")
-	if outfield < 0:
+	_check(opponent_outfield >= 0, "opponent outfield exists")
+	if outfield < 0 or opponent_outfield < 0:
 		_finish()
 		return
+
 	runtime.start_open_play(outfield)
 	runtime.step_fixed(120)
+
+	scene.call("_input", _key(KEY_F2))
+	await process_frame
+	_check(bool(runtime.get_snapshot().get("debug_park_opponents", false)),
+		"F2 parks opponent outfielders")
+	var bodies: Dictionary = scene.get("actor_bodies")
+	var red_body: Node3D = bodies.get(opponent_outfield)
+	_check(red_body != null and not red_body.visible, "parked opponent is hidden")
+	scene.call("_input", _key(KEY_F2))
+	await process_frame
+	_check(not bool(runtime.get_snapshot().get("debug_park_opponents", false)),
+		"F2 restores opponent outfielders")
+	_check(red_body != null and red_body.visible, "opponent is visible again")
+
 	runtime.debug_force_set_piece(3, 0)
 	var snap: Dictionary = {}
 	for i in 500:
