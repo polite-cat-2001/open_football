@@ -1,4 +1,4 @@
-extends Node3D
+﻿extends Node3D
 
 @onready var runtime := $GpfRuntime
 @onready var pitch := $MatchNode
@@ -70,6 +70,7 @@ var shot_taken := false
 var demo := OS.get_environment("GPF_DEMO") != ""
 var hud: Label
 var score_hud: Label
+var penalty_reticle: MeshInstance3D
 
 func _ready() -> void:
 	gpf_space = Node3D.new()
@@ -83,6 +84,7 @@ func _ready() -> void:
 	gpf_space.add_child(ball_root)
 
 	_build_goals()
+	_build_penalty_reticle()
 	_build_hud()
 	runtime.start_runtime_now()
 	if not runtime.is_runtime_ready():
@@ -91,7 +93,8 @@ func _ready() -> void:
 
 	var ids: Array = runtime.get_player_ids()
 	for entry in ids:
-		if int(entry.get("team", -1)) == 0 and int(entry.get("id", -1)) != 0:
+		if int(entry.get("team", -1)) == 0 and int(entry.get("id", -1)) != 0 \
+				and String(entry.get("role", "player")) != "goalkeeper":
 			display_player_id = int(entry.get("id"))
 			break
 	if display_player_id >= 0:
@@ -154,21 +157,27 @@ func _process(_delta: float) -> void:
 		if id == display_player_id:
 			player = pose
 	_update_camera(snap)
+	_update_penalty_reticle(snap)
 	if hud != null:
 		var status := _status_text(snap, player)
 		if score_hud != null:
+			var phase_text := _phase_name(int(snap.get("match_phase", 0)))
+			if bool(snap.get("game_over", false)):
+				phase_text = "FULL TIME"
 			score_hud.text = "%d : %d    %s    %s" % [
 				int(snap.get("score0", 0)),
 				int(snap.get("score1", 0)),
 				_format_clock(int(snap.get("match_time_ms", 0))),
-				_phase_name(int(snap.get("match_phase", 0))),
+				phase_text,
 			]
-		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   Q switch" % [
+		var match_minutes := 5 + int(round(20.0 * float(runtime.get("match_duration"))))
+		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P keeper pen   F free kick   Y corner   G goal kick   K keeper" % [
 			status,
 			int(snap.get("tick", 0)),
 			(snap.get("ball_pos", Vector3.ZERO) as Vector3).x,
 			(snap.get("ball_pos", Vector3.ZERO) as Vector3).y,
 			actors.size(),
+			match_minutes,
 		]
 	frames += 1
 	if shot_path != "" and not shot_taken and frames >= shot_frame:
@@ -212,6 +221,29 @@ func _input(event: InputEvent) -> void:
 	var key_event := event as InputEventKey
 	if key_event.echo:
 		return
+	var human_team: int = runtime.get_human_team_id()
+	if human_team < 0:
+		human_team = 0
+	var set_piece_keys := {
+		KEY_P: 6,
+		KEY_F: 3,
+		KEY_Y: 4,
+		KEY_G: 2,
+	}
+	if set_piece_keys.has(key_event.keycode):
+		if key_event.pressed:
+			var team := human_team
+			if key_event.alt_pressed:
+				team = 1 - human_team
+			var set_piece_type: int = set_piece_keys[key_event.keycode]
+			runtime.debug_force_set_piece(set_piece_type, team)
+			if set_piece_type == 6 and team != human_team:
+				runtime.select_goalkeeper(human_team)
+		return
+	if key_event.keycode == KEY_K:
+		if key_event.pressed:
+			runtime.select_goalkeeper(human_team)
+		return
 	var functions: Array = BUTTONS.get(key_event.keycode, [])
 	for function in functions:
 		runtime.set_button(int(function), key_event.pressed)
@@ -236,13 +268,16 @@ func _run_demo() -> void:
 
 func _status_text(snap: Dictionary, player: Dictionary) -> String:
 	if bool(snap.get("game_over", false)):
-		return "FULL TIME"
+		return "MATCH OVER"
 	if bool(snap.get("paused", false)):
 		return "PAUSED"
 	if bool(snap.get("goal_scored", false)):
-		return "GOAL — restart"
+		return "GOAL вЂ” restart"
 	var piece := int(snap.get("referee_set_piece", 0))
+	var role := int(snap.get("set_piece_role", 0))
 	if bool(snap.get("in_set_piece", false)):
+		if role == 2:
+			return "PENALTY - keeper: arrows to dive"
 		var piece_name := _set_piece_name(piece)
 		if piece_name == "":
 			piece_name = _set_piece_name(int(snap.get("set_piece_type", 0)))
@@ -251,11 +286,16 @@ func _status_text(snap: Dictionary, player: Dictionary) -> String:
 		var taker := int(snap.get("referee_taker", -1))
 		if taker < 0:
 			taker = int(snap.get("set_piece_taker", -1))
+		if role == 1:
+			if piece == 6:
+				return "PENALTY - arrows aim, D shot"
+			if piece == 2 or piece == 3 or piece == 4:
+				return "%s - arrows aim, S/D kick" % piece_name
 		if taker == int(player.get("id", -1)):
-			return "%s — S pass / D shot" % piece_name
-		return "%s — waiting" % piece_name
+			return "%s - S pass / D shot" % piece_name
+		return "%s - waiting" % piece_name
 	if bool(snap.get("referee_active", false)) and piece != 0:
-		return "%s — setup" % _set_piece_name(piece)
+		return "%s вЂ” setup" % _set_piece_name(piece)
 	if bool(snap.get("in_play", false)):
 		return "LIVE"
 	return "PRE-MATCH"
@@ -273,6 +313,35 @@ func _set_piece_name(piece: int) -> String:
 	if piece > 0 and piece < SET_PIECE_NAMES.size():
 		return SET_PIECE_NAMES[piece]
 	return ""
+
+func _build_penalty_reticle() -> void:
+	penalty_reticle = MeshInstance3D.new()
+	penalty_reticle.name = "PenaltyReticle"
+	var ring := TorusMesh.new()
+	ring.inner_radius = 0.22
+	ring.outer_radius = 0.32
+	ring.rings = 24
+	ring.ring_segments = 8
+	penalty_reticle.mesh = ring
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(1.0, 0.85, 0.15)
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.no_depth_test = true
+	penalty_reticle.material_override = material
+	penalty_reticle.rotation = Vector3(0, 0, PI / 2.0)
+	penalty_reticle.visible = false
+	gpf_space.add_child(penalty_reticle)
+
+func _update_penalty_reticle(snap: Dictionary) -> void:
+	if penalty_reticle == null:
+		return
+	var role := int(snap.get("set_piece_role", 0))
+	var type := int(snap.get("presentation_type", 0))
+	var aim: Vector3 = snap.get("set_piece_aim_point", Vector3.ZERO)
+	var show := role == 1 and type == 6 and aim.length() > 0.01
+	penalty_reticle.visible = show
+	if show:
+		penalty_reticle.position = aim
 
 func _build_goals() -> void:
 	var goals := Node3D.new()
