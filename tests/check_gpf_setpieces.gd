@@ -1,7 +1,7 @@
 extends SceneTree
 # Headless smoke test for the of_port set-piece bridge: penalty as taker/keeper,
 # set-piece camera and human selection. One scenario per process:
-#   GPF_SCENARIO=taker|keeper|free|corner|goal
+#   GPF_SCENARIO=taker|keeper|free|corner|goal|throw|kickoff
 # Run: godot --headless --path . -s res://tests/check_gpf_setpieces.gd
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
@@ -79,6 +79,10 @@ func _run() -> void:
 		type = 4
 	elif scenario == "goal":
 		type = 2
+	elif scenario == "throw":
+		type = 5
+	elif scenario == "kickoff":
+		type = 1
 	runtime.debug_force_set_piece(type, team)
 
 	var found := false
@@ -99,6 +103,8 @@ func _run() -> void:
 		_check(human_id >= 0, "human keeps an outfield selection")
 		_check(int(snap.get("referee_taker", -1)) != keeper, "opponent takes the penalty")
 		_check(int(snap.get("set_piece_role", 0)) == 0, "keeper is not selected as a set-piece role")
+		_check(not bool(snap.get("set_piece_local_taker", true)), "defender has no taker menu")
+		_check(not runtime.is_set_piece_taker_menu_available(), "defender cannot open taker menu")
 		runtime.set_button(1, true)
 		var dove := false
 		for i in 600:
@@ -109,9 +115,38 @@ func _run() -> void:
 				break
 		runtime.set_button(1, false)
 		_check(dove, "keeper plays a dive/deflect after the taker's touch")
+	elif scenario == "kickoff":
+		_check(not bool(snap.get("set_piece_local_taker", true)), "kickoff has no taker menu hint")
+		_check(not bool(snap.get("set_piece_taker_menu_available", true)), "kickoff has no taker menu")
+		_check(not runtime.is_set_piece_taker_menu_available(), "kickoff cannot open the taker menu")
 	else:
 		_check(human_id == int(snap.get("referee_taker", -2)), "human takes the set piece")
 		_check(int(snap.get("set_piece_role", 0)) == 1, "human has the kicker role")
+		_check(bool(snap.get("set_piece_local_taker", false)), "local taker is exposed")
 		if scenario == "taker":
 			_check((snap.get("set_piece_aim_point", Vector3.ZERO) as Vector3).length() > 0.01, "penalty reticle aim is exposed")
-	_check((snap.get("camera_pos", Vector3.ZERO) as Vector3).distance_to(before_camera) > 0.01, "set-piece camera moved")
+		_test_taker_menu()
+	if scenario != "throw" and scenario != "kickoff":
+		_check((snap.get("camera_pos", Vector3.ZERO) as Vector3).distance_to(before_camera) > 0.01, "set-piece camera moved")
+
+func _test_taker_menu() -> void:
+	var menu_snap: Dictionary = runtime.get_snapshot()
+	_check(bool(menu_snap.get("set_piece_taker_menu_available", false)), "taker menu is available")
+	var candidates: Array = runtime.get_set_piece_taker_candidates()
+	_check(candidates.size() > 1, "taker candidates are listed")
+	var current := int(menu_snap.get("referee_taker", -1))
+	var chosen := -1
+	for entry in candidates:
+		if int(entry.get("id", -1)) != current and String(entry.get("role", "")) != "goalkeeper":
+			chosen = int(entry.get("id", -1))
+			break
+	_check(chosen >= 0, "another outfield taker exists")
+	if chosen < 0:
+		return
+	_check(runtime.open_set_piece_taker_menu(), "taker menu opens")
+	_check(runtime.is_set_piece_taker_menu_open(), "taker menu is open")
+	runtime.request_set_piece_taker(chosen)
+	runtime.close_set_piece_taker_menu()
+	_check(not runtime.is_set_piece_taker_menu_open(), "taker menu closes")
+	var after := _step(5)
+	_check(int(after.get("referee_taker", -1)) == chosen, "chosen taker is applied")

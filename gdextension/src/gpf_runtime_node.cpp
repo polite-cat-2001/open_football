@@ -78,6 +78,12 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_human_team_id"), &GpfRuntimeNode::get_human_team_id);
     ClassDB::bind_method(D_METHOD("select_player", "player_id"), &GpfRuntimeNode::select_player);
     ClassDB::bind_method(D_METHOD("start_open_play", "player_id"), &GpfRuntimeNode::start_open_play);
+    ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_available"), &GpfRuntimeNode::is_set_piece_taker_menu_available);
+    ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_open"), &GpfRuntimeNode::is_set_piece_taker_menu_open);
+    ClassDB::bind_method(D_METHOD("open_set_piece_taker_menu"), &GpfRuntimeNode::open_set_piece_taker_menu);
+    ClassDB::bind_method(D_METHOD("close_set_piece_taker_menu"), &GpfRuntimeNode::close_set_piece_taker_menu);
+    ClassDB::bind_method(D_METHOD("request_set_piece_taker", "player_id"), &GpfRuntimeNode::request_set_piece_taker);
+    ClassDB::bind_method(D_METHOD("get_set_piece_taker_candidates"), &GpfRuntimeNode::get_set_piece_taker_candidates);
     ClassDB::bind_method(D_METHOD("get_tick"), &GpfRuntimeNode::get_tick);
     ClassDB::bind_method(D_METHOD("set_button", "index", "pressed"), &GpfRuntimeNode::set_button);
     ClassDB::bind_method(D_METHOD("set_move", "x", "y"), &GpfRuntimeNode::set_move);
@@ -373,6 +379,87 @@ int GpfRuntimeNode::get_human_team_id() const {
     return -1;
 }
 
+bool GpfRuntimeNode::is_set_piece_taker_menu_available() const {
+    if (!runtime_ready || !match) {
+        return false;
+    }
+    SetPiecePresentation *presentation = match->GetSetPiecePresentation();
+    return presentation && presentation->IsLocalTaker() &&
+           presentation->GetType() != e_SetPiece_KickOff &&
+           !match->IsSetPieceTakerMenuInputBlocked();
+}
+
+bool GpfRuntimeNode::is_set_piece_taker_menu_open() const {
+    return runtime_ready && match && match->IsSetPieceTakerMenuOpen();
+}
+
+bool GpfRuntimeNode::open_set_piece_taker_menu() {
+    if (!is_set_piece_taker_menu_available()) {
+        return false;
+    }
+    match->SetSetPieceTakerMenuOpen(true);
+    return true;
+}
+
+void GpfRuntimeNode::close_set_piece_taker_menu() {
+    if (match) {
+        match->SetSetPieceTakerMenuOpen(false);
+    }
+}
+
+void GpfRuntimeNode::request_set_piece_taker(int player_id) {
+    if (!runtime_ready || !match) {
+        return;
+    }
+    SetPiecePresentation *presentation = match->GetSetPiecePresentation();
+    Player *taker = presentation ? presentation->GetTaker() : nullptr;
+    if (!taker) {
+        taker = match->GetRefereeBuffer().taker;
+    }
+    if (!taker) {
+        return;
+    }
+    std::vector<Player *> players;
+    taker->GetTeam()->GetActivePlayers(players);
+    for (size_t i = 0; i < players.size(); ++i) {
+        if (players[i]->GetID() == player_id) {
+            match->RequestSetPieceTaker(players[i]);
+            return;
+        }
+    }
+}
+
+Array GpfRuntimeNode::get_set_piece_taker_candidates() const {
+    Array result;
+    if (!runtime_ready || !match) {
+        return result;
+    }
+    SetPiecePresentation *presentation = match->GetSetPiecePresentation();
+    Player *taker = presentation ? presentation->GetTaker() : nullptr;
+    if (!taker) {
+        taker = match->GetRefereeBuffer().taker;
+    }
+    if (!taker) {
+        return result;
+    }
+    std::vector<Player *> players;
+    taker->GetTeam()->GetActivePlayers(players);
+    for (size_t i = 0; i < players.size(); ++i) {
+        Player *player = players[i];
+        if (!player || !player->IsActive()) {
+            continue;
+        }
+        Dictionary entry;
+        entry["id"] = player->GetID();
+        entry["team"] = player->GetTeamID();
+        entry["name"] = String(player->GetPlayerData()->GetLastName().c_str());
+        entry["role"] = player == taker->GetTeam()->GetGoalie() ? "goalkeeper" : "player";
+        entry["current"] = player == taker;
+        result.append(entry);
+    }
+    return result;
+}
+
 void GpfRuntimeNode::select_player(int player_id) {
     if (!runtime_ready || !match) {
         return;
@@ -504,6 +591,10 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["set_piece_role"] = (int)set_piece_hud.role;
     result["set_piece_aim_point"] = to_godot(set_piece_hud.aimPoint);
     result["set_piece_charge"] = set_piece_hud.chargeRatio;
+    result["set_piece_local_taker"] = presentation && presentation->IsLocalTaker() &&
+        presentation->GetType() != e_SetPiece_KickOff;
+    result["set_piece_taker_menu_available"] = is_set_piece_taker_menu_available();
+    result["set_piece_taker_menu_open"] = match->IsSetPieceTakerMenuOpen();
     const RefereeBuffer &referee_buffer = match->GetRefereeBuffer();
     result["referee_active"] = referee_buffer.active;
     result["referee_set_piece"] = (int)referee_buffer.desiredSetPiece;
@@ -645,6 +736,14 @@ void GpfRuntimeNode::debug_force_set_piece(int set_piece_type, int team_id) {
     case e_SetPiece_KickOff:
         restart = blunted::Vector3(0.0f);
         break;
+    case e_SetPiece_ThrowIn: {
+        const blunted::Vector3 ballPos = match->GetBall()->Predict(0).Get2D();
+        float x = ballPos.coords[0];
+        if (x < -pitchHalfW + 1.0f) x = -pitchHalfW + 1.0f;
+        if (x > pitchHalfW - 1.0f) x = pitchHalfW - 1.0f;
+        restart = blunted::Vector3(x, ballPos.coords[1] >= 0.0f ? pitchHalfH : -pitchHalfH, 0.0f);
+        break;
+    }
     default:
         break;
     }
