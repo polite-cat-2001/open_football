@@ -80,8 +80,6 @@ func _run() -> void:
 	elif scenario == "goal":
 		type = 2
 	runtime.debug_force_set_piece(type, team)
-	if scenario == "keeper":
-		runtime.select_goalkeeper(0)
 
 	var found := false
 	for i in 500:
@@ -96,9 +94,21 @@ func _run() -> void:
 	var human_id := int(runtime.get_human_player_id())
 	print("human_id=", human_id, " taker=", snap.get("referee_taker"), " keeper=", keeper)
 	if scenario == "keeper":
-		_check(human_id == keeper, "human controls the defending goalkeeper")
+		_check(int(runtime.get_human_team_id()) == 0, "human defends as team 0")
+		_check(human_id != keeper, "keeper stays AI-controlled on penalty defense")
+		_check(human_id >= 0, "human keeps an outfield selection")
 		_check(int(snap.get("referee_taker", -1)) != keeper, "opponent takes the penalty")
-		_check(int(snap.get("set_piece_role", 0)) == 2, "human has the keeper role")
+		_check(int(snap.get("set_piece_role", 0)) == 0, "keeper is not selected as a set-piece role")
+		runtime.set_button(1, true)
+		var dove := false
+		for i in 600:
+			_step(10)
+			var keeper_pose: Dictionary = runtime.get_player_pose(keeper)
+			if int(keeper_pose.get("function", -1)) == 9:
+				dove = true
+				break
+		runtime.set_button(1, false)
+		_check(dove, "keeper plays a dive/deflect after the taker's touch")
 	else:
 		_check(human_id == int(snap.get("referee_taker", -2)), "human takes the set piece")
 		_check(int(snap.get("set_piece_role", 0)) == 1, "human has the kicker role")

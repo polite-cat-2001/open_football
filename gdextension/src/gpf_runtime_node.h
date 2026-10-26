@@ -20,7 +20,6 @@ private:
     bool game_over_seen = false;
     bool ended_in_regular_time = false;
     int last_match_phase = 0;
-    int forced_keeper_team = -1;
     bool human_control = true;
     float match_duration = 1.0f;
     double accumulator_ms = 0.0;
@@ -33,7 +32,6 @@ private:
 
     bool start_runtime();
     void step_one_tick();
-    void enforce_forced_keeper();
     void put_frame(unsigned long put_time_ms);
     Dictionary build_player(int player_id) const;
 
@@ -68,7 +66,6 @@ public:
     int get_human_player_id() const;
     int get_human_team_id() const;
     void select_player(int player_id);
-    void select_goalkeeper(int team_id);
     void start_open_play(int player_id);
     int get_tick() const;
     void set_button(int index, bool pressed);
