@@ -67,6 +67,12 @@ public:
     int get_human_team_id() const;
     void select_player(int player_id);
     void start_open_play(int player_id);
+    bool is_set_piece_taker_menu_available() const;
+    bool is_set_piece_taker_menu_open() const;
+    bool open_set_piece_taker_menu();
+    void close_set_piece_taker_menu();
+    void request_set_piece_taker(int player_id);
+    Array get_set_piece_taker_candidates() const;
     int get_tick() const;
     void set_button(int index, bool pressed);
     void set_move(double x, double y);

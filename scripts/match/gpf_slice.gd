@@ -17,7 +17,6 @@ const BUTTONS := {
 	KEY_Z: [13],
 	KEY_E: [14],
 	KEY_C: [15],
-	KEY_F1: [16],
 	KEY_ENTER: [17],
 }
 
@@ -70,7 +69,13 @@ var shot_taken := false
 var demo := OS.get_environment("GPF_DEMO") != ""
 var hud: Label
 var score_hud: Label
+var taker_hint: Label
 var penalty_reticle: MeshInstance3D
+var taker_menu_layer: CanvasLayer
+var taker_menu_label: Label
+var taker_menu_open := false
+var taker_menu_candidates: Array = []
+var taker_menu_index := 0
 
 func _ready() -> void:
 	gpf_space = Node3D.new()
@@ -86,6 +91,7 @@ func _ready() -> void:
 	_build_goals()
 	_build_penalty_reticle()
 	_build_hud()
+	_build_taker_menu()
 	runtime.start_runtime_now()
 	if not runtime.is_runtime_ready():
 		push_error("GpfRuntime failed: " + str(runtime.get_last_error()))
@@ -158,6 +164,7 @@ func _process(_delta: float) -> void:
 			player = pose
 	_update_camera(snap)
 	_update_penalty_reticle(snap)
+	_sync_taker_ui(snap)
 	if hud != null:
 		var status := _status_text(snap, player)
 		if score_hud != null:
@@ -171,7 +178,7 @@ func _process(_delta: float) -> void:
 				phase_text,
 			]
 		var match_minutes := 5 + int(round(20.0 * float(runtime.get("match_duration"))))
-		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick" % [
+		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker" % [
 			status,
 			int(snap.get("tick", 0)),
 			(snap.get("ball_pos", Vector3.ZERO) as Vector3).x,
@@ -224,11 +231,19 @@ func _input(event: InputEvent) -> void:
 	var human_team: int = runtime.get_human_team_id()
 	if human_team < 0:
 		human_team = 0
+	if key_event.keycode == KEY_TAB:
+		if key_event.pressed:
+			_toggle_taker_menu()
+		return
+	if taker_menu_open:
+		_handle_taker_menu_key(key_event)
+		return
 	var set_piece_keys := {
 		KEY_P: 6,
 		KEY_F: 3,
 		KEY_Y: 4,
 		KEY_G: 2,
+		KEY_O: 5,
 	}
 	if set_piece_keys.has(key_event.keycode):
 		if key_event.pressed:
@@ -241,6 +256,81 @@ func _input(event: InputEvent) -> void:
 	var functions: Array = BUTTONS.get(key_event.keycode, [])
 	for function in functions:
 		runtime.set_button(int(function), key_event.pressed)
+
+func _toggle_taker_menu() -> void:
+	if taker_menu_open:
+		_close_taker_menu(false)
+		return
+	if not runtime.is_set_piece_taker_menu_available():
+		return
+	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_S) \
+			or Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_A):
+		return
+	if not runtime.open_set_piece_taker_menu():
+		return
+	taker_menu_candidates = runtime.get_set_piece_taker_candidates()
+	if taker_menu_candidates.is_empty():
+		runtime.close_set_piece_taker_menu()
+		return
+	taker_menu_index = 0
+	for i in taker_menu_candidates.size():
+		if bool(taker_menu_candidates[i].get("current", false)):
+			taker_menu_index = i
+			break
+	taker_menu_open = true
+	taker_menu_layer.visible = true
+	_refresh_taker_menu()
+
+func _handle_taker_menu_key(event: InputEventKey) -> void:
+	if not event.pressed:
+		return
+	match event.keycode:
+		KEY_UP:
+			_move_taker_menu(-1)
+		KEY_DOWN:
+			_move_taker_menu(1)
+		KEY_ENTER, KEY_KP_ENTER:
+			_close_taker_menu(true)
+		KEY_ESCAPE:
+			_close_taker_menu(false)
+		KEY_D, KEY_S, KEY_W, KEY_A, KEY_Q, KEY_E, KEY_C:
+			_close_taker_menu(false)
+
+func _move_taker_menu(delta: int) -> void:
+	var count := taker_menu_candidates.size()
+	if count == 0:
+		return
+	taker_menu_index = (taker_menu_index + delta + count) % count
+	_refresh_taker_menu()
+
+func _refresh_taker_menu() -> void:
+	var lines := PackedStringArray()
+	for i in taker_menu_candidates.size():
+		var entry: Dictionary = taker_menu_candidates[i]
+		var prefix := "> " if i == taker_menu_index else "  "
+		var name := String(entry.get("name", ""))
+		var suffix := "  (GK)" if String(entry.get("role", "")) == "goalkeeper" else ""
+		var current := "  *" if bool(entry.get("current", false)) else ""
+		lines.append("%s%s%s%s" % [prefix, name, suffix, current])
+	taker_menu_label.text = "\n".join(lines)
+
+func _close_taker_menu(apply_choice: bool) -> void:
+	if not taker_menu_open:
+		return
+	if apply_choice and taker_menu_index >= 0 and taker_menu_index < taker_menu_candidates.size():
+		var chosen := int(taker_menu_candidates[taker_menu_index].get("id", -1))
+		if chosen >= 0:
+			runtime.request_set_piece_taker(chosen)
+	runtime.close_set_piece_taker_menu()
+	taker_menu_open = false
+	taker_menu_layer.visible = false
+
+func _sync_taker_ui(snap: Dictionary) -> void:
+	if taker_menu_open and not bool(snap.get("set_piece_taker_menu_open", false)):
+		_close_taker_menu(false)
+	if taker_hint != null:
+		taker_hint.visible = bool(snap.get("set_piece_local_taker", false)) \
+			and not taker_menu_open and bool(snap.get("in_set_piece", false))
 
 func _save_screenshot() -> void:
 	await RenderingServer.frame_post_draw
@@ -451,3 +541,70 @@ func _build_hud() -> void:
 	hud.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	hud.add_theme_constant_override("outline_size", 4)
 	layer.add_child(hud)
+
+	taker_hint = Label.new()
+	taker_hint.position = Vector2(24, 150)
+	taker_hint.add_theme_font_size_override("font_size", 18)
+	taker_hint.add_theme_color_override("font_color", Color(1.0, 0.86, 0.2))
+	taker_hint.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	taker_hint.add_theme_constant_override("outline_size", 4)
+	taker_hint.text = "Tab: change taker"
+	taker_hint.visible = false
+	layer.add_child(taker_hint)
+
+func _build_taker_menu() -> void:
+	taker_menu_layer = CanvasLayer.new()
+	taker_menu_layer.layer = 2
+	add_child(taker_menu_layer)
+
+	var backdrop := ColorRect.new()
+	backdrop.color = Color(0, 0, 0, 0.55)
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	taker_menu_layer.add_child(backdrop)
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	taker_menu_layer.add_child(center)
+
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(440, 0)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.06, 0.10, 0.96)
+	style.set_corner_radius_all(8)
+	style.set_border_width_all(2)
+	style.border_color = Color(1.0, 0.85, 0.25, 0.9)
+	panel.add_theme_stylebox_override("panel", style)
+	center.add_child(panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	panel.add_child(margin)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	margin.add_child(box)
+
+	var title := Label.new()
+	title.text = "SET-PIECE TAKER"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 24)
+	title.add_theme_color_override("font_color", Color(1.0, 0.86, 0.2))
+	box.add_child(title)
+
+	taker_menu_label = Label.new()
+	taker_menu_label.add_theme_font_size_override("font_size", 20)
+	taker_menu_label.add_theme_color_override("font_color", Color(0.96, 0.96, 0.96))
+	box.add_child(taker_menu_label)
+
+	var hint := Label.new()
+	hint.text = "Up/Down select    Enter apply    Esc/Tab close"
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 14)
+	hint.add_theme_color_override("font_color", Color(0.75, 0.78, 0.85))
+	box.add_child(hint)
+
+	taker_menu_layer.visible = false
