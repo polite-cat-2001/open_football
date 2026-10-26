@@ -61,6 +61,7 @@ target_compile_definitions(open_football_gdext PRIVATE
 target_link_libraries(open_football_gdext PRIVATE
     godot-cpp
     ${GPF_BUILD}/Release/gamelib.lib
+    ${GPF_BUILD}/Release/netlib.lib
     ${GPF_BUILD}/Release/hidlib.lib
     ${GPF_BUILD}/Release/menulib.lib
     ${GPF_BUILD}/Release/datalib.lib
@@ -95,8 +96,10 @@ set_target_properties(open_football_gdext PROPERTIES
 
 # Original runtime dependencies (SDL/OpenAL/Boost/sqlite) must be next to the DLL.
 file(GLOB GPF_RUNTIME_DLLS "${GPF_BUILD}/Release/*.dll")
-add_custom_command(TARGET open_football_gdext POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GPF_RUNTIME_DLLS}
-            "$<TARGET_FILE_DIR:open_football_gdext>"
-    COMMENT "Copying GameplayFootball runtime DLLs next to the GDExtension"
-)
+if(GPF_RUNTIME_DLLS)
+    add_custom_command(TARGET open_football_gdext POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GPF_RUNTIME_DLLS}
+                "$<TARGET_FILE_DIR:open_football_gdext>"
+        COMMENT "Copying GameplayFootball runtime DLLs next to the GDExtension"
+    )
+endif()

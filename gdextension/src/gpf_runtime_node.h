@@ -18,6 +18,11 @@ private:
     bool runtime_failed = false;
     bool manual_step = false;
     bool game_over_seen = false;
+    bool ended_in_regular_time = false;
+    int last_match_phase = 0;
+    int forced_keeper_team = -1;
+    bool human_control = true;
+    float match_duration = 1.0f;
     double accumulator_ms = 0.0;
     unsigned long sim_time_ms = 0;
     int seed = 42;
@@ -28,6 +33,7 @@ private:
 
     bool start_runtime();
     void step_one_tick();
+    void enforce_forced_keeper();
     void put_frame(unsigned long put_time_ms);
     Dictionary build_player(int player_id) const;
 
@@ -47,6 +53,10 @@ public:
     int get_seed() const;
     void set_manual_step(bool value);
     bool get_manual_step() const;
+    void set_human_control(bool value);
+    bool get_human_control() const;
+    void set_match_duration(float value);
+    float get_match_duration() const;
     bool is_runtime_ready() const;
     String get_last_error() const;
 
@@ -56,7 +66,9 @@ public:
     Dictionary get_player_pose(int player_id) const;
     Array get_player_ids() const;
     int get_human_player_id() const;
+    int get_human_team_id() const;
     void select_player(int player_id);
+    void select_goalkeeper(int team_id);
     void start_open_play(int player_id);
     int get_tick() const;
     void set_button(int index, bool pressed);
@@ -66,6 +78,7 @@ public:
     // raw X = pitch length, raw Y = pitch width, raw Z = up.
     void debug_set_ball(const Vector3 &position, const Vector3 &momentum);
     void debug_set_last_touch_team(int team_id);
+    void debug_force_set_piece(int set_piece_type, int team_id);
 };
 
 } // namespace godot

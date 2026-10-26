@@ -1,4 +1,4 @@
-#include "gpf_runtime_node.h"
+﻿#include "gpf_runtime_node.h"
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/classes/os.hpp>
@@ -13,6 +13,8 @@
 #include "data/matchdata.hpp"
 #include "onthepitch/match.hpp"
 #include "onthepitch/player/player.hpp"
+#include "onthepitch/referee.hpp"
+#include "onthepitch/setpiece/setpiecepresentation.hpp"
 #include "onthepitch/team.hpp"
 #include "base/math/bluntmath.hpp"
 #include "managers/usereventmanager.hpp"
@@ -61,6 +63,10 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_seed"), &GpfRuntimeNode::get_seed);
     ClassDB::bind_method(D_METHOD("set_manual_step", "value"), &GpfRuntimeNode::set_manual_step);
     ClassDB::bind_method(D_METHOD("get_manual_step"), &GpfRuntimeNode::get_manual_step);
+    ClassDB::bind_method(D_METHOD("set_human_control", "value"), &GpfRuntimeNode::set_human_control);
+    ClassDB::bind_method(D_METHOD("get_human_control"), &GpfRuntimeNode::get_human_control);
+    ClassDB::bind_method(D_METHOD("set_match_duration", "value"), &GpfRuntimeNode::set_match_duration);
+    ClassDB::bind_method(D_METHOD("get_match_duration"), &GpfRuntimeNode::get_match_duration);
     ClassDB::bind_method(D_METHOD("is_runtime_ready"), &GpfRuntimeNode::is_runtime_ready);
     ClassDB::bind_method(D_METHOD("get_last_error"), &GpfRuntimeNode::get_last_error);
     ClassDB::bind_method(D_METHOD("start_runtime_now"), &GpfRuntimeNode::start_runtime_now);
@@ -69,17 +75,22 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_player_pose", "player_id"), &GpfRuntimeNode::get_player_pose);
     ClassDB::bind_method(D_METHOD("get_player_ids"), &GpfRuntimeNode::get_player_ids);
     ClassDB::bind_method(D_METHOD("get_human_player_id"), &GpfRuntimeNode::get_human_player_id);
+    ClassDB::bind_method(D_METHOD("get_human_team_id"), &GpfRuntimeNode::get_human_team_id);
     ClassDB::bind_method(D_METHOD("select_player", "player_id"), &GpfRuntimeNode::select_player);
+    ClassDB::bind_method(D_METHOD("select_goalkeeper", "team_id"), &GpfRuntimeNode::select_goalkeeper);
     ClassDB::bind_method(D_METHOD("start_open_play", "player_id"), &GpfRuntimeNode::start_open_play);
     ClassDB::bind_method(D_METHOD("get_tick"), &GpfRuntimeNode::get_tick);
     ClassDB::bind_method(D_METHOD("set_button", "index", "pressed"), &GpfRuntimeNode::set_button);
     ClassDB::bind_method(D_METHOD("set_move", "x", "y"), &GpfRuntimeNode::set_move);
     ClassDB::bind_method(D_METHOD("debug_set_ball", "position", "momentum"), &GpfRuntimeNode::debug_set_ball);
     ClassDB::bind_method(D_METHOD("debug_set_last_touch_team", "team_id"), &GpfRuntimeNode::debug_set_last_touch_team);
+    ClassDB::bind_method(D_METHOD("debug_force_set_piece", "set_piece_type", "team_id"), &GpfRuntimeNode::debug_force_set_piece);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "data_root"), "set_data_root", "get_data_root");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "seed"), "set_seed", "get_seed");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "manual_step"), "set_manual_step", "get_manual_step");
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "human_control"), "set_human_control", "get_human_control");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "match_duration"), "set_match_duration", "get_match_duration");
 }
 
 void GpfRuntimeNode::_ready() {
@@ -89,7 +100,7 @@ void GpfRuntimeNode::_ready() {
 }
 
 void GpfRuntimeNode::_process(double delta) {
-    if (!runtime_ready || manual_step) {
+    if (!runtime_ready || manual_step || game_over_seen) {
         return;
     }
 
@@ -101,6 +112,7 @@ void GpfRuntimeNode::_process(double delta) {
         accumulator_ms -= (double)TICK_MS;
         step_one_tick();
         ++steps;
+        if (game_over_seen) break;
     }
 
     double alpha = std::clamp(accumulator_ms / (double)TICK_MS, 0.0, 0.999);
@@ -130,6 +142,22 @@ void GpfRuntimeNode::set_manual_step(bool value) {
 
 bool GpfRuntimeNode::get_manual_step() const {
     return manual_step;
+}
+
+void GpfRuntimeNode::set_human_control(bool value) {
+    human_control = value;
+}
+
+bool GpfRuntimeNode::get_human_control() const {
+    return human_control;
+}
+
+void GpfRuntimeNode::set_match_duration(float value) {
+    match_duration = value;
+}
+
+float GpfRuntimeNode::get_match_duration() const {
+    return match_duration;
 }
 
 bool GpfRuntimeNode::is_runtime_ready() const {
@@ -183,7 +211,7 @@ bool GpfRuntimeNode::start_runtime() {
     config->Set("graphics3d_renderer", "mock");
     config->Set("audio_renderer", "mock");
     config->Set("match_difficulty", 0.8f);
-    config->Set("match_duration", 1.0f);
+    config->Set("match_duration", match_duration);
     config->Set("debug", false);
 
     blunted::Initialize(*config);
@@ -219,13 +247,15 @@ bool GpfRuntimeNode::start_runtime() {
     menuTask->SetMatchData(match_data);
 
     std::vector<SideSelection> sides;
-    SideSelection keyboard;
-    keyboard.controllerID = 0;
-    keyboard.joystickID = 0;
-    keyboard.controllerImage = 0;
-    keyboard.side = -1;
-    keyboard.confirmed = true;
-    sides.push_back(keyboard);
+    if (human_control) {
+        SideSelection keyboard;
+        keyboard.controllerID = 0;
+        keyboard.joystickID = 0;
+        keyboard.controllerImage = 0;
+        keyboard.side = -1;
+        keyboard.confirmed = true;
+        sides.push_back(keyboard);
+    }
     menuTask->SetControllerSetup(sides);
 
     blunted::randomize(seed);
@@ -243,6 +273,9 @@ bool GpfRuntimeNode::start_runtime() {
     // unpauses when the replay page closes. This slice has no replay UI, so resume
     // immediately; otherwise the whole match freezes forever after the first goal.
     game_over_seen = false;
+    ended_in_regular_time = false;
+    last_match_phase = (int)match->GetMatchPhase();
+    forced_keeper_team = -1;
     match->sig_OnExtendedReplayMoment.connect([](Match *m) { if (m) m->Pause(false); });
     match->sig_OnGameOver.connect([this](Match *m) {
         game_over_seen = true;
@@ -257,12 +290,35 @@ bool GpfRuntimeNode::start_runtime() {
 }
 
 void GpfRuntimeNode::step_one_tick() {
-    if (!runtime_ready || !match) {
+    if (!runtime_ready || !match || game_over_seen) {
         return;
     }
     sim_time_ms += TICK_MS;
     match->SetPresentationClock(true, sim_time_ms, sim_time_ms);
+    enforce_forced_keeper();
     gameTask->ProcessPhase();
+    enforce_forced_keeper();
+
+    // The original Referee switches to the next phase at the end of a period
+    // and only checks for a winner three seconds later, when the kickoff is
+    // prepared. That briefly exposes EXTRA TIME to the HUD even when the match
+    // is already decided. End such a match immediately, before that phase is
+    // ever played.
+    const e_MatchPhase phase = match->GetMatchPhase();
+    if ((int)phase != last_match_phase) {
+        const bool decisive = match->GetScore(0) != match->GetScore(1);
+        const bool ended_regular = phase == e_MatchPhase_1stExtraTime &&
+                                   last_match_phase == (int)e_MatchPhase_2ndHalf;
+        const bool ended_extra = phase == e_MatchPhase_2ndExtraTime &&
+                                 last_match_phase == (int)e_MatchPhase_1stExtraTime;
+        if (decisive && (ended_regular || ended_extra)) {
+            ended_in_regular_time = ended_regular;
+            game_over_seen = true;
+            match->Pause(true);
+            match->GameOver();
+        }
+        last_match_phase = (int)phase;
+    }
 }
 
 void GpfRuntimeNode::put_frame(unsigned long put_time_ms) {
@@ -304,6 +360,23 @@ int GpfRuntimeNode::get_human_player_id() const {
     return -1;
 }
 
+int GpfRuntimeNode::get_human_team_id() const {
+    if (!runtime_ready || !match) {
+        return -1;
+    }
+    for (int team_id = 0; team_id < 2; ++team_id) {
+        Team *team = match->GetTeam(team_id);
+        std::vector<Player *> players;
+        match->GetActiveTeamPlayers(team_id, players);
+        for (size_t i = 0; i < players.size(); ++i) {
+            if (team->IsHumanControlled(players[i]->GetID())) {
+                return team_id;
+            }
+        }
+    }
+    return -1;
+}
+
 void GpfRuntimeNode::select_player(int player_id) {
     if (!runtime_ready || !match) {
         return;
@@ -319,6 +392,37 @@ void GpfRuntimeNode::select_player(int player_id) {
     }
 }
 
+void GpfRuntimeNode::select_goalkeeper(int team_id) {
+    if (!runtime_ready || !match || team_id < 0 || team_id > 1) {
+        return;
+    }
+    forced_keeper_team = team_id;
+    Team *team = match->GetTeam(team_id);
+    Player *goalkeeper = team->GetGoalie();
+    if (goalkeeper) {
+        team->SetDesignatedTeamPossessionPlayer(goalkeeper);
+        team->SelectPlayer(goalkeeper);
+    }
+}
+
+void GpfRuntimeNode::enforce_forced_keeper() {
+    if (forced_keeper_team < 0 || !match) {
+        return;
+    }
+    const RefereeBuffer &buffer = match->GetRefereeBuffer();
+    if (!buffer.active || buffer.desiredSetPiece != e_SetPiece_Penalty) {
+        forced_keeper_team = -1;
+        return;
+    }
+    Team *team = match->GetTeam(forced_keeper_team);
+    Player *goalkeeper = team ? team->GetGoalie() : nullptr;
+    if (!goalkeeper) {
+        return;
+    }
+    team->SetDesignatedTeamPossessionPlayer(goalkeeper);
+    team->SelectPlayer(goalkeeper);
+}
+
 Array GpfRuntimeNode::get_player_ids() const {
     Array result;
     if (!runtime_ready || !match) {
@@ -331,7 +435,8 @@ Array GpfRuntimeNode::get_player_ids() const {
             Dictionary entry;
             entry["id"] = players[i]->GetID();
             entry["team"] = team_id;
-            entry["role"] = "player";
+            entry["role"] = players[i] == match->GetTeam(team_id)->GetGoalie()
+                ? "goalkeeper" : "player";
             result.append(entry);
         }
     }
@@ -380,6 +485,9 @@ Dictionary GpfRuntimeNode::build_player(int player_id) const {
     if (!actor) {
         return result;
     }
+    if (team_id >= 0 && actor == match->GetTeam(team_id)->GetGoalie()) {
+        role = "goalkeeper";
+    }
 
     result["id"] = actor->GetID();
     result["team"] = team_id;
@@ -412,10 +520,25 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["match_time_ms"] = (int)match->GetMatchTime_ms();
     result["in_play"] = match->IsInPlay();
     result["in_set_piece"] = match->IsInSetPiece();
-    result["match_phase"] = (int)match->GetMatchPhase();
+    result["match_phase"] = ended_in_regular_time
+        ? (int)e_MatchPhase_2ndHalf
+        : (int)match->GetMatchPhase();
+    result["ended_in_regular_time"] = ended_in_regular_time;
+    result["team0_side"] = (int)match->GetTeam(0)->GetSide();
+    result["team1_side"] = (int)match->GetTeam(1)->GetSide();
     Player *taker = match->GetTeam(0)->GetController()->GetPieceTaker();
     result["set_piece_taker"] = taker ? taker->GetID() : -1;
     result["set_piece_type"] = (int)match->GetTeam(0)->GetController()->GetSetPieceType();
+    SetPiecePresentation *presentation = match->GetSetPiecePresentation();
+    const int selected_id = get_human_player_id();
+    SetPieceHudState set_piece_hud;
+    if (presentation && selected_id >= 0) {
+        set_piece_hud = presentation->GetHudState(match->GetPlayer(selected_id));
+    }
+    result["presentation_type"] = presentation ? (int)presentation->GetType() : 0;
+    result["set_piece_role"] = (int)set_piece_hud.role;
+    result["set_piece_aim_point"] = to_godot(set_piece_hud.aimPoint);
+    result["set_piece_charge"] = set_piece_hud.chargeRatio;
     const RefereeBuffer &referee_buffer = match->GetRefereeBuffer();
     result["referee_active"] = referee_buffer.active;
     result["referee_set_piece"] = (int)referee_buffer.desiredSetPiece;
@@ -435,11 +558,14 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["ball_in_goal"] = match->IsBallInGoal();
     result["last_goal_team"] = match->GetLastGoalTeamID();
     result["last_touch_team"] = match->GetLastTouchTeamID();
+    result["ball_retainer"] = match->GetBallRetainer() ? match->GetBallRetainer()->GetID() : -1;
+    result["restart_pos"] = to_godot(referee_buffer.restartPos);
 
     boost::intrusive_ptr<blunted::Geometry> ball_geom = match->GetBall()->GetBallGeom();
     result["ball_pos"] = to_godot(ball_geom->GetDerivedPosition());
     result["ball_rot"] = to_godot(ball_geom->GetDerivedRotation());
     result["ball_vel"] = to_godot(match->GetBall()->GetMovement());
+    result["ball_sim_pos"] = to_godot(match->GetBall()->Predict(0));
 
     result["camera_pos"] = to_godot(match->GetPresentationCameraPosition());
     result["camera_rot"] = to_godot(match->GetPresentationCameraRotation());
@@ -519,4 +645,43 @@ void GpfRuntimeNode::debug_set_last_touch_team(int team_id) {
         return;
     }
     match->SetLastTouchTeamID(team_id);
+}
+
+void GpfRuntimeNode::debug_force_set_piece(int set_piece_type, int team_id) {
+    if (!runtime_ready || !match || team_id < 0 || team_id > 1) {
+        return;
+    }
+    if (!match->IsInPlay() || match->IsInSetPiece()) {
+        return;
+    }
+    const e_SetPiece type = (e_SetPiece)set_piece_type;
+    if (type == e_SetPiece_None) {
+        return;
+    }
+
+    Team *team = match->GetTeam(team_id);
+    const float side = (float)team->GetSide();
+    blunted::Vector3 restart(0.0f);
+    switch (type) {
+    case e_SetPiece_Penalty:
+        restart = blunted::Vector3(-side * (pitchHalfW - 11.0f), 0.0f, 0.0f);
+        break;
+    case e_SetPiece_FreeKick:
+        restart = match->GetBall()->Predict(0).Get2D();
+        break;
+    case e_SetPiece_Corner: {
+        const float y = match->GetBall()->Predict(0).coords[1];
+        restart = blunted::Vector3(-side * pitchHalfW, y > 0 ? pitchHalfH : -pitchHalfH, 0.0f);
+        break;
+    }
+    case e_SetPiece_GoalKick:
+        restart = blunted::Vector3(side * (pitchHalfW - 5.5f), 0.0f, 0.0f);
+        break;
+    case e_SetPiece_KickOff:
+        restart = blunted::Vector3(0.0f);
+        break;
+    default:
+        break;
+    }
+    match->GetReferee()->DebugForceSetPiece(type, team_id, restart);
 }

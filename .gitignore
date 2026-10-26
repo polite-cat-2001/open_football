@@ -22,5 +22,6 @@ gdextension/build/
 gdextension/bin/
 # GDExtension runtime build (links GameplayFootball prebuilt libs)
 gdextension/build-runtime/
+gdextension/build-ofport/
 # Built GDExtension DLL and its runtime dependencies
 bin/

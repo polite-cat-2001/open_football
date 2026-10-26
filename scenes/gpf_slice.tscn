@@ -7,6 +7,7 @@ script = ExtResource("1_slice")
 
 [node name="GpfRuntime" type="GpfRuntimeNode" parent="."]
 manual_step = true
+match_duration = 0.0
 
 [node name="MatchNode" type="MatchNode" parent="."]
 
