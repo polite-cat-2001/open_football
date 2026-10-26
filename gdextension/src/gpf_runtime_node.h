@@ -1,5 +1,6 @@
 #pragma once
 
+#include <godot_cpp/classes/image.hpp>
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
@@ -76,6 +77,7 @@ public:
     Dictionary get_snapshot() const;
     PackedVector3Array get_goal_net_positions(int goal) const;
     PackedInt32Array get_goal_net_edges() const;
+    Ref<Image> generate_pitch_texture(int width, int height) const;
     Dictionary get_player_pose(int player_id) const;
     Array get_player_ids() const;
     int get_human_player_id() const;

@@ -1,7 +1,6 @@
 ﻿extends Node3D
 
 @onready var runtime := $GpfRuntime
-@onready var pitch := $MatchNode
 @onready var camera := $Camera3D
 
 const BUTTONS := {
@@ -34,6 +33,17 @@ const GOAL_HEIGHT := 2.5
 const GOAL_DEPTH := 2.55
 const POST_RADIUS := 0.07
 
+const STADIUM_SCENE := "res://assets/models/gpf_stadium.glb"
+const PITCH_SCENE := "res://assets/models/gpf_pitch.glb"
+const PITCH_TEXTURE_WIDTH := 3072
+const PITCH_TEXTURE_HEIGHT := 2048
+const PITCH_THEMES := {
+	"dry": {"albedo": Color(1.0, 1.0, 1.0), "roughness": 0.95},
+	"wet": {"albedo": Color(0.72, 0.82, 0.78), "roughness": 0.28},
+	"damp": {"albedo": Color(0.86, 0.92, 0.86), "roughness": 0.62},
+	"snow": {"albedo": Color(0.92, 0.95, 0.98), "roughness": 0.82},
+}
+
 const PHASE_NAMES := [
 	"PRE-MATCH",
 	"1ST HALF",
@@ -54,6 +64,7 @@ const SET_PIECE_NAMES := [
 ]
 
 var gpf_space: Node3D
+var environment_space: Node3D
 var body_scene: PackedScene
 var ball_root: Node3D
 var skeletons: Dictionary = {}
@@ -89,6 +100,10 @@ var phase_menu_game_over := false
 var goal_net_meshes: Array[MeshInstance3D] = []
 var goal_net_edges: PackedInt32Array
 var goal_net_material: Material
+var pitch_root: Node3D
+var pitch_materials: Array[StandardMaterial3D] = []
+var pitch_theme := "dry"
+var stadium_camera := false
 
 func _ready() -> void:
 	gpf_space = Node3D.new()
@@ -96,6 +111,12 @@ func _ready() -> void:
 	gpf_space.basis = Basis(Vector3(-1, 0, 0), Vector3(0, 0, 1), Vector3(0, 1, 0))
 	add_child(gpf_space)
 
+	environment_space = Node3D.new()
+	environment_space.name = "Environment"
+	environment_space.basis = Basis(Vector3(1, 0, 0), Vector3(0, 0, 1), Vector3(0, 1, 0))
+	add_child(environment_space)
+	_build_world_environment()
+	_build_environment()
 	body_scene = load("res://assets/models/gpf_fullbody.glb")
 	var ball_scene: PackedScene = load("res://assets/models/gpf_ball.glb")
 	ball_root = ball_scene.instantiate()
@@ -143,6 +164,142 @@ func _spawn_actors(ids: Array) -> void:
 		skeletons[id] = skeleton
 		actor_bodies[id] = body
 		actors.append(entry)
+
+func _build_world_environment() -> void:
+	var world := WorldEnvironment.new()
+	world.name = "WorldEnvironment"
+	var environment := Environment.new()
+	environment.background_mode = Environment.BG_COLOR
+	environment.background_color = Color(0.30, 0.42, 0.55)
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	environment.ambient_light_color = Color(0.62, 0.68, 0.78)
+	environment.ambient_light_energy = 0.55
+	world.environment = environment
+	add_child(world)
+
+func _build_environment() -> void:
+	var stadium_scene := load(STADIUM_SCENE) as PackedScene
+	if stadium_scene != null:
+		var stadium := stadium_scene.instantiate() as Node3D
+		stadium.name = "Stadium"
+		environment_space.add_child(stadium)
+		_fix_stadium_materials(stadium)
+
+	var pitch_scene := load(PITCH_SCENE) as PackedScene
+	if pitch_scene != null:
+		pitch_root = pitch_scene.instantiate() as Node3D
+		pitch_root.name = "Pitch"
+		pitch_root.position = Vector3(0.0, 0.0, 0.01)
+		environment_space.add_child(pitch_root)
+		_apply_pitch_texture(pitch_root)
+
+func _fix_stadium_materials(root: Node3D) -> void:
+	for node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		for surface in mesh_instance.mesh.get_surface_count():
+			var source := mesh_instance.mesh.surface_get_material(surface)
+			if source == null:
+				continue
+			var material_name := source.resource_name
+			var material_index := _material_index(material_name)
+			if material_index < 3 or material_index > 30:
+				continue
+			var material := source.duplicate() as StandardMaterial3D
+			if material == null:
+				continue
+			material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+			if material_index >= 3 and material_index <= 25:
+				material.uv1_scale = Vector3(-1.0, 1.0, 1.0)
+				material.uv1_offset = Vector3(1.0, 0.0, 0.0)
+				# test.ase stores each ad panel as a coplanar front/back pair;
+				# rendering both sides makes the pair z-fight.
+				material.cull_mode = BaseMaterial3D.CULL_BACK
+			var texture := material.albedo_texture
+			if texture is ImageTexture:
+				var image := (texture as ImageTexture).get_image()
+				if image != null and not image.has_mipmaps():
+					image.generate_mipmaps()
+					material.albedo_texture = ImageTexture.create_from_image(image)
+			if material_index == 30:
+				material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+				material.alpha_scissor_threshold = 0.12
+			mesh_instance.set_surface_override_material(surface, material)
+
+func _material_index(name: String) -> int:
+	if not name.begins_with("mat"):
+		return -1
+	return int(name.substr(3))
+
+func _apply_pitch_texture(root: Node3D) -> void:
+	var image: Image = runtime.generate_pitch_texture(PITCH_TEXTURE_WIDTH, PITCH_TEXTURE_HEIGHT)
+	if image == null or image.is_empty():
+		push_warning("GpfRuntime returned no pitch texture")
+		return
+
+	var vertices := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var uvs := PackedVector2Array()
+	var indices := PackedInt32Array()
+	for node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		var xform := mesh_instance.transform
+		for surface in mesh_instance.mesh.get_surface_count():
+			var arrays: Array = mesh_instance.mesh.surface_get_arrays(surface)
+			var src_vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			var src_normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+			var src_indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+			var base := vertices.size()
+			for i in src_vertices.size():
+				var position: Vector3 = xform * src_vertices[i]
+				vertices.append(position)
+				var normal := Vector3.UP
+				if i < src_normals.size():
+					normal = (xform.basis * src_normals[i]).normalized()
+				normals.append(normal)
+				uvs.append(Vector2(
+					clampf((position.x + 60.0) / 120.0, 0.0, 1.0),
+					clampf((40.0 - position.y) / 80.0, 0.0, 1.0)
+				))
+			if src_indices.is_empty():
+				for i in src_vertices.size():
+					indices.append(base + i)
+			else:
+				for index in src_indices:
+					indices.append(base + index)
+		mesh_instance.visible = false
+
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var combined := ArrayMesh.new()
+	combined.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
+	var material := StandardMaterial3D.new()
+	image.generate_mipmaps()
+	material.albedo_texture = ImageTexture.create_from_image(image)
+	material.roughness = 0.95
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	pitch_materials.append(material)
+	var surface := MeshInstance3D.new()
+	surface.name = "PitchSurface"
+	surface.mesh = combined
+	surface.material_override = material
+	root.add_child(surface)
+	set_pitch_theme(pitch_theme)
+
+func set_pitch_theme(theme: String) -> void:
+	var colors: Dictionary = PITCH_THEMES.get(theme, PITCH_THEMES["dry"])
+	pitch_theme = theme
+	for material in pitch_materials:
+		material.albedo_color = colors["albedo"]
+		material.roughness = colors["roughness"]
 
 func _apply_kit_color(body: Node3D, team: int) -> void:
 	var color: Color = TEAM_COLORS.get(team, Color.WHITE)
@@ -201,7 +358,8 @@ func _process(_delta: float) -> void:
 		var match_minutes := 5 + int(round(20.0 * float(runtime.get("match_duration"))))
 		var park_text := "F2 unpark opponents" if bool(snap.get("debug_park_opponents", false)) \
 			else "F2 park opponents"
-		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   %s" % [
+		var camera_text := "V broadcast cam" if stadium_camera else "V stadium cam"
+		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   %s   %s" % [
 			status,
 			int(snap.get("tick", 0)),
 			(snap.get("ball_pos", Vector3.ZERO) as Vector3).x,
@@ -209,6 +367,7 @@ func _process(_delta: float) -> void:
 			actors.size(),
 			match_minutes,
 			park_text,
+			camera_text,
 		]
 	frames += 1
 	if shot_path != "" and not shot_taken and frames >= shot_frame:
@@ -231,14 +390,21 @@ func _apply_player(id: int, player: Dictionary) -> void:
 		skeleton.set_bone_pose_rotation(idx, bone.get("rot", Quaternion.IDENTITY))
 
 func _update_camera(snap: Dictionary) -> void:
-	var raw_pos: Vector3 = snap.get("camera_pos", Vector3.ZERO)
-	var raw_rot: Quaternion = snap.get("camera_rot", Quaternion.IDENTITY)
-	var space: Basis = gpf_space.basis
-	var cam_basis: Basis = space * Basis(raw_rot)
-	camera.global_transform = Transform3D(cam_basis, gpf_space.transform * raw_pos)
-	camera.fov = clamp(float(snap.get("camera_fov", 55.0)), 10.0, 120.0)
-	camera.near = maxf(0.05, float(snap.get("camera_near", 1.0)))
-	camera.far = maxf(camera.near + 1.0, float(snap.get("camera_far", 200.0)))
+	if stadium_camera:
+		camera.global_position = Vector3(-145.0, 58.0, 95.0)
+		camera.look_at(Vector3(0.0, 5.0, 0.0), Vector3.UP)
+		camera.fov = 55.0
+		camera.near = 0.1
+		camera.far = 500.0
+	else:
+		var raw_pos: Vector3 = snap.get("camera_pos", Vector3.ZERO)
+		var raw_rot: Quaternion = snap.get("camera_rot", Quaternion.IDENTITY)
+		var space: Basis = gpf_space.basis
+		var cam_basis: Basis = space * Basis(raw_rot)
+		camera.global_transform = Transform3D(cam_basis, gpf_space.transform * raw_pos)
+		camera.fov = clamp(float(snap.get("camera_fov", 55.0)), 10.0, 120.0)
+		camera.near = maxf(0.05, float(snap.get("camera_near", 1.0)))
+		camera.far = maxf(camera.near + 1.0, float(snap.get("camera_far", 200.0)))
 
 	if ball_root != null:
 		ball_root.transform = Transform3D(
@@ -262,6 +428,10 @@ func _input(event: InputEvent) -> void:
 					_quit_game()
 			elif key_event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_ESCAPE]:
 				_continue_phase_break()
+		return
+	if key_event.keycode == KEY_V:
+		if key_event.pressed:
+			stadium_camera = not stadium_camera
 		return
 	if key_event.keycode == KEY_F2:
 		if key_event.pressed:

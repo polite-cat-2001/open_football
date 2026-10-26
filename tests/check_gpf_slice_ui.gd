@@ -33,6 +33,41 @@ func _run() -> void:
 	_check(net0 != null and net0.mesh != null and net0.mesh.get_surface_count() > 0,
 		"dynamic goal net is built")
 
+	var stadium := scene.get_node_or_null("Environment/Stadium") as Node3D
+	_check(stadium != null and stadium.visible, "imported stadium is present")
+	var stadium_meshes := stadium.find_children("*", "MeshInstance3D", true, false) if stadium else []
+	var textured := 0
+	for node in stadium_meshes:
+		var mesh := node as MeshInstance3D
+		if mesh == null or mesh.mesh == null:
+			continue
+		for surface in mesh.mesh.get_surface_count():
+			var material: Material = mesh.get_surface_override_material(surface)
+			if material == null:
+				material = mesh.mesh.surface_get_material(surface)
+			if material is BaseMaterial3D and material.albedo_texture != null:
+				textured += 1
+	_check(stadium_meshes.size() >= 31 and textured >= 31,
+		"stadium meshes carry baked textures (%d meshes, %d textured surfaces)" % [stadium_meshes.size(), textured])
+	var pitch_node := scene.get_node_or_null("Environment/Pitch") as Node3D
+	var pitch_materials: Array = scene.get("pitch_materials")
+	var pitch_surface: MeshInstance3D = null
+	if pitch_node != null:
+		pitch_surface = pitch_node.get_node_or_null("PitchSurface") as MeshInstance3D
+	_check(pitch_node != null and pitch_node.visible and pitch_materials.size() == 1
+		and pitch_surface != null and pitch_surface.mesh.get_surface_count() == 1,
+		"imported pitch is merged into one themed surface")
+	scene.call("set_pitch_theme", "wet")
+	var wet_pitch := pitch_materials[0] as StandardMaterial3D
+	_check(wet_pitch != null and wet_pitch.roughness < 0.5, "wet pitch theme changes roughness")
+	scene.call("set_pitch_theme", "dry")
+	scene.call("_input", _key(KEY_V))
+	await process_frame
+	_check(bool(scene.get("stadium_camera")), "V switches to the stadium camera")
+	scene.call("_input", _key(KEY_V))
+	await process_frame
+	_check(not bool(scene.get("stadium_camera")), "V returns to the broadcast camera")
+
 	var ids: Array = runtime.get_player_ids()
 	var outfield := -1
 	var opponent_outfield := -1
