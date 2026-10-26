@@ -77,7 +77,6 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_human_player_id"), &GpfRuntimeNode::get_human_player_id);
     ClassDB::bind_method(D_METHOD("get_human_team_id"), &GpfRuntimeNode::get_human_team_id);
     ClassDB::bind_method(D_METHOD("select_player", "player_id"), &GpfRuntimeNode::select_player);
-    ClassDB::bind_method(D_METHOD("select_goalkeeper", "team_id"), &GpfRuntimeNode::select_goalkeeper);
     ClassDB::bind_method(D_METHOD("start_open_play", "player_id"), &GpfRuntimeNode::start_open_play);
     ClassDB::bind_method(D_METHOD("get_tick"), &GpfRuntimeNode::get_tick);
     ClassDB::bind_method(D_METHOD("set_button", "index", "pressed"), &GpfRuntimeNode::set_button);
@@ -275,7 +274,6 @@ bool GpfRuntimeNode::start_runtime() {
     game_over_seen = false;
     ended_in_regular_time = false;
     last_match_phase = (int)match->GetMatchPhase();
-    forced_keeper_team = -1;
     match->sig_OnExtendedReplayMoment.connect([](Match *m) { if (m) m->Pause(false); });
     match->sig_OnGameOver.connect([this](Match *m) {
         game_over_seen = true;
@@ -295,9 +293,7 @@ void GpfRuntimeNode::step_one_tick() {
     }
     sim_time_ms += TICK_MS;
     match->SetPresentationClock(true, sim_time_ms, sim_time_ms);
-    enforce_forced_keeper();
     gameTask->ProcessPhase();
-    enforce_forced_keeper();
 
     // The original Referee switches to the next phase at the end of a period
     // and only checks for a winner three seconds later, when the kickoff is
@@ -390,37 +386,6 @@ void GpfRuntimeNode::select_player(int player_id) {
             return;
         }
     }
-}
-
-void GpfRuntimeNode::select_goalkeeper(int team_id) {
-    if (!runtime_ready || !match || team_id < 0 || team_id > 1) {
-        return;
-    }
-    forced_keeper_team = team_id;
-    Team *team = match->GetTeam(team_id);
-    Player *goalkeeper = team->GetGoalie();
-    if (goalkeeper) {
-        team->SetDesignatedTeamPossessionPlayer(goalkeeper);
-        team->SelectPlayer(goalkeeper);
-    }
-}
-
-void GpfRuntimeNode::enforce_forced_keeper() {
-    if (forced_keeper_team < 0 || !match) {
-        return;
-    }
-    const RefereeBuffer &buffer = match->GetRefereeBuffer();
-    if (!buffer.active || buffer.desiredSetPiece != e_SetPiece_Penalty) {
-        forced_keeper_team = -1;
-        return;
-    }
-    Team *team = match->GetTeam(forced_keeper_team);
-    Player *goalkeeper = team ? team->GetGoalie() : nullptr;
-    if (!goalkeeper) {
-        return;
-    }
-    team->SetDesignatedTeamPossessionPlayer(goalkeeper);
-    team->SelectPlayer(goalkeeper);
 }
 
 Array GpfRuntimeNode::get_player_ids() const {

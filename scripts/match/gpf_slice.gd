@@ -171,7 +171,7 @@ func _process(_delta: float) -> void:
 				phase_text,
 			]
 		var match_minutes := 5 + int(round(20.0 * float(runtime.get("match_duration"))))
-		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P keeper pen   F free kick   Y corner   G goal kick   K keeper" % [
+		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick" % [
 			status,
 			int(snap.get("tick", 0)),
 			(snap.get("ball_pos", Vector3.ZERO) as Vector3).x,
@@ -237,12 +237,6 @@ func _input(event: InputEvent) -> void:
 				team = 1 - human_team
 			var set_piece_type: int = set_piece_keys[key_event.keycode]
 			runtime.debug_force_set_piece(set_piece_type, team)
-			if set_piece_type == 6 and team != human_team:
-				runtime.select_goalkeeper(human_team)
-		return
-	if key_event.keycode == KEY_K:
-		if key_event.pressed:
-			runtime.select_goalkeeper(human_team)
 		return
 	var functions: Array = BUTTONS.get(key_event.keycode, [])
 	for function in functions:
@@ -276,6 +270,9 @@ func _status_text(snap: Dictionary, player: Dictionary) -> String:
 	var piece := int(snap.get("referee_set_piece", 0))
 	var role := int(snap.get("set_piece_role", 0))
 	if bool(snap.get("in_set_piece", false)):
+		var human_team := int(runtime.get_human_team_id())
+		if piece == 6 and human_team >= 0 and int(snap.get("referee_team", -1)) != human_team:
+			return "PENALTY - keeper: arrows to dive"
 		if role == 2:
 			return "PENALTY - keeper: arrows to dive"
 		var piece_name := _set_piece_name(piece)
