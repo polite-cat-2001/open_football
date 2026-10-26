@@ -42,6 +42,23 @@ godot::Quaternion to_godot(const blunted::Quaternion &q) {
     return godot::Quaternion(q.elements[0], q.elements[1], q.elements[2], q.elements[3]);
 }
 
+blunted::Vector3 goal_net_ball_to_local(int goal, const blunted::Vector3 &world) {
+    return (goal == 0) ? blunted::Vector3(world.coords[1], world.coords[2], -world.coords[0] - pitchHalfW)
+                       : blunted::Vector3(world.coords[1], world.coords[2],  world.coords[0] - pitchHalfW);
+}
+
+blunted::Vector3 goal_net_dir_to_local(int goal, const blunted::Vector3 &world) {
+    return (goal == 0) ? blunted::Vector3(world.coords[1], world.coords[2], -world.coords[0])
+                       : blunted::Vector3(world.coords[1], world.coords[2],  world.coords[0]);
+}
+
+// The Godot scene places its goals directly in scene space: +X is the raw -X goal,
+// Y is up and Z is pitch width.
+godot::Vector3 goal_net_local_to_scene(int goal, const blunted::Vector3 &p) {
+    return (goal == 0) ? godot::Vector3(pitchHalfW + p.coords[2], p.coords[1], p.coords[0])
+                       : godot::Vector3(-pitchHalfW - p.coords[2], p.coords[1], p.coords[0]);
+}
+
 bool is_nonempty_file(const std::filesystem::path &path) {
     std::error_code ec;
     return std::filesystem::is_regular_file(path, ec) && std::filesystem::file_size(path, ec) > 0;
@@ -72,12 +89,15 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("start_runtime_now"), &GpfRuntimeNode::start_runtime_now);
     ClassDB::bind_method(D_METHOD("step_fixed", "ticks"), &GpfRuntimeNode::step_fixed);
     ClassDB::bind_method(D_METHOD("get_snapshot"), &GpfRuntimeNode::get_snapshot);
+    ClassDB::bind_method(D_METHOD("get_goal_net_positions", "goal"), &GpfRuntimeNode::get_goal_net_positions);
+    ClassDB::bind_method(D_METHOD("get_goal_net_edges"), &GpfRuntimeNode::get_goal_net_edges);
     ClassDB::bind_method(D_METHOD("get_player_pose", "player_id"), &GpfRuntimeNode::get_player_pose);
     ClassDB::bind_method(D_METHOD("get_player_ids"), &GpfRuntimeNode::get_player_ids);
     ClassDB::bind_method(D_METHOD("get_human_player_id"), &GpfRuntimeNode::get_human_player_id);
     ClassDB::bind_method(D_METHOD("get_human_team_id"), &GpfRuntimeNode::get_human_team_id);
     ClassDB::bind_method(D_METHOD("select_player", "player_id"), &GpfRuntimeNode::select_player);
     ClassDB::bind_method(D_METHOD("start_open_play", "player_id"), &GpfRuntimeNode::start_open_play);
+    ClassDB::bind_method(D_METHOD("toggle_debug_park_opponents"), &GpfRuntimeNode::toggle_debug_park_opponents);
     ClassDB::bind_method(D_METHOD("begin_phase_break"), &GpfRuntimeNode::begin_phase_break);
     ClassDB::bind_method(D_METHOD("continue_after_phase_break"), &GpfRuntimeNode::continue_after_phase_break);
     ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_available"), &GpfRuntimeNode::is_set_piece_taker_menu_available);
@@ -285,6 +305,8 @@ bool GpfRuntimeNode::start_runtime() {
     ended_in_regular_time = false;
     phase_break_pending = false;
     phase_break_next_phase = 0;
+    park_opponents = false;
+    goal_nets_ready = false;
     last_match_phase = (int)match->GetMatchPhase();
     match->sig_OnExtendedReplayMoment.connect([](Match *m) { if (m) m->Pause(false); });
     match->sig_OnGameOver.connect([this](Match *m) {
@@ -301,6 +323,25 @@ bool GpfRuntimeNode::start_runtime() {
         phase_break_next_phase = (int)m->GetMatchPhase();
     });
 
+    goal_net_params.gravity = NET_GRAVITY;
+    goal_net_params.damping = NET_DAMPING;
+    goal_net_params.stiffness = NET_SPRING_STIFFNESS;
+    goal_net_params.shapeReturn = NET_SHAPE_RETURN;
+    goal_net_params.ballRadius = NET_BALL_RADIUS;
+    goal_net_params.ballVelScale = NET_BALL_VEL_SCALE;
+    goal_net_params.ballForce = NET_BALL_FORCE;
+    goal_net_params.ballMinSpeed = NET_BALL_MIN_SPEED;
+    goal_net_params.ballMaxImpact = NET_BALL_MAX_IMPACT;
+    goal_net_params.constraintIterations = NET_CONSTRAINT_ITERATIONS;
+    goal_net_params.constraintStiffness = NET_STIFFNESS;
+    for (int goal = 0; goal < 2; ++goal) {
+        goal_nets[goal] = netsim::BuildBoxNet(goalHalfWidth * 2.0f, goalHeight, NET_DEPTH,
+                                              NET_WIDTH_DIV, NET_HEIGHT_DIV, NET_DEPTH_DIV, NET_SLACK);
+    }
+    goal_net_prev_ball = match->GetBall()->GetBallGeom()->GetPosition();
+    goal_net_prev_time_ms = 0;
+    goal_nets_ready = true;
+
     sim_time_ms = 0;
     match->SetPresentationClock(true, TICK_MS, TICK_MS);
     runtime_ready = true;
@@ -315,6 +356,11 @@ void GpfRuntimeNode::step_one_tick() {
     sim_time_ms += TICK_MS;
     match->SetPresentationClock(true, sim_time_ms, sim_time_ms);
     gameTask->ProcessPhase();
+    // F2 debug, matching Match::Process: keep the non-human outfield team
+    // parked off the pitch for every processed tick while the toggle is on.
+    if (park_opponents && !match->GetPause()) {
+        match->DebugParkOpponents(true);
+    }
 
     // The original Referee switches to the next phase at the end of a period
     // and only checks for a winner three seconds later, when the kickoff is
@@ -344,6 +390,32 @@ void GpfRuntimeNode::put_frame(unsigned long put_time_ms) {
     }
     match->SetPresentationClock(true, sim_time_ms, put_time_ms);
     gameTask->PutPhase();
+    update_goal_nets(put_time_ms);
+}
+
+void GpfRuntimeNode::update_goal_nets(unsigned long put_time_ms) {
+    if (!goal_nets_ready) {
+        return;
+    }
+    const blunted::Vector3 ball_world = match->GetBall()->GetBallGeom()->GetPosition();
+    blunted::Vector3 motion = ball_world - goal_net_prev_ball;
+    if (motion.GetLength() > 2.0f) {
+        motion = blunted::Vector3(0.0f);
+    }
+    const blunted::Vector3 ball_prev = ball_world - motion;
+    const unsigned long elapsed = put_time_ms > goal_net_prev_time_ms
+        ? put_time_ms - goal_net_prev_time_ms : 1;
+    const float dt = std::max(0.001f, std::min(0.1f, (float)elapsed * 0.001f));
+    const blunted::Vector3 ball_vel = motion * (1.0f / dt);
+    for (int goal = 0; goal < 2; ++goal) {
+        netsim::Integrate(goal_nets[goal],
+                          goal_net_ball_to_local(goal, ball_world),
+                          goal_net_ball_to_local(goal, ball_prev),
+                          goal_net_dir_to_local(goal, ball_vel),
+                          goal_net_params, NET_SIM_STEP);
+    }
+    goal_net_prev_ball = ball_world;
+    goal_net_prev_time_ms = put_time_ms;
 }
 
 void GpfRuntimeNode::step_fixed(int ticks) {
@@ -634,6 +706,7 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["phase_break_pending"] = phase_break_pending;
     result["phase_break"] = match->IsPhaseBreak();
     result["phase_break_next_phase"] = phase_break_next_phase;
+    result["debug_park_opponents"] = park_opponents;
     result["game_over"] = game_over_seen;
     result["goal_scored"] = match->IsGoalScored();
     result["ball_in_goal"] = match->IsBallInGoal();
@@ -691,6 +764,15 @@ void GpfRuntimeNode::start_open_play(int player_id) {
     }
 }
 
+bool GpfRuntimeNode::toggle_debug_park_opponents() {
+    if (!runtime_ready || !match) {
+        return false;
+    }
+    park_opponents = !park_opponents;
+    match->DebugParkOpponents(park_opponents);
+    return park_opponents;
+}
+
 bool GpfRuntimeNode::begin_phase_break() {
     if (!runtime_ready || !match || game_over_seen || !phase_break_pending) {
         return false;
@@ -708,6 +790,32 @@ void GpfRuntimeNode::continue_after_phase_break() {
     phase_break_next_phase = 0;
     match->SetPhaseBreak(false);
     match->Pause(false);
+}
+
+PackedVector3Array GpfRuntimeNode::get_goal_net_positions(int goal) const {
+    PackedVector3Array positions;
+    if (!goal_nets_ready || goal < 0 || goal > 1) {
+        return positions;
+    }
+    const netsim::Net &net = goal_nets[goal];
+    positions.resize((int)net.pos.size());
+    for (int i = 0; i < (int)net.pos.size(); ++i) {
+        positions[i] = goal_net_local_to_scene(goal, net.pos[i]);
+    }
+    return positions;
+}
+
+PackedInt32Array GpfRuntimeNode::get_goal_net_edges() const {
+    PackedInt32Array edges;
+    if (!goal_nets_ready) {
+        return edges;
+    }
+    const std::vector<int> &source = goal_nets[0].edges;
+    edges.resize((int)source.size());
+    for (int i = 0; i < (int)source.size(); ++i) {
+        edges[i] = source[i];
+    }
+    return edges;
 }
 
 Dictionary GpfRuntimeNode::get_player_pose(int player_id) const {

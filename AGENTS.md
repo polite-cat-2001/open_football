@@ -96,6 +96,7 @@ tests/                          — headless CHECK scripts (godot --headless -s 
 
 ## Goal net
 - Volumetric box goals (front+back frame) with a procedural Verlet cloth net that wobbles on a goal; ball settles in the net, 5s celebration, then reset. Full detail in `CLAUDE.md`'s *Goal net* section; design/plan in `docs/superpowers/{specs/2026-07-12-goal-net-physics-design.md,plans/2026-07-12-goal-net-physics.md}`.
+- **Current GDExtension slice:** uses the original C++ `netsim` inside `GpfRuntimeNode` (`get_goal_net_positions`/`get_goal_net_edges`) and renders the deforming lines in `gpf_slice.gd`; see `docs/wiki/порт-gdextension.md`. The GDScript `NetSim`/`GoalNet` below belong to the legacy runtime.
 - Math is pure/headless-tested in `net_sim.gd` (`NetSim`, never reads constants); `goal_net.gd` (`GoalNet`) drives+renders it; ball-stop colliders + celebration flow live in `match_manager.gd:_setup_goals()`.
 - Tuning: `FootballConstants` `NET_*` section — primary feel dial is `NET_STIFFNESS` (free↔rigid), then `NET_DAMPING`/`NET_SLACK`/`NET_SHAPE_RETURN`/`NET_CONSTRAINT_ITERATIONS`. Test: `tests/check_net_sim.gd`.
 

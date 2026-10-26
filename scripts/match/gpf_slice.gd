@@ -33,7 +33,6 @@ const GOAL_HALF_WIDTH := 3.7
 const GOAL_HEIGHT := 2.5
 const GOAL_DEPTH := 2.55
 const POST_RADIUS := 0.07
-const NET_GRID_STEP := 0.5
 
 const PHASE_NAMES := [
 	"PRE-MATCH",
@@ -60,6 +59,7 @@ var ball_root: Node3D
 var skeletons: Dictionary = {}
 var bone_indices: Dictionary = {}
 var actors: Array = []
+var actor_bodies: Dictionary = {}
 var display_player_id := -1
 var started := false
 var frames := 0
@@ -86,6 +86,9 @@ var phase_menu_continue: Button
 var phase_menu_quit: Button
 var phase_menu_open := false
 var phase_menu_game_over := false
+var goal_net_meshes: Array[MeshInstance3D] = []
+var goal_net_edges: PackedInt32Array
+var goal_net_material: Material
 
 func _ready() -> void:
 	gpf_space = Node3D.new()
@@ -107,6 +110,7 @@ func _ready() -> void:
 	if not runtime.is_runtime_ready():
 		push_error("GpfRuntime failed: " + str(runtime.get_last_error()))
 		return
+	_build_dynamic_goal_nets()
 
 	var ids: Array = runtime.get_player_ids()
 	for entry in ids:
@@ -137,6 +141,7 @@ func _spawn_actors(ids: Array) -> void:
 				bone_indices[skeleton.get_bone_name(i)] = i
 		_apply_kit_color(body, int(entry.get("team", -1)))
 		skeletons[id] = skeleton
+		actor_bodies[id] = body
 		actors.append(entry)
 
 func _apply_kit_color(body: Node3D, team: int) -> void:
@@ -175,6 +180,8 @@ func _process(_delta: float) -> void:
 			player = pose
 	_update_camera(snap)
 	_update_penalty_reticle(snap)
+	_update_goal_nets()
+	_update_debug_park_visibility(snap)
 	_sync_phase_menu(snap)
 	_sync_taker_ui(snap)
 	if hud != null:
@@ -192,13 +199,16 @@ func _process(_delta: float) -> void:
 				phase_text,
 			]
 		var match_minutes := 5 + int(round(20.0 * float(runtime.get("match_duration"))))
-		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker" % [
+		var park_text := "F2 unpark opponents" if bool(snap.get("debug_park_opponents", false)) \
+			else "F2 park opponents"
+		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   %s" % [
 			status,
 			int(snap.get("tick", 0)),
 			(snap.get("ball_pos", Vector3.ZERO) as Vector3).x,
 			(snap.get("ball_pos", Vector3.ZERO) as Vector3).y,
 			actors.size(),
 			match_minutes,
+			park_text,
 		]
 	frames += 1
 	if shot_path != "" and not shot_taken and frames >= shot_frame:
@@ -252,6 +262,10 @@ func _input(event: InputEvent) -> void:
 					_quit_game()
 			elif key_event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_ESCAPE]:
 				_continue_phase_break()
+		return
+	if key_event.keycode == KEY_F2:
+		if key_event.pressed:
+			runtime.toggle_debug_park_opponents()
 		return
 	if key_event.keycode == KEY_TAB:
 		if key_event.pressed:
@@ -346,6 +360,18 @@ func _close_taker_menu(apply_choice: bool) -> void:
 	runtime.close_set_piece_taker_menu()
 	taker_menu_open = false
 	taker_menu_layer.visible = false
+
+func _update_debug_park_visibility(snap: Dictionary) -> void:
+	var parked := bool(snap.get("debug_park_opponents", false))
+	var human_team: int = runtime.get_human_team_id()
+	for entry in actors:
+		var id := int(entry.get("id", -1))
+		var body: Node3D = actor_bodies.get(id)
+		if body == null:
+			continue
+		var hide: bool = parked and String(entry.get("role", "")) == "player" \
+			and (human_team < 0 or int(entry.get("team", -1)) != human_team)
+		body.visible = not hide
 
 func _sync_taker_ui(snap: Dictionary) -> void:
 	if taker_menu_open and not bool(snap.get("set_piece_taker_menu_open", false)):
@@ -568,14 +594,15 @@ func _build_goals() -> void:
 
 	var net_material := StandardMaterial3D.new()
 	net_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	net_material.albedo_color = Color(0.9, 0.94, 1.0, 0.38)
+	net_material.albedo_color = Color(0.9, 0.94, 1.0, 0.5)
 	net_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	net_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	goal_net_material = net_material
 
 	for raw_side in [-1, 1]:
-		_build_goal(goals, float(raw_side), frame_material, net_material)
+		_build_goal(goals, float(raw_side), frame_material)
 
-func _build_goal(parent: Node3D, raw_side: float, frame_material: Material, net_material: Material) -> void:
+func _build_goal(parent: Node3D, raw_side: float, frame_material: Material) -> void:
 	var front_x := -GOAL_LINE_RAW * raw_side
 	var back_x := front_x - GOAL_DEPTH * raw_side
 	for z in [-GOAL_HALF_WIDTH, GOAL_HALF_WIDTH]:
@@ -587,43 +614,50 @@ func _build_goal(parent: Node3D, raw_side: float, frame_material: Material, net_
 	for z in [-GOAL_HALF_WIDTH, GOAL_HALF_WIDTH]:
 		_add_goal_bar(parent, Vector3(front_x, GOAL_HEIGHT, z), Vector3(back_x, GOAL_HEIGHT, z), frame_material)
 	_add_goal_bar(parent, Vector3(back_x, 0.03, -GOAL_HALF_WIDTH), Vector3(back_x, 0.03, GOAL_HALF_WIDTH), frame_material)
-	_build_goal_net(parent, front_x, back_x, net_material)
 
-func _build_goal_net(parent: Node3D, front_x: float, back_x: float, material: Material) -> void:
-	var mesh := ImmediateMesh.new()
+func _build_dynamic_goal_nets() -> void:
+	goal_net_edges = runtime.get_goal_net_edges()
+	if goal_net_edges.is_empty():
+		push_warning("GpfRuntime returned no goal-net edges")
+		return
+	var goals := get_node_or_null("Goals") as Node3D
+	if goals == null:
+		return
+	for goal in 2:
+		var net := MeshInstance3D.new()
+		net.name = "GoalNet%d" % goal
+		net.mesh = ImmediateMesh.new()
+		net.material_override = goal_net_material
+		net.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		goals.add_child(net)
+		goal_net_meshes.append(net)
+		_redraw_goal_net(goal)
+
+func _update_goal_nets() -> void:
+	for goal in goal_net_meshes.size():
+		_redraw_goal_net(goal)
+
+func _redraw_goal_net(goal: int) -> void:
+	if goal < 0 or goal >= goal_net_meshes.size():
+		return
+	var net := goal_net_meshes[goal]
+	var positions: PackedVector3Array = runtime.get_goal_net_positions(goal)
+	if positions.is_empty():
+		net.visible = false
+		return
+	net.visible = true
+	var mesh := net.mesh as ImmediateMesh
+	mesh.clear_surfaces()
 	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
-
-	var width_steps := int(ceil((GOAL_HALF_WIDTH * 2.0) / NET_GRID_STEP))
-	var height_steps := int(ceil(GOAL_HEIGHT / NET_GRID_STEP))
-	var depth_steps := int(ceil(GOAL_DEPTH / NET_GRID_STEP))
-
-	for i in range(width_steps + 1):
-		var z := lerpf(-GOAL_HALF_WIDTH, GOAL_HALF_WIDTH, float(i) / float(width_steps))
-		_add_net_line(mesh, Vector3(back_x, 0.0, z), Vector3(back_x, GOAL_HEIGHT, z))
-		_add_net_line(mesh, Vector3(front_x, GOAL_HEIGHT, z), Vector3(back_x, GOAL_HEIGHT, z))
-
-	for i in range(height_steps + 1):
-		var y := lerpf(0.0, GOAL_HEIGHT, float(i) / float(height_steps))
-		_add_net_line(mesh, Vector3(back_x, y, -GOAL_HALF_WIDTH), Vector3(back_x, y, GOAL_HALF_WIDTH))
-
-	for z in [-GOAL_HALF_WIDTH, GOAL_HALF_WIDTH]:
-		for i in range(depth_steps + 1):
-			var x := lerpf(front_x, back_x, float(i) / float(depth_steps))
-			_add_net_line(mesh, Vector3(x, 0.0, z), Vector3(x, GOAL_HEIGHT, z))
-		for i in range(height_steps + 1):
-			var y := lerpf(0.0, GOAL_HEIGHT, float(i) / float(height_steps))
-			_add_net_line(mesh, Vector3(front_x, y, z), Vector3(back_x, y, z))
-
+	var node_count := positions.size()
+	for k in range(goal_net_edges.size() / 2):
+		var a := goal_net_edges[k * 2]
+		var b := goal_net_edges[k * 2 + 1]
+		if a < 0 or b < 0 or a >= node_count or b >= node_count:
+			continue
+		mesh.surface_add_vertex(positions[a])
+		mesh.surface_add_vertex(positions[b])
 	mesh.surface_end()
-	var net := MeshInstance3D.new()
-	net.mesh = mesh
-	net.material_override = material
-	net.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	parent.add_child(net)
-
-func _add_net_line(mesh: ImmediateMesh, a: Vector3, b: Vector3) -> void:
-	mesh.surface_add_vertex(a)
-	mesh.surface_add_vertex(b)
 
 func _add_goal_bar(parent: Node3D, from: Vector3, to: Vector3, material: Material) -> void:
 	var delta := to - from
