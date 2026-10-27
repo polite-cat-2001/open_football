@@ -27,11 +27,7 @@ const TEAM_COLORS := {
 
 # Original C++ field geometry (gamedefines.hpp): playing field is 110 x 72,
 # goal line at raw X = +-55, goal mouth 7.4 m wide, 2.5 m high, 2.55 m deep.
-const GOAL_LINE_RAW := 55.0
-const GOAL_HALF_WIDTH := 3.7
-const GOAL_HEIGHT := 2.5
-const GOAL_DEPTH := 2.55
-const POST_RADIUS := 0.07
+const GOALS_SCENE := "res://assets/models/gpf_goals.glb"
 
 const STADIUM_SCENE := "res://assets/models/gpf_stadium.glb"
 const PITCH_SCENE := "res://assets/models/gpf_pitch.glb"
@@ -757,11 +753,6 @@ func _build_goals() -> void:
 	goals.name = "Goals"
 	add_child(goals)
 
-	var frame_material := StandardMaterial3D.new()
-	frame_material.albedo_color = Color(0.96, 0.96, 0.96)
-	frame_material.roughness = 0.45
-	frame_material.metallic = 0.15
-
 	var net_material := StandardMaterial3D.new()
 	net_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	net_material.albedo_color = Color(0.9, 0.94, 1.0, 0.5)
@@ -769,21 +760,29 @@ func _build_goals() -> void:
 	net_material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	goal_net_material = net_material
 
-	for raw_side in [-1, 1]:
-		_build_goal(goals, float(raw_side), frame_material)
+	_build_goal_frames()
 
-func _build_goal(parent: Node3D, raw_side: float, frame_material: Material) -> void:
-	var front_x := -GOAL_LINE_RAW * raw_side
-	var back_x := front_x - GOAL_DEPTH * raw_side
-	for z in [-GOAL_HALF_WIDTH, GOAL_HALF_WIDTH]:
-		_add_goal_bar(parent, Vector3(front_x, 0.0, z), Vector3(front_x, GOAL_HEIGHT, z), frame_material)
-		_add_goal_bar(parent, Vector3(back_x, 0.0, z), Vector3(back_x, GOAL_HEIGHT, z), frame_material)
-		_add_goal_bar(parent, Vector3(front_x, 0.03, z), Vector3(back_x, 0.03, z), frame_material)
-	_add_goal_bar(parent, Vector3(front_x, GOAL_HEIGHT, -GOAL_HALF_WIDTH), Vector3(front_x, GOAL_HEIGHT, GOAL_HALF_WIDTH), frame_material)
-	_add_goal_bar(parent, Vector3(back_x, GOAL_HEIGHT, -GOAL_HALF_WIDTH), Vector3(back_x, GOAL_HEIGHT, GOAL_HALF_WIDTH), frame_material)
-	for z in [-GOAL_HALF_WIDTH, GOAL_HALF_WIDTH]:
-		_add_goal_bar(parent, Vector3(front_x, GOAL_HEIGHT, z), Vector3(back_x, GOAL_HEIGHT, z), frame_material)
-	_add_goal_bar(parent, Vector3(back_x, 0.03, -GOAL_HALF_WIDTH), Vector3(back_x, 0.03, GOAL_HALF_WIDTH), frame_material)
+func _build_goal_frames() -> void:
+	var goal_scene := load(GOALS_SCENE) as PackedScene
+	if goal_scene == null:
+		push_warning("Could not load " + GOALS_SCENE)
+		return
+	var frames := goal_scene.instantiate() as Node3D
+	frames.name = "GoalFrames"
+	environment_space.add_child(frames)
+	for node in frames.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
+		var is_frame := false
+		for surface in mesh_instance.mesh.get_surface_count():
+			var source := mesh_instance.mesh.surface_get_material(surface)
+			if source != null and _material_index(source.resource_name) == 0:
+				is_frame = true
+				break
+		# gpf_goals.glb also contains the static net panels; the live net is
+		# rendered from the C++ NetSim positions instead.
+		mesh_instance.visible = is_frame
 
 func _build_dynamic_goal_nets() -> void:
 	goal_net_edges = runtime.get_goal_net_edges()
@@ -828,29 +827,6 @@ func _redraw_goal_net(goal: int) -> void:
 		mesh.surface_add_vertex(positions[a])
 		mesh.surface_add_vertex(positions[b])
 	mesh.surface_end()
-
-func _add_goal_bar(parent: Node3D, from: Vector3, to: Vector3, material: Material) -> void:
-	var delta := to - from
-	var length := delta.length()
-	if length < 0.001:
-		return
-	var cylinder := CylinderMesh.new()
-	cylinder.top_radius = POST_RADIUS
-	cylinder.bottom_radius = POST_RADIUS
-	cylinder.height = length
-	cylinder.radial_segments = 12
-	cylinder.rings = 1
-	var bar := MeshInstance3D.new()
-	bar.mesh = cylinder
-	bar.material_override = material
-	var direction := delta / length
-	var basis := Basis.IDENTITY
-	if absf(direction.dot(Vector3.UP)) < 0.9999:
-		basis = Basis(Quaternion(Vector3.UP, direction))
-	elif direction.y < 0.0:
-		basis = Basis(Vector3.RIGHT, PI)
-	bar.transform = Transform3D(basis, (from + to) * 0.5)
-	parent.add_child(bar)
 
 func _build_hud() -> void:
 	var layer := CanvasLayer.new()

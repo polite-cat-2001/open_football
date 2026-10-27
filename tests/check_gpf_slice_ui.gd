@@ -32,6 +32,17 @@ func _run() -> void:
 	var net0 := scene.get_node_or_null("Goals/GoalNet0") as MeshInstance3D
 	_check(net0 != null and net0.mesh != null and net0.mesh.get_surface_count() > 0,
 		"dynamic goal net is built")
+	var goal_frames := scene.get_node_or_null("Environment/GoalFrames") as Node3D
+	var frame_count := 0
+	var hidden_count := 0
+	if goal_frames != null:
+		for node in goal_frames.find_children("*", "MeshInstance3D", true, false):
+			if node.visible:
+				frame_count += 1
+			else:
+				hidden_count += 1
+	_check(goal_frames != null and frame_count == 1 and hidden_count == 1,
+		"imported goal frame is visible and static net is hidden")
 
 	var stadium := scene.get_node_or_null("Environment/Stadium") as Node3D
 	_check(stadium != null and stadium.visible, "imported stadium is present")

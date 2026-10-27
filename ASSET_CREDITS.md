@@ -35,11 +35,12 @@
   ```
 - Границу набора стережёт `tests/check_gpf_media.gd`.
 
-## Окружение GDExtension-слайса (assets/models/gpf_stadium.glb, gpf_pitch.glb)
+## Окружение GDExtension-слайса (assets/models/gpf_stadium.glb, gpf_pitch.glb, gpf_goals.glb)
 
-- Источник: GameplayFootball, `data/media/objects/stadiums/test/test.ase` и `pitch.ase`; Apache 2.0 (см. `assets/gpf/LICENSE-GameplayFootball`).
+- Источник: GameplayFootball, `data/media/objects/stadiums/test/test.ase`, `pitch.ase` и `data/media/objects/goals/goals.ase`; Apache 2.0 (см. `assets/gpf/LICENSE-GameplayFootball`).
 - `gpf_stadium.glb` собран `tools/build_gpf_stadium.py`; текстуры (`greenish_floor`, `concrete`, `floor01wall`, `seat01`, рекламные щиты) запечены в GLB.
 - `gpf_pitch.glb` хранит только геометрию четырёх чанков; видимую траву и разметку генерирует процедурный C++-генератор.
+- `gpf_goals.glb` — `mat00_white` (белая рамка обоих ворот) и статическая сетка; статическая сетка скрыта, её заменяет динамическая C++ NetSim.
 
 ## Модель игрока-заглушки (assets/models/gpf_fullbody.glb)
 

@@ -13,7 +13,7 @@
 
 - **Сборка расширения:** `cmake -S gdextension -B gdextension/build-ofport -G "Visual Studio 17 2022" -A x64 -DGODOTCPP_TARGET=template_release -DGPF_REPO="<GameplayFootball checkout>" -DGPF_BUILD="<GameplayFootball checkout>/build-ofport"`, затем `cmake --build gdextension/build-ofport --config Release --target open_football_gdext`. C++-библиотеки должны быть собраны из ветки `of_port` в `build-ofport` (Release x64); линкуется также `netlib.lib`.
 - **Запуск:** `godot --path . res://scenes/gpf_slice.tscn`; данные — `GPF_DATA_ROOT` или свойство `data_root` (по умолчанию путь к `GameplayFootball-of_port/data`).
-- **Окружение:** `assets/models/gpf_stadium.glb` (31 материал, текстуры запечены из `test.ase`) и отдельный `gpf_pitch.glb` (4 чанка исходника, runtime merge в одну поверхность) кладутся под `Environment` (raw X→X, Y→Z, Z→Y, как у ворот); газон получает процедурную текстуру C++ (`generate_pitch_texture`) и тему `dry/wet/damp/snow` независимо от стадиона. `V` переключает обзор стадиона. Ворота пока остаются процедурными + C++ NetSim.
+- **Окружение:** `assets/models/gpf_stadium.glb` (31 материал, текстуры запечены из `test.ase`) и отдельный `gpf_pitch.glb` (4 чанка исходника, runtime merge в одну поверхность) кладутся под `Environment` (raw X→X, Y→Z, Z→Y, как у ворот); газон получает процедурную текстуру C++ (`generate_pitch_texture`) и тему `dry/wet/damp/snow` независимо от стадиона. `V` переключает обзор стадиона. Ворота — импортированный `gpf_goals.glb` (белая рамка), сетка остаётся процедурной из C++ NetSim.
 - **Ограничение:** runtime одноразовый — второй матч/возврат в меню без перезапуска Godot не поддерживается.
 
 ## Dev commands
