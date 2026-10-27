@@ -1,4 +1,4 @@
-﻿extends Node3D
+extends Node3D
 
 @onready var runtime := $GpfRuntime
 @onready var camera := $Camera3D
@@ -39,6 +39,69 @@ const PITCH_THEMES := {
 	"damp": {"albedo": Color(0.86, 0.92, 0.86), "roughness": 0.62},
 	"snow": {"albedo": Color(0.92, 0.95, 0.98), "roughness": 0.82},
 }
+
+# Derived from Match::SetRandomSunParams (match.cpp): the original picks a
+# random sun direction and blends a cool noon colour with a warm dusk colour.
+# The presets extend that idea into distinct debug moods.
+const LIGHTING_PRESETS := [
+	{
+		"name": "Noon",
+		"sun_pos": Vector3(-0.25, 0.20, 1.35),
+		"sun_color": Color(0.88, 0.90, 1.0),
+		"sun_energy": 0.80,
+		"ambient": 0.45,
+		"ambient_color": Color(0.62, 0.65, 0.72),
+		"fill_energy": 0.15,
+		"fill_color": Color(0.65, 0.78, 1.0),
+		"exposure": 0.90,
+		"sky_top": Color(0.10, 0.30, 0.62),
+		"sky_horizon": Color(0.64, 0.80, 0.96),
+		"ground_horizon": Color(0.32, 0.36, 0.38),
+		"sky_energy": 0.95,
+		"fog_color": Color(0.65, 0.78, 0.95),
+		"fog_density": 0.0,
+		"sun_disk": 1.0,
+		"shadows": true,
+	},
+	{
+		"name": "Afternoon",
+		"sun_pos": Vector3(-0.90, 0.35, 1.05),
+		"sun_color": Color(1.0, 0.84, 0.65),
+		"sun_energy": 0.70,
+		"ambient": 0.48,
+		"ambient_color": Color(0.64, 0.64, 0.68),
+		"fill_energy": 0.15,
+		"fill_color": Color(0.95, 0.82, 0.70),
+		"exposure": 0.90,
+		"sky_top": Color(0.16, 0.36, 0.62),
+		"sky_horizon": Color(0.92, 0.75, 0.58),
+		"ground_horizon": Color(0.38, 0.34, 0.30),
+		"sky_energy": 0.90,
+		"fog_color": Color(0.85, 0.72, 0.58),
+		"fog_density": 0.0001,
+		"sun_disk": 1.5,
+		"shadows": true,
+	},
+	{
+		"name": "Sunset",
+		"sun_pos": Vector3(-1.10, 0.85, 0.70),
+		"sun_color": Color(1.0, 0.50, 0.28),
+		"sun_energy": 0.80,
+		"ambient": 0.75,
+		"ambient_color": Color(0.72, 0.58, 0.52),
+		"fill_energy": 0.55,
+		"fill_color": Color(0.90, 0.65, 0.48),
+		"exposure": 1.05,
+		"sky_top": Color(0.16, 0.12, 0.30),
+		"sky_horizon": Color(0.95, 0.55, 0.28),
+		"ground_horizon": Color(0.35, 0.22, 0.20),
+		"sky_energy": 0.80,
+		"fog_color": Color(0.90, 0.50, 0.28),
+		"fog_density": 0.00015,
+		"sun_disk": 2.5,
+		"shadows": true,
+	},
+]
 
 const PHASE_NAMES := [
 	"PRE-MATCH",
@@ -100,6 +163,11 @@ var pitch_root: Node3D
 var pitch_materials: Array[StandardMaterial3D] = []
 var pitch_theme := "dry"
 var stadium_camera := false
+var world_environment: Environment
+var sky_material: ProceduralSkyMaterial
+var sun_light: DirectionalLight3D
+var fill_light: DirectionalLight3D
+var lighting_index := 1
 
 func _ready() -> void:
 	gpf_space = Node3D.new()
@@ -116,6 +184,10 @@ func _ready() -> void:
 	body_scene = load("res://assets/models/gpf_fullbody.glb")
 	var ball_scene: PackedScene = load("res://assets/models/gpf_ball.glb")
 	ball_root = ball_scene.instantiate()
+	if ball_root is GeometryInstance3D:
+		ball_root.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	for mesh in ball_root.find_children("*", "MeshInstance3D", true, false):
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	gpf_space.add_child(ball_root)
 
 	_build_goals()
@@ -165,13 +237,78 @@ func _build_world_environment() -> void:
 	var world := WorldEnvironment.new()
 	world.name = "WorldEnvironment"
 	var environment := Environment.new()
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color(0.30, 0.42, 0.55)
+	environment.background_mode = Environment.BG_SKY
+	var sky := Sky.new()
+	sky_material = ProceduralSkyMaterial.new()
+	sky_material.sky_curve = 0.12
+	sky_material.ground_curve = 0.08
+	sky_material.sun_curve = 0.08
+	sky.sky_material = sky_material
+	environment.sky = sky
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.62, 0.68, 0.78)
-	environment.ambient_light_energy = 0.55
+	environment.ambient_light_color = Color(0.60, 0.66, 0.76)
+	environment.ambient_light_energy = 0.38
+	environment.tonemap_mode = Environment.TONE_MAPPER_ACES
+	environment.tonemap_exposure = 1.0
+	environment.fog_enabled = true
+	environment.fog_light_energy = 0.65
+	environment.fog_density = 0.002
 	world.environment = environment
+	world_environment = environment
 	add_child(world)
+
+	var sun := get_node_or_null("Sun") as DirectionalLight3D
+	if sun == null:
+		sun = DirectionalLight3D.new()
+		sun.name = "Sun"
+		add_child(sun)
+	sun.shadow_enabled = true
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
+	sun.directional_shadow_max_distance = 170.0
+	sun.shadow_bias = 0.05
+	sun.shadow_normal_bias = 1.5
+	sun_light = sun
+
+	var fill := get_node_or_null("FillLight") as DirectionalLight3D
+	if fill == null:
+		fill = DirectionalLight3D.new()
+		fill.name = "FillLight"
+		add_child(fill)
+	fill.light_color = Color(0.62, 0.74, 1.0)
+	fill.light_energy = 0.16
+	fill.shadow_enabled = false
+	fill_light = fill
+
+	_apply_lighting()
+
+func _apply_lighting() -> void:
+	if sun_light == null or world_environment == null:
+		return
+	var preset: Dictionary = LIGHTING_PRESETS[lighting_index % LIGHTING_PRESETS.size()]
+	var raw_position: Vector3 = preset["sun_pos"]
+	var sun_position := Vector3(raw_position.x, raw_position.z, raw_position.y).normalized()
+	sun_light.look_at_from_position(sun_position * 100.0, Vector3.ZERO, Vector3.UP)
+	sun_light.light_color = preset["sun_color"]
+	sun_light.light_energy = preset["sun_energy"]
+	sun_light.shadow_enabled = preset["shadows"]
+	world_environment.ambient_light_color = preset["ambient_color"]
+	world_environment.ambient_light_energy = preset["ambient"]
+	world_environment.tonemap_exposure = preset["exposure"]
+	world_environment.fog_light_color = preset["fog_color"]
+	world_environment.fog_density = preset["fog_density"]
+	if sky_material != null:
+		sky_material.sky_top_color = preset["sky_top"]
+		sky_material.sky_horizon_color = preset["sky_horizon"]
+		sky_material.ground_horizon_color = preset["ground_horizon"]
+		sky_material.sky_energy_multiplier = preset["sky_energy"]
+		sky_material.ground_energy_multiplier = preset["sky_energy"]
+		sky_material.sun_angle_max = preset["sun_disk"]
+	if fill_light != null:
+		var fill_position := Vector3(-sun_position.x, 0.85, -sun_position.z).normalized()
+		fill_light.look_at_from_position(fill_position * 100.0, Vector3.ZERO, Vector3.UP)
+		fill_light.light_color = preset["fill_color"]
+		fill_light.light_energy = preset["fill_energy"]
+	_refresh_pitch_tint()
 
 func _build_environment() -> void:
 	var stadium_scene := load(STADIUM_SCENE) as PackedScene
@@ -194,6 +331,7 @@ func _fix_stadium_materials(root: Node3D) -> void:
 		var mesh_instance := node as MeshInstance3D
 		if mesh_instance.mesh == null:
 			continue
+		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		for surface in mesh_instance.mesh.get_surface_count():
 			var source := mesh_instance.mesh.surface_get_material(surface)
 			if source == null:
@@ -287,14 +425,25 @@ func _apply_pitch_texture(root: Node3D) -> void:
 	surface.name = "PitchSurface"
 	surface.mesh = combined
 	surface.material_override = material
+	surface.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(surface)
 	set_pitch_theme(pitch_theme)
 
 func set_pitch_theme(theme: String) -> void:
-	var colors: Dictionary = PITCH_THEMES.get(theme, PITCH_THEMES["dry"])
 	pitch_theme = theme
+	_refresh_pitch_tint()
+
+func _refresh_pitch_tint() -> void:
+	var colors: Dictionary = PITCH_THEMES.get(pitch_theme, PITCH_THEMES["dry"])
+	var preset: Dictionary = LIGHTING_PRESETS[lighting_index % LIGHTING_PRESETS.size()]
+	var tint: Color = preset.get("pitch_tint", Color.WHITE)
 	for material in pitch_materials:
-		material.albedo_color = colors["albedo"]
+		material.albedo_color = Color(
+			colors["albedo"].r * tint.r,
+			colors["albedo"].g * tint.g,
+			colors["albedo"].b * tint.b,
+			colors["albedo"].a
+		)
 		material.roughness = colors["roughness"]
 
 func _apply_kit_color(body: Node3D, team: int) -> void:
@@ -355,7 +504,8 @@ func _process(_delta: float) -> void:
 		var park_text := "F2 unpark opponents" if bool(snap.get("debug_park_opponents", false)) \
 			else "F2 park opponents"
 		var camera_text := "V broadcast cam" if stadium_camera else "V stadium cam"
-		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   %s   %s" % [
+		var lighting_name: String = LIGHTING_PRESETS[lighting_index % LIGHTING_PRESETS.size()]["name"]
+		hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   %s   %s   F1 light: %s" % [
 			status,
 			int(snap.get("tick", 0)),
 			(snap.get("ball_pos", Vector3.ZERO) as Vector3).x,
@@ -364,6 +514,7 @@ func _process(_delta: float) -> void:
 			match_minutes,
 			park_text,
 			camera_text,
+			lighting_name,
 		]
 	frames += 1
 	if shot_path != "" and not shot_taken and frames >= shot_frame:
@@ -428,6 +579,11 @@ func _input(event: InputEvent) -> void:
 	if key_event.keycode == KEY_V:
 		if key_event.pressed:
 			stadium_camera = not stadium_camera
+		return
+	if key_event.keycode == KEY_F1:
+		if key_event.pressed and not key_event.echo:
+			lighting_index = (lighting_index + 1) % LIGHTING_PRESETS.size()
+			_apply_lighting()
 		return
 	if key_event.keycode == KEY_F2:
 		if key_event.pressed:
@@ -674,7 +830,7 @@ func _status_text(snap: Dictionary, player: Dictionary) -> String:
 	if bool(snap.get("paused", false)):
 		return "PAUSED"
 	if bool(snap.get("goal_scored", false)):
-		return "GOAL вЂ” restart"
+		return "GOAL — restart"
 	var piece := int(snap.get("referee_set_piece", 0))
 	var role := int(snap.get("set_piece_role", 0))
 	if bool(snap.get("in_set_piece", false)):
@@ -700,7 +856,7 @@ func _status_text(snap: Dictionary, player: Dictionary) -> String:
 			return "%s - S pass / D shot" % piece_name
 		return "%s - waiting" % piece_name
 	if bool(snap.get("referee_active", false)) and piece != 0:
-		return "%s вЂ” setup" % _set_piece_name(piece)
+		return "%s — setup" % _set_piece_name(piece)
 	if bool(snap.get("in_play", false)):
 		return "LIVE"
 	return "PRE-MATCH"
@@ -783,6 +939,7 @@ func _build_goal_frames() -> void:
 		# gpf_goals.glb also contains the static net panels; the live net is
 		# rendered from the C++ NetSim positions instead.
 		mesh_instance.visible = is_frame
+		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func _build_dynamic_goal_nets() -> void:
 	goal_net_edges = runtime.get_goal_net_edges()

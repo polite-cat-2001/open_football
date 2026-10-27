@@ -32,6 +32,28 @@ func _run() -> void:
 	var net0 := scene.get_node_or_null("Goals/GoalNet0") as MeshInstance3D
 	_check(net0 != null and net0.mesh != null and net0.mesh.get_surface_count() > 0,
 		"dynamic goal net is built")
+	var sun := scene.get_node_or_null("Sun") as DirectionalLight3D
+	var fill := scene.get_node_or_null("FillLight") as DirectionalLight3D
+	_check(sun != null and sun.light_energy > 0.0 and fill != null and fill.light_energy > 0.0,
+		"sun and fill lights are present")
+	var old_lighting: int = int(scene.get("lighting_index"))
+	scene.call("_input", _key(KEY_F1))
+	await process_frame
+	_check(int(scene.get("lighting_index")) != old_lighting, "F1 cycles lighting presets")
+	var preset_map: Dictionary = scene.get_script().get_script_constant_map()
+	var presets: Array = preset_map.get("LIGHTING_PRESETS", [])
+	var preset_names: Array = []
+	for preset in presets:
+		preset_names.append(String(preset.get("name", "")))
+	_check(presets.size() == 3 and not preset_names.has("Night"),
+		"Night preset is disabled")
+	_check(scene.get_node_or_null("Floodlights") == null, "floodlights and panels are removed")
+	var ball_node := scene.get("ball_root") as Node3D
+	var ball_shadow := false
+	if ball_node != null:
+		for mesh in ball_node.find_children("*", "MeshInstance3D", true, false):
+			ball_shadow = ball_shadow or mesh.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_check(ball_shadow, "ball casts a shadow")
 	var goal_frames := scene.get_node_or_null("Environment/GoalFrames") as Node3D
 	var frame_count := 0
 	var hidden_count := 0
