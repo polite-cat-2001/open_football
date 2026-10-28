@@ -102,6 +102,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("toggle_debug_park_opponents"), &GpfRuntimeNode::toggle_debug_park_opponents);
     ClassDB::bind_method(D_METHOD("begin_phase_break"), &GpfRuntimeNode::begin_phase_break);
     ClassDB::bind_method(D_METHOD("continue_after_phase_break"), &GpfRuntimeNode::continue_after_phase_break);
+    ClassDB::bind_method(D_METHOD("set_replay_active", "active"), &GpfRuntimeNode::set_replay_active);
     ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_available"), &GpfRuntimeNode::is_set_piece_taker_menu_available);
     ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_open"), &GpfRuntimeNode::is_set_piece_taker_menu_open);
     ClassDB::bind_method(D_METHOD("open_set_piece_taker_menu"), &GpfRuntimeNode::open_set_piece_taker_menu);
@@ -134,6 +135,10 @@ void GpfRuntimeNode::_process(double delta) {
     if (!runtime_ready || manual_step || game_over_seen) {
         return;
     }
+    if (match->GetPause()) {
+        accumulator_ms = 0.0;
+        return;
+    }
 
     accumulator_ms += delta * 1000.0;
     accumulator_ms = std::min(accumulator_ms, 250.0);
@@ -144,6 +149,11 @@ void GpfRuntimeNode::_process(double delta) {
         step_one_tick();
         ++steps;
         if (game_over_seen) break;
+    }
+
+    if (match->GetPause()) {
+        accumulator_ms = 0.0;
+        return;
     }
 
     double alpha = std::clamp(accumulator_ms / (double)TICK_MS, 0.0, 0.999);
@@ -300,9 +310,10 @@ bool GpfRuntimeNode::start_runtime() {
     }
     match->SetAutoUpdateIngameCamera(true);
 
-    // The original game pauses for an extended replay six seconds after a goal and
-    // unpauses when the replay page closes. This slice has no replay UI, so resume
-    // immediately; otherwise the whole match freezes forever after the first goal.
+    // The original game pauses for an extended replay six seconds after a goal
+    // and unpauses when the replay page closes. The Godot scene consumes this
+    // moment with its own replay. Headless tests have no consumer, so keep the
+    // original auto-resume behaviour when no replay is active.
     game_over_seen = false;
     ended_in_regular_time = false;
     phase_break_pending = false;
@@ -310,7 +321,11 @@ bool GpfRuntimeNode::start_runtime() {
     park_opponents = false;
     goal_nets_ready = false;
     last_match_phase = (int)match->GetMatchPhase();
-    match->sig_OnExtendedReplayMoment.connect([](Match *m) { if (m) m->Pause(false); });
+    match->sig_OnExtendedReplayMoment.connect([this](Match *m) {
+        if (!m) return;
+        replay_moment_pending = true;
+        if (!replay_active) m->Pause(false);
+    });
     match->sig_OnGameOver.connect([this](Match *m) {
         game_over_seen = true;
         if (m) m->Pause(true);
@@ -352,7 +367,7 @@ bool GpfRuntimeNode::start_runtime() {
 }
 
 void GpfRuntimeNode::step_one_tick() {
-    if (!runtime_ready || !match || game_over_seen) {
+    if (!runtime_ready || !match || game_over_seen || match->GetPause()) {
         return;
     }
     sim_time_ms += TICK_MS;
@@ -706,6 +721,7 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["actual_time_ms"] = (int)match->GetActualTime_ms();
     result["match_duration_factor"] = match->GetMatchDurationFactor();
     result["paused"] = match->GetPause();
+    result["replay_moment"] = replay_moment_pending;
     result["phase_break_pending"] = phase_break_pending;
     result["phase_break"] = match->IsPhaseBreak();
     result["phase_break_next_phase"] = phase_break_next_phase;
@@ -793,6 +809,15 @@ void GpfRuntimeNode::continue_after_phase_break() {
     phase_break_next_phase = 0;
     match->SetPhaseBreak(false);
     match->Pause(false);
+}
+
+void GpfRuntimeNode::set_replay_active(bool active) {
+    replay_active = active;
+    replay_moment_pending = false;
+    if (!runtime_ready || !match) {
+        return;
+    }
+    match->Pause(active);
 }
 
 PackedVector3Array GpfRuntimeNode::get_goal_net_positions(int goal) const {

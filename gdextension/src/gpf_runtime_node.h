@@ -27,6 +27,8 @@ private:
     bool phase_break_pending = false;
     int phase_break_next_phase = 0;
     bool park_opponents = false;
+    bool replay_active = false;
+    bool replay_moment_pending = false;
     int last_match_phase = 0;
     bool human_control = true;
     float match_duration = 1.0f;
@@ -87,6 +89,7 @@ public:
     bool toggle_debug_park_opponents();
     bool begin_phase_break();
     void continue_after_phase_break();
+    void set_replay_active(bool active);
     bool is_set_piece_taker_menu_available() const;
     bool is_set_piece_taker_menu_open() const;
     bool open_set_piece_taker_menu();

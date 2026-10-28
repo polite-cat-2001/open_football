@@ -27,6 +27,10 @@ const TEAM_COLORS := {
 const NAMEPLATE_NORMAL_COLOR := Color(0.90, 0.94, 1.0)
 const NAMEPLATE_CONTROLLED_COLOR := Color(1.0, 0.84, 0.18)
 const NAMEPLATE_HEIGHT := 2.25
+const REPLAY_MAX_FRAMES := 300
+const REPLAY_MIN_FRAMES := 30
+const REPLAY_TAIL_FRAMES := 180
+const REPLAY_PLAYBACK_FPS := 60.0
 
 # Original C++ field geometry (gamedefines.hpp): playing field is 110 x 72,
 # goal line at raw X = +-55, goal mouth 7.4 m wide, 2.5 m high, 2.55 m deep.
@@ -134,6 +138,17 @@ var bone_indices: Dictionary = {}
 var actors: Array = []
 var actor_bodies: Dictionary = {}
 var player_labels: Dictionary = {}
+var replay_history: Array = []
+var replay_frames: Array = []
+var pending_replay_frames: Array = []
+var replay_tail: Array = []
+var replay_tail_active := false
+var replay_active := false
+var replay_time := 0.0
+var goal_replay_captured := false
+var replay_layer: CanvasLayer
+var replay_banner: Label
+var replay_hint: Label
 var display_player_id := -1
 var started := false
 var frames := 0
@@ -162,6 +177,7 @@ var phase_menu_open := false
 var phase_menu_game_over := false
 var goal_net_meshes: Array[MeshInstance3D] = []
 var goal_net_edges: PackedInt32Array
+var goal_net_positions_cache: Array = []
 var goal_net_material: Material
 var pitch_root: Node3D
 var pitch_materials: Array[StandardMaterial3D] = []
@@ -197,6 +213,7 @@ func _ready() -> void:
 	_build_goals()
 	_build_penalty_reticle()
 	_build_hud()
+	_build_replay_ui()
 	_build_taker_menu()
 	_build_phase_menu()
 	runtime.start_runtime_now()
@@ -486,6 +503,9 @@ func _apply_kit_color(body: Node3D, team: int) -> void:
 func _process(_delta: float) -> void:
 	if not started:
 		return
+	if replay_active:
+		_update_replay(_delta)
+		return
 	if demo:
 		_run_demo()
 	var current_id: int = runtime.get_human_player_id()
@@ -495,17 +515,22 @@ func _process(_delta: float) -> void:
 	if snap.is_empty():
 		return
 	var player: Dictionary = {}
+	var frame_poses: Dictionary = {}
 	for entry in actors:
 		var id := int(entry.get("id", -1))
 		var pose: Dictionary = runtime.get_player_pose(id)
 		if pose.is_empty():
 			continue
 		_apply_player(id, pose)
+		frame_poses[id] = pose
 		if id == display_player_id:
 			player = pose
 	_update_camera(snap)
-	_update_penalty_reticle(snap)
 	_update_goal_nets()
+	_record_replay_frame(frame_poses)
+	_capture_goal_replay(snap)
+	_update_replay_moment(snap)
+	_update_penalty_reticle(snap)
 	_update_debug_park_visibility(snap)
 	_update_player_labels()
 	_sync_phase_menu(snap)
@@ -570,9 +595,149 @@ func _update_player_labels() -> void:
 		if label == null:
 			continue
 		var body: Node3D = actor_bodies.get(id)
-		label.visible = not stadium_camera and body != null and body.visible
+		label.visible = not replay_active and not stadium_camera and body != null and body.visible
 		label.modulate = NAMEPLATE_CONTROLLED_COLOR if id == display_player_id \
 			else NAMEPLATE_NORMAL_COLOR
+
+func _record_replay_frame(poses: Dictionary) -> void:
+	if replay_active or not started:
+		return
+	var frame := {
+		"poses": poses,
+		"ball": ball_root.transform,
+		"camera": camera.global_transform,
+		"camera_fov": camera.fov,
+		"camera_near": camera.near,
+		"camera_far": camera.far,
+		"net_positions": goal_net_positions_cache.duplicate(),
+	}
+	replay_history.append(frame)
+	while replay_history.size() > REPLAY_MAX_FRAMES:
+		replay_history.pop_front()
+	if replay_tail_active:
+		replay_tail.append(frame)
+		if replay_tail.size() >= REPLAY_TAIL_FRAMES:
+			replay_tail_active = false
+
+func _capture_goal_replay(snap: Dictionary) -> void:
+	if not bool(snap.get("goal_scored", false)):
+		goal_replay_captured = false
+		return
+	if goal_replay_captured or replay_active:
+		return
+	goal_replay_captured = true
+	pending_replay_frames = replay_history.duplicate()
+	replay_tail.clear()
+	replay_tail_active = true
+
+func _update_replay_moment(snap: Dictionary) -> void:
+	if replay_active or not bool(snap.get("replay_moment", false)):
+		return
+	if pending_replay_frames.size() >= REPLAY_MIN_FRAMES:
+		_start_replay()
+	else:
+		runtime.set_replay_active(false)
+
+func _start_replay() -> void:
+	replay_frames = pending_replay_frames.duplicate()
+	replay_frames.append_array(replay_tail)
+	pending_replay_frames.clear()
+	replay_tail.clear()
+	replay_tail_active = false
+	replay_history.clear()
+	replay_time = 0.0
+	replay_active = true
+	runtime.set_replay_active(true)
+	if replay_banner != null:
+		replay_banner.visible = true
+	if replay_hint != null:
+		replay_hint.visible = true
+	if hud != null:
+		hud.visible = false
+	if score_hud != null:
+		score_hud.visible = false
+	if penalty_reticle != null:
+		penalty_reticle.visible = false
+	_update_player_labels()
+
+func _update_replay(delta: float) -> void:
+	if replay_frames.is_empty():
+		_finish_replay()
+		return
+	replay_time += delta
+	var frame_index := int(replay_time * REPLAY_PLAYBACK_FPS)
+	if frame_index >= replay_frames.size():
+		_finish_replay()
+		return
+	_apply_replay_frame(replay_frames[frame_index])
+	_update_player_labels()
+
+func _apply_replay_frame(frame: Dictionary) -> void:
+	var poses: Dictionary = frame.get("poses", {})
+	for id in poses:
+		_apply_player(int(id), poses[id])
+	camera.global_transform = frame.get("camera", camera.global_transform)
+	camera.fov = float(frame.get("camera_fov", camera.fov))
+	camera.near = float(frame.get("camera_near", camera.near))
+	camera.far = float(frame.get("camera_far", camera.far))
+	if ball_root != null:
+		ball_root.transform = frame.get("ball", ball_root.transform)
+	var net_positions: Array = frame.get("net_positions", [])
+	for goal in mini(goal_net_meshes.size(), net_positions.size()):
+		_draw_goal_net(goal, net_positions[goal])
+
+func _finish_replay() -> void:
+	if not replay_active:
+		return
+	replay_active = false
+	replay_frames.clear()
+	pending_replay_frames.clear()
+	replay_tail.clear()
+	replay_tail_active = false
+	replay_history.clear()
+	goal_replay_captured = false
+	replay_time = 0.0
+	runtime.set_replay_active(false)
+	if replay_banner != null:
+		replay_banner.visible = false
+	if replay_hint != null:
+		replay_hint.visible = false
+	if hud != null:
+		hud.visible = true
+	if score_hud != null:
+		score_hud.visible = true
+	_update_player_labels()
+
+func _build_replay_ui() -> void:
+	replay_layer = CanvasLayer.new()
+	replay_layer.layer = 1
+	add_child(replay_layer)
+	replay_banner = Label.new()
+	replay_banner.name = "ReplayBanner"
+	replay_banner.text = "REPLAY"
+	replay_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	replay_banner.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	replay_banner.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	replay_banner.offset_top = 34
+	replay_banner.add_theme_font_size_override("font_size", 34)
+	replay_banner.add_theme_color_override("font_color", Color(1.0, 0.86, 0.2))
+	replay_banner.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	replay_banner.add_theme_constant_override("outline_size", 6)
+	replay_banner.visible = false
+	replay_layer.add_child(replay_banner)
+	replay_hint = Label.new()
+	replay_hint.name = "ReplayHint"
+	replay_hint.text = "SPACE / ESC — skip"
+	replay_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	replay_hint.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	replay_hint.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	replay_hint.offset_top = 82
+	replay_hint.add_theme_font_size_override("font_size", 16)
+	replay_hint.add_theme_color_override("font_color", Color(0.9, 0.93, 1.0))
+	replay_hint.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	replay_hint.add_theme_constant_override("outline_size", 4)
+	replay_hint.visible = false
+	replay_layer.add_child(replay_hint)
 
 func _update_camera(snap: Dictionary) -> void:
 	if stadium_camera:
@@ -602,6 +767,10 @@ func _input(event: InputEvent) -> void:
 		return
 	var key_event := event as InputEventKey
 	if key_event.echo:
+		return
+	if replay_active:
+		if key_event.pressed and key_event.keycode in [KEY_SPACE, KEY_ESCAPE, KEY_ENTER]:
+			_finish_replay()
 		return
 	var human_team: int = runtime.get_human_team_id()
 	if human_team < 0:
@@ -998,14 +1167,20 @@ func _build_dynamic_goal_nets() -> void:
 		_redraw_goal_net(goal)
 
 func _update_goal_nets() -> void:
+	goal_net_positions_cache.clear()
 	for goal in goal_net_meshes.size():
-		_redraw_goal_net(goal)
+		var positions: PackedVector3Array = runtime.get_goal_net_positions(goal)
+		goal_net_positions_cache.append(positions)
+		_draw_goal_net(goal, positions)
 
 func _redraw_goal_net(goal: int) -> void:
+	var positions: PackedVector3Array = runtime.get_goal_net_positions(goal)
+	_draw_goal_net(goal, positions)
+
+func _draw_goal_net(goal: int, positions: PackedVector3Array) -> void:
 	if goal < 0 or goal >= goal_net_meshes.size():
 		return
 	var net := goal_net_meshes[goal]
-	var positions: PackedVector3Array = runtime.get_goal_net_positions(goal)
 	if positions.is_empty():
 		net.visible = false
 		return
