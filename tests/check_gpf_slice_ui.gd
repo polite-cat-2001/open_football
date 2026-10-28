@@ -48,6 +48,9 @@ func _run() -> void:
 	_check(presets.size() == 3 and not preset_names.has("Night"),
 		"Night preset is disabled")
 	_check(scene.get_node_or_null("Floodlights") == null, "floodlights and panels are removed")
+	var replay_banner := scene.get("replay_banner") as Label
+	_check(replay_banner != null and not replay_banner.visible
+		and runtime.has_method("set_replay_active"), "replay overlay and pause hook are ready")
 	var ball_node := scene.get("ball_root") as Node3D
 	var ball_shadow := false
 	if ball_node != null:
