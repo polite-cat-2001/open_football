@@ -24,6 +24,9 @@ const TEAM_COLORS := {
 	1: Color(0.95, 0.15, 0.12),
 	-1: Color(0.95, 0.8, 0.15),
 }
+const NAMEPLATE_NORMAL_COLOR := Color(0.90, 0.94, 1.0)
+const NAMEPLATE_CONTROLLED_COLOR := Color(1.0, 0.84, 0.18)
+const NAMEPLATE_HEIGHT := 2.25
 
 # Original C++ field geometry (gamedefines.hpp): playing field is 110 x 72,
 # goal line at raw X = +-55, goal mouth 7.4 m wide, 2.5 m high, 2.55 m deep.
@@ -130,6 +133,7 @@ var skeletons: Dictionary = {}
 var bone_indices: Dictionary = {}
 var actors: Array = []
 var actor_bodies: Dictionary = {}
+var player_labels: Dictionary = {}
 var display_player_id := -1
 var started := false
 var frames := 0
@@ -231,7 +235,26 @@ func _spawn_actors(ids: Array) -> void:
 		_apply_kit_color(body, int(entry.get("team", -1)))
 		skeletons[id] = skeleton
 		actor_bodies[id] = body
+		_build_nameplate(body, id, entry)
 		actors.append(entry)
+
+func _build_nameplate(body: Node3D, id: int, entry: Dictionary) -> void:
+	if String(entry.get("role", "")) == "official":
+		return
+	var label := Label3D.new()
+	label.name = "Nameplate%d" % id
+	label.text = String(entry.get("name", ""))
+	if label.text.is_empty():
+		label.text = "#%d" % id
+	label.position = Vector3(0.0, 0.0, NAMEPLATE_HEIGHT)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.font_size = 64
+	label.pixel_size = 0.004
+	label.outline_size = 8
+	label.outline_modulate = Color(0.0, 0.0, 0.0, 0.9)
+	label.modulate = NAMEPLATE_NORMAL_COLOR
+	body.add_child(label)
+	player_labels[id] = label
 
 func _build_world_environment() -> void:
 	var world := WorldEnvironment.new()
@@ -484,6 +507,7 @@ func _process(_delta: float) -> void:
 	_update_penalty_reticle(snap)
 	_update_goal_nets()
 	_update_debug_park_visibility(snap)
+	_update_player_labels()
 	_sync_phase_menu(snap)
 	_sync_taker_ui(snap)
 	if hud != null:
@@ -535,6 +559,20 @@ func _apply_player(id: int, player: Dictionary) -> void:
 			continue
 		skeleton.set_bone_pose_position(idx, bone.get("pos", Vector3.ZERO))
 		skeleton.set_bone_pose_rotation(idx, bone.get("rot", Quaternion.IDENTITY))
+	var label: Label3D = player_labels.get(id)
+	if label != null:
+		var pos: Vector3 = player.get("pos", Vector3.ZERO)
+		label.position = Vector3(pos.x, pos.y, NAMEPLATE_HEIGHT)
+
+func _update_player_labels() -> void:
+	for id in player_labels:
+		var label: Label3D = player_labels[id]
+		if label == null:
+			continue
+		var body: Node3D = actor_bodies.get(id)
+		label.visible = not stadium_camera and body != null and body.visible
+		label.modulate = NAMEPLATE_CONTROLLED_COLOR if id == display_player_id \
+			else NAMEPLATE_NORMAL_COLOR
 
 func _update_camera(snap: Dictionary) -> void:
 	if stadium_camera:

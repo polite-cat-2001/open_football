@@ -54,6 +54,19 @@ func _run() -> void:
 		for mesh in ball_node.find_children("*", "MeshInstance3D", true, false):
 			ball_shadow = ball_shadow or mesh.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_check(ball_shadow, "ball casts a shadow")
+	var nameplates: Dictionary = scene.get("player_labels")
+	var controlled_id := int(scene.get("display_player_id"))
+	var controlled_label := nameplates.get(controlled_id) as Label3D
+	var other_label: Label3D = null
+	for id in nameplates:
+		if int(id) != controlled_id:
+			other_label = nameplates[id] as Label3D
+			break
+	_check(nameplates.size() == 22 and controlled_label != null
+		and not controlled_label.text.is_empty(), "nameplates carry player surnames")
+	_check(controlled_label != null and other_label != null
+		and controlled_label.modulate != other_label.modulate,
+		"controlled player's nameplate is highlighted")
 	var goal_frames := scene.get_node_or_null("Environment/GoalFrames") as Node3D
 	var frame_count := 0
 	var hidden_count := 0
