@@ -541,7 +541,7 @@ Array GpfRuntimeNode::get_set_piece_taker_candidates() const {
         Dictionary entry;
         entry["id"] = player->GetID();
         entry["team"] = player->GetTeamID();
-        entry["name"] = String(player->GetPlayerData()->GetLastName().c_str());
+        entry["name"] = String::utf8(player->GetPlayerData()->GetLastName().c_str());
         entry["role"] = player == taker->GetTeam()->GetGoalie() ? "goalkeeper" : "player";
         entry["current"] = player == taker;
         result.append(entry);
@@ -578,6 +578,7 @@ Array GpfRuntimeNode::get_player_ids() const {
             entry["team"] = team_id;
             entry["role"] = players[i] == match->GetTeam(team_id)->GetGoalie()
                 ? "goalkeeper" : "player";
+            entry["name"] = String::utf8(players[i]->GetPlayerData()->GetLastName().c_str());
             result.append(entry);
         }
     }
