@@ -12,10 +12,6 @@
 [node name="GpfSlice" type="Node3D"]
 script = ExtResource("1_slice")
 
-[node name="GpfRuntime" type="GpfRuntimeNode" parent="."]
-manual_step = true
-match_duration = 0.0
-
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, 40)
 current = true

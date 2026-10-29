@@ -29,7 +29,7 @@ func _run() -> void:
 	scene = packed.instantiate()
 	get_root().add_child(scene)
 	await process_frame
-	runtime = scene.get_node("GpfRuntime")
+	runtime = get_first_node_in_group("gpf_runtime")
 	environment = scene.get_node("Environment")
 	actors = scene.get_node("Actors")
 	hud = scene.get_node("Hud")
