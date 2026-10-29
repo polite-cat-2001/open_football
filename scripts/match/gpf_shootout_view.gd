@@ -48,6 +48,23 @@ func is_end_menu_open() -> bool:
 	return shootout_end_open
 
 
+func reset() -> void:
+	shootout_end_open = false
+	shootout_outcome_counter = 0
+	shootout_last_phase = -1
+	shootout_banner_left = 0.0
+	if shootout_end_layer != null:
+		shootout_end_layer.visible = false
+	if shootout_layer != null:
+		shootout_layer.visible = false
+	if shootout_banner != null:
+		shootout_banner.visible = false
+	if shootout_fade_tween != null and shootout_fade_tween.is_valid():
+		shootout_fade_tween.kill()
+	if shootout_fade != null:
+		shootout_fade.color.a = 0.0
+
+
 func handle_end_menu_key(event: InputEventKey) -> void:
 	if not event.pressed:
 		return

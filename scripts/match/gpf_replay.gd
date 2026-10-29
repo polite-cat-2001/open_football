@@ -84,6 +84,20 @@ func finish() -> void:
 	if not _active:
 		return
 	_active = false
+	_clear_state()
+	_runtime.set_replay_active(false)
+	_hud.set_replay_mode(false)
+	_actors.set_labels_visible(true)
+
+
+func reset() -> void:
+	_active = false
+	_clear_state()
+	_hud.set_replay_mode(false)
+	_actors.set_labels_visible(true)
+
+
+func _clear_state() -> void:
 	replay_frames.clear()
 	pending_replay_frames.clear()
 	replay_tail.clear()
@@ -91,13 +105,10 @@ func finish() -> void:
 	replay_history.clear()
 	goal_replay_captured = false
 	replay_time = 0.0
-	_runtime.set_replay_active(false)
 	if replay_banner != null:
 		replay_banner.visible = false
 	if replay_hint != null:
 		replay_hint.visible = false
-	_hud.set_replay_mode(false)
-	_actors.set_labels_visible(true)
 
 
 func _capture_goal(snap: Dictionary) -> void:
