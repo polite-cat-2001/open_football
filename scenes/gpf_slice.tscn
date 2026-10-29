@@ -1,6 +1,13 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/match/gpf_slice.gd" id="1_slice"]
+[ext_resource type="Script" path="res://scripts/match/gpf_environment.gd" id="2_environment"]
+[ext_resource type="Script" path="res://scripts/match/gpf_actors.gd" id="3_actors"]
+[ext_resource type="Script" path="res://scripts/match/gpf_goal_nets.gd" id="4_goal_nets"]
+[ext_resource type="Script" path="res://scripts/match/gpf_camera_rig.gd" id="5_camera_rig"]
+[ext_resource type="Script" path="res://scripts/match/gpf_hud.gd" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/match/gpf_replay.gd" id="7_replay"]
+[ext_resource type="Script" path="res://scripts/match/gpf_shootout_view.gd" id="8_shootout"]
 
 [node name="GpfSlice" type="Node3D"]
 script = ExtResource("1_slice")
@@ -17,3 +24,29 @@ fov = 55.0
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 20, 0)
 light_energy = 1.1
+
+[node name="FillLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20, 0)
+
+[node name="Environment" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0)
+script = ExtResource("2_environment")
+
+[node name="Actors" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0)
+script = ExtResource("3_actors")
+
+[node name="GoalNets" type="Node3D" parent="."]
+script = ExtResource("4_goal_nets")
+
+[node name="CameraRig" type="Node" parent="."]
+script = ExtResource("5_camera_rig")
+
+[node name="Hud" type="Node" parent="."]
+script = ExtResource("6_hud")
+
+[node name="ReplayView" type="Node" parent="."]
+script = ExtResource("7_replay")
+
+[node name="ShootoutView" type="Node" parent="."]
+script = ExtResource("8_shootout")
