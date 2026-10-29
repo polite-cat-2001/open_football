@@ -75,6 +75,10 @@ public:
     String get_last_error() const;
 
     void start_runtime_now();
+    bool start_match();
+    void stop_match();
+    bool restart_match();
+    int debug_get_scene_object_count() const;
     void step_fixed(int ticks);
     Dictionary get_snapshot() const;
     PackedVector3Array get_goal_net_positions(int goal) const;

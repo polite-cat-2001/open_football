@@ -60,12 +60,7 @@ func _ready() -> void:
 	goal_nets.build_dynamic()
 
 	var ids: Array = runtime.get_player_ids()
-	var controlled := -1
-	for entry in ids:
-		if int(entry.get("team", -1)) == 0 and int(entry.get("id", -1)) != 0 \
-				and String(entry.get("role", "player")) != "goalkeeper":
-			controlled = int(entry.get("id"))
-			break
+	var controlled := _pick_controlled(ids)
 	if controlled >= 0:
 		runtime.select_player(controlled)
 		print("display_player_id=", controlled, " human_after_select=", runtime.get_human_player_id())
@@ -73,6 +68,14 @@ func _ready() -> void:
 	actors.set_controlled(controlled)
 	runtime.set("manual_step", false)
 	started = true
+
+
+func _pick_controlled(ids: Array) -> int:
+	for entry in ids:
+		if int(entry.get("team", -1)) == 0 and int(entry.get("id", -1)) != 0 \
+				and String(entry.get("role", "player")) != "goalkeeper":
+			return int(entry.get("id"))
+	return -1
 
 
 func _process(delta: float) -> void:
@@ -116,6 +119,10 @@ func _input(event: InputEvent) -> void:
 		return
 	var key_event := event as InputEventKey
 	if key_event.echo:
+		return
+	if key_event.keycode == KEY_F4:
+		if key_event.pressed:
+			_debug_restart_match()
 		return
 	if replay.is_active():
 		if key_event.pressed and key_event.keycode in [KEY_SPACE, KEY_ESCAPE, KEY_ENTER]:
@@ -182,6 +189,29 @@ func _run_demo() -> void:
 		runtime.set_button(7, true)
 	elif frames == 125:
 		runtime.set_button(7, false)
+
+
+func _debug_restart_match() -> void:
+	# F4 debug: tear down the presentation, ask C++ for a fresh match and rebuild
+	# the actors from the new match's player list.
+	if replay.is_active():
+		replay.finish()
+	replay.reset()
+	hud.reset()
+	shootout.reset()
+	actors.reset()
+	if not runtime.restart_match():
+		push_error("GpfRuntime restart failed: " + str(runtime.get_last_error()))
+		return
+	goal_nets.update()
+	var ids: Array = runtime.get_player_ids()
+	var controlled := _pick_controlled(ids)
+	if controlled >= 0:
+		runtime.select_player(controlled)
+	actors.spawn(ids)
+	actors.set_controlled(controlled)
+	print("debug restart: ids=", ids.size(), " controlled=", controlled,
+		" tick=", runtime.get_tick())
 
 
 func _save_screenshot() -> void:

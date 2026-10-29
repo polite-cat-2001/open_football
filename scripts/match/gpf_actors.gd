@@ -42,6 +42,21 @@ func count() -> int:
 	return actors.size()
 
 
+func reset() -> void:
+	for body in actor_bodies.values():
+		if body != null and is_instance_valid(body):
+			body.queue_free()
+	skeletons.clear()
+	bone_indices.clear()
+	actors.clear()
+	actor_bodies.clear()
+	player_labels.clear()
+	controlled_id = -1
+	labels_visible = true
+	if ball_root != null:
+		ball_root.transform = Transform3D.IDENTITY
+
+
 func get_controlled() -> int:
 	return controlled_id
 

@@ -17,6 +17,7 @@
 #include "onthepitch/setpiece/setpiecepresentation.hpp"
 #include "onthepitch/team.hpp"
 #include "procedural_pitch.h"
+#include "scene/scene3d/scene3d.hpp"
 #include "base/math/bluntmath.hpp"
 #include "managers/usereventmanager.hpp"
 #include "gamedefines.hpp"
@@ -26,6 +27,7 @@
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <list>
 #include <string>
 #include <vector>
 
@@ -88,6 +90,10 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("is_runtime_ready"), &GpfRuntimeNode::is_runtime_ready);
     ClassDB::bind_method(D_METHOD("get_last_error"), &GpfRuntimeNode::get_last_error);
     ClassDB::bind_method(D_METHOD("start_runtime_now"), &GpfRuntimeNode::start_runtime_now);
+    ClassDB::bind_method(D_METHOD("start_match"), &GpfRuntimeNode::start_match);
+    ClassDB::bind_method(D_METHOD("stop_match"), &GpfRuntimeNode::stop_match);
+    ClassDB::bind_method(D_METHOD("restart_match"), &GpfRuntimeNode::restart_match);
+    ClassDB::bind_method(D_METHOD("debug_get_scene_object_count"), &GpfRuntimeNode::debug_get_scene_object_count);
     ClassDB::bind_method(D_METHOD("step_fixed", "ticks"), &GpfRuntimeNode::step_fixed);
     ClassDB::bind_method(D_METHOD("get_snapshot"), &GpfRuntimeNode::get_snapshot);
     ClassDB::bind_method(D_METHOD("get_goal_net_positions", "goal"), &GpfRuntimeNode::get_goal_net_positions);
@@ -133,7 +139,7 @@ void GpfRuntimeNode::_ready() {
 }
 
 void GpfRuntimeNode::_process(double delta) {
-    if (!runtime_ready || manual_step || game_over_seen) {
+    if (!runtime_ready || manual_step || game_over_seen || !match) {
         return;
     }
     if (match->GetPause()) {
@@ -283,8 +289,41 @@ bool GpfRuntimeNode::start_runtime() {
     GetScheduler()->RegisterTaskSequence(game_sequence);
 
     menuTask->SetTeamIDs("3", "8");
-    Properties loading_props;
-    menuTask->GetWindowManager()->GetPageFactory()->CreatePage((int)e_PageID_LoadingMatch, loading_props, 0);
+    runtime_ready = true;
+
+    if (!start_match()) {
+        runtime_failed = true;
+        runtime_ready = false;
+        return false;
+    }
+    UtilityFunctions::print("GpfRuntimeNode: original match ready");
+    return true;
+}
+
+bool GpfRuntimeNode::start_match() {
+    if (!runtime_ready || !gameTask || !menuTask) {
+        return false;
+    }
+    // Starting a second match on top of a live one would trip GameTask's
+    // assert(!match). The caller must stop_match() first.
+    if (match) {
+        return false;
+    }
+
+    last_error = "";
+    sim_time_ms = 0;
+    accumulator_ms = 0.0;
+    game_over_seen = false;
+    ended_in_regular_time = false;
+    phase_break_pending = false;
+    phase_break_next_phase = 0;
+    park_opponents = false;
+    replay_active = false;
+    replay_moment_pending = false;
+    goal_nets_ready = false;
+    last_match_phase = 0;
+
+    // Fresh data package: Match owns and deletes it in Match::Exit().
     MatchData *match_data = new MatchData(menuTask->GetTeamID(0), menuTask->GetTeamID(1));
     menuTask->SetMatchData(match_data);
 
@@ -300,11 +339,16 @@ bool GpfRuntimeNode::start_runtime() {
     }
     menuTask->SetControllerSetup(sides);
 
+    // Match's constructor assumes the most recently created page is its
+    // LoadingMatchPage and closes it; create a fresh one for every match.
+    Properties loading_props;
+    menuTask->GetWindowManager()->GetPageFactory()->CreatePage(
+        (int)e_PageID_LoadingMatch, loading_props, 0);
+
     blunted::randomize(seed);
     gameTask->Action(e_GameTaskMessage_StartMatch);
     match = gameTask->GetMatch();
     if (!match) {
-        runtime_failed = true;
         last_error = "Match was not created";
         UtilityFunctions::printerr(last_error);
         return false;
@@ -315,12 +359,6 @@ bool GpfRuntimeNode::start_runtime() {
     // and unpauses when the replay page closes. The Godot scene consumes this
     // moment with its own replay. Headless tests have no consumer, so keep the
     // original auto-resume behaviour when no replay is active.
-    game_over_seen = false;
-    ended_in_regular_time = false;
-    phase_break_pending = false;
-    phase_break_next_phase = 0;
-    park_opponents = false;
-    goal_nets_ready = false;
     last_match_phase = (int)match->GetMatchPhase();
     match->sig_OnExtendedReplayMoment.connect([this](Match *m) {
         if (!m) return;
@@ -360,11 +398,36 @@ bool GpfRuntimeNode::start_runtime() {
     goal_net_prev_time_ms = 0;
     goal_nets_ready = true;
 
-    sim_time_ms = 0;
     match->SetPresentationClock(true, TICK_MS, TICK_MS);
-    runtime_ready = true;
-    UtilityFunctions::print("GpfRuntimeNode: original match ready");
     return true;
+}
+
+void GpfRuntimeNode::stop_match() {
+    if (!runtime_ready || !gameTask) {
+        return;
+    }
+    // Safe to call repeatedly: GameTask only tears down when a match exists.
+    gameTask->Action(e_GameTaskMessage_StopMatch);
+    match = nullptr;
+    sim_time_ms = 0;
+    accumulator_ms = 0.0;
+    game_over_seen = false;
+    ended_in_regular_time = false;
+    phase_break_pending = false;
+    phase_break_next_phase = 0;
+    park_opponents = false;
+    replay_active = false;
+    replay_moment_pending = false;
+    goal_nets_ready = false;
+    last_match_phase = 0;
+}
+
+bool GpfRuntimeNode::restart_match() {
+    if (!runtime_ready) {
+        return start_runtime();
+    }
+    stop_match();
+    return start_match();
 }
 
 void GpfRuntimeNode::step_one_tick() {
@@ -448,6 +511,16 @@ void GpfRuntimeNode::step_fixed(int ticks) {
 
 int GpfRuntimeNode::get_tick() const {
     return (int)(sim_time_ms / TICK_MS);
+}
+
+int GpfRuntimeNode::debug_get_scene_object_count() const {
+    boost::shared_ptr<blunted::Scene3D> scene = GetScene3D();
+    if (!scene) {
+        return -1;
+    }
+    std::list<boost::intrusive_ptr<blunted::Object> > objects;
+    scene->GetObjects(objects);
+    return (int)objects.size();
 }
 
 int GpfRuntimeNode::get_human_player_id() const {

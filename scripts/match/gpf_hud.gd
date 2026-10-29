@@ -78,7 +78,7 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	var park_text := "F2 unpark opponents" if bool(snap.get("debug_park_opponents", false)) \
 		else "F2 park opponents"
 	var camera_text := "V broadcast cam" if stadium_camera else "V stadium cam"
-	hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   %s   %s   F1 light: %s" % [
+	hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   F4 new match   %s   %s   F1 light: %s" % [
 		status,
 		int(snap.get("tick", 0)),
 		(snap.get("ball_pos", Vector3.ZERO) as Vector3).x,
@@ -96,6 +96,13 @@ func set_replay_mode(active: bool) -> void:
 		hud.visible = not active
 	if score_hud != null:
 		score_hud.visible = not active
+
+
+func reset() -> void:
+	close_taker_menu(false)
+	_close_phase_menu()
+	phase_menu_game_over = false
+	set_replay_mode(false)
 
 
 func is_taker_menu_open() -> bool:
