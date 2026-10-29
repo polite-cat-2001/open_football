@@ -115,6 +115,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("debug_set_ball", "position", "momentum"), &GpfRuntimeNode::debug_set_ball);
     ClassDB::bind_method(D_METHOD("debug_set_last_touch_team", "team_id"), &GpfRuntimeNode::debug_set_last_touch_team);
     ClassDB::bind_method(D_METHOD("debug_force_set_piece", "set_piece_type", "team_id"), &GpfRuntimeNode::debug_force_set_piece);
+    ClassDB::bind_method(D_METHOD("debug_force_shootout"), &GpfRuntimeNode::debug_force_shootout);
     ClassDB::bind_method(D_METHOD("debug_force_phase_break", "next_phase"), &GpfRuntimeNode::debug_force_phase_break);
     ClassDB::bind_method(D_METHOD("debug_force_game_over"), &GpfRuntimeNode::debug_force_game_over);
 
@@ -391,7 +392,7 @@ void GpfRuntimeNode::step_one_tick() {
                                    last_match_phase == (int)e_MatchPhase_2ndHalf;
         const bool ended_extra = phase == e_MatchPhase_2ndExtraTime &&
                                  last_match_phase == (int)e_MatchPhase_1stExtraTime;
-        if (decisive && (ended_regular || ended_extra)) {
+        if (decisive && (ended_regular || ended_extra) && !match->IsShootoutActive()) {
             ended_in_regular_time = ended_regular;
             game_over_seen = true;
             match->Pause(true);
@@ -734,6 +735,28 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["ball_retainer"] = match->GetBallRetainer() ? match->GetBallRetainer()->GetID() : -1;
     result["restart_pos"] = to_godot(referee_buffer.restartPos);
 
+    // Penalty shootout state (the series HUD). Always present so GDScript needs no guards.
+    result["shootout_active"] = match->IsShootoutActive();
+    result["shootout_phase"] = match->GetShootoutPhase();
+    result["shootout_score0"] = match->GetShootoutScore(0);
+    result["shootout_score1"] = match->GetShootoutScore(1);
+    Array shootout_kicks0;
+    Array shootout_kicks1;
+    for (int i = 0; i < 16; ++i) {
+        shootout_kicks0.append(match->GetShootoutKickResult(0, i));
+        shootout_kicks1.append(match->GetShootoutKickResult(1, i));
+    }
+    result["shootout_kicks0"] = shootout_kicks0;
+    result["shootout_kicks1"] = shootout_kicks1;
+    result["shootout_outcome"] = match->GetShootoutLastOutcome();
+    result["shootout_outcome_counter"] = (int)match->GetShootoutOutcomeCounter();
+    result["shootout_outcome_kicker"] = match->GetShootoutLastOutcomeKickerID();
+    result["shootout_decisive"] = match->IsShootoutDecisive();
+    result["shootout_winner"] = match->GetShootoutWinner();
+    result["shootout_celebrating"] = match->IsShootoutCelebrating();
+    result["shootout_taker_team"] = match->GetShootoutTakerTeam();
+    result["shootout_goal_x"] = match->GetShootoutGoalX();
+
     boost::intrusive_ptr<blunted::Geometry> ball_geom = match->GetBall()->GetBallGeom();
     result["ball_pos"] = to_godot(ball_geom->GetDerivedPosition());
     result["ball_rot"] = to_godot(ball_geom->GetDerivedRotation());
@@ -932,6 +955,13 @@ void GpfRuntimeNode::debug_force_set_piece(int set_piece_type, int team_id) {
         break;
     }
     match->GetReferee()->DebugForceSetPiece(type, team_id, restart);
+}
+
+void GpfRuntimeNode::debug_force_shootout() {
+    if (!runtime_ready || !match) {
+        return;
+    }
+    match->StartShootout(false);
 }
 
 void GpfRuntimeNode::debug_force_phase_break(int next_phase) {
