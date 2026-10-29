@@ -3,6 +3,8 @@ extends Node
 # In-match HUD and its menus: score/clock/status bar, the set-piece taker overlay and
 # the half-time / full-time phase menu.
 
+signal main_menu_requested
+
 const PHASE_NAMES := [
 	"PRE-MATCH",
 	"1ST HALF",
@@ -268,8 +270,8 @@ func _refresh_phase_menu(snap: Dictionary) -> void:
 	]
 	phase_menu_continue.visible = not game_over
 	if game_over:
-		phase_menu_hint.text = "Enter / Esc: exit"
-		phase_menu_quit.text = "Exit"
+		phase_menu_hint.text = "Enter / Esc: main menu"
+		phase_menu_quit.text = "Main menu"
 	else:
 		phase_menu_hint.text = "Enter / Space: continue"
 		phase_menu_quit.text = "Quit"
@@ -303,7 +305,9 @@ func _close_phase_menu() -> void:
 
 
 func _quit_game() -> void:
-	get_tree().quit()
+	# Both the full-time and the abandoned-break "Quit" leave for the main menu; the
+	# scene orchestrator stops the match on its way out.
+	main_menu_requested.emit()
 
 
 func _status_text(snap: Dictionary, display_player_id: int) -> String:

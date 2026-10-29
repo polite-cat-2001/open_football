@@ -2,7 +2,15 @@ extends Node3D
 # Scene orchestrator for the GDExtension gameplay slice. It wires the presentation
 # components together and routes input to them; it owns no match or presentation state.
 
-@onready var runtime := $GpfRuntime
+# The original C++ runtime can only be initialized once per process, so its node
+# outlives every match scene: it is created on the first match and parked under the
+# tree root while the main menu is up. A scene change therefore gives a fresh match
+# without re-initializing the runtime.
+const RUNTIME_SCENE := preload("res://scenes/gpf_runtime.tscn")
+const RUNTIME_GROUP := "gpf_runtime"
+const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
+
+var runtime: Node
 @onready var camera := $Camera3D
 @onready var actors: GpfActors = $Actors
 @onready var environment_view: GpfEnvironment = $Environment
@@ -45,6 +53,7 @@ var demo := OS.get_environment("GPF_DEMO") != ""
 
 
 func _ready() -> void:
+	runtime = _acquire_runtime()
 	actors.setup(runtime)
 	environment_view.setup(runtime, $Sun, $FillLight)
 	goal_nets.setup(runtime, environment_view)
@@ -53,12 +62,36 @@ func _ready() -> void:
 	replay.setup(runtime, camera, actors, goal_nets, hud)
 	shootout.setup()
 
-	runtime.start_runtime_now()
-	if not runtime.is_runtime_ready():
+	hud.main_menu_requested.connect(_return_to_main_menu)
+	shootout.main_menu_requested.connect(_return_to_main_menu)
+	shootout.restart_requested.connect(_start_fresh_match)
+
+	# Every scene load is a new match: stop and restart so the previous match's
+	# clock, score and objects cannot leak into this one.
+	if not runtime.restart_match():
 		push_error("GpfRuntime failed: " + str(runtime.get_last_error()))
 		return
 	goal_nets.build_dynamic()
+	_build_presentation()
 
+
+func _exit_tree() -> void:
+	# The runtime node stays under the tree root for the next match; park it stopped.
+	if runtime != null and is_instance_valid(runtime):
+		runtime.stop_match()
+
+
+func _acquire_runtime() -> Node:
+	var existing := get_tree().get_first_node_in_group(RUNTIME_GROUP)
+	if existing != null:
+		return existing
+	var node: Node = RUNTIME_SCENE.instantiate()
+	node.add_to_group(RUNTIME_GROUP)
+	get_tree().root.add_child(node)
+	return node
+
+
+func _build_presentation() -> void:
 	var ids: Array = runtime.get_player_ids()
 	var controlled := _pick_controlled(ids)
 	if controlled >= 0:
@@ -122,7 +155,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if key_event.keycode == KEY_F4:
 		if key_event.pressed:
-			_debug_restart_match()
+			_start_fresh_match()
 		return
 	if replay.is_active():
 		if key_event.pressed and key_event.keycode in [KEY_SPACE, KEY_ESCAPE, KEY_ENTER]:
@@ -191,9 +224,9 @@ func _run_demo() -> void:
 		runtime.set_button(7, false)
 
 
-func _debug_restart_match() -> void:
-	# F4 debug: tear down the presentation, ask C++ for a fresh match and rebuild
-	# the actors from the new match's player list.
+func _start_fresh_match() -> void:
+	# Tear down the presentation, ask C++ for a fresh match and rebuild the actors
+	# from the new match's player list (F4 debug key and the end-of-match menu).
 	if replay.is_active():
 		replay.finish()
 	replay.reset()
@@ -204,14 +237,15 @@ func _debug_restart_match() -> void:
 		push_error("GpfRuntime restart failed: " + str(runtime.get_last_error()))
 		return
 	goal_nets.update()
-	var ids: Array = runtime.get_player_ids()
-	var controlled := _pick_controlled(ids)
-	if controlled >= 0:
-		runtime.select_player(controlled)
-	actors.spawn(ids)
-	actors.set_controlled(controlled)
-	print("debug restart: ids=", ids.size(), " controlled=", controlled,
+	_build_presentation()
+	print("new match: ids=", runtime.get_player_ids().size(),
 		" tick=", runtime.get_tick())
+
+
+func _return_to_main_menu() -> void:
+	if replay.is_active():
+		replay.finish()
+	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
 
 func _save_screenshot() -> void:

@@ -3,6 +3,9 @@ extends Node
 # Presentation of the penalty shootout series: the two circle rows, outcome banners,
 # the reposition fade and the end-of-match menu. The series itself lives in C++.
 
+signal main_menu_requested
+signal restart_requested
+
 # Mirrors e_ShootoutPhase / e_ShootoutOutcome in the C++ runtime.
 const PHASE_NONE := 0
 const PHASE_KICK_SETUP := 1
@@ -142,13 +145,12 @@ func _open_end_menu(snap: Dictionary) -> void:
 
 
 func _continue() -> void:
-	get_tree().quit()
+	main_menu_requested.emit()
 
 
 func _restart() -> void:
-	# The C++ match runtime is one-shot: restart the whole game process for a fresh match.
-	OS.create_process(OS.get_executable_path(), OS.get_cmdline_args())
-	get_tree().quit()
+	# The C++ runtime supports a fresh match in the same process, so restart in place.
+	restart_requested.emit()
 
 
 func _ensure_circles(team: int, count: int) -> void:
@@ -272,7 +274,7 @@ func _build_end_menu() -> void:
 	box.add_child(buttons)
 
 	var continue_button := Button.new()
-	continue_button.text = "Продолжить"
+	continue_button.text = "В главное меню"
 	continue_button.custom_minimum_size = Vector2(180, 42)
 	continue_button.pressed.connect(_continue)
 	buttons.add_child(continue_button)
@@ -286,7 +288,7 @@ func _build_end_menu() -> void:
 	shootout_end_buttons.append(restart_button)
 
 	var hint := Label.new()
-	hint.text = "Enter — продолжить    R — начать заново"
+	hint.text = "Enter — в главное меню    R — начать заново"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_font_size_override("font_size", 14)
 	hint.add_theme_color_override("font_color", Color(0.75, 0.78, 0.85))
