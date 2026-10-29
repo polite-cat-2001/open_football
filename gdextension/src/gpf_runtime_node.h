@@ -105,6 +105,8 @@ public:
     void debug_set_ball(const Vector3 &position, const Vector3 &momentum);
     void debug_set_last_touch_team(int team_id);
     void debug_force_set_piece(int set_piece_type, int team_id);
+    // F3: start the penalty shootout series from a clean play state.
+    void debug_force_shootout();
     void debug_force_phase_break(int next_phase);
     void debug_force_game_over();
 };

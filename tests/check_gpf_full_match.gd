@@ -19,7 +19,9 @@ const SECOND_HALF_MS := 5400000
 const FIRST_EXTRA_MS := 6300000
 const SECOND_EXTRA_MS := 7200000
 
-const MAX_TICKS := 140000
+# A draw after 120:00 now plays the penalty shootout before the match ends, so leave headroom for
+# the series (each kick is a short set piece + a short hold).
+const MAX_TICKS := 200000
 
 var failures: Array[String] = []
 var runtime: Node
