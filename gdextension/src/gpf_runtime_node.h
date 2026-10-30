@@ -9,6 +9,9 @@
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/vector3.hpp>
 
+#include <map>
+#include <vector>
+
 #include "data/teamdata.hpp"
 #include "onthepitch/net/netsim.hpp"
 
@@ -45,6 +48,19 @@ private:
     TeamDataRaw match_package[2];
     float package_duration = 1.0f;
     float package_difficulty = 0.8f;
+
+    // Shell-owned controller setup. The shell (Godot) enumerates its input devices,
+    // registers gamepads here and routes their raw buttons/axes. C++ keeps the
+    // mapping from side to device and hands it to the original Match as
+    // SideSelection entries.
+    struct ShellController {
+        int side = -1;              // -1 home, +1 away
+        bool keyboard = true;
+        int slot = -1;              // virtual gamepad slot
+        unsigned int stable_id = 0; // SideSelection.joystickID (0 = keyboard)
+    };
+    std::vector<ShellController> shell_controllers;
+    std::map<int, int> gamepad_slots; // Godot device id -> virtual gamepad slot
 
     Match *match = nullptr;
     netsim::Net goal_nets[2];
@@ -89,6 +105,9 @@ public:
     bool set_match_package(const Dictionary &package);
     bool has_match_package() const;
     int debug_get_scene_object_count() const;
+    // Test hook: which device kind the human is actually bound to.
+    String debug_human_device() const;
+    Array debug_human_state() const;
     void step_fixed(int ticks);
     Dictionary get_snapshot() const;
     PackedVector3Array get_goal_net_positions(int goal) const;
@@ -114,6 +133,16 @@ public:
     int get_tick() const;
     void set_button(int index, bool pressed);
     void set_move(double x, double y);
+
+    // Shell input devices. `register_gamepad` reserves a virtual slot for a Godot
+    // joypad id and returns it (-1 if none). `set_controller_setup` takes entries
+    // {side: -1|1, kind: "keyboard"|"gamepad", slot: int}. The setup is applied at
+    // the next match start/restart.
+    int register_gamepad(int godot_device_id);
+    void set_controller_setup(const Array &setup);
+    Array get_controller_setup() const;
+    void set_gamepad_button(int slot, int button, bool pressed);
+    void set_gamepad_axis(int slot, int axis, double value);
 
     // Debug/test hooks. Positions and momentum are in the original C++ (raw) space:
     // raw X = pitch length, raw Y = pitch width, raw Z = up.

@@ -7,6 +7,7 @@
 #include "blunted.hpp"
 #include "gamecontext.hpp"
 #include "gametask.hpp"
+#include "hid/ihidevice.hpp"
 #include "main.hpp"
 #include "menu/menutask.hpp"
 #include "menu/pagefactory.hpp"
@@ -214,6 +215,8 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_match_package", "package"), &GpfRuntimeNode::set_match_package);
     ClassDB::bind_method(D_METHOD("has_match_package"), &GpfRuntimeNode::has_match_package);
     ClassDB::bind_method(D_METHOD("debug_get_scene_object_count"), &GpfRuntimeNode::debug_get_scene_object_count);
+    ClassDB::bind_method(D_METHOD("debug_human_device"), &GpfRuntimeNode::debug_human_device);
+    ClassDB::bind_method(D_METHOD("debug_human_state"), &GpfRuntimeNode::debug_human_state);
     ClassDB::bind_method(D_METHOD("step_fixed", "ticks"), &GpfRuntimeNode::step_fixed);
     ClassDB::bind_method(D_METHOD("get_snapshot"), &GpfRuntimeNode::get_snapshot);
     ClassDB::bind_method(D_METHOD("get_goal_net_positions", "goal"), &GpfRuntimeNode::get_goal_net_positions);
@@ -239,6 +242,11 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_tick"), &GpfRuntimeNode::get_tick);
     ClassDB::bind_method(D_METHOD("set_button", "index", "pressed"), &GpfRuntimeNode::set_button);
     ClassDB::bind_method(D_METHOD("set_move", "x", "y"), &GpfRuntimeNode::set_move);
+    ClassDB::bind_method(D_METHOD("register_gamepad", "godot_device_id"), &GpfRuntimeNode::register_gamepad);
+    ClassDB::bind_method(D_METHOD("set_controller_setup", "setup"), &GpfRuntimeNode::set_controller_setup);
+    ClassDB::bind_method(D_METHOD("get_controller_setup"), &GpfRuntimeNode::get_controller_setup);
+    ClassDB::bind_method(D_METHOD("set_gamepad_button", "slot", "button", "pressed"), &GpfRuntimeNode::set_gamepad_button);
+    ClassDB::bind_method(D_METHOD("set_gamepad_axis", "slot", "axis", "value"), &GpfRuntimeNode::set_gamepad_axis);
     ClassDB::bind_method(D_METHOD("debug_set_ball", "position", "momentum"), &GpfRuntimeNode::debug_set_ball);
     ClassDB::bind_method(D_METHOD("debug_set_last_touch_team", "team_id"), &GpfRuntimeNode::debug_set_last_touch_team);
     ClassDB::bind_method(D_METHOD("debug_force_set_piece", "set_piece_type", "team_id"), &GpfRuntimeNode::debug_force_set_piece);
@@ -516,15 +524,32 @@ bool GpfRuntimeNode::start_match() {
 
     std::vector<SideSelection> sides;
     if (human_control) {
-        SideSelection keyboard;
-        keyboard.controllerID = 0;
-        keyboard.joystickID = 0;
-        keyboard.controllerImage = 0;
-        keyboard.side = -1;
-        keyboard.confirmed = true;
-        sides.push_back(keyboard);
+        if (shell_controllers.empty()) {
+            // No shell selection (headless default): the keyboard plays home.
+            SideSelection keyboard;
+            keyboard.controllerID = 0;
+            keyboard.joystickID = 0;
+            keyboard.controllerImage = 0;
+            keyboard.side = -1;
+            keyboard.confirmed = true;
+            sides.push_back(keyboard);
+        } else {
+            for (size_t i = 0; i < shell_controllers.size(); ++i) {
+                const ShellController &entry = shell_controllers[i];
+                SideSelection selection;
+                selection.controllerID = (int)i;
+                selection.joystickID = (SDL_JoystickID)entry.stable_id;
+                selection.controllerImage = 0;
+                selection.side = entry.side;
+                selection.confirmed = true;
+                sides.push_back(selection);
+            }
+        }
     }
     menuTask->SetControllerSetup(sides);
+    // Persist the shell setup for the whole match: menu pages clear the queued
+    // fixture, and a gamepad hot-plug makes the match rebind its HumanGamers.
+    MenuTask::SetShellControllerSetup(sides);
 
     // Match's constructor assumes the most recently created page is its
     // LoadingMatchPage and closes it; create a fresh one for every match.
@@ -710,16 +735,67 @@ int GpfRuntimeNode::debug_get_scene_object_count() const {
     return (int)objects.size();
 }
 
+String GpfRuntimeNode::debug_human_device() const {
+    if (!runtime_ready || !match) {
+        return String();
+    }
+    for (int team_id = 0; team_id < 2; ++team_id) {
+        Team *team = match->GetTeam(team_id);
+        std::vector<Player *> players;
+        match->GetActiveTeamPlayers(team_id, players);
+        for (size_t i = 0; i < players.size(); ++i) {
+            if (!team->IsHumanControlled(players[i]->GetID())) {
+                continue;
+            }
+            HumanGamer *gamer = team->GetHumanGamerControllingPlayer(players[i]);
+            if (!gamer || !gamer->GetHIDevice()) {
+                return String();
+            }
+            const IHIDevice *device = gamer->GetHIDevice();
+            // 0 = e_HIDDeviceType_Keyboard in the original enum order.
+            return String((int)device->GetDeviceType() == 0 ? "keyboard" : "gamepad");
+        }
+    }
+    return String();
+}
+
+Array GpfRuntimeNode::debug_human_state() const {
+    Array result;
+    if (!runtime_ready || !match) {
+        return result;
+    }
+    for (int team_id = 0; team_id < 2; ++team_id) {
+        Team *team = match->GetTeam(team_id);
+        Dictionary item;
+        item["team"] = team_id;
+        item["gamers"] = (int)team->GetHumanGamerCount();
+        int controlled = 0;
+        std::vector<Player *> players;
+        match->GetActiveTeamPlayers(team_id, players);
+        for (size_t i = 0; i < players.size(); ++i) {
+            if (team->IsHumanControlled(players[i]->GetID())) {
+                ++controlled;
+            }
+        }
+        item["controlled"] = controlled;
+        result.append(item);
+    }
+    return result;
+}
+
 int GpfRuntimeNode::get_human_player_id() const {
     if (!runtime_ready || !match) {
         return -1;
     }
-    Team *home = match->GetTeam(0);
-    std::vector<Player *> players;
-    match->GetActiveTeamPlayers(0, players);
-    for (size_t i = 0; i < players.size(); ++i) {
-        if (home->IsHumanControlled(players[i]->GetID())) {
-            return players[i]->GetID();
+    // The human can play either side: scan both rosters.
+    for (int team_id = 0; team_id < 2; ++team_id) {
+        Team *team = match->GetTeam(team_id);
+        std::vector<Player *> players;
+        match->GetActiveTeamPlayers(team_id, players);
+        for (size_t i = 0; i < players.size(); ++i) {
+            if (team->IsHumanControlled(players[i]->GetID())) {
+                return players[i]->GetID();
+            }
         }
     }
     // -1, not the first player: when nobody is selected (goal celebration,
@@ -829,13 +905,21 @@ void GpfRuntimeNode::select_player(int player_id) {
     if (!runtime_ready || !match) {
         return;
     }
-    Team *home = match->GetTeam(0);
-    std::vector<Player *> players;
-    match->GetActiveTeamPlayers(0, players);
-    for (size_t i = 0; i < players.size(); ++i) {
-        if (players[i]->GetID() == player_id) {
-            home->SelectPlayer(players[i]);
-            return;
+    for (int team_id = 0; team_id < 2; ++team_id) {
+        Team *team = match->GetTeam(team_id);
+        if (team->GetHumanGamerCount() == 0) {
+            continue;
+        }
+        std::vector<Player *> players;
+        match->GetActiveTeamPlayers(team_id, players);
+        for (size_t i = 0; i < players.size(); ++i) {
+            if (players[i]->GetID() == player_id) {
+                // Force the switch on the human's team: Team::SelectPlayer moves
+                // the gamer's selection (the old implementation only re-selected
+                // a player that was already controlled).
+                team->SelectPlayer(players[i]);
+                return;
+            }
         }
     }
 }
@@ -1174,6 +1258,96 @@ void GpfRuntimeNode::set_move(double x, double y) {
     set_button(e_ButtonFunction_Right, x > threshold);
     set_button(e_ButtonFunction_Up, y > threshold);
     set_button(e_ButtonFunction_Down, y < -threshold);
+}
+
+int GpfRuntimeNode::register_gamepad(int godot_device_id) {
+    if (!runtime_ready) {
+        last_error = "register_gamepad called before the runtime started";
+        UtilityFunctions::printerr(last_error);
+        return -1;
+    }
+    if (godot_device_id < 0) {
+        last_error = "invalid Godot gamepad device id";
+        return -1;
+    }
+    const std::map<int, int>::const_iterator found = gamepad_slots.find(godot_device_id);
+    if (found != gamepad_slots.end()) {
+        return found->second;
+    }
+    // Stable ids in a range the shell controls: they never collide with the SDL
+    // joystick ids of the physical devices the runtime may also enumerate.
+    const SDL_JoystickID stable_id = (SDL_JoystickID)(0x40000000u + (unsigned int)godot_device_id);
+    const int slot = UserEventManager::GetInstance().AddVirtualGamepad(stable_id);
+    if (slot < 0) {
+        last_error = "no free virtual gamepad slot";
+        UtilityFunctions::printerr(last_error);
+        return -1;
+    }
+    gamepad_slots[godot_device_id] = slot;
+    // Create the HIDGamepad wrapper for the new slot right away: the match reads
+    // its controllers when it is constructed, not on the next game tick.
+    RefreshGamepads();
+    return slot;
+}
+
+void GpfRuntimeNode::set_controller_setup(const Array &setup) {
+    shell_controllers.clear();
+    for (int i = 0; i < setup.size(); ++i) {
+        const Variant &item = setup[i];
+        if (item.get_type() != Variant::DICTIONARY) {
+            continue;
+        }
+        const Dictionary entry = item;
+        int side = (int)value_or(entry, "side", -1);
+        if (side == 0) {
+            continue;
+        }
+        side = side > 0 ? 1 : -1;
+
+        ShellController controller;
+        controller.side = side;
+        const String kind = (String)value_or(entry, "kind", "keyboard");
+        const int slot = (int)value_or(entry, "slot", -1);
+        if (kind == String("gamepad") && slot >= 0 && slot < blunted::_JOYSTICK_MAX) {
+            const SDL_JoystickID stable_id = UserEventManager::GetInstance().GetJoystickID(slot);
+            if (stable_id != 0) {
+                controller.keyboard = false;
+                controller.slot = slot;
+                controller.stable_id = (unsigned int)stable_id;
+            }
+        }
+        shell_controllers.push_back(controller);
+    }
+}
+
+Array GpfRuntimeNode::get_controller_setup() const {
+    Array result;
+    for (size_t i = 0; i < shell_controllers.size(); ++i) {
+        const ShellController &entry = shell_controllers[i];
+        Dictionary item;
+        item["side"] = entry.side;
+        item["kind"] = entry.keyboard ? String("keyboard") : String("gamepad");
+        item["slot"] = entry.slot;
+        item["stable_id"] = (int)entry.stable_id;
+        result.append(item);
+    }
+    return result;
+}
+
+void GpfRuntimeNode::set_gamepad_button(int slot, int button, bool pressed) {
+    if (!runtime_ready || slot < 0 || slot >= blunted::_JOYSTICK_MAX ||
+            button < 0 || button >= blunted::_JOYSTICK_MAXBUTTONS) {
+        return;
+    }
+    UserEventManager::GetInstance().SetJoyButtonState(slot, button, pressed);
+}
+
+void GpfRuntimeNode::set_gamepad_axis(int slot, int axis, double value) {
+    if (!runtime_ready || slot < 0 || slot >= blunted::_JOYSTICK_MAX ||
+            axis < 0 || axis >= blunted::_JOYSTICK_MAXAXES) {
+        return;
+    }
+    UserEventManager::GetInstance().SetJoystickAxis(slot, axis, (float)value);
 }
 
 void GpfRuntimeNode::debug_set_ball(const Vector3 &position, const Vector3 &momentum) {

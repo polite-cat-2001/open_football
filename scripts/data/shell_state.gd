@@ -10,13 +10,24 @@ extends RefCounted
 const DEFAULT_MATCH_OPTIONS := {
 	"duration": 1.0,
 	"difficulty": 0.8,
+	"kit_home": 1.0,
+	"kit_away": 2.0,
 }
+const DEFAULT_CONTROLLERS := [
+	{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+]
 
 static var home_team: Dictionary = {}
 static var away_team: Dictionary = {}
 static var preview_team: Dictionary = {}
 static var match_options: Dictionary = DEFAULT_MATCH_OPTIONS.duplicate(true)
 static var match_package: Dictionary = {}
+# One entry per local human: which side they play and which device they use.
+# 1P today; the array shape is what the local-2P ticket extends. The default is
+# a fallback for flows that skip the controller select screen; it is not a
+# confirmed user choice (the screen restores only configured sides).
+static var controllers: Array = DEFAULT_CONTROLLERS.duplicate(true)
+static var controllers_configured := false
 
 
 static func set_teams(home: Dictionary, away: Dictionary) -> void:
@@ -40,6 +51,25 @@ static func set_match_package(package: Dictionary) -> void:
 	match_package = package.duplicate(true)
 
 
+static func set_controllers(setup: Array) -> void:
+	controllers.clear()
+	for entry in setup:
+		if entry is Dictionary:
+			controllers.append((entry as Dictionary).duplicate(true))
+	controllers_configured = true
+	if controllers.is_empty():
+		controllers = DEFAULT_CONTROLLERS.duplicate(true)
+
+
+static func set_controller(index: int, entry: Dictionary) -> void:
+	if index < 0:
+		return
+	while controllers.size() <= index:
+		controllers.append(DEFAULT_CONTROLLERS[0].duplicate(true))
+	controllers[index] = entry.duplicate(true)
+	controllers_configured = true
+
+
 static func has_package() -> bool:
 	return not match_package.is_empty()
 
@@ -54,3 +84,5 @@ static func clear() -> void:
 	preview_team.clear()
 	match_options = DEFAULT_MATCH_OPTIONS.duplicate(true)
 	match_package.clear()
+	controllers = DEFAULT_CONTROLLERS.duplicate(true)
+	controllers_configured = false

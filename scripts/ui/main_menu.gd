@@ -56,11 +56,10 @@ func _build_ui() -> void:
 
 
 func _on_start() -> void:
-	# Start Match never invents teams and never reuses a stale package: with two
-	# teams picked it goes through the prematch, otherwise through selection.
-	var target := "res://scenes/team_select.tscn"
-	if ShellState.has_selection():
-		target = "res://scenes/prematch.tscn"
+	# Match flow follows the original: side/controller select first, then team
+	# select (when needed) and the prematch. The controller screen itself skips
+	# team select when a pair is already picked.
+	var target := "res://scenes/controller_select.tscn"
 	var packed := load(target)
 	if not packed:
 		push_error("Failed to load " + target)

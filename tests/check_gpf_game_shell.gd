@@ -46,7 +46,12 @@ func _press_start(menu: Node) -> void:
 		return
 	start.pressed.emit()
 	await _frames(3)
-	# With teams already picked, Start Match must go through the prematch.
+	# Start Match now opens the original-style controller/side select first.
+	if current_scene != null and current_scene.name == "ControllerSelect":
+		# A lone keyboard starts on home; Enter confirms it and commits.
+		current_scene.call("_input", _key(KEY_ENTER))
+		await _frames(3)
+	# With teams already picked, the controller screen goes straight to prematch.
 	if current_scene != null and current_scene.name == "Prematch":
 		var kick_off := current_scene.get("start_button") as Button
 		if kick_off == null:
