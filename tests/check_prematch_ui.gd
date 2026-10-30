@@ -1,7 +1,7 @@
 extends SceneTree
-# Headless UI path check: Select Teams -> minimal prematch (length, difficulty)
-# -> match. The prematch builds the match package and stores it in ShellState;
-# the match scene hands it to the C++ runtime.
+# Headless UI path check: Select Teams -> prematch (lineup edit, length,
+# difficulty) -> match. The prematch builds the match package and stores it in
+# ShellState; the match scene hands it to the C++ runtime.
 #
 # Run:  godot --headless --path . -s res://tests/check_prematch_ui.gd
 
@@ -71,6 +71,26 @@ func _run() -> void:
 	_check(prematch.duration_option.item_count == 3, "prematch offers three match lengths")
 	_check(prematch.difficulty_option.item_count == 3, "prematch offers three difficulties")
 	_check(not prematch.start_button.disabled, "Kick Off is enabled with a selection")
+	_check(prematch.home_editor != null and prematch.away_editor != null,
+		"prematch loads editable lineups for both teams")
+	_check(prematch.editor_tabs.get_tab_count() == 2, "prematch offers home and away lineup tabs")
+
+	var edited_slot := 5
+	var promoted_id := int(prematch.home_editor.lineup.bench[0])
+	prematch.home_editor.lineup.set_starter(edited_slot, promoted_id)
+	prematch.home_editor.set_lineup(prematch.home_editor.lineup)
+	prematch.call("_validate_lineups")
+	_check(prematch.home_editor.validation_error().is_empty(),
+		"swapping a starter keeps the lineup valid")
+
+	var first_id := int(prematch.home_editor.lineup.lineup[6])
+	var second_id := int(prematch.home_editor.lineup.lineup[8])
+	prematch.home_editor.call("_handle_pick", first_id)
+	prematch.home_editor.call("_handle_pick", second_id)
+	_check(prematch.home_editor.lineup.lineup[6] == second_id
+		and prematch.home_editor.lineup.lineup[8] == first_id,
+		"two clicks swap two starters")
+	prematch.call("_validate_lineups")
 
 	prematch.duration_option.select(2)
 	prematch.duration_option.item_selected.emit(2)
@@ -97,6 +117,8 @@ func _run() -> void:
 			"the package carries the chosen length")
 		_check(float(package["options"]["difficulty"]) == 0.6,
 			"the package carries the chosen difficulty")
+		_check(int(package["home"]["players"][edited_slot]["database_id"]) == promoted_id,
+			"the edited starter reaches the package")
 
 	var runtime := get_first_node_in_group("gpf_runtime")
 	_check(runtime != null and bool(runtime.has_match_package()),
@@ -107,6 +129,12 @@ func _run() -> void:
 			"the match uses the chosen home team")
 		_check(str(snap.get("team1_name", "")) == str(teams[1]["name"]),
 			"the match uses the chosen away team")
+		var active_names: Array[String] = []
+		for entry in runtime.get_player_ids():
+			if int(entry.get("team", -2)) == 0:
+				active_names.append(str(entry.get("name", "")))
+		var promoted_name := str(package["home"]["players"][edited_slot].get("last_name", ""))
+		_check(active_names.has(promoted_name), "the edited starter is on the pitch")
 
 	ShellState.clear()
 	_finish()
