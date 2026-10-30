@@ -32,10 +32,20 @@ func _build_ui() -> void:
 	if not btn.pressed.is_connected(_on_start):
 		btn.pressed.connect(_on_start)
 
+	var select_btn := Button.new()
+	select_btn.name = "SelectTeamsBtn"
+	select_btn.text = "Select Teams"
+	select_btn.set_position(Vector2(490, 500))
+	select_btn.set_size(Vector2(300, 80))
+	select_btn.add_theme_font_size_override("font_size", 28)
+	add_child(select_btn)
+	if not select_btn.pressed.is_connected(_on_select_teams):
+		select_btn.pressed.connect(_on_select_teams)
+
 	var classic_btn := Button.new()
 	classic_btn.name = "ClassicMatchBtn"
 	classic_btn.text = "Classic Match (legacy)"
-	classic_btn.set_position(Vector2(490, 500))
+	classic_btn.set_position(Vector2(490, 600))
 	classic_btn.set_size(Vector2(300, 80))
 	classic_btn.add_theme_font_size_override("font_size", 22)
 	add_child(classic_btn)
@@ -50,6 +60,17 @@ func _on_start() -> void:
 	var packed := load("res://scenes/gpf_slice.tscn")
 	if not packed:
 		push_error("Failed to load gpf_slice.tscn")
+		return
+	var err := get_tree().change_scene_to_packed(packed)
+	if err != OK:
+		push_error("change_scene_to_packed failed: " + str(err))
+
+
+func _on_select_teams() -> void:
+	print("Select Teams clicked")
+	var packed := load("res://scenes/team_select.tscn")
+	if not packed:
+		push_error("Failed to load team_select.tscn")
 		return
 	var err := get_tree().change_scene_to_packed(packed)
 	if err != OK:
