@@ -1,12 +1,16 @@
 extends SceneTree
-# Headless UI check for the squad screen: team select -> View squad shows the
-# eleven formation slots, the players in formation order, and every final stat.
+# Headless UI check for the squad screen: a valid team shows the eleven
+# formation slots, the players in formation order and every final stat. The
+# squad screen is opened from the new team-select screen with V (the original
+# team-select page has no extra button), so the test seeds that preview team.
 # A missing team shows a readable error instead of an empty screen.
 #
 # Run:  godot --headless --path . -s res://tests/check_squad_ui.gd
 
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const TEAM_SELECT := "res://scenes/team_select.tscn"
 const SQUAD := "res://scenes/squad.tscn"
+const TEAM_ID := 4
 
 var failures: Array[String] = []
 
@@ -29,42 +33,25 @@ func _frames(count: int) -> void:
 
 
 func _run() -> void:
+	var catalog := TeamCatalog.new()
+	if not catalog.load_data_root(DATA_ROOT):
+		_check(false, "the catalog loads")
+		_finish()
+		return
+	var team := catalog.team_by_id(TEAM_ID)
+	_check(not team.is_empty(), "the test team exists")
+
 	ShellState.clear()
-	change_scene_to_file(TEAM_SELECT)
+	ShellState.set_preview_team(team)
+	change_scene_to_file(SQUAD)
 	await _frames(10)
-	var select := current_scene
-	_check(select != null and select.name == "TeamSelect", "the team selection screen opens")
-	if select == null or select.name != "TeamSelect":
-		_finish()
-		return
-
-	var league_index := -1
-	var teams: Array = []
-	for i in select.league_list.item_count:
-		var league_id := int(select.league_list.get_item_metadata(i))
-		var candidates: Array = select.catalog.teams_for_league(league_id)
-		if candidates.size() >= 2:
-			league_index = i
-			teams = candidates
-			break
-	_check(league_index >= 0, "a league with teams is available")
-	if league_index < 0:
-		_finish()
-		return
-	select.league_list.select(league_index)
-	select.call("_on_league_selected", league_index)
-	select.team_list.select(0)
-	select.call("_on_team_selected", 0)
-	_check(not select.view_squad_button.disabled, "View squad is enabled for a selected team")
-	select.view_squad_button.pressed.emit()
-	await _frames(10)
-
 	var squad := current_scene
-	_check(squad != null and squad.name == "Squad", "View squad opens the squad screen")
+	_check(squad != null and squad.name == "Squad", "the squad screen opens")
 	if squad == null or squad.name != "Squad":
 		_finish()
 		return
-	_check(squad.team_label.text == str(teams[0]["name"]), "the squad screen shows the selected team")
+	_check(squad.team_label.text == str(team.get("name", "")),
+		"the squad screen shows the selected team")
 	_check(not squad.league_label.text.is_empty(), "the squad screen shows the league")
 	_check((squad.pitch_view.entries as Array).size() == 11,
 		"the pitch shows eleven formation slots")

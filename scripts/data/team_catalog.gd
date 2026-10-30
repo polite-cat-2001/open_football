@@ -18,10 +18,13 @@ const SQUAD_PLAYER_COLUMNS := [
 ]
 
 var error := ""
+var countries: Array[Dictionary] = []
 var leagues: Array[Dictionary] = []
 var teams: Array[Dictionary] = []
 
 var _countries := {}
+var _country_rows := {}
+var _leagues_by_country := {}
 var _teams_by_league := {}
 var _teams_by_id := {}
 
@@ -65,6 +68,21 @@ func database_path(root: String = "") -> String:
 
 func teams_for_league(league_id: int) -> Array:
 	return _teams_by_league.get(league_id, [])
+
+
+func leagues_for_country(country_id: int) -> Array:
+	return _leagues_by_country.get(country_id, [])
+
+
+func country_by_id(country_id: int) -> Dictionary:
+	return _country_rows.get(country_id, {})
+
+
+func national_league_id() -> int:
+	for league in leagues:
+		if str(league.get("name", "")) == NATIONAL_LEAGUE_NAME:
+			return int(league.get("id", -1))
+	return -1
 
 
 func team_by_id(team_id: int) -> Dictionary:
@@ -189,31 +207,52 @@ func load_squad(team_id: int) -> Dictionary:
 
 
 func _load_from_reader(reader: SqliteReader) -> bool:
-	var country_rows := reader.select_all("countries", PackedStringArray(["id", "name"]))
+	var country_rows := reader.select_all("countries", PackedStringArray(["id", "name", "tm_id"]))
 	if not reader.error.is_empty():
 		error = "Team database could not be read (countries): %s." % reader.error
 		return false
 	for country in country_rows:
-		_countries[int(country["id"])] = _text(country.get("name"))
+		var id := int(country["id"])
+		var name := _text(country.get("name"))
+		var tm_id := _text(country.get("tm_id"))
+		_countries[id] = name
+		_country_rows[id] = {"id": id, "name": name, "tm_id": tm_id}
 
 	var league_rows := reader.select_all("leagues",
-		PackedStringArray(["id", "name", "country_id", "tier"]))
+		PackedStringArray(["id", "name", "country_id", "tier", "logo_url"]))
 	if not reader.error.is_empty():
 		error = "Team database could not be read (leagues): %s." % reader.error
 		return false
 	for row in league_rows:
 		var country_id := _int(row.get("country_id"))
-		leagues.append({
+		var league := {
 			"id": int(row["id"]),
 			"name": _text(row.get("name")),
 			"country_id": country_id,
 			"country": _text(_countries.get(country_id, "")),
 			"tier": _int(row.get("tier")),
-		})
+			"logo_url": _text(row.get("logo_url")),
+		}
+		leagues.append(league)
+		if country_id > 0:
+			if not _leagues_by_country.has(country_id):
+				_leagues_by_country[country_id] = []
+			_leagues_by_country[country_id].append(league)
 	leagues.sort_custom(_compare_leagues)
+	for country_id in _leagues_by_country:
+		_leagues_by_country[country_id].sort_custom(_compare_leagues)
+
+	# The original country selector lists only countries that have leagues.
+	# "National Teams" is offered separately by the screen.
+	for country_id in _leagues_by_country:
+		if _country_rows.has(country_id):
+			countries.append(_country_rows[country_id])
+	countries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return str(a.get("name", "")) < str(b.get("name", "")))
 
 	var team_rows := reader.select_all("teams",
-		PackedStringArray(["id", "league_id", "name", "shortname", "color1", "color2"]))
+		PackedStringArray(["id", "league_id", "name", "shortname", "color1", "color2",
+			"logo_url", "kit_url"]))
 	if not reader.error.is_empty():
 		error = "Team database could not be read (teams): %s." % reader.error
 		return false
@@ -226,6 +265,8 @@ func _load_from_reader(reader: SqliteReader) -> bool:
 			"shortname": _text(row.get("shortname")),
 			"color1": _text(row.get("color1")),
 			"color2": _text(row.get("color2")),
+			"logo_url": _text(row.get("logo_url")),
+			"kit_url": _text(row.get("kit_url")),
 		}
 		teams.append(team)
 		_teams_by_id[int(team["id"])] = team
@@ -274,8 +315,11 @@ func _float(value, fallback: float = 0.0) -> float:
 
 func _reset() -> void:
 	error = ""
+	countries.clear()
 	leagues.clear()
 	teams.clear()
 	_countries.clear()
+	_country_rows.clear()
+	_leagues_by_country.clear()
 	_teams_by_league.clear()
 	_teams_by_id.clear()

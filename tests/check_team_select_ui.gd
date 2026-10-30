@@ -1,11 +1,14 @@
 extends SceneTree
-# Headless UI check for the team selection screen: leagues and teams come from the
-# database, picking two teams enables Start Match, the choice lands in the shell
-# state, and a missing database shows a readable error instead of an empty screen.
+# Headless UI check for the ported TeamSelectPage: two side panels with
+# Country/Competition/Team carousels and Ready, a single keyboard player picks
+# the home then the CPU away side, and the chosen pair lands in ShellState.
 #
 # Run:  godot --headless --path . -s res://tests/check_team_select_ui.gd
 
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const TEAM_SELECT := "res://scenes/team_select.tscn"
+const HOME_ID := 4
+const AWAY_ID := 5
 
 var failures: Array[String] = []
 
@@ -29,70 +32,68 @@ func _frames(count: int) -> void:
 
 func _run() -> void:
 	ShellState.clear()
-	change_scene_to_file("res://scenes/main_menu.tscn")
-	await _frames(3)
-	var menu := current_scene
-	var select_button := menu.get_node_or_null("SelectTeamsBtn") as Button
-	_check(select_button != null, "the main menu offers team selection")
-	if select_button == null:
-		_finish()
-		return
-	select_button.pressed.emit()
+	change_scene_to_file(TEAM_SELECT)
 	await _frames(10)
 	var screen := current_scene
-	_check(screen != null and screen.name == "TeamSelect", "Select Teams opens the team selection screen")
+	_check(screen != null and screen.name == "TeamSelect", "the team selection screen opens")
 	if screen == null or screen.name != "TeamSelect":
 		_finish()
 		return
 
-	_check(screen.catalog.leagues.size() > 0, "the screen loads leagues from the database")
-	_check(screen.league_list.item_count == screen.catalog.leagues.size(),
-		"the league list shows every league (%d)" % screen.league_list.item_count)
-	_check(screen.catalog.teams.size() > 0, "the screen loads teams from the database")
-	_check(screen.start_button.disabled, "Start Match is disabled until both teams are picked")
+	var panels: Array = screen.get("panels")
+	_check(panels.size() == 2, "the screen has two side panels")
+	var catalog: TeamCatalog = screen.get("catalog")
+	_check(catalog != null and not catalog.leagues.is_empty(),
+		"the catalog is loaded behind the carousels")
+	_check(catalog != null and not catalog.countries.is_empty(),
+		"the country carousel has entries")
 
-	var league_index := -1
-	var teams: Array = []
-	for i in screen.league_list.item_count:
-		var league_id := int(screen.league_list.get_item_metadata(i))
-		var candidates: Array = screen.catalog.teams_for_league(league_id)
-		if candidates.size() >= 2:
-			league_index = i
-			teams = candidates
-			break
-	_check(league_index >= 0, "the database has a league with at least two teams")
-	if league_index < 0:
+	var home := catalog.team_by_id(HOME_ID) if catalog != null else {}
+	var away := catalog.team_by_id(AWAY_ID) if catalog != null else {}
+	_check(not home.is_empty() and not away.is_empty(), "the test teams exist")
+	if home.is_empty() or away.is_empty():
 		_finish()
 		return
 
-	screen.league_list.select(league_index)
-	screen.call("_on_league_selected", league_index)
-	_check(screen.team_list.item_count == teams.size(),
-		"the team list shows the selected league's teams (%d)" % screen.team_list.item_count)
+	# Carousel movement repopulates the dependent rows.
+	var country_row = panels[0]["rows"][0]
+	var before_country := int(country_row.get("selected"))
+	screen.call("_move_selection", 0, 1)
+	_check(int(country_row.get("selected")) != before_country,
+		"Left/Right moves the country carousel")
+	_check(not panels[0]["rows"][1].get("entries").is_empty(),
+		"the competition/team rows follow the country")
 
-	screen.team_list.select(0)
-	screen.set_home_button.pressed.emit()
-	screen.team_list.select(1)
-	screen.set_away_button.pressed.emit()
-	_check(not screen.start_button.disabled, "Start Match is enabled once both teams are picked")
-	_check(screen.home_label.text.begins_with(str(teams[0]["name"])),
-		"the home slot shows the chosen team")
-	_check(screen.away_label.text.begins_with(str(teams[1]["name"])),
-		"the away slot shows the chosen team")
-	_check(screen.save_selection(), "the selection is saved")
-	_check(ShellState.has_selection(), "the shell state holds the selection")
-	_check(int(ShellState.home_team.get("id", -1)) == int(teams[0]["id"]),
-		"the shell state keeps the home team id")
-	_check(int(ShellState.away_team.get("id", -1)) == int(teams[1]["id"]),
-		"the shell state keeps the away team id")
+	screen.call("_restore_team", 0, HOME_ID)
+	screen.call("_restore_team", 1, AWAY_ID)
+	var home_selected: Dictionary = panels[0]["rows"][2].selected_entry()
+	var away_selected: Dictionary = panels[1]["rows"][2].selected_entry()
+	_check(str(home_selected.get("id", "")) == str(HOME_ID),
+		"the home team is restored in its carousel")
+	_check(str(away_selected.get("id", "")) == str(AWAY_ID),
+		"the away team is restored in its carousel")
 
+	# A lone keyboard starts on the human's side; Ready reveals the CPU side,
+	# whose Ready commits the pair and opens the hub.
+	screen.call("_set_ready", 0, true)
+	await _frames(1)
+	_check(bool(screen.get("side_active")[1]), "Ready reveals the CPU away panel")
+	screen.call("_set_ready", 1, true)
+	await _frames(10)
+	_check(current_scene != null and current_scene.name == "Prematch",
+		"both sides ready opens the pre-match hub")
+	_check(int(ShellState.home_team.get("id", 0)) == HOME_ID
+		and int(ShellState.away_team.get("id", 0)) == AWAY_ID,
+		"the chosen teams land in the shell state")
+
+	# A missing database is a readable error, not an empty screen.
+	ShellState.clear()
 	var broken = load(TEAM_SELECT).instantiate()
-	broken.data_root = "user://__team_select_missing"
+	broken.data_root = "Z:/no-such-gpf-data"
 	root.add_child(broken)
-	await _frames(2)
-	_check(broken.start_button.disabled, "a missing database disables Start Match")
+	await _frames(3)
 	_check(broken.status_label.text.contains("not found"),
-		"a missing database shows a readable message: " + broken.status_label.text)
+		"a missing database is reported: " + broken.status_label.text)
 	broken.queue_free()
 
 	ShellState.clear()

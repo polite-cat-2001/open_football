@@ -17,11 +17,13 @@
 `Formation`, formation/tactics XML, цвета, `logo_url`/`kit_url` с префиксом `databases/default/`
 и опции `duration`/`difficulty`. `TeamCatalog.load_squad` теперь читает и внешность
 (`skincolor`/`hairstyle`/`haircolor`/`height`/`strong_foot`/`tm_id`) и полные тактические колонки.
-Экран `scenes/prematch.tscn` (`scripts/ui/prematch.gd`) — Short/Normal/Long и Easy/Normal/Hard;
-`team_select` после **Continue** открывает его, **Kick Off** кладёт пакет в
-`ShellState.match_package` и открывает `gpf_slice`. Встроенной пары команд нет: `gpf_slice` без
-пакета возвращает в выбор команд; **Start Match** в меню ведёт в прематч при выбранных командах
-иначе в выбор, пакет каждый раз собирается заново на `Kick Off`.
+Экран `scenes/prematch.tscn` (`scripts/ui/prematch.gd`) — **порт `PreMatchPage`**: 7 вкладок
+Kit/Stadium/Kick-off/Game plan/Options/Camera/System, Kick-off (два столбца стартовых, Edit
+lineups, Start match), Options-слайдеры длины/сложности, Kit-превью. Ready на team select
+открывает хаб, **Start match** кладёт пакет в `ShellState.match_package` и открывает
+`gpf_slice`. Встроенной пары команд нет: `gpf_slice` без пакета возвращает в выбор команд;
+**Start Match** в меню ведёт по оригинальному пути Controller Select → Team Select → PreMatch,
+пакет каждый раз собирается заново на Start match.
 
 C++ (чекаут `of_port`): `PlayerDataRaw.stats` и `TeamDataRaw.formation` принимаются как готовые
 данные; добавлен `MatchData(const TeamDataRaw&, const TeamDataRaw&)`; `GpfRuntimeNode::set_match_package`
@@ -47,3 +49,7 @@ shootout, game shell, slice UI, team select/catalog, player stats/squad, menu-lo
 - [x] Headless-тест запускает матч из пакета и проверяет имена, счёт, время и состав.
 - [x] UI-путь: выбор двух команд → минимальный прематч → матч.
 - [x] В тикете зафиксировано, что случайная последовательность изменилась; дальше идёт тикет 07.
+
+> **UI-политика:** если этому тикету нужен UI, портировать соответствующий экран/элемент из
+> оригинала (`GameplayFootball-of_port/src/menu/...`) — та же раскладка, подписи, иконки,
+> управление и порядок экранов. Godot-UI не изобретать заново; отступления документировать.

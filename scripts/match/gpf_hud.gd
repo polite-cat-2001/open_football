@@ -107,6 +107,11 @@ func reset() -> void:
 	set_replay_mode(false)
 
 
+func set_taker_hint_key(key_name: String) -> void:
+	if taker_hint != null:
+		taker_hint.text = "%s: change taker" % key_name
+
+
 func is_taker_menu_open() -> bool:
 	return taker_menu_open
 

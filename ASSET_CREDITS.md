@@ -52,3 +52,10 @@
 - Кит (футболка/шорты/гетры) **не из оригинала**: клубные формы `databases/default/images_teams/`
   — трейдмарки, не берём. Текстура кита рисуется скриптом по раскладке, документированной
   в `databases/default/template_kit.png`.
+
+## UI-ассеты Controller Select (assets/ui/)
+
+- Источник: GameplayFootball, `data/media/menu/controller/keyboard_small.png` и
+  `controller_small.png`, шрифт `data/media/fonts/alegreya/AlegreyaSansSC-ExtraBold.ttf`;
+  Apache 2.0 (см. `assets/gpf/LICENSE-GameplayFootball`).
+- Используются экраном `scenes/controller_select.tscn` (порт `SideSelectPage`).
