@@ -45,9 +45,27 @@ func _press_start(menu: Node) -> void:
 		failures.append("main menu has no Start Match button")
 		return
 	start.pressed.emit()
+	await _frames(3)
+	# With teams already picked, Start Match must go through the prematch.
+	if current_scene != null and current_scene.name == "Prematch":
+		var kick_off := current_scene.get("start_button") as Button
+		if kick_off == null:
+			failures.append("prematch has no Kick Off button")
+			return
+		kick_off.pressed.emit()
+		await _frames(4)
 
 
 func _run() -> void:
+	# The shell has no built-in teams: preselect a real pair, as the team screen
+	# would. Each prematch Kick Off rebuilds the package.
+	var catalog := TeamCatalog.new()
+	if not catalog.load_data_root(""):
+		failures.append("team catalog could not be loaded: " + catalog.error)
+		_finish()
+		return
+	ShellState.set_teams(catalog.team_by_id(4), catalog.team_by_id(5))
+
 	change_scene_to_file(MAIN_MENU)
 	await _frames(3)
 	var menu := current_scene
@@ -56,9 +74,8 @@ func _run() -> void:
 		_finish()
 		return
 
-	# First match: Start Match must open the GPF match, not the legacy GDScript one.
-	_press_start(menu)
-	await _frames(4)
+	# First match: Start Match must lead through the prematch to the GPF match.
+	await _press_start(menu)
 	var first := current_scene
 	_check(first != null and first.name == "GpfSlice", "Start Match opens the GPF match")
 	if first == null or first.name != "GpfSlice":
@@ -99,8 +116,7 @@ func _run() -> void:
 	_check(current_scene.get_node_or_null("Actors") == null, "match actors are gone with the scene")
 
 	# Second match in the same process.
-	_press_start(menu)
-	await _frames(4)
+	await _press_start(menu)
 	var second := current_scene
 	_check(second != null and second.name == "GpfSlice", "the second match opens from the menu")
 	if second == null or second.name != "GpfSlice":

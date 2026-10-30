@@ -56,10 +56,14 @@ func _build_ui() -> void:
 
 
 func _on_start() -> void:
-	print("Start Match clicked")
-	var packed := load("res://scenes/gpf_slice.tscn")
+	# Start Match never invents teams and never reuses a stale package: with two
+	# teams picked it goes through the prematch, otherwise through selection.
+	var target := "res://scenes/team_select.tscn"
+	if ShellState.has_selection():
+		target = "res://scenes/prematch.tscn"
+	var packed := load(target)
 	if not packed:
-		push_error("Failed to load gpf_slice.tscn")
+		push_error("Failed to load " + target)
 		return
 	var err := get_tree().change_scene_to_packed(packed)
 	if err != OK:

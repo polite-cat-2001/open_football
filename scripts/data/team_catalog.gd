@@ -14,6 +14,7 @@ const NATIONAL_LEAGUE_NAME := "National Teams"
 const SQUAD_PLAYER_COLUMNS := [
 	"id", "team_id", "nationalteam_id", "firstname", "lastname", "role", "age",
 	"base_stat", "profile_xml", "formationorder", "nationalteamformationorder",
+	"skincolor", "hairstyle", "haircolor", "height", "strong_foot", "tm_id",
 ]
 
 var error := ""
@@ -108,7 +109,9 @@ func load_squad(team_id: int) -> Dictionary:
 		return {}
 
 	var team_rows := reader.select_any("teams", [{"column": "id", "value": team_id}],
-		PackedStringArray(["id", "name", "league_id", "shortname", "color1", "color2", "formation_xml"]))
+		PackedStringArray(["id", "name", "league_id", "shortname", "color1", "color2",
+			"logo_url", "kit_url", "formation_xml", "formation_factory_xml",
+			"tactics_xml", "tactics_factory_xml"]))
 	if not reader.error.is_empty() or team_rows.is_empty():
 		error = "Team %d could not be read: %s." % [team_id, reader.error]
 		reader.close()
@@ -167,6 +170,12 @@ func load_squad(team_id: int) -> Dictionary:
 			"formation_order": _int(row.get(order_column)),
 			"stats": stats,
 			"average": PlayerStats.average(stats),
+			"skin_color": _int(row.get("skincolor"), 1),
+			"hair_style": _text(row.get("hairstyle")),
+			"hair_color": _text(row.get("haircolor")),
+			"height": _float(row.get("height"), 1.8),
+			"strong_foot": _int(row.get("strong_foot"), 0),
+			"tm_id": _int(row.get("tm_id"), 0),
 		})
 
 	return {

@@ -4,6 +4,7 @@ extends SceneTree
 # through the bridge.
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 
 var scene: Node
 var runtime: Node
@@ -25,6 +26,14 @@ func _check(condition: bool, message: String) -> void:
 		print("  FAIL: ", message)
 
 func _run() -> void:
+	# gpf_slice only starts from a shell-built package (no built-in teams).
+	var package := MatchPackageFixture.build(DATA_ROOT, 4, 5)
+	if package.is_empty():
+		_check(false, "match package could not be built")
+		_finish()
+		return
+	ShellState.set_match_package(package)
+
 	var packed: PackedScene = load("res://scenes/gpf_slice.tscn")
 	scene = packed.instantiate()
 	get_root().add_child(scene)

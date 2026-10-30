@@ -3,6 +3,7 @@ extends SceneTree
 # Run: godot --headless --path . -s res://tests/check_gpf_shootout.gd
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 
 const PHASE_SETUP := 1
 const PHASE_AIM := 2
@@ -25,6 +26,15 @@ func _init() -> void:
 	runtime.set("human_control", true)
 	runtime.set("match_duration", 0.0)
 	runtime.set("data_root", DATA_ROOT)
+	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8, {"duration": 0.0})
+	if package.is_empty():
+		print("CHECK FAIL: match package could not be built")
+		quit(1)
+		return
+	if not runtime.set_match_package(package):
+		print("CHECK FAIL: match package rejected: ", runtime.get_last_error())
+		quit(1)
+		return
 	get_root().add_child(runtime)
 	runtime.start_runtime_now()
 	if not runtime.is_runtime_ready():

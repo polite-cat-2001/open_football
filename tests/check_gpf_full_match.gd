@@ -6,6 +6,7 @@ extends SceneTree
 # Run:  godot --headless --path . -s res://tests/check_gpf_full_match.gd
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 
 const PHASE_PRE_MATCH := 0
 const PHASE_1ST_HALF := 1
@@ -44,6 +45,15 @@ func _init() -> void:
 	runtime.set("human_control", false)
 	runtime.set("match_duration", 0.0)
 	runtime.set("data_root", DATA_ROOT)
+	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8, {"duration": 0.0})
+	if package.is_empty():
+		print("CHECK FAIL: match package could not be built")
+		quit(1)
+		return
+	if not runtime.set_match_package(package):
+		print("CHECK FAIL: match package rejected: ", runtime.get_last_error())
+		quit(1)
+		return
 	get_root().add_child(runtime)
 	runtime.start_runtime_now()
 	if not runtime.is_runtime_ready():
@@ -100,12 +110,33 @@ func _run() -> void:
 	var guard := 0
 	var game_over := false
 	var next_log := log_every
+	var last_draw_force_ms := -100000
 
 	while guard < max_ticks and not game_over:
 		runtime.step_fixed(100)
 		guard += 100
 		snap = runtime.get_snapshot()
 		game_over = bool(snap.get("game_over", false))
+
+		# The package changes the player data, so AI-vs-AI no longer reliably ends
+		# level. Equalise late in the second half (before the final whistle, with a
+		# cooldown so we never touch the ball twice in one celebration) so extra
+		# time is still exercised. In the second half team_0 defends +X, so -X is
+		# team_0's goal and +X is team_1's.
+		var draw_time := int(snap.get("match_time_ms", 0))
+		if not game_over \
+				and int(snap.get("match_phase", 0)) == PHASE_2ND_HALF \
+				and draw_time >= 5260000 and draw_time < 5390000 \
+				and draw_time - last_draw_force_ms > 5000 \
+				and bool(snap.get("in_play", false)) \
+				and int(snap.get("score0", 0)) != int(snap.get("score1", 0)):
+			if int(snap.get("score0", 0)) < int(snap.get("score1", 0)):
+				runtime.debug_set_ball(Vector3(-54.6, 3.4, 1.2), Vector3(-40, 0, 0))
+				runtime.debug_set_last_touch_team(0)
+			else:
+				runtime.debug_set_ball(Vector3(54.6, 3.4, 1.2), Vector3(40, 0, 0))
+				runtime.debug_set_last_touch_team(1)
+			last_draw_force_ms = draw_time
 
 		if guard >= next_log:
 			print("progress ", _brief(snap))

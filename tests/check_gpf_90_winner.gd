@@ -5,6 +5,7 @@ extends SceneTree
 # Run:  godot --headless --path . -s res://tests/check_gpf_90_winner.gd
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 
 const PHASE_PRE_MATCH := 0
 const PHASE_1ST_HALF := 1
@@ -29,6 +30,15 @@ func _init() -> void:
 	runtime.set("human_control", false)
 	runtime.set("match_duration", 0.0)
 	runtime.set("data_root", DATA_ROOT)
+	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8, {"duration": 0.0})
+	if package.is_empty():
+		print("CHECK FAIL: match package could not be built")
+		quit(1)
+		return
+	if not runtime.set_match_package(package):
+		print("CHECK FAIL: match package rejected: ", runtime.get_last_error())
+		quit(1)
+		return
 	get_root().add_child(runtime)
 	runtime.start_runtime_now()
 	if not runtime.is_runtime_ready():
@@ -59,7 +69,8 @@ func _clock(ms: int) -> String:
 func _run() -> void:
 	var snap: Dictionary = runtime.get_snapshot()
 	var guard := 0
-	var forced := false
+	var waiting_goal := false
+	var goals_forced := 0
 	var score_before := 0
 	var goal_time := 0
 
@@ -70,14 +81,20 @@ func _run() -> void:
 		var score0 := int(snap.get("score0", 0))
 		var score1 := int(snap.get("score1", 0))
 
-		if not forced and phase == PHASE_2ND_HALF and time_ms >= 4800000:
+		# The package changes the player data, so the score at 80' is not fixed.
+		# Force as many goals as needed (up to a sane cap) to leave team_0 ahead.
+		if not waiting_goal and goals_forced < 3 \
+				and phase == PHASE_2ND_HALF and time_ms >= 4800000 \
+				and score0 <= score1 and bool(snap.get("in_play", false)):
 			score_before = score0 + score1
 			print("forcing goal at ", _clock(time_ms), " score=", score0, ":", score1)
 			runtime.debug_set_ball(Vector3(-54.6, 3.4, 1.2), Vector3(-40, 0, 0))
 			runtime.debug_set_last_touch_team(0)
-			forced = true
+			waiting_goal = true
+			goals_forced += 1
 
-		if forced and score0 + score1 > score_before and goal_time == 0:
+		if waiting_goal and score0 + score1 > score_before:
+			waiting_goal = false
 			goal_time = time_ms
 			print("goal awarded at ", _clock(time_ms), " score=", score0, ":", score1)
 
