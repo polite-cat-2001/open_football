@@ -12,6 +12,10 @@ extends RefCounted
 #           tactics_factory_xml, formation[11], players[] }
 #   player: { database_id, first_name, last_name, role, skin_color, hair_style,
 #             hair_color, height, strong_foot, tm_id, stats{} }
+#
+# `lineups` (optional) carries a MatchLineup per side. Its starters are written
+# first and the bench after, because C++ activates the first eleven players in
+# package order; its formation (roles + dragged positions) replaces the default.
 
 const VERSION := 1
 const DEFAULT_OPTIONS := {
@@ -23,7 +27,7 @@ var error := ""
 
 
 func build(catalog: TeamCatalog, home_team: Dictionary, away_team: Dictionary,
-		options: Dictionary = {}) -> Dictionary:
+		options: Dictionary = {}, lineups: Dictionary = {}) -> Dictionary:
 	error = ""
 	if home_team.is_empty() or away_team.is_empty():
 		error = "Match package needs two selected teams."
@@ -41,10 +45,10 @@ func build(catalog: TeamCatalog, home_team: Dictionary, away_team: Dictionary,
 		error = catalog.error if not catalog.error.is_empty() else "Away squad could not be loaded."
 		return {}
 
-	var home := _team_package(home_squad)
+	var home := _team_package(home_squad, lineups.get("home"), "Home")
 	if not error.is_empty():
 		return {}
-	var away := _team_package(away_squad)
+	var away := _team_package(away_squad, lineups.get("away"), "Away")
 	if not error.is_empty():
 		return {}
 
@@ -57,8 +61,9 @@ func build(catalog: TeamCatalog, home_team: Dictionary, away_team: Dictionary,
 
 
 func build_from_ids(catalog: TeamCatalog, home_id: int, away_id: int,
-		options: Dictionary = {}) -> Dictionary:
-	return build(catalog, catalog.team_by_id(home_id), catalog.team_by_id(away_id), options)
+		options: Dictionary = {}, lineups: Dictionary = {}) -> Dictionary:
+	return build(catalog, catalog.team_by_id(home_id), catalog.team_by_id(away_id),
+		options, lineups)
 
 
 func _options(options: Dictionary) -> Dictionary:
@@ -68,7 +73,7 @@ func _options(options: Dictionary) -> Dictionary:
 	}
 
 
-func _team_package(squad: Dictionary) -> Dictionary:
+func _team_package(squad: Dictionary, lineup: MatchLineup, side: String) -> Dictionary:
 	var team: Dictionary = squad.get("team", {})
 	var formation: Array = squad.get("formation", [])
 	var players: Array = squad.get("players", [])
@@ -85,8 +90,21 @@ func _team_package(squad: Dictionary) -> Dictionary:
 			% [team_id, players.size(), Formation.SLOT_COUNT]
 		return {}
 
+	var ordered_players := players
+	if lineup != null:
+		if lineup.team_id != 0 and lineup.team_id != team_id:
+			error = "%s lineup belongs to team %d, not team %d." \
+				% [side, lineup.team_id, team_id]
+			return {}
+		var validation := lineup.validate()
+		if not bool(validation.get("ok", false)):
+			error = "%s lineup: %s" % [side, validation.get("error", "invalid lineup")]
+			return {}
+		formation = lineup.formation
+		ordered_players = lineup.ordered_players()
+
 	var package_players: Array[Dictionary] = []
-	for player in players:
+	for player in ordered_players:
 		var stats: Dictionary = player.get("stats", {})
 		if stats.is_empty():
 			error = "Player %s has no stats." % str(player.get("name", "?"))

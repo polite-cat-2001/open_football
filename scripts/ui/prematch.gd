@@ -31,6 +31,9 @@ var difficulty_option: OptionButton
 var status_label: Label
 var start_button: Button
 var back_button: Button
+var editor_tabs: TabContainer
+var home_editor: LineupEditor
+var away_editor: LineupEditor
 
 
 func _ready() -> void:
@@ -38,6 +41,7 @@ func _ready() -> void:
 	# Loaded for the league captions; a missing database is reported on kickoff.
 	catalog.load_data_root(data_root)
 	_refresh()
+	_load_lineups()
 
 
 func _build_ui() -> void:
@@ -50,22 +54,22 @@ func _build_ui() -> void:
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 110)
 	margin.add_theme_constant_override("margin_right", 110)
-	margin.add_theme_constant_override("margin_top", 70)
-	margin.add_theme_constant_override("margin_bottom", 70)
+	margin.add_theme_constant_override("margin_top", 40)
+	margin.add_theme_constant_override("margin_bottom", 40)
 	add_child(margin)
 
 	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 26)
+	column.add_theme_constant_override("separation", 14)
 	margin.add_child(column)
 
 	var title := Label.new()
 	title.text = "Pre-Match"
-	title.add_theme_font_size_override("font_size", 56)
+	title.add_theme_font_size_override("font_size", 48)
 	title.add_theme_color_override("font_color", Color(0.92, 0.92, 0.92))
 	column.add_child(title)
 
 	var subtitle := Label.new()
-	subtitle.text = "Choose the match length and difficulty, then kick off."
+	subtitle.text = "Edit the lineups and positions, choose the match length and difficulty, then kick off."
 	subtitle.add_theme_font_size_override("font_size", 20)
 	subtitle.add_theme_color_override("font_color", Color(0.6, 0.65, 0.6))
 	column.add_child(subtitle)
@@ -78,6 +82,12 @@ func _build_ui() -> void:
 	teams.add_child(_team_block("Home", true))
 	teams.add_child(_team_block("Away", false))
 
+	editor_tabs = TabContainer.new()
+	editor_tabs.name = "LineupTabs"
+	editor_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	editor_tabs.custom_minimum_size = Vector2(0, 400)
+	column.add_child(editor_tabs)
+
 	column.add_child(HSeparator.new())
 
 	var settings := HBoxContainer.new()
@@ -85,10 +95,6 @@ func _build_ui() -> void:
 	column.add_child(settings)
 	settings.add_child(_setting_block("Match length", true))
 	settings.add_child(_setting_block("Difficulty", false))
-
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(spacer)
 
 	status_label = Label.new()
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -193,6 +199,67 @@ func _describe(team: Dictionary) -> String:
 	return "%s (%s)" % [team.get("name", "?"), league.get("name", "")]
 
 
+func _load_lineups() -> void:
+	for child in editor_tabs.get_children():
+		editor_tabs.remove_child(child)
+		child.queue_free()
+	home_editor = null
+	away_editor = null
+	if not ShellState.has_selection():
+		return
+	home_editor = _build_editor("Home", ShellState.home_team)
+	away_editor = _build_editor("Away", ShellState.away_team)
+	_validate_lineups()
+
+
+func _build_editor(tab_name: String, team: Dictionary) -> LineupEditor:
+	var squad := catalog.load_squad(int(team.get("id", 0)))
+	if not catalog.error.is_empty() or squad.is_empty():
+		status_label.text = catalog.error if not catalog.error.is_empty() \
+			else "Squad could not be loaded."
+		status_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.4))
+		return null
+	var editor := LineupEditor.new()
+	editor.name = tab_name
+	editor.setup(squad)
+	editor.changed.connect(_on_lineups_changed)
+	editor_tabs.add_child(editor)
+	return editor
+
+
+func _validate_lineups() -> bool:
+	if home_editor == null or away_editor == null:
+		if status_label.text.is_empty():
+			status_label.text = "Lineups are not loaded."
+		status_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.4))
+		start_button.disabled = true
+		return false
+	var message := home_editor.validation_error()
+	if message.is_empty():
+		message = away_editor.validation_error()
+	if not message.is_empty():
+		status_label.text = message
+		status_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.4))
+		start_button.disabled = true
+		return false
+	var warning: String = home_editor.warning()
+	if warning.is_empty():
+		warning = away_editor.warning()
+	if not warning.is_empty():
+		status_label.text = warning
+		status_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.35))
+		start_button.disabled = false
+		return true
+	status_label.text = "Lineups ready. Drag a dot to move a position."
+	status_label.add_theme_color_override("font_color", Color(0.75, 0.8, 0.75))
+	start_button.disabled = false
+	return true
+
+
+func _on_lineups_changed() -> void:
+	_validate_lineups()
+
+
 func _selected_duration() -> float:
 	if duration_option == null or duration_option.selected < 0:
 		return float(DURATIONS[DEFAULT_DURATION]["value"])
@@ -217,6 +284,15 @@ func build_package() -> Dictionary:
 	if not ShellState.has_selection():
 		package_builder.error = "Choose two teams first."
 		return {}
+	if home_editor == null or away_editor == null:
+		package_builder.error = "Lineups are not loaded."
+		return {}
+	var lineup_error := home_editor.validation_error()
+	if lineup_error.is_empty():
+		lineup_error = away_editor.validation_error()
+	if not lineup_error.is_empty():
+		package_builder.error = lineup_error
+		return {}
 	if not catalog.load_data_root(data_root):
 		package_builder.error = catalog.error
 		return {}
@@ -224,7 +300,12 @@ func build_package() -> Dictionary:
 		"duration": _selected_duration(),
 		"difficulty": _selected_difficulty(),
 	}
-	var package := package_builder.build(catalog, ShellState.home_team, ShellState.away_team, options)
+	var lineups := {
+		"home": home_editor.lineup,
+		"away": away_editor.lineup,
+	}
+	var package := package_builder.build(catalog, ShellState.home_team, ShellState.away_team,
+		options, lineups)
 	if package.is_empty():
 		package_builder.error = package_builder.error if not package_builder.error.is_empty() \
 			else "Match package could not be built."
@@ -238,6 +319,7 @@ func _on_start() -> void:
 	var package := build_package()
 	if package.is_empty():
 		status_label.text = package_builder.error
+		status_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.4))
 		return
 	get_tree().change_scene_to_file(MATCH_SCENE)
 
