@@ -52,15 +52,16 @@ private:
     // Shell-owned controller setup. The shell (Godot) enumerates its input devices,
     // registers gamepads here and routes their raw buttons/axes. C++ keeps the
     // mapping from side to device and hands it to the original Match as
-    // SideSelection entries.
+    // SideSelection entries. Gamepads are extension-owned SDL virtual joysticks,
+    // so the original GameplayFootball checkout stays unmodified.
     struct ShellController {
         int side = -1;              // -1 home, +1 away
         bool keyboard = true;
-        int slot = -1;              // virtual gamepad slot
+        int slot = -1;              // SDL virtual joystick id (0 = keyboard)
         unsigned int stable_id = 0; // SideSelection.joystickID (0 = keyboard)
     };
     std::vector<ShellController> shell_controllers;
-    std::map<int, int> gamepad_slots; // Godot device id -> virtual gamepad slot
+    std::map<int, int> gamepad_virtual_ids; // Godot device id -> SDL virtual joystick id
 
     Match *match = nullptr;
     netsim::Net goal_nets[2];
@@ -74,6 +75,7 @@ private:
     void put_frame(unsigned long put_time_ms);
     void update_goal_nets(unsigned long put_time_ms);
     Dictionary build_player(int player_id) const;
+    void apply_controller_setup();
 
 protected:
     static void _bind_methods();
@@ -134,10 +136,11 @@ public:
     void set_button(int index, bool pressed);
     void set_move(double x, double y);
 
-    // Shell input devices. `register_gamepad` reserves a virtual slot for a Godot
-    // joypad id and returns it (-1 if none). `set_controller_setup` takes entries
-    // {side: -1|1, kind: "keyboard"|"gamepad", slot: int}. The setup is applied at
-    // the next match start/restart.
+    // Shell input devices. `register_gamepad` creates an extension-owned SDL
+    // virtual joystick for a Godot joypad id and returns its id (-1 if none).
+    // `set_controller_setup` takes entries {side: -1|1, kind: "keyboard"|"gamepad",
+    // slot: virtual joystick id}. The setup is applied at the next match
+    // start/restart and re-applied on every tick.
     int register_gamepad(int godot_device_id);
     void set_controller_setup(const Array &setup);
     Array get_controller_setup() const;

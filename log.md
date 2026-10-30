@@ -1365,3 +1365,15 @@ Kit/Stadium/Kick-off/Game plan/Options/Camera/System, Kick-off с двумя с�
 prematch UI, squad UI, gpf input, game shell, slice UI, match cycle, rematch. В текущем дереве
 данных нет `images_teams`/`images_countries`, поэтому crest/flag/kit изображения падают в
 placeholder; национальный значок и шрифт есть. Ручная проверка геймпада остаётся.
+
+## [2026-10-31] fix | Ввод: extension-only виртуальные геймпады без правок GameplayFootball
+
+Правки `UserEventManager::AddVirtualGamepad`/`SetJoystickAxis`, `MenuTask::shellSides` и
+`Match::UpdateControllerSetup` в `of_port` откатаны (`origin/of_port` снова `a6f2983`).
+`GpfRuntimeNode` теперь создаёт SDL virtual joystick (`SDL_AttachVirtualJoystick`), штатный
+`UserEventManager::InputSDLEvent` получает synthetic `SDL_EVENT_GAMEPAD_BUTTON_*`/`AXIS_MOTION`,
+а `RefreshGamepads` создаёт обычный `HIDGamepad`; setup хранится в extension и переприменяется
+через `MenuTask::SetControllerSetup()` перед каждым тиком. PASS: `check_gpf_input`,
+`check_gpf_game_shell`, `check_gpf_match_cycle`, `check_gpf_rematch`, `check_gpf_slice_ui`,
+`check_controller_select_ui`, `check_team_select_ui`, `check_prematch_ui`; ручная проверка
+геймпада по-прежнему не сделана.

@@ -51,7 +51,7 @@ var shot_path := OS.get_environment("GPF_SHOT")
 var shot_frame := int(OS.get_environment("GPF_SHOT_FRAME")) if OS.get_environment("GPF_SHOT_FRAME") != "" else 120
 var shot_taken := false
 var demo := OS.get_environment("GPF_DEMO") != ""
-# Godot joypad id -> C++ virtual gamepad slot, for the devices in the shell setup.
+# Godot joypad id -> extension-owned virtual joystick id, for the shell setup.
 var input_slots: Dictionary = {}
 
 
