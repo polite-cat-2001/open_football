@@ -8,11 +8,16 @@ extends RefCounted
 
 static var home_team: Dictionary = {}
 static var away_team: Dictionary = {}
+static var preview_team: Dictionary = {}
 
 
 static func set_teams(home: Dictionary, away: Dictionary) -> void:
 	home_team = home.duplicate(true)
 	away_team = away.duplicate(true)
+
+
+static func set_preview_team(team: Dictionary) -> void:
+	preview_team = team.duplicate(true)
 
 
 static func has_selection() -> bool:
@@ -22,3 +27,4 @@ static func has_selection() -> bool:
 static func clear() -> void:
 	home_team.clear()
 	away_team.clear()
+	preview_team.clear()

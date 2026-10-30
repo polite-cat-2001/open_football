@@ -11,6 +11,8 @@ const MAGIC_PREFIX := "SQLite format 3"
 const SCHEMA_COLUMNS := ["type", "name", "tbl_name", "rootpage", "sql"]
 const TABLE_INTERIOR := 0x05
 const TABLE_LEAF := 0x0D
+const INDEX_INTERIOR := 0x02
+const INDEX_LEAF := 0x0A
 const CONSTRAINT_WORDS := ["PRIMARY", "UNIQUE", "CHECK", "FOREIGN", "CONSTRAINT"]
 
 var error := ""
@@ -20,6 +22,8 @@ var _page_size := 4096
 var _usable_size := 4096
 var _page_count := 0
 var _tables := {}
+var _indexes := {}
+var _index_lookup := {}
 
 
 func open(path: String) -> bool:
@@ -67,6 +71,8 @@ func close() -> void:
 		_file.close()
 	_file = null
 	_tables.clear()
+	_indexes.clear()
+	_index_lookup.clear()
 
 
 func has_table(table_name: String) -> bool:
@@ -79,43 +85,143 @@ func table_names() -> PackedStringArray:
 
 func select_all(table_name: String, wanted: PackedStringArray = PackedStringArray()) -> Array:
 	error = ""
-	var info: Dictionary = _tables.get(table_name, {})
+	var info := _table_info(table_name)
 	if info.is_empty():
-		error = "no such table: %s" % table_name
 		return []
 	var rows: Array = []
 	var columns := PackedStringArray(info["columns"])
 	var rowid_alias := int(info.get("rowid_alias", -1))
-	if not _walk_table(int(info["root_page"]), rows, columns, wanted, rowid_alias, {}):
+	if not _walk_table(int(info["root_page"]), rows, columns, wanted, rowid_alias,
+			[], Callable(), {}):
 		return []
 	return rows
 
 
+func select_any(table_name: String, filters: Array, wanted: PackedStringArray = PackedStringArray()) -> Array:
+	error = ""
+	var info := _table_info(table_name)
+	if info.is_empty():
+		return []
+	var columns := PackedStringArray(info["columns"])
+	var resolved := _resolve_filters(columns, filters)
+	if resolved.is_empty():
+		return []
+	var rows: Array = []
+	if not _walk_table(int(info["root_page"]), rows, columns, wanted,
+			int(info.get("rowid_alias", -1)), resolved, Callable(), {}):
+		return []
+	return rows
+
+
+func select_indexed(table_name: String, column: String, value, wanted: PackedStringArray = PackedStringArray()) -> Array:
+	error = ""
+	var info := _table_info(table_name)
+	if info.is_empty():
+		return []
+	var index_name := str(_index_lookup.get(table_name, {}).get(column, ""))
+	if index_name.is_empty():
+		return select_any(table_name, [{"column": column, "value": value}], wanted)
+
+	var index: Dictionary = _indexes[index_name]
+	var rowids: Array = []
+	if not _walk_index(int(index["root_page"]), value, rowids, {}):
+		return []
+	var columns := PackedStringArray(info["columns"])
+	var rowid_alias := int(info.get("rowid_alias", -1))
+	var rows: Array = []
+	for rowid in rowids:
+		var row = _find_row_by_rowid(int(info["root_page"]), int(rowid), columns, wanted, rowid_alias)
+		if row != null:
+			rows.append(row)
+	return rows
+
+
+func for_each(table_name: String, wanted: PackedStringArray, callback: Callable) -> bool:
+	error = ""
+	var info := _table_info(table_name)
+	if info.is_empty():
+		return false
+	var columns := PackedStringArray(info["columns"])
+	return _walk_table(int(info["root_page"]), [], columns, wanted,
+		int(info.get("rowid_alias", -1)), [], callback, {})
+
+
+func _table_info(table_name: String) -> Dictionary:
+	var info: Dictionary = _tables.get(table_name, {})
+	if info.is_empty():
+		error = "no such table: %s" % table_name
+	return info
+
+
+func _resolve_filters(columns: PackedStringArray, filters: Array) -> Array:
+	var resolved := []
+	for filter in filters:
+		var index := columns.find(str(filter.get("column", "")))
+		if index >= 0:
+			resolved.append({"index": index, "value": filter.get("value")})
+	if resolved.is_empty():
+		error = "no usable filter for table columns"
+	return resolved
+
+
 func _load_schema() -> bool:
 	var rows: Array = []
-	if not _walk_table(1, rows, PackedStringArray(SCHEMA_COLUMNS), PackedStringArray(), -1, {}):
+	if not _walk_table(1, rows, PackedStringArray(SCHEMA_COLUMNS), PackedStringArray(), -1,
+			[], Callable(), {}):
 		return false
 	for row in rows:
-		if row.get("type") != "table" or row.get("sql") == null:
+		if row.get("sql") == null:
 			continue
 		var name := str(row.get("name", ""))
 		var sql := str(row["sql"])
 		var root_page := int(row.get("rootpage", 0))
 		if name.is_empty() or root_page <= 0:
 			continue
-		var definitions := _split_definitions(sql)
-		var columns := _parse_columns(definitions)
-		_tables[name] = {
-			"root_page": root_page,
-			"columns": columns,
-			"rowid_alias": _rowid_alias_index(definitions, columns),
-			"sql": sql,
-		}
+		if row.get("type") == "table":
+			var definitions := _split_definitions(sql)
+			var columns := _parse_columns(definitions)
+			_tables[name] = {
+				"root_page": root_page,
+				"columns": columns,
+				"rowid_alias": _rowid_alias_index(definitions, columns),
+				"sql": sql,
+			}
+		elif row.get("type") == "index":
+			var index := _parse_index(sql)
+			if index.is_empty():
+				continue
+			index["root_page"] = root_page
+			index["name"] = name
+			_indexes[name] = index
+			var table_name: String = index["table"]
+			if not _index_lookup.has(table_name):
+				_index_lookup[table_name] = {}
+			var index_columns: PackedStringArray = index["columns"]
+			for column in index_columns:
+				if not _index_lookup[table_name].has(column):
+					_index_lookup[table_name][column] = name
 	return not _tables.is_empty()
 
 
+func _parse_index(sql: String) -> Dictionary:
+	var upper := sql.to_upper()
+	var on_position := upper.find(" ON ")
+	if on_position < 0:
+		return {}
+	var after_on := sql.substr(on_position + 4)
+	var open_parenthesis := after_on.find("(")
+	if open_parenthesis < 0:
+		return {}
+	var table_name := after_on.substr(0, open_parenthesis).strip_edges()
+	var columns := _parse_columns(_split_definitions(after_on))
+	if table_name.is_empty() or columns.is_empty():
+		return {}
+	return {"table": table_name, "columns": columns}
+
+
 func _walk_table(page_no: int, out_rows: Array, columns: PackedStringArray,
-		wanted: PackedStringArray, rowid_alias: int, visited: Dictionary) -> bool:
+		wanted: PackedStringArray, rowid_alias: int, filters: Array, sink: Callable,
+		visited: Dictionary) -> bool:
 	if visited.has(page_no):
 		return true
 	visited[page_no] = true
@@ -140,15 +246,21 @@ func _walk_table(page_no: int, out_rows: Array, columns: PackedStringArray,
 			var cell = _read_leaf_cell(page, cell_offset)
 			if cell == null:
 				return false
-			out_rows.append(_record_to_dict(cell[0], cell[1], columns, wanted, rowid_alias))
+			var row = _record_to_dict(cell[0], cell[1], columns, wanted, rowid_alias, filters)
+			if row == null:
+				continue
+			if sink.is_valid():
+				sink.call(row)
+			else:
+				out_rows.append(row)
 		else:
 			var child := _u32(page, cell_offset)
-			if not _walk_table(child, out_rows, columns, wanted, rowid_alias, visited):
+			if not _walk_table(child, out_rows, columns, wanted, rowid_alias, filters, sink, visited):
 				return false
 
 	if flags == TABLE_INTERIOR:
 		var right_most := _u32(page, base + 8)
-		if not _walk_table(right_most, out_rows, columns, wanted, rowid_alias, visited):
+		if not _walk_table(right_most, out_rows, columns, wanted, rowid_alias, filters, sink, visited):
 			return false
 	return true
 
@@ -160,14 +272,7 @@ func _read_page(page_no: int) -> PackedByteArray:
 	return _file.get_buffer(_page_size)
 
 
-func _read_leaf_cell(page: PackedByteArray, offset: int):
-	var header := _varint(page, offset)
-	var payload_length: int = header[0]
-	var cursor: int = header[1]
-	var rowid_varint := _varint(page, cursor)
-	var rowid: int = rowid_varint[0]
-	cursor = rowid_varint[1]
-
+func _read_payload(page: PackedByteArray, cursor: int, payload_length: int):
 	var max_local := _usable_size - 35
 	var local_length := payload_length
 	var overflow_page := 0
@@ -191,12 +296,163 @@ func _read_leaf_cell(page: PackedByteArray, offset: int):
 		var take := mini(remaining, _usable_size - 4)
 		payload.append_array(overflow.slice(4, 4 + take))
 		remaining -= take
+	return payload
+
+
+func _read_leaf_cell(page: PackedByteArray, offset: int):
+	var header := _varint(page, offset)
+	var payload_length: int = header[0]
+	var cursor: int = header[1]
+	var rowid_varint := _varint(page, cursor)
+	var rowid: int = rowid_varint[0]
+	cursor = rowid_varint[1]
+	var payload = _read_payload(page, cursor, payload_length)
+	if payload == null:
+		return null
 	return [payload, rowid]
 
 
+func _read_index_leaf_payload(page: PackedByteArray, offset: int):
+	var header := _varint(page, offset)
+	return _read_payload(page, header[1], header[0])
+
+
+func _read_index_interior_cell(page: PackedByteArray, offset: int):
+	var child := _u32(page, offset)
+	var header := _varint(page, offset + 4)
+	var payload = _read_payload(page, header[1], header[0])
+	if payload == null:
+		return null
+	return [child, payload]
+
+
+func _index_entry(payload: PackedByteArray) -> Array:
+	var header := _varint(payload, 0)
+	var header_size: int = header[0]
+	var cursor: int = header[1]
+	var serial_types: Array[int] = []
+	while cursor < header_size:
+		var serial := _varint(payload, cursor)
+		serial_types.append(serial[0])
+		cursor = serial[1]
+	var offsets: Array[int] = []
+	var body := header_size
+	for serial_type in serial_types:
+		offsets.append(body)
+		body += _serial_size(serial_type)
+	if serial_types.is_empty():
+		return [null, 0]
+	var key = _decode_value(payload, offsets[0], serial_types[0])
+	var rowid = _decode_value(payload, offsets[serial_types.size() - 1],
+		serial_types[serial_types.size() - 1])
+	return [key, rowid]
+
+
+func _walk_index(page_no: int, value, rowids: Array, visited: Dictionary) -> bool:
+	if visited.has(page_no):
+		return true
+	visited[page_no] = true
+	var page := _read_page(page_no)
+	if page.is_empty():
+		error = "index page %d is out of range" % page_no
+		return false
+	var flags := page[0]
+	var cell_count := _u16(page, 3)
+
+	if flags == INDEX_LEAF:
+		for i in cell_count:
+			var offset := _u16(page, 8 + i * 2)
+			var payload = _read_index_leaf_payload(page, offset)
+			if payload == null:
+				return false
+			var entry := _index_entry(payload)
+			if _compare_keys(entry[0], value) > 0:
+				break
+			if _compare_keys(entry[0], value) == 0:
+				rowids.append(entry[1])
+		return true
+
+	if flags != INDEX_INTERIOR:
+		error = "page %d is not an index b-tree page (flags %d)" % [page_no, flags]
+		return false
+
+	for i in cell_count:
+		var offset := _u16(page, 12 + i * 2)
+		var cell = _read_index_interior_cell(page, offset)
+		if cell == null:
+			return false
+		var comparison := _compare_keys(_index_entry(cell[1])[0], value)
+		if comparison < 0:
+			continue
+		if comparison > 0:
+			return _walk_index(cell[0], value, rowids, visited)
+		if not _walk_index(cell[0], value, rowids, visited):
+			return false
+	return _walk_index(_u32(page, 8), value, rowids, visited)
+
+
+func _find_row_by_rowid(root_page: int, rowid: int, columns: PackedStringArray,
+		wanted: PackedStringArray, rowid_alias: int):
+	var page_no := root_page
+	for guard in 64:
+		var page := _read_page(page_no)
+		if page.is_empty():
+			error = "page %d is out of range" % page_no
+			return null
+		var flags := page[0]
+		var cell_count := _u16(page, 3)
+		if flags == TABLE_INTERIOR:
+			var chosen := _u32(page, 8)
+			for i in cell_count:
+				var offset := _u16(page, 12 + i * 2)
+				var cell_rowid: int = _varint(page, offset + 4)[0]
+				if rowid <= cell_rowid:
+					chosen = _u32(page, offset)
+					break
+			page_no = chosen
+			continue
+		if flags == TABLE_LEAF:
+			for i in cell_count:
+				var offset := _u16(page, 8 + i * 2)
+				var rowid_cursor: int = _varint(page, offset)[1]
+				var cell_rowid: int = _varint(page, rowid_cursor)[0]
+				if cell_rowid > rowid:
+					return null
+				if cell_rowid == rowid:
+					var cell = _read_leaf_cell(page, offset)
+					if cell == null:
+						return null
+					return _record_to_dict(cell[0], cell[1], columns, wanted, rowid_alias, [])
+			return null
+		error = "page %d is not a table b-tree page (flags %d)" % [page_no, flags]
+		return null
+	return null
+
+
+func _compare_keys(a, b) -> int:
+	if a == null:
+		return 0 if b == null else -1
+	if b == null:
+		return 1
+	if typeof(a) == TYPE_INT and typeof(b) == TYPE_INT:
+		return signi(a - b)
+	if typeof(a) == TYPE_STRING and typeof(b) == TYPE_STRING:
+		if a == b:
+			return 0
+		return -1 if a < b else 1
+	if typeof(a) == TYPE_FLOAT and typeof(b) == TYPE_FLOAT:
+		if a == b:
+			return 0
+		return -1 if a < b else 1
+	var text_a := str(a)
+	var text_b := str(b)
+	if text_a == text_b:
+		return 0
+	return -1 if text_a < text_b else 1
+
+
 func _record_to_dict(payload: PackedByteArray, rowid: int, columns: PackedStringArray,
-		wanted: PackedStringArray, rowid_alias: int) -> Dictionary:
-	var row := {}
+		wanted: PackedStringArray, rowid_alias: int, filters: Array):
 	var header := _varint(payload, 0)
 	var header_size: int = header[0]
 	var cursor: int = header[1]
@@ -206,17 +462,37 @@ func _record_to_dict(payload: PackedByteArray, rowid: int, columns: PackedString
 		serial_types.append(serial[0])
 		cursor = serial[1]
 
+	var offsets: Array[int] = []
 	var body := header_size
-	for i in serial_types.size():
-		var serial_type := serial_types[i]
-		if i < columns.size():
-			var column := columns[i]
-			if wanted.is_empty() or wanted.has(column):
-				var value = _decode_value(payload, body, serial_type)
-				if value == null and i == rowid_alias:
-					value = rowid
-				row[column] = value
+	for serial_type in serial_types:
+		offsets.append(body)
 		body += _serial_size(serial_type)
+
+	if not filters.is_empty():
+		var matched := false
+		for filter in filters:
+			var index: int = filter["index"]
+			if index >= serial_types.size():
+				continue
+			var value = _decode_value(payload, offsets[index], serial_types[index])
+			if index == rowid_alias and value == null:
+				value = rowid
+			if value == filter["value"]:
+				matched = true
+				break
+		if not matched:
+			return null
+
+	var row := {}
+	for i in serial_types.size():
+		if i >= columns.size():
+			break
+		var column := columns[i]
+		if wanted.is_empty() or wanted.has(column):
+			var value = _decode_value(payload, offsets[i], serial_types[i])
+			if value == null and i == rowid_alias:
+				value = rowid
+			row[column] = value
 	return row
 
 
