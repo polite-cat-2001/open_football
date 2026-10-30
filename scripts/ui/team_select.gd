@@ -2,6 +2,7 @@ extends Control
 
 const MATCH_SCENE := "res://scenes/gpf_slice.tscn"
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
+const SQUAD_SCENE := "res://scenes/squad.tscn"
 
 @export var data_root := ""
 
@@ -16,6 +17,7 @@ var away_label: Label
 var status_label: Label
 var set_home_button: Button
 var set_away_button: Button
+var view_squad_button: Button
 var start_button: Button
 var back_button: Button
 
@@ -93,7 +95,12 @@ func _build_ui() -> void:
 	team_list = ItemList.new()
 	team_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	team_list.add_theme_font_size_override("font_size", 20)
+	team_list.item_selected.connect(_on_team_selected)
 	team_column.add_child(team_list)
+	view_squad_button = _button("View squad", 20)
+	view_squad_button.disabled = true
+	view_squad_button.pressed.connect(_on_view_squad)
+	team_column.add_child(view_squad_button)
 
 	var slot_column := VBoxContainer.new()
 	slot_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -187,6 +194,21 @@ func _on_league_selected(index: int) -> void:
 		team_list.set_item_metadata(team_index, team)
 	if team_list.item_count > 0:
 		team_list.select(0)
+		_on_team_selected(0)
+	else:
+		view_squad_button.disabled = true
+
+
+func _on_team_selected(_index: int) -> void:
+	view_squad_button.disabled = _selected_team().is_empty()
+
+
+func _on_view_squad() -> void:
+	var team := _selected_team()
+	if team.is_empty():
+		return
+	ShellState.set_preview_team(team)
+	get_tree().change_scene_to_file(SQUAD_SCENE)
 
 
 func _on_set_home() -> void:

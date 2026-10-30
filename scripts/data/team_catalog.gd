@@ -1,4 +1,4 @@
-﻿class_name TeamCatalog
+class_name TeamCatalog
 extends RefCounted
 # Godot-side catalog of leagues and teams, read straight from the game's SQLite
 # database. The C++ catalog is no longer used to populate the shell: the match
@@ -10,6 +10,11 @@ extends RefCounted
 const DEFAULT_DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const DATABASE_RELATIVE_PATH := "databases/default/database.sqlite"
 const MANIFEST_RELATIVE_PATH := "databases/default/manifest.json"
+const NATIONAL_LEAGUE_NAME := "National Teams"
+const SQUAD_PLAYER_COLUMNS := [
+	"id", "team_id", "nationalteam_id", "firstname", "lastname", "role", "age",
+	"base_stat", "profile_xml", "formationorder", "nationalteamformationorder",
+]
 
 var error := ""
 var leagues: Array[Dictionary] = []
@@ -84,6 +89,94 @@ func read_manifest_coverage(root: String = "") -> Dictionary:
 	if typeof(coverage) != TYPE_DICTIONARY:
 		return {}
 	return coverage
+
+
+func load_squad(team_id: int) -> Dictionary:
+	error = ""
+	var team := team_by_id(team_id)
+	if team.is_empty():
+		error = "Unknown team id %d; load the catalog first." % team_id
+		return {}
+
+	var path := database_path()
+	if not FileAccess.file_exists(path):
+		error = "Team database not found at %s. Set GPF_DATA_ROOT to the GameplayFootball data folder." % path
+		return {}
+	var reader := SqliteReader.new()
+	if not reader.open(path):
+		error = "Team database could not be read: %s (%s)." % [path, reader.error]
+		return {}
+
+	var team_rows := reader.select_any("teams", [{"column": "id", "value": team_id}],
+		PackedStringArray(["id", "name", "league_id", "shortname", "color1", "color2", "formation_xml"]))
+	if not reader.error.is_empty() or team_rows.is_empty():
+		error = "Team %d could not be read: %s." % [team_id, reader.error]
+		reader.close()
+		return {}
+	var team_row: Dictionary = team_rows[0]
+	var league := league_by_id(_int(team_row.get("league_id")))
+	var national := str(league.get("name", "")) == NATIONAL_LEAGUE_NAME
+	var formation := Formation.parse_and_normalize(str(team_row.get("formation_xml", "")))
+
+	var club_rows := reader.select_indexed("players", "team_id", team_id,
+		PackedStringArray(SQUAD_PLAYER_COLUMNS))
+	if not reader.error.is_empty():
+		error = "Players for team %d could not be read: %s." % [team_id, reader.error]
+		reader.close()
+		return {}
+	var national_rows := reader.select_indexed("players", "nationalteam_id", team_id,
+		PackedStringArray(SQUAD_PLAYER_COLUMNS))
+	if not reader.error.is_empty():
+		error = "Players for team %d could not be read: %s." % [team_id, reader.error]
+		reader.close()
+		return {}
+	reader.close()
+
+	var player_rows: Array = []
+	var seen := {}
+	for row in club_rows + national_rows:
+		var player_id := _int(row.get("id"))
+		if seen.has(player_id):
+			continue
+		seen[player_id] = true
+		player_rows.append(row)
+
+	var order_column := "nationalteamformationorder" if national else "formationorder"
+	player_rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var order_a := _int(a.get(order_column))
+		var order_b := _int(b.get(order_column))
+		if order_a != order_b:
+			return order_a < order_b
+		return _int(a.get("id")) < _int(b.get("id")))
+
+	var players: Array[Dictionary] = []
+	for row in player_rows:
+		var first_name := _text(row.get("firstname"))
+		var last_name := _text(row.get("lastname"))
+		var age := float(_int(row.get("age")))
+		var base_stat := _float(row.get("base_stat"))
+		var stats := PlayerStats.calculate_profile(_text(row.get("profile_xml")), base_stat, age)
+		players.append({
+			"id": _int(row.get("id")),
+			"firstname": first_name,
+			"lastname": last_name,
+			"name": ("%s %s" % [first_name, last_name]).strip_edges(),
+			"role": _text(row.get("role")),
+			"age": int(age),
+			"base_stat": base_stat,
+			"formation_order": _int(row.get(order_column)),
+			"stats": stats,
+			"average": PlayerStats.average(stats),
+		})
+
+	return {
+		"team": team_row,
+		"league": league,
+		"national": national,
+		"formation": formation,
+		"players": players,
+		"lineup": players.slice(0, Formation.SLOT_COUNT),
+	}
 
 
 func _load_from_reader(reader: SqliteReader) -> bool:
@@ -162,6 +255,12 @@ func _int(value, fallback: int = 0) -> int:
 	if value == null:
 		return fallback
 	return int(value)
+
+
+func _float(value, fallback: float = 0.0) -> float:
+	if value == null:
+		return fallback
+	return float(value)
 
 
 func _reset() -> void:
