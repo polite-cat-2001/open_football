@@ -9,6 +9,7 @@
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/vector3.hpp>
 
+#include "data/teamdata.hpp"
 #include "onthepitch/net/netsim.hpp"
 
 class Match;
@@ -37,6 +38,13 @@ private:
     int seed = 42;
     String data_root;
     String last_error;
+
+    // Shell-built match package (teams, players, final stats, formation). The
+    // match is built from this; the C++ side does not read the database.
+    bool match_package_ready = false;
+    TeamDataRaw match_package[2];
+    float package_duration = 1.0f;
+    float package_difficulty = 0.8f;
 
     Match *match = nullptr;
     netsim::Net goal_nets[2];
@@ -78,6 +86,8 @@ public:
     bool start_match();
     void stop_match();
     bool restart_match();
+    bool set_match_package(const Dictionary &package);
+    bool has_match_package() const;
     int debug_get_scene_object_count() const;
     void step_fixed(int ticks);
     Dictionary get_snapshot() const;
@@ -86,6 +96,7 @@ public:
     Ref<Image> generate_pitch_texture(int width, int height) const;
     Dictionary get_player_pose(int player_id) const;
     Array get_player_ids() const;
+    Array debug_get_formation(int team_id) const;
     int get_human_player_id() const;
     int get_human_team_id() const;
     void select_player(int player_id);

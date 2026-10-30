@@ -1,6 +1,6 @@
 extends Control
 
-const MATCH_SCENE := "res://scenes/gpf_slice.tscn"
+const PREMATCH_SCENE := "res://scenes/prematch.tscn"
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 const SQUAD_SCENE := "res://scenes/squad.tscn"
 
@@ -141,7 +141,7 @@ func _build_ui() -> void:
 	var bottom_spacer := Control.new()
 	bottom_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottom.add_child(bottom_spacer)
-	start_button = _button("Start Match", 24)
+	start_button = _button("Continue", 24)
 	start_button.custom_minimum_size = Vector2(260, 60)
 	start_button.disabled = true
 	start_button.pressed.connect(_on_start)
@@ -271,7 +271,7 @@ func _show_error(message: String) -> void:
 func _on_start() -> void:
 	if not save_selection():
 		return
-	get_tree().change_scene_to_file(MATCH_SCENE)
+	get_tree().change_scene_to_file(PREMATCH_SCENE)
 
 
 func _on_back() -> void:

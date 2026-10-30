@@ -9,6 +9,7 @@ extends Node3D
 const RUNTIME_SCENE := preload("res://scenes/gpf_runtime.tscn")
 const RUNTIME_GROUP := "gpf_runtime"
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
+const TEAM_SELECT_SCENE := "res://scenes/team_select.tscn"
 
 var runtime: Node
 @onready var camera := $Camera3D
@@ -53,7 +54,13 @@ var demo := OS.get_environment("GPF_DEMO") != ""
 
 
 func _ready() -> void:
-	runtime = _acquire_runtime()
+	# The match only exists from a real shell selection: the prematch builds the
+	# package. There is no built-in team pair to fall back to.
+	if not ShellState.has_package():
+		push_error("GpfSlice: no match package; choose teams in the shell first")
+		_return_to_team_select.call_deferred()
+		return
+	runtime = _acquire_runtime(ShellState.match_package)
 	actors.setup(runtime)
 	environment_view.setup(runtime, $Sun, $FillLight)
 	goal_nets.setup(runtime, environment_view)
@@ -81,11 +88,14 @@ func _exit_tree() -> void:
 		runtime.stop_match()
 
 
-func _acquire_runtime() -> Node:
+func _acquire_runtime(package: Dictionary) -> Node:
 	var existing := get_tree().get_first_node_in_group(RUNTIME_GROUP)
 	if existing != null:
+		existing.set_match_package(package)
 		return existing
 	var node: Node = RUNTIME_SCENE.instantiate()
+	if not node.set_match_package(package):
+		push_error("GpfRuntime rejected the match package: " + str(node.get_last_error()))
 	node.add_to_group(RUNTIME_GROUP)
 	get_tree().root.add_child(node)
 	return node
@@ -246,6 +256,10 @@ func _return_to_main_menu() -> void:
 	if replay.is_active():
 		replay.finish()
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
+
+
+func _return_to_team_select() -> void:
+	get_tree().change_scene_to_file(TEAM_SELECT_SCENE)
 
 
 func _save_screenshot() -> void:

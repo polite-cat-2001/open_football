@@ -67,6 +67,124 @@ bool is_nonempty_file(const std::filesystem::path &path) {
     return std::filesystem::is_regular_file(path, ec) && std::filesystem::file_size(path, ec) > 0;
 }
 
+Variant value_or(const Dictionary &source, const char *key, const Variant &fallback = Variant()) {
+    const String name(key);
+    if (source.has(name)) {
+        return source[name];
+    }
+    return fallback;
+}
+
+std::string to_std_string(const Variant &value) {
+    const String text = value;
+    return std::string(text.utf8().get_data());
+}
+
+blunted::Vector3 to_blunted(const godot::Vector3 &value) {
+    return blunted::Vector3((float)value.x, (float)value.y, (float)value.z);
+}
+
+blunted::Vector3 to_blunted_plane(const godot::Vector2 &value) {
+    return blunted::Vector3((float)value.x, (float)value.y, 0.0f);
+}
+
+bool read_package_player(const Dictionary &source, PlayerDataRaw &player, String &error) {
+    player.databaseID = (int)value_or(source, "database_id");
+    player.firstName = to_std_string(value_or(source, "first_name"));
+    player.lastName = to_std_string(value_or(source, "last_name"));
+    player.roleString = to_std_string(value_or(source, "role"));
+    player.skinColor = (int)value_or(source, "skin_color", 1);
+    player.hairStyle = to_std_string(value_or(source, "hair_style", "short01"));
+    player.hairColor = to_std_string(value_or(source, "hair_color", "darkblonde"));
+    const double height = (double)value_or(source, "height", 1.8);
+    // Same plausibility guard as the database loader: a broken height collapses
+    // the fullbody model, so keep the default instead.
+    player.height = (height >= 1.4 && height <= 2.3) ? (float)height : 1.8f;
+    player.strongFoot = (int)value_or(source, "strong_foot", 0);
+    player.tmId = (int)value_or(source, "tm_id", 0);
+
+    const Variant stats_value = value_or(source, "stats");
+    if (stats_value.get_type() != Variant::DICTIONARY) {
+        error = "player " + String::num_int64(player.databaseID) + " has no stats dictionary";
+        return false;
+    }
+    const Dictionary stats = stats_value;
+    const Array keys = stats.keys();
+    for (int i = 0; i < keys.size(); ++i) {
+        const Variant &key = keys[i];
+        player.stats[to_std_string(key)] = (float)(double)stats[key];
+    }
+    if (player.stats.empty()) {
+        error = "player " + String::num_int64(player.databaseID) + " has no stats";
+        return false;
+    }
+    return true;
+}
+
+bool read_package_team(const Dictionary &source, TeamDataRaw &team, String &error) {
+    team.databaseID = (int)value_or(source, "database_id");
+    team.name = to_std_string(value_or(source, "name"));
+    team.shortName = to_std_string(value_or(source, "short_name"));
+    team.logoUrl = to_std_string(value_or(source, "logo_url"));
+    team.kitUrl = to_std_string(value_or(source, "kit_url"));
+    team.formationXml = to_std_string(value_or(source, "formation_xml"));
+    team.formationFactoryXml = to_std_string(value_or(source, "formation_factory_xml"));
+    team.tacticsXml = to_std_string(value_or(source, "tactics_xml"));
+    team.tacticsFactoryXml = to_std_string(value_or(source, "tactics_factory_xml"));
+    team.color1 = to_blunted((godot::Vector3)value_or(source, "color1", godot::Vector3(0.0, 0.0, 0.0)));
+    team.color2 = to_blunted((godot::Vector3)value_or(source, "color2", godot::Vector3(1.0, 1.0, 1.0)));
+
+    const Variant formation_value = value_or(source, "formation");
+    if (formation_value.get_type() != Variant::ARRAY) {
+        error = "team " + String::num_int64(team.databaseID) + " has no formation";
+        return false;
+    }
+    const Array formation = formation_value;
+    if (formation.size() != 11) {
+        error = "team " + String::num_int64(team.databaseID) + " formation must have 11 slots";
+        return false;
+    }
+    for (int i = 0; i < formation.size(); ++i) {
+        const Variant &slot_value = formation[i];
+        if (slot_value.get_type() != Variant::DICTIONARY) {
+            error = "team " + String::num_int64(team.databaseID) + " has a broken formation slot";
+            return false;
+        }
+        const Dictionary slot = slot_value;
+        FormationEntry entry;
+        entry.role = GetRoleFromString(to_std_string(value_or(slot, "role", "CM")));
+        entry.databasePosition = to_blunted_plane(
+            (Vector2)value_or(slot, "database_position", Vector2(0.0, 0.0)));
+        entry.position = to_blunted_plane(
+            (Vector2)value_or(slot, "position", Vector2(0.0, 0.0)));
+        team.formation.push_back(entry);
+    }
+
+    const Variant players_value = value_or(source, "players");
+    if (players_value.get_type() != Variant::ARRAY) {
+        error = "team " + String::num_int64(team.databaseID) + " has no players";
+        return false;
+    }
+    const Array players = players_value;
+    if (players.size() < 11) {
+        error = "team " + String::num_int64(team.databaseID) + " has fewer than 11 players";
+        return false;
+    }
+    for (int i = 0; i < players.size(); ++i) {
+        const Variant &player_value = players[i];
+        if (player_value.get_type() != Variant::DICTIONARY) {
+            error = "team " + String::num_int64(team.databaseID) + " has a broken player entry";
+            return false;
+        }
+        PlayerDataRaw player;
+        if (!read_package_player(player_value, player, error)) {
+            return false;
+        }
+        team.players.push_back(player);
+    }
+    return true;
+}
+
 } // namespace
 
 GpfRuntimeNode::GpfRuntimeNode() {
@@ -93,6 +211,8 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("start_match"), &GpfRuntimeNode::start_match);
     ClassDB::bind_method(D_METHOD("stop_match"), &GpfRuntimeNode::stop_match);
     ClassDB::bind_method(D_METHOD("restart_match"), &GpfRuntimeNode::restart_match);
+    ClassDB::bind_method(D_METHOD("set_match_package", "package"), &GpfRuntimeNode::set_match_package);
+    ClassDB::bind_method(D_METHOD("has_match_package"), &GpfRuntimeNode::has_match_package);
     ClassDB::bind_method(D_METHOD("debug_get_scene_object_count"), &GpfRuntimeNode::debug_get_scene_object_count);
     ClassDB::bind_method(D_METHOD("step_fixed", "ticks"), &GpfRuntimeNode::step_fixed);
     ClassDB::bind_method(D_METHOD("get_snapshot"), &GpfRuntimeNode::get_snapshot);
@@ -101,6 +221,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("generate_pitch_texture", "width", "height"), &GpfRuntimeNode::generate_pitch_texture);
     ClassDB::bind_method(D_METHOD("get_player_pose", "player_id"), &GpfRuntimeNode::get_player_pose);
     ClassDB::bind_method(D_METHOD("get_player_ids"), &GpfRuntimeNode::get_player_ids);
+    ClassDB::bind_method(D_METHOD("debug_get_formation", "team_id"), &GpfRuntimeNode::debug_get_formation);
     ClassDB::bind_method(D_METHOD("get_human_player_id"), &GpfRuntimeNode::get_human_player_id);
     ClassDB::bind_method(D_METHOD("get_human_team_id"), &GpfRuntimeNode::get_human_team_id);
     ClassDB::bind_method(D_METHOD("select_player", "player_id"), &GpfRuntimeNode::select_player);
@@ -203,6 +324,57 @@ bool GpfRuntimeNode::get_human_control() const {
 void GpfRuntimeNode::set_match_duration(float value) {
     match_duration = value;
 }
+
+bool GpfRuntimeNode::has_match_package() const {
+    return match_package_ready;
+}
+
+bool GpfRuntimeNode::set_match_package(const Dictionary &package) {
+    if (match) {
+        last_error = "cannot replace the match package while a match is running";
+        return false;
+    }
+
+    last_error = "";
+    const Variant home_value = value_or(package, "home");
+    const Variant away_value = value_or(package, "away");
+    if (home_value.get_type() != Variant::DICTIONARY || away_value.get_type() != Variant::DICTIONARY) {
+        last_error = "match package needs home and away team dictionaries";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+
+    TeamDataRaw home;
+    TeamDataRaw away;
+    if (!read_package_team(home_value, home, last_error)) {
+        last_error = "match package home: " + last_error;
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (!read_package_team(away_value, away, last_error)) {
+        last_error = "match package away: " + last_error;
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+
+    float duration = 1.0f;
+    float difficulty = 0.8f;
+    const Variant options_value = value_or(package, "options");
+    if (options_value.get_type() == Variant::DICTIONARY) {
+        const Dictionary options = options_value;
+        duration = (float)(double)value_or(options, "duration", 1.0);
+        difficulty = (float)(double)value_or(options, "difficulty", 0.8);
+    }
+
+    match_package[0] = home;
+    match_package[1] = away;
+    package_duration = std::clamp(duration, 0.0f, 2.0f);
+    package_difficulty = std::clamp(difficulty, 0.0f, 1.0f);
+    match_package_ready = true;
+    return true;
+}
+
+
 
 float GpfRuntimeNode::get_match_duration() const {
     return match_duration;
@@ -311,6 +483,11 @@ bool GpfRuntimeNode::start_match() {
     }
 
     last_error = "";
+    if (!match_package_ready) {
+        last_error = "no match package: the shell must call set_match_package() first";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
     sim_time_ms = 0;
     accumulator_ms = 0.0;
     game_over_seen = false;
@@ -323,9 +500,19 @@ bool GpfRuntimeNode::start_match() {
     goal_nets_ready = false;
     last_match_phase = 0;
 
-    // Fresh data package: Match owns and deletes it in Match::Exit().
-    MatchData *match_data = new MatchData(menuTask->GetTeamID(0), menuTask->GetTeamID(1));
+    // Apply the shell's prematch options before Match reads them.
+    GetConfiguration()->Set("match_duration", package_duration);
+    GetConfiguration()->Set("match_difficulty", package_difficulty);
+
+    // Everything the match needs is in the package: construct the match model
+    // straight from it (no database queries).
+    menuTask->SetTeamIDs(std::to_string(match_package[0].databaseID),
+                         std::to_string(match_package[1].databaseID));
+    MatchData *match_data = new MatchData(match_package[0], match_package[1]);
     menuTask->SetMatchData(match_data);
+    UtilityFunctions::print("GpfRuntimeNode: match built from package: ",
+        String::utf8(match_package[0].name.c_str()), " vs ",
+        String::utf8(match_package[1].name.c_str()));
 
     std::vector<SideSelection> sides;
     if (human_control) {
@@ -683,6 +870,30 @@ Array GpfRuntimeNode::get_player_ids() const {
     return result;
 }
 
+Array GpfRuntimeNode::debug_get_formation(int team_id) const {
+    Array result;
+    if (!runtime_ready || !match || team_id < 0 || team_id > 1) {
+        return result;
+    }
+    Team *team = match->GetTeam(team_id);
+    if (!team || !team->GetTeamData()) {
+        return result;
+    }
+    TeamData *team_data = team->GetTeamData();
+    int count = team_data->GetPlayerNum();
+    if (count > playerNum) count = playerNum;
+    for (int slot = 0; slot < count; ++slot) {
+        const FormationEntry entry = team_data->GetFormationEntry(slot);
+        Dictionary item;
+        item["slot"] = slot;
+        item["role"] = String(GetRoleName(entry.role).c_str());
+        item["database_position"] = to_godot(entry.databasePosition);
+        item["position"] = to_godot(entry.position);
+        result.append(item);
+    }
+    return result;
+}
+
 Dictionary GpfRuntimeNode::build_player(int player_id) const {
     Dictionary result;
     if (!runtime_ready || !match) {
@@ -785,8 +996,8 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["referee_taker"] = referee_buffer.taker ? referee_buffer.taker->GetID() : -1;
     result["score0"] = match->GetScore(0);
     result["score1"] = match->GetScore(1);
-    result["team0_name"] = String(match->GetTeam(0)->GetTeamData()->GetName().c_str());
-    result["team1_name"] = String(match->GetTeam(1)->GetTeamData()->GetName().c_str());
+    result["team0_name"] = String::utf8(match->GetTeam(0)->GetTeamData()->GetName().c_str());
+    result["team1_name"] = String::utf8(match->GetTeam(1)->GetTeamData()->GetName().c_str());
     MatchData *match_data = match->GetMatchData();
     result["possession0_ms"] = (int)match_data->GetPossessionTime_ms(0);
     result["possession1_ms"] = (int)match_data->GetPossessionTime_ms(1);
