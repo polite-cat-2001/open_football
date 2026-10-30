@@ -4,7 +4,7 @@ extends RefCounted
 #
 # Godot owns device enumeration and raw input; C++ owns the human controllers.
 # The bridge API is:
-#   register_gamepad(godot_device_id) -> virtual slot (-1 when unavailable)
+#   register_gamepad(godot_device_id) -> virtual joystick id (-1 when unavailable)
 #   set_controller_setup([{side: -1|1, kind: "keyboard"|"gamepad", slot}])
 #   set_gamepad_button(slot, button, pressed) / set_gamepad_axis(slot, axis, value)
 

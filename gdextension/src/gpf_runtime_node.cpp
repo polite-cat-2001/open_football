@@ -522,40 +522,16 @@ bool GpfRuntimeNode::start_match() {
         String::utf8(match_package[0].name.c_str()), " vs ",
         String::utf8(match_package[1].name.c_str()));
 
-    std::vector<SideSelection> sides;
-    if (human_control) {
-        if (shell_controllers.empty()) {
-            // No shell selection (headless default): the keyboard plays home.
-            SideSelection keyboard;
-            keyboard.controllerID = 0;
-            keyboard.joystickID = 0;
-            keyboard.controllerImage = 0;
-            keyboard.side = -1;
-            keyboard.confirmed = true;
-            sides.push_back(keyboard);
-        } else {
-            for (size_t i = 0; i < shell_controllers.size(); ++i) {
-                const ShellController &entry = shell_controllers[i];
-                SideSelection selection;
-                selection.controllerID = (int)i;
-                selection.joystickID = (SDL_JoystickID)entry.stable_id;
-                selection.controllerImage = 0;
-                selection.side = entry.side;
-                selection.confirmed = true;
-                sides.push_back(selection);
-            }
-        }
-    }
-    menuTask->SetControllerSetup(sides);
-    // Persist the shell setup for the whole match: menu pages clear the queued
-    // fixture, and a gamepad hot-plug makes the match rebind its HumanGamers.
-    MenuTask::SetShellControllerSetup(sides);
-
     // Match's constructor assumes the most recently created page is its
     // LoadingMatchPage and closes it; create a fresh one for every match.
     Properties loading_props;
     menuTask->GetWindowManager()->GetPageFactory()->CreatePage(
         (int)e_PageID_LoadingMatch, loading_props, 0);
+
+    // The match reads the queued fixture in its constructor, so set it last.
+    // It is re-applied every tick too: the original menu pages clear this
+    // fixture, and the shell owns the setup for the whole match.
+    apply_controller_setup();
 
     blunted::randomize(seed);
     gameTask->Action(e_GameTaskMessage_StartMatch);
@@ -642,12 +618,46 @@ bool GpfRuntimeNode::restart_match() {
     return start_match();
 }
 
+void GpfRuntimeNode::apply_controller_setup() {
+    if (!runtime_ready || !menuTask) {
+        return;
+    }
+    std::vector<SideSelection> sides;
+    if (human_control) {
+        if (shell_controllers.empty()) {
+            // No shell selection (headless default): the keyboard plays home.
+            SideSelection keyboard;
+            keyboard.controllerID = 0;
+            keyboard.joystickID = 0;
+            keyboard.controllerImage = 0;
+            keyboard.side = -1;
+            keyboard.confirmed = true;
+            sides.push_back(keyboard);
+        } else {
+            for (size_t i = 0; i < shell_controllers.size(); ++i) {
+                const ShellController &entry = shell_controllers[i];
+                SideSelection selection;
+                selection.controllerID = (int)i;
+                selection.joystickID = (SDL_JoystickID)entry.stable_id;
+                selection.controllerImage = 0;
+                selection.side = entry.side;
+                selection.confirmed = true;
+                sides.push_back(selection);
+            }
+        }
+    }
+    menuTask->SetControllerSetup(sides);
+}
+
 void GpfRuntimeNode::step_one_tick() {
     if (!runtime_ready || !match || game_over_seen || match->GetPause()) {
         return;
     }
     sim_time_ms += TICK_MS;
     match->SetPresentationClock(true, sim_time_ms, sim_time_ms);
+    // The original menu task owns the queued fixture; pages clear it, so the
+    // shell re-applies its own setup before every processed tick.
+    apply_controller_setup();
     gameTask->ProcessPhase();
     // F2 debug, matching Match::Process: keep the non-human outfield team
     // parked off the pitch for every processed tick while the toggle is on.
@@ -1270,24 +1280,43 @@ int GpfRuntimeNode::register_gamepad(int godot_device_id) {
         last_error = "invalid Godot gamepad device id";
         return -1;
     }
-    const std::map<int, int>::const_iterator found = gamepad_slots.find(godot_device_id);
-    if (found != gamepad_slots.end()) {
+    const std::map<int, int>::const_iterator found = gamepad_virtual_ids.find(godot_device_id);
+    if (found != gamepad_virtual_ids.end()) {
         return found->second;
     }
-    // Stable ids in a range the shell controls: they never collide with the SDL
-    // joystick ids of the physical devices the runtime may also enumerate.
-    const SDL_JoystickID stable_id = (SDL_JoystickID)(0x40000000u + (unsigned int)godot_device_id);
-    const int slot = UserEventManager::GetInstance().AddVirtualGamepad(stable_id);
-    if (slot < 0) {
-        last_error = "no free virtual gamepad slot";
+
+    // Extension-owned virtual joystick: the original runtime already knows how
+    // to enumerate SDL gamepads, so no GameplayFootball source change is needed.
+    SDL_VirtualJoystickDesc desc;
+    SDL_INIT_INTERFACE(&desc);
+    desc.type = SDL_JOYSTICK_TYPE_GAMEPAD;
+    desc.naxes = SDL_GAMEPAD_AXIS_COUNT;
+    desc.nbuttons = SDL_GAMEPAD_BUTTON_COUNT;
+    desc.button_mask = (1u << SDL_GAMEPAD_BUTTON_COUNT) - 1u;
+    desc.axis_mask = (1u << SDL_GAMEPAD_AXIS_COUNT) - 1u;
+    desc.vendor_id = 0x1209;
+    desc.product_id = 0x0001;
+    desc.name = "OpenFootball Shell Gamepad";
+    const SDL_JoystickID virtual_id = SDL_AttachVirtualJoystick(&desc);
+    if (virtual_id == 0) {
+        last_error = "SDL_AttachVirtualJoystick failed: ";
+        last_error += String(SDL_GetError());
         UtilityFunctions::printerr(last_error);
         return -1;
     }
-    gamepad_slots[godot_device_id] = slot;
-    // Create the HIDGamepad wrapper for the new slot right away: the match reads
-    // its controllers when it is constructed, not on the next game tick.
+    gamepad_virtual_ids[godot_device_id] = (int)virtual_id;
+
+    // The original input manager rescans on SDL's gamepad-added event; then
+    // RefreshGamepads creates the HIDGamepad wrapper. Do both immediately: the
+    // match reads its controllers on construction, not on the next game tick.
+    SDL_UpdateJoysticks();
+    SDL_Event event;
+    SDL_zero(event);
+    event.type = SDL_EVENT_GAMEPAD_ADDED;
+    event.gdevice.which = virtual_id;
+    UserEventManager::GetInstance().InputSDLEvent(event);
     RefreshGamepads();
-    return slot;
+    return (int)virtual_id;
 }
 
 void GpfRuntimeNode::set_controller_setup(const Array &setup) {
@@ -1307,14 +1336,19 @@ void GpfRuntimeNode::set_controller_setup(const Array &setup) {
         ShellController controller;
         controller.side = side;
         const String kind = (String)value_or(entry, "kind", "keyboard");
-        const int slot = (int)value_or(entry, "slot", -1);
-        if (kind == String("gamepad") && slot >= 0 && slot < blunted::_JOYSTICK_MAX) {
-            const SDL_JoystickID stable_id = UserEventManager::GetInstance().GetJoystickID(slot);
-            if (stable_id != 0) {
-                controller.keyboard = false;
-                controller.slot = slot;
-                controller.stable_id = (unsigned int)stable_id;
+        const int handle = (int)value_or(entry, "slot", -1);
+        bool known_virtual_gamepad = false;
+        for (std::map<int, int>::const_iterator it = gamepad_virtual_ids.begin();
+                it != gamepad_virtual_ids.end(); ++it) {
+            if (it->second == handle) {
+                known_virtual_gamepad = true;
+                break;
             }
+        }
+        if (kind == String("gamepad") && handle > 0 && known_virtual_gamepad) {
+            controller.keyboard = false;
+            controller.slot = handle;
+            controller.stable_id = (unsigned int)handle;
         }
         shell_controllers.push_back(controller);
     }
@@ -1335,19 +1369,35 @@ Array GpfRuntimeNode::get_controller_setup() const {
 }
 
 void GpfRuntimeNode::set_gamepad_button(int slot, int button, bool pressed) {
-    if (!runtime_ready || slot < 0 || slot >= blunted::_JOYSTICK_MAX ||
-            button < 0 || button >= blunted::_JOYSTICK_MAXBUTTONS) {
+    if (!runtime_ready || slot <= 0 || button < 0 || button >= SDL_GAMEPAD_BUTTON_COUNT) {
         return;
     }
-    UserEventManager::GetInstance().SetJoyButtonState(slot, button, pressed);
+    // Feed the original input manager through its public SDL event path, exactly
+    // like a real gamepad event. `slot` here is the virtual joystick id.
+    SDL_Event event;
+    SDL_zero(event);
+    event.type = pressed ? SDL_EVENT_GAMEPAD_BUTTON_DOWN : SDL_EVENT_GAMEPAD_BUTTON_UP;
+    event.gbutton.which = (SDL_JoystickID)slot;
+    event.gbutton.button = (Uint8)button;
+    event.gbutton.down = pressed;
+    UserEventManager::GetInstance().InputSDLEvent(event);
 }
 
 void GpfRuntimeNode::set_gamepad_axis(int slot, int axis, double value) {
-    if (!runtime_ready || slot < 0 || slot >= blunted::_JOYSTICK_MAX ||
-            axis < 0 || axis >= blunted::_JOYSTICK_MAXAXES) {
+    if (!runtime_ready || slot <= 0 || axis < 0 || axis >= SDL_GAMEPAD_AXIS_COUNT) {
         return;
     }
-    UserEventManager::GetInstance().SetJoystickAxis(slot, axis, (float)value);
+    const bool trigger = axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER ||
+                         axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER;
+    const double clamped = trigger ? std::clamp(value, 0.0, 1.0)
+                                   : std::clamp(value, -1.0, 1.0);
+    SDL_Event event;
+    SDL_zero(event);
+    event.type = SDL_EVENT_GAMEPAD_AXIS_MOTION;
+    event.gaxis.which = (SDL_JoystickID)slot;
+    event.gaxis.axis = (Uint8)axis;
+    event.gaxis.value = (Sint16)std::lround(clamped * 32767.0);
+    UserEventManager::GetInstance().InputSDLEvent(event);
 }
 
 void GpfRuntimeNode::debug_set_ball(const Vector3 &position, const Vector3 &momentum) {

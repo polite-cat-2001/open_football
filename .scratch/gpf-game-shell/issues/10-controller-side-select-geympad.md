@@ -27,8 +27,9 @@ Team Select → PreMatch** (если пара команд уже выбрана
 `InputSetup` перечисляет устройства и передаёт setup в C++ (`register_gamepad` /
 `set_controller_setup`), `gpf_slice` маршрутизирует сырые оси/кнопки (`set_gamepad_button` /
 `set_gamepad_axis`). В меню повтор/перерыв/серия/исполнитель A/Start/B/D-pad/Back транслируются
-в Enter/Esc/стрелки/Tab. C++ хранит setup в `MenuTask::shellSides`; `Match::UpdateControllerSetup`
-предпочитает его. Игрок может играть за away.
+в Enter/Esc/стрелки/Tab. C++ (`GpfRuntimeNode`) хранит setup у себя и переприменяет его перед
+каждым тиком; геймпад — extension-owned SDL virtual joystick, ввод идёт через synthetic
+`InputSDLEvent`. GameplayFootball (`of_port`) не меняется. Игрок может играть за away.
 
 Отступления от оригинала: ready на центральной (spectator) строке заблокирован с подсказкой
 «Choose a side first» — иначе можно уйти в матч без HumanGamer; при нескольких устройствах все
