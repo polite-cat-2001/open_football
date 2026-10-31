@@ -50,6 +50,8 @@ func _init() -> void:
 		var formation: Array = team.get("formation", [])
 		_check(formation.size() == Formation.SLOT_COUNT,
 			"%s has %d formation slots" % [side, formation.size()])
+		var team_roles: Array = team.get("roles", [])
+		_check(team_roles.size() == 6, "%s carries all six role slots" % side)
 		var roles_ok := true
 		for entry in formation:
 			roles_ok = roles_ok and Formation.VALID_ROLES.has(str(entry.get("role", "")))

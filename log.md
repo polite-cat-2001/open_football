@@ -1455,3 +1455,46 @@ placeholder; национальный значок и шрифт есть. Ру�
   работают даже с геймпада, который не назначен стороне в этом матче (проверка перенесена
   до `input_slots`); остальные меню по-прежнему только для назначенных устройств.
 
+## [2026-11-01] feat | Game Plan и замены по ходу матча (#20)
+
+- `scripts/match/gpf_game_plan.gd` (`GpfGamePlan`) — порт `GamePlanPage`: карточки на поле,
+  скамейка, курсор, секции Tactics/Positions/Roles/Size, нижняя полоса. Один экран в прематче
+  (вкладка Game plan; `Edit lineups` ведёт туда) и в матче (из паузы, меню прячется без resume).
+- Мост `GpfRuntimeNode`: `queue_substitution`/`cancel_substitution`/`get_pending_substitutions`/
+  `get_substitution_notices`/`get_substitution_notice_counter`/`get_squad(team)`; snapshot получил
+  `substitutions0/1`, `substitutions_max`, `substitution_notice_counter`, `substitution_notices`.
+- C++ применяет очередь на ближайшем рестарте; `gpf_slice` по счётчику зовёт
+  `GpfActors.sync_roster()` (ушедший теряет тело/подпись, вышедший получает свои), HUD показывает
+  «X off, Y on» 5 с. 2P: каждая панель управляется только своим устройством, соперник read-only.
+- Удалён черновой `scripts/ui/lineup_editor.gd`; премачевый Game plan теперь на `GpfGamePlan`.
+- Тесты: `check_gpf_substitutions` (очередь/отмена/лимит 5/apply/notice/roster),
+  `check_gpf_game_plan` (премате-своп, очередь/отмена, скамейка стрелками, 2P ownership),
+  `check_gpf_actor_roster`, обновлён `check_prematch_ui`; `check_ui_layout` PASS (1920/1280,
+  вкладка Game plan и 12 состояний ui_lab), 34 PNG в `.scratch/ui_shots/`.
+- Живой прогон MCP: пауза → Game plan → очередь `Moreno off, Fierro on` → после стандарта замена
+  применилась (`get_player_ids` без id58, с id78, `Actors.count()==25`), notice виден в HUD.
+
+### [2026-11-01] feat | Game Plan: тактики, роли, ввод и любые свопы
+
+- `scripts/data/tactical_schemes.gd` (`TacticalSchemes`) — порт `tacticschemes.cpp`: 6 схем,
+  венгерское назначение роль/позиция (GK закреплён), `match_scheme`. Tactics-секция показывает
+  список вместо скамейки, курсор двигает preview на поле, A/Enter применяет:
+  `MatchLineup.apply_scheme` в премате и `apply_tactical_scheme`/`ApplySchemeToTeam` в матче.
+- Roles-секция: 6 ролей оригинала, список с текущим исполнителем, выбор игрока на поле.
+  Премате хранит слот в `MatchLineup.roles`, пакет несёт `roles`, C++ применяет к
+  `MatchData::SetRolePlayer`; in-match — `set_team_role`.
+- Positions принимает **любую пару** одной команды: два стартовых меняются ролями/позициями
+  (`swap_squad_players`, без замены), два запасных — порядком скамейки (локальный, сбрасывается
+  на новый матч), стартовый↔запасной — очередь замены. Валидные цели подсвечиваются, статус
+  объясняет результат.
+- UX/ввод: постоянная подсказка, Y/Tab переключает поле↔скамейку, X снимает очередь. Убран
+  180 мс кулдаун клавиш (остался только для стика). В 1P геймпад без назначения стороне тоже
+  управляет панелью.
+- Новые тесты: `check_tactical_schemes`, расширены `check_gpf_game_plan` (Tactics/Roles/X/Y/Tab/
+  in-match bridge/свопы любой пары), `check_gpf_substitutions` (роли/схема/своп стартовых),
+  `check_match_package`/`check_gpf_match_package` (roles в пакете). `ui_lab` — 15 состояний, 40 PNG.
+- **Fix pause:** `gpf_slice._input` помечает события открытого меню/плана
+  `set_input_as_handled()`, иначе GUI-focus дополнительно двигал фокус и строка «game plan»
+  визуально перескакивала; `check_gpf_slice_ui` проверяет клавиатуру и D-pad (фокус на строке,
+  A/Enter открывает, B возвращает).
+

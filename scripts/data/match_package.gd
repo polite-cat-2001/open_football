@@ -145,6 +145,7 @@ func _team_package(squad: Dictionary, lineup: MatchLineup, side: String) -> Dict
 		"tactics_xml": str(team.get("tactics_xml", "")),
 		"tactics_factory_xml": str(team.get("tactics_factory_xml", "")),
 		"formation": package_formation,
+		"roles": lineup.roles_to_array() if lineup != null else [-1, -1, -1, -1, -1, -1],
 		"players": package_players,
 	}
 

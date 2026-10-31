@@ -13,7 +13,8 @@ const SCREENS := [
 	{"path": "res://scenes/controller_select.tscn", "name": "controller_select"},
 	{"path": "res://scenes/team_select.tscn", "name": "team_select"},
 	{"path": "res://scenes/prematch.tscn", "name": "prematch"},
-	{"path": "res://scenes/ui_lab.tscn", "name": "ui_lab", "states": 9},
+	{"path": "res://scenes/prematch.tscn", "name": "prematch_gameplan", "tab": 3},
+	{"path": "res://scenes/ui_lab.tscn", "name": "ui_lab", "states": 15},
 ]
 
 var saved := 0
@@ -68,6 +69,9 @@ func _capture_screen(spec: Dictionary, size: Vector2i) -> void:
 	await _frames(3)
 	if screen.has_method("set_caption_visible"):
 		screen.call("set_caption_visible", false)
+	if spec.has("tab"):
+		screen.call("_select_tab", int(spec["tab"]))
+		await _frames(3)
 	await RenderingServer.frame_post_draw
 
 	var state_count := int(spec.get("states", 1))

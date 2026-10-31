@@ -27,9 +27,13 @@ options, system settings, replay, forfeit. C++ замораживает матч
 центрированная панель, все 9 пунктов `IngamePage`, подтверждение форфейта. `gpf_slice` открывает
 её по `Esc`/Start, зовёт `runtime.pause_match()`/`resume_match()`, роутит клавиатуру/геймпад.
 Continue/forfeit работают; camera/visual/system переключают стадионную камеру, освещение и
-fullscreen; game plan/controller/side/replay показывают честную подсказку (20/21/следующие
-тикеты). Добавлено состояние `PAUSE` в `ui_lab` (9 состояний, 26 PNG), `check_gpf_pause` PASS.
-Живой прогон: Esc ставит матч на паузу (`paused: true`), Enter продолжает и тик идёт.
+fullscreen; **game plan** открывает `GpfGamePlan` (тикет 20) и возвращается в паузу; controller/
+side/replay показывают честную подсказку (21/следующие тикеты). Добавлено состояние `PAUSE` в `ui_lab`
+(15 состояний, 40 PNG), `check_gpf_pause` PASS. Живой прогон: Esc ставит матч на паузу (`paused: true`),
+Enter продолжает и тик идёт; game plan из паузы проверен живьём (тикет 20). **2026-11-01:** меню паузы
+и Game Plan помечают свои keyboard/gamepad-события `set_input_as_handled()`, иначе Godot GUI-focus
+дополнительно двигал фокус и строка «game plan» визуально перескакивала; регрессия —
+`check_gpf_slice_ui` (клавиатура и D-pad: фокус остаётся на «game plan», Enter/A открывает).
 
 > **UI-политика:** если этому тикету нужен UI, портировать соответствующий экран/элемент из
 > оригинала (`GameplayFootball-of_port/src/menu/...`) — та же раскладка, подписи, иконки,

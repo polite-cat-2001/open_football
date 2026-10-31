@@ -2,11 +2,12 @@ extends Control
 # UI stand: show the in-match HUD and shootout overlays from canned snapshots,
 # without starting the C++ runtime. Number keys choose a state, Left/Right cycle.
 
-const STATE_KEYS := [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9]
+const STATE_KEYS := [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0]
 
 var hud: GpfHud
 var shootout: GpfShootoutView
 var pause_menu: GpfPauseMenu
+var game_plan: GpfGamePlan
 var caption: Label
 var state_index := 0
 var _states: Array = []
@@ -42,6 +43,13 @@ func _ready() -> void:
 	pause_menu = GpfPauseMenu.new()
 	add_child(pause_menu)
 	pause_menu.setup()
+	var plan_layer := CanvasLayer.new()
+	plan_layer.layer = 5
+	add_child(plan_layer)
+	game_plan = GpfGamePlan.new()
+	game_plan.name = "GamePlan"
+	game_plan.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	plan_layer.add_child(game_plan)
 
 	_states = _build_states()
 	set_state(0)
@@ -147,7 +155,86 @@ func _build_states() -> Array:
 	states.append(_with(pause, {
 		"score0": 1, "score1": 1, "match_time_ms": 3120000, "in_play": true,
 	}))
+
+	var plan := _base_state("GAME PLAN")
+	states.append(_with(plan, {
+		"score0": 1, "score1": 0, "match_time_ms": 1800000, "in_play": true,
+	}))
+
+	var plan_2p := _base_state("GAME PLAN 2P")
+	states.append(_with(plan_2p, {
+		"score0": 1, "score1": 1, "match_time_ms": 1800000, "in_play": true,
+		"human_team": 0,
+	}))
+
+	var plan_tactics := _base_state("GAME PLAN TACTICS")
+	states.append(_with(plan_tactics, {
+		"score0": 1, "score1": 1, "match_time_ms": 1800000, "in_play": true,
+	}))
+
+	var plan_roles := _base_state("GAME PLAN ROLES")
+	states.append(_with(plan_roles, {
+		"score0": 1, "score1": 1, "match_time_ms": 1800000, "in_play": true,
+	}))
+
+	var plan_select := _base_state("GAME PLAN SELECT")
+	states.append(_with(plan_select, {
+		"score0": 1, "score1": 1, "match_time_ms": 1800000, "in_play": true,
+	}))
+
+	var sub_notice := _base_state("SUBSTITUTION")
+	states.append(_with(sub_notice, {
+		"score0": 1, "score1": 1, "match_time_ms": 1900000, "in_play": true,
+		"substitution_notice_counter": 1,
+		"substitution_notices": ["RIVERA off, KOVAL on"],
+	}))
 	return states
+
+
+func _demo_team(name: String, color: Color, pending: bool = false) -> Dictionary:
+	var roles := ["GK", "CB", "CB", "LB", "RB", "DM", "CM", "CM", "LM", "RM", "ST"]
+	var positions := [
+		Vector2(-1.0, 0.0), Vector2(-0.8, -0.2), Vector2(-0.8, 0.2),
+		Vector2(-0.7, -0.75), Vector2(-0.7, 0.75), Vector2(-0.45, 0.0),
+		Vector2(-0.1, -0.25), Vector2(-0.1, 0.25), Vector2(0.25, -0.7),
+		Vector2(0.25, 0.7), Vector2(0.8, 0.0),
+	]
+	var bench_roles := ["GK", "CB", "LB", "DM", "CM", "LM", "ST"]
+	var players: Array = []
+	for index in roles.size():
+		players.append({
+			"id": 100 + index,
+			"slot": index,
+			"name": "%s %d" % [name.substr(0, 3), index + 1],
+			"role": roles[index],
+			"position": positions[index],
+			"active": true,
+			"left_pitch": false,
+			"pending_out": pending and index == 6,
+			"pending_in": false,
+			"rating": 62 + (index * 3) % 30,
+			"fatigue": 100 - index * 7,
+		})
+	for index in bench_roles.size():
+		players.append({
+			"id": 200 + index,
+			"slot": roles.size() + index,
+			"name": "%s SUB %d" % [name.substr(0, 3), index + 1],
+			"role": bench_roles[index],
+			"position": Vector2.ZERO,
+			"active": false,
+			"left_pitch": false,
+			"pending_out": false,
+			"pending_in": pending and index == 3,
+			"rating": 58 + (index * 4) % 25,
+			"fatigue": 100,
+		})
+	return {
+		"name": name,
+		"color": color,
+		"players": players,
+		"roles": [5, 10, 7, 8, 9, 6],
+	}
 
 
 func set_state(index: int) -> void:
@@ -157,16 +244,39 @@ func set_state(index: int) -> void:
 	_current = _states[state_index]
 	if pause_menu.is_open():
 		pause_menu.close()
+	if game_plan.is_open():
+		game_plan.close_plan()
 	hud.reset()
 	shootout.reset()
 	var snap: Dictionary = _current["snap"]
 	hud.apply_snapshot(snap, int(snap.get("display_player", -1)))
 	shootout.update(snap, 0.0)
-	if String(_current.get("name", "")) == "PAUSE":
+	var state_name := String(_current.get("name", ""))
+	if state_name == "PAUSE":
 		pause_menu.open()
-	caption.text = "UI LAB  [1..%d] state  Left/Right  —  %s" % [
-		_states.size(), String(_current.get("name", "")),
-	]
+	elif state_name == "GAME PLAN":
+		game_plan.setup_demo(_demo_team("ALASHKERT", Color(0.2, 0.4, 0.9)),
+			_demo_team("AFGHANISTAN", Color(0.9, 0.2, 0.2)), [0])
+		game_plan.open_plan()
+	elif state_name == "GAME PLAN 2P":
+		game_plan.setup_demo(_demo_team("ALASHKERT", Color(0.2, 0.4, 0.9), true),
+			_demo_team("AFGHANISTAN", Color(0.9, 0.2, 0.2)), [0, 1])
+		game_plan.open_plan()
+	elif state_name.begins_with("GAME PLAN"):
+		game_plan.setup_demo(_demo_team("ALASHKERT", Color(0.2, 0.4, 0.9)),
+			_demo_team("AFGHANISTAN", Color(0.9, 0.2, 0.2)), [0])
+		game_plan.open_plan()
+		if state_name == "GAME PLAN TACTICS":
+			game_plan.call("_set_section", (game_plan.get("_panels") as Array)[0], 0)
+		elif state_name == "GAME PLAN ROLES":
+			game_plan.call("_set_section", (game_plan.get("_panels") as Array)[0], 2)
+		elif state_name == "GAME PLAN SELECT":
+			var panel: Dictionary = (game_plan.get("_panels") as Array)[0]
+			game_plan.call("_set_section", panel, 1)
+			panel["held"] = int((panel["pitch_entries"] as Array)[3])
+			game_plan.call("_refresh_panel", panel)
+			game_plan.call("set_status", "Selected player - choose any other player", 60000)
+	caption.text = "UI LAB  [1..9,0] state  Left/Right  —  %s" % [state_name]
 
 
 func state_name() -> String:

@@ -11,6 +11,7 @@
 #include "main.hpp"
 #include "menu/menutask.hpp"
 #include "menu/pagefactory.hpp"
+#include "menu/tacticschemes.hpp"
 #include "data/matchdata.hpp"
 #include "onthepitch/match.hpp"
 #include "onthepitch/player/player.hpp"
@@ -236,6 +237,19 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_replay_active", "active"), &GpfRuntimeNode::set_replay_active);
     ClassDB::bind_method(D_METHOD("pause_match"), &GpfRuntimeNode::pause_match);
     ClassDB::bind_method(D_METHOD("resume_match"), &GpfRuntimeNode::resume_match);
+    ClassDB::bind_method(D_METHOD("queue_substitution", "team_id", "out_player_id", "in_player_id"),
+                         &GpfRuntimeNode::queue_substitution);
+    ClassDB::bind_method(D_METHOD("cancel_substitution", "team_id", "out_slot"), &GpfRuntimeNode::cancel_substitution);
+    ClassDB::bind_method(D_METHOD("get_pending_substitutions"), &GpfRuntimeNode::get_pending_substitutions);
+    ClassDB::bind_method(D_METHOD("get_substitution_notices"), &GpfRuntimeNode::get_substitution_notices);
+    ClassDB::bind_method(D_METHOD("get_substitution_notice_counter"), &GpfRuntimeNode::get_substitution_notice_counter);
+    ClassDB::bind_method(D_METHOD("get_squad", "team_id"), &GpfRuntimeNode::get_squad);
+    ClassDB::bind_method(D_METHOD("apply_tactical_scheme", "team_id", "scheme_index"),
+                         &GpfRuntimeNode::apply_tactical_scheme);
+    ClassDB::bind_method(D_METHOD("set_team_role", "team_id", "role", "slot"),
+                         &GpfRuntimeNode::set_team_role);
+    ClassDB::bind_method(D_METHOD("swap_squad_players", "team_id", "first_player_id", "second_player_id"),
+                         &GpfRuntimeNode::swap_squad_players);
     ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_available"), &GpfRuntimeNode::is_set_piece_taker_menu_available);
     ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_open"), &GpfRuntimeNode::is_set_piece_taker_menu_open);
     ClassDB::bind_method(D_METHOD("open_set_piece_taker_menu"), &GpfRuntimeNode::open_set_piece_taker_menu);
@@ -379,6 +393,16 @@ bool GpfRuntimeNode::set_match_package(const Dictionary &package) {
 
     match_package[0] = home;
     match_package[1] = away;
+    for (int team = 0; team < 2; ++team) {
+        for (int role = 0; role < 6; ++role) package_roles[team][role] = -1;
+        const Dictionary team_dict = (team == 0) ? Dictionary(home_value) : Dictionary(away_value);
+        const Variant roles_value = value_or(team_dict, "roles");
+        if (roles_value.get_type() != Variant::ARRAY) continue;
+        const Array roles = roles_value;
+        for (int role = 0; role < 6 && role < (int)roles.size(); ++role) {
+            package_roles[team][role] = (int)roles[role];
+        }
+    }
     package_duration = std::clamp(duration, 0.0f, 2.0f);
     package_difficulty = std::clamp(difficulty, 0.0f, 1.0f);
     match_package_ready = true;
@@ -520,6 +544,13 @@ bool GpfRuntimeNode::start_match() {
     menuTask->SetTeamIDs(std::to_string(match_package[0].databaseID),
                          std::to_string(match_package[1].databaseID));
     MatchData *match_data = new MatchData(match_package[0], match_package[1]);
+    for (int team = 0; team < 2; ++team) {
+        for (int role = 0; role < e_TeamRole_SIZE; ++role) {
+            if (package_roles[team][role] >= 0) {
+                match_data->SetRolePlayer(team, (e_TeamRole)role, package_roles[team][role]);
+            }
+        }
+    }
     menuTask->SetMatchData(match_data);
     UtilityFunctions::print("GpfRuntimeNode: match built from package: ",
         String::utf8(match_package[0].name.c_str()), " vs ",
@@ -1143,6 +1174,21 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["possession1_ms"] = (int)match_data->GetPossessionTime_ms(1);
     result["shots0"] = match_data->GetShots(0);
     result["shots1"] = match_data->GetShots(1);
+    result["substitutions0"] = match->GetTeam(0)->GetSubstitutionCount();
+    result["substitutions1"] = match->GetTeam(1)->GetSubstitutionCount();
+    result["substitutions_max"] = maxSubstitutions;
+    result["substitution_notice_counter"] = (int)match->GetSubstitutionNoticeCounter();
+    Array substitution_notices;
+    const std::vector<SubstitutionNotice> &notices = match->GetSubstitutionNotices();
+    for (size_t i = 0; i < notices.size(); ++i) {
+        Team *notice_team = match->GetTeam(notices[i].teamID);
+        Player *notice_out = notice_team ? notice_team->GetPlayer(notices[i].outPlayerID) : nullptr;
+        Player *notice_in = notice_team ? notice_team->GetPlayer(notices[i].inPlayerID) : nullptr;
+        const std::string out_name = notice_out ? notice_out->GetPlayerData()->GetLastName() : std::string("?");
+        const std::string in_name = notice_in ? notice_in->GetPlayerData()->GetLastName() : std::string("?");
+        substitution_notices.append(String::utf8((out_name + " off, " + in_name + " on").c_str()));
+    }
+    result["substitution_notices"] = substitution_notices;
     result["actual_time_ms"] = (int)match->GetActualTime_ms();
     result["match_duration_factor"] = match->GetMatchDurationFactor();
     result["paused"] = match->GetPause();
@@ -1277,6 +1323,206 @@ void GpfRuntimeNode::resume_match() {
     if (runtime_ready && match) {
         match->Pause(false);
     }
+}
+
+bool GpfRuntimeNode::queue_substitution(int team_id, int out_player_id, int in_player_id) {
+    if (!runtime_ready || !match) {
+        return false;
+    }
+    return match->QueueSubstitution(team_id, out_player_id, in_player_id);
+}
+
+bool GpfRuntimeNode::cancel_substitution(int team_id, int out_slot) {
+    if (!runtime_ready || !match) {
+        return false;
+    }
+    return match->CancelSubstitution(team_id, out_slot);
+}
+
+Array GpfRuntimeNode::get_pending_substitutions() const {
+    Array result;
+    if (!runtime_ready || !match) {
+        return result;
+    }
+    const std::vector<Substitution> &pending = match->GetPendingSubstitutions();
+    for (size_t i = 0; i < pending.size(); ++i) {
+        Dictionary entry;
+        entry["team"] = pending[i].teamID;
+        entry["out_id"] = pending[i].outPlayerID;
+        entry["in_id"] = pending[i].inPlayerID;
+        entry["out_slot"] = pending[i].outSlot;
+        entry["in_slot"] = pending[i].inSlot;
+        result.append(entry);
+    }
+    return result;
+}
+
+Array GpfRuntimeNode::get_substitution_notices() const {
+    Array result;
+    if (!runtime_ready || !match) {
+        return result;
+    }
+    const std::vector<SubstitutionNotice> &notices = match->GetSubstitutionNotices();
+    for (size_t i = 0; i < notices.size(); ++i) {
+        Team *team = match->GetTeam(notices[i].teamID);
+        Player *out = team ? team->GetPlayer(notices[i].outPlayerID) : nullptr;
+        Player *in = team ? team->GetPlayer(notices[i].inPlayerID) : nullptr;
+        const std::string out_name = out ? out->GetPlayerData()->GetLastName() : std::string("?");
+        const std::string in_name = in ? in->GetPlayerData()->GetLastName() : std::string("?");
+        Dictionary entry;
+        entry["team"] = notices[i].teamID;
+        entry["out_id"] = notices[i].outPlayerID;
+        entry["in_id"] = notices[i].inPlayerID;
+        entry["out_slot"] = notices[i].outSlot;
+        entry["in_slot"] = notices[i].inSlot;
+        entry["time_ms"] = (int)notices[i].time_ms;
+        entry["text"] = String::utf8((out_name + " off, " + in_name + " on").c_str());
+        result.append(entry);
+    }
+    return result;
+}
+
+int GpfRuntimeNode::get_substitution_notice_counter() const {
+    if (!runtime_ready || !match) {
+        return 0;
+    }
+    return (int)match->GetSubstitutionNoticeCounter();
+}
+
+Dictionary GpfRuntimeNode::get_squad(int team_id) const {
+    Dictionary result;
+    if (!runtime_ready || !match || team_id < 0 || team_id > 1) {
+        return result;
+    }
+    Team *team = match->GetTeam(team_id);
+    TeamData *team_data = team ? team->GetTeamData() : nullptr;
+    if (!team || !team_data) {
+        return result;
+    }
+
+    result["team_id"] = team_id;
+    result["name"] = String::utf8(team_data->GetName().c_str());
+    result["substitutions"] = team->GetSubstitutionCount();
+    result["max_substitutions"] = maxSubstitutions;
+
+    const std::vector<Substitution> &pending = match->GetPendingSubstitutions();
+    Array players;
+    const std::vector<Player *> &all = team->GetAllPlayers();
+    for (size_t slot = 0; slot < all.size(); ++slot) {
+        Player *player = all[slot];
+        if (!player) continue;
+        PlayerData *player_data = player->GetPlayerData();
+        if (!player_data) continue;
+
+        const bool active = player->IsActive();
+        FormationEntry formation;
+        std::string role_name;
+        Vector2 position;
+        if (active) {
+            formation = team->GetFormationEntry(player->GetID());
+            role_name = GetRoleName(formation.role);
+            position = Vector2(formation.databasePosition.coords[0], formation.databasePosition.coords[1]);
+        } else {
+            const std::vector<e_PlayerRole> &roles = player_data->GetRoles();
+            role_name = GetRoleName(roles.empty() ? e_PlayerRole_CM : roles.front());
+        }
+
+        bool pending_out = false;
+        bool pending_in = false;
+        for (size_t i = 0; i < pending.size(); ++i) {
+            if (pending[i].teamID != team_id) continue;
+            if (pending[i].outPlayerID == player->GetID()) pending_out = true;
+            if (pending[i].inPlayerID == player->GetID()) pending_in = true;
+        }
+
+        const float base_stat = player_data->GetRaw().baseStat;
+        const int rating = base_stat > 0.0f ? (int)(base_stat * 100.0f + 0.5f) : -1;
+        const int fatigue = (int)(std::clamp(player->GetFatigueFactorInv(), 0.0f, 1.0f) * 100.0f + 0.5f);
+
+        Dictionary entry;
+        entry["id"] = player->GetID();
+        entry["slot"] = (int)slot;
+        entry["name"] = String::utf8(player_data->GetLastName().c_str());
+        entry["role"] = String(role_name.c_str());
+        entry["position"] = position;
+        entry["active"] = active;
+        entry["left_pitch"] = team->HasLeftPitch(player->GetID());
+        entry["pending_out"] = pending_out;
+        entry["pending_in"] = pending_in;
+        entry["rating"] = rating;
+        entry["fatigue"] = fatigue;
+        players.append(entry);
+    }
+    result["players"] = players;
+
+    MatchData *match_data = match->GetMatchData();
+    Array roles;
+    for (int role = 0; role < e_TeamRole_SIZE; ++role) {
+        const int designated = match_data ? match_data->GetRolePlayer(team_id, (e_TeamRole)role) : -1;
+        const int slot = team->GetRoleSlot((e_TeamRole)role);
+        Dictionary entry;
+        entry["role"] = role;
+        entry["slot"] = slot;
+        entry["designated"] = designated;
+        if (slot >= 0 && slot < (int)all.size()) {
+            Player *role_player = all[slot];
+            entry["player_id"] = role_player->GetID();
+            entry["name"] = String::utf8(role_player->GetPlayerData()->GetLastName().c_str());
+        } else {
+            entry["player_id"] = -1;
+            entry["name"] = "";
+        }
+        roles.append(entry);
+    }
+    result["roles"] = roles;
+    return result;
+}
+
+
+void GpfRuntimeNode::apply_tactical_scheme(int team_id, int scheme_index) {
+    if (!runtime_ready || !match || team_id < 0 || team_id > 1) {
+        return;
+    }
+    ApplySchemeToTeam(match->GetTeam(team_id), scheme_index);
+}
+
+
+bool GpfRuntimeNode::set_team_role(int team_id, int role, int slot) {
+    if (!runtime_ready || !match || team_id < 0 || team_id > 1) {
+        return false;
+    }
+    if (role < 0 || role >= e_TeamRole_SIZE) {
+        return false;
+    }
+    Team *team = match->GetTeam(team_id);
+    MatchData *match_data = match->GetMatchData();
+    if (!team || !match_data) {
+        return false;
+    }
+    if (slot < 0 || slot >= (int)team->GetAllPlayers().size()) {
+        return false;
+    }
+    match_data->SetRolePlayer(team_id, (e_TeamRole)role, slot);
+    return true;
+}
+
+
+bool GpfRuntimeNode::swap_squad_players(int team_id, int first_player_id, int second_player_id) {
+    if (!runtime_ready || !match || team_id < 0 || team_id > 1) {
+        return false;
+    }
+    Team *team = match->GetTeam(team_id);
+    if (!team) return false;
+    Player *first = team->GetPlayer(first_player_id);
+    Player *second = team->GetPlayer(second_player_id);
+    if (!first || !second || first == second) return false;
+    if (!first->IsActive() || !second->IsActive()) return false;
+
+    const FormationEntry first_entry = team->GetFormationEntry(first_player_id);
+    const FormationEntry second_entry = team->GetFormationEntry(second_player_id);
+    team->SetRuntimeFormationEntry(first_player_id, second_entry);
+    team->SetRuntimeFormationEntry(second_player_id, first_entry);
+    return true;
 }
 
 PackedVector3Array GpfRuntimeNode::get_goal_net_positions(int goal) const {

@@ -89,6 +89,40 @@ func _run() -> void:
 	_check(controlled_label != null and other_label != null
 		and controlled_label.modulate != other_label.modulate,
 		"controlled player's nameplate is highlighted")
+
+	# Pause menu navigation must not be double-stepped by Godot's GUI focus:
+	# Down selects "game plan" and Enter opens it (keyboard path).
+	var pause_menu := scene.get("pause_menu") as GpfPauseMenu
+	var game_plan := scene.get("game_plan") as GpfGamePlan
+	await _inject_key(KEY_ESCAPE)
+	_check(pause_menu.is_open(), "Esc opens the pause menu")
+	await _inject_key(KEY_DOWN)
+	_check(int(pause_menu.index) == 1, "Down moves to the game plan row")
+	var focus_owner := scene.get_viewport().gui_get_focus_owner()
+	_check(focus_owner == pause_menu.buttons[1], "the game plan row owns focus")
+	await _inject_key(KEY_ENTER)
+	_check(not pause_menu.is_open() and game_plan.is_open(),
+		"Enter opens the game plan instead of skipping it")
+	await _inject_key(KEY_ESCAPE)
+	_check(pause_menu.is_open() and not game_plan.is_open(),
+		"Back from the game plan returns to the pause menu")
+	await _inject_key(KEY_ESCAPE)
+	_check(not pause_menu.is_open(), "Esc resumes from the pause menu")
+
+	# Gamepad path: D-pad down then A must hit the same row, not slip past it.
+	await _inject_key(KEY_ESCAPE)
+	await _inject_joy(JOY_BUTTON_DPAD_DOWN)
+	_check(int(pause_menu.index) == 1, "D-pad Down moves to the game plan row")
+	_check(scene.get_viewport().gui_get_focus_owner() == pause_menu.buttons[1],
+		"the game plan row owns focus on the gamepad too")
+	await _inject_joy(JOY_BUTTON_A)
+	_check(game_plan.is_open(), "gamepad A opens the game plan")
+	await _inject_joy(JOY_BUTTON_B)
+	_check(pause_menu.is_open() and not game_plan.is_open(),
+		"gamepad B returns from the game plan to the pause menu")
+	await _inject_joy(JOY_BUTTON_B)
+	_check(not pause_menu.is_open(), "gamepad B resumes from the pause menu")
+
 	var goal_frames := scene.get_node_or_null("Environment/GoalFrames") as Node3D
 	var frame_count := 0
 	var hidden_count := 0
@@ -254,6 +288,22 @@ func _key(code: int) -> InputEventKey:
 	event.keycode = code
 	event.pressed = true
 	return event
+
+
+func _inject_key(code: int) -> void:
+	Input.parse_input_event(_key(code))
+	await process_frame
+	await process_frame
+
+
+func _inject_joy(button: int) -> void:
+	var event := InputEventJoypadButton.new()
+	event.device = 0
+	event.button_index = button
+	event.pressed = true
+	Input.parse_input_event(event)
+	await process_frame
+	await process_frame
 
 func _finish() -> void:
 	if failures.is_empty():

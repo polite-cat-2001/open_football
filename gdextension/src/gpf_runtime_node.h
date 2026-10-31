@@ -46,6 +46,9 @@ private:
     // match is built from this; the C++ side does not read the database.
     bool match_package_ready = false;
     TeamDataRaw match_package[2];
+    // Designated team roles (captain / set-piece takers), by starting slot.
+    // Parsed from the shell package and applied to MatchData before the match.
+    int package_roles[2][6];
     float package_duration = 1.0f;
     float package_difficulty = 0.8f;
 
@@ -129,6 +132,21 @@ public:
     void set_replay_active(bool active);
     void pause_match();
     void resume_match();
+    // Runtime substitutions (the shell decides, C++ applies at the next restart).
+    bool queue_substitution(int team_id, int out_player_id, int in_player_id);
+    bool cancel_substitution(int team_id, int out_slot);
+    Array get_pending_substitutions() const;
+    Array get_substitution_notices() const;
+    int get_substitution_notice_counter() const;
+    // Full squad of a team in match terms: id, name, display role, pitch
+    // position, active/bench/left-pitch and pending substitution marks.
+    Dictionary get_squad(int team_id) const;
+    // Tactics / roles from the Game Plan screen.
+    void apply_tactical_scheme(int team_id, int scheme_index);
+    bool set_team_role(int team_id, int role, int slot);
+    // Swap two active players' formation entries (roles + positions) without
+    // counting as a substitution. Bench order is a shell-only concern.
+    bool swap_squad_players(int team_id, int first_player_id, int second_player_id);
     bool is_set_piece_taker_menu_available() const;
     bool is_set_piece_taker_menu_open() const;
     bool open_set_piece_taker_menu();

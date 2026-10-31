@@ -27,6 +27,9 @@ const SET_PIECE_NAMES := [
 var hud: Label
 var score_hud: Label
 var taker_hint: Label
+var substitution_notice: Label
+var _sub_notice_counter := -1
+var _sub_notice_hide_ms := 0
 
 var taker_menu_layer: CanvasLayer
 var taker_menu_label: Label
@@ -67,6 +70,7 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 		stadium_camera: bool, lighting_name: String) -> void:
 	_sync_phase_menu(snap)
 	_sync_taker_ui(snap)
+	_sync_substitution_notice(snap)
 	if hud == null:
 		return
 	var status := _status_text(snap, display_player_id)
@@ -122,6 +126,9 @@ func reset() -> void:
 	_close_phase_menu()
 	phase_menu_game_over = false
 	set_replay_mode(false)
+	_sub_notice_counter = -1
+	if substitution_notice != null:
+		substitution_notice.visible = false
 
 
 func set_taker_hint_key(key_name: String) -> void:
@@ -221,6 +228,27 @@ func _sync_taker_ui(snap: Dictionary) -> void:
 			and not taker_menu_open and not phase_menu_open \
 			and not bool(snap.get("shootout_active", false)) \
 			and bool(snap.get("in_set_piece", false))
+
+
+func _sync_substitution_notice(snap: Dictionary) -> void:
+	if substitution_notice == null:
+		return
+	var counter := int(snap.get("substitution_notice_counter", 0))
+	if counter != _sub_notice_counter:
+		if counter > _sub_notice_counter:
+			var notices: Array = snap.get("substitution_notices", [])
+			var start_index := maxi(_sub_notice_counter, 0)
+			var fresh := notices.slice(mini(start_index, notices.size()))
+			if not fresh.is_empty():
+				var lines := PackedStringArray()
+				for line in fresh:
+					lines.append(str(line))
+				substitution_notice.text = "\n".join(lines)
+				substitution_notice.visible = true
+				_sub_notice_hide_ms = Time.get_ticks_msec() + 5000
+		_sub_notice_counter = counter
+	if substitution_notice.visible and Time.get_ticks_msec() > _sub_notice_hide_ms:
+		substitution_notice.visible = false
 
 
 func _sync_phase_menu(snap: Dictionary) -> void:
@@ -446,6 +474,26 @@ func _build_hud() -> void:
 	taker_hint.text = "Tab: change taker"
 	taker_hint.visible = false
 	layer.add_child(taker_hint)
+
+	substitution_notice = Label.new()
+	substitution_notice.anchor_left = 0.10
+	substitution_notice.anchor_right = 0.90
+	substitution_notice.anchor_top = 0.24
+	substitution_notice.anchor_bottom = 0.34
+	substitution_notice.offset_left = 0
+	substitution_notice.offset_right = 0
+	substitution_notice.offset_top = 0
+	substitution_notice.offset_bottom = 0
+	substitution_notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	substitution_notice.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	substitution_notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	substitution_notice.add_theme_font_size_override("font_size", 26)
+	substitution_notice.add_theme_color_override("font_color", Color(1.0, 0.88, 0.3))
+	substitution_notice.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	substitution_notice.add_theme_constant_override("outline_size", 5)
+	substitution_notice.text = ""
+	substitution_notice.visible = false
+	layer.add_child(substitution_notice)
 
 
 func _build_taker_menu() -> void:

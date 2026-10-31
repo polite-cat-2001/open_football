@@ -24,6 +24,8 @@ func _init() -> void:
 		print("CHECK FAIL: match package could not be built")
 		quit(1)
 		return
+	# Pre-match role designations travel in the package and land in MatchData.
+	(package["home"] as Dictionary)["roles"] = [4, 9, 7, 8, 6, 5]
 
 	runtime = ClassDB.instantiate("GpfRuntimeNode")
 	if runtime == null:
@@ -124,6 +126,18 @@ func _run() -> void:
 			formation_ok = formation_ok and _formation_matches(
 				away_formation[index], package["away"]["formation"][index])
 	_check(formation_ok, "formation roles and positions match the package")
+
+	var home_squad: Dictionary = runtime.get_squad(0)
+	var squad_roles: Array = home_squad.get("roles", [])
+	_check(squad_roles.size() == 6, "get_squad returns all six team roles")
+	var captain := {}
+	for role_entry in squad_roles:
+		if int(role_entry.get("role", -1)) == 0:
+			captain = role_entry
+			break
+	_check(not captain.is_empty() and int(captain.get("designated", -1)) == 4
+		and int(captain.get("slot", -1)) == 4,
+		"the package captain designation reaches MatchData")
 
 	var tick_before := int(runtime.get_tick())
 	runtime.step_fixed(1500)
