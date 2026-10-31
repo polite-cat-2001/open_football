@@ -30,6 +30,9 @@
 - **Validate match scene (headless):** `& "C:\Users\Egor\Desktop\Godot\Godot_v4.7.2-stable_win64_console.exe" --path "C:\Users\Egor\Desktop\projects\open_football" --headless --quit-after 2 res://scenes/match.tscn`
   Run **both** — plain `--quit` boots `main_menu.tscn` and never loads `match.tscn`, so it never parses `match_manager.gd`/`teammate_ai.gd`/`simple_ai.gd`/`keeper_ai.gd` at all; the scene command is the one that actually exercises those files. The scene command has a known pre-existing error baseline (`!is_inside_tree()`, `ACTION_CLIPS` transition-duplicate + `states.has`, `WorldEnvironment3D` — all harmless; counts grew when the keeper added a second `PlayerVisual`, see `CLAUDE.md`'s *Commands* section) — diff by error **category/text**, don't expect zero or exact counts.
 - **Run editor:** same exe without flags
+- **UI layout/focus (headless):** `& "C:\Users\Egor\Desktop\Godot\Godot_v4.7.2-stable_win64_console.exe" --path "C:\Users\Egor\Desktop\projects\open_football" --headless -s res://tests/check_ui_layout.gd`
+- **UI screenshot book (windowed):** same exe without `--headless`, `-s res://tests/capture_ui_shots.gd` → `.scratch/ui_shots/`
+- **UI stand:** run `res://scenes/ui_lab.tscn` (keys `1..8`, `←/→`); методика — `docs/wiki/тестирование-ui.md`
 
 ## Architecture
 - **Autoload:** `FootballConstants` (see `project.godot` [autoload])
