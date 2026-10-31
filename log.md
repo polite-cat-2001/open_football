@@ -1377,3 +1377,8 @@ placeholder; национальный значок и шрифт есть. Ру�
 `check_gpf_game_shell`, `check_gpf_match_cycle`, `check_gpf_rematch`, `check_gpf_slice_ui`,
 `check_controller_select_ui`, `check_team_select_ui`, `check_prematch_ui`; ручная проверка
 геймпада по-прежнему не сделана.
+
+## [2026-10-31] test | Ручная проверка геймпада пройдена (#22)
+
+Пользователь проверил управление с физического геймпада в запущенной игре — работает. Пункт
+«Ручная проверка геймпада» в тикете #22 закрыт; headless-покрытие остаётся `check_gpf_input`.
