@@ -119,6 +119,7 @@ public:
     Array get_player_ids() const;
     Array debug_get_formation(int team_id) const;
     int get_human_player_id() const;
+    Array get_human_player_ids() const;
     int get_human_team_id() const;
     void select_player(int player_id);
     void start_open_play(int player_id);

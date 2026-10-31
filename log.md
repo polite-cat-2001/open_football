@@ -1428,3 +1428,13 @@ placeholder; национальный значок и шрифт есть. Ру�
 - Главное меню стало resolution-independent; `SHOOTOUT` в статусе HUD. PASS: main menu, prematch,
   controller/team select, layout, slice UI.
 
+## [2026-10-31] fix | 2P: подсветка обоих игроков и прицел away-пенальти
+
+- `GpfRuntimeNode::get_human_player_ids()` отдаёт всех human-игроков; `GpfActors` хранит набор
+  `controlled_ids` и красит в жёлтый каждый управляемый nameplate, а не только первый.
+- `get_snapshot` выбирает `set_piece_hud_player` из **бьющей** команды, поэтому у второго
+  человека появляется жёлтый прицел пенальти и корректная роль стандарта; добавлен
+  `set_piece_human_taker`, HUD больше не сравнивает тейкера с одним `display_player_id`.
+- Сборка GDExtension пересобрана (`bin/open_football_gdext.dll`), `check_gpf_input` PASS.
+  Ждёт ручной проверки 2P и теста `check_gpf_2p`.
+

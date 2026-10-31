@@ -159,9 +159,9 @@ func _process(delta: float) -> void:
 		return
 	if demo:
 		_run_demo()
-	var current_id: int = runtime.get_human_player_id()
-	if current_id > 0:
-		actors.set_controlled(current_id)
+	var current_ids: Array = runtime.get_human_player_ids()
+	if not current_ids.is_empty():
+		actors.set_controlled_ids(current_ids)
 	var snap: Dictionary = runtime.get_snapshot()
 	if snap.is_empty():
 		return

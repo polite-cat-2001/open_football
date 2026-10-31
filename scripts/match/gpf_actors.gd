@@ -25,6 +25,7 @@ var actor_bodies: Dictionary = {}
 var player_labels: Dictionary = {}
 
 var controlled_id := -1
+var controlled_ids: Dictionary = {}
 var labels_visible := true
 
 var _runtime: Node
@@ -52,6 +53,7 @@ func reset() -> void:
 	actor_bodies.clear()
 	player_labels.clear()
 	controlled_id = -1
+	controlled_ids.clear()
 	labels_visible = true
 	if ball_root != null:
 		ball_root.transform = Transform3D.IDENTITY
@@ -62,7 +64,16 @@ func get_controlled() -> int:
 
 
 func set_controlled(id: int) -> void:
-	controlled_id = id
+	set_controlled_ids([id] if id > 0 else [])
+
+
+func set_controlled_ids(ids: Array) -> void:
+	controlled_ids.clear()
+	for raw_id in ids:
+		var id := int(raw_id)
+		if id > 0:
+			controlled_ids[id] = true
+	controlled_id = int(ids[0]) if not ids.is_empty() else -1
 
 
 func spawn(ids: Array) -> void:
@@ -178,7 +189,7 @@ func refresh_labels() -> void:
 			continue
 		var body: Node3D = actor_bodies.get(id)
 		label.visible = labels_visible and body != null and body.visible
-		label.modulate = NAMEPLATE_CONTROLLED_COLOR if id == controlled_id \
+		label.modulate = NAMEPLATE_CONTROLLED_COLOR if controlled_ids.has(id) \
 			else NAMEPLATE_NORMAL_COLOR
 
 

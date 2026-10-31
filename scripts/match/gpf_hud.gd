@@ -369,7 +369,7 @@ func _status_text(snap: Dictionary, display_player_id: int) -> String:
 				return "PENALTY - arrows aim, D shot"
 			if piece == 2 or piece == 3 or piece == 4:
 				return "%s - arrows aim, S/D kick" % piece_name
-		if taker == display_player_id:
+		if taker == display_player_id or bool(snap.get("set_piece_human_taker", false)):
 			return "%s - S pass / D shot" % piece_name
 		return "%s - waiting" % piece_name
 	if bool(snap.get("referee_active", false)) and piece != 0:
