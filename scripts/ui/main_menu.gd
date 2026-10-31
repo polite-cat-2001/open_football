@@ -52,7 +52,24 @@ func _build_ui() -> void:
 	if not classic_btn.pressed.is_connected(_on_classic_match):
 		classic_btn.pressed.connect(_on_classic_match)
 
+	# Keyboard/gamepad entry point: arrows and ui_accept work on the focused
+	# button once one of them owns focus.
+	btn.grab_focus()
+
 	print("Main menu ready")
+
+
+func _input(event: InputEvent) -> void:
+	# Godot 4.7's default ui_accept has no joypad button, so A must be handled
+	# explicitly. D-pad/left stick navigation comes from ui_up/down/left/right.
+	if event is InputEventJoypadButton and event.pressed \
+			and int((event as InputEventJoypadButton).button_index) == JOY_BUTTON_A:
+		var viewport := get_viewport()
+		var focus := viewport.gui_get_focus_owner() if viewport != null else null
+		if focus is BaseButton and not (focus as BaseButton).disabled:
+			(focus as BaseButton).pressed.emit()
+			if viewport != null:
+				viewport.set_input_as_handled()
 
 
 func _on_start() -> void:

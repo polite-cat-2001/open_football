@@ -1382,3 +1382,35 @@ placeholder; национальный значок и шрифт есть. Ру�
 
 Пользователь проверил управление с физического геймпада в запущенной игре — работает. Пункт
 «Ручная проверка геймпада» в тикете #22 закрыт; headless-покрытие остаётся `check_gpf_input`.
+
+## [2026-10-31] fix | UI-аудит, клавиатурная навигация и путь к Godot
+
+- Путь Godot в `AGENTS.md`/`CLAUDE.md` исправлен на реальный
+  `C:\Users\Egor\Desktop\Godot\Godot_v4.7.2-stable_win64*.exe` и текущий проект.
+- Введена методика проверки UI (`docs/wiki/тестирование-ui.md`) и тикеты 17 (стенд/аудит),
+  18 (LAN); порядок остатка порта зафиксирован в `.scratch/gpf-game-shell/spec.md`.
+- Живой аудит через Godot MCP (runtime bridge): main menu, controller select, team select,
+  prematch, HUD. Найдено: main menu без фокуса (клавиатура/геймпад мертвы), prematch без
+  начального фокуса и с падением `_first_focusable` на `Control.disabled`, постоянная debug-строка
+  в HUD и гигантский nameplate исполнителя на стандарте.
+- Исправлено: `main_menu.gd` фокусирует Start Match; `prematch.gd` фокусирует активную вкладку,
+  обрабатывает Tab и корректно ищет первый фокусируемый контрол (`BaseButton.disabled`, а не
+  `Control.disabled`). Проверено скриншотами: фокус виден, Down входит в контент.
+- Дополнительно: явные focus-neighbor у кнопок Kick-off (Right — Start match, Up — вкладка),
+  viewport запоминается до `_on_back` (иначе `set_input_as_handled` падал на null); из HUD убрана
+  debug-строка; nameplate уменьшен с 64/0.004 до 56/0.0035. Новый тест
+  `tests/check_main_menu_ui.gd`; в `check_prematch_ui` добавлены проверки фокуса и Down.
+- Ограничения MCP записаны в вики: `runtime_input` не активирует сфокусированную `Button` через
+  `ui_accept` (использовать `runtime_emit_signal`), а C++-рантайм меняет CWD на `GPF_DATA_ROOT`.
+
+## [2026-10-31] fix | Геймпад в главном меню и прематче
+
+- Причина: в Godot 4.7 дефолтный `ui_accept` содержит только Enter/Kp Enter/Space — **кнопки
+  геймпада там нет** (проверено на чистом проекте 4.7.2). `ui_cancel` — только Esc.
+  `ui_up/down/left/right` при этом включают D-pad и левый стик.
+- Main menu сам обрабатывает A и эмитит `pressed` у сфокусированной кнопки; prematch по A
+  активирует `Button`/`OptionButton` в контенте. Добавлен autoload `UiHarness`
+  (`scripts/ui/ui_harness.gd`) для инжекта геймпад-событий в тестах.
+- Тесты: `check_main_menu_ui` проверяет A → открытие Controller Select; `check_prematch_ui`
+  стартует матч через A на сфокусированном Start match. PASS.
+

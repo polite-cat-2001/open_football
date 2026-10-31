@@ -80,12 +80,8 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	var park_text := "F2 unpark opponents" if bool(snap.get("debug_park_opponents", false)) \
 		else "F2 park opponents"
 	var camera_text := "V broadcast cam" if stadium_camera else "V stadium cam"
-	hud.text = "GPF slice  %s  tick %d  ball %.1f, %.1f  actors %d\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   F4 new match   %s   %s   F1 light: %s" % [
+	hud.text = "%s\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   F4 new match   %s   %s   F1 light: %s" % [
 		status,
-		int(snap.get("tick", 0)),
-		(snap.get("ball_pos", Vector3.ZERO) as Vector3).x,
-		(snap.get("ball_pos", Vector3.ZERO) as Vector3).y,
-		actor_count,
 		match_minutes,
 		park_text,
 		camera_text,

@@ -17,11 +17,13 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 config/name="OpenFootball"
 config/description="A football simulation game"
 run/main_scene="res://scenes/main_menu.tscn"
-config/features=PackedStringArray("4.7", "C#")
+config/features=PackedStringArray("4.7")
 
 [autoload]
 
 FootballConstants="*res://scripts/data/football_constants.gd"
+godot_mcp_runtime="*res://addons/godot-mcp/runtime_bridge.gd"
+UiHarness="*res://scripts/ui/ui_harness.gd"
 
 [display]
 
@@ -34,6 +36,10 @@ window/stretch/aspect="expand"
 [dotnet]
 
 project/assembly_name="OpenFootball"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot-mcp/plugin.cfg")
 
 [input]
 

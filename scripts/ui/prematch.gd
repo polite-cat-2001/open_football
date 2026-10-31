@@ -62,6 +62,9 @@ func _ready() -> void:
 	_select_tab(KICKOFF_TAB)
 	_layout()
 	get_viewport().size_changed.connect(_layout)
+	# Keyboard/gamepad must be usable on entry: own the active tab so arrows
+	# and ui_accept have a focus owner. Without this the screen is mouse-only.
+	tab_buttons[active_tab].grab_focus()
 
 
 func _build_ui() -> void:
@@ -256,6 +259,10 @@ func _build_kickoff_view() -> Control:
 	start_button.custom_minimum_size = Vector2(260, 52)
 	start_button.pressed.connect(_on_start)
 	buttons.add_child(start_button)
+	# Explicit neighbours: automatic geometry picking jumps from the content
+	# back to the tab strip instead of across to Start match.
+	edit_lineups_button.focus_neighbor_right = edit_lineups_button.get_path_to(start_button)
+	start_button.focus_neighbor_left = start_button.get_path_to(edit_lineups_button)
 	return view
 
 
@@ -660,6 +667,12 @@ func _select_tab(index: int, focus_content: bool = false) -> void:
 		tab_buttons[i].button_pressed = i == index
 	for i in content_views.size():
 		content_views[i].visible = i == index
+	# Up from the Kick-off actions returns to the active tab, not to whichever
+	# tab happens to be geometrically above them.
+	if edit_lineups_button != null and start_button != null:
+		var tab_path := edit_lineups_button.get_path_to(tab_buttons[index])
+		edit_lineups_button.focus_neighbor_top = tab_path
+		start_button.focus_neighbor_top = tab_path
 	if focus_content:
 		_focus_first_content()
 
@@ -674,7 +687,10 @@ func _first_focusable(node: Node) -> Control:
 	for child in node.get_children():
 		if child is Control:
 			var control := child as Control
-			if control.visible and not control.disabled and control.focus_mode != Control.FOCUS_NONE:
+			if control.visible and control.focus_mode != Control.FOCUS_NONE:
+				# `disabled` exists on BaseButton, not on every Control.
+				if control is BaseButton and (control as BaseButton).disabled:
+					continue
 				return control
 		var nested := _first_focusable(child)
 		if nested != null:
@@ -698,9 +714,16 @@ func _input(event: InputEvent) -> void:
 func _handle_key(event: InputEventKey) -> void:
 	if event.echo or not event.pressed:
 		return
+	var viewport := get_viewport()
 	var focus := get_viewport().gui_get_focus_owner()
 	var on_tab := focus != null and tab_buttons.has(focus)
+	var handled := true
 	match event.keycode:
+		KEY_TAB:
+			var delta := -1 if event.shift_pressed else 1
+			var index := (active_tab + delta + tab_buttons.size()) % tab_buttons.size()
+			_select_tab(index, false)
+			tab_buttons[index].grab_focus()
 		KEY_ESCAPE:
 			if on_tab or focus == null:
 				_on_back()
@@ -711,20 +734,34 @@ func _handle_key(event: InputEventKey) -> void:
 				var index := (active_tab - 1 + tab_buttons.size()) % tab_buttons.size()
 				_select_tab(index, false)
 				tab_buttons[index].grab_focus()
+			else:
+				handled = false
 		KEY_RIGHT:
 			if on_tab:
 				var index := (active_tab + 1) % tab_buttons.size()
 				_select_tab(index, false)
 				tab_buttons[index].grab_focus()
+			else:
+				handled = false
 		KEY_DOWN:
 			if on_tab:
 				_focus_first_content()
+			else:
+				handled = false
 		KEY_UP:
 			if not on_tab and focus != null:
 				tab_buttons[active_tab].grab_focus()
+			else:
+				handled = false
 		KEY_ENTER, KEY_KP_ENTER:
 			if on_tab:
 				_select_tab(active_tab, true)
+			else:
+				handled = false
+		_:
+			handled = false
+	if handled and viewport != null:
+		viewport.set_input_as_handled()
 
 
 func _handle_joy_button(event: InputEventJoypadButton) -> void:
@@ -752,8 +789,12 @@ func _handle_joy_button(event: InputEventJoypadButton) -> void:
 		JOY_BUTTON_A:
 			if on_tab:
 				_select_tab(active_tab, true)
-			elif focus is Button and not (focus as Button).disabled:
-				(focus as Button).pressed.emit()
+			else:
+				var focused := get_viewport().gui_get_focus_owner()
+				if focused is OptionButton:
+					(focused as OptionButton).show_popup()
+				elif focused is BaseButton and not (focused as BaseButton).disabled:
+					(focused as BaseButton).pressed.emit()
 		JOY_BUTTON_B:
 			if on_tab or focus == null:
 				_on_back()
