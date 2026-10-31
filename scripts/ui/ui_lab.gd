@@ -2,10 +2,11 @@ extends Control
 # UI stand: show the in-match HUD and shootout overlays from canned snapshots,
 # without starting the C++ runtime. Number keys choose a state, Left/Right cycle.
 
-const STATE_KEYS := [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8]
+const STATE_KEYS := [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9]
 
 var hud: GpfHud
 var shootout: GpfShootoutView
+var pause_menu: GpfPauseMenu
 var caption: Label
 var state_index := 0
 var _states: Array = []
@@ -38,6 +39,9 @@ func _ready() -> void:
 	shootout = GpfShootoutView.new()
 	add_child(shootout)
 	shootout.setup()
+	pause_menu = GpfPauseMenu.new()
+	add_child(pause_menu)
+	pause_menu.setup()
 
 	_states = _build_states()
 	set_state(0)
@@ -138,6 +142,11 @@ func _build_states() -> Array:
 		"shootout_kicks1": [1, 1, 2, 2, 0],
 		"shootout_outcome": 1, "shootout_outcome_counter": 0,
 	}))
+
+	var pause := _base_state("PAUSE")
+	states.append(_with(pause, {
+		"score0": 1, "score1": 1, "match_time_ms": 3120000, "in_play": true,
+	}))
 	return states
 
 
@@ -146,11 +155,15 @@ func set_state(index: int) -> void:
 		return
 	state_index = wrapi(index, 0, _states.size())
 	_current = _states[state_index]
+	if pause_menu.is_open():
+		pause_menu.close()
 	hud.reset()
 	shootout.reset()
 	var snap: Dictionary = _current["snap"]
 	hud.apply_snapshot(snap, int(snap.get("display_player", -1)))
 	shootout.update(snap, 0.0)
+	if String(_current.get("name", "")) == "PAUSE":
+		pause_menu.open()
 	caption.text = "UI LAB  [1..%d] state  Left/Right  —  %s" % [
 		_states.size(), String(_current.get("name", "")),
 	]

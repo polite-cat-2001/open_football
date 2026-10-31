@@ -75,7 +75,7 @@ func _check_screen(path: String, size: Vector2i) -> void:
 	var states: Array = [""]
 	if screen.has_method("set_state") and path.ends_with("ui_lab.tscn"):
 		states = []
-		for i in 8:
+		for i in 9:
 			states.append(str(i))
 	for state in states:
 		if state != "":

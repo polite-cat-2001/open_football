@@ -127,6 +127,8 @@ public:
     bool begin_phase_break();
     void continue_after_phase_break();
     void set_replay_active(bool active);
+    void pause_match();
+    void resume_match();
     bool is_set_piece_taker_menu_available() const;
     bool is_set_piece_taker_menu_open() const;
     bool open_set_piece_taker_menu();

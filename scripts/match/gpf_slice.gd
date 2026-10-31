@@ -20,6 +20,7 @@ var runtime: Node
 @onready var hud: GpfHud = $Hud
 @onready var replay: GpfReplay = $ReplayView
 @onready var shootout: GpfShootoutView = $ShootoutView
+@onready var pause_menu: GpfPauseMenu = $PauseMenu
 
 const BUTTONS := {
 	KEY_UP: [0],
@@ -53,6 +54,7 @@ var shot_taken := false
 var demo := OS.get_environment("GPF_DEMO") != ""
 # Godot joypad id -> extension-owned virtual joystick id, for the shell setup.
 var input_slots: Dictionary = {}
+var _pause_stick_ms := 0
 
 
 func _ready() -> void:
@@ -78,10 +80,16 @@ func _ready() -> void:
 		hud.set_taker_hint_key("Select")
 	replay.setup(runtime, camera, actors, goal_nets, hud)
 	shootout.setup()
+	pause_menu.setup()
 
 	hud.main_menu_requested.connect(_return_to_main_menu)
 	shootout.main_menu_requested.connect(_return_to_main_menu)
 	shootout.restart_requested.connect(_start_fresh_match)
+	pause_menu.resume_requested.connect(_on_pause_resume)
+	pause_menu.forfeit_requested.connect(_return_to_main_menu)
+	pause_menu.camera_requested.connect(_on_pause_camera)
+	pause_menu.visual_requested.connect(_on_pause_visual)
+	pause_menu.system_requested.connect(_on_pause_system)
 
 	# Every scene load is a new match: stop and restart so the previous match's
 	# clock, score and objects cannot leak into this one.
@@ -204,18 +212,70 @@ func _input(event: InputEvent) -> void:
 	_handle_key(key_event)
 
 
-func _menu_open() -> bool:
+func _other_menu_open() -> bool:
 	return replay.is_active() or shootout.is_end_menu_open() \
 		or hud.is_phase_menu_open() or hud.is_taker_menu_open()
 
 
+func _menu_open() -> bool:
+	return _other_menu_open() or pause_menu.is_open()
+
+
+func _can_pause() -> bool:
+	if _menu_open():
+		return false
+	var snap: Dictionary = runtime.get_snapshot()
+	return not bool(snap.get("game_over", false)) \
+		and not bool(snap.get("shootout_active", false))
+
+
+func _open_pause() -> void:
+	pause_menu.open()
+	runtime.pause_match()
+
+
+func _on_pause_resume() -> void:
+	runtime.resume_match()
+
+
+func _on_pause_camera() -> void:
+	camera_rig.toggle()
+	pause_menu.set_hint("camera: " + ("stadium" if camera_rig.stadium else "broadcast"))
+
+
+func _on_pause_visual() -> void:
+	environment_view.cycle_lighting()
+	pause_menu.set_hint("lighting: " + environment_view.lighting_name())
+
+
+func _on_pause_system() -> void:
+	var fullscreen := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+	DisplayServer.window_set_mode(
+		DisplayServer.WINDOW_MODE_WINDOWED if fullscreen else DisplayServer.WINDOW_MODE_FULLSCREEN
+	)
+	pause_menu.set_hint("fullscreen: " + ("off" if fullscreen else "on"))
+
+
 func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 	var device := int(event.device)
+	var button := int(event.button_index)
+	var pressed := bool(event.pressed)
+	# Start is the pause key and works from any pad, even one that is not
+	# assigned to a side in this match.
+	if pressed and button == JOY_BUTTON_START:
+		if pause_menu.is_open():
+			pause_menu.close()
+			return
+		if not _other_menu_open():
+			if _can_pause():
+				_open_pause()
+			return
+	if pause_menu.is_open():
+		pause_menu.handle_joy(event)
+		return
 	if not input_slots.has(device):
 		return
 	var slot := int(input_slots[device])
-	var button := int(event.button_index)
-	var pressed := bool(event.pressed)
 	if _menu_open():
 		if not pressed:
 			return
@@ -247,7 +307,18 @@ func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 
 func _handle_gamepad_motion(event: InputEventJoypadMotion) -> void:
 	var device := int(event.device)
-	if not input_slots.has(device) or _menu_open():
+	if pause_menu.is_open():
+		if int(event.axis) != JOY_AXIS_LEFT_Y or absf(event.axis_value) <= 0.5:
+			return
+		var now := Time.get_ticks_msec()
+		if now - _pause_stick_ms < 220:
+			return
+		_pause_stick_ms = now
+		_handle_key(_synthetic_key(KEY_DOWN if event.axis_value > 0.0 else KEY_UP))
+		return
+	if not input_slots.has(device):
+		return
+	if _menu_open():
 		return
 	runtime.set_gamepad_axis(int(input_slots[device]), int(event.axis), event.axis_value)
 
@@ -263,6 +334,9 @@ func _handle_key(key_event: InputEventKey) -> void:
 	if key_event.keycode == KEY_F4:
 		if key_event.pressed:
 			_start_fresh_match()
+		return
+	if pause_menu.is_open():
+		pause_menu.handle_key(key_event)
 		return
 	if replay.is_active():
 		if key_event.pressed and key_event.keycode in [KEY_SPACE, KEY_ESCAPE, KEY_ENTER]:
@@ -303,6 +377,9 @@ func _handle_key(key_event: InputEventKey) -> void:
 			return
 		if hud.is_taker_menu_open():
 			hud.handle_taker_menu_key(key_event)
+			return
+		if key_event.pressed and key_event.keycode == KEY_ESCAPE and _can_pause():
+			_open_pause()
 			return
 		if SET_PIECE_KEYS.has(key_event.keycode):
 			if key_event.pressed:

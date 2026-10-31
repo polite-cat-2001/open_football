@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/match/gpf_slice.gd" id="1_slice"]
 [ext_resource type="Script" path="res://scripts/match/gpf_environment.gd" id="2_environment"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/match/gpf_hud.gd" id="6_hud"]
 [ext_resource type="Script" path="res://scripts/match/gpf_replay.gd" id="7_replay"]
 [ext_resource type="Script" path="res://scripts/match/gpf_shootout_view.gd" id="8_shootout"]
+[ext_resource type="Script" path="res://scripts/match/gpf_pause_menu.gd" id="9_pause"]
 
 [node name="GpfSlice" type="Node3D"]
 script = ExtResource("1_slice")
@@ -46,3 +47,6 @@ script = ExtResource("7_replay")
 
 [node name="ShootoutView" type="Node" parent="."]
 script = ExtResource("8_shootout")
+
+[node name="PauseMenu" type="Node" parent="."]
+script = ExtResource("9_pause")
