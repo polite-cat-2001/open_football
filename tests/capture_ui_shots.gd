@@ -13,7 +13,7 @@ const SCREENS := [
 	{"path": "res://scenes/controller_select.tscn", "name": "controller_select"},
 	{"path": "res://scenes/team_select.tscn", "name": "team_select"},
 	{"path": "res://scenes/prematch.tscn", "name": "prematch"},
-	{"path": "res://scenes/ui_lab.tscn", "name": "ui_lab", "states": 8},
+	{"path": "res://scenes/ui_lab.tscn", "name": "ui_lab", "states": 9},
 ]
 
 var saved := 0

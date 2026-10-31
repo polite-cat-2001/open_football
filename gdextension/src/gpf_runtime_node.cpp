@@ -234,6 +234,8 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("begin_phase_break"), &GpfRuntimeNode::begin_phase_break);
     ClassDB::bind_method(D_METHOD("continue_after_phase_break"), &GpfRuntimeNode::continue_after_phase_break);
     ClassDB::bind_method(D_METHOD("set_replay_active", "active"), &GpfRuntimeNode::set_replay_active);
+    ClassDB::bind_method(D_METHOD("pause_match"), &GpfRuntimeNode::pause_match);
+    ClassDB::bind_method(D_METHOD("resume_match"), &GpfRuntimeNode::resume_match);
     ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_available"), &GpfRuntimeNode::is_set_piece_taker_menu_available);
     ClassDB::bind_method(D_METHOD("is_set_piece_taker_menu_open"), &GpfRuntimeNode::is_set_piece_taker_menu_open);
     ClassDB::bind_method(D_METHOD("open_set_piece_taker_menu"), &GpfRuntimeNode::open_set_piece_taker_menu);
@@ -1263,6 +1265,18 @@ void GpfRuntimeNode::set_replay_active(bool active) {
         return;
     }
     match->Pause(active);
+}
+
+void GpfRuntimeNode::pause_match() {
+    if (runtime_ready && match) {
+        match->Pause(true);
+    }
+}
+
+void GpfRuntimeNode::resume_match() {
+    if (runtime_ready && match) {
+        match->Pause(false);
+    }
 }
 
 PackedVector3Array GpfRuntimeNode::get_goal_net_positions(int goal) const {

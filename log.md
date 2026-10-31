@@ -1438,3 +1438,20 @@ placeholder; национальный значок и шрифт есть. Ру�
 - Сборка GDExtension пересобрана (`bin/open_football_gdext.dll`), `check_gpf_input` PASS.
   Ждёт ручной проверки 2P и теста `check_gpf_2p`.
 
+## [2026-10-31] feat | Меню паузы матча (#19)
+
+- Мост: `pause_match()`/`resume_match()` (C++ `Match::Pause`).
+- `scripts/match/gpf_pause_menu.gd` + узел в `gpf_slice.tscn`: пункты `IngamePage`
+  (Continue, game plan, controller select, side selection, camera/visual/system settings,
+  replay, forfeit), подтверждение форфейта, клавиатура/геймпад.
+- `gpf_slice` открывает по Esc/Start, ставит/снимает паузу; Continue/forfeit работают,
+  camera/visual/system переключают стадионную камеру/освещение/fullscreen; game plan (20),
+  controller/side/replay — честная подсказка.
+- `ui_lab` + состояние `PAUSE` (9 состояний, 26 PNG), `check_gpf_pause` PASS; живой прогон:
+  Esc → `paused: true`, Enter → тик снова идёт. `check_ui_layout`/`check_gpf_slice_ui`/
+  `check_gpf_game_shell` PASS.
+- Геймпад проверен вживую (инжект через `UiHarness`): Start открывает/закрывает паузу,
+  D-pad и левый стик двигают пункты, A выбирает, B закрывает/resume. Start и меню паузы
+  работают даже с геймпада, который не назначен стороне в этом матче (проверка перенесена
+  до `input_slots`); остальные меню по-прежнему только для назначенных устройств.
+
