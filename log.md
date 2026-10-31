@@ -1414,3 +1414,17 @@ placeholder; национальный значок и шрифт есть. Ру�
 - Тесты: `check_main_menu_ui` проверяет A → открытие Controller Select; `check_prematch_ui`
   стартует матч через A на сфокусированном Start match. PASS.
 
+## [2026-10-31] feat | UI-стенд: ui_lab, скриншоты и layout/focus-тест
+
+- `GpfHud` получил `apply_snapshot()` и не требует runtime для отрисовки (действия — по-прежнему
+  через runtime); guard'ы на null. `gpf_slice` зовёт `apply_snapshot`.
+- `scenes/ui_lab.tscn` + `scripts/ui/ui_lab.gd`: 8 состояний (кикофф, live, гол, штрафной,
+  перерыв, финал, серия, конец серии) на фикстурах, без C++ и без матча.
+- `tests/capture_ui_shots.gd`: 24 PNG (5 экранов × 2 разрешения + 8 состояний × 2) через
+  `SubViewport`; окно/разрешение монитора не влияют.
+- `tests/check_ui_layout.gd`: оба разрешения, границы/размеры/наложения интерактивных контролов,
+  выход Label'ов за экран, цепочка фокуса. Стенд сразу нашёл два дефекта: away-ряд кружков серии
+  был за нижней границей (исправлен full-width row) и подсказка HUD не влезала в 1280 (autowrap).
+- Главное меню стало resolution-independent; `SHOOTOUT` в статусе HUD. PASS: main menu, prematch,
+  controller/team select, layout, slice UI.
+

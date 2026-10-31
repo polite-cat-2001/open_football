@@ -175,7 +175,7 @@ func _process(delta: float) -> void:
 	actors.update_reticle(snap)
 	actors.apply_park_visibility(snap)
 	actors.set_labels_visible(not camera_rig.stadium)
-	hud.update(snap, actors.get_controlled(), actors.count(), camera_rig.stadium,
+	hud.apply_snapshot(snap, actors.get_controlled(), actors.count(), camera_rig.stadium,
 		environment_view.lighting_name())
 
 	frames += 1

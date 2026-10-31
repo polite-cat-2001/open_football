@@ -55,6 +55,14 @@ func setup(runtime: Node) -> void:
 	_build_phase_menu()
 
 
+# Stable presentation seam: the HUD is a pure function of the snapshot. The
+# runtime (C++ bridge) is only needed for actions, never for drawing.
+func apply_snapshot(snap: Dictionary, display_player_id: int = -1,
+		actor_count: int = 0, stadium_camera: bool = false,
+		lighting_name: String = "Afternoon") -> void:
+	update(snap, display_player_id, actor_count, stadium_camera, lighting_name)
+
+
 func update(snap: Dictionary, display_player_id: int, actor_count: int,
 		stadium_camera: bool, lighting_name: String) -> void:
 	_sync_phase_menu(snap)
@@ -76,7 +84,12 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 			_format_clock(int(snap.get("match_time_ms", 0))),
 			phase_text,
 		]
-	var match_minutes := 5 + int(round(20.0 * float(_runtime.get("match_duration"))))
+	var duration := 1.0
+	if _runtime != null:
+		duration = float(_runtime.get("match_duration"))
+	elif snap.has("match_duration"):
+		duration = float(snap.get("match_duration", 1.0))
+	var match_minutes := 5 + int(round(20.0 * duration))
 	var park_text := "F2 unpark opponents" if bool(snap.get("debug_park_opponents", false)) \
 		else "F2 park opponents"
 	var camera_text := "V broadcast cam" if stadium_camera else "V stadium cam"
@@ -87,6 +100,14 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 		camera_text,
 		lighting_name,
 	]
+	# The control legend must fit 1280-wide screens too: wrap it to the
+	# viewport and push the taker hint below the wrapped block.
+	var view_width := get_viewport().get_visible_rect().size.x
+	hud.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hud.size = Vector2(maxf(320.0, view_width - 48.0), 0)
+	hud.size.y = hud.get_minimum_size().y
+	if taker_hint != null:
+		taker_hint.position = Vector2(24, 64.0 + hud.size.y + 6.0)
 
 
 func set_replay_mode(active: bool) -> void:
@@ -116,7 +137,7 @@ func toggle_taker_menu() -> void:
 	if taker_menu_open:
 		close_taker_menu(false)
 		return
-	if not _runtime.is_set_piece_taker_menu_available():
+	if _runtime == null or not _runtime.is_set_piece_taker_menu_available():
 		return
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_S) \
 			or Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_A):
@@ -158,9 +179,10 @@ func close_taker_menu(apply_choice: bool) -> void:
 		return
 	if apply_choice and taker_menu_index >= 0 and taker_menu_index < taker_menu_candidates.size():
 		var chosen := int(taker_menu_candidates[taker_menu_index].get("id", -1))
-		if chosen >= 0:
+		if chosen >= 0 and _runtime != null:
 			_runtime.request_set_piece_taker(chosen)
-	_runtime.close_set_piece_taker_menu()
+	if _runtime != null:
+		_runtime.close_set_piece_taker_menu()
 	taker_menu_open = false
 	taker_menu_layer.visible = false
 
@@ -186,7 +208,8 @@ func handle_phase_menu_key(event: InputEventKey) -> void:
 func continue_phase_break() -> void:
 	if not phase_menu_open or phase_menu_game_over:
 		return
-	_runtime.continue_after_phase_break()
+	if _runtime != null:
+		_runtime.continue_after_phase_break()
 	_close_phase_menu()
 
 
@@ -215,7 +238,8 @@ func _sync_phase_menu(snap: Dictionary) -> void:
 		return
 	if not phase_menu_open:
 		if not game_over and not bool(snap.get("phase_break", false)):
-			_runtime.begin_phase_break()
+			if _runtime != null:
+				_runtime.begin_phase_break()
 		_open_phase_menu(snap)
 	else:
 		_refresh_phase_menu(snap)
@@ -312,6 +336,8 @@ func _quit_game() -> void:
 
 
 func _status_text(snap: Dictionary, display_player_id: int) -> String:
+	if bool(snap.get("shootout_active", false)):
+		return "SHOOTOUT"
 	if bool(snap.get("game_over", false)):
 		return "MATCH OVER"
 	if bool(snap.get("paused", false)):
@@ -321,7 +347,11 @@ func _status_text(snap: Dictionary, display_player_id: int) -> String:
 	var piece := int(snap.get("referee_set_piece", 0))
 	var role := int(snap.get("set_piece_role", 0))
 	if bool(snap.get("in_set_piece", false)):
-		var human_team := int(_runtime.get_human_team_id())
+		var human_team := -1
+		if _runtime != null:
+			human_team = int(_runtime.get_human_team_id())
+		elif snap.has("human_team"):
+			human_team = int(snap.get("human_team", -1))
 		if piece == 6 and human_team >= 0 and int(snap.get("referee_team", -1)) != human_team:
 			return "PENALTY - keeper: arrows to dive"
 		if role == 2:

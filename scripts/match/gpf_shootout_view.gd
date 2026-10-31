@@ -193,16 +193,22 @@ func _build_ui() -> void:
 	shootout_home_row = HBoxContainer.new()
 	shootout_home_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	shootout_home_row.add_theme_constant_override("separation", 10)
-	shootout_home_row.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	shootout_home_row.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	# Full-width row with a fixed height: the bare center anchor + offset left
+	# the away row's top at the viewport edge, so it was rendered off-screen.
+	shootout_home_row.anchor_left = 0.0
+	shootout_home_row.anchor_right = 1.0
 	shootout_home_row.offset_top = 18
+	shootout_home_row.offset_bottom = 18 + CIRCLE_SIZE
 	shootout_layer.add_child(shootout_home_row)
 
 	shootout_away_row = HBoxContainer.new()
 	shootout_away_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	shootout_away_row.add_theme_constant_override("separation", 10)
-	shootout_away_row.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
-	shootout_away_row.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	shootout_away_row.anchor_left = 0.0
+	shootout_away_row.anchor_right = 1.0
+	shootout_away_row.anchor_top = 1.0
+	shootout_away_row.anchor_bottom = 1.0
+	shootout_away_row.offset_top = -18 - CIRCLE_SIZE
 	shootout_away_row.offset_bottom = -18
 	shootout_layer.add_child(shootout_away_row)
 
