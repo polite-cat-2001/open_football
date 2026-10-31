@@ -1,4 +1,4 @@
-extends Control
+﻿extends Control
 # Godot port of PreMatchPage (GameplayFootball src/menu/startmatch/prematch.cpp):
 # a PES-style tab strip over the match hub. The tabs keep the original names and
 # layout; the shell fills the ones it can back with data (kit preview, kick-off
@@ -30,13 +30,12 @@ var content_root: Control
 var content_views: Array = []
 var active_tab := KICKOFF_TAB
 
-var home_editor: LineupEditor
-var away_editor: LineupEditor
-var editor_tabs: TabContainer
-var lineup_overlay: Control
-var lineup_close_button: Button
 var start_button: Button
 var edit_lineups_button: Button
+
+var home_lineup: MatchLineup
+var away_lineup: MatchLineup
+var game_plan: GpfGamePlan
 
 var home_name_labels: Array = []
 var away_name_labels: Array = []
@@ -56,7 +55,6 @@ var _kits_ready := false
 
 func _ready() -> void:
 	_build_ui()
-	_build_lineup_overlay()
 	catalog.load_data_root(data_root)
 	_load_lineups()
 	_select_tab(KICKOFF_TAB)
@@ -267,7 +265,14 @@ func _build_kickoff_view() -> Control:
 
 
 func _build_gameplan_view() -> Control:
-	return _placeholder_view("Open game plan", "Game plan is not ported yet.")
+	var view := _view()
+	game_plan = GpfGamePlan.new()
+	game_plan.name = "GamePlan"
+	game_plan.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	game_plan.close_requested.connect(_on_game_plan_closed)
+	game_plan.lineup_changed.connect(_on_lineups_changed)
+	view.add_child(game_plan)
+	return view
 
 
 func _build_camera_view() -> Control:
@@ -387,42 +392,6 @@ func _margin(horizontal: int) -> MarginContainer:
 	return margin
 
 
-func _build_lineup_overlay() -> void:
-	lineup_overlay = Control.new()
-	lineup_overlay.visible = false
-	add_child(lineup_overlay)
-	var dim := ColorRect.new()
-	dim.color = Color(0.0, 0.0, 0.0, 0.88)
-	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	lineup_overlay.add_child(dim)
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 60)
-	margin.add_theme_constant_override("margin_right", 60)
-	margin.add_theme_constant_override("margin_top", 32)
-	margin.add_theme_constant_override("margin_bottom", 24)
-	lineup_overlay.add_child(margin)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 10)
-	margin.add_child(column)
-	var caption := Label.new()
-	caption.text = "Lineups"
-	caption.add_theme_font_override("font", MENU_FONT)
-	caption.add_theme_font_size_override("font_size", 30)
-	caption.add_theme_color_override("font_color", Color(0.94, 0.92, 0.82))
-	column.add_child(caption)
-	editor_tabs = TabContainer.new()
-	editor_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(editor_tabs)
-	lineup_close_button = Button.new()
-	lineup_close_button.text = "Back to hub"
-	lineup_close_button.add_theme_font_override("font", MENU_FONT)
-	lineup_close_button.add_theme_font_size_override("font_size", 22)
-	lineup_close_button.custom_minimum_size = Vector2(240, 48)
-	lineup_close_button.pressed.connect(_close_lineups)
-	column.add_child(lineup_close_button)
-
-
 func _load_lineups() -> void:
 	if not ShellState.has_selection():
 		status_label.text = "Choose two teams first."
@@ -434,8 +403,9 @@ func _load_lineups() -> void:
 		status_label.text = catalog.error if not catalog.error.is_empty() else "Squad could not be loaded."
 		start_button.disabled = true
 		return
-	home_editor = _build_editor("Home", home_squad)
-	away_editor = _build_editor("Away", away_squad)
+	home_lineup = MatchLineup.from_squad(home_squad)
+	away_lineup = MatchLineup.from_squad(away_squad)
+	game_plan.setup_prematch(home_lineup, away_lineup, _human_teams())
 	header_label.text = "%s  vs  %s" % [
 		str(ShellState.home_team.get("name", "Home")),
 		str(ShellState.away_team.get("name", "Away")),
@@ -445,13 +415,18 @@ func _load_lineups() -> void:
 	_validate_lineups()
 
 
-func _build_editor(tab_name: String, squad: Dictionary) -> LineupEditor:
-	var editor := LineupEditor.new()
-	editor.name = tab_name
-	editor.setup(squad)
-	editor.changed.connect(_on_lineups_changed)
-	editor_tabs.add_child(editor)
-	return editor
+func _human_teams() -> Array:
+	var teams: Array = []
+	for controller in ShellState.controllers:
+		if not (controller is Dictionary):
+			continue
+		var team_id := 1 if str(controller.get("side", "home")) == "away" else 0
+		if not teams.has(team_id):
+			teams.append(team_id)
+	if teams.is_empty():
+		teams = [0]
+	teams.sort()
+	return teams
 
 
 func _build_kits() -> void:
@@ -547,17 +522,17 @@ func _store_options() -> void:
 
 
 func _refresh_names() -> void:
-	_update_name_column(home_editor, home_name_labels)
-	_update_name_column(away_editor, away_name_labels)
+	_update_name_column(home_lineup, home_name_labels)
+	_update_name_column(away_lineup, away_name_labels)
 
 
-func _update_name_column(editor: LineupEditor, labels: Array) -> void:
+func _update_name_column(lineup: MatchLineup, labels: Array) -> void:
 	for slot in labels.size():
 		var label: Label = labels[slot]
-		if editor == null or editor.lineup == null or slot >= editor.lineup.lineup.size():
+		if lineup == null or slot >= lineup.lineup.size():
 			label.text = "-"
 			continue
-		var player := editor.lineup.player_by_id(editor.lineup.lineup[slot])
+		var player := lineup.player_by_id(lineup.lineup[slot])
 		var last := str(player.get("lastname", ""))
 		label.text = "%d. %s" % [slot + 1, last if not last.is_empty() else str(player.get("firstname", "?"))]
 
@@ -568,20 +543,22 @@ func _on_lineups_changed() -> void:
 
 
 func _validate_lineups() -> void:
-	if home_editor == null or away_editor == null:
+	if home_lineup == null or away_lineup == null:
 		start_button.disabled = true
 		return
-	var message := home_editor.validation_error()
+	var validation := home_lineup.validate()
+	var message := "" if bool(validation.get("ok", false)) else str(validation.get("error", "Invalid lineup."))
 	if message.is_empty():
-		message = away_editor.validation_error()
+		var away_validation := away_lineup.validate()
+		message = "" if bool(away_validation.get("ok", false)) else str(away_validation.get("error", "Invalid lineup."))
 	if not message.is_empty():
 		status_label.text = message
 		status_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.4))
 		start_button.disabled = true
 		return
-	var warning := home_editor.warning()
+	var warning := home_lineup.warning()
 	if warning.is_empty():
-		warning = away_editor.warning()
+		warning = away_lineup.warning()
 	if not warning.is_empty():
 		status_label.text = warning
 		status_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.35))
@@ -595,12 +572,14 @@ func build_package() -> Dictionary:
 	if not ShellState.has_selection():
 		package_builder.error = "Choose two teams first."
 		return {}
-	if home_editor == null or away_editor == null:
+	if home_lineup == null or away_lineup == null:
 		package_builder.error = "Lineups are not loaded."
 		return {}
-	var lineup_error := home_editor.validation_error()
+	var home_validation := home_lineup.validate()
+	var lineup_error := "" if bool(home_validation.get("ok", false)) else str(home_validation.get("error", "Invalid lineup."))
 	if lineup_error.is_empty():
-		lineup_error = away_editor.validation_error()
+		var away_validation := away_lineup.validate()
+		lineup_error = "" if bool(away_validation.get("ok", false)) else str(away_validation.get("error", "Invalid lineup."))
 	if not lineup_error.is_empty():
 		package_builder.error = lineup_error
 		return {}
@@ -612,7 +591,7 @@ func build_package() -> Dictionary:
 		"duration": float(ShellState.match_options.get("duration", 1.0)),
 		"difficulty": float(ShellState.match_options.get("difficulty", 0.8)),
 	}
-	var lineups := {"home": home_editor.lineup, "away": away_editor.lineup}
+	var lineups := {"home": home_lineup, "away": away_lineup}
 	var package := package_builder.build(catalog, ShellState.home_team, ShellState.away_team,
 		options, lineups)
 	if package.is_empty():
@@ -637,17 +616,21 @@ func _on_back() -> void:
 
 
 func _open_lineups() -> void:
-	if home_editor == null or away_editor == null:
+	if game_plan == null:
 		return
-	lineup_overlay.visible = true
-	lineup_overlay.move_to_front()
-	editor_tabs.current_tab = 0
+	_select_tab(3, true)
 
 
 func _close_lineups() -> void:
-	lineup_overlay.visible = false
 	_refresh_names()
 	_validate_lineups()
+	_select_tab(KICKOFF_TAB, false)
+	if tab_buttons.size() > KICKOFF_TAB:
+		tab_buttons[KICKOFF_TAB].grab_focus()
+
+
+func _on_game_plan_closed() -> void:
+	_close_lineups()
 
 
 func _on_tab_pressed(index: int) -> void:
@@ -667,6 +650,22 @@ func _select_tab(index: int, focus_content: bool = false) -> void:
 		tab_buttons[i].button_pressed = i == index
 	for i in content_views.size():
 		content_views[i].visible = i == index
+	# The game plan port is a full Pitch+bench screen: it needs more room than
+	# the other hub tabs, so the content column widens while it is open.
+	if index == 3:
+		content_root.position = Vector2(size.x * 0.015, size.y * 0.20)
+		content_root.size = Vector2(size.x * 0.97, size.y * 0.72)
+	else:
+		content_root.position = Vector2(size.x * 0.20, size.y * 0.24)
+		content_root.size = Vector2(size.x * 0.60, size.y * 0.58)
+	status_label.visible = index != 3
+	help_label.visible = index != 3
+	if game_plan != null:
+		if index == 3:
+			game_plan.setup_prematch(home_lineup, away_lineup, _human_teams())
+			game_plan.open_plan()
+		else:
+			game_plan.close_plan()
 	# Up from the Kick-off actions returns to the active tab, not to whichever
 	# tab happens to be geometrically above them.
 	if edit_lineups_button != null and start_button != null:
@@ -699,10 +698,15 @@ func _first_focusable(node: Node) -> Control:
 
 
 func _input(event: InputEvent) -> void:
-	if lineup_overlay != null and lineup_overlay.visible:
-		if event is InputEventKey and (event as InputEventKey).pressed \
-				and (event as InputEventKey).keycode == KEY_ESCAPE:
-			_close_lineups()
+	if active_tab == 3 and game_plan != null and game_plan.is_open():
+		var handled := false
+		if event is InputEventKey:
+			handled = game_plan.handle_key(event as InputEventKey)
+		elif event is InputEventJoypadButton:
+			handled = game_plan.handle_joy_button(event as InputEventJoypadButton)
+		elif event is InputEventJoypadMotion:
+			handled = game_plan.handle_joy_motion(event as InputEventJoypadMotion)
+		if handled:
 			get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey:
@@ -815,8 +819,12 @@ func _layout() -> void:
 	for button in tab_buttons:
 		button.add_theme_font_size_override("font_size", tab_font)
 
-	content_root.position = Vector2(view.x * 0.20, view.y * 0.24)
-	content_root.size = Vector2(view.x * 0.60, view.y * 0.58)
+	if active_tab == 3:
+		content_root.position = Vector2(view.x * 0.015, view.y * 0.20)
+		content_root.size = Vector2(view.x * 0.97, view.y * 0.72)
+	else:
+		content_root.position = Vector2(view.x * 0.20, view.y * 0.24)
+		content_root.size = Vector2(view.x * 0.60, view.y * 0.58)
 
 	status_label.add_theme_font_size_override("font_size", maxi(12, int(view.y * 0.019)))
 	status_label.position = Vector2(view.x * 0.20, view.y * 0.835)

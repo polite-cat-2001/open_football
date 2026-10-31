@@ -42,7 +42,8 @@ Headless **не рисует** — PNG оттуда пустой. Скриншо
 
 `scenes/ui_lab.tscn` — «витрина» HUD и оверлеев без C++:
 
-- `1..8` — кикофф, live, гол, штрафной, перерыв, финал, серия, конец серии;
+- `1..9`, `0` — кикофф, live, гол, штрафной, перерыв, финал, серия, конец серии, пауза,
+  Game Plan, Game Plan 2P, Game Plan Tactics, Game Plan Roles, notice замены (`←/→`);
 - `←/→` — соседнее состояние;
 - подпись с номером/названием состояния (в скриншотах скрывается).
 
@@ -51,6 +52,13 @@ Headless **не рисует** — PNG оттуда пустой. Скриншо
 
 `GpfHud` и `GpfShootoutView` уже разделены: `setup(runtime)` нужен только для действий,
 `apply_snapshot(snap)` / `update(snap, delta)` — для отрисовки. Lab использует `setup(null)`.
+`GpfGamePlan` в стенде получает демо-составы через `setup_demo()`; в матче и премате — через
+`setup_match(runtime, human_teams)` / `setup_prematch(home, away, human_teams)`.
+
+Для живого прогона MCP есть автозагрузка `UiHarness`: `seed_match()` собирает пакет и сразу
+открывает `gpf_slice`, `inject_click(x, y)` (или `pointer` + `click_pointer()`) кликает по UI,
+`inject_joy_button/axis` шлёт геймпад. `GpfGamePlan.debug_state()` возвращает текущие курсоры/held
+обеих панелей.
 
 ### 3. Svelte-прототип как эталон
 
@@ -90,8 +98,10 @@ Godot-экран обязан пройти ту же матрицу; скрин�
 - Скрипт: `tests/capture_ui_shots.gd` — оконный запуск; каждый экран рендерится в `SubViewport`
   нужного размера, поэтому окно и разрешение монитора не важны.
 - Команда: `godot --path . -s res://tests/capture_ui_shots.gd`
-- Именование: `main_menu_1920x1080.png`, `prematch_1280x720.png`,
-  `ui_lab_kickoff_1920x1080.png`, `ui_lab_half_time_...`, `ui_lab_shootout_...`, ...
+- Именование: `main_menu_1920x1080.png`, `prematch_gameplan_1280x720.png`,
+  `ui_lab_kickoff_1920x1080.png`, `ui_lab_half_time_...`, `ui_lab_game_plan_...`,
+  `ui_lab_game_plan_2p_...`, `ui_lab_game_plan_tactics_...`, `ui_lab_game_plan_roles_...`,
+  `ui_lab_substitution_...`, `ui_lab_shootout_...`, ...
 - Стенд скрывает свою подпись (`set_caption_visible(false)`), чтобы кадр был чистым.
 
 ## Ограничения инструментов

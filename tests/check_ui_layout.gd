@@ -75,7 +75,7 @@ func _check_screen(path: String, size: Vector2i) -> void:
 	var states: Array = [""]
 	if screen.has_method("set_state") and path.ends_with("ui_lab.tscn"):
 		states = []
-		for i in 9:
+		for i in 15:
 			states.append(str(i))
 	for state in states:
 		if state != "":
@@ -83,6 +83,11 @@ func _check_screen(path: String, size: Vector2i) -> void:
 			await _frames(2)
 		_check_layout(screen, Vector2(size), label + " state " + str(state))
 		_check_focus(screen, label + " state " + str(state))
+	if path.ends_with("prematch.tscn") and screen.has_method("_select_tab"):
+		screen.call("_select_tab", 3)
+		await _frames(3)
+		_check_layout(screen, Vector2(size), label + " gameplan")
+		_check_focus(screen, label + " gameplan")
 
 	viewport.queue_free()
 	await _frames(1)

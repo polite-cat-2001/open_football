@@ -21,6 +21,9 @@ var runtime: Node
 @onready var replay: GpfReplay = $ReplayView
 @onready var shootout: GpfShootoutView = $ShootoutView
 @onready var pause_menu: GpfPauseMenu = $PauseMenu
+var game_plan: GpfGamePlan
+var _game_plan_layer: CanvasLayer
+var _last_sub_counter := -1
 
 const BUTTONS := {
 	KEY_UP: [0],
@@ -81,6 +84,7 @@ func _ready() -> void:
 	replay.setup(runtime, camera, actors, goal_nets, hud)
 	shootout.setup()
 	pause_menu.setup()
+	_build_game_plan()
 
 	hud.main_menu_requested.connect(_return_to_main_menu)
 	shootout.main_menu_requested.connect(_return_to_main_menu)
@@ -90,6 +94,7 @@ func _ready() -> void:
 	pause_menu.camera_requested.connect(_on_pause_camera)
 	pause_menu.visual_requested.connect(_on_pause_visual)
 	pause_menu.system_requested.connect(_on_pause_system)
+	pause_menu.game_plan_requested.connect(_open_game_plan)
 
 	# Every scene load is a new match: stop and restart so the previous match's
 	# clock, score and objects cannot leak into this one.
@@ -125,6 +130,48 @@ func _configure_input() -> void:
 	# and its HumanGamers.
 	var applied := InputSetup.apply_to_runtime(runtime, ShellState.controllers)
 	input_slots = applied.get("slots", {})
+
+
+func _build_game_plan() -> void:
+	_game_plan_layer = CanvasLayer.new()
+	_game_plan_layer.name = "GamePlanLayer"
+	_game_plan_layer.layer = 6
+	add_child(_game_plan_layer)
+	game_plan = GpfGamePlan.new()
+	game_plan.name = "GamePlan"
+	game_plan.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_game_plan_layer.add_child(game_plan)
+	game_plan.close_requested.connect(_on_game_plan_closed)
+	game_plan.setup_match(runtime, _human_teams())
+
+
+func _human_teams() -> Array:
+	var teams: Array = []
+	for controller in ShellState.controllers:
+		if not (controller is Dictionary):
+			continue
+		var team_id := 1 if str(controller.get("side", "home")) == "away" else 0
+		if not teams.has(team_id):
+			teams.append(team_id)
+	if teams.is_empty():
+		teams = [0]
+	teams.sort()
+	return teams
+
+
+func _open_game_plan() -> void:
+	if game_plan == null or game_plan.is_open():
+		return
+	pause_menu.hide_for_submenu()
+	game_plan.setup_match(runtime, _human_teams())
+	game_plan.open_plan()
+
+
+func _on_game_plan_closed() -> void:
+	if game_plan != null:
+		game_plan.close_plan()
+	if pause_menu != null:
+		pause_menu.open()
 
 
 func _build_presentation() -> void:
@@ -174,6 +221,12 @@ func _process(delta: float) -> void:
 	if snap.is_empty():
 		return
 	shootout.update(snap, delta)
+	# A substitution applied at the C++ restart changes the active roster: add
+	# the new bodies and drop the players who left the pitch.
+	var sub_counter := int(snap.get("substitution_notice_counter", 0))
+	if sub_counter != _last_sub_counter:
+		_last_sub_counter = sub_counter
+		actors.sync_roster(runtime.get_player_ids())
 	var poses := actors.apply_runtime()
 	actors.sync_ball(snap)
 	camera_rig.update(snap)
@@ -198,11 +251,21 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not started:
 		return
+	var viewport := get_viewport()
+	var menu_before := _menu_open()
 	if event is InputEventJoypadButton:
 		_handle_gamepad_button(event as InputEventJoypadButton)
+		if menu_before or _menu_open() or pause_menu.is_open():
+			# GUI focus navigation also listens to the D-pad; the menu already
+			# consumed this event, otherwise focus skips a row.
+			if viewport != null:
+				viewport.set_input_as_handled()
 		return
 	if event is InputEventJoypadMotion:
 		_handle_gamepad_motion(event as InputEventJoypadMotion)
+		if game_plan != null and game_plan.is_open() or pause_menu.is_open() or menu_before:
+			if viewport != null:
+				viewport.set_input_as_handled()
 		return
 	if not (event is InputEventKey):
 		return
@@ -210,11 +273,18 @@ func _input(event: InputEvent) -> void:
 	if key_event.echo:
 		return
 	_handle_key(key_event)
+	if menu_before or _menu_open() or pause_menu.is_open() \
+			or key_event.keycode in [KEY_ESCAPE, KEY_TAB]:
+		# Same double-step guard as above: a pause/game-plan key must not also
+		# drive Godot's GUI focus or press the focused button.
+		if viewport != null:
+			viewport.set_input_as_handled()
 
 
 func _other_menu_open() -> bool:
 	return replay.is_active() or shootout.is_end_menu_open() \
-		or hud.is_phase_menu_open() or hud.is_taker_menu_open()
+		or hud.is_phase_menu_open() or hud.is_taker_menu_open() \
+		or (game_plan != null and game_plan.is_open())
 
 
 func _menu_open() -> bool:
@@ -263,6 +333,9 @@ func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 	# Start is the pause key and works from any pad, even one that is not
 	# assigned to a side in this match.
 	if pressed and button == JOY_BUTTON_START:
+		if game_plan != null and game_plan.is_open():
+			_on_game_plan_closed()
+			return
 		if pause_menu.is_open():
 			pause_menu.close()
 			return
@@ -270,6 +343,9 @@ func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 			if _can_pause():
 				_open_pause()
 			return
+	if game_plan != null and game_plan.is_open():
+		game_plan.handle_joy_button(event)
+		return
 	if pause_menu.is_open():
 		pause_menu.handle_joy(event)
 		return
@@ -307,6 +383,9 @@ func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 
 func _handle_gamepad_motion(event: InputEventJoypadMotion) -> void:
 	var device := int(event.device)
+	if game_plan != null and game_plan.is_open():
+		game_plan.handle_joy_motion(event)
+		return
 	if pause_menu.is_open():
 		if int(event.axis) != JOY_AXIS_LEFT_Y or absf(event.axis_value) <= 0.5:
 			return
@@ -334,6 +413,9 @@ func _handle_key(key_event: InputEventKey) -> void:
 	if key_event.keycode == KEY_F4:
 		if key_event.pressed:
 			_start_fresh_match()
+		return
+	if game_plan != null and game_plan.is_open():
+		game_plan.handle_key(key_event)
 		return
 	if pause_menu.is_open():
 		pause_menu.handle_key(key_event)
@@ -417,6 +499,9 @@ func _start_fresh_match() -> void:
 	hud.reset()
 	shootout.reset()
 	actors.reset()
+	_last_sub_counter = -1
+	if game_plan != null:
+		game_plan.clear_local_orders()
 	_configure_input()
 	if not runtime.restart_match():
 		push_error("GpfRuntime restart failed: " + str(runtime.get_last_error()))

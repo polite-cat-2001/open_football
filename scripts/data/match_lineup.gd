@@ -6,6 +6,13 @@ extends RefCounted
 # eleven in package order) fields exactly the chosen players.
 
 const SLOT_COUNT := Formation.SLOT_COUNT
+const TEAM_ROLE_COUNT := 6
+const TEAM_ROLE_CAPTAIN := 0
+const TEAM_ROLE_PENALTY := 1
+const TEAM_ROLE_FREE_KICK_NEAR := 2
+const TEAM_ROLE_FREE_KICK_FAR := 3
+const TEAM_ROLE_CORNER_LEFT := 4
+const TEAM_ROLE_CORNER_RIGHT := 5
 
 var team_id := 0
 var team_name := ""
@@ -13,6 +20,8 @@ var players: Array[Dictionary] = []
 var formation: Array[Dictionary] = []
 var lineup: Array[int] = []
 var bench: Array[int] = []
+# Designated team roles (C++ e_TeamRole -> starting slot, -1/absent = auto).
+var roles: Dictionary = {}
 var error := ""
 
 var _players_by_id := {}
@@ -157,6 +166,104 @@ func move_position(slot: int, position: Vector2) -> bool:
 	# The edited spot is what both the match and a later re-open should show.
 	entry["database_position"] = clamped
 	return true
+
+
+func apply_scheme(scheme_index: int) -> bool:
+	error = ""
+	if scheme_index < 0 or scheme_index >= TacticalSchemes.count():
+		error = "Unknown tactical scheme."
+		return false
+	var candidates: Array = []
+	for slot in mini(SLOT_COUNT, formation.size()):
+		var entry: Dictionary = formation[slot]
+		candidates.append({
+			"slot": slot,
+			"role": str(entry.get("role", "CM")),
+			"position": entry.get("database_position", entry.get("position", Vector2.ZERO)),
+		})
+	var assignment := TacticalSchemes.assign(candidates, scheme_index)
+	for slot in mini(assignment.size(), formation.size()):
+		var entry: Dictionary = assignment[slot]
+		formation[slot]["role"] = str(entry["role"])
+		formation[slot]["database_position"] = entry["database_position"]
+		formation[slot]["position"] = entry["position"]
+	return true
+
+
+func current_scheme() -> int:
+	var entries: Array = []
+	for slot in mini(SLOT_COUNT, formation.size()):
+		var entry: Dictionary = formation[slot]
+		entries.append({
+			"role": str(entry.get("role", "CM")),
+			"position": entry.get("database_position", entry.get("position", Vector2.ZERO)),
+		})
+	return TacticalSchemes.match_scheme(entries)
+
+
+func designated_role_slot(role: int) -> int:
+	if not roles.has(role):
+		return -1
+	var slot := int(roles[role])
+	return slot if slot >= 0 and slot < SLOT_COUNT else -1
+
+
+func role_slot(role: int) -> int:
+	var designated := designated_role_slot(role)
+	return designated if designated >= 0 else suggest_role_slot(role)
+
+
+func set_role(role: int, slot: int) -> bool:
+	if role < 0 or role >= TEAM_ROLE_COUNT or slot < 0 or slot >= SLOT_COUNT:
+		return false
+	roles[role] = slot
+	return true
+
+
+func roles_to_array() -> Array:
+	var result: Array = []
+	for role in TEAM_ROLE_COUNT:
+		# Materialise the suggestion the UI shows, so the match uses the same
+		# captain/taker the prematch screen named.
+		result.append(role_slot(role))
+	return result
+
+
+func suggest_role_slot(role: int) -> int:
+	var best := -1
+	var best_score := -1.0
+	for slot in mini(SLOT_COUNT, lineup.size()):
+		var entry: Dictionary = formation[slot]
+		if str(entry.get("role", "")) == "GK":
+			continue
+		var player := player_by_id(lineup[slot])
+		if player.is_empty():
+			continue
+		var score := _role_score(role, player)
+		if score > best_score:
+			best_score = score
+			best = slot
+	return best
+
+
+func _role_score(role: int, player: Dictionary) -> float:
+	var stats: Dictionary = player.get("stats", {})
+	var keys: Array = []
+	match role:
+		TEAM_ROLE_CAPTAIN:
+			keys = ["mental_workrate", "mental_resilience", "mental_vision"]
+		TEAM_ROLE_PENALTY:
+			keys = ["technical_shot", "mental_calmness"]
+		TEAM_ROLE_FREE_KICK_NEAR, TEAM_ROLE_FREE_KICK_FAR:
+			keys = ["technical_highpass", "technical_shot"]
+		TEAM_ROLE_CORNER_LEFT, TEAM_ROLE_CORNER_RIGHT:
+			keys = ["technical_highpass", "mental_vision"]
+		_:
+			keys = ["mental_vision"]
+	var total := 0.0
+	for key in keys:
+		total += float(stats.get(key, player.get("average", 0.0)))
+	return total
 
 
 func validate() -> Dictionary:

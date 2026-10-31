@@ -205,6 +205,16 @@ func close() -> void:
 	resume_requested.emit()
 
 
+# Hide the menu without resuming the match: a submenu (game plan) takes over
+# the same frozen match and returns to the pause menu when it closes.
+func hide_for_submenu() -> void:
+	if layer != null:
+		layer.visible = false
+	if confirm_layer != null:
+		confirm_layer.visible = false
+	confirm_open = false
+
+
 func set_hint(text: String) -> void:
 	if hint_label != null:
 		hint_label.text = text
@@ -309,7 +319,6 @@ func _activate(i: int) -> void:
 			_open_confirm()
 		"game_plan":
 			game_plan_requested.emit()
-			set_hint("game plan: тикет 20")
 		"controller":
 			controller_select_requested.emit()
 			set_hint("controller select: не портировано")

@@ -78,23 +78,57 @@ func set_controlled_ids(ids: Array) -> void:
 
 func spawn(ids: Array) -> void:
 	for entry in ids:
+		_spawn_entry(entry)
+
+
+# Reconcile the presentation with the runtime's active player list. Used after a
+# substitution: the player who left the pitch loses his body, the substitute
+# gets a fresh one with his own nameplate and kit colour.
+func sync_roster(ids: Array) -> void:
+	var wanted: Dictionary = {}
+	for entry in ids:
+		wanted[int(entry.get("id", -1))] = entry
+
+	for id in actor_bodies.keys():
+		if wanted.has(int(id)):
+			continue
+		var body: Node3D = actor_bodies[int(id)]
+		if body != null and is_instance_valid(body):
+			body.queue_free()
+		skeletons.erase(id)
+		actor_bodies.erase(id)
+		player_labels.erase(id)
+		for index in range(actors.size() - 1, -1, -1):
+			if int((actors[index] as Dictionary).get("id", -2)) == int(id):
+				actors.remove_at(index)
+
+	for entry in ids:
 		var id := int(entry.get("id", -1))
-		if id < 0:
+		if id < 0 or actor_bodies.has(id):
 			continue
-		var body: Node3D = body_scene.instantiate()
-		add_child(body)
-		var found := body.find_children("*", "Skeleton3D", true, false)
-		if found.is_empty():
-			continue
-		var skeleton := found[0] as Skeleton3D
-		if bone_indices.is_empty():
-			for i in skeleton.get_bone_count():
-				bone_indices[skeleton.get_bone_name(i)] = i
-		_apply_kit_color(body, int(entry.get("team", -1)))
-		skeletons[id] = skeleton
-		actor_bodies[id] = body
-		_build_nameplate(body, id, entry)
-		actors.append(entry)
+		_spawn_entry(entry)
+	refresh_labels()
+
+
+func _spawn_entry(entry: Dictionary) -> void:
+	var id := int(entry.get("id", -1))
+	if id < 0:
+		return
+	var body: Node3D = body_scene.instantiate()
+	add_child(body)
+	var found := body.find_children("*", "Skeleton3D", true, false)
+	if found.is_empty():
+		body.queue_free()
+		return
+	var skeleton := found[0] as Skeleton3D
+	if bone_indices.is_empty():
+		for i in skeleton.get_bone_count():
+			bone_indices[skeleton.get_bone_name(i)] = i
+	_apply_kit_color(body, int(entry.get("team", -1)))
+	skeletons[id] = skeleton
+	actor_bodies[id] = body
+	_build_nameplate(body, id, entry)
+	actors.append(entry)
 
 
 func apply_runtime() -> Dictionary:

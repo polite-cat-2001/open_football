@@ -81,9 +81,8 @@ func _run() -> void:
 	var start_button := screen.get("start_button") as Button
 	_check(start_button != null and not start_button.disabled,
 		"Start match is enabled with valid lineups")
-	var tabs_container := screen.get("editor_tabs") as TabContainer
-	_check(tabs_container != null and tabs_container.get_tab_count() == 2,
-		"the lineup editor has Home and Away tabs")
+	var game_plan = screen.get("game_plan")
+	_check(game_plan != null, "the game plan screen is ported into the hub")
 
 	# Options tab: sliders land in the shell state.
 	screen.call("_select_tab", 4)
@@ -113,29 +112,29 @@ func _run() -> void:
 		_check(int(ShellState.match_options.get("kit_home", -1)) == chosen,
 			"the chosen home kit lands in the shell state")
 
-	# Kick-off lineups: edit a starter through the overlay, then build the package.
+	# Kick-off lineups: edit a starter through the Game plan tab, then build the package.
 	screen.call("_select_tab", 2)
 	var edit_button := screen.get("edit_lineups_button") as Button
 	_check(edit_button != null, "the Kick-off tab offers the lineups editor")
 	if edit_button != null:
 		edit_button.pressed.emit()
 		await _frames(2)
-		_check(bool(screen.get("lineup_overlay").visible), "the lineup overlay opens")
+		_check(int(screen.get("active_tab")) == 3 and game_plan != null and game_plan.is_open(),
+			"Edit lineups opens the Game plan tab")
 
-	var home_editor = screen.get("home_editor")
-	var away_editor = screen.get("away_editor")
-	_check(home_editor != null and away_editor != null, "both lineups load")
-	if home_editor == null or away_editor == null:
+	var home_lineup: MatchLineup = screen.get("home_lineup")
+	var away_lineup: MatchLineup = screen.get("away_lineup")
+	_check(home_lineup != null and away_lineup != null, "both lineups load")
+	if home_lineup == null or away_lineup == null:
 		_finish()
 		return
-	var promoted := int(home_editor.lineup.bench[0])
-	var promoted_name := str(home_editor.lineup.player_by_id(promoted).get("lastname", ""))
-	home_editor.lineup.set_starter(EDITED_SLOT, promoted)
-	home_editor.set_lineup(home_editor.lineup)
+	var promoted := int(home_lineup.bench[0])
+	var promoted_name := str(home_lineup.player_by_id(promoted).get("lastname", ""))
+	home_lineup.set_starter(EDITED_SLOT, promoted)
 	screen.call("_on_lineups_changed")
 	screen.call("_close_lineups")
 	await _frames(2)
-	_check(not bool(screen.get("lineup_overlay").visible), "the lineup overlay closes")
+	_check(int(screen.get("active_tab")) == 2, "the game plan returns to Kick-off")
 	_check((screen.get("home_name_labels")[EDITED_SLOT] as Label).text.contains(promoted_name),
 		"the Kick-off list follows the edited lineup")
 
