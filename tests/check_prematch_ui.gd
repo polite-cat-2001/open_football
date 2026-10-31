@@ -62,6 +62,18 @@ func _run() -> void:
 	var tabs: Array = screen.get("tab_buttons")
 	_check(tabs.size() == 7, "the hub has the original seven tabs")
 	_check(int(screen.get("active_tab")) == 2, "the hub starts on Kick-off")
+	# Keyboard/gamepad entry: the active tab owns focus, and Down enters content.
+	var focus_owner := screen.get_viewport().gui_get_focus_owner()
+	_check(focus_owner == tabs[2], "the active Kick-off tab owns focus on entry")
+	var first_content: Control = screen.call("_first_focusable", screen.get("content_views")[2])
+	_check(first_content == screen.get("edit_lineups_button"),
+		"the first focusable in Kick-off is Edit lineups")
+	var down := InputEventKey.new()
+	down.keycode = KEY_DOWN
+	down.pressed = true
+	screen.call("_handle_key", down)
+	_check((screen.get("edit_lineups_button") as Control).has_focus(),
+		"Down moves focus from the tab into content")
 	var home_names: Array = screen.get("home_name_labels")
 	var away_names: Array = screen.get("away_name_labels")
 	_check(home_names.size() == 11 and away_names.size() == 11,
@@ -142,7 +154,11 @@ func _run() -> void:
 	_check(int(package["home"]["players"][EDITED_SLOT]["database_id"]) == promoted,
 		"the edited starter reaches the package")
 
-	start_button.pressed.emit()
+	start_button.grab_focus()
+	var joy_accept := InputEventJoypadButton.new()
+	joy_accept.button_index = JOY_BUTTON_A
+	joy_accept.pressed = true
+	screen.call("_handle_joy_button", joy_accept)
 	await _frames(12)
 	_check(current_scene != null and current_scene.name == "GpfSlice",
 		"Start match opens the GPF match")

@@ -19,12 +19,13 @@ FIFA, **Windows-only**. Идёт порт ядра GameplayFootball на C# (р�
 
 Тестов/линта/CI нет, кроме двух команд ниже и `tests/check_*.gd`.
 
+- **Godot:** `C:\Users\Egor\Desktop\Godot\Godot_v4.7.2-stable_win64.exe` (console-вариант: `..._console.exe`).
 - **Меню-загрузка (парсит глобальные `class_name` + autoload):**
-  `& "C:\Users\User\Desktop\Godot_v4.7.1-stable_mono_win64\Godot_v4.7.1-stable_mono_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit`
+  `& "C:\Users\Egor\Desktop\Godot\Godot_v4.7.2-stable_win64_console.exe" --path "C:\Users\Egor\Desktop\projects\open_football" --headless --quit`
 - **Сцена матча (реально гоняет `match_manager`/`*_ai`/`keeper_ai`):**
-  `& "C:\Users\User\Desktop\Godot_v4.7.1-stable_mono_win64\Godot_v4.7.1-stable_mono_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit-after 2 res://scenes/match.tscn`
-- **Один check-скрипт:** `& "<godot exe>" --path "<repo>" --headless -s "res://tests/<name>.gd"`
-- **C#-сборка (ядро порта):** `dotnet build "C:\Users\User\Desktop\projects\OpenFootball\OpenFootball.sln"`
+  `& "C:\Users\Egor\Desktop\Godot\Godot_v4.7.2-stable_win64_console.exe" --path "C:\Users\Egor\Desktop\projects\open_football" --headless --quit-after 2 res://scenes/match.tscn`
+- **Один check-скрипт:** `& "C:\Users\Egor\Desktop\Godot\Godot_v4.7.2-stable_win64_console.exe" --path "C:\Users\Egor\Desktop\projects\open_football" --headless -s "res://tests/<name>.gd"`
+- **C#-сборка (ядро порта):** `dotnet build "C:\Users\Egor\Desktop\projects\open_football\OpenFootball.csproj"`
   — гонять после любой правки `.cs`; headless-команды сами C# не пересобирают.
 
 **Нужны ОБЕ headless-команды — ловят разное** (первая не грузит `match.tscn`, значит match-only скрипты

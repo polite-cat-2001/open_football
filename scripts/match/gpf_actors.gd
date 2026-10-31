@@ -224,9 +224,11 @@ func _build_nameplate(body: Node3D, id: int, entry: Dictionary) -> void:
 		label.text = "#%d" % id
 	label.position = Vector3(0.0, 0.0, NAMEPLATE_HEIGHT)
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.font_size = 64
-	label.pixel_size = 0.004
-	label.outline_size = 8
+	# World-space billboards, but small: at the close set-piece camera the old
+	# 64 x 0.004 labels covered half the screen.
+	label.font_size = 56
+	label.pixel_size = 0.0035
+	label.outline_size = 6
 	label.outline_modulate = Color(0.0, 0.0, 0.0, 0.9)
 	label.modulate = NAMEPLATE_NORMAL_COLOR
 	body.add_child(label)
