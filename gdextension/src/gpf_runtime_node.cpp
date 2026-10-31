@@ -226,6 +226,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_player_ids"), &GpfRuntimeNode::get_player_ids);
     ClassDB::bind_method(D_METHOD("debug_get_formation", "team_id"), &GpfRuntimeNode::debug_get_formation);
     ClassDB::bind_method(D_METHOD("get_human_player_id"), &GpfRuntimeNode::get_human_player_id);
+    ClassDB::bind_method(D_METHOD("get_human_player_ids"), &GpfRuntimeNode::get_human_player_ids);
     ClassDB::bind_method(D_METHOD("get_human_team_id"), &GpfRuntimeNode::get_human_team_id);
     ClassDB::bind_method(D_METHOD("select_player", "player_id"), &GpfRuntimeNode::select_player);
     ClassDB::bind_method(D_METHOD("start_open_play", "player_id"), &GpfRuntimeNode::start_open_play);
@@ -813,6 +814,25 @@ int GpfRuntimeNode::get_human_player_id() const {
     return -1;
 }
 
+Array GpfRuntimeNode::get_human_player_ids() const {
+    Array result;
+    if (!runtime_ready || !match) {
+        return result;
+    }
+    // Local 2P: every team may have one human-controlled player at a time.
+    for (int team_id = 0; team_id < 2; ++team_id) {
+        Team *team = match->GetTeam(team_id);
+        std::vector<Player *> players;
+        match->GetActiveTeamPlayers(team_id, players);
+        for (size_t i = 0; i < players.size(); ++i) {
+            if (team->IsHumanControlled(players[i]->GetID())) {
+                result.append(players[i]->GetID());
+            }
+        }
+    }
+    return result;
+}
+
 int GpfRuntimeNode::get_human_team_id() const {
     if (!runtime_ready || !match) {
         return -1;
@@ -1066,11 +1086,35 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["set_piece_taker"] = taker ? taker->GetID() : -1;
     result["set_piece_type"] = (int)match->GetTeam(0)->GetController()->GetSetPieceType();
     SetPiecePresentation *presentation = match->GetSetPiecePresentation();
-    const int selected_id = get_human_player_id();
-    SetPieceHudState set_piece_hud;
-    if (presentation && selected_id >= 0) {
-        set_piece_hud = presentation->GetHudState(match->GetPlayer(selected_id));
+    // 2P: the HUD/aim data must describe the human whose team takes this set
+    // piece, not always the first human on the pitch.
+    Player *hud_player = nullptr;
+    Player *set_piece_taker = presentation ? presentation->GetTaker() : nullptr;
+    if (!set_piece_taker) set_piece_taker = match->GetRefereeBuffer().taker;
+    if (set_piece_taker) {
+        Team *taker_team = set_piece_taker->GetTeam();
+        if (taker_team) {
+            std::vector<Player *> team_players;
+            match->GetActiveTeamPlayers(taker_team->GetID(), team_players);
+            for (size_t i = 0; i < team_players.size(); ++i) {
+                if (taker_team->IsHumanControlled(team_players[i]->GetID())) {
+                    hud_player = team_players[i];
+                    break;
+                }
+            }
+        }
     }
+    if (!hud_player) {
+        const int selected_id = get_human_player_id();
+        if (selected_id >= 0) hud_player = match->GetPlayer(selected_id);
+    }
+    SetPieceHudState set_piece_hud;
+    if (presentation && hud_player) {
+        set_piece_hud = presentation->GetHudState(hud_player);
+    }
+    result["set_piece_hud_player"] = hud_player ? hud_player->GetID() : -1;
+    result["set_piece_human_taker"] = presentation && hud_player &&
+        presentation->GetTaker() == hud_player;
     result["presentation_type"] = presentation ? (int)presentation->GetType() : 0;
     result["set_piece_role"] = (int)set_piece_hud.role;
     result["set_piece_aim_point"] = to_godot(set_piece_hud.aimPoint);
