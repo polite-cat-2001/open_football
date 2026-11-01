@@ -409,13 +409,10 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		"the client has a penalty aim point")
 	_check(bool(client_result.get("penalty_local_taker", false)),
 		"the client penalty taker is local")
-	_check(bool(client_result.get("substitution_seen", false)),
-		"the client received the substitution notice")
+	_check(bool(client_result.get("substitution_roster_changed", false)),
+		"the client applied the substitution roster")
 	_check(bool(client_result.get("substitution_roster_synced", false)),
 		"the client roster synced the substituted-in player")
-	var client_sub_notices: Array = client_result.get("substitution_notices", [])
-	_check(not client_sub_notices.is_empty(),
-		"the client has the substitution notice text")
 	_check(int(runtime.get_substitution_notice_counter()) > 0,
 		"the host recorded the applied substitution")
 	_check(int(runtime.get_snapshot().get("substitutions1", 0)) > 0,

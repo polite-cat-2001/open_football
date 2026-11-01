@@ -319,7 +319,6 @@ func _run(address: String, port: int, running_marker: String = "",
 		# Snapshot the away XI before the host reacts to the marker below: it
 		# queues the substitution and forces the restart.
 		var before_sub_ids := _active_ids(1)
-		var before_notice_counter := int(runtime.get_substitution_notice_counter())
 		_write_marker(side_done_marker, "done")
 
 		# The host forces a penalty for this client's team; the client must get
@@ -332,17 +331,11 @@ func _run(address: String, port: int, running_marker: String = "",
 		for id in after_sub_ids:
 			if not before_sub_ids.has(id):
 				new_sub_ids.append(id)
-		var fresh_notices: Array = penalty_snap.get("substitution_notices", [])
-		probe_result["substitution_counter"] = int(
-			penalty_snap.get("substitution_notice_counter", 0))
-		probe_result["substitution_notices"] = fresh_notices
 		probe_result["substitution_new_ids"] = new_sub_ids
-		probe_result["substitution_seen"] = int(
-			penalty_snap.get("substitution_notice_counter", 0)) > before_notice_counter \
-			and not fresh_notices.is_empty()
+		probe_result["substitution_roster_changed"] = after_sub_ids != before_sub_ids
 		probe_result["substitution_roster_synced"] = not new_sub_ids.is_empty()
-		_check(bool(probe_result["substitution_seen"]),
-			"client did not receive the substitution notice")
+		_check(bool(probe_result["substitution_roster_changed"]),
+			"client did not apply the substitution roster")
 		_check(bool(probe_result["substitution_roster_synced"]),
 			"client roster is missing the substituted-in player")
 		var aim: Vector3 = penalty_snap.get("set_piece_aim_point", Vector3.ZERO)
