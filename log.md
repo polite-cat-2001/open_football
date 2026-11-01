@@ -1548,10 +1548,11 @@ placeholder; национальный значок и шрифт есть. Ру�
   разводит паузы, иначе два `PauseState` схлопываются на thin client. PASS —
   `check_gpf_pause`, `check_gpf_slice_ui`, `check_gpf_game_shell`,
   `check_gpf_local_2p_highlights`, `check_gpf_net_lobby`; extension собирается.
-- Фикс по плейтесту: тонкий клиент применял замену в `Match::ApplyRemoteSnapshot`, но не
-  записывал `SubstitutionNotice`/счётчик, поэтому HUD молчал, `gpf_slice` не звал
-  `GpfActors.sync_roster()` и вышедший игрок был невидим (мяч «отлетал от воздуха»). Клиент
-  теперь ведёт ту же книгу замен, что host (правка `of_port`, не протокол); `GpfHud` первый
-  снапшот считает базой (rejoin не проигрывает старые баннеры). Two-process тест проверяет
-  notice + новый активный состав после замены на рестарте пенальти.
+- Фикс по плейтесту (без правок `of_port`): тонкий клиент применяет замену в
+  `Match::ApplyRemoteSnapshot`, но не ведёт книгу уведомлений, поэтому HUD молчал, а
+  `gpf_slice` не звал `GpfActors.sync_roster()` — вышедший игрок был невидим (мяч «отлетал
+  от воздуха»). Теперь `gpf_slice` сверяет `get_player_ids()` с прошлым составом каждый кадр,
+  синкает актёров и на клиенте строит баннер из дельты
+  (`scripts/match/substitution_notices.gd`); первый снапшот rejoin-клиента — база (3 с).
+  Тест `check_gpf_substitution_notices` + two-process замена на рестарте пенальти.
 

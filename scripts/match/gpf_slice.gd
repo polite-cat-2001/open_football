@@ -11,6 +11,7 @@ const RUNTIME_GROUP := "gpf_runtime"
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 const TEAM_SELECT_SCENE := "res://scenes/team_select.tscn"
 const NETWORK_SIDES_SCENE := preload("res://scenes/network_sides.tscn")
+const SUBSTITUTION_NOTICES := preload("res://scripts/match/substitution_notices.gd")
 
 var runtime: Node
 @onready var camera := $Camera3D
@@ -24,7 +25,9 @@ var runtime: Node
 @onready var pause_menu: GpfPauseMenu = $PauseMenu
 var game_plan: GpfGamePlan
 var _game_plan_layer: CanvasLayer
-var _last_sub_counter := -1
+var _roster_ids: Array = []
+var _roster_names: Dictionary = {}
+var _net_notice_ready_ms := 0
 var side_select_overlay: Control
 var _side_select_layer: CanvasLayer
 var _net_status_layer: CanvasLayer
@@ -198,6 +201,10 @@ func _build_presentation() -> void:
 		print("display_player_id=", controlled, " human_after_select=", runtime.get_human_player_id())
 	actors.spawn(ids)
 	actors.set_controlled(controlled)
+	_remember_roster(ids)
+	# A rejoining thin client receives the host's substitution history in its
+	# first snapshots; do not replay those as fresh banners.
+	_net_notice_ready_ms = Time.get_ticks_msec() + 3000 if bool(runtime.is_net_client()) else 0
 	runtime.set("manual_step", false)
 	started = true
 
@@ -243,6 +250,35 @@ func _pick_controlled(ids: Array) -> int:
 	return -1
 
 
+func _remember_roster(ids: Array) -> void:
+	var roster: Array = []
+	var names := {}
+	for entry in ids:
+		var id := int(entry.get("id", -1))
+		roster.append(id)
+		names[id] = str(entry.get("name", ""))
+	roster.sort()
+	_roster_ids = roster
+	_roster_names = names
+
+
+func _sync_roster() -> void:
+	var ids: Array = runtime.get_player_ids()
+	var roster: Array = []
+	for entry in ids:
+		roster.append(int(entry.get("id", -1)))
+	roster.sort()
+	if roster == _roster_ids:
+		return
+	var previous_names := _roster_names
+	_remember_roster(ids)
+	if bool(runtime.is_net_client()) and Time.get_ticks_msec() >= _net_notice_ready_ms:
+		var lines := SUBSTITUTION_NOTICES.build_lines(previous_names, _roster_names)
+		if not lines.is_empty():
+			hud.show_substitution_notice(lines)
+	actors.sync_roster(ids)
+
+
 func _process(delta: float) -> void:
 	if not started:
 		return
@@ -274,11 +310,10 @@ func _process(delta: float) -> void:
 			_net_break_seen = false
 	shootout.update(snap, delta)
 	# A substitution applied at the C++ restart changes the active roster: add
-	# the new bodies and drop the players who left the pitch.
-	var sub_counter := int(snap.get("substitution_notice_counter", 0))
-	if sub_counter != _last_sub_counter:
-		_last_sub_counter = sub_counter
-		actors.sync_roster(runtime.get_player_ids())
+	# the new bodies and drop the players who left the pitch. The thin client
+	# derives its own banner from the delta (the original client applies the
+	# substitution but keeps no notice book).
+	_sync_roster()
 	var poses := actors.apply_runtime()
 	actors.sync_ball(snap)
 	camera_rig.update(snap)
@@ -755,7 +790,9 @@ func _start_fresh_match() -> void:
 	hud.reset()
 	shootout.reset()
 	actors.reset()
-	_last_sub_counter = -1
+	_roster_ids = []
+	_roster_names = {}
+	_net_notice_ready_ms = 0
 	if game_plan != null:
 		game_plan.clear_local_orders()
 	_configure_input()

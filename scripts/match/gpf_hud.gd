@@ -331,6 +331,17 @@ func _taker_owner_kind(snap: Dictionary) -> String:
 	return "keyboard"
 
 
+func show_substitution_notice(lines: Array) -> void:
+	if substitution_notice == null or lines.is_empty():
+		return
+	var text_lines := PackedStringArray()
+	for line in lines:
+		text_lines.append(str(line))
+	substitution_notice.text = "\n".join(text_lines)
+	substitution_notice.visible = true
+	_sub_notice_hide_ms = Time.get_ticks_msec() + 5000
+
+
 func _sync_substitution_notice(snap: Dictionary) -> void:
 	if substitution_notice == null:
 		return
@@ -345,13 +356,7 @@ func _sync_substitution_notice(snap: Dictionary) -> void:
 			var notices: Array = snap.get("substitution_notices", [])
 			var start_index := maxi(_sub_notice_counter, 0)
 			var fresh := notices.slice(mini(start_index, notices.size()))
-			if not fresh.is_empty():
-				var lines := PackedStringArray()
-				for line in fresh:
-					lines.append(str(line))
-				substitution_notice.text = "\n".join(lines)
-				substitution_notice.visible = true
-				_sub_notice_hide_ms = Time.get_ticks_msec() + 5000
+			show_substitution_notice(fresh)
 		_sub_notice_counter = counter
 	if substitution_notice.visible and Time.get_ticks_msec() > _sub_notice_hide_ms:
 		substitution_notice.visible = false
