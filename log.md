@@ -1498,3 +1498,26 @@ placeholder; национальный значок и шрифт есть. Ру�
   визуально перескакивала; `check_gpf_slice_ui` проверяет клавиатуру и D-pad (фокус на строке,
   A/Enter открывает, B возвращает).
 
+### [2026-11-01] feat | Меню исполнителя стандарта — порт SetPieceTakerPage
+
+- Новый компонент `scripts/match/gpf_set_piece_taker.gd` (`GpfSetPieceTakerMenu`) вместо черновой
+  панели в `GpfHud`: заголовок «set-piece taker», все активные игроки бьющей команды кнопками,
+  `*` у текущего, `(GK)` у вратаря, подсказка «enter: apply   escape: close». Раскладка как в
+  оригинале: список 30–70% ширины от 15% высоты, шаг 3.8%, высота 3.4%; прозрачный оверлей без
+  blackout (в оригинале `BlackoutBackground` включают только главное меню/кредиты).
+- Ввод: `Tab`/Select открывает, стрелки/D-pad/стик листают с повтором 220 мс, A/Enter применяет,
+  B/Esc закрывает, кик-кнопки закрывают без удара. Меню открывает/листает/закрывает только
+  устройство human-исполнителя: в 2P чужой геймпад/клавиатура не трогают чужое меню; для
+  away-человека список — его команда (сторона по `set_piece_hud_player`/`referee_taker`).
+  Авто-закрытие на удар/конец стандарта/потерю human-исполнителя; выбор идёт через
+  `request_set_piece_taker`, управление остаётся у открывшего. `GpfHud` прячет легенду кнопок под
+  оверлеем, подсказка показывает `Select` для геймпада.
+- `ui_lab`: 16-е состояние `SET-PIECE TAKER` с демо-составом; `check_ui_layout` PASS на 1920/1280;
+  скриншоты `ui_lab_set-piece_taker_{1920x1080,1280x720}.png`. `UiHarness` получил no-arg
+  `tap_key()`/`tap_joy_button()` (MCP не передаёт массивы), живой прогон прошёл путь
+  Tab → выбор → apply → кик-кнопка/следующий стандарт, чужой pad ничего не меняет.
+- Тесты: новый `check_gpf_set_piece_taker` (home/away/2P/авто-закрытие + реальный away-человек);
+  расширен `check_gpf_slice_ui` (title/hint/`*`/`(GK)`/владелец/apply); PASS — `check_gpf_pause`,
+  `check_gpf_game_plan`, `check_gpf_game_shell`, `check_gpf_input`, `check_gpf_setpieces`
+  (free/taker), `check_ui_layout`; `match.tscn` — только известный baseline ошибок.
+

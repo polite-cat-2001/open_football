@@ -42,6 +42,30 @@ func click_pointer() -> void:
 	inject_click(pointer.x, pointer.y)
 
 
+# MCP has no array arguments; set these and call the no-arg tap helpers.
+var joy_tap_device := 0
+var joy_tap_button := JOY_BUTTON_BACK
+var key_tap_code := KEY_DOWN
+
+
+func tap_joy_button() -> void:
+	inject_joy_button(joy_tap_device, joy_tap_button, true)
+	await get_tree().process_frame
+	inject_joy_button(joy_tap_device, joy_tap_button, false)
+
+
+func tap_key() -> void:
+	var press := InputEventKey.new()
+	press.keycode = key_tap_code
+	press.pressed = true
+	Input.parse_input_event(press)
+	await get_tree().process_frame
+	var release := InputEventKey.new()
+	release.keycode = key_tap_code
+	release.pressed = false
+	Input.parse_input_event(release)
+
+
 func debug_joypads() -> Array:
 	var pads: Array = []
 	for id in Input.get_connected_joypads():

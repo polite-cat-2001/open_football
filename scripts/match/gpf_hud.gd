@@ -31,11 +31,8 @@ var substitution_notice: Label
 var _sub_notice_counter := -1
 var _sub_notice_hide_ms := 0
 
-var taker_menu_layer: CanvasLayer
-var taker_menu_label: Label
-var taker_menu_open := false
-var taker_menu_candidates: Array = []
-var taker_menu_index := 0
+var taker_menu: GpfSetPieceTakerMenu
+var _hint_player_id := -2
 
 var phase_menu_layer: CanvasLayer
 var phase_menu_title: Label
@@ -49,6 +46,7 @@ var phase_menu_open := false
 var phase_menu_game_over := false
 
 var _runtime: Node
+var _replay_mode := false
 
 
 func setup(runtime: Node) -> void:
@@ -94,6 +92,9 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	elif snap.has("match_duration"):
 		duration = float(snap.get("match_duration", 1.0))
 	var match_minutes := 5 + int(round(20.0 * duration))
+	# The ported taker overlay replaces the dev key legend while it is up: the
+	# original page draws over the pitch and has no second text block under it.
+	hud.visible = not _replay_mode and not is_taker_menu_open()
 	var park_text := "F2 unpark opponents" if bool(snap.get("debug_park_opponents", false)) \
 		else "F2 park opponents"
 	var camera_text := "V broadcast cam" if stadium_camera else "V stadium cam"
@@ -115,8 +116,9 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 
 
 func set_replay_mode(active: bool) -> void:
+	_replay_mode = active
 	if hud != null:
-		hud.visible = not active
+		hud.visible = not active and not is_taker_menu_open()
 	if score_hud != null:
 		score_hud.visible = not active
 
@@ -125,6 +127,7 @@ func reset() -> void:
 	close_taker_menu(false)
 	_close_phase_menu()
 	phase_menu_game_over = false
+	_hint_player_id = -2
 	set_replay_mode(false)
 	_sub_notice_counter = -1
 	if substitution_notice != null:
@@ -137,61 +140,130 @@ func set_taker_hint_key(key_name: String) -> void:
 
 
 func is_taker_menu_open() -> bool:
-	return taker_menu_open
+	return taker_menu != null and taker_menu.is_open()
 
 
-func toggle_taker_menu() -> void:
-	if taker_menu_open:
-		close_taker_menu(false)
-		return
+func accepts_taker_menu_keyboard() -> bool:
+	return taker_menu != null and taker_menu.accepts_keyboard()
+
+
+func accepts_taker_menu_joy(device: int) -> bool:
+	return taker_menu != null and taker_menu.accepts_joy(device)
+
+
+# Only the device of the human who actually takes this set piece may open the
+# menu (original #30). owner_kind is "keyboard" or "gamepad", owner_device the
+# Godot joypad id. Returns true when the overlay is now open.
+func toggle_taker_menu(owner_kind: String = "keyboard", owner_device: int = 0) -> bool:
+	if taker_menu == null:
+		return false
+	if taker_menu.is_open():
+		# Toggle only with the device that opened it: another local player's
+		# Tab/Select must not close this taker's overlay either.
+		if taker_menu.owner_kind == owner_kind \
+				and (owner_kind == "keyboard" or taker_menu.owner_device == owner_device):
+			taker_menu.close(false)
+		return false
 	if _runtime == null or not _runtime.is_set_piece_taker_menu_available():
-		return
-	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_S) \
-			or Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_A):
-		return
+		return false
+	if owner_kind == "keyboard" and (Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_S) \
+			or Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_A)):
+		return false
+	if owner_kind == "gamepad" and (Input.is_joy_button_pressed(owner_device, JOY_BUTTON_A) \
+			or Input.is_joy_button_pressed(owner_device, JOY_BUTTON_B) \
+			or Input.is_joy_button_pressed(owner_device, JOY_BUTTON_X) \
+			or Input.is_joy_button_pressed(owner_device, JOY_BUTTON_Y)):
+		return false
+	var snap: Dictionary = _runtime.get_snapshot()
+	if not _owns_taker_menu(owner_kind, owner_device, snap):
+		return false
 	if not _runtime.open_set_piece_taker_menu():
-		return
-	taker_menu_candidates = _runtime.get_set_piece_taker_candidates()
-	if taker_menu_candidates.is_empty():
+		return false
+	var candidates: Array = _runtime.get_set_piece_taker_candidates()
+	if candidates.is_empty():
 		_runtime.close_set_piece_taker_menu()
-		return
-	taker_menu_index = 0
-	for i in taker_menu_candidates.size():
-		if bool(taker_menu_candidates[i].get("current", false)):
-			taker_menu_index = i
-			break
-	taker_menu_open = true
-	taker_menu_layer.visible = true
-	_refresh_taker_menu()
+		return false
+	return taker_menu.open(candidates, owner_kind, owner_device)
 
 
-func handle_taker_menu_key(event: InputEventKey) -> void:
-	if not event.pressed:
-		return
-	match event.keycode:
-		KEY_UP:
-			_move_taker_menu(-1)
-		KEY_DOWN:
-			_move_taker_menu(1)
-		KEY_ENTER, KEY_KP_ENTER:
-			close_taker_menu(true)
-		KEY_ESCAPE:
-			close_taker_menu(false)
-		KEY_D, KEY_S, KEY_W, KEY_A, KEY_Q, KEY_E, KEY_C:
-			close_taker_menu(false)
+func handle_taker_menu_key(event: InputEventKey) -> bool:
+	if taker_menu == null:
+		return false
+	return taker_menu.handle_key(event)
+
+
+func handle_taker_menu_joy(event: InputEventJoypadButton) -> bool:
+	if taker_menu == null:
+		return false
+	return taker_menu.handle_joy(event)
+
+
+func handle_taker_menu_joy_motion(event: InputEventJoypadMotion) -> bool:
+	if taker_menu == null:
+		return false
+	return taker_menu.handle_joy_motion(event)
 
 
 func close_taker_menu(apply_choice: bool) -> void:
-	if not taker_menu_open:
+	if taker_menu != null:
+		taker_menu.close(apply_choice)
+
+
+func show_taker_menu_demo(candidates: Array, current_index: int = -1) -> void:
+	if taker_menu == null:
 		return
-	if apply_choice and taker_menu_index >= 0 and taker_menu_index < taker_menu_candidates.size():
-		var chosen := int(taker_menu_candidates[taker_menu_index].get("id", -1))
-		if chosen >= 0 and _runtime != null:
-			_runtime.request_set_piece_taker(chosen)
-	if _runtime != null:
-		_runtime.close_set_piece_taker_menu()
-	taker_menu_open = false
-	taker_menu_layer.visible = false
+	taker_menu.open(candidates, "keyboard", 0, current_index)
+
+
+func _owns_taker_menu(kind: String, device: int, snap: Dictionary = {}) -> bool:
+	if snap.is_empty():
+		if _runtime == null:
+			return false
+		snap = _runtime.get_snapshot()
+	var side := _taker_side(snap)
+	if side == "":
+		return false
+	for controller in ShellState.controllers:
+		if not (controller is Dictionary):
+			continue
+		if _controller_side(controller) != side:
+			continue
+		var controller_kind := str(controller.get("kind", "keyboard"))
+		if controller_kind != kind:
+			continue
+		if kind == "gamepad" and int(controller.get("device", -1)) != device:
+			continue
+		return true
+	return false
+
+
+# The taking side, resolved from the human in the taker's team (snapshot
+# set_piece_hud_player) or the actual taker, never from "the first human".
+func _taker_side(snap: Dictionary) -> String:
+	var players: Array = []
+	if _runtime != null and _runtime.has_method("get_player_ids"):
+		players = _runtime.get_player_ids()
+	for key in ["set_piece_hud_player", "referee_taker"]:
+		var player_id := int(snap.get(key, -1))
+		if player_id < 0:
+			continue
+		for entry in players:
+			if int(entry.get("id", -1)) == player_id:
+				var team := int(entry.get("team", -1))
+				if team == 0:
+					return "home"
+				if team == 1:
+					return "away"
+	var team := int(snap.get("referee_team", -1))
+	if team == 0:
+		return "home"
+	if team == 1:
+		return "away"
+	return ""
+
+
+func _controller_side(controller: Dictionary) -> String:
+	return "away" if str(controller.get("side", "home")) == "away" else "home"
 
 
 func is_phase_menu_open() -> bool:
@@ -221,13 +293,37 @@ func continue_phase_break() -> void:
 
 
 func _sync_taker_ui(snap: Dictionary) -> void:
-	if taker_menu_open and not bool(snap.get("set_piece_taker_menu_open", false)):
-		close_taker_menu(false)
+	if taker_menu != null and taker_menu.is_open():
+		# Auto-close on the strike / end of the set piece / losing the human
+		# taker, exactly like SetPieceTakerPage::Process(). If the bridge still
+		# reports the overlay open, close it there too.
+		var still_taker := bool(snap.get("set_piece_taker_menu_open", false)) \
+			and bool(snap.get("in_set_piece", false)) \
+			and bool(snap.get("set_piece_local_taker", false))
+		if not still_taker:
+			taker_menu.close(false, bool(snap.get("set_piece_taker_menu_open", false)))
+	var hint_visible := bool(snap.get("set_piece_local_taker", false)) \
+		and (taker_menu == null or not taker_menu.is_open()) and not phase_menu_open \
+		and not bool(snap.get("shootout_active", false)) \
+		and bool(snap.get("in_set_piece", false))
 	if taker_hint != null:
-		taker_hint.visible = bool(snap.get("set_piece_local_taker", false)) \
-			and not taker_menu_open and not phase_menu_open \
-			and not bool(snap.get("shootout_active", false)) \
-			and bool(snap.get("in_set_piece", false))
+		taker_hint.visible = hint_visible
+		if hint_visible:
+			var hud_player := int(snap.get("set_piece_hud_player", -1))
+			if hud_player != _hint_player_id:
+				_hint_player_id = hud_player
+				taker_hint.text = "Select: change taker" \
+					if _taker_owner_kind(snap) == "gamepad" else "Tab: change taker"
+		else:
+			_hint_player_id = -2
+
+
+func _taker_owner_kind(snap: Dictionary) -> String:
+	var side := _taker_side(snap)
+	for controller in ShellState.controllers:
+		if controller is Dictionary and _controller_side(controller) == side:
+			return str(controller.get("kind", "keyboard"))
+	return "keyboard"
 
 
 func _sync_substitution_notice(snap: Dictionary) -> void:
@@ -274,7 +370,7 @@ func _sync_phase_menu(snap: Dictionary) -> void:
 
 
 func _open_phase_menu(snap: Dictionary) -> void:
-	if taker_menu_open:
+	if is_taker_menu_open():
 		close_taker_menu(false)
 	phase_menu_open = true
 	phase_menu_layer.visible = true
@@ -424,26 +520,6 @@ func _set_piece_name(piece: int) -> String:
 	return ""
 
 
-func _move_taker_menu(delta: int) -> void:
-	var count := taker_menu_candidates.size()
-	if count == 0:
-		return
-	taker_menu_index = (taker_menu_index + delta + count) % count
-	_refresh_taker_menu()
-
-
-func _refresh_taker_menu() -> void:
-	var lines := PackedStringArray()
-	for i in taker_menu_candidates.size():
-		var entry: Dictionary = taker_menu_candidates[i]
-		var prefix := "> " if i == taker_menu_index else "  "
-		var name := String(entry.get("name", ""))
-		var suffix := "  (GK)" if String(entry.get("role", "")) == "goalkeeper" else ""
-		var current := "  *" if bool(entry.get("current", false)) else ""
-		lines.append("%s%s%s%s" % [prefix, name, suffix, current])
-	taker_menu_label.text = "\n".join(lines)
-
-
 func _build_hud() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "HudOverlay"
@@ -497,61 +573,16 @@ func _build_hud() -> void:
 
 
 func _build_taker_menu() -> void:
-	taker_menu_layer = CanvasLayer.new()
-	taker_menu_layer.layer = 2
-	add_child(taker_menu_layer)
-
-	var backdrop := ColorRect.new()
-	backdrop.color = Color(0, 0, 0, 0.55)
-	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
-	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	taker_menu_layer.add_child(backdrop)
-
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	taker_menu_layer.add_child(center)
-
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(440, 0)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.06, 0.10, 0.96)
-	style.set_corner_radius_all(8)
-	style.set_border_width_all(2)
-	style.border_color = Color(1.0, 0.85, 0.25, 0.9)
-	panel.add_theme_stylebox_override("panel", style)
-	center.add_child(panel)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	panel.add_child(margin)
-
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 8)
-	margin.add_child(box)
-
-	var title := Label.new()
-	title.text = "SET-PIECE TAKER"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 24)
-	title.add_theme_color_override("font_color", Color(1.0, 0.86, 0.2))
-	box.add_child(title)
-
-	taker_menu_label = Label.new()
-	taker_menu_label.add_theme_font_size_override("font_size", 20)
-	taker_menu_label.add_theme_color_override("font_color", Color(0.96, 0.96, 0.96))
-	box.add_child(taker_menu_label)
-
-	var hint := Label.new()
-	hint.text = "Up/Down select    Enter apply    Esc/Tab close"
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 14)
-	hint.add_theme_color_override("font_color", Color(0.75, 0.78, 0.85))
-	box.add_child(hint)
-
-	taker_menu_layer.visible = false
+	# SetPieceTakerPage draws over the pitch without a blackout (only the main
+	# menu blacks out), so this overlay is transparent except for its buttons.
+	var layer := CanvasLayer.new()
+	layer.name = "TakerMenu"
+	layer.layer = 2
+	add_child(layer)
+	taker_menu = GpfSetPieceTakerMenu.new()
+	taker_menu.name = "SetPieceTakerMenu"
+	layer.add_child(taker_menu)
+	taker_menu.setup(_runtime)
 
 
 func _build_phase_menu() -> void:

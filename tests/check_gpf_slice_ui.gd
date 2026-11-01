@@ -212,28 +212,47 @@ func _run() -> void:
 			break
 	_check(bool(snap.get("set_piece_local_taker", false)), "free kick has a local taker")
 	var hint := hud.get("taker_hint") as Label
-	_check(hint != null and hint.visible, "Tab hint is visible for the local taker")
+	_check(hint != null and hint.visible and hint.text == "Tab: change taker",
+		"Tab hint is visible for the keyboard taker")
 	scene.call("_input", _key(KEY_TAB))
 	await process_frame
-	_check(bool(hud.get("taker_menu_open")), "Tab opens the taker menu")
+	_check(hud.is_taker_menu_open(), "Tab opens the taker menu")
 	_check(bool(runtime.is_set_piece_taker_menu_open()), "bridge menu is open")
-	var menu_label := hud.get("taker_menu_label") as Label
-	_check(menu_label != null and "SET-PIECE" not in menu_label.text, "menu lists players")
+	var taker_menu: GpfSetPieceTakerMenu = hud.get("taker_menu")
+	var title := taker_menu.get("title_label") as Label
+	var taker_hint := taker_menu.get("hint_label") as Label
+	var texts := taker_menu.button_texts()
+	_check(title != null and title.text == "set-piece taker", "menu title matches the original")
+	_check(taker_hint != null and taker_hint.text == "enter: apply   escape: close",
+		"menu hint matches the original")
+	_check(texts.size() == 11, "menu lists every active player")
+	var keeper_marked := false
+	var marked := 0
+	for text in texts:
+		keeper_marked = keeper_marked or "(GK)" in text
+		if text.ends_with("*"):
+			marked += 1
+	_check(keeper_marked, "keeper is marked (GK)")
+	_check(marked == 1, "exactly the current taker is marked *")
+	_check(hud.accepts_taker_menu_keyboard(), "the taker's keyboard owns the menu")
 	scene.call("_input", _key(KEY_ESCAPE))
 	await process_frame
-	_check(not bool(hud.get("taker_menu_open")), "Escape closes the taker menu")
+	_check(not hud.is_taker_menu_open(), "Escape closes the taker menu")
 	_check(not bool(runtime.is_set_piece_taker_menu_open()), "bridge menu is closed")
 	runtime.step_fixed(2)
 	await process_frame
 	var before_taker := int(runtime.get_snapshot().get("referee_taker", -1))
+	var before_human_team := int(runtime.get_human_team_id())
 	scene.call("_input", _key(KEY_TAB))
 	scene.call("_input", _key(KEY_DOWN))
 	scene.call("_input", _key(KEY_ENTER))
 	await process_frame
 	runtime.step_fixed(3)
 	var after: Dictionary = runtime.get_snapshot()
-	_check(not bool(hud.get("taker_menu_open")), "Enter closes the taker menu")
+	_check(not hud.is_taker_menu_open(), "Enter closes the taker menu")
 	_check(int(after.get("referee_taker", -1)) != before_taker, "Enter applies another taker")
+	_check(int(runtime.get_human_team_id()) == before_human_team,
+		"control stays with the player who opened the menu")
 
 	runtime.start_open_play(outfield)
 	await process_frame

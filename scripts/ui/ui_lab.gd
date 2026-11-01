@@ -188,7 +188,34 @@ func _build_states() -> Array:
 		"substitution_notice_counter": 1,
 		"substitution_notices": ["RIVERA off, KOVAL on"],
 	}))
+
+	var taker := _base_state("SET-PIECE TAKER")
+	states.append(_with(taker, {
+		"score0": 2, "score1": 1, "match_time_ms": 2730000,
+		"in_set_piece": true, "referee_set_piece": 3, "set_piece_type": 3,
+		"set_piece_role": 1, "set_piece_local_taker": true,
+		"set_piece_human_taker": true, "set_piece_hud_player": 105,
+		"referee_taker": 105, "referee_team": 0,
+		"set_piece_taker_menu_available": true, "set_piece_taker_menu_open": true,
+	}))
 	return states
+
+
+func _demo_taker_candidates() -> Array:
+	var captions := [
+		"KRAMER", "VELASCO", "BRANDT", "DUARTE", "OKAFOR", "SORENSEN",
+		"ALMEIDA", "MARCHETTI", "IWU", "KOVAL", "RIVERA",
+	]
+	var entries: Array = []
+	for index in captions.size():
+		entries.append({
+			"id": 100 + index,
+			"team": 0,
+			"name": captions[index],
+			"role": "goalkeeper" if index == 0 else "player",
+			"current": index == 4,
+		})
+	return entries
 
 
 func _demo_team(name: String, color: Color, pending: bool = false) -> Dictionary:
@@ -249,9 +276,11 @@ func set_state(index: int) -> void:
 	hud.reset()
 	shootout.reset()
 	var snap: Dictionary = _current["snap"]
+	var state_name := String(_current.get("name", ""))
+	if state_name == "SET-PIECE TAKER":
+		hud.show_taker_menu_demo(_demo_taker_candidates(), 4)
 	hud.apply_snapshot(snap, int(snap.get("display_player", -1)))
 	shootout.update(snap, 0.0)
-	var state_name := String(_current.get("name", ""))
 	if state_name == "PAUSE":
 		pause_menu.open()
 	elif state_name == "GAME PLAN":
