@@ -40,6 +40,14 @@ func _build_ui() -> void:
 	if not select_btn.pressed.is_connected(_on_select_teams):
 		select_btn.pressed.connect(_on_select_teams)
 
+	var network_btn := Button.new()
+	network_btn.name = "NetworkBtn"
+	network_btn.text = "Network"
+	add_child(network_btn)
+	menu_buttons.append(network_btn)
+	if not network_btn.pressed.is_connected(_on_network):
+		network_btn.pressed.connect(_on_network)
+
 	var classic_btn := Button.new()
 	classic_btn.name = "ClassicMatchBtn"
 	classic_btn.text = "Classic Match (legacy)"
@@ -111,6 +119,16 @@ func _on_select_teams() -> void:
 	var packed := load("res://scenes/team_select.tscn")
 	if not packed:
 		push_error("Failed to load team_select.tscn")
+		return
+	var err := get_tree().change_scene_to_packed(packed)
+	if err != OK:
+		push_error("change_scene_to_packed failed: " + str(err))
+
+
+func _on_network() -> void:
+	var packed := load("res://scenes/network_menu.tscn")
+	if not packed:
+		push_error("Failed to load network_menu.tscn")
 		return
 	var err := get_tree().change_scene_to_packed(packed)
 	if err != OK:

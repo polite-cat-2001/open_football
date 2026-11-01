@@ -288,6 +288,11 @@ func continue_phase_break() -> void:
 	if not phase_menu_open or phase_menu_game_over:
 		return
 	if _runtime != null:
+		if bool(_runtime.is_net_active()):
+			# Every peer votes; the host unpauses once all are ready.
+			_runtime.net_action("set_resume_ready", 0, 1, 0)
+			phase_menu_hint.text = "waiting for all players..."
+			return
 		_runtime.continue_after_phase_break()
 	_close_phase_menu()
 
@@ -385,6 +390,10 @@ func _refresh_phase_menu(snap: Dictionary) -> void:
 	phase_menu_game_over = bool(snap.get("game_over", false))
 	var game_over := phase_menu_game_over
 	var next_phase := int(snap.get("phase_break_next_phase", 0))
+	if next_phase <= 0:
+		# Thin LAN client: the host's phase-change latch never runs here, so the
+		# snapshot's match phase is the next period.
+		next_phase = int(snap.get("match_phase", 0))
 	if game_over:
 		var after_extra := int(snap.get("match_time_ms", 0)) >= 7200000 \
 			or int(snap.get("match_phase", 0)) == 5

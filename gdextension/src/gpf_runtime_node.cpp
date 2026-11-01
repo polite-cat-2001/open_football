@@ -12,6 +12,10 @@
 #include "menu/menutask.hpp"
 #include "menu/pagefactory.hpp"
 #include "menu/tacticschemes.hpp"
+#include "net/netbuffer.hpp"
+#include "net/netclient.hpp"
+#include "net/netmessages.hpp"
+#include "net/netserver.hpp"
 #include "data/matchdata.hpp"
 #include "onthepitch/match.hpp"
 #include "onthepitch/player/player.hpp"
@@ -80,6 +84,37 @@ Variant value_or(const Dictionary &source, const char *key, const Variant &fallb
 std::string to_std_string(const Variant &value) {
     const String text = value;
     return std::string(text.utf8().get_data());
+}
+
+// Godot lobby screens can name the action (faithful to e_NetLobbyAction_*) or
+// pass the raw enum value; tests use both.
+int lobby_action_from_variant(const Variant &value) {
+    if (value.get_type() == Variant::INT) {
+        return (int)value;
+    }
+    if (value.get_type() != Variant::STRING) {
+        return -1;
+    }
+    const String name = String(value).to_lower().replace("_", "");
+    if (name == "setside") return e_NetLobbyAction_SetSide;
+    if (name == "setready") return e_NetLobbyAction_SetReady;
+    if (name == "movecursor") return e_NetLobbyAction_MoveCursor;
+    if (name == "committeam") return e_NetLobbyAction_CommitTeam;
+    if (name == "setselection") return e_NetLobbyAction_SetSelection;
+    if (name == "setteamready") return e_NetLobbyAction_SetTeamReady;
+    if (name == "setdevice") return e_NetLobbyAction_SetDevice;
+    if (name == "devicelost") return e_NetLobbyAction_DeviceLost;
+    if (name == "requestsideselect") return e_NetLobbyAction_RequestSideSelect;
+    if (name == "setresumeready") return e_NetLobbyAction_SetResumeReady;
+    if (name == "setmatchoptions") return e_NetLobbyAction_SetMatchOptions;
+    if (name == "backtoteams") return e_NetLobbyAction_BackToTeams;
+    if (name == "requestsubstitution") return e_NetLobbyAction_RequestSubstitution;
+    if (name == "cancelsubstitution") return e_NetLobbyAction_CancelSubstitution;
+    if (name == "planswap") return e_NetLobbyAction_PlanSwap;
+    if (name == "hubvote") return e_NetLobbyAction_HubVote;
+    if (name == "planscheme") return e_NetLobbyAction_PlanScheme;
+    if (name == "planrole") return e_NetLobbyAction_PlanRole;
+    return -1;
 }
 
 blunted::Vector3 to_blunted(const godot::Vector3 &value) {
@@ -203,6 +238,8 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_seed"), &GpfRuntimeNode::get_seed);
     ClassDB::bind_method(D_METHOD("set_manual_step", "value"), &GpfRuntimeNode::set_manual_step);
     ClassDB::bind_method(D_METHOD("get_manual_step"), &GpfRuntimeNode::get_manual_step);
+    ClassDB::bind_method(D_METHOD("set_auto_start_match", "value"), &GpfRuntimeNode::set_auto_start_match);
+    ClassDB::bind_method(D_METHOD("get_auto_start_match"), &GpfRuntimeNode::get_auto_start_match);
     ClassDB::bind_method(D_METHOD("set_human_control", "value"), &GpfRuntimeNode::set_human_control);
     ClassDB::bind_method(D_METHOD("get_human_control"), &GpfRuntimeNode::get_human_control);
     ClassDB::bind_method(D_METHOD("set_match_duration", "value"), &GpfRuntimeNode::set_match_duration);
@@ -215,6 +252,17 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("restart_match"), &GpfRuntimeNode::restart_match);
     ClassDB::bind_method(D_METHOD("set_match_package", "package"), &GpfRuntimeNode::set_match_package);
     ClassDB::bind_method(D_METHOD("has_match_package"), &GpfRuntimeNode::has_match_package);
+    ClassDB::bind_method(D_METHOD("net_host", "port", "name"), &GpfRuntimeNode::net_host);
+    ClassDB::bind_method(D_METHOD("net_join", "address", "port", "name"), &GpfRuntimeNode::net_join);
+    ClassDB::bind_method(D_METHOD("net_leave"), &GpfRuntimeNode::net_leave);
+    ClassDB::bind_method(D_METHOD("net_lobby"), &GpfRuntimeNode::net_lobby);
+    ClassDB::bind_method(D_METHOD("net_action", "action_type", "side", "value", "value2"),
+                         &GpfRuntimeNode::net_action);
+    ClassDB::bind_method(D_METHOD("net_start"), &GpfRuntimeNode::net_start);
+    ClassDB::bind_method(D_METHOD("net_take_match_setup"), &GpfRuntimeNode::net_take_match_setup);
+    ClassDB::bind_method(D_METHOD("is_net_active"), &GpfRuntimeNode::is_net_active);
+    ClassDB::bind_method(D_METHOD("is_net_host"), &GpfRuntimeNode::is_net_host);
+    ClassDB::bind_method(D_METHOD("is_net_client"), &GpfRuntimeNode::is_net_client);
     ClassDB::bind_method(D_METHOD("debug_get_scene_object_count"), &GpfRuntimeNode::debug_get_scene_object_count);
     ClassDB::bind_method(D_METHOD("debug_human_device"), &GpfRuntimeNode::debug_human_device);
     ClassDB::bind_method(D_METHOD("debug_human_state"), &GpfRuntimeNode::debug_human_state);
@@ -234,6 +282,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("toggle_debug_park_opponents"), &GpfRuntimeNode::toggle_debug_park_opponents);
     ClassDB::bind_method(D_METHOD("begin_phase_break"), &GpfRuntimeNode::begin_phase_break);
     ClassDB::bind_method(D_METHOD("continue_after_phase_break"), &GpfRuntimeNode::continue_after_phase_break);
+    ClassDB::bind_method(D_METHOD("clear_phase_break_pending"), &GpfRuntimeNode::clear_phase_break_pending);
     ClassDB::bind_method(D_METHOD("set_replay_active", "active"), &GpfRuntimeNode::set_replay_active);
     ClassDB::bind_method(D_METHOD("pause_match"), &GpfRuntimeNode::pause_match);
     ClassDB::bind_method(D_METHOD("resume_match"), &GpfRuntimeNode::resume_match);
@@ -274,6 +323,7 @@ void GpfRuntimeNode::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "data_root"), "set_data_root", "get_data_root");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "seed"), "set_seed", "get_seed");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "manual_step"), "set_manual_step", "get_manual_step");
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "auto_start_match"), "set_auto_start_match", "get_auto_start_match");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "human_control"), "set_human_control", "get_human_control");
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "match_duration"), "set_match_duration", "get_match_duration");
 }
@@ -288,7 +338,8 @@ void GpfRuntimeNode::_process(double delta) {
     if (!runtime_ready || manual_step || game_over_seen || !match) {
         return;
     }
-    if (match->GetPause()) {
+    const bool network_match = is_net_active();
+    if (match->GetPause() && !network_match) {
         accumulator_ms = 0.0;
         return;
     }
@@ -306,6 +357,10 @@ void GpfRuntimeNode::_process(double delta) {
 
     if (match->GetPause()) {
         accumulator_ms = 0.0;
+        // Keep the paused network frame rendered while the session ticks.
+        if (network_match) {
+            put_frame(sim_time_ms);
+        }
         return;
     }
 
@@ -338,6 +393,14 @@ bool GpfRuntimeNode::get_manual_step() const {
     return manual_step;
 }
 
+void GpfRuntimeNode::set_auto_start_match(bool value) {
+    auto_start_match = value;
+}
+
+bool GpfRuntimeNode::get_auto_start_match() const {
+    return auto_start_match;
+}
+
 void GpfRuntimeNode::set_human_control(bool value) {
     human_control = value;
 }
@@ -352,6 +415,308 @@ void GpfRuntimeNode::set_match_duration(float value) {
 
 bool GpfRuntimeNode::has_match_package() const {
     return match_package_ready;
+}
+
+bool GpfRuntimeNode::is_net_active() const {
+    return net_server != nullptr || net_client != nullptr;
+}
+
+bool GpfRuntimeNode::is_net_host() const {
+    return net_server != nullptr;
+}
+
+bool GpfRuntimeNode::is_net_client() const {
+    return net_client != nullptr;
+}
+
+bool GpfRuntimeNode::net_host(int port, const String &name) {
+    if (!runtime_ready || !menuTask) {
+        last_error = "net_host called before the runtime started";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (is_net_active()) {
+        last_error = "a network session is already active";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (port <= 0 || port > 65535) {
+        last_error = "invalid port";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+
+    boost::shared_ptr<NetServer> server(new NetServer((uint16_t)port));
+    if (!server->Start()) {
+        last_error = "could not bind port " + String::num_int64(port);
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    const String host_name = name.is_empty() ? String("Host") : name;
+    server->SetHostName(to_std_string(host_name));
+
+    net_server = server;
+    net_client.reset();
+    menuTask->SetNetClient(boost::shared_ptr<NetClient>());
+    menuTask->SetNetServer(server);
+    last_error = "";
+    return true;
+}
+
+bool GpfRuntimeNode::net_join(const String &address, int port, const String &name) {
+    if (!runtime_ready || !menuTask) {
+        last_error = "net_join called before the runtime started";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (is_net_active()) {
+        last_error = "a network session is already active";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (address.is_empty()) {
+        last_error = "invalid address";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (port <= 0 || port > 65535) {
+        last_error = "invalid port";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+
+    boost::shared_ptr<NetClient> client(new NetClient());
+    client->SetPlayerName(to_std_string(name.is_empty() ? String("Player") : name));
+    if (!client->Connect(NetAddress(to_std_string(address), (uint16_t)port))) {
+        last_error = "could not start the network client";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+
+    net_client = client;
+    net_server.reset();
+    menuTask->SetNetServer(boost::shared_ptr<NetServer>());
+    menuTask->SetNetClient(client);
+    last_error = "";
+    return true;
+}
+
+bool GpfRuntimeNode::net_leave() {
+    const bool was_active = is_net_active();
+    if (match) {
+        stop_match();
+    }
+    if (net_server) {
+        net_server->Stop();
+        net_server.reset();
+    }
+    if (net_client) {
+        net_client->Disconnect();
+        net_client.reset();
+    }
+    if (menuTask) {
+        menuTask->SetNetServer(boost::shared_ptr<NetServer>());
+        menuTask->SetNetClient(boost::shared_ptr<NetClient>());
+    }
+    last_error = "";
+    return was_active;
+}
+
+Dictionary GpfRuntimeNode::net_lobby() const {
+    Dictionary result;
+    const bool host = net_server != nullptr;
+    const bool client = net_client != nullptr;
+    result["active"] = host || client;
+    result["is_host"] = host;
+    result["is_client"] = client;
+    result["local_id"] = host ? 0 : (client ? (int)net_client->GetPlayerId() : -1);
+
+    int connection = (int)e_NetConnectionState_Disconnected;
+    if (host) {
+        connection = net_server->IsRunning() ? (int)e_NetConnectionState_Connected
+                                             : (int)e_NetConnectionState_Disconnected;
+    } else if (client) {
+        connection = (int)net_client->GetState();
+    }
+    result["connection"] = connection;
+
+    int rtt_ms = -1;
+    if (host) {
+        rtt_ms = net_server->GetMaxClientRtt_ms();
+    } else if (client) {
+        rtt_ms = net_client->GetRtt_ms();
+    }
+    result["rtt_ms"] = rtt_ms;
+
+    bool accepted = false;
+    int reject_reason = (int)e_NetReject_None;
+    String reject_text;
+    if (host) {
+        accepted = net_server->IsRunning();
+    } else if (client) {
+        const NetServerHello hello = net_client->GetServerHello();
+        accepted = hello.accepted;
+        reject_reason = (int)hello.reason;
+        reject_text = String::utf8(hello.reasonText.c_str());
+    }
+    result["accepted"] = accepted;
+    result["reject_reason"] = reject_reason;
+    result["reject_text"] = reject_text;
+
+    NetLobbyState state;
+    if (host) {
+        state = net_server->GetLobbyState();
+    } else if (client) {
+        state = net_client->GetLobbyState();
+    }
+
+    Dictionary lobby;
+    lobby["revision"] = (int)state.revision;
+    lobby["phase"] = state.phase;
+    lobby["side_select"] = state.sideSelect;
+    lobby["hub_vote"] = state.hubVote;
+
+    Array players;
+    for (size_t i = 0; i < state.players.size(); ++i) {
+        const NetLobbyPlayer &player = state.players[i];
+        Dictionary entry;
+        entry["id"] = (int)player.id;
+        entry["name"] = String::utf8(player.name.c_str());
+        entry["side"] = player.side;
+        entry["ready"] = player.ready;
+        entry["is_host"] = player.isHost;
+        entry["ping_ms"] = player.ping_ms;
+        entry["device"] = player.device;
+        entry["resume_ready"] = player.resumeReady;
+        entry["hub_vote"] = player.hubVote;
+        players.append(entry);
+    }
+    lobby["players"] = players;
+
+    Array team_ids;
+    Array country_ids;
+    Array league_ids;
+    Array team_ready;
+    Array chooser;
+    Array team_cursor;
+    Array list_scroll;
+    for (int side = 0; side < 2; ++side) {
+        team_ids.append(state.teamId[side]);
+        country_ids.append(state.countryId[side]);
+        league_ids.append(state.leagueId[side]);
+        team_ready.append(state.teamReady[side]);
+        chooser.append((int)state.chooser[side]);
+        team_cursor.append(state.teamCursor[side]);
+        list_scroll.append(state.listScroll[side]);
+    }
+    lobby["team_ids"] = team_ids;
+    lobby["country_ids"] = country_ids;
+    lobby["league_ids"] = league_ids;
+    lobby["team_ready"] = team_ready;
+    lobby["chooser"] = chooser;
+    lobby["team_cursor"] = team_cursor;
+    lobby["list_scroll"] = list_scroll;
+    lobby["match_difficulty"] = state.matchDifficulty;
+    lobby["match_duration"] = state.matchDuration;
+    result["lobby"] = lobby;
+    return result;
+}
+
+bool GpfRuntimeNode::net_action(const Variant &action_type, int side, int value, int value2) {
+    const int type = lobby_action_from_variant(action_type);
+    if (type < 0) {
+        last_error = "unknown lobby action";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+
+    NetLobbyAction action;
+    action.type = type;
+    action.side = side;
+    action.value = value;
+    action.value2 = value2;
+    // The server attributes the action to the sending connection; the host is
+    // always player 0.
+    action.playerId = 0;
+    if (net_server) {
+        net_server->ApplyLobbyAction(action);
+        return true;
+    }
+    if (net_client) {
+        net_client->SendLobbyAction(action);
+        return true;
+    }
+    last_error = "no network session";
+    return false;
+}
+
+bool GpfRuntimeNode::net_start() {
+    if (!runtime_ready || !menuTask || !gameTask) {
+        last_error = "net_start called before the runtime started";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (!net_server) {
+        last_error = "net_start is a host action";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (match) {
+        last_error = "a match is already running";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+
+    const NetLobbyState state = net_server->GetLobbyState();
+    if (state.teamId[0] <= 0 || state.teamId[1] <= 0) {
+        last_error = "the lobby has not chosen both teams";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (!match_package_ready ||
+        match_package[0].databaseID != state.teamId[0] ||
+        match_package[1].databaseID != state.teamId[1]) {
+        last_error = "the match package teams differ from the lobby";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+
+    // The kickoff options are host-authoritative (see NetLobbyState).
+    if (state.matchDuration > 0.0f) {
+        package_duration = state.matchDuration;
+    }
+    if (state.matchDifficulty > 0.0f) {
+        package_difficulty = state.matchDifficulty;
+    }
+
+    NetMatchSetup setup;
+    setup.teamId[0] = state.teamId[0];
+    setup.teamId[1] = state.teamId[1];
+    NetBuffer buffer;
+    WriteMatchSetup(buffer, setup);
+    net_server->BroadcastMessage(e_NetMessage_MatchSetup, buffer);
+
+    menuTask->SetTeamIDs(std::to_string(setup.teamId[0]), std::to_string(setup.teamId[1]));
+    if (!start_match()) {
+        return false;
+    }
+    return true;
+}
+
+Dictionary GpfRuntimeNode::net_take_match_setup() {
+    Dictionary result;
+    if (!net_client) {
+        return result;
+    }
+    NetMatchSetup setup;
+    if (!net_client->ConsumeMatchSetup(setup)) {
+        return result;
+    }
+    Array team_ids;
+    team_ids.append(setup.teamId[0]);
+    team_ids.append(setup.teamId[1]);
+    result["team_ids"] = team_ids;
+    return result;
 }
 
 bool GpfRuntimeNode::set_match_package(const Dictionary &package) {
@@ -498,6 +863,12 @@ bool GpfRuntimeNode::start_runtime() {
     menuTask->SetTeamIDs("3", "8");
     runtime_ready = true;
 
+    // The menu/LAN lobby only needs the original singletons (MenuTask, game
+    // task, input/audio) and creates the match later from the shell package.
+    if (!auto_start_match) {
+        UtilityFunctions::print("GpfRuntimeNode: runtime ready for the menu (no match)");
+        return true;
+    }
     if (!start_match()) {
         runtime_failed = true;
         runtime_ready = false;
@@ -565,6 +936,12 @@ bool GpfRuntimeNode::start_match() {
     // The match reads the queued fixture in its constructor, so set it last.
     // It is re-applied every tick too: the original menu pages clear this
     // fixture, and the shell owns the setup for the whole match.
+    // A network match must be born without local gamers: the host binds the
+    // lobby devices in NetMatchSession::StartMatch, while a thin client keeps
+    // none (the host is authoritative).
+    if (is_net_active()) {
+        menuTask->ClearControllerSetup();
+    }
     apply_controller_setup();
 
     blunted::randomize(seed);
@@ -656,6 +1033,12 @@ void GpfRuntimeNode::apply_controller_setup() {
     if (!runtime_ready || !menuTask) {
         return;
     }
+    // A network match binds controllers from the lobby (NetMatchSession); the
+    // shell's local device mapping would overwrite the host's DelayedHIDDevice
+    // and NetHIDDevice bindings on every tick.
+    if (is_net_active()) {
+        return;
+    }
     std::vector<SideSelection> sides;
     if (human_control) {
         if (shell_controllers.empty()) {
@@ -684,10 +1067,18 @@ void GpfRuntimeNode::apply_controller_setup() {
 }
 
 void GpfRuntimeNode::step_one_tick() {
-    if (!runtime_ready || !match || game_over_seen || match->GetPause()) {
+    if (!runtime_ready || !match || game_over_seen) {
         return;
     }
-    sim_time_ms += TICK_MS;
+    const bool network_match = is_net_active();
+    // A paused network match still needs its tick: pause/resume votes, roster
+    // changes and snapshots are processed by NetMatchSession inside GameTask.
+    if (!network_match && match->GetPause()) {
+        return;
+    }
+    if (!match->GetPause()) {
+        sim_time_ms += TICK_MS;
+    }
     match->SetPresentationClock(true, sim_time_ms, sim_time_ms);
     // The original menu task owns the queued fixture; pages clear it, so the
     // shell re-applies its own setup before every processed tick.
@@ -711,7 +1102,10 @@ void GpfRuntimeNode::step_one_tick() {
                                    last_match_phase == (int)e_MatchPhase_2ndHalf;
         const bool ended_extra = phase == e_MatchPhase_2ndExtraTime &&
                                  last_match_phase == (int)e_MatchPhase_1stExtraTime;
-        if (decisive && (ended_regular || ended_extra) && !match->IsShootoutActive()) {
+        // A thin client never decides the match: the host's snapshot carries the
+        // final state.
+        if (decisive && (ended_regular || ended_extra) && !match->IsShootoutActive() &&
+            !is_net_client()) {
             ended_in_regular_time = ended_regular;
             game_over_seen = true;
             match->Pause(true);
@@ -827,17 +1221,47 @@ Array GpfRuntimeNode::debug_human_state() const {
     return result;
 }
 
+bool GpfRuntimeNode::is_local_human_player(Player *player) const {
+    if (!match || !player) {
+        return false;
+    }
+    if (match->IsRemotePresentation()) {
+        return player->GetRemoteOwnerId() >= 0 &&
+               player->GetRemoteOwnerId() == match->GetLocalPeerId();
+    }
+    Team *team = player->GetTeam();
+    if (!team) {
+        return false;
+    }
+    // Local peer id is 0. Local 2P has both gamers owned by 0, so both teams'
+    // selected players show; a LAN host only shows its own 0-owned selected
+    // player and hides the client's NetHIDDevice-owned one.
+    const int owner = team->GetControllingPeerId(player->GetID());
+    return owner >= 0 && owner == match->GetLocalPeerId();
+}
+
+int GpfRuntimeNode::player_owner_id(Player *player, int team_id) const {
+    if (!match || !player) {
+        return -1;
+    }
+    if (match->IsRemotePresentation()) {
+        return player->GetRemoteOwnerId();
+    }
+    Team *team = match->GetTeam(team_id);
+    return team ? team->GetControllingPeerId(player->GetID()) : -1;
+}
+
 int GpfRuntimeNode::get_human_player_id() const {
     if (!runtime_ready || !match) {
         return -1;
     }
-    // The human can play either side: scan both rosters.
+    // The human can play either side: scan both rosters. A thin client has no
+    // local HumanGamer, so ownership comes from the host snapshot instead.
     for (int team_id = 0; team_id < 2; ++team_id) {
-        Team *team = match->GetTeam(team_id);
         std::vector<Player *> players;
         match->GetActiveTeamPlayers(team_id, players);
         for (size_t i = 0; i < players.size(); ++i) {
-            if (team->IsHumanControlled(players[i]->GetID())) {
+            if (is_local_human_player(players[i])) {
                 return players[i]->GetID();
             }
         }
@@ -853,12 +1277,12 @@ Array GpfRuntimeNode::get_human_player_ids() const {
         return result;
     }
     // Local 2P: every team may have one human-controlled player at a time.
+    // Thin client: every player the host marks as owned by this peer.
     for (int team_id = 0; team_id < 2; ++team_id) {
-        Team *team = match->GetTeam(team_id);
         std::vector<Player *> players;
         match->GetActiveTeamPlayers(team_id, players);
         for (size_t i = 0; i < players.size(); ++i) {
-            if (team->IsHumanControlled(players[i]->GetID())) {
+            if (is_local_human_player(players[i])) {
                 result.append(players[i]->GetID());
             }
         }
@@ -871,11 +1295,10 @@ int GpfRuntimeNode::get_human_team_id() const {
         return -1;
     }
     for (int team_id = 0; team_id < 2; ++team_id) {
-        Team *team = match->GetTeam(team_id);
         std::vector<Player *> players;
         match->GetActiveTeamPlayers(team_id, players);
         for (size_t i = 0; i < players.size(); ++i) {
-            if (team->IsHumanControlled(players[i]->GetID())) {
+            if (is_local_human_player(players[i])) {
                 return team_id;
             }
         }
@@ -1002,6 +1425,9 @@ Array GpfRuntimeNode::get_player_ids() const {
             entry["role"] = players[i] == match->GetTeam(team_id)->GetGoalie()
                 ? "goalkeeper" : "player";
             entry["name"] = String::utf8(players[i]->GetPlayerData()->GetLastName().c_str());
+            // Host: the HumanGamer owner. Client: the ownerId relayed by the
+            // host snapshot. -1 = AI.
+            entry["owner_id"] = player_owner_id(players[i], team_id);
             result.append(entry);
         }
     }
@@ -1081,6 +1507,8 @@ Dictionary GpfRuntimeNode::build_player(int player_id) const {
     result["id"] = actor->GetID();
     result["team"] = team_id;
     result["role"] = role;
+    result["owner_id"] = team_id >= 0
+        ? player_owner_id(static_cast<Player *>(actor), team_id) : -1;
     result["pos"] = to_godot(actor->GetGeomPosition());
     result["anim"] = String(actor->GetCurrentAnim()->anim->GetName().c_str());
     result["frame"] = actor->GetFrameNum();
@@ -1106,6 +1534,20 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     }
 
     result["tick"] = get_tick();
+    result["net_active"] = is_net_active();
+    result["net_is_host"] = net_server != nullptr;
+    result["net_is_client"] = net_client != nullptr;
+    result["net_phase_state"] = is_net_active() && gameTask
+        ? (int)gameTask->GetNetSession()->GetState() : (int)e_NetMatchPhaseState_Playing;
+    result["net_local_id"] = net_server ? 0 : (net_client ? (int)net_client->GetPlayerId() : -1);
+    int net_connection = (int)e_NetConnectionState_Disconnected;
+    if (net_server) {
+        net_connection = net_server->IsRunning() ? (int)e_NetConnectionState_Connected
+                                                 : (int)e_NetConnectionState_Disconnected;
+    } else if (net_client) {
+        net_connection = (int)net_client->GetState();
+    }
+    result["net_connection"] = net_connection;
     result["match_time_ms"] = (int)match->GetMatchTime_ms();
     result["in_play"] = match->IsInPlay();
     result["in_set_piece"] = match->IsInSetPiece();
@@ -1302,6 +1744,11 @@ void GpfRuntimeNode::continue_after_phase_break() {
     phase_break_next_phase = 0;
     match->SetPhaseBreak(false);
     match->Pause(false);
+}
+
+void GpfRuntimeNode::clear_phase_break_pending() {
+    phase_break_pending = false;
+    phase_break_next_phase = 0;
 }
 
 void GpfRuntimeNode::set_replay_active(bool active) {

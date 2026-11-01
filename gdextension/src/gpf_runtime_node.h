@@ -9,6 +9,8 @@
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/vector3.hpp>
 
+#include <boost/shared_ptr.hpp>
+
 #include <map>
 #include <vector>
 
@@ -16,6 +18,9 @@
 #include "onthepitch/net/netsim.hpp"
 
 class Match;
+class Player;
+class NetServer;
+class NetClient;
 
 namespace godot {
 
@@ -26,6 +31,9 @@ private:
     bool runtime_ready = false;
     bool runtime_failed = false;
     bool manual_step = false;
+    // Menu/LAN sessions start the runtime without a match: the lobby needs the
+    // original MenuTask/NetServer before a package exists.
+    bool auto_start_match = true;
     bool game_over_seen = false;
     bool ended_in_regular_time = false;
     bool phase_break_pending = false;
@@ -67,6 +75,13 @@ private:
     std::map<int, int> gamepad_virtual_ids; // Godot device id -> SDL virtual joystick id
 
     Match *match = nullptr;
+
+    // LAN session. The original MenuTask owns the pointers the C++ runtime
+    // checks; this node holds the same objects so the Godot shell can drive the
+    // lobby before and during a match.
+    boost::shared_ptr<NetServer> net_server;
+    boost::shared_ptr<NetClient> net_client;
+
     netsim::Net goal_nets[2];
     netsim::Params goal_net_params;
     blunted::Vector3 goal_net_prev_ball;
@@ -78,6 +93,10 @@ private:
     void put_frame(unsigned long put_time_ms);
     void update_goal_nets(unsigned long put_time_ms);
     Dictionary build_player(int player_id) const;
+    // Host: the team's HumanGamer selection. Thin client: the player the host
+    // snapshot marks as owned by this peer (remoteOwnerId).
+    bool is_local_human_player(Player *player) const;
+    int player_owner_id(Player *player, int team_id) const;
     void apply_controller_setup();
 
 protected:
@@ -96,6 +115,8 @@ public:
     int get_seed() const;
     void set_manual_step(bool value);
     bool get_manual_step() const;
+    void set_auto_start_match(bool value);
+    bool get_auto_start_match() const;
     void set_human_control(bool value);
     bool get_human_control() const;
     void set_match_duration(float value);
@@ -109,6 +130,23 @@ public:
     bool restart_match();
     bool set_match_package(const Dictionary &package);
     bool has_match_package() const;
+
+    // LAN session (ticket 18). Host/join start the original NetServer/NetClient
+    // and install them into MenuTask; the lobby itself is host-authoritative C++.
+    bool net_host(int port, const String &name);
+    bool net_join(const String &address, int port, const String &name);
+    bool net_leave();
+    Dictionary net_lobby() const;
+    // An e_NetLobbyAction type (int) or its name ("set_side", "set_ready", ...).
+    bool net_action(const Variant &action_type, int side, int value, int value2);
+    // Host only: broadcast the lobby's teams, then build and start the match.
+    bool net_start();
+    // Client only: consume the host's NetMatchSetup; {} when none is pending.
+    Dictionary net_take_match_setup();
+    bool is_net_active() const;
+    bool is_net_host() const;
+    bool is_net_client() const;
+
     int debug_get_scene_object_count() const;
     // Test hook: which device kind the human is actually bound to.
     String debug_human_device() const;
@@ -129,6 +167,9 @@ public:
     bool toggle_debug_park_opponents();
     bool begin_phase_break();
     void continue_after_phase_break();
+    // LAN break: the host and clients resume by vote; this only drops the
+    // bridge's local "break pending" latch once the paused snapshot is gone.
+    void clear_phase_break_pending();
     void set_replay_active(bool active);
     void pause_match();
     void resume_match();
