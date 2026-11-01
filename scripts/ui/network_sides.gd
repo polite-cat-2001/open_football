@@ -1,8 +1,11 @@
 extends Control
 # Godot port of SideSelectPage in network mode (src/menu/sideselect.cpp,
 # NetworkSideSelectBackend): mirrored player rows, sides and ready are the
-# host-authoritative lobby, not local devices. Pre-match only (the in-match
-# resume overlay belongs to the pause ticket).
+# host-authoritative lobby, not local devices. `resume_mode` is the in-match
+# overlay (the original page opened with isInGame/resumeOnClose): it never
+# leaves the session, only commits/cancels the side select and gets out.
+
+signal closed
 
 const NETWORK_MENU_SCENE := "res://scenes/network_menu.tscn"
 const LOBBY_SCENE := "res://scenes/network_lobby.tscn"
@@ -15,6 +18,11 @@ const GAMEPAD_ICON := preload("res://assets/ui/controller/controller_small.png")
 const READY_MARK := preload("res://scripts/ui/ready_mark.gd")
 
 const ROW_REPEAT_MS := 250
+const RESUME_STATUS_SECONDS := 5.0
+
+# Set by the in-match caller before the node enters the tree: the overlay is a
+# mirrored resume page over the frozen match, not a lobby screen.
+var resume_mode := false
 
 var participants: Array = []
 var row_icons: Array[TextureRect] = []
@@ -34,6 +42,12 @@ var _help_device := -1
 var _gamepad_repeat := {}
 var _leaving := false
 var _entering_match := false
+var _saw_side_select := false
+var _committed := false
+var _cancel_requested := false
+var _closing := false
+var _status_text := ""
+var _status_until_ms := 0
 
 
 func _ready() -> void:
@@ -46,7 +60,9 @@ func _ready() -> void:
 
 func _build_ui() -> void:
 	var background := ColorRect.new()
-	background.color = Color(0.02, 0.03, 0.02)
+	# The resume overlay keeps the frozen match visible underneath.
+	background.color = (Color(0.02, 0.03, 0.02, 0.60) if resume_mode
+		else Color(0.02, 0.03, 0.02))
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -161,7 +177,10 @@ func _rebuild_rows() -> void:
 
 
 func _poll_lobby() -> void:
-	if _leaving or _entering_match:
+	if _leaving or _entering_match or _closing:
+		return
+	if resume_mode:
+		_poll_resume()
 		return
 	var info := NET_SHELL.lobby(get_tree())
 	if info.is_empty() or not bool(info.get("active", false)):
@@ -172,6 +191,53 @@ func _poll_lobby() -> void:
 		return
 
 	var lobby: Dictionary = info.get("lobby", {})
+	_refresh_players(info, lobby)
+
+	if int(lobby.get("phase", -1)) == 1:
+		get_tree().change_scene_to_file(LOBBY_SCENE)
+		return
+
+	if bool(info.get("is_client", false)):
+		var runtime := NET_SHELL.active_runtime(get_tree())
+		if runtime != null:
+			var setup: Dictionary = runtime.net_take_match_setup()
+			if not setup.is_empty():
+				_enter_match(setup, lobby)
+
+
+# The in-match page: NetworkSideSelectBackend::Process/PollClosed. The host
+# commits once every peer (spectators included) is ready; a client waits for
+# the mirrored flag to clear. Leaving the connection is not an option here.
+func _poll_resume() -> void:
+	var info := NET_SHELL.lobby(get_tree())
+	if info.is_empty() or not bool(info.get("active", false)):
+		_close_resume()
+		return
+	if bool(info.get("is_client", false)) and int(info.get("connection", 0)) == 0:
+		_close_resume()
+		return
+
+	var lobby: Dictionary = info.get("lobby", {})
+	_refresh_players(info, lobby)
+	var side_select := bool(lobby.get("side_select", false))
+	if side_select:
+		_saw_side_select = true
+	if _saw_side_select and not side_select:
+		_close_resume()
+		return
+	if not side_select:
+		return
+
+	if not _committed and not _cancel_requested and bool(info.get("is_host", false)) \
+			and _all_ready():
+		_committed = true
+		_set_status("starting...", 0.0)
+		var runtime := NET_SHELL.active_runtime(get_tree())
+		if runtime != null:
+			runtime.net_side_select_commit()
+
+
+func _refresh_players(info: Dictionary, lobby: Dictionary) -> void:
 	var players: Array = lobby.get("players", [])
 	var ids: Array = []
 	var new_participants: Array = []
@@ -189,9 +255,12 @@ func _poll_lobby() -> void:
 		})
 	participants = new_participants
 
+	var previous_ids := _player_ids
 	if ids != _player_ids:
 		_player_ids = ids
 		_rebuild_rows()
+		if resume_mode and not previous_ids.is_empty():
+			_note_roster_change(previous_ids, ids)
 	else:
 		_position_rows()
 
@@ -200,20 +269,73 @@ func _poll_lobby() -> void:
 			var device := int(participant.get("device", 0))
 			if device != _help_device:
 				_help_device = device
-				help_label.text = ("Left/Right: side    A: ready    B: leave" if device == 1
-					else "Left/Right: side    Enter: ready    Esc: leave")
+				var back_caption := "back" if resume_mode else "leave"
+				help_label.text = ("Left/Right: side    A: ready    B: " + back_caption
+					if device == 1
+					else "Left/Right: side    Enter: ready    Esc: " + back_caption)
 			break
 
-	if int(lobby.get("phase", -1)) == 1:
-		get_tree().change_scene_to_file(LOBBY_SCENE)
-		return
 
-	if bool(info.get("is_client", false)):
-		var runtime := NET_SHELL.active_runtime(get_tree())
-		if runtime != null:
-			var setup: Dictionary = runtime.net_take_match_setup()
-			if not setup.is_empty():
-				_enter_match(setup, lobby)
+func _note_roster_change(previous_ids: Array, ids: Array) -> void:
+	for id in previous_ids:
+		if not ids.has(id):
+			_set_status("Player disconnected", RESUME_STATUS_SECONDS)
+			return
+	for id in ids:
+		if not previous_ids.has(id):
+			_set_status("Player joined", RESUME_STATUS_SECONDS)
+			return
+
+
+func _all_ready() -> bool:
+	# NetworkSideSelectBackend::AllReady: every player row, spectators too.
+	if participants.is_empty():
+		return false
+	for participant in participants:
+		if not bool(participant.get("ready", false)):
+			return false
+	return true
+
+
+func set_status(text: String, seconds: float = RESUME_STATUS_SECONDS) -> void:
+	_set_status(text, seconds)
+
+
+func _set_status(text: String, seconds: float) -> void:
+	_status_text = text
+	_status_until_ms = (Time.get_ticks_msec() + int(seconds * 1000.0)) if seconds > 0.0 else 0
+	if status_label != null:
+		status_label.text = text
+
+
+func _refresh_status() -> void:
+	if _status_text.is_empty():
+		return
+	if _status_until_ms != 0 and Time.get_ticks_msec() < _status_until_ms:
+		return
+	_status_text = ""
+	if status_label != null:
+		status_label.text = ""
+
+
+func _cancel_resume() -> void:
+	# NetworkSideSelectBackend::Cancel: the host applies the sides and stays
+	# paused; a client asks the host and waits for the mirrored flag to clear
+	# (the page stays up until then, like the original).
+	if _closing or _cancel_requested:
+		return
+	_cancel_requested = true
+	_set_status("leaving side selection...", 0.0)
+	var runtime := NET_SHELL.active_runtime(get_tree())
+	if runtime != null:
+		runtime.net_side_select_cancel()
+
+
+func _close_resume() -> void:
+	if _closing:
+		return
+	_closing = true
+	closed.emit()
 
 
 func _enter_match(setup: Dictionary, lobby: Dictionary) -> void:
@@ -232,6 +354,8 @@ func _enter_match(setup: Dictionary, lobby: Dictionary) -> void:
 
 
 func _process(_delta: float) -> void:
+	if resume_mode:
+		_refresh_status()
 	_poll_lobby()
 
 
@@ -279,7 +403,15 @@ func _leave() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if _leaving or _entering_match:
+	if _leaving or _entering_match or _closing:
+		return
+	if resume_mode:
+		_handle_resume_input(event)
+		# The overlay owns every input event while it is up; the match must not
+		# see the same buttons (double action).
+		var viewport := get_viewport()
+		if viewport != null:
+			viewport.set_input_as_handled()
 		return
 	if event is InputEventKey:
 		var key := event as InputEventKey
@@ -315,6 +447,51 @@ func _input(event: InputEvent) -> void:
 				_toggle_ready()
 			JOY_BUTTON_B:
 				_leave()
+	elif event is InputEventJoypadMotion:
+		var motion := event as InputEventJoypadMotion
+		if int(motion.axis) != JOY_AXIS_LEFT_X or absf(motion.axis_value) < 0.5:
+			return
+		_send_device(1)
+		NET_SHELL.note_local_device(get_tree(), "gamepad", int(motion.device))
+		var now := Time.get_ticks_msec()
+		var device := int(motion.device)
+		if now - int(_gamepad_repeat.get(device, 0)) < ROW_REPEAT_MS:
+			return
+		_gamepad_repeat[device] = now
+		_change_side(-1 if motion.axis_value < 0.0 else 1)
+
+
+func _handle_resume_input(event: InputEvent) -> void:
+	if event is InputEventKey:
+		var key := event as InputEventKey
+		if key.echo or not key.pressed:
+			return
+		_send_device(0)
+		NET_SHELL.note_local_device(get_tree(), "keyboard", 0)
+		match key.keycode:
+			KEY_LEFT:
+				_change_side(-1)
+			KEY_RIGHT:
+				_change_side(1)
+			KEY_ENTER, KEY_KP_ENTER:
+				_toggle_ready()
+			KEY_ESCAPE:
+				_cancel_resume()
+	elif event is InputEventJoypadButton:
+		var joy := event as InputEventJoypadButton
+		if not joy.pressed:
+			return
+		_send_device(1)
+		NET_SHELL.note_local_device(get_tree(), "gamepad", int(joy.device))
+		match int(joy.button_index):
+			JOY_BUTTON_DPAD_LEFT:
+				_change_side(-1)
+			JOY_BUTTON_DPAD_RIGHT:
+				_change_side(1)
+			JOY_BUTTON_A:
+				_toggle_ready()
+			JOY_BUTTON_B:
+				_cancel_resume()
 	elif event is InputEventJoypadMotion:
 		var motion := event as InputEventJoypadMotion
 		if int(motion.axis) != JOY_AXIS_LEFT_X or absf(motion.axis_value) < 0.5:

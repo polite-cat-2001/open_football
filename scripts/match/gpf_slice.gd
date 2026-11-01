@@ -10,6 +10,7 @@ const RUNTIME_SCENE := preload("res://scenes/gpf_runtime.tscn")
 const RUNTIME_GROUP := "gpf_runtime"
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 const TEAM_SELECT_SCENE := "res://scenes/team_select.tscn"
+const NETWORK_SIDES_SCENE := preload("res://scenes/network_sides.tscn")
 
 var runtime: Node
 @onready var camera := $Camera3D
@@ -24,6 +25,12 @@ var runtime: Node
 var game_plan: GpfGamePlan
 var _game_plan_layer: CanvasLayer
 var _last_sub_counter := -1
+var side_select_overlay: Control
+var _side_select_layer: CanvasLayer
+var _net_status_layer: CanvasLayer
+var _net_status_label: Label
+var _net_last_player_ids: Array = []
+var _host_lost := false
 
 const BUTTONS := {
 	KEY_UP: [0],
@@ -96,6 +103,7 @@ func _ready() -> void:
 	pause_menu.visual_requested.connect(_on_pause_visual)
 	pause_menu.system_requested.connect(_on_pause_system)
 	pause_menu.game_plan_requested.connect(_open_game_plan)
+	pause_menu.side_select_requested.connect(_open_side_select)
 
 	# Every local scene load is a new match: stop and restart so the previous
 	# match's clock, score and objects cannot leak into this one. A LAN host has
@@ -249,7 +257,7 @@ func _process(delta: float) -> void:
 	var snap: Dictionary = runtime.get_snapshot()
 	if snap.is_empty():
 		return
-	if bool(runtime.is_net_active()):
+	if bool(runtime.is_net_active()) and not _net_connection_lost(snap):
 		_update_network_pause(snap)
 		# The break is over once every peer voted and the host unpaused; drop
 		# the bridge latch so the break overlay closes on the host too. Only
@@ -295,6 +303,20 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not started:
 		return
+	if _host_lost:
+		# The host is gone: the only move left is back to the main menu.
+		if event is InputEventKey:
+			var lost_key := event as InputEventKey
+			if lost_key.pressed and not lost_key.echo \
+					and lost_key.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_ESCAPE]:
+				_return_to_main_menu()
+				if get_viewport() != null:
+					get_viewport().set_input_as_handled()
+		return
+	if side_select_overlay != null:
+		# The mirrored side-select overlay owns the input; it consumes its own
+		# events, the match must not act on the same buttons.
+		return
 	var viewport := get_viewport()
 	var menu_before := _menu_open()
 	if event is InputEventJoypadButton:
@@ -328,6 +350,7 @@ func _input(event: InputEvent) -> void:
 func _other_menu_open() -> bool:
 	return replay.is_active() or shootout.is_end_menu_open() \
 		or hud.is_phase_menu_open() or hud.is_taker_menu_open() \
+		or side_select_overlay != null \
 		or (game_plan != null and game_plan.is_open())
 
 
@@ -368,6 +391,13 @@ func _update_network_pause(snap: Dictionary) -> void:
 	var info: Dictionary = runtime.net_lobby()
 	var lobby: Dictionary = info.get("lobby", {})
 	var side_select := bool(lobby.get("side_select", false))
+	# The roster change that opens side selection is only visible as a delta:
+	# remember the live list until the flag flips.
+	var roster_status := ""
+	if side_select:
+		roster_status = _roster_change_status(lobby)
+	else:
+		_net_last_player_ids = _lobby_player_ids(lobby)
 
 	if not paused:
 		if pause_menu.is_open() and (game_plan == null or not game_plan.is_open()):
@@ -378,10 +408,11 @@ func _update_network_pause(snap: Dictionary) -> void:
 			pause_menu.dismiss()
 		return
 	if side_select:
-		# Mid-match side selection is not ported yet; keep the paused match
-		# frozen instead of showing a stale pause menu.
+		# Mirrored in-match side selection (pause menu item or a C++ roster
+		# change): the overlay replaces the pause menu on every peer.
 		if pause_menu.is_open() and (game_plan == null or not game_plan.is_open()):
 			pause_menu.dismiss()
+		_ensure_side_select_overlay(roster_status)
 		return
 	if not _menu_open():
 		pause_menu.open()
@@ -411,6 +442,121 @@ func _on_pause_system() -> void:
 		DisplayServer.WINDOW_MODE_WINDOWED if fullscreen else DisplayServer.WINDOW_MODE_FULLSCREEN
 	)
 	pause_menu.set_hint("fullscreen: " + ("off" if fullscreen else "on"))
+
+
+func _open_side_select() -> void:
+	if side_select_overlay != null or _host_lost:
+		return
+	if not bool(runtime.is_net_active()):
+		pause_menu.set_hint("side selection: network match only")
+		return
+	# IngamePage::GoSideSelect -> CancelResumeVote: withdraw this peer's
+	# Continue vote so the match cannot resume behind the overlay.
+	runtime.net_action("set_resume_ready", 0, 0, 0)
+	pause_menu.hide_for_submenu()
+	if not bool(runtime.net_side_select_open()):
+		pause_menu.open()
+		pause_menu.set_hint("side selection unavailable")
+		return
+	_ensure_side_select_overlay()
+
+
+func _ensure_side_select_overlay(status: String = "") -> void:
+	if side_select_overlay != null or _host_lost:
+		return
+	_side_select_layer = CanvasLayer.new()
+	_side_select_layer.name = "SideSelectLayer"
+	_side_select_layer.layer = 8
+	add_child(_side_select_layer)
+	var overlay: Control = NETWORK_SIDES_SCENE.instantiate()
+	overlay.name = "NetworkSidesResume"
+	overlay.set("resume_mode", true)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.connect("closed", _on_side_select_closed)
+	_side_select_layer.add_child(overlay)
+	side_select_overlay = overlay
+	if not status.is_empty():
+		overlay.call("set_status", status)
+
+
+func _on_side_select_closed() -> void:
+	_close_side_select_overlay(true)
+
+
+func _close_side_select_overlay(reopen_pause: bool) -> void:
+	if side_select_overlay != null:
+		side_select_overlay.queue_free()
+		side_select_overlay = null
+	if _side_select_layer != null:
+		_side_select_layer.queue_free()
+		_side_select_layer = null
+	if not reopen_pause or _host_lost:
+		return
+	# A commit resumed the match (nothing to show); a cancel stayed paused, so
+	# the pause menu comes back like IngamePage after GoBack.
+	var snap: Dictionary = runtime.get_snapshot()
+	if bool(snap.get("paused", false)):
+		pause_menu.open()
+
+
+func _lobby_player_ids(lobby: Dictionary) -> Array:
+	var ids: Array = []
+	for player in lobby.get("players", []):
+		ids.append(int(player.get("id", -1)))
+	ids.sort()
+	return ids
+
+
+func _roster_change_status(lobby: Dictionary) -> String:
+	if _net_last_player_ids.is_empty():
+		return ""
+	var ids := _lobby_player_ids(lobby)
+	if ids == _net_last_player_ids:
+		return ""
+	for id in _net_last_player_ids:
+		if not ids.has(id):
+			return "Player disconnected"
+	for id in ids:
+		if not _net_last_player_ids.has(id):
+			return "Player joined"
+	return ""
+
+
+func _net_connection_lost(snap: Dictionary) -> bool:
+	if _host_lost:
+		return true
+	if not bool(runtime.is_net_client()):
+		return false
+	if int(snap.get("net_connection", -1)) != 0:
+		return false
+	_host_lost = true
+	_show_host_disconnected()
+	return true
+
+
+func _show_host_disconnected() -> void:
+	_close_side_select_overlay(false)
+	pause_menu.dismiss()
+	if _net_status_layer == null:
+		_net_status_layer = CanvasLayer.new()
+		_net_status_layer.name = "NetStatus"
+		_net_status_layer.layer = 9
+		add_child(_net_status_layer)
+		var backdrop := ColorRect.new()
+		backdrop.color = Color(0.02, 0.03, 0.06, 0.78)
+		backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+		backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_net_status_layer.add_child(backdrop)
+		var center := CenterContainer.new()
+		center.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_net_status_layer.add_child(center)
+		_net_status_label = Label.new()
+		_net_status_label.text = "HOST DISCONNECTED\n\nEnter / Esc: main menu"
+		_net_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_net_status_label.add_theme_font_size_override("font_size", 28)
+		_net_status_label.add_theme_color_override("font_color", Color(1.0, 0.55, 0.30))
+		center.add_child(_net_status_label)
+	_net_status_layer.visible = true
 
 
 func _handle_gamepad_button(event: InputEventJoypadButton) -> void:

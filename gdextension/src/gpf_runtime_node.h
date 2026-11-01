@@ -143,6 +143,13 @@ public:
     bool net_start();
     // Client only: consume the host's NetMatchSetup; {} when none is pending.
     Dictionary net_take_match_setup();
+    // In-match side selection (resume mode, ticket 18): the host flips the
+    // mirrored side-select lobby state; a client asks the host for it.
+    bool net_side_select_open();
+    // Host: apply the chosen sides and resume the paused match.
+    bool net_side_select_commit();
+    // Host: apply the chosen sides but stay paused; a client asks the host.
+    bool net_side_select_cancel();
     bool is_net_active() const;
     bool is_net_host() const;
     bool is_net_client() const;

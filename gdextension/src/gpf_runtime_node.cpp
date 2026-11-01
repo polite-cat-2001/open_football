@@ -260,6 +260,9 @@ void GpfRuntimeNode::_bind_methods() {
                          &GpfRuntimeNode::net_action);
     ClassDB::bind_method(D_METHOD("net_start"), &GpfRuntimeNode::net_start);
     ClassDB::bind_method(D_METHOD("net_take_match_setup"), &GpfRuntimeNode::net_take_match_setup);
+    ClassDB::bind_method(D_METHOD("net_side_select_open"), &GpfRuntimeNode::net_side_select_open);
+    ClassDB::bind_method(D_METHOD("net_side_select_commit"), &GpfRuntimeNode::net_side_select_commit);
+    ClassDB::bind_method(D_METHOD("net_side_select_cancel"), &GpfRuntimeNode::net_side_select_cancel);
     ClassDB::bind_method(D_METHOD("is_net_active"), &GpfRuntimeNode::is_net_active);
     ClassDB::bind_method(D_METHOD("is_net_host"), &GpfRuntimeNode::is_net_host);
     ClassDB::bind_method(D_METHOD("is_net_client"), &GpfRuntimeNode::is_net_client);
@@ -717,6 +720,66 @@ Dictionary GpfRuntimeNode::net_take_match_setup() {
     team_ids.append(setup.teamId[1]);
     result["team_ids"] = team_ids;
     return result;
+}
+
+bool GpfRuntimeNode::net_side_select_open() {
+    if (!runtime_ready || !menuTask || !gameTask || !match) {
+        last_error = "net_side_select_open called before the match started";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (net_server) {
+        // Resets every player's ready/resume vote and mirrors the state.
+        net_server->SetSideSelectMode(true);
+        last_error = "";
+        return true;
+    }
+    if (net_client) {
+        return net_action("request_side_select", 0, 1, 0);
+    }
+    last_error = "net_side_select_open needs a network match";
+    UtilityFunctions::printerr(last_error);
+    return false;
+}
+
+bool GpfRuntimeNode::net_side_select_commit() {
+    if (!runtime_ready || !menuTask || !gameTask || !match) {
+        last_error = "net_side_select_commit called before the match started";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (!net_server) {
+        last_error = "net_side_select_commit is a host action";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    // RebindControllers applies the chosen sides and resumes the match.
+    net_server->SetSideSelectMode(false);
+    gameTask->RebindNetworkControllers();
+    last_error = "";
+    return true;
+}
+
+bool GpfRuntimeNode::net_side_select_cancel() {
+    if (!runtime_ready || !menuTask || !gameTask || !match) {
+        last_error = "net_side_select_cancel called before the match started";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    if (net_server) {
+        // Apply the chosen sides but keep the paused match (back to the pause
+        // menu); resuming is a separate Continue vote.
+        net_server->SetSideSelectMode(false);
+        gameTask->ApplyNetworkControllers();
+        last_error = "";
+        return true;
+    }
+    if (net_client) {
+        return net_action("request_side_select", 0, 0, 0);
+    }
+    last_error = "net_side_select_cancel needs a network match";
+    UtilityFunctions::printerr(last_error);
+    return false;
 }
 
 bool GpfRuntimeNode::set_match_package(const Dictionary &package) {

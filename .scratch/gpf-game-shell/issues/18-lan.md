@@ -7,7 +7,8 @@ host запускает матч. В C++ уже всё есть (`NetServer`/`Ne
 
 **Blocked by:** 11, 17
 
-**Status:** in-progress (2026-11-01; lobby UI + match entry + pause/break votes)
+**Status:** in-progress (2026-11-01; lobby UI + match entry + pause/break votes + in-match side
+select и disconnect/rejoin)
 
 **Что уже есть в `of_port` (не переписывать):** boost::asio TCP control + UDP snapshots,
 handshake (protocol/build/data/animation хэши), host-authoritative симуляция, thin client, лобби
@@ -26,8 +27,8 @@ disconnect/rejoin, keepalive. Спека: `GameplayFootball-of_port/docs/specs/2
       раскладка и управление из оригинала, вид не полируем.
 - [x] Host: матч из выбранных `teamId`; client: получает `MatchSetup`, собирает локальный пакет
       по тем же id и строит удалённый `Match` (UI-лобби + headless-харнесс).
-- [ ] In-match: пауза-голосование и перерыв — [x]; осталось side-select на паузе и баннеры
-      дисконнекта/rejoin.
+- [x] In-match: пауза-голосование и перерыв; side-select на паузе (зеркальный оверлей) и
+      статус дисконнекта/rejoin (оверлей side select + минимальный shell-статус).
 - [ ] Два процесса на localhost: полный матч виден обоим, счёт/время совпадают.
 - [x] Headless/CLI-харнесс запускает host + client и проверяет лобби, старт, кикофф,
       remote time/score, пауза-голосование обоих и `net_leave`.
@@ -121,6 +122,58 @@ disconnect/rejoin, keepalive. Спека: `GameplayFootball-of_port/docs/specs/2
   первый в списке), а extension держит собственный SDL virtual joystick; при физическом pad'е
   рядом виртуальным возможен неверный выбор. Клавиатура проверена; pad требует ручного прогона
   и, при необходимости, отдельного хука в `of_port` (не протокол).
+
+## Сделано (2026-11-01, in-match side select + disconnect/rejoin)
+
+- Мост `GpfRuntimeNode` (протокол не менялся, `of_port` не правился):
+  `net_side_select_open()` (host — `NetServer::SetSideSelectMode(true)`, client —
+  `request_side_select value=1`), `net_side_select_commit()` (host only:
+  `SetSideSelectMode(false)` + `GameTask::RebindNetworkControllers()` — применяет стороны и
+  снимает паузу), `net_side_select_cancel()` (host: `SetSideSelectMode(false)` +
+  `ApplyNetworkControllers()` — стороны применяются, пауза остаётся; client: request
+  `value=0`). Guard: runtime/menuTask/gameTask/match + активная сессия.
+- Оверлей: `scripts/ui/network_sides.gd` получил `resume_mode` (флаг ставится до входа в
+  дерево) и сигнал `closed`. В resume-режиме страница не меняет сцену, не делает `net_leave`
+  и не входит в лобби: Left/Right — `set_side`, Enter/A — toggle `set_ready`, Esc/B —
+  cancel; host коммитит один раз, когда ready **все** строки (включая spectator — как
+  `NetworkSideSelectBackend::AllReady`), client только ждёт; сторожевой poll закрывает
+  оверлей, когда `lobby.side_select` снова false (`Process`/`PollClosed` оригинала).
+  Cancel на client не закрывает страницу сразу, а ждёт, пока host применит стороны.
+- Пауза: пункт **side selection** больше не заглушка — `gpf_slice` подключает
+  `pause_menu.side_select_requested`, отзывает свой resume-голос
+  (`set_resume_ready 0`, `CancelResumeVote`), прячет меню через `hide_for_submenu()` (не
+  `close()`, чтобы не отправить голос) и открывает оверлей в `CanvasLayer` layer 8 поверх HUD.
+  Пока оверлей открыт, `gpf_slice._input` не пропускает ввод в матч/меню, оверлей сам
+  помечает события обработанными. После commit пауза снята — меню не возвращается; после
+  cancel матч остаётся на паузе — меню паузы открывается снова.
+- Roster change: при disconnect/join C++ сам ставит паузу + `sideSelect`; `gpf_slice`
+  открывает оверлей на всех peer'ах (ветка `side_select` в `_update_network_pause` больше не
+  просто закрывает паузу). Статус строкой в оверлее: «Player disconnected» / «Player joined»
+  (5 с или до ready).
+- Guest host ушёл: client видит `net_connection == 0` — `gpf_slice` показывает минимальный
+  shell-статус **HOST DISCONNECTED** (текст, а не отдельный экран; Enter/Esc — в главное
+  меню). Это отступление от оригинала (там отдельного экрана тоже нет, но повторное
+  использование side-select для этого случая недоступно клиенту без хоста).
+- Rejoin: новый клиент через Join() получает streamed `MatchSetup` (+ animation table +
+  snapshot), `network_sides` собирает пакет и ведёт в `gpf_slice`; клиент строит матч,
+  проходит mirrored side select, host коммитит — счёт/время совпадают с host.
+- Тесты: `check_gpf_net_ui` расширен (пункт меню → оверлей → смена стороны/ready → host
+  commit → `side_select=false`, `paused=false`, оверлей закрыт). `check_gpf_net_two_process`
+  + `gpf_net_client_probe` расширены: side select с паузы на обоих, оба ready, commit,
+  оба live; kill клиента → host жив, paused + side_select, commit; rejoin вторым probe
+  (`MODE=rejoin`) с проверкой счёта/времени. Маркер `resumed` разводит паузы, иначе два
+  `PauseState` схлопываются в один на thin client. Регрессии: `check_gpf_pause`,
+  `check_gpf_slice_ui`, `check_gpf_game_shell`, `check_gpf_local_2p_highlights`,
+  `check_gpf_net_lobby` — PASS.
+- Исправлено по плейтесту (замена на клиенте): `Match::ApplyRemoteSnapshot` применял замену, но не
+  писал `SubstitutionNotice` и не инкрементил `substitutionNoticeCounter`, поэтому на тонком
+  клиенте HUD не показывал уведомление, а `gpf_slice` не звал `GpfActors.sync_roster()` —
+  вышедший на замену игрок оставался невидимым, и мяч «отлетал от воздуха». Это единственная
+  правка `of_port` (не протокол): клиент теперь ведёт ту же книгу замен, что и host. `GpfHud`
+  первый снапшот считает базой, чтобы rejoin не проигрывал старые уведомления. Two-process тест
+  дополнительно ставит замену команде клиента на рестарте пенальти и проверяет notice +
+  новый активный состав (после пересборки `gamelib` в `build-ofport`).
+- Осталось для ручной проверки: два окна/машины, реальный pad, ощущение оверлея поверх 3D.
 
 > **UI-политика:** если этому тикету нужен UI, портировать соответствующий экран/элемент из
 > оригинала (`GameplayFootball-of_port/src/menu/...`) — та же раскладка, подписи, иконки,
