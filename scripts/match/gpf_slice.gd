@@ -349,6 +349,15 @@ func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 	if pause_menu.is_open():
 		pause_menu.handle_joy(event)
 		return
+	# The taker's own device owns the overlay; another local player's pad must
+	# keep driving its team (the runtime freezes the taker on its side).
+	if hud.is_taker_menu_open():
+		if hud.accepts_taker_menu_joy(device):
+			hud.handle_taker_menu_joy(event)
+			return
+		if input_slots.has(device):
+			runtime.set_gamepad_button(int(input_slots[device]), button, pressed)
+		return
 	if not input_slots.has(device):
 		return
 	var slot := int(input_slots[device])
@@ -372,11 +381,11 @@ func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 		if keycode != -1:
 			_handle_key(_synthetic_key(keycode))
 		return
-	# Back/Select opens the taker menu, same as Tab (the series owns its own
-	# participants, so it is left out).
+	# Back/Select opens the taker menu, same as Tab, but only from the taker's
+	# own pad (the series owns its own participants, so it is left out).
 	if pressed and button == JOY_BUTTON_BACK \
 			and not bool(runtime.get_snapshot().get("shootout_active", false)):
-		_handle_key(_synthetic_key(KEY_TAB))
+		hud.toggle_taker_menu("gamepad", device)
 		return
 	runtime.set_gamepad_button(slot, button, pressed)
 
@@ -394,6 +403,12 @@ func _handle_gamepad_motion(event: InputEventJoypadMotion) -> void:
 			return
 		_pause_stick_ms = now
 		_handle_key(_synthetic_key(KEY_DOWN if event.axis_value > 0.0 else KEY_UP))
+		return
+	if hud.is_taker_menu_open():
+		if hud.accepts_taker_menu_joy(device):
+			hud.handle_taker_menu_joy_motion(event)
+		elif input_slots.has(device):
+			runtime.set_gamepad_axis(int(input_slots[device]), int(event.axis), event.axis_value)
 		return
 	if not input_slots.has(device):
 		return
@@ -455,11 +470,14 @@ func _handle_key(key_event: InputEventKey) -> void:
 			return
 		if key_event.keycode == KEY_TAB:
 			if key_event.pressed:
-				hud.toggle_taker_menu()
+				hud.toggle_taker_menu("keyboard", 0)
 			return
 		if hud.is_taker_menu_open():
-			hud.handle_taker_menu_key(key_event)
-			return
+			if hud.accepts_taker_menu_keyboard() \
+					and hud.handle_taker_menu_key(key_event):
+				return
+			# A keyboard that does not own the overlay is another local player's
+			# input and keeps flowing to the runtime below.
 		if key_event.pressed and key_event.keycode == KEY_ESCAPE and _can_pause():
 			_open_pause()
 			return

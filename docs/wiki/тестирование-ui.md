@@ -42,8 +42,9 @@ Headless **не рисует** — PNG оттуда пустой. Скриншо
 
 `scenes/ui_lab.tscn` — «витрина» HUD и оверлеев без C++:
 
-- `1..9`, `0` — кикофф, live, гол, штрафной, перерыв, финал, серия, конец серии, пауза,
-  Game Plan, Game Plan 2P, Game Plan Tactics, Game Plan Roles, notice замены (`←/→`);
+- `1..9`, `0` — первые десять состояний (кикофф, live, гол, штрафной, перерыв, финал,
+  серия, конец серии, пауза, Game Plan), дальше `←/→` — Game Plan 2P, Game Plan Tactics,
+  Game Plan Roles, Game Plan Select, notice замены, set-piece taker (всего 16);
 - `←/→` — соседнее состояние;
 - подпись с номером/названием состояния (в скриншотах скрывается).
 
@@ -57,8 +58,10 @@ Headless **не рисует** — PNG оттуда пустой. Скриншо
 
 Для живого прогона MCP есть автозагрузка `UiHarness`: `seed_match()` собирает пакет и сразу
 открывает `gpf_slice`, `inject_click(x, y)` (или `pointer` + `click_pointer()`) кликает по UI,
-`inject_joy_button/axis` шлёт геймпад. `GpfGamePlan.debug_state()` возвращает текущие курсоры/held
-обеих панелей.
+`inject_joy_button/axis` шлёт геймпад. MCP не умеет передавать массивы, поэтому для точных
+одиночных нажатий есть no-arg обёртки: `key_tap_code` + `tap_key()` (press и release через кадр,
+C++ успевает увидеть кнопку) и `joy_tap_device`/`joy_tap_button` + `tap_joy_button()`.
+`GpfGamePlan.debug_state()` возвращает текущие курсоры/held обеих панелей.
 
 ### 3. Svelte-прототип как эталон
 
@@ -101,7 +104,7 @@ Godot-экран обязан пройти ту же матрицу; скрин�
 - Именование: `main_menu_1920x1080.png`, `prematch_gameplan_1280x720.png`,
   `ui_lab_kickoff_1920x1080.png`, `ui_lab_half_time_...`, `ui_lab_game_plan_...`,
   `ui_lab_game_plan_2p_...`, `ui_lab_game_plan_tactics_...`, `ui_lab_game_plan_roles_...`,
-  `ui_lab_substitution_...`, `ui_lab_shootout_...`, ...
+  `ui_lab_substitution_...`, `ui_lab_set-piece_taker_...`, `ui_lab_shootout_...`, ...
 - Стенд скрывает свою подпись (`set_caption_visible(false)`), чтобы кадр был чистым.
 
 ## Ограничения инструментов
