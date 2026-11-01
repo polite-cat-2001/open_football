@@ -58,6 +58,7 @@ var demo := OS.get_environment("GPF_DEMO") != ""
 # Godot joypad id -> extension-owned virtual joystick id, for the shell setup.
 var input_slots: Dictionary = {}
 var _pause_stick_ms := 0
+var _net_break_seen := false
 
 
 func _ready() -> void:
@@ -96,11 +97,16 @@ func _ready() -> void:
 	pause_menu.system_requested.connect(_on_pause_system)
 	pause_menu.game_plan_requested.connect(_open_game_plan)
 
-	# Every scene load is a new match: stop and restart so the previous match's
-	# clock, score and objects cannot leak into this one.
-	if not runtime.restart_match():
-		push_error("GpfRuntime failed: " + str(runtime.get_last_error()))
-		return
+	# Every local scene load is a new match: stop and restart so the previous
+	# match's clock, score and objects cannot leak into this one. A LAN host has
+	# already started its authoritative match in net_start(); attach the
+	# presentation to that live match instead of restarting it under the client.
+	var live_snapshot: Dictionary = runtime.get_snapshot()
+	var live_net_match: bool = bool(runtime.is_net_active()) and not live_snapshot.is_empty()
+	if not live_net_match:
+		if not runtime.restart_match():
+			push_error("GpfRuntime failed: " + str(runtime.get_last_error()))
+			return
 	goal_nets.build_dynamic()
 	_build_presentation()
 
@@ -114,7 +120,9 @@ func _exit_tree() -> void:
 func _acquire_runtime(package: Dictionary) -> Node:
 	var existing := get_tree().get_first_node_in_group(RUNTIME_GROUP)
 	if existing != null:
-		existing.set_match_package(package)
+		# A live LAN host match keeps the package it was started with.
+		if existing.get_snapshot().is_empty():
+			existing.set_match_package(package)
 		return existing
 	var node: Node = RUNTIME_SCENE.instantiate()
 	if not node.set_match_package(package):
@@ -191,6 +199,27 @@ func _pick_controlled(ids: Array) -> int:
 	var human := int(runtime.get_human_player_id())
 	if human > 0:
 		return human
+	# Thin LAN client: no local HumanGamer exists. The host snapshot marks the
+	# selected player with this peer's owner id, so follow that first.
+	if bool(runtime.is_net_client()):
+		var info: Dictionary = runtime.net_lobby()
+		var local_id := int(info.get("local_id", -1))
+		for entry in ids:
+			if int(entry.get("owner_id", -1)) == local_id:
+				return int(entry.get("id", -1))
+		# Before the first snapshot/frame: fall back to the lobby side.
+		var players: Array = info.get("lobby", {}).get("players", [])
+		for player in players:
+			if int(player.get("id", -1)) != local_id:
+				continue
+			var side := int(player.get("side", -1))
+			if side != 0 and side != 1:
+				return -1
+			for entry in ids:
+				if int(entry.get("team", -1)) == side \
+						and String(entry.get("role", "player")) != "goalkeeper":
+					return int(entry.get("id", -1))
+			return -1
 	# PRE-MATCH: no selection yet. Use the configured side, not always home.
 	var human_team := int(runtime.get_human_team_id())
 	if human_team < 0:
@@ -220,6 +249,21 @@ func _process(delta: float) -> void:
 	var snap: Dictionary = runtime.get_snapshot()
 	if snap.is_empty():
 		return
+	if bool(runtime.is_net_active()):
+		_update_network_pause(snap)
+		# The break is over once every peer voted and the host unpaused; drop
+		# the bridge latch so the break overlay closes on the host too. Only
+		# clear after the break was actually entered, or a freshly forced break
+		# would be cancelled before the HUD can pause it.
+		var break_paused := bool(snap.get("paused", false)) \
+			and (bool(snap.get("phase_break", false)) \
+				or bool(snap.get("phase_break_pending", false)))
+		if break_paused:
+			_net_break_seen = true
+		if _net_break_seen and not bool(snap.get("paused", false)) \
+				and not bool(snap.get("phase_break", false)):
+			runtime.clear_phase_break_pending()
+			_net_break_seen = false
 	shootout.update(snap, delta)
 	# A substitution applied at the C++ restart changes the active roster: add
 	# the new bodies and drop the players who left the pitch.
@@ -305,7 +349,50 @@ func _open_pause() -> void:
 
 
 func _on_pause_resume() -> void:
+	# LAN pause is peer-equal: the host only unpauses once every peer has voted
+	# (NetMatchSession::ProcessHost consumes the all-resume-ready event).
+	if bool(runtime.is_net_active()):
+		runtime.net_action("set_resume_ready", 0, 1, 0)
+		pause_menu.open()
+		pause_menu.set_hint("resume vote sent")
+		return
 	runtime.resume_match()
+
+
+func _update_network_pause(snap: Dictionary) -> void:
+	var paused := bool(snap.get("paused", false))
+	var blocked := bool(snap.get("game_over", false)) \
+		or bool(snap.get("shootout_active", false)) \
+		or bool(snap.get("phase_break", false)) \
+		or bool(snap.get("phase_break_pending", false))
+	var info: Dictionary = runtime.net_lobby()
+	var lobby: Dictionary = info.get("lobby", {})
+	var side_select := bool(lobby.get("side_select", false))
+
+	if not paused:
+		if pause_menu.is_open() and (game_plan == null or not game_plan.is_open()):
+			pause_menu.dismiss()
+		return
+	if blocked:
+		if pause_menu.is_open() and (game_plan == null or not game_plan.is_open()):
+			pause_menu.dismiss()
+		return
+	if side_select:
+		# Mid-match side selection is not ported yet; keep the paused match
+		# frozen instead of showing a stale pause menu.
+		if pause_menu.is_open() and (game_plan == null or not game_plan.is_open()):
+			pause_menu.dismiss()
+		return
+	if not _menu_open():
+		pause_menu.open()
+	if not pause_menu.is_open():
+		return
+	var players: Array = lobby.get("players", [])
+	var ready := 0
+	for player in players:
+		if bool(player.get("resume_ready", false)):
+			ready += 1
+	pause_menu.set_hint("resume ready %d/%d    Enter/Esc: vote" % [ready, players.size()])
 
 
 func _on_pause_camera() -> void:
@@ -509,6 +596,11 @@ func _run_demo() -> void:
 
 
 func _start_fresh_match() -> void:
+	# Restarting a LAN match locally would desync the peers; a rematch must go
+	# back through the network lobby (ticket 18, follow-up).
+	if bool(runtime.is_net_active()):
+		push_warning("GpfSlice: a LAN rematch must be started from the network lobby")
+		return
 	# Tear down the presentation, ask C++ for a fresh match and rebuild the actors
 	# from the new match's player list (F4 debug key and the end-of-match menu).
 	if replay.is_active():
@@ -533,6 +625,9 @@ func _start_fresh_match() -> void:
 func _return_to_main_menu() -> void:
 	if replay.is_active():
 		replay.finish()
+	# Leaving a LAN match tears the session down before the menu appears.
+	if runtime != null and is_instance_valid(runtime) and bool(runtime.is_net_active()):
+		runtime.net_leave()
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
 

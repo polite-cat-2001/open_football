@@ -208,6 +208,16 @@ func close() -> void:
 # Hide the menu without resuming the match: a submenu (game plan) takes over
 # the same frozen match and returns to the pause menu when it closes.
 func hide_for_submenu() -> void:
+	_hide_layers()
+
+
+# Close the menu without emitting resume_requested: a network replay/resume
+# already moved the authoritative match out of the pause.
+func dismiss() -> void:
+	_hide_layers()
+
+
+func _hide_layers() -> void:
 	if layer != null:
 		layer.visible = false
 	if confirm_layer != null:
