@@ -5,7 +5,12 @@ extends SceneTree
 #
 # Usage (the host test builds this command):
 #   godot --headless --path . -s res://tests/gpf_net_client_probe.gd -- \
-#       ADDRESS PORT RESULT_PATH [RUNNING_MARKER PAUSE_MARKER HOST_VOTE_MARKER]
+#       ADDRESS PORT RESULT_PATH [RUNNING_MARKER PAUSE_MARKER HOST_VOTE_MARKER
+#       SIDE_DONE_MARKER RESUME_DONE_MARKER MODE]
+#
+# MODE "rejoin" means the host already runs a match: wait for the streamed
+# MatchSetup, build the paused match, join the mirrored side selection and
+# report the resumed match instead of playing through the lobby.
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
@@ -30,10 +35,16 @@ func _init() -> void:
 		"address": args[0],
 		"port": int(args[1]),
 	}
-	var running_marker := args[3] if args.size() > 3 else ""
-	var pause_marker := args[4] if args.size() > 4 else ""
-	var host_vote_marker := args[5] if args.size() > 5 else ""
-	var ok := _run(args[0], int(args[1]), running_marker, pause_marker, host_vote_marker)
+	# "-" marks an unused positional marker: empty arguments are dropped by the
+	# OS/engine argument parser and would shift the later positions.
+	var running_marker := _arg(args, 3)
+	var pause_marker := _arg(args, 4)
+	var host_vote_marker := _arg(args, 5)
+	var side_done_marker := _arg(args, 6)
+	var resume_done_marker := _arg(args, 7)
+	var mode := _arg(args, 8)
+	var ok := _run(args[0], int(args[1]), running_marker, pause_marker, host_vote_marker,
+		side_done_marker, resume_done_marker, mode)
 	probe_result["status"] = "ok" if ok and failures.is_empty() else "fail"
 	probe_result["failures"] = failures
 	_write_result(args[2], probe_result)
@@ -41,6 +52,13 @@ func _init() -> void:
 	for failure in failures:
 		print("PROBE FAIL: ", failure)
 	quit(0 if probe_result["status"] == "ok" else 1)
+
+
+func _arg(args: PackedStringArray, index: int) -> String:
+	if index >= args.size():
+		return ""
+	var value := args[index]
+	return "" if value == "-" else value
 
 
 func _check(condition: bool, message: String) -> bool:
@@ -70,6 +88,16 @@ func _wait_until(predicate: Callable, timeout_ms: int, poll_ms: int = 50) -> boo
 
 func _lobby_state() -> Dictionary:
 	return Dictionary(runtime.net_lobby().get("lobby", {}))
+
+
+func _active_ids(team_id: int) -> Array:
+	var ids: Array = []
+	var squad: Dictionary = runtime.get_squad(team_id)
+	for player in squad.get("players", []):
+		if bool(player.get("active", false)):
+			ids.append(int(player.get("id", -1)))
+	ids.sort()
+	return ids
 
 
 func _poll_connected() -> bool:
@@ -115,6 +143,18 @@ func _poll_penalty() -> bool:
 	return int(last_snapshot.get("presentation_type", 0)) == 6
 
 
+func _poll_side_select_open() -> bool:
+	runtime.step_fixed(10)
+	return bool(_lobby_state().get("side_select", false))
+
+
+func _poll_side_select_closed() -> bool:
+	runtime.step_fixed(10)
+	last_snapshot = runtime.get_snapshot()
+	return not bool(_lobby_state().get("side_select", true)) \
+		and not bool(last_snapshot.get("paused", true))
+
+
 func _file_exists(path: String) -> bool:
 	return not path.is_empty() and FileAccess.file_exists(path)
 
@@ -129,7 +169,9 @@ func _write_marker(path: String, text: String) -> void:
 
 
 func _run(address: String, port: int, running_marker: String = "",
-		pause_marker: String = "", host_vote_marker: String = "") -> bool:
+		pause_marker: String = "", host_vote_marker: String = "",
+		side_done_marker: String = "", resume_done_marker: String = "",
+		mode: String = "") -> bool:
 	probe_result["stage"] = "runtime"
 	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8)
 	if package.is_empty():
@@ -163,6 +205,9 @@ func _run(address: String, port: int, running_marker: String = "",
 	if not _check(bool(info.get("accepted", false)), "the host rejected the client: " + String(info.get("reject_text", ""))):
 		probe_result["stage"] = "rejected"
 		return false
+
+	if mode == "rejoin":
+		return _run_rejoin()
 
 	# Pick the away side and vote ready; the host votes from its own process.
 	probe_result["stage"] = "sides"
@@ -254,12 +299,52 @@ func _run(address: String, port: int, running_marker: String = "",
 		var resumed := _wait_until(_poll_resumed, 15000)
 		probe_result["resumed"] = resumed
 		_check(resumed, "client did not resume after both votes")
+		# The next host phase pauses again; let it know this peer really saw
+		# the resume first, or the two pause broadcasts can collapse.
+		_write_marker(resume_done_marker, "resumed")
+
+		# In-match side selection: the host opened it while paused; mirror it,
+		# ready up and wait for the host commit (a client never commits).
+		probe_result["stage"] = "side-select"
+		if not _wait_until(_poll_side_select_open, 15000):
+			return _check(false, "client did not see the mirrored side selection")
+		probe_result["side_select_seen"] = true
+		_check(runtime.net_action("set_ready", 0, 1, 0), "client side-select ready failed")
+		if not _wait_until(_poll_side_select_closed, 15000):
+			return _check(false, "client never saw the host commit the side selection")
+		var side_resumed := _wait_until(_poll_resumed, 15000)
+		probe_result["side_select_resumed"] = side_resumed
+		if not _check(side_resumed, "client did not resume after the side-select commit"):
+			return false
+		# Snapshot the away XI before the host reacts to the marker below: it
+		# queues the substitution and forces the restart.
+		var before_sub_ids := _active_ids(1)
+		var before_notice_counter := int(runtime.get_substitution_notice_counter())
+		_write_marker(side_done_marker, "done")
 
 		# The host forces a penalty for this client's team; the client must get
 		# the kicker role and the yellow aim reticle from the same snapshot data.
 		probe_result["stage"] = "penalty"
 		var penalty_seen := _wait_until(_poll_penalty, 20000)
 		var penalty_snap := last_snapshot
+		var after_sub_ids := _active_ids(1)
+		var new_sub_ids: Array = []
+		for id in after_sub_ids:
+			if not before_sub_ids.has(id):
+				new_sub_ids.append(id)
+		var fresh_notices: Array = penalty_snap.get("substitution_notices", [])
+		probe_result["substitution_counter"] = int(
+			penalty_snap.get("substitution_notice_counter", 0))
+		probe_result["substitution_notices"] = fresh_notices
+		probe_result["substitution_new_ids"] = new_sub_ids
+		probe_result["substitution_seen"] = int(
+			penalty_snap.get("substitution_notice_counter", 0)) > before_notice_counter \
+			and not fresh_notices.is_empty()
+		probe_result["substitution_roster_synced"] = not new_sub_ids.is_empty()
+		_check(bool(probe_result["substitution_seen"]),
+			"client did not receive the substitution notice")
+		_check(bool(probe_result["substitution_roster_synced"]),
+			"client roster is missing the substituted-in player")
 		var aim: Vector3 = penalty_snap.get("set_piece_aim_point", Vector3.ZERO)
 		probe_result["penalty_seen"] = penalty_seen
 		probe_result["penalty_role"] = penalty_snap.get("set_piece_role", -1)
@@ -273,4 +358,66 @@ func _run(address: String, port: int, running_marker: String = "",
 		_check(aim.length() > 0.01, "client penalty aim point is empty")
 		_check(bool(penalty_snap.get("set_piece_local_taker", false)),
 			"client penalty taker is not local")
+	return failures.is_empty()
+
+
+# Mid-match rejoin: the host streams MatchSetup, the animation table and a
+# snapshot to every peer that joins a running match. Build the same match from
+# the setup, then take part in the mirrored side selection; after the host
+# commits, the snapshots continue the match on this peer.
+func _run_rejoin() -> bool:
+	probe_result["rejoin"] = true
+	probe_result["stage"] = "rejoin-setup"
+	if not _check(_wait_until(_poll_setup, 20000),
+			"rejoining client did not receive MatchSetup"):
+		return false
+	probe_result["team_ids"] = match_setup.get("team_ids", [])
+	var ids: Array = match_setup.get("team_ids", [])
+	if not _check(ids.size() == 2 and int(ids[0]) > 0 and int(ids[1]) > 0,
+			"rejoining client got no team ids: " + str(ids)):
+		return false
+
+	probe_result["stage"] = "rejoin-build"
+	var match_package := MatchPackageFixture.build(DATA_ROOT, int(ids[0]), int(ids[1]))
+	if not _check(not match_package.is_empty(),
+			"rejoining client could not build the match package"):
+		return false
+	if not _check(runtime.set_match_package(match_package),
+			"rejoining client match package rejected"):
+		return false
+	if not _check(runtime.start_match(),
+			"rejoining client could not start the remote match: " + String(runtime.get_last_error())):
+		return false
+
+	probe_result["stage"] = "rejoin-snapshot"
+	if not _check(_wait_until(_poll_remote, 20000),
+			"rejoining client received no remote snapshot"):
+		return false
+	if not _check(_wait_until(_poll_side_select_open, 15000),
+			"rejoining client missed the mirrored side selection"):
+		return false
+	probe_result["side_select_seen"] = true
+	_check(runtime.net_action("set_ready", 0, 1, 0), "rejoining client ready failed")
+	if not _check(_wait_until(_poll_side_select_closed, 20000),
+			"rejoining client never left the side selection"):
+		return false
+	if not _check(_wait_until(_poll_resumed, 15000),
+			"rejoining client did not resume"):
+		return false
+
+	last_snapshot = runtime.get_snapshot()
+	probe_result["net_active"] = last_snapshot.get("net_active", false)
+	probe_result["net_is_client"] = last_snapshot.get("net_is_client", false)
+	probe_result["net_is_host"] = last_snapshot.get("net_is_host", true)
+	probe_result["tick"] = last_snapshot.get("tick", -1)
+	probe_result["match_time_ms"] = last_snapshot.get("match_time_ms", -1)
+	probe_result["score0"] = last_snapshot.get("score0", -1)
+	probe_result["score1"] = last_snapshot.get("score1", -1)
+	probe_result["team0_name"] = last_snapshot.get("team0_name", "")
+	probe_result["team1_name"] = last_snapshot.get("team1_name", "")
+	probe_result["resumed"] = true
+	_check(int(probe_result["match_time_ms"]) > 0, "rejoining client has no match time")
+	_check(int(probe_result["tick"]) > 0, "rejoining client did not advance")
+	_check(String(probe_result["team0_name"]) != "" and String(probe_result["team1_name"]) != "",
+		"rejoining client has no team names")
 	return failures.is_empty()

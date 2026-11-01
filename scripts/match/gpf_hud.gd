@@ -335,7 +335,12 @@ func _sync_substitution_notice(snap: Dictionary) -> void:
 	if substitution_notice == null:
 		return
 	var counter := int(snap.get("substitution_notice_counter", 0))
-	if counter != _sub_notice_counter:
+	if _sub_notice_counter < 0:
+		# First snapshot of this presentation (a rejoin can already carry the
+		# host's substitution history): treat it as the baseline, do not replay
+		# someone else's old substitutions as fresh banners.
+		_sub_notice_counter = counter
+	elif counter != _sub_notice_counter:
 		if counter > _sub_notice_counter:
 			var notices: Array = snap.get("substitution_notices", [])
 			var start_index := maxi(_sub_notice_counter, 0)

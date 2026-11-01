@@ -1521,3 +1521,37 @@ placeholder; национальный значок и шрифт есть. Ру�
   `check_gpf_game_plan`, `check_gpf_game_shell`, `check_gpf_input`, `check_gpf_setpieces`
   (free/taker), `check_ui_layout`; `match.tscn` — только известный baseline ошибок.
 
+### [2026-11-01] feat | LAN: in-match side select, disconnect и rejoin
+
+- Мост `GpfRuntimeNode` (протокол и `of_port` не менялись): `net_side_select_open()`
+  (host `SetSideSelectMode(true)`, client `request_side_select value=1`),
+  `net_side_select_commit()` (host `SetSideSelectMode(false)` + `RebindNetworkControllers` —
+  стороны применяются, пауза снимается) и `net_side_select_cancel()` (host
+  `SetSideSelectMode(false)` + `ApplyNetworkControllers` — стороны применяются, пауза
+  остаётся; client шлёт request `value=0`).
+- `scripts/ui/network_sides.gd` получил `resume_mode` + сигнал `closed`: тот же порт
+  `SideSelectPage`/`NetworkSideSelectBackend`, но без смены сцены и `net_leave`. Left/Right —
+  `set_side`, Enter/A — toggle `set_ready`, Esc/B — cancel; host коммитит, когда ready все
+  строки (включая spectator), client ждёт; закрытие по `side_select == false`. Статус
+  «Player disconnected/joined» — строкой в оверлее.
+- `gpf_slice`: пункт паузы **side selection** отзывает resume-голос, прячет меню через
+  `hide_for_submenu()` и открывает оверлей в `CanvasLayer` layer 8; ввод в матч не идёт.
+  После commit пауза снята — меню не возвращается; после cancel — меню паузы снова.
+  Roster change от C++ (`paused` + `sideSelect`) открывает оверлей на всех peer'ах.
+  Ушёл host — client видит `net_connection == 0`, минимальный статус **HOST DISCONNECTED**
+  и выход в меню (Enter/Esc).
+- Rejoin: клиент получает streamed `MatchSetup` (+ animation table + snapshot), строит матч,
+  проходит mirrored side select и после host commit продолжает матч (счёт/время совпадают).
+- Тесты: `check_gpf_net_ui` расширен commit/cancel путями; `check_gpf_net_two_process` +
+  `gpf_net_client_probe` — side select на двух процессах, kill клиента (host pauses +
+  side_select + commit), rejoin вторым probe (совпадение счёта/времени). Маркер `resumed`
+  разводит паузы, иначе два `PauseState` схлопываются на thin client. PASS —
+  `check_gpf_pause`, `check_gpf_slice_ui`, `check_gpf_game_shell`,
+  `check_gpf_local_2p_highlights`, `check_gpf_net_lobby`; extension собирается.
+- Фикс по плейтесту: тонкий клиент применял замену в `Match::ApplyRemoteSnapshot`, но не
+  записывал `SubstitutionNotice`/счётчик, поэтому HUD молчал, `gpf_slice` не звал
+  `GpfActors.sync_roster()` и вышедший игрок был невидим (мяч «отлетал от воздуха»). Клиент
+  теперь ведёт ту же книгу замен, что host (правка `of_port`, не протокол); `GpfHud` первый
+  снапшот считает базой (rejoin не проигрывает старые баннеры). Two-process тест проверяет
+  notice + новый активный состав после замены на рестарте пенальти.
+

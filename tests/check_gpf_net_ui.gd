@@ -200,6 +200,69 @@ func _run() -> void:
 			_check(not bool(snap.get("paused", true)), "the resume vote unpauses the match")
 			_check(not pause_menu.is_open(), "the pause menu closes after the resume")
 
+	# In-match side selection: the pause menu opens the mirrored overlay, the
+	# host commits once every row is ready and the match resumes.
+	if runtime != null and slice != null:
+		runtime.pause_match()
+		await _frames(8)
+		var pause_menu = slice.get("pause_menu")
+		_check(pause_menu != null and pause_menu.is_open(),
+			"the pause menu reopens for side selection")
+		if pause_menu != null:
+			for i in 3:
+				slice.call("_input", _key(KEY_DOWN))
+			slice.call("_input", _key(KEY_ENTER))
+			await _frames(6)
+			var overlay = slice.get("side_select_overlay")
+			_check(overlay != null and overlay.is_visible_in_tree(),
+				"side selection opens the mirrored overlay")
+			_check(bool(NET_SHELL.lobby(self).get("lobby", {}).get("side_select", false)),
+				"the lobby enters mirrored side-select mode")
+			_check(not pause_menu.is_open(), "the pause menu hands over to the overlay")
+			if overlay != null:
+				overlay.call("_input", _key(KEY_LEFT))
+				await _frames(4)
+				var players_after: Array = NET_SHELL.lobby(self).get("lobby", {}).get("players", [])
+				_check(players_after.size() == 1 and int(players_after[0].get("side", -9)) == 2,
+					"the overlay moves the host side through the lobby")
+				overlay.call("_input", _key(KEY_RIGHT))
+				await _frames(4)
+				overlay.call("_input", _key(KEY_ENTER))
+				await _frames(10)
+				_check(slice.get("side_select_overlay") == null,
+					"the host commit closes the overlay")
+				snap = runtime.get_snapshot()
+				_check(not bool(snap.get("paused", true)), "the side-select commit unpauses")
+				_check(not bool(NET_SHELL.lobby(self).get("lobby", {}).get("side_select", true)),
+					"the commit clears the side-select flag")
+
+	# Cancel (Esc in the overlay): the host applies the chosen sides but keeps
+	# the match paused, and the pause menu comes back.
+	if runtime != null and slice != null:
+		runtime.pause_match()
+		await _frames(8)
+		var pause_menu = slice.get("pause_menu")
+		if pause_menu != null and pause_menu.is_open():
+			pause_menu.index = 3
+			slice.call("_input", _key(KEY_ENTER))
+			await _frames(6)
+			var overlay = slice.get("side_select_overlay")
+			_check(overlay != null, "side selection reopens for the cancel path")
+			if overlay != null:
+				overlay.call("_input", _key(KEY_ESCAPE))
+				await _frames(10)
+				_check(slice.get("side_select_overlay") == null, "cancel closes the overlay")
+				_check(not bool(NET_SHELL.lobby(self).get("lobby", {}).get("side_select", true)),
+					"cancel clears the side-select flag")
+				snap = runtime.get_snapshot()
+				_check(bool(snap.get("paused", false)), "cancel keeps the match paused")
+				_check(pause_menu.is_open(), "cancel returns to the pause menu")
+				slice.call("_on_pause_resume")
+				runtime.step_fixed(5)
+				await _frames(10)
+				_check(not bool(runtime.get_snapshot().get("paused", true)),
+					"the match resumes after the cancel path")
+
 	# LAN half-time: the host break overlay is a resume vote for every peer.
 	if runtime != null and slice != null:
 		runtime.debug_force_phase_break(2)

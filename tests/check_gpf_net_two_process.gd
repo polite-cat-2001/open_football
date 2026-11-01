@@ -53,7 +53,11 @@ func _init() -> void:
 	var running_path := ProjectSettings.globalize_path("user://gpf_net_client_running.json")
 	var pause_path := ProjectSettings.globalize_path("user://gpf_net_client_paused.json")
 	var host_vote_path := ProjectSettings.globalize_path("user://gpf_net_host_voted.json")
-	for path in [result_path, running_path, pause_path, host_vote_path]:
+	var side_done_path := ProjectSettings.globalize_path("user://gpf_net_client_side_done.json")
+	var resume_done_path := ProjectSettings.globalize_path("user://gpf_net_client_resumed.json")
+	var rejoin_path := ProjectSettings.globalize_path("user://gpf_net_client_rejoin.json")
+	for path in [result_path, running_path, pause_path, host_vote_path, side_done_path,
+			resume_done_path, rejoin_path]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(path)
 
@@ -63,6 +67,7 @@ func _init() -> void:
 		"-s", CLIENT_SCRIPT,
 		"--",
 		"127.0.0.1", str(port), result_path, running_path, pause_path, host_vote_path,
+		side_done_path, resume_done_path,
 	])
 	var pid := OS.create_process(OS.get_executable_path(), args)
 	if pid <= 0:
@@ -71,13 +76,15 @@ func _init() -> void:
 		quit(1)
 		return
 
-	_run(port, pid, result_path, running_path, pause_path, host_vote_path)
+	_run(port, pid, result_path, running_path, pause_path, host_vote_path, side_done_path,
+		resume_done_path, rejoin_path)
 
 	if runtime.is_net_active():
 		runtime.net_leave()
 	if OS.is_process_running(pid):
 		OS.kill(pid)
-	for path in [result_path, running_path, pause_path, host_vote_path]:
+	for path in [result_path, running_path, pause_path, host_vote_path, side_done_path,
+			resume_done_path, rejoin_path]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(path)
 
@@ -186,8 +193,30 @@ func _write_marker(path: String, text: String) -> void:
 	file.close()
 
 
+func _all_players_ready() -> bool:
+	var players: Array = _lobby().get("players", [])
+	if players.is_empty():
+		return false
+	for player in players:
+		if not bool(player.get("ready", false)):
+			return false
+	return true
+
+
+func _side_select_open() -> bool:
+	runtime.step_fixed(10)
+	return bool(_lobby().get("side_select", false))
+
+
+func _poll_disconnected_side_select() -> bool:
+	runtime.step_fixed(10)
+	last_snapshot = runtime.get_snapshot()
+	return bool(last_snapshot.get("paused", false)) and bool(_lobby().get("side_select", false))
+
+
 func _run(port: int, pid: int, result_path: String, running_path: String,
-		pause_path: String, host_vote_path: String) -> void:
+		pause_path: String, host_vote_path: String, side_done_path: String,
+		resume_done_path: String, rejoin_path: String) -> void:
 	print("  hosting on 127.0.0.1:", port, ", client pid ", pid)
 
 	if not _wait_until(_has_players.bind(2), 20000):
@@ -278,6 +307,62 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		_check(false, "the match did not resume after both votes")
 		return
 	_check(true, "both resume votes unpause the match")
+	# Do not re-pause before the client has observed the resume, or the two
+	# PauseState broadcasts collapse into one latched 'paused' on the thin peer.
+	if not _wait_until(_poll_file_exists.bind(resume_done_path), 15000):
+		_check(false, "the client did not observe the resume")
+		return
+
+	# In-match side selection (pause menu flow): the host opens it, both peers
+	# ready, the host commits and both matches go live again. The client reports
+	# completion through a marker so the next phase cannot race it.
+	runtime.pause_match()
+	_check(runtime.net_side_select_open(), "the host opens mirrored side selection")
+	_check(runtime.net_action("set_ready", 0, 1, 0), "host side-select ready is accepted")
+	if not _wait_until(_all_players_ready, 15000):
+		_check(false, "the client did not ready for side selection")
+		return
+	_check(runtime.net_side_select_commit(), "the host commits the side selection")
+	if not _wait_until(_poll_unpaused, 15000):
+		_check(false, "the host did not resume after the side-select commit")
+		return
+	_check(true, "the side-select commit resumes the host")
+	if not _wait_until(_poll_file_exists.bind(side_done_path), 20000):
+		_check(false, "the client did not finish its side-selection phase")
+		return
+	_check(true, "the client saw the resumed match after the side-select commit")
+
+	# Queue an away substitution for the restart the penalty forces: the thin
+	# client must apply the notice and the new active roster from the snapshot
+	# (it used to miss both, leaving an invisible player on the pitch).
+	var client_peer := -1
+	for player in _lobby().get("players", []):
+		if not bool(player.get("is_host", false)):
+			client_peer = int(player.get("id", -1))
+	var client_owned: Array = []
+	var goalkeeper_ids: Array = []
+	for entry in runtime.get_player_ids():
+		var entry_id := int(entry.get("id", -1))
+		if int(entry.get("owner_id", -1)) == client_peer:
+			client_owned.append(entry_id)
+		if int(entry.get("team", -1)) == 1 and String(entry.get("role", "")) == "goalkeeper":
+			goalkeeper_ids.append(entry_id)
+	var away_squad: Dictionary = runtime.get_squad(1)
+	var sub_out := -1
+	var sub_in := -1
+	for player in away_squad.get("players", []):
+		var player_id := int(player.get("id", -1))
+		if bool(player.get("active", false)):
+			if sub_out < 0 and not client_owned.has(player_id) \
+					and not goalkeeper_ids.has(player_id):
+				sub_out = player_id
+		elif sub_in < 0 and not bool(player.get("left_pitch", false)):
+			sub_in = player_id
+	_check(sub_out > 0 and sub_in > 0,
+		"the away squad has an active player and a bench replacement")
+	if sub_out > 0 and sub_in > 0:
+		_check(runtime.queue_substitution(1, sub_out, sub_in),
+			"the host queues an away substitution")
 
 	# Force a penalty for the client's team to verify the thin client gets the
 	# kicker role and the aim reticle (ownerId-based human id).
@@ -324,6 +409,17 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		"the client has a penalty aim point")
 	_check(bool(client_result.get("penalty_local_taker", false)),
 		"the client penalty taker is local")
+	_check(bool(client_result.get("substitution_seen", false)),
+		"the client received the substitution notice")
+	_check(bool(client_result.get("substitution_roster_synced", false)),
+		"the client roster synced the substituted-in player")
+	var client_sub_notices: Array = client_result.get("substitution_notices", [])
+	_check(not client_sub_notices.is_empty(),
+		"the client has the substitution notice text")
+	_check(int(runtime.get_substitution_notice_counter()) > 0,
+		"the host recorded the applied substitution")
+	_check(int(runtime.get_snapshot().get("substitutions1", 0)) > 0,
+		"the away team has one applied substitution")
 
 	snap = runtime.get_snapshot()
 	_check(int(client_result.get("score0", -1)) == int(snap.get("score0", -2)) and
@@ -333,4 +429,77 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 	print("  host: tick=", snap.get("tick"), " time=", snap.get("match_time_ms"),
 		" score=", snap.get("score0"), ":", snap.get("score1"))
 	print("  client: tick=", client_result.get("tick"), " time=", client_result.get("match_time_ms"),
+		" score=", client_result.get("score0"), ":", client_result.get("score1"))
+
+	# Disconnect: the client process is gone. The host must stay alive, pause
+	# and open the mirrored side selection; the freed side goes to the AI.
+	if not _wait_until(_poll_disconnected_side_select, 25000):
+		_check(false, "the host did not pause into side selection after the disconnect")
+		return
+	_check(true, "the host pauses and opens side selection after the client left")
+	_check(_lobby().get("players", []).size() >= 1, "the host survives the disconnect")
+	_check(runtime.net_action("set_ready", 0, 1, 0), "host ready after the disconnect")
+	if not _wait_until(_all_players_ready, 10000):
+		_check(false, "the host could not ready alone after the disconnect")
+		return
+	_check(runtime.net_side_select_commit(), "the host commits after the disconnect")
+	if not _wait_until(_poll_unpaused, 15000):
+		_check(false, "the host did not resume after the disconnect commit")
+		return
+	_check(true, "the host resumes with the freed side on AI")
+
+	# Rejoin: a fresh client builds the running match from MatchSetup, joins the
+	# mirrored side selection and continues after the host commit.
+	var rejoin_args := PackedStringArray([
+		"--headless",
+		"--path", ProjectSettings.globalize_path("res://"),
+		"-s", CLIENT_SCRIPT,
+		"--",
+		"127.0.0.1", str(port), rejoin_path, "-", "-", "-", "-", "-", "rejoin",
+	])
+	var rejoin_pid := OS.create_process(OS.get_executable_path(), rejoin_args)
+	_check(rejoin_pid > 0, "the rejoin client process starts")
+	if rejoin_pid <= 0:
+		return
+	if not _wait_until(_has_players.bind(2), 20000):
+		_check(false, "the rejoin client never joined")
+		OS.kill(rejoin_pid)
+		return
+	_check(true, "the rejoin client joined the running match")
+	if not _wait_until(_side_select_open, 15000):
+		_check(false, "the rejoin never opened side selection")
+		OS.kill(rejoin_pid)
+		return
+	_check(runtime.net_action("set_ready", 0, 1, 0), "host ready after the rejoin")
+	if not _wait_until(_all_players_ready, 20000):
+		_check(false, "the rejoin client never readied")
+		OS.kill(rejoin_pid)
+		return
+	_check(runtime.net_side_select_commit(), "the host commits the rejoin side selection")
+	if not _wait_until(_poll_unpaused, 15000):
+		_check(false, "the host did not resume after the rejoin commit")
+		OS.kill(rejoin_pid)
+		return
+	if not _wait_until(_poll_client_result.bind(rejoin_path), 30000, 50):
+		_check(false, "the rejoin client never reported a result")
+		OS.kill(rejoin_pid)
+		return
+	if OS.is_process_running(rejoin_pid):
+		OS.kill(rejoin_pid)
+	_check(String(client_result.get("status", "")) == "ok",
+		"rejoin client status is ok: " + str(client_result.get("failures", [])))
+	_check(bool(client_result.get("rejoin", false)), "the rejoin client reports rejoin mode")
+	_check(bool(client_result.get("resumed", false)), "the rejoin client resumed")
+	_check(bool(client_result.get("side_select_seen", false)),
+		"the rejoin client saw the side selection")
+	snap = runtime.get_snapshot()
+	_check(int(client_result.get("score0", -1)) == int(snap.get("score0", -2)) and
+		int(client_result.get("score1", -1)) == int(snap.get("score1", -2)),
+		"the rejoined client sees the same score")
+	_check(absi(int(client_result.get("match_time_ms", -100000)) -
+		int(snap.get("match_time_ms", 0))) <= 2000,
+		"the rejoined client sees the same match time (%s vs %s)" % [
+			client_result.get("match_time_ms"), snap.get("match_time_ms")])
+	print("  rejoin: tick=", client_result.get("tick"),
+		" time=", client_result.get("match_time_ms"),
 		" score=", client_result.get("score0"), ":", client_result.get("score1"))

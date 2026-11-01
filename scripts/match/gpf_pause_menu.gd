@@ -334,7 +334,6 @@ func _activate(i: int) -> void:
 			set_hint("controller select: не портировано")
 		"side":
 			side_select_requested.emit()
-			set_hint("side selection: не портировано")
 		"camera":
 			camera_requested.emit()
 		"visual":
