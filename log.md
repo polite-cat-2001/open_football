@@ -1653,3 +1653,66 @@ placeholder; национальный значок и шрифт есть. Ру�
 - PASS — `check_gpf_referee_card` (ожидает grip-сдвиг), `check_gpf_hud_messages`,
   `check_gpf_slice_ui`, `check_gpf_game_shell`; extension не менялся в этой правке.
 
+## [2026-11-02] feat | UI-редизайн: фундамент дизайн-системы и главное меню
+
+- Спека: `docs/superpowers/specs/2026-11-02-ui-design-system-main-menu.md` (grilling 2026-11-02).
+  Перенос визуального языка `gf-ui-prototype` (Svelte + `app.css`) в Godot: сначала фундамент и
+  главный экран, остальной шелл — следующими этапами. UI английский.
+- Добавлены: `UiTokens` (палитра/геометрия/типографика/тайминги из `app.css`, холст 1920×1080),
+  `UiTheme` + сгенерированный `assets/ui/theme/ui_theme.tres`, `UiNav` (autoload: A/B/Start/LB/RB,
+  автоповтор 320/220 мс, last_input, активен только в группе `ui_shell`), `UiTransition`
+  (150/240 мс, headless bypass), `BentoTile`/`BentoGrid` (ручная раскладка 4×2, selected push
+  ±6 px + scale 1.008), `UiTabBar` (маркер по ширине текста), `UiLegend`, `UiIcon`,
+  `UiBreadcrumb`, `UiMenuRow`/`UiMenuPanel`.
+- Ассеты: Barlow Condensed 600/700/800 + Inter variable (OFL, локально), `stadium.jpg`,
+  8 SVG-иконок; провенанс в `ASSET_CREDITS.md`.
+- Главный экран: hero Quick Match (2×2), Continue Career/Career disabled с чипом SOON, Network;
+  вкладки PLAY/SETTINGS; панели Settings с breadcrumb и статичной строкой; переходы через
+  `UiTransition`. Старые пункты Start Match/Network сохранены как тайлы; Select Teams и
+  Classic Match из меню убраны (сцены остаются).
+- Тесты: `check_main_menu_ui` обновлён, добавлен `check_main_menu_layout` (геометрия ±2 px,
+  масштаб 2/3, фокус, disabled, LB/RB, панель), обновлены `check_gpf_game_shell`/
+  `check_gpf_net_ui`. PASS — `check_main_menu_ui`, `check_main_menu_layout`, `check_ui_layout`,
+  `check_gpf_game_shell`, `check_gpf_net_ui`, `check_gpf_slice_ui`; headless boot и `match.tscn`
+  без новых категорий ошибок.
+- Скриншоты: `.scratch/ui_shots/main_menu_{play,panel,gamepad}_1920x1080.png`.
+
+## [2026-11-02] fix | UI: анимации панели и табов, статичный фон
+
+- По замечаниям живого прогона открытие раздела Settings теперь идёт через
+  `UiTransition.change_content`: весь `PanelWrap` (табы/сетка/легенда) гаснет и сжимается
+  за 150 мс, подменяется панель, затем вход 240 мс — как `screen-out`/`screen-in` в Svelte.
+- Смена табов проигрывает вход тайлов: `BentoGrid.play_entrance` — 380 мс, стаггер 28 мс,
+  сдвиг 64 px по направлению таба; выбранный тайл приезжает с инверсией.
+- Дрейф фото стадиона убран (фон статичный); `UiTokens.DRIFT` удалён.
+- `PanelWrap` теперь позиционируется сам (`220, top`) и имеет реальную высоту блока; дети
+  сидят в локальных координатах, поэтому fade/scale целится в центр панели.
+- PASS — `check_main_menu_ui`, `check_main_menu_layout`, `check_ui_layout`,
+  `check_gpf_game_shell`; `check_main_menu_layout` обновлён под локальные координаты.
+
+## [2026-11-02] refactor | UI: единый _apply_view_state в главном меню
+
+- Геометрия и видимость главного меню теперь вычисляются в одном `_apply_view_state()` по
+  `_panel_open` и активному табу. Функция вызывается из `_layout`, `_on_tab_selected`,
+  `_apply_open_panel`, `_apply_close_panel`, `_on_device_changed`, `_focus_initial`.
+- Это убирает класс багов «закрыли панель, но забыли вернуть раскладку»: состояние и позиции
+  больше не расходятся по разным функциям. Регресс-проверка в `check_main_menu_layout`
+  (`panel_wrap.position/size` после `B`) остаётся.
+- PASS — `check_main_menu_ui`, `check_main_menu_layout`, `check_ui_layout`.
+
+## [2026-11-02] fix | UI: левый стик больше не двигает фокус дважды
+
+- Встроенная фокус-навигация Godot реагировала на `ui_down/up` от левого стика параллельно с
+  `UiNav`: после нашего перехода на Gameplay она тем же событием уводила фокус на Graphics.
+- `UiNav._input` теперь поглощает `InputEventJoypadMotion` по осям 0/1; направления стика
+  по-прежнему читаются в `_process`. В `check_main_menu_layout` добавлены проверки
+  DOWN с табов → Gameplay и UP с сетки → активный таб.
+
+## [2026-11-02] fix | UI: UP из нижнего ряда сетки идёт на тайл выше
+
+- Старое правило «Up с любого тайла → таб-бар» перескакивало верхний ряд: с Audio фокус
+  уходил в SETTINGS. Теперь в Settings UP идёт Audio→Controls, Graphics→Gameplay, а в табы
+  только с верхнего ряда; в Play Network→Quick, Quick→табы.
+- Focus-neighbors верхнего ряда настроены на активный таб; тест расширен
+  (Audio → Controls → активный таб). PASS — `check_main_menu_layout`.
+

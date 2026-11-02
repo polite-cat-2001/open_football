@@ -59,3 +59,18 @@
   `controller_small.png`, шрифт `data/media/fonts/alegreya/AlegreyaSansSC-ExtraBold.ttf`;
   Apache 2.0 (см. `assets/gpf/LICENSE-GameplayFootball`).
 - Используются экраном `scenes/controller_select.tscn` (порт `SideSelectPage`).
+
+## UI-редизайн: главное меню (assets/ui/)
+
+- **Шрифты**: `assets/ui/fonts/BarlowCondensed-{SemiBold,Bold,ExtraBold}.ttf`
+  (Barlow Condensed, Jeremy Tribby) и `assets/ui/fonts/Inter-Variable.ttf`
+  (Inter, Rasmus Andersson) — оба SIL Open Font License 1.1, тексты лицензий
+  `assets/ui/fonts/OFL-BarlowCondensed.txt` и `assets/ui/fonts/OFL-Inter.txt`.
+  Источник: Google Fonts (`github.com/google/fonts`, `ofl/barlowcondensed`, `ofl/inter`).
+- **Фон**: `assets/ui/menu/stadium.jpg` — стоковое фото стадиона из прототипа
+  `gf-ui-prototype/web/public/stadium.jpg`; бесплатная лицензия, подтверждено владельцем.
+- **Иконки**: `assets/ui/icons/*.svg` — перенос инлайн-SVG из
+  `gf-ui-prototype/web/src/lib/Glyph.svelte` (штрихи переведены в белый для тонирования
+  `modulate`).
+- **Тема**: `assets/ui/theme/ui_theme.tres` — генерируется `tools/build_ui_theme.gd`
+  из `scripts/ui/ui_tokens.gd` / `scripts/ui/ui_theme.gd`.

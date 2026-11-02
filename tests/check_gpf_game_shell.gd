@@ -1,4 +1,4 @@
-extends SceneTree
+﻿extends SceneTree
 # End-to-end check for the GPF game shell: main menu -> match -> final whistle ->
 # main menu -> second match, all in one process. The C++ runtime node must survive
 # the scene change while every presentation piece is rebuilt from scratch.
@@ -40,9 +40,9 @@ func _runtime() -> Node:
 
 
 func _press_start(menu: Node) -> void:
-	var start := menu.get_node_or_null("StartBtn") as Button
+	var start := menu.get_node_or_null("Design/PanelWrap/PlayGrid/QuickMatchTile") as Button
 	if start == null:
-		failures.append("main menu has no Start Match button")
+		failures.append("main menu has no Quick Match tile")
 		return
 	start.pressed.emit()
 	await _frames(3)
@@ -75,11 +75,11 @@ func _run() -> void:
 	await _frames(3)
 	var menu := current_scene
 	_check(menu != null and menu.name == "MainMenu", "boots into the main menu")
-	if menu == null or menu.get_node_or_null("StartBtn") == null:
+	if menu == null or menu.get_node_or_null("Design/PanelWrap/PlayGrid/QuickMatchTile") == null:
 		_finish()
 		return
 
-	# First match: Start Match must lead through the prematch to the GPF match.
+	# First match: Quick Match must lead through the prematch to the GPF match.
 	await _press_start(menu)
 	var first := current_scene
 	_check(first != null and first.name == "GpfSlice", "Start Match opens the GPF match")
