@@ -1,10 +1,14 @@
 extends SceneTree
-# Headless check for the main menu's keyboard/gamepad entry point: a control
-# must own focus on entry, otherwise arrows and ui_accept do nothing.
+# Headless check for the main menu's keyboard/gamepad entry point: the Quick
+# Match tile must own focus on entry and both Enter and gamepad A must open the
+# controller/side select through the shared UiNav router.
 #
 # Run:  godot --headless --path . -s res://tests/check_main_menu_ui.gd
 
 const MAIN_MENU := "res://scenes/main_menu.tscn"
+const QUICK_TILE := "Design/PanelWrap/PlayGrid/QuickMatchTile"
+const NETWORK_TILE := "Design/PanelWrap/PlayGrid/NetworkTile"
+const CONTINUE_TILE := "Design/PanelWrap/PlayGrid/ContinueCareerTile"
 
 var failures: Array[String] = []
 
@@ -33,34 +37,37 @@ func _finish() -> void:
 
 func _run() -> void:
 	change_scene_to_file(MAIN_MENU)
-	await _frames(6)
+	await _frames(8)
 	var screen := current_scene
 	_check(screen != null and screen.name == "MainMenu", "the main menu opens")
 	if screen == null or screen.name != "MainMenu":
 		_finish()
 		return
 
-	var start_button := screen.get_node_or_null("StartBtn") as Button
-	_check(start_button != null, "Start Match exists")
-	if start_button == null:
+	var quick := screen.get_node_or_null(QUICK_TILE) as Button
+	_check(quick != null, "Quick Match tile exists")
+	if quick == null:
 		_finish()
 		return
-	_check(start_button.has_focus(), "Start Match owns focus on entry")
-	_check(start_button.focus_mode == Control.FOCUS_ALL, "Start Match is focusable")
-	var next := start_button.find_next_valid_focus()
-	_check(next != null and next != start_button, "focus traversal has a next control")
-	_check((screen.get_node("SelectTeamsBtn") as Button).focus_mode == Control.FOCUS_ALL,
-		"Select Teams is focusable")
+	_check(quick.has_focus(), "Quick Match owns focus on entry")
+	_check(quick.focus_mode == Control.FOCUS_ALL, "Quick Match is focusable")
+	var next := quick.find_next_valid_focus()
+	_check(next != null and next == screen.get_node(NETWORK_TILE),
+		"focus traversal reaches Network Match")
 
-	# Godot 4.7's default ui_accept has no joypad button: A must be handled by
-	# the screen itself or the pad cannot leave the main menu.
+	var disabled := screen.get_node_or_null(CONTINUE_TILE) as Button
+	_check(disabled != null and disabled.disabled, "Continue Career is disabled")
+	_check(disabled != null and disabled.focus_mode == Control.FOCUS_NONE,
+		"disabled tile is skipped by focus")
+
+	# Godot 4.7's default ui_accept has no joypad button: UiNav handles A.
 	var joy := InputEventJoypadButton.new()
 	joy.device = 0
 	joy.button_index = JOY_BUTTON_A
 	joy.pressed = true
 	Input.parse_input_event(joy)
-	await _frames(4)
+	await _frames(6)
 	_check(current_scene != null and current_scene.name == "ControllerSelect",
-		"gamepad A activates the focused Start Match")
+		"gamepad A activates the focused Quick Match tile")
 
 	_finish()

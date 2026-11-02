@@ -1,4 +1,4 @@
-extends SceneTree
+﻿extends SceneTree
 # Headless check for the LAN shell screens: main menu -> Network -> Host ->
 # mirrored Sides -> Teams lobby -> Match options -> GPF match, plus the Join
 # form's readable errors. Drives the same bridge the two-process harness uses,
@@ -50,10 +50,10 @@ func _run() -> void:
 	await _frames(6)
 	var menu := current_scene
 	_check(menu != null and menu.name == "MainMenu", "the main menu opens")
-	_check(menu != null and menu.get_node_or_null("NetworkBtn") is Button,
-		"the main menu has a Network button")
+	_check(menu != null and menu.get_node_or_null("Design/PanelWrap/PlayGrid/NetworkTile") is Button,
+		"the main menu has a Network Match tile")
 	if menu != null:
-		menu.call("_on_network")
+		(menu.get_node("Design/PanelWrap/PlayGrid/NetworkTile") as Button).pressed.emit()
 		await _frames(6)
 	_check(current_scene != null and current_scene.name == "NetworkMenu",
 		"Network opens the network menu")
