@@ -44,7 +44,7 @@ Headless **не рисует** — PNG оттуда пустой. Скриншо
 
 - `1..9`, `0` — первые десять состояний (кикофф, live, гол, штрафной, перерыв, финал,
   серия, конец серии, пауза, Game Plan), дальше `←/→` — Game Plan 2P, Game Plan Tactics,
-  Game Plan Roles, Game Plan Select, notice замены, set-piece taker (всего 16);
+  Game Plan Roles, Game Plan Select, notice замены, карточка, set-piece taker (всего 17);
 - `←/→` — соседнее состояние;
 - подпись с номером/названием состояния (в скриншотах скрывается).
 
@@ -104,7 +104,8 @@ Godot-экран обязан пройти ту же матрицу; скрин�
 - Именование: `main_menu_1920x1080.png`, `prematch_gameplan_1280x720.png`,
   `ui_lab_kickoff_1920x1080.png`, `ui_lab_half_time_...`, `ui_lab_game_plan_...`,
   `ui_lab_game_plan_2p_...`, `ui_lab_game_plan_tactics_...`, `ui_lab_game_plan_roles_...`,
-  `ui_lab_substitution_...`, `ui_lab_set-piece_taker_...`, `ui_lab_shootout_...`, ...
+  `ui_lab_substitution_...`, `ui_lab_card_...`, `ui_lab_goal_...`,
+  `ui_lab_set-piece_taker_...`, `ui_lab_shootout_...`, ...
 - Стенд скрывает свою подпись (`set_caption_visible(false)`), чтобы кадр был чистым.
 
 ## Ограничения инструментов

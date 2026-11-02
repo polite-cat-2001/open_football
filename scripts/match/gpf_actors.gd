@@ -16,8 +16,23 @@ const NAMEPLATE_NORMAL_COLOR := Color(0.90, 0.94, 1.0)
 const NAMEPLATE_CONTROLLED_COLOR := Color(1.0, 0.84, 0.18)
 const NAMEPLATE_HEIGHT := 2.25
 
+# Referee card prop. The original draws media/objects/officials/{yellow,red}card.ase
+# (a 0.1104 x 0.02 x 0.1539 m box, plain-coloured textures) at the elbow bone.
+# The bridge relays that geometry's exact transform, so this is the same prop.
+const REFEREE_CARD_SIZE := Vector3(0.1104, 0.02, 0.1539)
+# Officials::Put() puts the card *centre* 0.25 m down the forearm; the hand
+# then grips it near the middle and the card hangs at the wrist. Shift the prop
+# one card length further along that axis so the hand holds its lower edge and
+# the card is shown above the hand, as in the original broadcast view.
+const REFEREE_CARD_GRIP := REFEREE_CARD_SIZE.z
+const YELLOW_CARD_COLOR := Color(0.929, 0.929, 0.0)
+const RED_CARD_COLOR := Color(0.753, 0.0, 0.0)
+
 var body_scene: PackedScene
 var ball_root: Node3D
+var referee_card_root: Node3D
+var yellow_card: MeshInstance3D
+var red_card: MeshInstance3D
 var skeletons: Dictionary = {}
 var bone_indices: Dictionary = {}
 var actors: Array = []
@@ -37,6 +52,7 @@ func setup(runtime: Node) -> void:
 	body_scene = load(BODY_SCENE)
 	_build_ball()
 	_build_reticle()
+	_build_referee_cards()
 
 
 func count() -> int:
@@ -57,6 +73,7 @@ func reset() -> void:
 	labels_visible = true
 	if ball_root != null:
 		ball_root.transform = Transform3D.IDENTITY
+	update_referee_card({})
 
 
 func get_controlled() -> int:
@@ -170,6 +187,32 @@ func sync_ball(snap: Dictionary) -> void:
 	)
 
 
+# The bridge relays the two card props the original Officials::Put() positions
+# (host: GetCurrentCardState; thin client: relayed SetRemoteCardState). This is
+# a pure renderer of those transforms: no text parsing, no host-only state.
+func update_referee_card(snap: Dictionary) -> void:
+	if yellow_card == null or red_card == null:
+		return
+	var cards: Dictionary = snap.get("referee_cards", {})
+	_apply_referee_card(yellow_card, cards.get("yellow", {}))
+	_apply_referee_card(red_card, cards.get("red", {}))
+
+
+func _apply_referee_card(card: MeshInstance3D, state: Dictionary) -> void:
+	# `raised` is the bridge's presentation hint: the original card is also
+	# placed during the showcard clip's down frames; hide those so the card is
+	# only seen in the raised-hand part of the animation.
+	card.visible = bool(state.get("visible", false)) and bool(state.get("raised", true))
+	if not card.visible:
+		return
+	var basis := Basis(state.get("rot", Quaternion.IDENTITY))
+	var pos: Vector3 = state.get("pos", Vector3.ZERO)
+	card.transform = Transform3D(
+		basis,
+		pos + basis * Vector3(0.0, 0.0, -REFEREE_CARD_GRIP)
+	)
+
+
 func capture_ball_transform() -> Transform3D:
 	if ball_root == null:
 		return Transform3D.IDENTITY
@@ -238,6 +281,30 @@ func _build_ball() -> void:
 	for mesh in ball_root.find_children("*", "MeshInstance3D", true, false):
 		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	add_child(ball_root)
+
+
+func _build_referee_cards() -> void:
+	referee_card_root = Node3D.new()
+	referee_card_root.name = "RefereeCards"
+	add_child(referee_card_root)
+	yellow_card = _build_referee_card("YellowCard", YELLOW_CARD_COLOR)
+	red_card = _build_referee_card("RedCard", RED_CARD_COLOR)
+
+
+func _build_referee_card(card_name: String, color: Color) -> MeshInstance3D:
+	var card := MeshInstance3D.new()
+	card.name = card_name
+	var box := BoxMesh.new()
+	box.size = REFEREE_CARD_SIZE
+	card.mesh = box
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.75
+	card.material_override = material
+	card.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	card.visible = false
+	referee_card_root.add_child(card)
+	return card
 
 
 func _build_reticle() -> void:

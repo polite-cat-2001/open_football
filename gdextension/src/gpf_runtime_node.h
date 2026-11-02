@@ -220,6 +220,10 @@ public:
     // raw X = pitch length, raw Y = pitch width, raw Z = up.
     void debug_set_ball(const Vector3 &position, const Vector3 &momentum);
     void debug_set_last_touch_team(int team_id);
+    // Test hook: feed Match::SpamMessage directly. The relay to a thin client
+    // is the same one a real goal/referee call uses (snapshot message/counter),
+    // without forcing a goal that would leave the match in a kickoff.
+    void debug_spam_message(const String &text, int time_ms);
     void debug_force_set_piece(int set_piece_type, int team_id);
     // F3: start the penalty shootout series from a clean play state.
     void debug_force_shootout();

@@ -316,6 +316,7 @@ func _process(delta: float) -> void:
 	_sync_roster()
 	var poses := actors.apply_runtime()
 	actors.sync_ball(snap)
+	actors.update_referee_card(snap)
 	camera_rig.update(snap)
 	goal_nets.update()
 	replay.record(poses)

@@ -82,6 +82,7 @@ func _base_state(name: String) -> Dictionary:
 			"possession0_ms": 1500000, "possession1_ms": 1200000,
 			"shots0": 9, "shots1": 6,
 			"display_player": 0,
+			"actual_time_ms": 1000,
 		},
 	}
 
@@ -109,6 +110,8 @@ func _build_states() -> Array:
 	states.append(_with(goal, {
 		"score0": 2, "score1": 1, "match_time_ms": 2700000,
 		"goal_scored": true, "last_goal_team": 0,
+		"spam_message": "GOAL for ALASHKERT! KRAMER scores!",
+		"spam_message_time_ms": 4000, "spam_message_counter": 1,
 	}))
 
 	var free_kick := _base_state("FREE KICK")
@@ -187,6 +190,13 @@ func _build_states() -> Array:
 		"score0": 1, "score1": 1, "match_time_ms": 1900000, "in_play": true,
 		"substitution_notice_counter": 1,
 		"substitution_notices": ["RIVERA off, KOVAL on"],
+	}))
+
+	var card := _base_state("CARD")
+	states.append(_with(card, {
+		"score0": 1, "score1": 1, "match_time_ms": 2000000, "in_play": true,
+		"spam_message": "FOUL! YELLOW CARD", "spam_message_time_ms": 3000,
+		"spam_message_counter": 1,
 	}))
 
 	var taker := _base_state("SET-PIECE TAKER")
@@ -277,9 +287,16 @@ func set_state(index: int) -> void:
 	shootout.reset()
 	var snap: Dictionary = _current["snap"]
 	var state_name := String(_current.get("name", ""))
+	# The HUD treats the first snapshot after reset as a baseline (rejoin/F4),
+	# so the stand primes it before presenting a state with an announcement.
+	var baseline: Dictionary = _base_state("baseline")["snap"]
+	baseline["actual_time_ms"] = 0
+	hud.apply_snapshot(baseline, int(snap.get("display_player", -1)), 0, false,
+		"Afternoon")
 	if state_name == "SET-PIECE TAKER":
 		hud.show_taker_menu_demo(_demo_taker_candidates(), 4)
-	hud.apply_snapshot(snap, int(snap.get("display_player", -1)))
+	hud.apply_snapshot(snap, int(snap.get("display_player", -1)), 0, false,
+		"Afternoon")
 	shootout.update(snap, 0.0)
 	if state_name == "PAUSE":
 		pause_menu.open()

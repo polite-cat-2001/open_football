@@ -31,6 +31,16 @@ var substitution_notice: Label
 var _sub_notice_counter := -1
 var _sub_notice_hide_ms := 0
 
+# Match message (goal scorer, referee call): the original draws one centred
+# caption at 5% height and hides it on messageCaptionRemoveTime_ms. Our score
+# line occupies that band, so the caption sits just below it (8.5%). The bridge
+# only has the display duration, so the HUD anchors it to actual_time_ms.
+var message_label: Label
+var _spam_counter := -1
+var _spam_hide_at_ms := 0
+var _spam_active := false
+var _shootout_active := false
+
 var taker_menu: GpfSetPieceTakerMenu
 var _hint_player_id := -2
 
@@ -69,6 +79,7 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	_sync_phase_menu(snap)
 	_sync_taker_ui(snap)
 	_sync_substitution_notice(snap)
+	_sync_spam_message(snap)
 	if hud == null:
 		return
 	var status := _status_text(snap, display_player_id)
@@ -106,13 +117,20 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 		lighting_name,
 	]
 	# The control legend must fit 1280-wide screens too: wrap it to the
-	# viewport and push the taker hint below the wrapped block.
+	# viewport and push the taker hint below the wrapped block. A visible match
+	# message sits under the score line, so the dev legend moves down while it
+	# is up instead of printing through the caption.
 	var view_width := get_viewport().get_visible_rect().size.x
 	hud.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hud.size = Vector2(maxf(320.0, view_width - 48.0), 0)
 	hud.size.y = hud.get_minimum_size().y
+	var legend_top := 64.0
+	if _message_showing():
+		# Room for two wrapped caption lines plus a gap.
+		legend_top = maxf(64.0, message_label.position.y + 96.0)
+	hud.position = Vector2(24, legend_top)
 	if taker_hint != null:
-		taker_hint.position = Vector2(24, 64.0 + hud.size.y + 6.0)
+		taker_hint.position = Vector2(24, legend_top + hud.size.y + 6.0)
 
 
 func set_replay_mode(active: bool) -> void:
@@ -121,6 +139,7 @@ func set_replay_mode(active: bool) -> void:
 		hud.visible = not active and not is_taker_menu_open()
 	if score_hud != null:
 		score_hud.visible = not active
+	_refresh_message_visibility()
 
 
 func reset() -> void:
@@ -132,6 +151,13 @@ func reset() -> void:
 	_sub_notice_counter = -1
 	if substitution_notice != null:
 		substitution_notice.visible = false
+	_spam_counter = -1
+	_spam_hide_at_ms = 0
+	_spam_active = false
+	_shootout_active = false
+	if message_label != null:
+		message_label.text = ""
+	_refresh_message_visibility()
 
 
 func set_taker_hint_key(key_name: String) -> void:
@@ -362,6 +388,43 @@ func _sync_substitution_notice(snap: Dictionary) -> void:
 		substitution_notice.visible = false
 
 
+# Original Match::Process draws one caption at 50% width / 5% height and hides
+# it when messageCaptionRemoveTime_ms (actual match time, not wall clock)
+# passes. Dedupe by counter, never by text: the host and a thin client both
+# re-create the caption from the same counter, and the first snapshot of a
+# presentation is a baseline so a rejoin does not replay an old message.
+func _sync_spam_message(snap: Dictionary) -> void:
+	if message_label == null:
+		return
+	var counter := int(snap.get("spam_message_counter", 0))
+	var text := String(snap.get("spam_message", ""))
+	var now := int(snap.get("actual_time_ms", 0))
+	# The shootout draws its own circle rows at the top and owns the end of the
+	# match; a match caption would land on them.
+	_shootout_active = bool(snap.get("shootout_active", false))
+	if _spam_counter < 0:
+		_spam_counter = counter
+	elif counter != _spam_counter:
+		_spam_counter = counter
+		if text != "":
+			message_label.text = text
+			_spam_active = true
+			_spam_hide_at_ms = now + maxi(0, int(snap.get("spam_message_time_ms", 3000)))
+	if _spam_active and now >= _spam_hide_at_ms:
+		_spam_active = false
+	_refresh_message_visibility()
+
+
+func _refresh_message_visibility() -> void:
+	if message_label == null:
+		return
+	message_label.visible = _spam_active and not _replay_mode and not _shootout_active
+
+
+func _message_showing() -> bool:
+	return message_label != null and message_label.visible
+
+
 func _sync_phase_menu(snap: Dictionary) -> void:
 	# The shootout presentation owns the end of the match: it shows its own winner banner and quits.
 	if bool(snap.get("shootout_active", false)):
@@ -589,6 +652,27 @@ func _build_hud() -> void:
 	substitution_notice.text = ""
 	substitution_notice.visible = false
 	layer.add_child(substitution_notice)
+
+	message_label = Label.new()
+	message_label.name = "MatchMessage"
+	message_label.anchor_left = 0.05
+	message_label.anchor_right = 0.95
+	message_label.anchor_top = 0.085
+	message_label.anchor_bottom = 0.085
+	message_label.offset_left = 0
+	message_label.offset_right = 0
+	message_label.offset_top = 0
+	message_label.offset_bottom = 64
+	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	message_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	message_label.add_theme_font_size_override("font_size", 30)
+	message_label.add_theme_color_override("font_color", Color(0.98, 0.98, 0.98))
+	message_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	message_label.add_theme_constant_override("outline_size", 6)
+	message_label.text = ""
+	message_label.visible = false
+	layer.add_child(message_label)
 
 
 func _build_taker_menu() -> void:
