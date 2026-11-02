@@ -1556,3 +1556,100 @@ placeholder; национальный значок и шрифт есть. Ру�
   (`scripts/match/substitution_notices.gd`); первый снапшот rejoin-клиента — база (3 с).
   Тест `check_gpf_substitution_notices` + two-process замена на рестарте пенальти.
 
+### [2026-11-01] feat | HUD: сообщения матча, усталость, карточки (тикет 13)
+
+- Мост (наш `gdextension`, `of_port` не менялся): `get_snapshot()` отдаёт `spam_message`,
+  `spam_message_time_ms` (длительность) и `spam_message_counter` из `Match::GetSpamMessage*` —
+  на host их создаёт `Match::Process`, на thin client `ApplyRemoteSnapshot` через уже едущие в
+  LAN-снимке `message/messageCounter`; плюс `player_condition` (`id/name/team/fatigue/cards`).
+  `get_player_ids()` получил `fatigue` (0..100, синхронизируется на client через
+  `SnapshotPlayer.fatigue`) и `cards` (host-only). Новый тестовый хук `debug_spam_message`.
+- `GpfHud`: сообщение строкой по центру сверху (5% высоты, как оригинальный `messageCaption`),
+  показ по смене counter, скрытие по `actual_time_ms + duration`, первый снимок — база
+  (rejoin/F4 не проигрывают старое). Слева снизу — компактный блок усталости управляемых
+  игроков (имя, полоска, %); на host ещё `Y`/`YY`/`R`/`Y R` из `Player::GetCards()`. В 2P
+  `gpf_slice` передаёт оба controlled id. Замены не тронуты.
+- Отступления (записаны в тикет): оригинал in-match усталость не рисует; per-player карточки
+  в LAN-снимок не едут и `GetCurrentCardState()` на client не читает relayed state, поэтому
+  persistent-маркер host-only, на client карточка — только сообщением и 3D-анимацией судьи
+  (`cards = -1`, маркер скрыт). Для LAN-гейта two-process шлёт `debug_spam_message`: настоящий
+  форсированный гол оставляет кикофф и ломает следующий этап с форсом пенальти.
+- Тесты: новый `check_gpf_hud_messages` (синтетика + реальный гол с `GOAL for ...`), в
+  `check_gpf_net_two_process`/`gpf_net_client_probe` — сообщение/counter/HUD, fatigue на client,
+  `cards = -1`, fatigue после rejoin. PASS — `check_gpf_hud_messages`, `check_gpf_slice_ui`,
+  `check_gpf_substitutions`, `check_gpf_substitution_notices`, `check_gpf_net_ui`,
+  `check_gpf_net_two_process`, `check_gpf_pause`, `check_gpf_match_cycle`; extension собран.
+
+### [2026-11-01] fix | HUD тикета 13: in-match усталость/карточки убраны (верность оригиналу)
+
+- Решение владельца: приоритет — строгая верность оригиналу. Оригинальный in-match HUD не рисует
+  ни усталость, ни постоянные карточки; усталость есть только в Game Plan (полоска на карточках
+  игроков в `gameplan.cpp`, у нас — `GpfGamePlan` из `get_squad().fatigue`).
+- Удалён компактный блок усталости/карточек из `GpfHud` вместе с `player_condition` в
+  `get_snapshot()` и `fatigue`/`cards` в `get_player_ids()`; возвращены прежние подписи
+  `apply_snapshot()`/`GpfActors`, состояния `ui_lab` (GOAL/CARD остались как сообщения).
+- `GpfHud` оставляет только сообщение матча (порт `messageCaption`): верх по центру под строкой
+  счёта, dedupe по counter, скрытие по `actual_time_ms`, база на первом снимке. `debug_spam_message`
+  и LAN-проверка сообщения сохранены.
+- LAN-гейт по усталости теперь проверяет Game Plan-данные на клиенте — `get_squad(team).fatigue`
+  (в т.ч. после rejoin), а не in-match HUD. Тесты обновлены: `check_gpf_hud_messages` фиксирует
+  отсутствие блока, `check_gpf_net_two_process`/`gpf_net_client_probe` — сообщение + Game Plan fatigue.
+- PASS — `check_gpf_hud_messages`, `check_gpf_slice_ui`, `check_ui_layout`, `check_gpf_net_ui`,
+  `check_gpf_pause`, `check_gpf_match_cycle`, `check_gpf_substitutions`,
+  `check_gpf_net_two_process`; extension пересобран.
+
+### [2026-11-01] feat | 3D-карточка судьи как в оригинале (тикет 13)
+
+- Мост (`gdextension`, `of_port` не менялся): `get_snapshot()` отдаёт `referee_cards` — два пропа
+  (`yellow`/`red`) с `visible`/`pos`/`rot`, снятые с реальной геометрии, которую оригинальный
+  `Officials::Put()` ставит у локтя судьи. Host берёт её из `GetCurrentCardState()`
+  (Special + foul type), thin client — из уже relayed `remoteCardType` (`SetRemoteCardState`),
+  поэтому читается один и тот же объект на обоих peer'ах. Никакого разбора текста сообщения, никакой
+  host-only ветки и нового сетевого поля: зеркалирование (левый/правый локоть) приходит в самом
+  трансформе.
+- `GpfActors` строит жёлтую и красную коробки по размерам `yellowcard.ase`/`redcard.ase`
+  (0.1104×0.02×0.1539 м) с цветами оригинальных PNG и на каждом кадре ставит каждый проп по его
+  `visible`/`pos`/`rot`; `reset()` прячет обе. `gpf_slice` зовёт `update_referee_card(snap)` рядом
+  с мячом.
+- Тесты: новый `check_gpf_referee_card` (размер, независимые `visible`/трансформы, reset); в
+  `check_gpf_hud_messages` — `referee_cards` без ложной карточки; в
+  `check_gpf_net_two_process`/`gpf_net_client_probe` — `referee_cards` в клиентском снимке (host и
+  rejoin). Реальное карточное событие не форсируется: публичного debug-хука фола в `of_port` нет, а
+  менять его нельзя; рендер и поля покрыты, сам фол проверяется живым прогоном.
+- PASS — `check_gpf_referee_card`, `check_gpf_hud_messages`, `check_gpf_slice_ui`,
+  `check_ui_layout`, `check_gpf_game_shell`, `check_gpf_pause`, `check_gpf_match_cycle`,
+  `check_gpf_substitutions`, `check_gpf_net_ui`, `check_gpf_net_two_process`; extension пересобран.
+
+### [2026-11-01] fix | 3D-карточка: не висит у бедра в переходных кадрах showcard
+
+- Плейтест: карточка видна, но на старте клипа `000_showcard.anim` судья держит её у бедра.
+  Диагностический прогон (seed 11, AI vs AI) подтвердил: карточка честно идёт по оригинальной
+  геометрии `Officials::Put()` — z растёт с 1.10 м (кадр 10) до 1.98 м (кадры 60–130) и падает на
+  кадре 140; анимация при этом `showcard`, значит трансформ и логика оригинальные. Оригинал тоже
+  показывает карточку в кадрах 0–19/140–149 с опущенной рукой — оттуда и «вниз держит».
+- Фикс — презентационный, без правок `of_port`: мост оставляет `visible`/`pos`/`rot` исходной
+  геометрии и добавляет `raised` (карточка выше плеча судьи, по `left_shoulder`/`right_shoulder`
+  из node map — работает и на клиенте, где поза рефери relayed). `GpfActors` рисует карточку только
+  при `visible && raised`, поэтому она появляется уже в поднятой руке (~кадр 40, z≈1.7 м) и
+  скрывается при опускании. Это единственное сознательное отступление от оригинала в карточке
+  (записано в тикет/вики); чтобы вернуть строгую покадровую верность — игнорировать `raised`.
+- Тесты: `check_gpf_referee_card` проверяет `raised=false` → скрыто; HUD/два-процессных тестов —
+  наличие `raised` в снимке (host/client/rejoin). PASS — `check_gpf_referee_card`,
+  `check_gpf_hud_messages`, `check_gpf_slice_ui`, `check_gpf_game_shell`,
+  `check_gpf_net_two_process`; extension пересобран.
+
+### [2026-11-01] fix | 3D-карточка: grip-сдвиг — нижняя кромка в руке, карточка над кистью
+
+- Плейтест (крупный план): карточка висела на запястье, верхней кромкой у руки. Причина —
+  оригинальный `Officials::Put()` ставит **центр** карточки в 0.25 м от локтя; при нашей длине
+  предплечья это запястье, поэтому карточка свисала ниже кисти. Это не ошибка чтения трансформа:
+  проверка `referee_cards.yellow.pos` совпала с геометрией, но визуальная привязка не та.
+- Фикс — только в `GpfActors`, без правок `of_port`: проп сдвигается на одну высоту карточки
+  (0.1539 м) вдоль её локальной -Z (`REFEREE_CARD_GRIP`). Нижняя кромка оказывается в руке, карточка
+  поднимается над кистью. Трансформ/поворот по-прежнему берутся из оригинальной геометрии; сдвиг —
+  презентационный. Визуальная проверка: seed 11, кадр ~70 showcard — карточка над рукой.
+- Отступления записаны в тикет/вики (grip + raised); чтобы вернуть строгую верность, обнулить
+  `REFEREE_CARD_GRIP` и игнорировать `raised`.
+- PASS — `check_gpf_referee_card` (ожидает grip-сдвиг), `check_gpf_hud_messages`,
+  `check_gpf_slice_ui`, `check_gpf_game_shell`; extension не менялся в этой правке.
+

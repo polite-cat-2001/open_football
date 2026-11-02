@@ -14,12 +14,15 @@ extends SceneTree
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
+const GpfHudScript := preload("res://scripts/match/gpf_hud.gd")
 
 var failures: Array[String] = []
 var runtime: Node
 var probe_result: Dictionary = {}
 var match_setup: Dictionary = {}
 var last_snapshot: Dictionary = {}
+var hud: GpfHud
+var probe_human_id := -1
 
 
 func _init() -> void:
@@ -43,8 +46,10 @@ func _init() -> void:
 	var side_done_marker := _arg(args, 6)
 	var resume_done_marker := _arg(args, 7)
 	var mode := _arg(args, 8)
+	var message_marker := _arg(args, 9)
+	var message_seen_marker := _arg(args, 10)
 	var ok := _run(args[0], int(args[1]), running_marker, pause_marker, host_vote_marker,
-		side_done_marker, resume_done_marker, mode)
+		side_done_marker, resume_done_marker, mode, message_marker, message_seen_marker)
 	probe_result["status"] = "ok" if ok and failures.is_empty() else "fail"
 	probe_result["failures"] = failures
 	_write_result(args[2], probe_result)
@@ -122,7 +127,22 @@ func _poll_setup() -> bool:
 func _poll_remote() -> bool:
 	runtime.step_fixed(10)
 	last_snapshot = runtime.get_snapshot()
+	_apply_probe_hud(last_snapshot)
 	return int(last_snapshot.get("match_time_ms", 0)) > 0
+
+
+func _apply_probe_hud(snap: Dictionary) -> void:
+	if hud == null:
+		return
+	hud.apply_snapshot(snap, probe_human_id, 0, false, "Afternoon")
+
+
+func _poll_spam_message(baseline: int) -> bool:
+	runtime.step_fixed(10)
+	last_snapshot = runtime.get_snapshot()
+	_apply_probe_hud(last_snapshot)
+	return int(last_snapshot.get("spam_message_counter", 0)) > baseline \
+		and String(last_snapshot.get("spam_message", "")) != ""
 
 
 func _poll_paused() -> bool:
@@ -171,7 +191,8 @@ func _write_marker(path: String, text: String) -> void:
 func _run(address: String, port: int, running_marker: String = "",
 		pause_marker: String = "", host_vote_marker: String = "",
 		side_done_marker: String = "", resume_done_marker: String = "",
-		mode: String = "") -> bool:
+		mode: String = "", message_marker: String = "",
+		message_seen_marker: String = "") -> bool:
 	probe_result["stage"] = "runtime"
 	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8)
 	if package.is_empty():
@@ -241,6 +262,13 @@ func _run(address: String, port: int, running_marker: String = "",
 	if not _check(runtime.start_match(), "client could not start the remote match: " + String(runtime.get_last_error())):
 		return false
 
+	# The HUD is driven only through apply_snapshot, exactly like the slice. It
+	# establishes the message/condition baseline before the host sends anything.
+	hud = GpfHudScript.new()
+	hud.name = "ProbeHud"
+	get_root().add_child(hud)
+	hud.setup(runtime)
+
 	probe_result["stage"] = "remote-match"
 	var saw_remote := _wait_until(_poll_remote, 20000)
 	var snap := last_snapshot
@@ -281,9 +309,71 @@ func _run(address: String, port: int, running_marker: String = "",
 	_check(human_ids.size() == 1 and int(human_ids[0]) == human_id,
 		"client highlights only its own selected player")
 
+	# Keep the HUD fed with the local human id before the message stage.
+	probe_human_id = human_id
+	_apply_probe_hud(last_snapshot)
+
+	# The card props are driven by the original geometry the client's own
+	# Officials::Put() positioned from the relayed card state.
+	var cards: Dictionary = last_snapshot.get("referee_cards", {})
+	var cards_present: bool = cards.get("yellow", {}).has("pos") \
+		and cards.get("yellow", {}).has("raised") \
+		and cards.get("red", {}).has("rot") \
+		and cards.get("red", {}).has("raised")
+	var cards_visible := 0
+	for key in ["yellow", "red"]:
+		if bool((cards.get(key, {}) as Dictionary).get("visible", false)):
+			cards_visible += 1
+	probe_result["referee_cards_present"] = cards_present
+	probe_result["referee_cards_visible"] = cards_visible
+	_check(cards_present, "client snapshot carries the referee card props")
+	_check(cards_visible <= 1, "at most one referee card is visible")
+
 	if not pause_marker.is_empty():
 		probe_result["stage"] = "pause"
 		_write_marker(running_marker, "running")
+
+		# The host relays an on-screen match message through Match::SpamMessage
+		# after it sees this marker. The HUD must show it, exactly once, from the
+		# snapshot counter (not from the raw text).
+		if not message_marker.is_empty():
+			probe_result["stage"] = "message"
+			_check(_wait_until(_file_exists.bind(message_marker), 15000),
+				"client did not see the host message marker")
+			var baseline := int(last_snapshot.get("spam_message_counter", 0))
+			var saw_message := _wait_until(_poll_spam_message.bind(baseline), 15000)
+			var message_snap := last_snapshot
+			var message_text := String(message_snap.get("spam_message", ""))
+			probe_result["spam_seen"] = saw_message
+			probe_result["spam_message"] = message_text
+			probe_result["spam_message_counter"] = int(message_snap.get("spam_message_counter", 0))
+			probe_result["spam_message_time_ms"] = int(message_snap.get("spam_message_time_ms", 0))
+			_check(saw_message, "client received the relayed match message")
+			_check(message_text.begins_with("GOAL"),
+				"the relayed message is the goal announcement: " + message_text)
+			_check(int(message_snap.get("spam_message_time_ms", 0)) > 0,
+				"the relayed message carries its display duration")
+			var message_label := hud.get("message_label") as Label
+			probe_result["hud_message_visible"] = message_label != null and message_label.visible
+			probe_result["hud_message_text"] = message_label.text if message_label != null else ""
+			_check(message_label != null and message_label.visible
+				and message_label.text == message_text,
+				"the client HUD shows the relayed message")
+			# In-match fatigue is not drawn (original fidelity); the Game Plan
+			# reads it from get_squad() and must have valid values on the client.
+			var plan_fatigue := -1
+			for player in runtime.get_squad(1).get("players", []):
+				if bool(player.get("active", false)) \
+						and int(player.get("fatigue", -1)) >= 0 \
+						and int(player.get("fatigue", -1)) <= 100:
+					plan_fatigue = int(player.get("fatigue", -1))
+					break
+			probe_result["game_plan_fatigue"] = plan_fatigue
+			_check(plan_fatigue >= 0,
+				"the client Game Plan sees player fatigue (%d)" % plan_fatigue)
+			if not message_seen_marker.is_empty():
+				_write_marker(message_seen_marker, "seen")
+
 		var saw_pause := _wait_until(_poll_paused, 15000)
 		probe_result["pause_seen"] = saw_pause
 		if not _check(saw_pause, "client did not see the host pause"):
@@ -413,4 +503,22 @@ func _run_rejoin() -> bool:
 	_check(int(probe_result["tick"]) > 0, "rejoining client did not advance")
 	_check(String(probe_result["team0_name"]) != "" and String(probe_result["team1_name"]) != "",
 		"rejoining client has no team names")
+	var cards: Dictionary = last_snapshot.get("referee_cards", {})
+	probe_result["referee_cards_present"] = cards.get("yellow", {}).has("pos") \
+		and cards.get("yellow", {}).has("raised") \
+		and cards.get("red", {}).has("rot")
+	_check(bool(probe_result["referee_cards_present"]),
+		"rejoining client snapshot carries the referee card props")
+	# The Game Plan (original: fatigue on the player cards) reads get_squad();
+	# a mid-match rejoin must have valid values there.
+	var plan_fatigue := -1
+	for player in runtime.get_squad(1).get("players", []):
+		if bool(player.get("active", false)) \
+				and int(player.get("fatigue", -1)) >= 0 \
+				and int(player.get("fatigue", -1)) <= 100:
+			plan_fatigue = int(player.get("fatigue", -1))
+			break
+	probe_result["game_plan_fatigue"] = plan_fatigue
+	_check(plan_fatigue >= 0,
+		"the rejoining client Game Plan sees player fatigue (%d)" % plan_fatigue)
 	return failures.is_empty()

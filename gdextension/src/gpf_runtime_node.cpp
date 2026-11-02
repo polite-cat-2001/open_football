@@ -19,6 +19,7 @@
 #include "data/matchdata.hpp"
 #include "onthepitch/match.hpp"
 #include "onthepitch/player/player.hpp"
+#include "onthepitch/player/playerofficial.hpp"
 #include "onthepitch/referee.hpp"
 #include "onthepitch/setpiece/setpiecepresentation.hpp"
 #include "onthepitch/team.hpp"
@@ -318,6 +319,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_gamepad_axis", "slot", "axis", "value"), &GpfRuntimeNode::set_gamepad_axis);
     ClassDB::bind_method(D_METHOD("debug_set_ball", "position", "momentum"), &GpfRuntimeNode::debug_set_ball);
     ClassDB::bind_method(D_METHOD("debug_set_last_touch_team", "team_id"), &GpfRuntimeNode::debug_set_last_touch_team);
+    ClassDB::bind_method(D_METHOD("debug_spam_message", "text", "time_ms"), &GpfRuntimeNode::debug_spam_message);
     ClassDB::bind_method(D_METHOD("debug_force_set_piece", "set_piece_type", "team_id"), &GpfRuntimeNode::debug_force_set_piece);
     ClassDB::bind_method(D_METHOD("debug_force_shootout"), &GpfRuntimeNode::debug_force_shootout);
     ClassDB::bind_method(D_METHOD("debug_force_phase_break", "next_phase"), &GpfRuntimeNode::debug_force_phase_break);
@@ -1670,6 +1672,52 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["referee_prepare_time"] = (int)referee_buffer.prepareTime;
     result["referee_start_time"] = (int)referee_buffer.startTime;
     result["referee_taker"] = referee_buffer.taker ? referee_buffer.taker->GetID() : -1;
+    // Referee card presentation. The original Officials::Put() places the
+    // yellow/red card geometry at the referee's elbow every render frame: on
+    // the host from GetCurrentCardState(), on a thin client from the relayed
+    // snapshot (SetRemoteCardState). Export the two geometry props as they are
+    // (visibility + transform) instead of inventing a type: Godot then renders
+    // exactly what the original scene contains, on both peers, with no text
+    // parsing and no host-only branch. A hidden card sits at (0, 0, -10).
+    Dictionary referee_cards;
+    Officials *officials = match->GetOfficials();
+    boost::intrusive_ptr<blunted::Geometry> card_geoms[2] = {
+        officials ? officials->GetYellowCardGeom() : nullptr,
+        officials ? officials->GetRedCardGeom() : nullptr,
+    };
+    // The showcard clip starts and ends with the arm down (frames 0-19 and
+    // 140-149), where the original card sits at the referee's hip. Keep the
+    // original transform but tell the presentation to show it only while the
+    // arm is actually raised, so the card does not look "held down".
+    float referee_shoulder_z = -1000.0f;
+    PlayerOfficial *referee = officials ? officials->GetReferee() : nullptr;
+    if (referee) {
+        const NodeMap &referee_nodes = referee->GetNodeMap();
+        for (const char *shoulder_name : {"left_shoulder", "right_shoulder"}) {
+            auto shoulder = referee_nodes.find(shoulder_name);
+            if (shoulder != referee_nodes.end()) {
+                referee_shoulder_z = std::max(referee_shoulder_z,
+                    shoulder->second->GetDerivedPosition().coords[2]);
+            }
+        }
+    }
+    const char *card_keys[2] = {"yellow", "red"};
+    constexpr float kHiddenCardZ = -10.0f; // Officials::Put() parks unused cards here
+    for (int i = 0; i < 2; ++i) {
+        const bool visible = card_geoms[i] &&
+            card_geoms[i]->GetPosition().coords[2] > kHiddenCardZ + 1.0f;
+        const bool raised = visible && referee_shoulder_z > -1000.0f &&
+            card_geoms[i]->GetPosition().coords[2] > referee_shoulder_z + 0.1f;
+        Dictionary card;
+        card["visible"] = visible;
+        card["raised"] = raised;
+        card["pos"] = visible ? to_godot(card_geoms[i]->GetPosition())
+                              : to_godot(blunted::Vector3(0.0f));
+        card["rot"] = visible ? to_godot(card_geoms[i]->GetRotation())
+                              : to_godot(blunted::Quaternion());
+        referee_cards[card_keys[i]] = card;
+    }
+    result["referee_cards"] = referee_cards;
     result["score0"] = match->GetScore(0);
     result["score1"] = match->GetScore(1);
     result["team0_name"] = String::utf8(match->GetTeam(0)->GetTeamData()->GetName().c_str());
@@ -1694,6 +1742,13 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
         substitution_notices.append(String::utf8((out_name + " off, " + in_name + " on").c_str()));
     }
     result["substitution_notices"] = substitution_notices;
+    // On-screen match message (goal scorer, referee call). The host creates it
+    // in Match::Process; a thin client re-creates it in ApplyRemoteSnapshot from
+    // the relayed snapshot, so these getters are valid on both peers. Time is
+    // the display duration, not a timestamp: the HUD adds it to actual_time_ms.
+    result["spam_message"] = String::utf8(match->GetSpamMessage().c_str());
+    result["spam_message_time_ms"] = match->GetSpamMessageTime_ms();
+    result["spam_message_counter"] = (int)match->GetSpamMessageCounter();
     result["actual_time_ms"] = (int)match->GetActualTime_ms();
     result["match_duration_factor"] = match->GetMatchDurationFactor();
     result["paused"] = match->GetPause();
@@ -2230,6 +2285,13 @@ void GpfRuntimeNode::debug_set_last_touch_team(int team_id) {
         return;
     }
     match->SetLastTouchTeamID(team_id);
+}
+
+void GpfRuntimeNode::debug_spam_message(const String &text, int time_ms) {
+    if (!runtime_ready || !match) {
+        return;
+    }
+    match->SpamMessage(text.utf8().get_data(), time_ms);
 }
 
 void GpfRuntimeNode::debug_force_set_piece(int set_piece_type, int team_id) {

@@ -56,8 +56,10 @@ func _init() -> void:
 	var side_done_path := ProjectSettings.globalize_path("user://gpf_net_client_side_done.json")
 	var resume_done_path := ProjectSettings.globalize_path("user://gpf_net_client_resumed.json")
 	var rejoin_path := ProjectSettings.globalize_path("user://gpf_net_client_rejoin.json")
+	var message_path := ProjectSettings.globalize_path("user://gpf_net_host_message.json")
+	var message_seen_path := ProjectSettings.globalize_path("user://gpf_net_client_message_seen.json")
 	for path in [result_path, running_path, pause_path, host_vote_path, side_done_path,
-			resume_done_path, rejoin_path]:
+			resume_done_path, rejoin_path, message_path, message_seen_path]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(path)
 
@@ -67,7 +69,7 @@ func _init() -> void:
 		"-s", CLIENT_SCRIPT,
 		"--",
 		"127.0.0.1", str(port), result_path, running_path, pause_path, host_vote_path,
-		side_done_path, resume_done_path,
+		side_done_path, resume_done_path, "-", message_path, message_seen_path,
 	])
 	var pid := OS.create_process(OS.get_executable_path(), args)
 	if pid <= 0:
@@ -77,14 +79,14 @@ func _init() -> void:
 		return
 
 	_run(port, pid, result_path, running_path, pause_path, host_vote_path, side_done_path,
-		resume_done_path, rejoin_path)
+		resume_done_path, rejoin_path, message_path, message_seen_path)
 
 	if runtime.is_net_active():
 		runtime.net_leave()
 	if OS.is_process_running(pid):
 		OS.kill(pid)
 	for path in [result_path, running_path, pause_path, host_vote_path, side_done_path,
-			resume_done_path, rejoin_path]:
+			resume_done_path, rejoin_path, message_path, message_seen_path]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(path)
 
@@ -216,7 +218,8 @@ func _poll_disconnected_side_select() -> bool:
 
 func _run(port: int, pid: int, result_path: String, running_path: String,
 		pause_path: String, host_vote_path: String, side_done_path: String,
-		resume_done_path: String, rejoin_path: String) -> void:
+		resume_done_path: String, rejoin_path: String, message_path: String,
+		message_seen_path: String) -> void:
 	print("  hosting on 127.0.0.1:", port, ", client pid ", pid)
 
 	if not _wait_until(_has_players.bind(2), 20000):
@@ -290,6 +293,21 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		_check(false, "the client never reported a running match")
 		return
 	_check(true, "the client is rendering the live match")
+
+	# Relay an on-screen message through Match::SpamMessage while the client is
+	# live. A real forced goal would leave the host in a kickoff (the later
+	# penalty stage needs open play); the relay is the same snapshot path.
+	runtime.debug_spam_message("GOAL for the home side! Test scorer scores!", 4000)
+	_write_marker(message_path, "message")
+	if not _wait_until(_poll_file_exists.bind(message_seen_path), 20000):
+		_check(false, "the client never reported the relayed message")
+		return
+	_check(true, "the client saw the relayed match message")
+	var message_snap: Dictionary = runtime.get_snapshot()
+	_check(int(message_snap.get("spam_message_counter", 0)) > 0,
+		"the host recorded the match message")
+	_check(String(message_snap.get("spam_message", "")).begins_with("GOAL"),
+		"the host's message is the goal announcement")
 
 	runtime.pause_match()
 	if not _wait_until(_poll_file_exists.bind(pause_path), 15000):
@@ -413,6 +431,23 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		"the client applied the substitution roster")
 	_check(bool(client_result.get("substitution_roster_synced", false)),
 		"the client roster synced the substituted-in player")
+	_check(bool(client_result.get("spam_seen", false)),
+		"the client received the relayed match message")
+	_check(String(client_result.get("spam_message", "")).begins_with("GOAL"),
+		"the client saw the goal announcement: " + String(client_result.get("spam_message", "")))
+	_check(int(client_result.get("spam_message_counter", 0)) > 0,
+		"the client message counter advanced")
+	_check(int(client_result.get("spam_message_time_ms", 0)) > 0,
+		"the client message carries its display duration")
+	_check(bool(client_result.get("hud_message_visible", false)),
+		"the client HUD shows the relayed message")
+	_check(int(client_result.get("game_plan_fatigue", -1)) >= 0,
+		"the client Game Plan sees player fatigue")
+	_check(bool(client_result.get("referee_cards_present", false)),
+		"the client snapshot carries both referee card props")
+	_check(int(client_result.get("referee_cards_visible", -1)) >= 0
+		and int(client_result.get("referee_cards_visible", 2)) <= 1,
+		"the client sees at most one referee card")
 	_check(int(runtime.get_substitution_notice_counter()) > 0,
 		"the host recorded the applied substitution")
 	_check(int(runtime.get_snapshot().get("substitutions1", 0)) > 0,
@@ -452,7 +487,7 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		"--path", ProjectSettings.globalize_path("res://"),
 		"-s", CLIENT_SCRIPT,
 		"--",
-		"127.0.0.1", str(port), rejoin_path, "-", "-", "-", "-", "-", "rejoin",
+		"127.0.0.1", str(port), rejoin_path, "-", "-", "-", "-", "-", "rejoin", "-", "-",
 	])
 	var rejoin_pid := OS.create_process(OS.get_executable_path(), rejoin_args)
 	_check(rejoin_pid > 0, "the rejoin client process starts")
@@ -497,6 +532,10 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		int(snap.get("match_time_ms", 0))) <= 2000,
 		"the rejoined client sees the same match time (%s vs %s)" % [
 			client_result.get("match_time_ms"), snap.get("match_time_ms")])
+	_check(int(client_result.get("game_plan_fatigue", -1)) >= 0,
+		"the rejoined client Game Plan sees player fatigue")
+	_check(bool(client_result.get("referee_cards_present", false)),
+		"the rejoined client carries both referee card props")
 	print("  rejoin: tick=", client_result.get("tick"),
 		" time=", client_result.get("match_time_ms"),
 		" score=", client_result.get("score0"), ":", client_result.get("score1"))
