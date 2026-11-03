@@ -1,7 +1,7 @@
 extends Control
-# Godot port of SideSelectPage in network mode (src/menu/sideselect.cpp,
-# NetworkSideSelectBackend): mirrored player rows, sides and ready are the
-# host-authoritative lobby, not local devices. `resume_mode` is the in-match
+
+# Network adapter for SideSelectView: mirrored player rows, sides and ready are
+# the host-authoritative lobby, not local devices. `resume_mode` is the in-match
 # overlay (the original page opened with isInGame/resumeOnClose): it never
 # leaves the session, only commits/cancels the side select and gets out.
 
@@ -10,36 +10,21 @@ signal closed
 const NETWORK_MENU_SCENE := "res://scenes/network_menu.tscn"
 const LOBBY_SCENE := "res://scenes/network_lobby.tscn"
 const MATCH_SCENE := "res://scenes/gpf_slice.tscn"
-const MENU_FONT := preload("res://assets/ui/fonts/AlegreyaSansSC-ExtraBold.ttf")
 const NET_SHELL := preload("res://scripts/net/net_shell.gd")
 const NETWORK_MATCH := preload("res://scripts/net/network_match.gd")
-const KEYBOARD_ICON := preload("res://assets/ui/controller/keyboard_small.png")
-const GAMEPAD_ICON := preload("res://assets/ui/controller/controller_small.png")
-const READY_MARK := preload("res://scripts/ui/ready_mark.gd")
 
-const ROW_REPEAT_MS := 250
 const RESUME_STATUS_SECONDS := 5.0
 
 # Set by the in-match caller before the node enters the tree: the overlay is a
 # mirrored resume page over the frozen match, not a lobby screen.
 var resume_mode := false
 
-var participants: Array = []
-var row_icons: Array[TextureRect] = []
-var row_names: Array[Label] = []
-var row_marks: Array = []
+@onready var view: SideSelectView = $SideSelectView
 
-var home_caption: Label
-var away_caption: Label
-var phase_caption: Label
-var help_label: Label
-var status_label: Label
-var panel: ColorRect
+var participants: Array = []
 
 var _player_ids: Array = []
 var _last_device := -1
-var _help_device := -1
-var _gamepad_repeat := {}
 var _leaving := false
 var _entering_match := false
 var _saw_side_select := false
@@ -51,129 +36,42 @@ var _status_until_ms := 0
 
 
 func _ready() -> void:
-	_build_ui()
-	_layout()
-	get_viewport().size_changed.connect(_layout)
+	add_to_group(&"ui_shell")
+	theme = UiTheme.load_or_build()
+	view.set_overlay_mode(resume_mode)
+	view.setup([], {
+		"input_mode": "local_player",
+		"show_names": true,
+		"row_layout": "stack",
+		"back_label": "back" if resume_mode else "leave",
+	})
+	view.row_move_requested.connect(_on_row_move)
+	view.row_confirm_requested.connect(_on_row_confirm)
+	view.row_cancel_requested.connect(_on_row_cancel)
+	view.back_requested.connect(_on_back)
 	_poll_lobby()
 	set_process(true)
 
 
-func _build_ui() -> void:
-	var background := ColorRect.new()
-	# The resume overlay keeps the frozen match visible underneath.
-	background.color = (Color(0.02, 0.03, 0.02, 0.60) if resume_mode
-		else Color(0.02, 0.03, 0.02))
-	background.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(background)
-
-	panel = ColorRect.new()
-	panel.color = Color(0.0, 0.0, 0.0, 0.62)
-	add_child(panel)
-
-	home_caption = _caption("HOME", Color(0.95, 0.92, 0.82))
-	away_caption = _caption("AWAY", Color(0.95, 0.92, 0.82))
-	phase_caption = _caption("choose your side", Color(0.78, 0.78, 0.70))
-	help_label = _caption("Left/Right: side    Enter: ready    Esc: leave",
-		Color(0.72, 0.72, 0.66))
-	status_label = _caption("", Color(1.0, 0.68, 0.30))
-
-
-func _caption(text: String, color: Color) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_font_override("font", MENU_FONT)
-	label.add_theme_color_override("font_color", color)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	add_child(label)
-	return label
-
-
-func _layout() -> void:
-	var view := get_viewport_rect().size
-	if view.x <= 0 or view.y <= 0:
-		return
-	panel.position = Vector2(view.x * 0.10, view.y * 0.15)
-	panel.size = Vector2(view.x * 0.80, view.y * 0.70)
-
-	var caption_size := maxi(16, int(round(view.y * 0.035)))
-	for label in [home_caption, away_caption, phase_caption, help_label, status_label]:
-		label.add_theme_font_size_override("font_size", caption_size)
-
-	_place(home_caption, 0.25, 0.10, 0.30, 0.06)
-	_place(away_caption, 0.75, 0.10, 0.30, 0.06)
-	_place(phase_caption, 0.50, 0.05, 0.40, 0.05)
-	_place(help_label, 0.50, 0.88, 0.70, 0.05)
-	_place(status_label, 0.50, 0.82, 0.70, 0.04)
-	_position_rows()
-
-
-func _place(label: Label, center_x: float, top: float, width: float, height: float) -> void:
-	var view := get_viewport_rect().size
-	label.position = Vector2(view.x * center_x - view.x * width * 0.5, view.y * top)
-	label.size = Vector2(view.x * width, view.y * height)
-
-
-func _position_rows() -> void:
-	var view := get_viewport_rect().size
+func _rows() -> Array:
+	var result: Array = []
 	for i in participants.size():
-		if i >= row_icons.size():
-			break
 		var participant: Dictionary = participants[i]
-		var side := int(participant.get("side", 0))
-		var icon: TextureRect = row_icons[i]
-		var icon_size := Vector2(view.x * 0.14, view.y * 0.10)
-		var center_x := view.x * (0.25 if side < 0 else (0.75 if side > 0 else 0.50))
-		var top := view.y * 0.20 + float(i) * view.y * 0.15
-		icon.position = Vector2(center_x - icon_size.x * 0.5, top)
-		icon.size = icon_size
-
-		var label: Label = row_names[i]
-		var name := str(participant.get("name", ""))
-		label.text = ("> " + name) if bool(participant.get("is_local", false)) else name
-		label.position = Vector2(center_x - view.x * 0.15, top + view.y * 0.10)
-		label.size = Vector2(view.x * 0.30, view.y * 0.04)
-		label.add_theme_font_size_override("font_size", maxi(12, int(view.y * 0.022)))
-
-		var mark = row_marks[i]
-		mark.position = Vector2(center_x + view.x * 0.05, top + view.y * 0.13)
-		mark.size = Vector2(view.x * 0.03, view.y * 0.03)
-		mark.set_checked(bool(participant.get("ready", false)))
-		mark.queue_redraw()
+		result.append({
+			"id": "player:%d" % int(participant.get("id", -1)),
+			"kind": "gamepad" if int(participant.get("device", 0)) == 1 else "keyboard",
+			"device": int(participant.get("device", 0)),
+			"name": str(participant.get("name", "")),
+			"side": int(participant.get("side", 0)),
+			"ready": bool(participant.get("ready", false)),
+			"local": bool(participant.get("is_local", false)),
+			"tone_index": i,
+		})
+	return result
 
 
-func _rebuild_rows() -> void:
-	for icon in row_icons:
-		icon.queue_free()
-	for label in row_names:
-		label.queue_free()
-	for mark in row_marks:
-		mark.queue_free()
-	row_icons.clear()
-	row_names.clear()
-	row_marks.clear()
-
-	for participant in participants:
-		var icon := TextureRect.new()
-		icon.texture = GAMEPAD_ICON if int(participant.get("device", 0)) == 1 else KEYBOARD_ICON
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_SCALE
-		add_child(icon)
-		row_icons.append(icon)
-
-		var label := Label.new()
-		label.add_theme_font_override("font", MENU_FONT)
-		label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.84))
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		add_child(label)
-		row_names.append(label)
-
-		var mark = READY_MARK.new()
-		mark.visible = false
-		add_child(mark)
-		row_marks.append(mark)
-
-	_position_rows()
+func _apply_rows() -> void:
+	view.apply_rows(_rows())
 
 
 func _poll_lobby() -> void:
@@ -194,7 +92,7 @@ func _poll_lobby() -> void:
 	_refresh_players(info, lobby)
 
 	if int(lobby.get("phase", -1)) == 1:
-		get_tree().change_scene_to_file(LOBBY_SCENE)
+		UiTransition.change_scene(LOBBY_SCENE)
 		return
 
 	if bool(info.get("is_client", false)):
@@ -256,24 +154,11 @@ func _refresh_players(info: Dictionary, lobby: Dictionary) -> void:
 	participants = new_participants
 
 	var previous_ids := _player_ids
-	if ids != _player_ids:
-		_player_ids = ids
-		_rebuild_rows()
-		if resume_mode and not previous_ids.is_empty():
-			_note_roster_change(previous_ids, ids)
-	else:
-		_position_rows()
-
-	for participant in participants:
-		if bool(participant.get("is_local", false)):
-			var device := int(participant.get("device", 0))
-			if device != _help_device:
-				_help_device = device
-				var back_caption := "back" if resume_mode else "leave"
-				help_label.text = ("Left/Right: side    A: ready    B: " + back_caption
-					if device == 1
-					else "Left/Right: side    Enter: ready    Esc: " + back_caption)
-			break
+	var roster_changed := ids != _player_ids
+	_player_ids = ids
+	_apply_rows()
+	if resume_mode and roster_changed and not previous_ids.is_empty():
+		_note_roster_change(previous_ids, ids)
 
 
 func _note_roster_change(previous_ids: Array, ids: Array) -> void:
@@ -304,8 +189,8 @@ func set_status(text: String, seconds: float = RESUME_STATUS_SECONDS) -> void:
 func _set_status(text: String, seconds: float) -> void:
 	_status_text = text
 	_status_until_ms = (Time.get_ticks_msec() + int(seconds * 1000.0)) if seconds > 0.0 else 0
-	if status_label != null:
-		status_label.text = text
+	if view != null:
+		view.set_status(text)
 
 
 func _refresh_status() -> void:
@@ -314,8 +199,8 @@ func _refresh_status() -> void:
 	if _status_until_ms != 0 and Time.get_ticks_msec() < _status_until_ms:
 		return
 	_status_text = ""
-	if status_label != null:
-		status_label.text = ""
+	if view != null:
+		view.set_status("")
 
 
 func _cancel_resume() -> void:
@@ -348,9 +233,9 @@ func _enter_match(setup: Dictionary, lobby: Dictionary) -> void:
 	var package := NETWORK_MATCH.apply_setup(get_tree(), runtime, setup, options)
 	if package.is_empty():
 		_entering_match = false
-		status_label.text = NETWORK_MATCH.error
+		view.set_status(NETWORK_MATCH.error, true)
 		return
-	get_tree().change_scene_to_file(MATCH_SCENE)
+	UiTransition.change_scene(MATCH_SCENE)
 
 
 func _process(_delta: float) -> void:
@@ -366,7 +251,10 @@ func _local_participant() -> Dictionary:
 	return {}
 
 
-func _change_side(delta: int) -> void:
+func _on_row_move(_row_id: String, delta: int, input: Dictionary) -> void:
+	if _leaving or _entering_match or _closing:
+		return
+	_note_input(input)
 	var local := _local_participant()
 	if local.is_empty():
 		return
@@ -377,6 +265,40 @@ func _change_side(delta: int) -> void:
 	if side == current:
 		return
 	NET_SHELL.action(get_tree(), "set_side", _side_to_net(side), 0, 0)
+
+
+func _on_row_confirm(_row_id: String, input: Dictionary) -> void:
+	if _leaving or _entering_match or _closing:
+		return
+	_note_input(input)
+	_toggle_ready()
+
+
+func _on_row_cancel(_row_id: String, input: Dictionary) -> void:
+	if _leaving or _entering_match or _closing:
+		return
+	_note_input(input)
+	if resume_mode:
+		_cancel_resume()
+		return
+	var local := _local_participant()
+	if not local.is_empty() and bool(local.get("ready", false)):
+		NET_SHELL.action(get_tree(), "set_ready", 0, 0, 0)
+		return
+	_leave()
+
+
+func _on_back() -> void:
+	if resume_mode:
+		_cancel_resume()
+	else:
+		_leave()
+
+
+func _note_input(input: Dictionary) -> void:
+	var kind := str(input.get("kind", "keyboard"))
+	_send_device(0 if kind == "keyboard" else 1)
+	NET_SHELL.note_local_device(get_tree(), kind, int(input.get("device", 0)))
 
 
 func _toggle_ready() -> void:
@@ -399,111 +321,7 @@ func _leave() -> void:
 	_leaving = true
 	if NET_SHELL.is_active(get_tree()):
 		NET_SHELL.leave(get_tree())
-	get_tree().change_scene_to_file(NETWORK_MENU_SCENE)
-
-
-func _input(event: InputEvent) -> void:
-	if _leaving or _entering_match or _closing:
-		return
-	if resume_mode:
-		_handle_resume_input(event)
-		# The overlay owns every input event while it is up; the match must not
-		# see the same buttons (double action).
-		var viewport := get_viewport()
-		if viewport != null:
-			viewport.set_input_as_handled()
-		return
-	if event is InputEventKey:
-		var key := event as InputEventKey
-		if key.echo or not key.pressed:
-			return
-		_send_device(0)
-		NET_SHELL.note_local_device(get_tree(), "keyboard", 0)
-		match key.keycode:
-			KEY_LEFT:
-				_change_side(-1)
-			KEY_RIGHT:
-				_change_side(1)
-			KEY_ENTER, KEY_KP_ENTER:
-				_toggle_ready()
-			KEY_ESCAPE:
-				var local := _local_participant()
-				if not local.is_empty() and bool(local.get("ready", false)):
-					NET_SHELL.action(get_tree(), "set_ready", 0, 0, 0)
-				else:
-					_leave()
-	elif event is InputEventJoypadButton:
-		var joy := event as InputEventJoypadButton
-		if not joy.pressed:
-			return
-		_send_device(1)
-		NET_SHELL.note_local_device(get_tree(), "gamepad", int(joy.device))
-		match int(joy.button_index):
-			JOY_BUTTON_DPAD_LEFT:
-				_change_side(-1)
-			JOY_BUTTON_DPAD_RIGHT:
-				_change_side(1)
-			JOY_BUTTON_A:
-				_toggle_ready()
-			JOY_BUTTON_B:
-				_leave()
-	elif event is InputEventJoypadMotion:
-		var motion := event as InputEventJoypadMotion
-		if int(motion.axis) != JOY_AXIS_LEFT_X or absf(motion.axis_value) < 0.5:
-			return
-		_send_device(1)
-		NET_SHELL.note_local_device(get_tree(), "gamepad", int(motion.device))
-		var now := Time.get_ticks_msec()
-		var device := int(motion.device)
-		if now - int(_gamepad_repeat.get(device, 0)) < ROW_REPEAT_MS:
-			return
-		_gamepad_repeat[device] = now
-		_change_side(-1 if motion.axis_value < 0.0 else 1)
-
-
-func _handle_resume_input(event: InputEvent) -> void:
-	if event is InputEventKey:
-		var key := event as InputEventKey
-		if key.echo or not key.pressed:
-			return
-		_send_device(0)
-		NET_SHELL.note_local_device(get_tree(), "keyboard", 0)
-		match key.keycode:
-			KEY_LEFT:
-				_change_side(-1)
-			KEY_RIGHT:
-				_change_side(1)
-			KEY_ENTER, KEY_KP_ENTER:
-				_toggle_ready()
-			KEY_ESCAPE:
-				_cancel_resume()
-	elif event is InputEventJoypadButton:
-		var joy := event as InputEventJoypadButton
-		if not joy.pressed:
-			return
-		_send_device(1)
-		NET_SHELL.note_local_device(get_tree(), "gamepad", int(joy.device))
-		match int(joy.button_index):
-			JOY_BUTTON_DPAD_LEFT:
-				_change_side(-1)
-			JOY_BUTTON_DPAD_RIGHT:
-				_change_side(1)
-			JOY_BUTTON_A:
-				_toggle_ready()
-			JOY_BUTTON_B:
-				_cancel_resume()
-	elif event is InputEventJoypadMotion:
-		var motion := event as InputEventJoypadMotion
-		if int(motion.axis) != JOY_AXIS_LEFT_X or absf(motion.axis_value) < 0.5:
-			return
-		_send_device(1)
-		NET_SHELL.note_local_device(get_tree(), "gamepad", int(motion.device))
-		var now := Time.get_ticks_msec()
-		var device := int(motion.device)
-		if now - int(_gamepad_repeat.get(device, 0)) < ROW_REPEAT_MS:
-			return
-		_gamepad_repeat[device] = now
-		_change_side(-1 if motion.axis_value < 0.0 else 1)
+	UiTransition.change_scene(NETWORK_MENU_SCENE)
 
 
 func _spatial_index(side: int) -> int:

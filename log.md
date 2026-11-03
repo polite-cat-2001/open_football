@@ -1716,3 +1716,80 @@ placeholder; национальный значок и шрифт есть. Ру�
 - Focus-neighbors верхнего ряда настроены на активный таб; тест расширен
   (Audio → Controls → активный таб). PASS — `check_main_menu_layout`.
 
+## [2026-11-03] feat | Выбор сторон на дизайн-системе, общий SideSelectView
+
+- `controller_select` и `network_sides` переведены на общий `SideSelectView`
+  (`scenes/ui/side_select_view.tscn`, `scripts/ui/side_select_view.gd`): шапка 56 px,
+  body 691.2 px с градиентом, вертикальные HOME/AWAY, трек 84×84 с inset 104 px,
+  tween 340 мс, ready-бейдж на устройстве, тона по номеру участника.
+- Ввод — через `UiNav` (Left/Right двигает строку своего устройства, A/Enter — ready,
+  B/Esc — снять ready/назад); у `UiNav` появились `last_device_id()`/`last_input_gamepad()`,
+  чтобы различать клавиатуру и конкретный геймпад. Мышь сознательно инертна: кликов
+  ready/back нет (отступление от исходного ТЗ, решение владельца).
+- Адаптеры: local — `InputSetup.available_devices()` + `ShellState.controllers`
+  (lone keyboard = home, несколько устройств = центр, все активные строки должны быть ready);
+  network — снапшот лобби, resume-оверлей, голосование, disconnect/join, host-authoritative commit.
+- Тема — только на корне экранов; новые цвета/размеры в `UiTokens`/`UiTheme`, `keyboard.svg`,
+  `ui_theme.tres` пересобран. Тесты — `check_controller_select_ui`, `check_side_select_view`,
+  `check_ui_layout`, `check_gpf_game_shell`, `check_gpf_net_ui`; скриншоты —
+  `tests/capture_side_select_shots.gd` → `.scratch/ui_shots/side_select_*_{1920x1080,1280x720}.png`.
+  PASS — все перечисленные тесты.
+
+## [2026-11-03] fix | Выбор сторон: без «choose your side», без серого кадра на переходе
+
+- Убрана надпись `choose your side`: статусная строка скрыта при пустом тексте и остаётся только
+  для ошибок/сетевых сообщений (`Choose a side first.`, disconnect/join, resume-статусы).
+- Серый кадр между главным меню и выбором сторон был default clear color (`#4c4c4c`).
+  `UiTransition` теперь инстанцирует новую сцену **поверх** старой: фон новой сцены сразу
+  закрывает старую, `ui_transition_target` стартует с alpha 0, старая сцена удаляется через
+  кадр; плюс `default_clear_color` проекта выставлен в `#0a1020` (`STAGE_BG`). Скрипт-пробник
+  подтвердил: кадр 002 теперь показывает стадион, а не пустой серый экран.
+- PASS — `check_controller_select_ui`, `check_side_select_view`, `check_ui_layout`,
+  `check_main_menu_ui`, `check_main_menu_layout`; скриншоты пересняты.
+
+## [2026-11-03] feat | Выбор сторон: hot-plug геймпадов
+
+- `controller_select` теперь слушает `Input.joy_connection_changed` и сверяет строки с
+  `InputSetup.available_devices()` через `_sync_participants()`. Подключённый геймпад появляется
+  отдельной строкой в центре (следующий тон), отключённый исчезает; существующие строки
+  сохраняют выбранную сторону и ready, тона переиндексируются. Раньше список строился один раз
+  в `_ready()`, поэтому иконка не появлялась до повторного входа на экран.
+- `tests/check_controller_select_ui.gd` расширен: добавление/удаление строки геймпада, центр,
+  тон и исчезновение из view. PASS — `check_controller_select_ui`.
+
+## [2026-11-03] fix | Выбор сторон: порядок устройств сверху вниз = порядок подключения
+
+- `controller_select` хранит `_device_order`: клавиатура всегда первая, новый геймпад
+  добавляется в конец, а не вставляется по номеру `device id`; при отключении оставшиеся
+  сохраняют порядок. Тона/row-индексы пересчитываются по этому порядку.
+- Строки теперь компактная стопка сверху вниз (`SideSelectView`, `row_layout = "stack"`):
+  высота строки 84 + 16 pad (+ имя в сети), gap 6; первый девайс у верхнего края, новые
+  добавляются сразу под последним, а не размазываются по всей высоте body. При нехватке
+  места — прежняя равномерная раскладка.
+- `check_controller_select_ui` проверяет, что второй подключённый геймпад расположен ниже
+  первого и компактно, и что оба исчезают после отключения. PASS — `check_controller_select_ui`,
+  `check_side_select_view`.
+
+## [2026-11-03] tweak | Выбор сторон: крупнее иконки, короче ход по горизонтали
+
+- `UiTokens`: `SIDE_DEVICE` 84→112, `SIDE_GLYPH` 62→92, `SIDE_DEVICE_INSET` 104→260.
+  Позиции теперь home x=260, center x=684, away x=1108 (было 104/698/1292); иконки крупнее,
+  вбок улетают заметно меньше. Это сознательное отступление от прототипа (`84×84/104`).
+- Высота строки в stack-режиме считается от нового device (112+16 pad), поэтому компактная
+  стопка сохранилась; обновлены тесты и скриншоты. PASS — `check_controller_select_ui`,
+  `check_side_select_view`, `check_ui_layout`.
+
+## [2026-11-03] tweak | Ready-бейдж на стороне без стрелки
+
+- `SideSelectView` ставит ready-бейдж на стороне, где нет cue-стрелки: home — слева, away —
+  справа; в центре (обе стрелки) — по центру сверху. Позиция обновляется при смене стороны.
+- `check_side_select_view` проверяет home/away/center позиции бейджа. PASS — `check_side_select_view`.
+
+## [2026-11-03] tweak | Ready-бейдж по центру сбоку, как стрелка
+
+- Для home/away ready-бейдж вынесен наружу на свободную сторону и выровнен по вертикальному
+  центру устройства (y=44 при device 112/ready 24), как cue-стрелка; добавлен
+  `SIDE_READY_SIDE_GAP = 4`. Center (обе стрелки) остаётся по центру сверху.
+- `check_side_select_view` проверяет x и y для home/away/center. PASS — `check_side_select_view`;
+  скриншот `side_select_ready_*` переснят.
+

@@ -28,11 +28,18 @@ func _frames(count: int) -> void:
 		await process_frame
 
 
-func _key(code: int) -> InputEventKey:
+func _key(code: int, pressed := true) -> InputEventKey:
 	var event := InputEventKey.new()
 	event.keycode = code
-	event.pressed = true
+	event.pressed = pressed
 	return event
+
+
+func _tap_key(code: int) -> void:
+	Input.parse_input_event(_key(code, true))
+	await _frames(2)
+	Input.parse_input_event(_key(code, false))
+	await _frames(1)
 
 
 func _runtime() -> Node:
@@ -49,7 +56,7 @@ func _press_start(menu: Node) -> void:
 	# Start Match now opens the original-style controller/side select first.
 	if current_scene != null and current_scene.name == "ControllerSelect":
 		# A lone keyboard starts on home; Enter confirms it and commits.
-		current_scene.call("_input", _key(KEY_ENTER))
+		await _tap_key(KEY_ENTER)
 		await _frames(3)
 	# With teams already picked, the controller screen goes straight to prematch.
 	if current_scene != null and current_scene.name == "Prematch":

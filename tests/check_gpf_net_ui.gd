@@ -37,11 +37,18 @@ func _frames(count: int) -> void:
 		await process_frame
 
 
-func _key(code: int) -> InputEventKey:
+func _key(code: int, pressed := true) -> InputEventKey:
 	var event := InputEventKey.new()
 	event.keycode = code
-	event.pressed = true
+	event.pressed = pressed
 	return event
+
+
+func _tap_key(code: int) -> void:
+	Input.parse_input_event(_key(code, true))
+	await _frames(2)
+	Input.parse_input_event(_key(code, false))
+	await _frames(1)
 
 
 func _run() -> void:
@@ -118,15 +125,15 @@ func _run() -> void:
 		var participant: Dictionary = participants[0]
 		_check(String(participant.get("name", "")) == "UI Host", "the host name is mirrored")
 		_check(int(participant.get("side", -9)) == -1, "the host starts on home")
-		sides.call("_input", _key(KEY_RIGHT))
+		await _tap_key(KEY_RIGHT)
 		await _frames(3)
-		sides.call("_input", _key(KEY_RIGHT))
+		await _tap_key(KEY_RIGHT)
 		await _frames(3)
 		var info := NET_SHELL.lobby(self)
 		var players: Array = info.get("lobby", {}).get("players", [])
 		_check(players.size() == 1 and int(players[0].get("side", -9)) == 1,
 			"Right twice moves the host through centre to away in the lobby")
-		sides.call("_input", _key(KEY_ENTER))
+		await _tap_key(KEY_ENTER)
 		await _frames(4)
 		info = NET_SHELL.lobby(self)
 		players = info.get("lobby", {}).get("players", [])
@@ -220,14 +227,14 @@ func _run() -> void:
 				"the lobby enters mirrored side-select mode")
 			_check(not pause_menu.is_open(), "the pause menu hands over to the overlay")
 			if overlay != null:
-				overlay.call("_input", _key(KEY_LEFT))
+				await _tap_key(KEY_LEFT)
 				await _frames(4)
 				var players_after: Array = NET_SHELL.lobby(self).get("lobby", {}).get("players", [])
 				_check(players_after.size() == 1 and int(players_after[0].get("side", -9)) == 2,
 					"the overlay moves the host side through the lobby")
-				overlay.call("_input", _key(KEY_RIGHT))
+				await _tap_key(KEY_RIGHT)
 				await _frames(4)
-				overlay.call("_input", _key(KEY_ENTER))
+				await _tap_key(KEY_ENTER)
 				await _frames(10)
 				_check(slice.get("side_select_overlay") == null,
 					"the host commit closes the overlay")
@@ -249,7 +256,7 @@ func _run() -> void:
 			var overlay = slice.get("side_select_overlay")
 			_check(overlay != null, "side selection reopens for the cancel path")
 			if overlay != null:
-				overlay.call("_input", _key(KEY_ESCAPE))
+				await _tap_key(KEY_ESCAPE)
 				await _frames(10)
 				_check(slice.get("side_select_overlay") == null, "cancel closes the overlay")
 				_check(not bool(NET_SHELL.lobby(self).get("lobby", {}).get("side_select", true)),

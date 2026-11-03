@@ -11,10 +11,12 @@ const SIZES := [Vector2i(1920, 1080), Vector2i(1280, 720)]
 const SCREENS := [
 	"res://scenes/main_menu.tscn",
 	"res://scenes/controller_select.tscn",
+	"res://scenes/ui/side_select_view.tscn",
 	"res://scenes/team_select.tscn",
 	"res://scenes/prematch.tscn",
 	"res://scenes/ui_lab.tscn",
 ]
+const SIDE_FIXTURE := preload("res://tests/side_select_fixture.gd")
 
 var failures: Array[String] = []
 
@@ -71,6 +73,13 @@ func _check_screen(path: String, size: Vector2i) -> void:
 	var screen: Node = packed.instantiate()
 	viewport.add_child(screen)
 	await _frames(3)
+	if path.ends_with("side_select_view.tscn"):
+		screen.call("setup", SIDE_FIXTURE.rows_2p(), {
+			"input_mode": "devices",
+			"show_names": true,
+			"back_label": "leave",
+		})
+		await _frames(3)
 
 	var states: Array = [""]
 	if screen.has_method("set_state") and path.ends_with("ui_lab.tscn"):

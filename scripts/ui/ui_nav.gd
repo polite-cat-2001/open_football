@@ -6,6 +6,7 @@ extends Node
 # input is untouched.
 
 signal moved(direction: Vector2i)
+signal moved_gamepad(direction: Vector2i, device: int)
 signal confirmed
 signal cancelled
 signal tab_previous
@@ -19,8 +20,10 @@ const REPEAT_DELAY := 0.22
 const STICK_DEADZONE := 0.5
 
 var _last_device := Device.KEYBOARD
+var _last_device_id := 0
 var _held_direction := Vector2i.ZERO
 var _repeat_timer := 0.0
+var _gamepad_state: Dictionary = {}
 
 
 func _ready() -> void:
@@ -30,20 +33,21 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not _is_active():
 		_reset_repeat()
+		_gamepad_state.clear()
 		return
 	var direction := _read_direction()
 	if direction == Vector2i.ZERO:
 		_reset_repeat()
-		return
-	if direction != _held_direction:
+	elif direction != _held_direction:
 		_held_direction = direction
 		_repeat_timer = FIRST_DELAY
 		moved.emit(direction)
-		return
-	_repeat_timer -= delta
-	if _repeat_timer <= 0.0:
-		_repeat_timer = REPEAT_DELAY
-		moved.emit(direction)
+	else:
+		_repeat_timer -= delta
+		if _repeat_timer <= 0.0:
+			_repeat_timer = REPEAT_DELAY
+			moved.emit(direction)
+	_poll_gamepads(delta)
 
 
 func _input(event: InputEvent) -> void:
@@ -59,6 +63,7 @@ func _input(event: InputEvent) -> void:
 		var code := key.physical_keycode if key.physical_keycode != 0 else key.keycode
 		if code in [KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT]:
 			_set_device(Device.KEYBOARD)
+			_last_device_id = 0
 			get_viewport().set_input_as_handled()
 			return
 		if key.echo or not key.pressed:
@@ -67,12 +72,15 @@ func _input(event: InputEvent) -> void:
 		match code:
 			KEY_ENTER, KEY_KP_ENTER, KEY_SPACE:
 				_set_device(Device.KEYBOARD)
+				_last_device_id = 0
 				confirmed.emit()
 			KEY_ESCAPE:
 				_set_device(Device.KEYBOARD)
+				_last_device_id = 0
 				cancelled.emit()
 			KEY_TAB:
 				_set_device(Device.KEYBOARD)
+				_last_device_id = 0
 				tab_next.emit()
 			_:
 				handled = false
@@ -85,6 +93,7 @@ func _input(event: InputEvent) -> void:
 		if not button.pressed:
 			return
 		_set_device(Device.GAMEPAD)
+		_last_device_id = int(button.device)
 		var handled := true
 		match button.button_index:
 			JOY_BUTTON_A:
@@ -110,12 +119,21 @@ func _input(event: InputEvent) -> void:
 		# (it would jump from the first tile to the bottom row).
 		var motion := event as InputEventJoypadMotion
 		_set_device(Device.GAMEPAD)
+		_last_device_id = int(motion.device)
 		if motion.axis == JOY_AXIS_LEFT_X or motion.axis == JOY_AXIS_LEFT_Y:
 			get_viewport().set_input_as_handled()
 		return
 
 
 func using_gamepad() -> bool:
+	return _last_device == Device.GAMEPAD
+
+
+func last_device_id() -> int:
+	return _last_device_id
+
+
+func last_input_gamepad() -> bool:
 	return _last_device == Device.GAMEPAD
 
 
@@ -144,39 +162,76 @@ func _read_direction() -> Vector2i:
 
 func _read_keyboard_direction() -> Vector2i:
 	if Input.is_physical_key_pressed(KEY_UP) or Input.is_key_pressed(KEY_UP):
+		_last_device_id = 0
 		return Vector2i.UP
 	if Input.is_physical_key_pressed(KEY_DOWN) or Input.is_key_pressed(KEY_DOWN):
+		_last_device_id = 0
 		return Vector2i.DOWN
 	if Input.is_physical_key_pressed(KEY_LEFT) or Input.is_key_pressed(KEY_LEFT):
+		_last_device_id = 0
 		return Vector2i.LEFT
 	if Input.is_physical_key_pressed(KEY_RIGHT) or Input.is_key_pressed(KEY_RIGHT):
+		_last_device_id = 0
 		return Vector2i.RIGHT
 	return Vector2i.ZERO
 
 
 func _read_gamepad_direction() -> Vector2i:
 	for device in Input.get_connected_joypads():
-		if Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_UP):
-			return Vector2i.UP
-		if Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_DOWN):
-			return Vector2i.DOWN
-		if Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_LEFT):
-			return Vector2i.LEFT
-		if Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_RIGHT):
-			return Vector2i.RIGHT
-		var x := Input.get_joy_axis(device, JOY_AXIS_LEFT_X)
-		var y := Input.get_joy_axis(device, JOY_AXIS_LEFT_Y)
-		if absf(x) > absf(y):
-			if x > STICK_DEADZONE:
-				return Vector2i.RIGHT
-			if x < -STICK_DEADZONE:
-				return Vector2i.LEFT
-		else:
-			if y > STICK_DEADZONE:
-				return Vector2i.DOWN
-			if y < -STICK_DEADZONE:
-				return Vector2i.UP
+		var direction := _read_gamepad_device_direction(int(device))
+		if direction != Vector2i.ZERO:
+			_last_device_id = int(device)
+			return direction
 	return Vector2i.ZERO
+
+
+func _read_gamepad_device_direction(device: int) -> Vector2i:
+	if Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_UP):
+		return Vector2i.UP
+	if Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_DOWN):
+		return Vector2i.DOWN
+	if Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_LEFT):
+		return Vector2i.LEFT
+	if Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_RIGHT):
+		return Vector2i.RIGHT
+	var x := Input.get_joy_axis(device, JOY_AXIS_LEFT_X)
+	var y := Input.get_joy_axis(device, JOY_AXIS_LEFT_Y)
+	if absf(x) > absf(y):
+		if x > STICK_DEADZONE:
+			return Vector2i.RIGHT
+		if x < -STICK_DEADZONE:
+			return Vector2i.LEFT
+	else:
+		if y > STICK_DEADZONE:
+			return Vector2i.DOWN
+		if y < -STICK_DEADZONE:
+			return Vector2i.UP
+	return Vector2i.ZERO
+
+
+func _poll_gamepads(delta: float) -> void:
+	for device in Input.get_connected_joypads():
+		var device_id := int(device)
+		var direction := _read_gamepad_device_direction(device_id)
+		if direction == Vector2i.ZERO:
+			_gamepad_state.erase(device_id)
+			continue
+		var state: Dictionary = _gamepad_state.get(device_id, {})
+		if state.is_empty() or Vector2i(state.get("direction", Vector2i.ZERO)) != direction:
+			_gamepad_state[device_id] = {"direction": direction, "timer": FIRST_DELAY}
+			_emit_gamepad_move(direction, device_id)
+			continue
+		var timer := float(state.get("timer", REPEAT_DELAY)) - delta
+		if timer <= 0.0:
+			timer = REPEAT_DELAY
+			_emit_gamepad_move(direction, device_id)
+		state["timer"] = timer
+		_gamepad_state[device_id] = state
+
+
+func _emit_gamepad_move(direction: Vector2i, device_id: int) -> void:
+	_last_device_id = device_id
+	moved_gamepad.emit(direction, device_id)
 
 
 func _reset_repeat() -> void:

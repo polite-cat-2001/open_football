@@ -67,12 +67,23 @@ static func build() -> Theme:
 	_label(theme, &"Crumbs", barlow(600), UiTokens.SIZE_CRUMBS, Color(UiTokens.INK, 0.5))
 	_label(theme, &"CrumbsCurrent", barlow(800), UiTokens.SIZE_CRUMBS, UiTokens.INK)
 	_label(theme, &"SoonChipLabel", inter(600), UiTokens.SIZE_KBD, UiTokens.INK_2)
+	_label(theme, &"SideTitle", _spaced_barlow(700, 3), UiTokens.SIZE_SIDE_TITLE,
+		UiTokens.SIDE_HEAD_INK)
+	_label(theme, &"SideName", _spaced_barlow(800, 4), UiTokens.SIZE_SIDE_NAME,
+		UiTokens.SIDE_LABEL)
+	_label(theme, &"SidePlayerName", inter(500), UiTokens.SIZE_SIDE_PLAYER, UiTokens.INK_2)
+	theme.set_color(&"font_outline_color", &"SidePlayerName", UiTokens.FOCUS_INK)
+	theme.set_constant(&"outline_size", &"SidePlayerName", UiTokens.SIDE_NAME_OUTLINE)
+	_label(theme, &"SideStatus", inter(500), UiTokens.SIZE_SIDE_STATUS, UiTokens.LEGEND_INK)
+	_label(theme, &"SideStatusError", inter(500), UiTokens.SIZE_SIDE_STATUS,
+		UiTokens.ERROR_PINK)
 
 	_button(theme, &"TabButton", barlow(700), UiTokens.SIZE_TAB)
 
 	_panel(theme, &"KbdBox", _kbd_box())
 	_panel(theme, &"SoonChip", _chip_box())
 	_panel(theme, &"PanelNoteBox", _note_box())
+	_panel(theme, &"SideHead", _side_head_box())
 
 	return theme
 
@@ -96,9 +107,13 @@ static func _panel(theme: Theme, type: StringName, box: StyleBox) -> void:
 
 
 static func _brand_font() -> FontVariation:
+	return _spaced_barlow(800, 3)
+
+
+static func _spaced_barlow(weight: int, spacing: int) -> FontVariation:
 	var variation := FontVariation.new()
-	variation.base_font = barlow(800)
-	variation.spacing_glyph = 3
+	variation.base_font = barlow(weight)
+	variation.spacing_glyph = spacing
 	return variation
 
 
@@ -131,4 +146,13 @@ static func _note_box() -> StyleBoxFlat:
 	box.content_margin_right = 24.0
 	box.content_margin_top = 12.0
 	box.content_margin_bottom = 12.0
+	return box
+
+
+static func _side_head_box() -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = UiTokens.SIDE_HEAD
+	box.shadow_color = UiTokens.SHADOW
+	box.shadow_size = 22
+	box.shadow_offset = Vector2(0.0, 18.0)
 	return box
