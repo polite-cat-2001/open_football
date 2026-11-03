@@ -1,11 +1,10 @@
-﻿extends Control
+﻿extends UiScreen
 
-# Main menu: stage + 1920x1080 design surface with the prototype's bento menu,
-# driven by the shared UiNav router (keyboard, gamepad, mouse).
+# Main menu: shared stage + 1920x1080 design surface with the prototype's bento
+# menu, driven by the shared UiNav router (keyboard, gamepad, mouse).
 
 const CONTROLLER_SCENE := "res://scenes/controller_select.tscn"
 const NETWORK_SCENE := "res://scenes/network_menu.tscn"
-const STADIUM_TEXTURE := "res://assets/ui/menu/stadium.jpg"
 
 const PLAY_TAB := 0
 const SETTINGS_TAB := 1
@@ -19,10 +18,6 @@ const SETTINGS_NOTES := {
 
 enum Zone { GRID, TABS, PANEL }
 
-@onready var stage: Control = $Stage
-@onready var photo: TextureRect = $Stage/Photo
-@onready var scrim: ColorRect = $Stage/Scrim
-@onready var design: Control = $Design
 @onready var panel_wrap: Control = $Design/PanelWrap
 @onready var tab_bar: UiTabBar = $Design/PanelWrap/TabBar
 @onready var play_grid: BentoGrid = $Design/PanelWrap/PlayGrid
@@ -51,7 +46,6 @@ func _ready() -> void:
 	panel_wrap.add_to_group(&"ui_transition_target")
 	theme = UiTheme.load_or_build()
 
-	_setup_stage()
 	_setup_grids()
 	tab_bar.setup(["PLAY", "SETTINGS"])
 	tab_bar.tab_selected.connect(_on_tab_selected)
@@ -79,12 +73,6 @@ func _ready() -> void:
 	call_deferred("_focus_initial")
 
 
-func _setup_stage() -> void:
-	photo.texture = load(STADIUM_TEXTURE)
-	photo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	photo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-
-
 func _setup_grids() -> void:
 	play_grid.add_cell(quick_tile, 1, 1, 2, 2)
 	play_grid.add_cell(continue_tile, 3, 1, 2, 1)
@@ -98,25 +86,8 @@ func _setup_grids() -> void:
 
 
 func _layout() -> void:
-	var viewport_size := get_viewport_rect().size
-	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+	if layout_canvas() <= 0.0:
 		return
-
-	stage.position = Vector2.ZERO
-	photo.position = -viewport_size * 0.08
-	photo.size = viewport_size * 1.16
-	photo.pivot_offset = photo.size * 0.5
-	scrim.position = Vector2.ZERO
-	scrim.size = viewport_size
-
-	var design_scale := minf(
-		viewport_size.x / UiTokens.DESIGN_SIZE.x,
-		viewport_size.y / UiTokens.DESIGN_SIZE.y
-	)
-	design.scale = Vector2(design_scale, design_scale)
-	design.position = (viewport_size - UiTokens.DESIGN_SIZE * design_scale) * 0.5
-	design.pivot_offset = Vector2.ZERO
-
 	_apply_view_state()
 	_position_brand()
 

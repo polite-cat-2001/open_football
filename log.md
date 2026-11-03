@@ -1793,3 +1793,94 @@ placeholder; национальный значок и шрифт есть. Ру�
 - `check_side_select_view` проверяет x и y для home/away/center. PASS — `check_side_select_view`;
   скриншот `side_select_ready_*` переснят.
 
+
+## [2026-11-03] feat | Выбор команд на дизайн-системе и общий TeamSelectView
+
+- Добавлены `UiStage` (`scenes/ui/ui_stage.tscn`) и `UiScreen`: общий статичный фон
+  (Photo + Scrim + Overlay) и база 1920×1080 с равномерным scale. `main_menu`,
+  `side_select_view` и `team_select_view` инстанцируют один Stage; в `ui_transition_target`
+  лежит только `PanelWrap`, поэтому фон между экранами не анимируется.
+- `TeamSelectView` (`scenes/ui/team_select_view.tscn` + `scripts/ui/team_select_view.gd`) —
+  общий экран: две карточки 512×820, блоки Country 19% / Team 1fr / Competition 26%, флаги/гербы
+  с глифами `globe`/`shirt`, звёзды и ATT/MID/DEF, фокус-инверсия и lime-cues. Ready-ряда нет:
+  `A/Enter` на любом блоке, `B/Esc` снимает ready/назад; 1P home → CPU away, 2P параллельно,
+  сеть — только свои chooser-слоты (`Tab` при обоих слотах). Мышь инертна, `V` убран.
+- `TeamPanel`/`TeamBlock`/`TeamStars` — отдельные файлы карточки; `TeamRatings` — формула
+  звёзд/линий из `PlayerStats.average` (лучшие 11, роли атаки/полузащиты/защиты), кэш по team id.
+- `TeamCatalog` переведён на ленивые запросы, как оригинальный `TeamSelectPage`: открытие только
+  валидирует базу, страны/лиги/команды читаются по требованию и кэшируются, команды с < 11
+  игроками скрываются (`SqliteReader.count_indexed`), состав/рейтинг — только выбранной команды.
+- `team_select` и `network_lobby` стали тонкими адаптерами (lazy `TeamCatalog` + `ShellState` /
+  снапшот лобби + `NET_SHELL.action`); `UiIconCarousel` удалён.
+- Тесты: новые `check_team_select_view`, переписанные `check_team_select_ui`/`check_team_catalog`,
+  обновлён `check_gpf_net_ui`; PASS — `check_ui_layout`, `check_gpf_game_shell`,
+  `check_side_select_view`, `check_main_menu_ui`, `check_controller_select_ui`, `check_squad_ui`,
+  `check_prematch_ui`, `check_match_package`, `check_prematch_lineup`.
+- Скриншоты: `.scratch/ui_shots/team_select_{local_1p_home,local_1p_away,local_2p,network,network_ready,error,real}_{1920x1080,1280x720}.png`
+  (`tests/capture_team_select_shots.gd`).
+
+## [2026-11-03] fix | Team Select: скорость, картинки, стрелки внутри, калибровка рейтингов
+
+- Зависание при открытии: `teams_for_league` больше не проверяет `>= 11` для каждой команды
+  (217 сборных = ~784 мс); проверка `can_field_eleven` перенесена на ready для двух выбранных
+  команд. `load_team_rating` читает только `role`/`base_stat` (3–11 мс вместо ~105 мс разбора
+  `profile_xml`), а текстуры стран/лиг/команд грузятся лениво только для выбранного элемента.
+  `tools/optimize_game_db.py` добавляет `idx_teams_league`/`idx_leagues_country`: смена лиги
+  ~4 мс вместо ~97 мс; открытие экрана ~156 мс.
+- Картинки: `tools/import_prototype_images.py` сопоставляет `gf-ui-prototype/canon.db` с игровой
+  базой по (имени, стране) и копирует флаги/гербы/лого в
+  `<data>/databases/default/images_{countries,leagues,teams}`; покрытие 4644/4652 команд,
+  279/280 лиг, 106/107 стран. `UiAssets` ищет `logo_url`, затем эти папки; иначе — глиф.
+- Стрелки-куи перенесены внутрь блока (`TEAM_CUE_INSET = 10`), а не за его край.
+- Рейтинги: `TeamRatings` использует `base_stat × 100` вместо `PlayerStats.average × 100`
+  (среднее 22 статов насыщалось у 1.0 — почти все клубы были 4.5–5 звёзд). Распределение
+  звёзд/линий теперь совпадает с прототипом (медиана ~2 звезды, 5 — единицы).
+- PASS — `check_team_catalog`, `check_team_select_view`, `check_team_select_ui`, `check_ui_layout`,
+  `check_gpf_net_ui`, `check_gpf_game_shell`; скриншоты пересняты (включая реальные клубы).
+
+## [2026-11-03] tweak | Team Select: обводка лого, верхние подписи и globe сборных
+
+- Лого лиги получает тонкую белую обводку через `shaders/ui_texture_outline.gdshader`
+  (аналог четырёх белых `drop-shadow` из CSS прототипа); шейдер применяется только к
+  `CompetitionArt`, fallback-глиф не трогает.
+- Верхний блок: имя страны поднято с y=26 на y=8 (padding-top 8 как в CSS), флаг поднят
+  с y=71 на y=60; имя владельца в сети перенесено вниз верхнего блока (y=132). Нижний блок:
+  лого лиги поднято с y=60 на y=49.2 — теперь оно по центру блока (118.8 px).
+- National Teams использует globe-SVG прототипа (`assets/ui/icons/globe.svg`) вместо
+  `nationalteams.png`; глиф тонируется как fallback (ink/lime).
+- PASS — `check_team_select_view`, `check_team_select_ui`, `check_ui_layout`; скриншоты
+  `team_select_real*` пересняты.
+
+## [2026-11-03] tweak | Team Select: толще обводка, cues у арта и по его центру
+
+- Обводка лого лиги теперь 5×5-дилатация (радиус 2 source px, 25 сэмплов) вместо 4 соседних:
+  белая линия толще и равномернее, как цепочка `drop-shadow` в CSS.
+- Cues больше не рисуются у краёв блока: `Polygon2D` в `TeamPanel` стоят по бокам art-колонки
+  210 px — основание в 20 px от неё, острие в 32 px. Вертикальный центр — центр картинки:
+  флаг 92, герб 198, лого лиги 108.6 (не центр блока). Тест `check_team_select_view` проверяет
+  эти координаты.
+- PASS — `check_team_select_view`, `check_team_select_ui`, `check_ui_layout`.
+
+## [2026-11-03] fix | Team Select: обводка без обрезки, флаги одной высоты
+
+- Лого лиги теперь загружается с прозрачным padding 8 source px (`UiAssets.load_texture_padded`)
+  и рисуется в контейнере 180×128.8; обводка больше не обрезается сверху/снизу. Шейдер —
+  7×7 с плавным затуханием (smoothstep), `outline_size=1.5`, mipmaps + linear filter: толще,
+  равномернее и без лесенки.
+- Флаги стран: `TeamPanel._fit_flag` задаёт всем высоту 64 px, ширину = aspect×64 с max 120
+  (как `height:64px; width:auto; max-width:120px` в CSS); fallback-globe 64×64.
+- PASS — `check_team_select_view`, `check_team_select_ui`, `check_ui_layout`; скриншоты
+  `team_select_real_club*` пересняты.
+
+## [2026-11-03] fix | Team Select: cues только при выборе, обводка лиги запечена
+
+- Cues скрываются, если в поле один вариант (`choices` в снапшоте стороны): National Teams
+  с единственной заглушкой лиги, страна/лига/команда без альтернатив. Фокус на блоке остаётся,
+  стрелок нет.
+- Обводка лого лиги: причина плохого вида — runtime-шейдер дилатировал alpha маленького
+  битмапа на его собственном разрешении; при downscale это давало ступеньки, а толстая
+  дилатация — белый «блоб». Заменено на запекание в `images_leagues_outline/<id>.png`
+  (`tools/outline_league_logos.py`: MaxFilter + GaussianBlur, padding 10, mipmaps); шейдер
+  `ui_texture_outline.gdshader` удалён. `UiAssets.league_logo` сначала берёт эту папку.
+- PASS — `check_team_select_view` (single-choice cues), `check_team_select_ui`, `check_ui_layout`,
+  `check_gpf_net_ui`; скриншоты `team_select_real_club*` пересняты.

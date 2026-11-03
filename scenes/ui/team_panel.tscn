@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/team_panel.gd" id="1"]
+
+[node name="TeamPanel" type="Control"]
+custom_minimum_size = Vector2(512, 820)
+offset_right = 512.0
+offset_bottom = 820.0
+mouse_filter = 2
+script = ExtResource("1")

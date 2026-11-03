@@ -1,217 +1,231 @@
 extends Control
-# Godot port of NetworkLobbyPage (src/menu/network/networklobby.cpp): the Teams
-# phase of the mirrored LAN lobby. Both sides' Country/Competition/Team
-# carousels and Ready state come from the host-authoritative LobbyState; only
-# the local chooser edits its own panel.
+# Network adapter for TeamSelectView: both sides come from the host-authoritative
+# lobby snapshot; only the local chooser slots are editable. Every edit goes back
+# through the old set_selection/set_team_ready actions.
 
 const NETWORK_MENU_SCENE := "res://scenes/network_menu.tscn"
 const SIDES_SCENE := "res://scenes/network_sides.tscn"
 const OPTIONS_SCENE := "res://scenes/network_match_options.tscn"
-const MENU_FONT := preload("res://assets/ui/fonts/AlegreyaSansSC-ExtraBold.ttf")
 const NET_SHELL := preload("res://scripts/net/net_shell.gd")
-const CAROUSEL := preload("res://scripts/ui/icon_carousel.gd")
 const UI_ASSETS := preload("res://scripts/data/ui_assets.gd")
 
-const ROW_COUNTRY := 0
-const ROW_COMPETITION := 1
-const ROW_TEAM := 2
-const ROW_READY := 3
-const ROW_DELAY_MS := 250
+const FIELD_COUNTRY := "country"
+const FIELD_COMPETITION := "competition"
+const FIELD_TEAM := "team"
 
 @export var data_root := ""
 
+@onready var view: TeamSelectView = $TeamSelectView
+
 var catalog := TeamCatalog.new()
 var national_league_id := -1
-var panels: Array = []
-var help_label: Label
-var status_label: Label
+var country_entries: Array = []
+var sides: Array = []
 
-var _cursor_row := [ROW_COUNTRY, ROW_COUNTRY]
+var _local_id := -1
+var _chooser_sides: Array = []
 var _default_sent := [false, false]
 var _applying := false
 var _last_revision := -1
-var _active_side := 0
-var _help_device := -1
-var _repeat_ms := [0, 0]
+var _last_device := -1
+var _input_device := {"kind": "keyboard", "device": 0}
+var _catalog_error := false
+var _status := ""
+var _status_error := false
 var _leaving := false
+var _last_signature := ""
 
 
 func _ready() -> void:
-	_build_ui()
+	add_to_group(&"ui_shell")
+	theme = UiTheme.load_or_build()
+	_sides_init()
+	view.side_move_requested.connect(_on_side_move)
+	view.side_confirm_requested.connect(_on_side_confirm)
+	view.side_cancel_requested.connect(_on_side_cancel)
+	view.back_requested.connect(_leave_session)
+	view.retry_requested.connect(_reload)
 	_load_catalog()
-	_layout()
-	get_viewport().size_changed.connect(_layout)
 	_poll_lobby()
 	set_process(true)
 
 
-func _build_ui() -> void:
-	var background := ColorRect.new()
-	background.color = Color(0.02, 0.03, 0.02)
-	background.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(background)
-
-	for s in 2:
-		var panel := {
-			"bg": ColorRect.new(),
-			"caption": Label.new(),
-			"rows": [],
-			"ready": Button.new(),
-		}
-		var bg: ColorRect = panel["bg"]
-		bg.color = Color(0.0, 0.0, 0.0, 0.66)
-		add_child(bg)
-
-		var caption: Label = panel["caption"]
-		caption.text = "HOME" if s == 0 else "AWAY"
-		caption.add_theme_font_override("font", MENU_FONT)
-		caption.add_theme_color_override("font_color", Color(0.95, 0.92, 0.82))
-		caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		add_child(caption)
-
-		for row in 3:
-			var carousel = CAROUSEL.new()
-			carousel.title = ["Country select", "Competition select", "Team select"][row]
-			carousel.gui_input.connect(_on_carousel_input.bind(s, row))
-			add_child(carousel)
-			panel["rows"].append(carousel)
-
-		var ready: Button = panel["ready"]
-		ready.text = "Ready"
-		ready.toggle_mode = true
-		ready.add_theme_font_override("font", MENU_FONT)
-		ready.add_theme_font_size_override("font_size", 24)
-		ready.pressed.connect(_on_ready_pressed.bind(s))
-		add_child(ready)
-		panels.append(panel)
-
-	help_label = _caption("Up/Down: level    Left/Right: select    Enter: ready    Esc/B: back")
-	status_label = _caption("")
+func _sides_init() -> void:
+	sides = [
+		_side_model(0),
+		_side_model(1),
+	]
 
 
-func _caption(text: String) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_font_override("font", MENU_FONT)
-	label.add_theme_color_override("font_color", Color(0.72, 0.72, 0.66))
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	add_child(label)
-	return label
-
-
-func _layout() -> void:
-	var view := get_viewport_rect().size
-	if view.x <= 0 or view.y <= 0:
-		return
-	var caption_size := maxi(14, int(view.y * 0.024))
-	for s in 2:
-		var gx := 0.19 if s == 0 else 0.51
-		var panel: Dictionary = panels[s]
-		var bg: ColorRect = panel["bg"]
-		bg.position = Vector2(view.x * gx, view.y * 0.24)
-		bg.size = Vector2(view.x * 0.30, view.y * 0.42)
-
-		var caption: Label = panel["caption"]
-		caption.add_theme_font_size_override("font_size", caption_size)
-		caption.position = Vector2(view.x * gx, view.y * 0.195)
-		caption.size = Vector2(view.x * 0.29, view.y * 0.035)
-
-		for row in 3:
-			var carousel = panel["rows"][row]
-			carousel.position = Vector2(view.x * (gx + 0.005), view.y * (0.24 + row * 0.105))
-			carousel.size = Vector2(view.x * 0.29, view.y * 0.10)
-			carousel.queue_redraw()
-
-		var ready: Button = panel["ready"]
-		ready.position = Vector2(view.x * (gx + 0.005), view.y * 0.555)
-		ready.size = Vector2(view.x * 0.29, view.y * 0.055)
-
-	for label in [help_label, status_label]:
-		label.add_theme_font_size_override("font_size", maxi(11, int(view.y * 0.019)))
-	_place(help_label, 0.5, 0.88, 0.80, 0.04)
-	_place(status_label, 0.5, 0.81, 0.80, 0.04)
-
-
-func _place(label: Label, center_x: float, top: float, width: float, height: float) -> void:
-	var view := get_viewport_rect().size
-	label.position = Vector2(view.x * center_x - view.x * width * 0.5, view.y * top)
-	label.size = Vector2(view.x * width, view.y * height)
+func _side_model(side: int) -> Dictionary:
+	return {
+		"side": side,
+		"country_index": 0,
+		"league_index": 0,
+		"team_index": 0,
+		"league_entries": [],
+		"team_entries": [],
+		"ready": false,
+		"editable": false,
+		"live": false,
+		"owner": "",
+		"device": {"kind": "keyboard", "device": 0},
+	}
 
 
 func _load_catalog() -> void:
+	_catalog_error = false
 	if not catalog.load_data_root(data_root):
-		status_label.text = catalog.error
-		status_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.4))
+		_catalog_error = true
+		_status = catalog.error
+		_clear_entries()
+		_refresh()
 		return
 	national_league_id = catalog.national_league_id()
-	var country_entries: Array = [
-		{"id": "national", "caption": "National Teams", "texture": UI_ASSETS.national_icon()},
-	]
-	for country in catalog.countries:
+	_build_country_entries()
+	if country_entries.is_empty():
+		_catalog_error = true
+		_status = "No teams in the database."
+		_clear_entries()
+		_refresh()
+
+
+func _reload() -> void:
+	_default_sent = [false, false]
+	_last_signature = ""
+	_load_catalog()
+	if not _catalog_error:
+		_last_revision = -1
+		_poll_lobby()
+
+
+func _clear_entries() -> void:
+	country_entries.clear()
+	for side in sides:
+		side["league_entries"] = []
+		side["team_entries"] = []
+		side["ready"] = false
+		side["editable"] = false
+		side["live"] = false
+
+
+func _build_country_entries() -> void:
+	country_entries.clear()
+	if national_league_id >= 0:
+		country_entries.append({
+			"id": "national",
+			"name": TeamCatalog.NATIONAL_LEAGUE_NAME,
+			"texture": null,
+			"_texture_loaded": true,
+		})
+	for country in catalog.countries():
 		country_entries.append({
 			"id": str(country.get("id", 0)),
-			"caption": str(country.get("name", "")),
-			"texture": UI_ASSETS.country_flag(country),
+			"name": str(country.get("name", "")),
+			"tm_id": str(country.get("tm_id", "")),
+			"_texture_loaded": false,
 		})
-	for s in 2:
-		panels[s]["rows"][ROW_COUNTRY].set_entries(country_entries)
-		panels[s]["rows"][ROW_COUNTRY].set_selected(0)
-		_setup_competitions(s)
-	_refresh_highlight()
 
 
-func _is_national(s: int) -> bool:
-	var entry: Dictionary = panels[s]["rows"][ROW_COUNTRY].selected_entry()
-	return str(entry.get("id", "")) == "national"
-
-
-func _setup_competitions(s: int) -> void:
-	var country = panels[s]["rows"][ROW_COUNTRY]
-	var competition = panels[s]["rows"][ROW_COMPETITION]
-	var team = panels[s]["rows"][ROW_TEAM]
-	if _is_national(s):
-		competition.set_entries([])
-		competition.set_dimmed(true)
-		_setup_teams(s, national_league_id)
+func _apply_country(side: Dictionary) -> void:
+	side["league_index"] = 0
+	side["team_index"] = 0
+	var entry := _country_entry(side)
+	if str(entry.get("id", "")) == "national":
+		side["league_entries"] = [{
+			"id": str(national_league_id),
+			"name": TeamCatalog.NATIONAL_LEAGUE_NAME,
+			"texture": null,
+			"_texture_loaded": true,
+		}]
+		_setup_teams(side, national_league_id)
 		return
-	competition.set_dimmed(false)
-	var country_id := int(str(country.selected_entry().get("id", "0")))
+	var country_id := int(str(entry.get("id", "0")))
+	side["league_entries"] = _league_entries(country_id)
+	_setup_teams(side, _league_id(side))
+
+
+func _apply_league(side: Dictionary) -> void:
+	side["team_index"] = 0
+	_setup_teams(side, _league_id(side))
+
+
+func _setup_teams(side: Dictionary, league_id: int) -> void:
+	side["team_entries"] = _team_entries(league_id)
+	if int(side["team_index"]) >= (side["team_entries"] as Array).size():
+		side["team_index"] = 0
+
+
+func _league_entries(country_id: int) -> Array:
 	var entries: Array = []
 	for league in catalog.leagues_for_country(country_id):
 		entries.append({
 			"id": str(league.get("id", 0)),
-			"caption": str(league.get("name", "")),
-			"texture": UI_ASSETS.league_logo(league),
+			"name": str(league.get("name", "")),
+			"logo_url": str(league.get("logo_url", "")),
+			"_texture_loaded": false,
 		})
-	competition.set_entries(entries)
-	_setup_teams(s)
+	return entries
 
 
-func _setup_teams(s: int, forced_league: int = -1) -> void:
-	var competition = panels[s]["rows"][ROW_COMPETITION]
-	var team = panels[s]["rows"][ROW_TEAM]
-	var league_id := forced_league
-	if league_id < 0:
-		league_id = int(str(competition.selected_entry().get("id", "0")))
+func _team_entries(league_id: int) -> Array:
 	var entries: Array = []
-	for team_data in catalog.teams_for_league(league_id):
+	for team in catalog.teams_for_league(league_id):
 		entries.append({
-			"id": str(team_data.get("id", 0)),
-			"caption": str(team_data.get("name", "")),
-			"texture": UI_ASSETS.team_logo(team_data),
+			"id": str(team.get("id", 0)),
+			"name": str(team.get("name", "")),
+			"logo_url": str(team.get("logo_url", "")),
+			"_texture_loaded": false,
 		})
-	team.set_entries(entries)
+	return entries
 
 
-func _select_by_id(row, id: int) -> bool:
-	if id < 0:
-		return false
-	for i in row.entries.size():
-		if str(row.entries[i].get("id", "")) == str(id):
-			row.set_selected(i)
-			return true
-	return false
+func _country_entry(side: Dictionary) -> Dictionary:
+	var index := clampi(int(side["country_index"]), 0, maxi(0, country_entries.size() - 1))
+	side["country_index"] = index
+	if country_entries.is_empty():
+		return {}
+	return _ensure_texture(country_entries[index], "country")
+
+
+func _league_entry(side: Dictionary) -> Dictionary:
+	var entries: Array = side["league_entries"]
+	if entries.is_empty():
+		return {}
+	var index := clampi(int(side["league_index"]), 0, entries.size() - 1)
+	side["league_index"] = index
+	return _ensure_texture(entries[index], "league")
+
+
+func _team_entry(side: Dictionary) -> Dictionary:
+	var entries: Array = side["team_entries"]
+	if entries.is_empty():
+		return {}
+	var index := clampi(int(side["team_index"]), 0, entries.size() - 1)
+	side["team_index"] = index
+	return _ensure_texture(entries[index], "team")
+
+
+func _ensure_texture(entry: Dictionary, kind: String) -> Dictionary:
+	if bool(entry.get("_texture_loaded", false)):
+		return entry
+	match kind:
+		"country":
+			entry["texture"] = UI_ASSETS.usable_texture(UI_ASSETS.country_flag(entry))
+		"league":
+			entry["texture"] = UI_ASSETS.usable_texture(UI_ASSETS.league_logo(entry))
+		_:
+			entry["texture"] = UI_ASSETS.usable_texture(UI_ASSETS.team_logo(entry))
+	entry["_texture_loaded"] = true
+	return entry
+
+
+func _league_id(side: Dictionary) -> int:
+	return int(str(_league_entry(side).get("id", "0")))
+
+
+func _team_id(side: Dictionary) -> int:
+	return int(str(_team_entry(side).get("id", "0")))
 
 
 func _poll_lobby() -> void:
@@ -228,7 +242,8 @@ func _poll_lobby() -> void:
 	var lobby: Dictionary = info.get("lobby", {})
 	var phase := int(lobby.get("phase", -1))
 	if phase == 0:
-		get_tree().change_scene_to_file(SIDES_SCENE)
+		_leaving = true
+		UiTransition.change_scene(SIDES_SCENE)
 		return
 	if phase == 2:
 		_enter_options(lobby)
@@ -237,222 +252,316 @@ func _poll_lobby() -> void:
 	var revision := int(lobby.get("revision", -1))
 	if revision != _last_revision:
 		_last_revision = revision
-		_apply_state(lobby)
+		_apply_lobby_state(lobby)
 
-	var chooser_sides := _chooser_sides(lobby, int(info.get("local_id", -1)))
-	if not chooser_sides.is_empty() and not chooser_sides.has(_active_side):
-		_active_side = int(chooser_sides[0])
-	_update_selectable(chooser_sides)
-	for side in chooser_sides:
-		_seed_defaults(side)
-	_update_help(chooser_sides)
+	_local_id = int(info.get("local_id", -1))
+	_chooser_sides = _chooser_sides_for(lobby, _local_id)
+	_update_owners(lobby)
+	for side in _chooser_sides:
+		_seed_defaults(int(side))
+	_refresh()
 
 
-func _chooser_sides(lobby: Dictionary, local_id: int) -> Array:
+func _chooser_sides_for(lobby: Dictionary, local_id: int) -> Array:
 	var chooser: Array = lobby.get("chooser", [])
-	var sides: Array = []
+	var result: Array = []
 	for side in 2:
 		if side < chooser.size() and int(chooser[side]) == local_id:
-			sides.append(side)
-	return sides
+			result.append(side)
+	return result
 
 
-func _apply_state(lobby: Dictionary) -> void:
+func _apply_lobby_state(lobby: Dictionary) -> void:
+	if _catalog_error:
+		return
 	_applying = true
 	var countries: Array = lobby.get("country_ids", [])
 	var leagues: Array = lobby.get("league_ids", [])
 	var teams: Array = lobby.get("team_ids", [])
 	var ready: Array = lobby.get("team_ready", [])
-	for s in 2:
-		var country_id := int(countries[s]) if s < countries.size() else -1
-		var league_id := int(leagues[s]) if s < leagues.size() else -1
-		var team_id := int(teams[s]) if s < teams.size() else -1
-		if country_id >= 0:
-			var country_row = panels[s]["rows"][ROW_COUNTRY]
-			if country_id == 0:
-				country_row.set_selected(0)
-			else:
-				_select_by_id(country_row, country_id)
-			_setup_competitions(s)
-			if league_id > 0:
-				_select_by_id(panels[s]["rows"][ROW_COMPETITION], league_id)
-				_setup_teams(s)
-			if team_id > 0:
-				_select_by_id(panels[s]["rows"][ROW_TEAM], team_id)
-		var ready_button: Button = panels[s]["ready"]
-		ready_button.button_pressed = bool(ready[s]) if s < ready.size() else false
+	for side in sides:
+		var index := int(side["side"])
+		var country_id := int(countries[index]) if index < countries.size() else -1
+		var country_index := _find_country_index(country_id)
+		side["country_index"] = country_index
+		_apply_country(side)
+		var league_id := int(leagues[index]) if index < leagues.size() else -1
+		if league_id > 0:
+			var league_index := _find_entry_index(side["league_entries"], str(league_id))
+			if league_index >= 0:
+				side["league_index"] = league_index
+				_apply_league(side)
+		var team_id := int(teams[index]) if index < teams.size() else -1
+		if team_id > 0:
+			var team_index := _find_entry_index(side["team_entries"], str(team_id))
+			if team_index >= 0:
+				side["team_index"] = team_index
+		side["ready"] = bool(ready[index]) if index < ready.size() else false
 	_applying = false
-	_refresh_highlight()
 
 
-func _seed_defaults(side: int) -> void:
-	if _applying or bool(_default_sent[side]):
+func _find_country_index(country_id: int) -> int:
+	if country_id <= 0 and national_league_id >= 0:
+		return 0
+	for index in country_entries.size():
+		if str(country_entries[index].get("id", "")) == str(country_id):
+			return index
+	return 0
+
+
+func _find_entry_index(entries: Array, id: String) -> int:
+	for index in entries.size():
+		if str(entries[index].get("id", "")) == id:
+			return index
+	return -1
+
+
+func _seed_defaults(side_index: int) -> void:
+	if _applying or _catalog_error or bool(_default_sent[side_index]):
 		return
-	var country_row = panels[side]["rows"][ROW_COUNTRY]
-	var team_row = panels[side]["rows"][ROW_TEAM]
-	var country_entry: Dictionary = country_row.selected_entry()
-	var team_entry: Dictionary = team_row.selected_entry()
-	if country_entry.is_empty() or team_entry.is_empty():
+	var side: Dictionary = sides[side_index]
+	var country := _country_entry(side)
+	var team := _team_entry(side)
+	if country.is_empty() or team.is_empty():
 		return
-	_default_sent[side] = true
-	var country_id := 0 if str(country_entry.get("id", "")) == "national" \
-		else int(str(country_entry.get("id", "0")))
-	NET_SHELL.action(get_tree(), "set_selection", side, 0, country_id)
-	var team_id := int(str(team_entry.get("id", "0")))
+	_default_sent[side_index] = true
+	var country_id := 0 if str(country.get("id", "")) == "national" \
+		else int(str(country.get("id", "0")))
+	NET_SHELL.action(get_tree(), "set_selection", side_index, 0, country_id)
+	var team_id := int(str(team.get("id", "0")))
 	if team_id > 0:
-		NET_SHELL.action(get_tree(), "set_selection", side, 2, team_id)
+		NET_SHELL.action(get_tree(), "set_selection", side_index, 2, team_id)
 
 
-func _update_selectable(chooser_sides: Array) -> void:
-	for s in 2:
-		var can_choose := chooser_sides.has(s)
-		var panel: Dictionary = panels[s]
-		for row in 3:
-			var carousel = panel["rows"][row]
-			carousel.set_dimmed(not can_choose)
-		var ready: Button = panel["ready"]
-		ready.disabled = not can_choose
-		ready.button_pressed = ready.button_pressed and can_choose
-	_refresh_highlight(chooser_sides)
+func _update_owners(lobby: Dictionary) -> void:
+	var owners := [{}, {}]
+	for player in lobby.get("players", []):
+		var side := int(player.get("side", -1))
+		if side < 0 or side > 1:
+			continue
+		var owner := str(player.get("name", ""))
+		if int(player.get("id", -1)) == _local_id:
+			owner = "YOU  " + owner
+		owners[side] = {"name": owner}
+	for side in sides:
+		var index := int(side["side"])
+		side["owner"] = str(owners[index].get("name", ""))
+		side["device"] = _input_device
 
 
-func _refresh_highlight(chooser_sides: Array = []) -> void:
-	if chooser_sides.is_empty():
-		var info := NET_SHELL.lobby(get_tree())
-		if info.is_empty():
-			return
-		chooser_sides = _chooser_sides(info.get("lobby", {}), int(info.get("local_id", -1)))
-	for s in 2:
-		var active := chooser_sides.has(s) and s == _active_side
-		for row in 3:
-			var carousel = panels[s]["rows"][row]
-			carousel.set_highlighted(active and int(_cursor_row[s]) == row)
+func _refresh() -> void:
+	if view == null:
+		return
+	for side in sides:
+		var index := int(side["side"])
+		side["editable"] = not _catalog_error and _chooser_sides.has(index)
+		side["live"] = side["editable"] and not bool(side["ready"])
+	var signature := _signature()
+	if signature == _last_signature:
+		return
+	_last_signature = signature
+	view.setup(_build_state(), {
+		"back_label": "leave",
+		"status": _status,
+		"status_error": _status_error,
+	})
 
 
-func _update_help(chooser_sides: Array) -> void:
-	var extra := "    Tab: panel" if chooser_sides.size() > 1 else ""
-	if _help_device == 1:
-		help_label.text = "Up/Down: level    Left/Right: select    A: ready    B: back" + extra
-	else:
-		help_label.text = "Up/Down: level    Left/Right: select    Enter: ready    Esc: back" + extra
+func _signature() -> String:
+	var parts: Array[String] = [str(_status), str(_status_error), str(_catalog_error)]
+	for side in sides:
+		var device: Dictionary = side["device"]
+		parts.append("%d/%d/%d/%d/%d/%d/%s/%s:%d" % [
+			int(side["country_index"]),
+			int(side["league_index"]),
+			int(side["team_index"]),
+			1 if bool(side["ready"]) else 0,
+			1 if bool(side["live"]) else 0,
+			1 if bool(side["editable"]) else 0,
+			str(side.get("owner", "")),
+			str(device.get("kind", "keyboard")),
+			int(device.get("device", 0)),
+		])
+	return "|".join(parts)
 
 
-func _on_ready_pressed(side: int) -> void:
+func _build_state() -> Dictionary:
+	var side_states: Array = []
+	for side in sides:
+		var team := _team_entry(side)
+		var rating := {}
+		if not team.is_empty() and not _catalog_error:
+			rating = catalog.load_team_rating(int(str(team.get("id", "0"))))
+		side_states.append({
+			"side": int(side["side"]),
+			"label": "HOME" if int(side["side"]) == 0 else "AWAY",
+			"owner": str(side.get("owner", "")),
+			"ready": bool(side["ready"]),
+			"live": bool(side["live"]),
+			"editable": bool(side["editable"]),
+			"device": side["device"],
+			"country": _country_entry(side),
+			"competition": _league_entry(side),
+			"team": team,
+			"rating": rating,
+			"choices": {
+				"country": country_entries.size(),
+				"competition": (side["league_entries"] as Array).size(),
+				"team": (side["team_entries"] as Array).size(),
+			},
+		})
+	return {
+		"sides": side_states,
+		"status": _status,
+		"status_error": _status_error,
+		"error": _catalog_error,
+	}
+
+
+func _note_input(input: Dictionary) -> void:
+	var kind := str(input.get("kind", "keyboard"))
+	var device_id := int(input.get("device", 0))
+	_input_device = {"kind": kind, "device": device_id}
+	_send_device(0 if kind == "keyboard" else 1)
+	NET_SHELL.note_local_device(get_tree(), kind, device_id)
+
+
+func _send_device(device: int) -> void:
+	if device == _last_device:
+		return
+	_last_device = device
+	NET_SHELL.action(get_tree(), "set_device", 0, device, 0)
+
+
+func _on_side_move(side: int, field: String, delta: int, input: Dictionary) -> void:
+	_note_input(input)
+	var model: Dictionary = sides[side]
+	if _catalog_error or _applying or not bool(model["editable"]) or delta == 0:
+		return
+	match field:
+		FIELD_COUNTRY:
+			var count := country_entries.size()
+			if count <= 1:
+				return
+			model["country_index"] = posmod(int(model["country_index"]) + delta, count)
+			_apply_country(model)
+		FIELD_COMPETITION:
+			var leagues: Array = model["league_entries"]
+			if leagues.size() <= 1:
+				return
+			model["league_index"] = posmod(int(model["league_index"]) + delta, leagues.size())
+			_apply_league(model)
+		FIELD_TEAM:
+			var teams: Array = model["team_entries"]
+			if teams.size() <= 1:
+				return
+			model["team_index"] = posmod(int(model["team_index"]) + delta, teams.size())
+	_status = ""
+	_status_error = false
+	_send_selection(side, field)
+	_refresh()
+
+
+func _send_selection(side: int, field: String) -> void:
 	if _applying:
 		return
-	var info := NET_SHELL.lobby(get_tree())
-	var lobby: Dictionary = info.get("lobby", {})
-	if not _chooser_sides(lobby, int(info.get("local_id", -1))).has(side):
-		return
-	var ready: Array = lobby.get("team_ready", [])
-	var current := bool(ready[side]) if side < ready.size() else false
-	NET_SHELL.action(get_tree(), "set_team_ready", side, 0 if current else 1, 0)
-
-
-func _on_carousel_input(event: InputEvent, side: int, row: int) -> void:
-	if not (event is InputEventMouseButton):
-		return
-	var mouse := event as InputEventMouseButton
-	if not mouse.pressed or mouse.button_index != MOUSE_BUTTON_LEFT:
-		return
-	var info := NET_SHELL.lobby(get_tree())
-	var lobby: Dictionary = info.get("lobby", {})
-	if not _chooser_sides(lobby, int(info.get("local_id", -1))).has(side):
-		return
-	_active_side = side
-	_cursor_row[side] = row
-	_refresh_highlight([side])
-	var carousel = panels[side]["rows"][row]
-	var local_x := mouse.position.x / maxf(1.0, carousel.size.x)
-	if local_x < 0.33:
-		_move_selection(side, -1)
-	elif local_x > 0.67:
-		_move_selection(side, 1)
-
-
-func _move_row(side: int, delta: int) -> void:
-	if delta == 0:
-		return
-	var row := int(_cursor_row[side])
-	for guard in 4:
-		row += delta
-		if row < ROW_COUNTRY:
-			row = ROW_READY
-		if row > ROW_READY:
-			row = ROW_COUNTRY
-		if row != ROW_COMPETITION or not _is_national(side):
-			break
-	_cursor_row[side] = row
-	_refresh_highlight()
-
-
-func _move_selection(side: int, delta: int) -> void:
-	if delta == 0:
-		return
-	var row := int(_cursor_row[side])
-	if row > ROW_TEAM:
-		return
-	var carousel = panels[side]["rows"][row]
-	if not carousel.move_selection(delta):
-		return
-	if row == ROW_COUNTRY:
-		_setup_competitions(side)
-		_send_selection(side, ROW_COUNTRY)
-	elif row == ROW_COMPETITION:
-		_setup_teams(side)
-		_send_selection(side, ROW_COMPETITION)
-	else:
-		_send_selection(side, ROW_TEAM)
-	_refresh_highlight()
-
-
-func _send_selection(side: int, row: int) -> void:
-	if _applying:
-		return
-	var country_row = panels[side]["rows"][ROW_COUNTRY]
-	var competition_row = panels[side]["rows"][ROW_COMPETITION]
-	var team_row = panels[side]["rows"][ROW_TEAM]
-	if row == ROW_COUNTRY:
-		var country_entry: Dictionary = country_row.selected_entry()
-		var country_id := 0 if str(country_entry.get("id", "")) == "national" \
-			else int(str(country_entry.get("id", "0")))
+	var model: Dictionary = sides[side]
+	var country := _country_entry(model)
+	var league := _league_entry(model)
+	var team := _team_entry(model)
+	if field == FIELD_COUNTRY:
+		var country_id := 0 if str(country.get("id", "")) == "national" \
+			else int(str(country.get("id", "0")))
 		NET_SHELL.action(get_tree(), "set_selection", side, 0, country_id)
-		if _is_national(side):
-			var national_team := int(str(team_row.selected_entry().get("id", "0")))
+		if str(country.get("id", "")) == "national":
+			var national_team := int(str(team.get("id", "0")))
 			if national_team > 0:
 				NET_SHELL.action(get_tree(), "set_selection", side, 2, national_team)
 			return
-		var league_id := int(str(competition_row.selected_entry().get("id", "0")))
+		var league_id := int(str(league.get("id", "0")))
 		if league_id > 0:
 			NET_SHELL.action(get_tree(), "set_selection", side, 1, league_id)
-		var default_team := int(str(team_row.selected_entry().get("id", "0")))
+		var default_team := int(str(team.get("id", "0")))
 		if default_team > 0:
 			NET_SHELL.action(get_tree(), "set_selection", side, 2, default_team)
-	elif row == ROW_COMPETITION:
-		var league_id := int(str(competition_row.selected_entry().get("id", "0")))
+	elif field == FIELD_COMPETITION:
+		var league_id := int(str(league.get("id", "0")))
 		if league_id > 0:
 			NET_SHELL.action(get_tree(), "set_selection", side, 1, league_id)
-		var team_id := int(str(team_row.selected_entry().get("id", "0")))
+		var team_id := int(str(team.get("id", "0")))
 		if team_id > 0:
 			NET_SHELL.action(get_tree(), "set_selection", side, 2, team_id)
-	elif row == ROW_TEAM:
-		var team_id := int(str(team_row.selected_entry().get("id", "0")))
+	else:
+		var team_id := int(str(team.get("id", "0")))
 		if team_id > 0:
 			NET_SHELL.action(get_tree(), "set_selection", side, 2, team_id)
+
+
+func _on_side_confirm(side: int, input: Dictionary) -> void:
+	_note_input(input)
+	var model: Dictionary = sides[side]
+	if _catalog_error:
+		_reload()
+		return
+	if not bool(model["editable"]) or bool(model["ready"]):
+		return
+	var team := _team_entry(model)
+	if team.is_empty():
+		_set_status("Choose a team.", true)
+		return
+	if not catalog.can_field_eleven(int(str(team.get("id", "0")))):
+		_set_status("This team cannot field 11 players.", true)
+		return
+	model["ready"] = true
+	_status = ""
+	_status_error = false
+	NET_SHELL.action(get_tree(), "set_team_ready", side, 1, 0)
+	_refresh()
+
+
+func _on_side_cancel(side: int, input: Dictionary) -> void:
+	_note_input(input)
+	var model: Dictionary = sides[side]
+	if not bool(model["editable"]):
+		_leave_session()
+		return
+	if bool(model["ready"]):
+		model["ready"] = false
+		_status = ""
+		_status_error = false
+		NET_SHELL.action(get_tree(), "set_team_ready", side, 0, 0)
+		_refresh()
+		return
+	_leave_session()
 
 
 func _enter_options(lobby: Dictionary) -> void:
 	var ids: Array = lobby.get("team_ids", [])
 	if ids.size() != 2 or int(ids[0]) <= 0 or int(ids[1]) <= 0:
-		status_label.text = "Choose both teams."
+		_set_status("Choose both teams.", true)
 		return
 	var home := catalog.team_by_id(int(ids[0]))
 	var away := catalog.team_by_id(int(ids[1]))
 	if home.is_empty() or away.is_empty():
-		status_label.text = "One of the chosen teams is missing from the database."
+		_set_status("One of the chosen teams is missing from the database.", true)
 		return
+	if not catalog.can_field_eleven(int(ids[0])) or not catalog.can_field_eleven(int(ids[1])):
+		_set_status("One of the chosen teams cannot field 11 players.", true)
+		return
+	_status = ""
+	_status_error = false
 	ShellState.set_teams(home, away)
-	get_tree().change_scene_to_file(OPTIONS_SCENE)
+	if _leaving:
+		return
+	_leaving = true
+	UiTransition.change_scene(OPTIONS_SCENE)
+
+
+func _set_status(text: String, error := false) -> void:
+	_status = text
+	_status_error = error
+	if view != null:
+		view.set_status(text, error)
 
 
 func _leave_session() -> void:
@@ -461,124 +570,8 @@ func _leave_session() -> void:
 	_leaving = true
 	if NET_SHELL.is_active(get_tree()):
 		NET_SHELL.leave(get_tree())
-	get_tree().change_scene_to_file(NETWORK_MENU_SCENE)
+	UiTransition.change_scene(NETWORK_MENU_SCENE)
 
 
 func _process(_delta: float) -> void:
 	_poll_lobby()
-
-
-func _input(event: InputEvent) -> void:
-	if _leaving:
-		return
-	var lobby_info := NET_SHELL.lobby(get_tree())
-	var lobby: Dictionary = lobby_info.get("lobby", {})
-	var chooser_sides := _chooser_sides(lobby, int(lobby_info.get("local_id", -1)))
-	var side := int(_active_side)
-
-	if event is InputEventKey:
-		var key := event as InputEventKey
-		if key.echo or not key.pressed:
-			return
-		if _help_device != 0:
-			_help_device = 0
-			_update_help(chooser_sides)
-		NET_SHELL.note_local_device(get_tree(), "keyboard", 0)
-		if key.keycode == KEY_TAB:
-			if chooser_sides.size() > 1:
-				var index := chooser_sides.find(side)
-				_active_side = int(chooser_sides[(index + 1) % chooser_sides.size()])
-				_refresh_highlight(chooser_sides)
-			return
-		if not chooser_sides.has(side):
-			if key.keycode == KEY_ESCAPE:
-				_leave_session()
-			return
-		match key.keycode:
-			KEY_UP:
-				_move_row(side, -1)
-			KEY_DOWN:
-				_move_row(side, 1)
-			KEY_LEFT:
-				_move_selection(side, -1)
-			KEY_RIGHT:
-				_move_selection(side, 1)
-			KEY_ENTER, KEY_KP_ENTER:
-				_activate(side)
-			KEY_ESCAPE:
-				_step_back(side)
-		get_viewport().set_input_as_handled()
-	elif event is InputEventJoypadButton:
-		var joy := event as InputEventJoypadButton
-		if not joy.pressed:
-			return
-		if _help_device != 1:
-			_help_device = 1
-			_update_help(chooser_sides)
-		NET_SHELL.note_local_device(get_tree(), "gamepad", int(joy.device))
-		if not chooser_sides.has(side):
-			if int(joy.button_index) == JOY_BUTTON_B:
-				_leave_session()
-			return
-		match int(joy.button_index):
-			JOY_BUTTON_DPAD_UP:
-				_move_row(side, -1)
-			JOY_BUTTON_DPAD_DOWN:
-				_move_row(side, 1)
-			JOY_BUTTON_DPAD_LEFT:
-				_move_selection(side, -1)
-			JOY_BUTTON_DPAD_RIGHT:
-				_move_selection(side, 1)
-			JOY_BUTTON_A:
-				_activate(side)
-			JOY_BUTTON_B:
-				_step_back(side)
-		get_viewport().set_input_as_handled()
-	elif event is InputEventJoypadMotion:
-		var motion := event as InputEventJoypadMotion
-		var axis := int(motion.axis)
-		if axis != JOY_AXIS_LEFT_X and axis != JOY_AXIS_LEFT_Y:
-			return
-		if absf(motion.axis_value) < 0.5 or not chooser_sides.has(side):
-			return
-		var now := Time.get_ticks_msec()
-		if now - int(_repeat_ms[side]) < ROW_DELAY_MS:
-			return
-		_repeat_ms[side] = now
-		if _help_device != 1:
-			_help_device = 1
-			_update_help(chooser_sides)
-		NET_SHELL.note_local_device(get_tree(), "gamepad", int(motion.device))
-		if axis == JOY_AXIS_LEFT_X:
-			_move_selection(side, -1 if motion.axis_value < 0.0 else 1)
-		else:
-			_move_row(side, -1 if motion.axis_value < 0.0 else 1)
-
-
-func _activate(side: int) -> void:
-	var row := int(_cursor_row[side])
-	if row == ROW_READY:
-		var info := NET_SHELL.lobby(get_tree())
-		var lobby: Dictionary = info.get("lobby", {})
-		var ready: Array = lobby.get("team_ready", [])
-		var current := bool(ready[side]) if side < ready.size() else false
-		NET_SHELL.action(get_tree(), "set_team_ready", side, 0 if current else 1, 0)
-		return
-	_cursor_row[side] = ROW_COUNTRY if row >= ROW_TEAM else row + 1
-	if _cursor_row[side] == ROW_COMPETITION and _is_national(side):
-		_cursor_row[side] = ROW_TEAM
-	_refresh_highlight()
-
-
-func _step_back(side: int) -> void:
-	var row := int(_cursor_row[side])
-	if row == ROW_READY:
-		_cursor_row[side] = ROW_TEAM
-	elif row == ROW_TEAM:
-		_cursor_row[side] = ROW_COUNTRY if _is_national(side) else ROW_COMPETITION
-	elif row == ROW_COMPETITION:
-		_cursor_row[side] = ROW_COUNTRY
-	else:
-		_leave_session()
-		return
-	_refresh_highlight()

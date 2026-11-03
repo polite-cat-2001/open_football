@@ -10,8 +10,12 @@
 - **Выбор сторон** — `controller_select` и `network_sides` через общий
   `SideSelectView` (`scenes/ui/side_select_view.tscn`); локальный и сетевой адаптеры только
   поставляют данные и обрабатывают действия.
-- Остальной шелл (`team_select`, `prematch`, `squad`, `network_lobby`, `network_menu` и т.д.)
-  и in-match UI пока живут по-старому.
+- **Выбор команд** — `team_select` и `network_lobby` через общий `TeamSelectView`
+  (`scenes/ui/team_select_view.tscn`); локальный адаптер — `TeamCatalog`/`ShellState`, сетевой —
+  снапшот лобби + `NET_SHELL.action(...)`.
+- Остальной шелл (`prematch`, `squad`, `network_menu`, `network_host/join` и т.д.)
+  и in-match UI пока живут по-старому. Выбор форм — следующий этап: сейчас Kit остаётся вкладкой
+  прематча, отдельного `KitSelectView` ещё нет.
 - **Тема не глобальная**: `ui_theme.tres` назначается на корень экрана, а не через
   `gui/theme/custom`. Поэтому HUD, пауза и серия пенальти не меняются, пока их не переведут отдельно.
 - UI меню — **английский**; русские строки in-match остаются на дефолтном шрифте.
@@ -24,6 +28,9 @@ scripts/ui/ui_theme.gd       — сборка Theme из токенов; ист�
 assets/ui/theme/ui_theme.tres — сгенерированный артефакт (не править руками)
 scripts/ui/ui_nav.gd         — autoload UiNav: единый роутер ввода шелл-UI
 scripts/ui/ui_transition.gd  — autoload UiTransition: fade/scale между сценами
+scripts/ui/ui_stage.gd       — общий фон: Photo + Scrim + Overlay
+scenes/ui/ui_stage.tscn      — инстанс фона для экранов
+scripts/ui/ui_screen.gd      — база UiScreen: Stage + Design 1920×1080 и равномерный scale
 scripts/ui/bento_tile.gd     — тайл бенто (Button + Panel/StyleBox + rail/hatch/иконка)
 scripts/ui/bento_grid.gd     — ручная сетка 4×2 (не Container: selected-тайл уезжает)
 scripts/ui/ui_tab_bar.gd     — табы с измеряемым маркером
@@ -35,6 +42,13 @@ scripts/ui/ui_icon.gd        — белые SVG из assets/ui/icons, тонир
 scripts/ui/side_select_view.gd — общий экран выбора сторон (данные + сигналы)
 scenes/ui/side_select_view.tscn — сцена SideSelectView (шапка/body/трек/легенда)
 scripts/ui/side_select_vertical_label.gd — вертикальные HOME/AWAY через _draw
+scripts/ui/team_select_view.gd — общий экран выбора команд (состояние + сигналы)
+scenes/ui/team_select_view.tscn — сцена TeamSelectView (две карточки/status/legend)
+scripts/ui/team_panel.gd     — одна карточка HOME/AWAY, cues у арта
+scenes/ui/team_panel.tscn    — инстанс карточки
+scripts/ui/team_block.gd     — блок карточки: градиент/фокус
+scripts/ui/team_stars.gd     — звёзды рейтинга (full/half/empty)
+scripts/data/team_ratings.gd — чистая формула рейтинга из состава
 tools/build_ui_theme.gd      — пересборка ui_theme.tres
 shaders/ui_scrim.gdshader    — три слоя затемнения фона
 shaders/ui_hatch.gdshader    — диагональная штриховка hero-тайла
@@ -138,6 +152,74 @@ green `#0f9d76` (`UiTokens.SIDE_TONES`); клавиатура тоже полу�
 Ready-бейдж — lime `FOCUS_MARK` с тёмной галочкой (`ReadyMark`), у имени в сети — светлая
 обводка, чтобы читалось на прозрачном низе градиента.
 
+## Выбор команд
+
+Сцена: `scenes/ui/team_select_view.tscn` (`TeamSelectView`) — `Stage` (общий фон) →
+`Design` 1920×1080 с равномерным scale → `PanelWrap` (группа `ui_transition_target`) →
+`Teams` с двумя `TeamPanel` + `Status` + `Legend`. Шапки нет (как в прототипе), фон не
+анимируется: `UiTransition` трогает только `PanelWrap`.
+
+Геометрия (design space): панель 1480, две колонки по 735, карточка `512×820` с центрированием
+в колонке (x=111.5 и 856.5), зазор 10. Внутри карточки три блока: Country 155.8 (19%),
+Team 431 (1fr), Competition 213.2 (26%). `--col` прототипа = 210: герб 210×210, звёзды 210×35,
+статы 3 колонки в 210 (gap 8). Флаг стоит на y=60; все флаги одной высоты 64 px, ширина = aspect×64, max 120; имя страны —
+на y=8 (как padding-top 8 в CSS). Лого лиги 118.8 px (max 170) — на y=49.2, по центру нижнего
+блока; под обводку картинка получает padding 10 source px и рисуется в контейнере 180×128.8
+(`TEAM_COMP_ART_*`). В сети
+имя владельца слота — мелкая строка внизу верхнего блока. Cues — lime-треугольники 12×18 по бокам art-колонки 210:
+основание в 20 px от неё, острие — 32 px; по вертикали центр флага/герба/лого (92/198/108.6),
+не центр блока. Cues показываются только если в поле больше одного варианта: в National Teams
+лига одна (заглушка) — стрелок нет, как и при единственной лиге/команде. Вокруг лого лиги — тонкая белая обводка, запечённая в
+`images_leagues_outline/<id>.png` (`tools/outline_league_logos.py`: дилатация alpha + blur,
+padding 10; аналог четырёх `drop-shadow` CSS). National Teams
+использует тот же globe-SVG прототипа (`assets/ui/icons/globe.svg`), а не `nationalteams.png`.
+Карточка без фокуса — светлый вертикальный градиент `TEAM_BLOCK_TOP/BOTTOM`, фокус —
+`TEAM_BLOCK_FOCUS` (#171b3f 0.96), ready — `TEAM_BLOCK_DARK` (0.66). Неактивная панель —
+`modulate.a = TEAM_IDLE_ALPHA` (0.5), как `.team.is-idle`.
+
+Ready-модель «как в прототипе»: отдельного Ready-ряда нет. `A/Enter` на любом блоке делает
+панель ready: верхний блок показывает `HOME`/`AWAY`, нижний — `READY!`, средний остаётся
+с гербом/звёздами/статами. `B/Esc` на своей ready-панели снимает ready; в 1P на away при ready
+home — снимает ready home и возвращает на home; иначе — назад/выход. В сети ready-панель
+принадлежит своему chooser-слоту.
+
+Фокус: `Up/Down` двигает блок внутри панели (кладём: country → team → competition),
+`Left/Right` меняет значение выбранного блока (зациклено). В 1P активна одна панель, вторая
+видна приглушённой; в 2P каждое устройство правит свою. В сети локальный игрок правит только
+свои `chooser`-слоты; если оба слота его — `Tab` переключает панель. Мышь инертна, `V`
+(просмотр состава) убран с этого экрана.
+
+Шов: `setup(state, options)` / `apply_state(state)`; состояние — массив двух сторон:
+`{label, owner, ready, live, editable, device, country{name,texture}, competition{...},
+team{...}, rating{stars,attack,midfield,defence}}` плюс `status/status_error/error`. Сигналы:
+`side_move_requested(side, field, delta, input)`, `side_confirm_requested(side, input)`,
+`side_cancel_requested(side, input)`, `back_requested`, `retry_requested`. Вью не меняет данные —
+адаптер возвращает новый снапшот.
+
+Данные: `TeamCatalog` читает базу лениво, как оригинальный `TeamSelectPage`: при открытии только
+валидирует файл/таблицы, страны/лиги/команды запрашиваются по требованию и кэшируются; состав и
+рейтинг читаются только для выбранной команды. Список команд лиги **не** проверяет число игроков
+(это стоило ~0.8 с на 217 сборных и подвешивало экран); проверка `>= 11` перенесена на ready:
+`TeamCatalog.can_field_eleven(team_id)` для двух выбранных команд. Текстуры стран/лиг/команд
+загружаются лениво только для выбранного элемента, а не для всего списка.
+
+Рейтинг — `TeamRatings.from_players`: `overall = base_stat×100` (в прототипе это и есть `overall`;
+среднее 22 игровых статов насыщается у 1.0 и давало почти всем клубам 4.5–5 звёзд), лучшие 11,
+линии `CF/LW/RW/ST/LM/RM` (ATT), `DM/CM/AM` (MID), `CB/LB/RB` (DEF), пустая линия — средний
+топ-11; звёзды `1+(avg−59)/7`, шаг 0.5, clamp 0.5..5. Флаги/гербы/лого берутся из
+`databases/default/images_{teams,leagues,countries}` (заполняются
+`tools/import_prototype_images.py` из `gf-ui-prototype/data/raster`, ~4644/4652 команд,
+279/280 лиг, 106/107 стран) с прежним `logo_url`-путём в приоритете; если картинки нет —
+белый глиф `globe`/`shirt` (оранжевый placeholder оригинала на карточках не используется).
+
+Адаптеры:
+
+- `scripts/ui/team_select.gd` — lazy `TeamCatalog`, индексы country/league/team, восстановление
+  выбранных команд из `ShellState`, 1P home → CPU away и 2P parallel, ready обеих → прематч.
+- `scripts/ui/network_lobby.gd` — снапшот лобби, `set_selection(side, kind, index)` /
+  `set_team_ready`, seed дефолтов, имена/`YOU`, disconnect/join статусы, phase 0 → sides,
+  phase 2 → options. Раскладка и ввод в адаптерах не дублируются.
+
 ## Ввод (UiNav)
 
 `UiNav` — autoload, активен только пока в дереве есть узел в группе **`ui_shell`**
@@ -159,6 +241,14 @@ InputMap не задет (кроме resume-оверлея, который жи�
   (в Godot 4.7 в нём нет кнопки геймпада).
 
 ## Переходы (UiTransition)
+
+Фон отделён от контента файлами: `scenes/ui/ui_stage.tscn` (Photo + Scrim + Overlay) и
+`scripts/ui/ui_screen.gd` (Stage + Design 1920×1080 с равномерным scale). `main_menu`,
+`side_select_view` и `team_select_view` инстанцируют один и тот же Stage; в группе
+`ui_transition_target` лежит только `Design/PanelWrap`. Поэтому между экранами анимируется
+контент (fade 150/240 мс + scale 0.96), а стадион и scrim остаются на месте. Это не autoload:
+каждая сцена держит свой инстанс общего файла, а перекрытие сцен в `_swap_overlap` делает
+подмену незаметной.
 
 `UiTransition.change_scene(path)` / `change_scene_packed(packed)`:
 
@@ -200,6 +290,8 @@ godot --headless --path . -s res://tests/check_main_menu_ui.gd
 godot --headless --path . -s res://tests/check_main_menu_layout.gd
 godot --headless --path . -s res://tests/check_controller_select_ui.gd
 godot --headless --path . -s res://tests/check_side_select_view.gd
+godot --headless --path . -s res://tests/check_team_select_view.gd
+godot --headless --path . -s res://tests/check_team_select_ui.gd
 godot --headless --path . -s res://tests/check_ui_layout.gd
 ```
 
@@ -211,17 +303,30 @@ godot --headless --path . -s res://tests/check_ui_layout.gd
 - `check_side_select_view` — общий view с фикстурой 2P: 56/691.2/84/104, позиции 104/698/1292,
   куи, ready-бейдж, tween 340 мс, сигналы `UiNav`, resume-оверлей, имена сети и scale 2/3 на
   1280×720.
+- `check_team_select_view` — общий TeamSelectView с фикстурой: карточка 512×820, позиции
+  111.5/856.5, блоки 155.8/431/213.2, фокус/cues/ready/idle, звёзды, ввод `UiNav`, 2P-геймпад,
+  Tab между слотами, error/retry, scale 2/3.
+- `check_team_select_ui` — реальный локальный экран: lazy-каталог, фокус, ready home → CPU away,
+  ready away → прематч + `ShellState`, ошибка базы и повторная загрузка.
 - Скриншоты главного меню: `.scratch/ui_shots/main_menu_{play,panel,gamepad}_1920x1080.png`
   (генерируются временным скриптом; в `capture_ui_shots.gd` состояния меню ещё не добавлены).
 - Скриншоты выбора сторон: `.scratch/ui_shots/side_select_{1p,2p,ready,network,network_resume}_{1920x1080,1280x720}.png`
   — `godot --path . -s res://tests/capture_side_select_shots.gd` (фикстуры —
   `tests/side_select_fixture.gd`).
+- Скриншоты выбора команд: `.scratch/ui_shots/team_select_{local_1p_home,local_1p_away,local_2p,network,network_ready,error,real,real_club,real_club_competition}_{1920x1080,1280x720}.png`
+  — `godot --path . -s res://tests/capture_team_select_shots.gd` (фикстуры —
+  `tests/team_select_fixture.gd`; `real` — настоящий экран с lazy-каталогом).
 
 ## Известные ограничения
 
-- Кроме главного меню и выбора сторон, шелл не переведён: тема и `UiNav` на нём пока не подключены.
+- Главное меню, выбор сторон и выбор команд переведены; прематч, состав, сетевые меню и in-match
+  UI пока живут по-старому. Отдельного экрана выбора форм ещё нет — Kit остаётся вкладкой прематча.
 - На выборе сторон **мышь инертна** (решение владельца): нет кликов по половинам устройства,
   ready-галочке или back. Ready/back — только клавиатура (`Enter`/`Esc`) и геймпад (`A`/`B`).
+  На выборе команд мышь тоже инертна, а `V` (состав) убран.
+- На выборе команд нет шапки (как в прототипе); уровни читаются по блокам, а не по заголовкам.
+- Рейтинги/звёзды считаются из состава только выбранных команд; у команд без логотипа показывается
+  глиф-заглушка, у стран без флага — `globe`.
 - `UiMenuPanel.setup` рассчитан на короткие note-строки без автопереноса; длинный текст надо
   переносить вручную.
 - `text-wrap: balance`, `clip-path` и CSS `box-shadow` не имеют прямых аналогов: переносы

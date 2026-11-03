@@ -77,6 +77,19 @@ static func build() -> Theme:
 	_label(theme, &"SideStatus", inter(500), UiTokens.SIZE_SIDE_STATUS, UiTokens.LEGEND_INK)
 	_label(theme, &"SideStatusError", inter(500), UiTokens.SIZE_SIDE_STATUS,
 		UiTokens.ERROR_PINK)
+	_label(theme, &"TeamCountry", barlow(700), UiTokens.SIZE_TEAM_COUNTRY, UiTokens.INK)
+	_label(theme, &"TeamClub", barlow(800), UiTokens.SIZE_TEAM_CLUB, UiTokens.INK)
+	_label(theme, &"TeamCompetition", barlow(700), UiTokens.SIZE_TEAM_COMPETITION,
+		UiTokens.INK)
+	_label(theme, &"TeamMark", _spaced_barlow(700, 2), UiTokens.SIZE_TEAM_MARK,
+		UiTokens.FOCUS_INK)
+	_label(theme, &"TeamMarkReady", _spaced_barlow(800, 3), UiTokens.SIZE_TEAM_MARK_READY,
+		UiTokens.FOCUS_INK)
+	_label(theme, &"TeamOwner", inter(500), UiTokens.SIZE_TEAM_OWNER, UiTokens.INK_2)
+	_label(theme, &"TeamStatLabel", inter(600), UiTokens.SIZE_TEAM_STAT_LABEL,
+		UiTokens.INK_2)
+	_label(theme, &"TeamStatValue", barlow(700), UiTokens.SIZE_TEAM_STAT_VALUE,
+		UiTokens.INK)
 
 	_button(theme, &"TabButton", barlow(700), UiTokens.SIZE_TAB)
 

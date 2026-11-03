@@ -1,11 +1,8 @@
 extends SceneTree
-# Headless UI check for the ported TeamSelectPage: two side panels with
-# Country/Competition/Team carousels and Ready, a single keyboard player picks
-# the home then the CPU away side, and the chosen pair lands in ShellState.
-#
-# Run:  godot --headless --path . -s res://tests/check_team_select_ui.gd
+# Headless UI check for the ported TeamSelectPage on the design system: two
+# always-visible HOME/AWAY cards, ready from any focused block, the 1P
+# home -> CPU-away flow, and the lazy catalog.
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const TEAM_SELECT := "res://scenes/team_select.tscn"
 const HOME_ID := 4
 const AWAY_ID := 5
@@ -30,55 +27,76 @@ func _frames(count: int) -> void:
 		await process_frame
 
 
+func _key(code: int, pressed := true) -> InputEventKey:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.pressed = pressed
+	return event
+
+
+func _tap_key(code: int) -> void:
+	Input.parse_input_event(_key(code, true))
+	await _frames(2)
+	Input.parse_input_event(_key(code, false))
+	await _frames(1)
+
+
 func _run() -> void:
 	ShellState.clear()
 	change_scene_to_file(TEAM_SELECT)
-	await _frames(10)
+	await _frames(12)
 	var screen := current_scene
 	_check(screen != null and screen.name == "TeamSelect", "the team selection screen opens")
 	if screen == null or screen.name != "TeamSelect":
 		_finish()
 		return
 
-	var panels: Array = screen.get("panels")
-	_check(panels.size() == 2, "the screen has two side panels")
+	var view: TeamSelectView = screen.get("view")
 	var catalog: TeamCatalog = screen.get("catalog")
-	_check(catalog != null and not catalog.leagues.is_empty(),
-		"the catalog is loaded behind the carousels")
-	_check(catalog != null and not catalog.countries.is_empty(),
-		"the country carousel has entries")
+	_check(view != null, "the shared TeamSelectView is mounted")
+	_check(catalog != null and catalog.is_loaded(), "the lazy catalog opened")
+	_check(catalog != null and not catalog.countries().is_empty(),
+		"countries are available on demand")
+	var sides := view.sides()
+	_check(sides.size() == 2, "the view has two side snapshots")
+	_check(bool(sides[0].get("live", false)), "1P starts on the home side")
+	_check(not bool(sides[1].get("live", false)), "the CPU away side is idle")
+	_check(view.get_node("Design/PanelWrap/Teams/AwayPanel").modulate.a
+		< 0.99, "the idle away panel is dimmed")
 
-	var home := catalog.team_by_id(HOME_ID) if catalog != null else {}
-	var away := catalog.team_by_id(AWAY_ID) if catalog != null else {}
-	_check(not home.is_empty() and not away.is_empty(), "the test teams exist")
-	if home.is_empty() or away.is_empty():
-		_finish()
-		return
+	# Focus is local to the view; Up/Down clamps inside the panel.
+	_check(view.focus_for(0) == "team", "the club block is focused by default")
+	await _tap_key(KEY_UP)
+	_check(view.focus_for(0) == "country", "Up moves focus to the country block")
+	await _tap_key(KEY_DOWN)
+	await _tap_key(KEY_DOWN)
+	_check(view.focus_for(0) == "competition", "Down reaches the competition block")
+	await _tap_key(KEY_DOWN)
+	_check(view.focus_for(0) == "competition", "Down clamps at the bottom block")
 
-	# Carousel movement repopulates the dependent rows.
-	var country_row = panels[0]["rows"][0]
-	var before_country := int(country_row.get("selected"))
-	screen.call("_move_selection", 0, 1)
-	_check(int(country_row.get("selected")) != before_country,
-		"Left/Right moves the country carousel")
-	_check(not panels[0]["rows"][1].get("entries").is_empty(),
-		"the competition/team rows follow the country")
-
+	# A known pair is restored deterministically, then both ready presses commit.
 	screen.call("_restore_team", 0, HOME_ID)
 	screen.call("_restore_team", 1, AWAY_ID)
-	var home_selected: Dictionary = panels[0]["rows"][2].selected_entry()
-	var away_selected: Dictionary = panels[1]["rows"][2].selected_entry()
-	_check(str(home_selected.get("id", "")) == str(HOME_ID),
-		"the home team is restored in its carousel")
-	_check(str(away_selected.get("id", "")) == str(AWAY_ID),
-		"the away team is restored in its carousel")
+	screen.call("_refresh")
+	await _frames(3)
+	sides = view.sides()
+	_check(int(String(sides[0].get("team", {}).get("id", "0"))) == HOME_ID,
+		"the home team is restored")
+	_check(int(String(sides[1].get("team", {}).get("id", "0"))) == AWAY_ID,
+		"the away team is restored")
+	_check(String(sides[0].get("team", {}).get("name", "")) != "",
+		"the home team has a name")
+	_check(float(sides[0].get("rating", {}).get("stars", 0.0)) > 0.0,
+		"the home team shows a rating")
 
-	# A lone keyboard starts on the human's side; Ready reveals the CPU side,
-	# whose Ready commits the pair and opens the hub.
-	screen.call("_set_ready", 0, true)
-	await _frames(1)
-	_check(bool(screen.get("side_active")[1]), "Ready reveals the CPU away panel")
-	screen.call("_set_ready", 1, true)
+	await _tap_key(KEY_ENTER)
+	await _frames(3)
+	sides = view.sides()
+	_check(bool(sides[0].get("ready", false)), "Enter marks the home panel ready")
+	_check(bool(sides[1].get("live", false)), "Ready reveals the CPU away panel")
+	_check((view.get_node("Design/PanelWrap/Teams/HomePanel") as TeamPanel).ready_marks_visible(),
+		"the ready panel renders its dark ready state")
+	await _tap_key(KEY_ENTER)
 	await _frames(10)
 	_check(current_scene != null and current_scene.name == "Prematch",
 		"both sides ready opens the pre-match hub")
@@ -86,14 +104,20 @@ func _run() -> void:
 		and int(ShellState.away_team.get("id", 0)) == AWAY_ID,
 		"the chosen teams land in the shell state")
 
-	# A missing database is a readable error, not an empty screen.
+	# A missing database is a readable error and Enter retries the load.
 	ShellState.clear()
 	var broken = load(TEAM_SELECT).instantiate()
 	broken.data_root = "Z:/no-such-gpf-data"
 	root.add_child(broken)
 	await _frames(3)
-	_check(broken.status_label.text.contains("not found"),
-		"a missing database is reported: " + broken.status_label.text)
+	var broken_view: TeamSelectView = broken.get("view")
+	_check(broken_view.status_text().contains("not found"),
+		"a missing database is reported: " + broken_view.status_text())
+	broken.data_root = ""
+	broken.call("_reload")
+	await _frames(6)
+	_check(not broken_view.status_text().contains("not found"),
+		"retry reloads the catalog after the path is fixed")
 	broken.queue_free()
 
 	ShellState.clear()
