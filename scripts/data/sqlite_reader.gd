@@ -136,6 +136,23 @@ func select_indexed(table_name: String, column: String, value, wanted: PackedStr
 	return rows
 
 
+func count_indexed(table_name: String, column: String, value) -> int:
+	# Cheap "does this team have enough players" probe: walks only the index.
+	# Returns -1 when there is no index for the column, so callers can decide
+	# whether a full table scan is acceptable (the 125k-row players table is not).
+	error = ""
+	if _table_info(table_name).is_empty():
+		return -1
+	var index_name := str(_index_lookup.get(table_name, {}).get(column, ""))
+	if index_name.is_empty():
+		return -1
+	var index: Dictionary = _indexes[index_name]
+	var rowids: Array = []
+	if not _walk_index(int(index["root_page"]), value, rowids, {}):
+		return -1
+	return rowids.size()
+
+
 func for_each(table_name: String, wanted: PackedStringArray, callback: Callable) -> bool:
 	error = ""
 	var info := _table_info(table_name)

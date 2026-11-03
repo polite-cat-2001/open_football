@@ -1,18 +1,11 @@
 class_name SideSelectView
-extends Control
+extends UiScreen
 
 signal row_move_requested(row_id: String, delta: int, input: Dictionary)
 signal row_confirm_requested(row_id: String, input: Dictionary)
 signal row_cancel_requested(row_id: String, input: Dictionary)
 signal back_requested
 
-const STADIUM_TEXTURE := "res://assets/ui/menu/stadium.jpg"
-
-@onready var stage: Control = $Stage
-@onready var photo: TextureRect = $Stage/Photo
-@onready var overlay: ColorRect = $Stage/Overlay
-@onready var scrim: ColorRect = $Stage/Scrim
-@onready var design: Control = $Design
 @onready var panel_wrap: Control = $Design/PanelWrap
 @onready var head: PanelContainer = $Design/PanelWrap/Head
 @onready var title_label: Label = $Design/PanelWrap/Head/Title
@@ -39,9 +32,6 @@ var _body_height := 0.0
 
 
 func _ready() -> void:
-	photo.texture = load(STADIUM_TEXTURE)
-	photo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	photo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	body_fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	body_fill.stretch_mode = TextureRect.STRETCH_SCALE
 	body_fill.texture = _body_gradient()
@@ -255,11 +245,8 @@ func _body_gradient() -> GradientTexture2D:
 
 
 func _apply_overlay_mode() -> void:
-	if photo == null:
-		return
-	photo.visible = not overlay_mode
-	scrim.visible = not overlay_mode
-	overlay.visible = overlay_mode
+	if stage != null:
+		stage.set_overlay_mode(overlay_mode)
 
 
 func _layout() -> void:
@@ -269,23 +256,7 @@ func _layout() -> void:
 	if view.x <= 0.0 or view.y <= 0.0:
 		return
 
-	stage.position = Vector2.ZERO
-	photo.position = -view * UiTokens.SIDE_PHOTO_INSET
-	photo.size = view * UiTokens.SIDE_PHOTO_SCALE
-	photo.pivot_offset = photo.size * 0.5
-	overlay.position = Vector2.ZERO
-	overlay.size = view
-	scrim.position = Vector2.ZERO
-	scrim.size = view
-
-	var design_scale := minf(
-		view.x / UiTokens.DESIGN_SIZE.x,
-		view.y / UiTokens.DESIGN_SIZE.y
-	)
-	design.scale = Vector2(design_scale, design_scale)
-	design.position = (view - UiTokens.DESIGN_SIZE * design_scale) * 0.5
-	design.size = UiTokens.DESIGN_SIZE
-	design.pivot_offset = Vector2.ZERO
+	layout_canvas()
 
 	_body_height = clampf(
 		UiTokens.SIDE_BODY_RATIO * UiTokens.DESIGN_SIZE.y,

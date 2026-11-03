@@ -1,4 +1,4 @@
-﻿class_name UiTokens
+class_name UiTokens
 extends RefCounted
 
 # Single source of truth for the UI design system. Values are the prototype's
@@ -87,8 +87,66 @@ const SIDE_CUE_GAP := 16.0
 const SIDE_READY_INSET := 4.0
 const SIDE_READY_LIFT := -8.0
 const SIDE_READY_SIDE_GAP := 4.0
-const SIDE_PHOTO_SCALE := 1.16
-const SIDE_PHOTO_INSET := 0.08
+const STAGE_PHOTO_SCALE := 1.16
+const STAGE_PHOTO_INSET := 0.08
+const SIDE_PHOTO_SCALE := STAGE_PHOTO_SCALE
+const SIDE_PHOTO_INSET := STAGE_PHOTO_INSET
+
+# Team select (prototype .teams/.team at 1920x1080) --------------------------
+const TEAM_GAP := GAP
+const TEAM_PANEL_W := 512.0
+const TEAM_PANEL_H := 820.0
+const TEAM_COLUMN_W := (PANEL_W - GAP) * 0.5
+const TEAM_ART := 210.0
+const TEAM_FLAG_H := 64.0
+const TEAM_FLAG_MAX_W := 120.0
+const TEAM_LEAGUE_H := 118.8
+const TEAM_LEAGUE_MAX_W := 170.0
+const TEAM_STARS_H := 35.0
+const TEAM_STAT_LABEL_H := 16.0
+const TEAM_STAT_VALUE_H := 36.0
+const TEAM_BLOCK_COUNTRY_RATIO := 0.19
+const TEAM_BLOCK_COMPETITION_RATIO := 0.26
+const TEAM_OWNER_H := 18.0
+const TEAM_CUE_W := 12.0
+const TEAM_CUE_H := 18.0
+const TEAM_CUE_GAP := 20.0
+const TEAM_IDLE_ALPHA := 0.5
+const TEAM_STATUS_GAP := 12.0
+const TEAM_STATUS_H := 24.0
+const TEAM_LEGEND_GAP := 16.0
+const TEAM_SIDE_PAD := 20.0
+const TEAM_CONTENT_W := TEAM_PANEL_W - TEAM_SIDE_PAD * 2.0
+const TEAM_OWNER_TOP := 132.0
+const TEAM_COUNTRY_NAME_TOP := 8.0
+const TEAM_COUNTRY_NAME_H := 30.0
+const TEAM_COUNTRY_ART_TOP := 60.0
+const TEAM_COUNTRY_MARK_TOP := 54.0
+const TEAM_TEAM_NAME_TOP := 10.0
+const TEAM_TEAM_NAME_H := 79.0
+const TEAM_CREST_TOP := 93.0
+const TEAM_STARS_TOP := 311.0
+const TEAM_STATS_TOP := 356.0
+const TEAM_STATS_SEP := 8.0
+const TEAM_STAT_GAP := 2.0
+const TEAM_STATS_H := TEAM_STAT_LABEL_H + TEAM_STAT_GAP + TEAM_STAT_VALUE_H
+const TEAM_COMP_NAME_TOP := 8.0
+const TEAM_COMP_NAME_H := 28.0
+const TEAM_COMP_ART_TOP := 44.2
+const TEAM_COMP_ART_W := 180.0
+const TEAM_COMP_ART_H := 128.8
+const TEAM_COMP_FALLBACK_TOP := 49.2
+const TEAM_READY_MARK_TOP := 80.0
+const TEAM_READY_MARK_H := 48.0
+const TEAM_MARK_H := 38.0
+
+const TEAM_BLOCK_TOP := Color(0.960784, 0.968627, 0.980392, 0.95)
+const TEAM_BLOCK_BOTTOM := Color(0.960784, 0.968627, 0.980392, 0.80)
+const TEAM_BLOCK_FOCUS := Color(0.090196, 0.105882, 0.247059, 0.96)
+const TEAM_BLOCK_DARK := Color(0.090196, 0.105882, 0.247059, 0.66)
+const TEAM_STAR_FULL := Color(0.913725, 0.768627, 0.235294, 1.0)
+const TEAM_STAR_EMPTY := Color(0.113725, 0.129412, 0.219608, 0.18)
+const TEAM_STAR_EMPTY_FOCUS := Color(0.964706, 0.972549, 0.984314, 0.24)
 
 # Typography ----------------------------------------------------------------
 const FONT_BARLOW_600 := "res://assets/ui/fonts/BarlowCondensed-SemiBold.ttf"
@@ -115,6 +173,14 @@ const SIZE_SIDE_TITLE := 24
 const SIZE_SIDE_NAME := 64
 const SIZE_SIDE_PLAYER := 15
 const SIZE_SIDE_STATUS := 15
+const SIZE_TEAM_COUNTRY := 24
+const SIZE_TEAM_CLUB := 36
+const SIZE_TEAM_COMPETITION := 21
+const SIZE_TEAM_MARK := 28
+const SIZE_TEAM_MARK_READY := 40
+const SIZE_TEAM_OWNER := 13
+const SIZE_TEAM_STAT_LABEL := 12
+const SIZE_TEAM_STAT_VALUE := 36
 
 # Motion --------------------------------------------------------------------
 const SCREEN_OUT := 0.15

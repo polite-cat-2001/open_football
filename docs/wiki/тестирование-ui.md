@@ -101,6 +101,8 @@ Godot-экран обязан пройти ту же матрицу; скрин�
 - Скрипт: `tests/capture_ui_shots.gd` — оконный запуск; каждый экран рендерится в `SubViewport`
   нужного размера, поэтому окно и разрешение монитора не важны.
 - Команда: `godot --path . -s res://tests/capture_ui_shots.gd`
+- Выбор команд снимается отдельно: `godot --path . -s res://tests/capture_team_select_shots.gd`
+  (`team_select_{local_1p_home,local_1p_away,local_2p,network,network_ready,error,real,real_club,real_club_competition}_<WxH>.png`).
 - Именование: `main_menu_1920x1080.png`, `prematch_gameplan_1280x720.png`,
   `ui_lab_kickoff_1920x1080.png`, `ui_lab_half_time_...`, `ui_lab_game_plan_...`,
   `ui_lab_game_plan_2p_...`, `ui_lab_game_plan_tactics_...`, `ui_lab_game_plan_roles_...`,
@@ -115,7 +117,7 @@ Godot-экран обязан пройти ту же матрицу; скрин�
   обрабатывать A (активация) и B (назад), иначе геймпад «застревает» на главном меню. Проверено
   на чистом проекте 4.7.2.
 - `godot_runtime_input` инжектит только `InputEventKey` с одним `keycode`. Этого достаточно для
-  экранов, которые сами читают `_input` (controller select, team select, `gpf_slice`), но
+  экранов, которые сами читают `_input` (controller/team select через `UiNav`, `gpf_slice`), но
   **недостаточно для активации сфокусированной `Button` через `ui_accept`**: Enter/Space не
   нажимают кнопку. Для GUI-кнопок использовать `godot_runtime_emit_signal` с `pressed` (или
   добавить в bridge полноценный key/joypad-инжект с `physical_keycode`).

@@ -1,16 +1,13 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="main"]
 [ext_resource type="Script" path="res://scripts/ui/ui_tab_bar.gd" id="tabbar"]
 [ext_resource type="Script" path="res://scripts/ui/bento_grid.gd" id="grid"]
 [ext_resource type="Script" path="res://scripts/ui/bento_tile.gd" id="tile"]
 [ext_resource type="Script" path="res://scripts/ui/ui_legend.gd" id="legend"]
-[ext_resource type="Shader" path="res://shaders/ui_scrim.gdshader" id="scrim"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ui_stage.tscn" id="stage"]
 [ext_resource type="Script" path="res://scripts/ui/ui_breadcrumb.gd" id="breadcrumb"]
 [ext_resource type="Script" path="res://scripts/ui/ui_menu_panel.gd" id="panel"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_scrim"]
-shader = ExtResource("scrim")
 
 [node name="MainMenu" type="Control" groups=["ui_shell"]]
 layout_mode = 3
@@ -21,25 +18,8 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("main")
 
-[node name="Stage" type="Control" parent="."]
+[node name="Stage" parent="." instance=ExtResource("stage")]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-clip_contents = true
-
-[node name="Photo" type="TextureRect" parent="Stage"]
-layout_mode = 0
-offset_right = 1920.0
-offset_bottom = 1080.0
-
-[node name="Scrim" type="ColorRect" parent="Stage"]
-material = SubResource("ShaderMaterial_scrim")
-layout_mode = 0
-offset_right = 1920.0
-offset_bottom = 1080.0
 
 [node name="Design" type="Control" parent="."]
 layout_mode = 0
