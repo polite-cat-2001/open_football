@@ -1,0 +1,141 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/side_select_view.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/side_select_vertical_label.gd" id="2"]
+[ext_resource type="Shader" path="res://shaders/ui_scrim.gdshader" id="3"]
+[ext_resource type="Script" path="res://scripts/ui/ui_legend.gd" id="4"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_scrim"]
+shader = ExtResource("3")
+
+[node name="SideSelectView" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1")
+
+[node name="Stage" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+clip_contents = true
+
+[node name="Photo" type="TextureRect" parent="Stage"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Overlay" type="ColorRect" parent="Stage"]
+visible = false
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.02, 0.03, 0.02, 0.6)
+
+[node name="Scrim" type="ColorRect" parent="Stage"]
+material = SubResource("ShaderMaterial_scrim")
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Design" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="PanelWrap" type="Control" parent="Design" groups=["ui_transition_target"]]
+layout_mode = 0
+offset_right = 1480.0
+offset_bottom = 833.2
+mouse_filter = 2
+
+[node name="Head" type="PanelContainer" parent="Design/PanelWrap"]
+layout_mode = 0
+offset_right = 1480.0
+offset_bottom = 56.0
+mouse_filter = 2
+theme_type_variation = &"SideHead"
+
+[node name="Title" type="Label" parent="Design/PanelWrap/Head"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"SideTitle"
+text = "SIDE SELECT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Body" type="Control" parent="Design/PanelWrap"]
+layout_mode = 0
+offset_top = 66.0
+offset_right = 1480.0
+offset_bottom = 757.2
+mouse_filter = 2
+
+[node name="BodyFill" type="TextureRect" parent="Design/PanelWrap/Body"]
+layout_mode = 0
+offset_right = 1480.0
+offset_bottom = 691.2
+mouse_filter = 2
+
+[node name="HomeLabel" type="Control" parent="Design/PanelWrap/Body"]
+layout_mode = 0
+offset_left = 30.0
+offset_right = 110.0
+offset_bottom = 691.2
+mouse_filter = 2
+script = ExtResource("2")
+text = "HOME"
+upward = true
+
+[node name="AwayLabel" type="Control" parent="Design/PanelWrap/Body"]
+layout_mode = 0
+offset_left = 1370.0
+offset_right = 1450.0
+offset_bottom = 691.2
+mouse_filter = 2
+script = ExtResource("2")
+text = "AWAY"
+upward = false
+
+[node name="Track" type="Control" parent="Design/PanelWrap/Body"]
+layout_mode = 0
+offset_top = 8.0
+offset_right = 1480.0
+offset_bottom = 683.2
+mouse_filter = 2
+
+[node name="Status" type="Label" parent="Design/PanelWrap"]
+visible = false
+layout_mode = 0
+offset_top = 769.2
+offset_right = 1480.0
+offset_bottom = 793.2
+mouse_filter = 2
+theme_type_variation = &"SideStatus"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Legend" type="HBoxContainer" parent="Design/PanelWrap"]
+layout_mode = 0
+offset_top = 809.2
+offset_right = 1480.0
+offset_bottom = 833.2
+mouse_filter = 2
+script = ExtResource("4")

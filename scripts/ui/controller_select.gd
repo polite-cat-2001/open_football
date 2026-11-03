@@ -1,73 +1,44 @@
 extends Control
-# Godot port of the original SideSelectPage (GameplayFootball
-# src/menu/sideselect.cpp): one icon per local device, Home/Away columns, a
-# ready mark on the chosen side, keyboard/gamepad driven. The C++ match keeps
-# owning HumanGamers; this screen only produces ShellState.controllers.
+
+# Local adapter for SideSelectView: devices come from InputSetup and the
+# confirmed sides go to ShellState. The shared view owns the layout and input.
 
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 const TEAM_SELECT_SCENE := "res://scenes/team_select.tscn"
 const PREMATCH_SCENE := "res://scenes/prematch.tscn"
 
-const KEYBOARD_ICON := preload("res://assets/ui/controller/keyboard_small.png")
-const GAMEPAD_ICON := preload("res://assets/ui/controller/controller_small.png")
-const MENU_FONT := preload("res://assets/ui/fonts/AlegreyaSansSC-ExtraBold.ttf")
-const READY_MARK := preload("res://scripts/ui/ready_mark.gd")
-
-const ROW_REPEAT_MS := 250
+@onready var view: SideSelectView = $SideSelectView
 
 var participants: Array = []
-var home_caption: Label
-var away_caption: Label
-var phase_caption: Label
-var help_label: Label
 var status_label: Label
-var panel: ColorRect
-
-var _gamepad_repeat: Dictionary = {}
 var _committed := false
+var _device_order: Array[String] = []
 
 
 func _ready() -> void:
-	_build_ui()
+	add_to_group(&"ui_shell")
+	theme = UiTheme.load_or_build()
 	_build_participants()
-	_layout()
-	get_viewport().size_changed.connect(_layout)
-	set_process_input(true)
-
-
-func _build_ui() -> void:
-	var background := ColorRect.new()
-	background.color = Color(0.02, 0.03, 0.02)
-	background.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(background)
-
-	panel = ColorRect.new()
-	panel.color = Color(0.0, 0.0, 0.0, 0.62)
-	add_child(panel)
-
-	home_caption = _caption("Team 1", Color(0.95, 0.92, 0.82))
-	away_caption = _caption("Team 2", Color(0.95, 0.92, 0.82))
-	phase_caption = _caption("choose your side", Color(0.78, 0.78, 0.70))
-	help_label = _caption("Left/Right: side    Enter: ready    Esc: leave",
-		Color(0.72, 0.72, 0.66))
-	status_label = _caption("", Color(1.0, 0.68, 0.30))
-
-
-func _caption(text: String, color: Color) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_font_override("font", MENU_FONT)
-	label.add_theme_color_override("font_color", color)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	add_child(label)
-	return label
+	status_label = view.status_label
+	view.setup(_rows(), {
+		"input_mode": "devices",
+		"show_names": false,
+		"row_layout": "stack",
+		"back_label": "leave",
+	})
+	view.row_move_requested.connect(_on_row_move)
+	view.row_confirm_requested.connect(_on_row_confirm)
+	view.row_cancel_requested.connect(_on_row_cancel)
+	view.back_requested.connect(_leave)
+	Input.joy_connection_changed.connect(_on_joy_connection_changed)
 
 
 func _build_participants() -> void:
 	var devices := InputSetup.available_devices()
 	var count := devices.size()
 	var saved: Array = ShellState.controllers if ShellState.controllers_configured else []
+	participants.clear()
+	_device_order.clear()
 	for i in count:
 		var device: Dictionary = devices[i]
 		var side := 0
@@ -83,144 +54,105 @@ func _build_participants() -> void:
 					and int(entry.get("device", -1)) == int(device.get("device", -2)):
 				side = _side_value(str(entry.get("side", "home")))
 				break
-
-		var icon := TextureRect.new()
-		icon.texture = GAMEPAD_ICON if str(device.get("kind", "")) == "gamepad" else KEYBOARD_ICON
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_SCALE
-		add_child(icon)
-
-		var mark = READY_MARK.new()
-		mark.visible = false
-		add_child(mark)
-
-		participants.append({
-			"device": int(device.get("device", 0)),
-			"kind": str(device.get("kind", "keyboard")),
-			"name": str(device.get("name", "Device")),
-			"side": side,
-			"ready": false,
-			"row": i,
-			"icon": icon,
-			"mark": mark,
-		})
+		var participant := _make_participant(device, side, i)
+		participants.append(participant)
+		_device_order.append(str(participant["id"]))
 
 
-func _layout() -> void:
-	var view := get_viewport_rect().size
-	panel.position = Vector2(view.x * 0.10, view.y * 0.15)
-	panel.size = Vector2(view.x * 0.80, view.y * 0.70)
+func _make_participant(device: Dictionary, side: int, index: int) -> Dictionary:
+	return {
+		"id": _row_id(device),
+		"device": int(device.get("device", 0)),
+		"kind": str(device.get("kind", "keyboard")),
+		"name": str(device.get("name", "Device")),
+		"side": side,
+		"ready": false,
+		"tone_index": index,
+		"row": index,
+	}
 
-	var caption_size := maxi(16, int(round(view.y * 0.035)))
-	for label in [home_caption, away_caption, phase_caption, help_label, status_label]:
-		label.add_theme_font_size_override("font_size", caption_size)
 
-	_place(home_caption, view.x * 0.25, view.y * 0.10, view.x * 0.30, view.y * 0.06)
-	_place(away_caption, view.x * 0.75, view.y * 0.10, view.x * 0.30, view.y * 0.06)
-	_place(phase_caption, view.x * 0.50, view.y * 0.05, view.x * 0.40, view.y * 0.05)
-	_place(help_label, view.x * 0.50, view.y * 0.88, view.x * 0.70, view.y * 0.05)
-	_place(status_label, view.x * 0.50, view.y * 0.82, view.x * 0.70, view.y * 0.04)
+# Reconciles the rows with the currently connected devices. Existing rows keep
+# their side/ready and their place; a new device starts in the centre and is
+# appended below the others (connection order); removed devices vanish.
+func _sync_participants(devices: Array = []) -> void:
+	if devices.is_empty():
+		devices = InputSetup.available_devices()
+	var by_id := {}
+	var scan_order: Array[String] = []
+	for device in devices:
+		if not (device is Dictionary):
+			continue
+		var id := _row_id(device)
+		by_id[id] = device
+		scan_order.append(id)
+		if not _device_order.has(id):
+			_device_order.append(id)
+	var ordered: Array[String] = []
+	for id in _device_order:
+		if by_id.has(id) and not ordered.has(id):
+			ordered.append(id)
+	for id in scan_order:
+		if not ordered.has(id):
+			ordered.append(id)
+	_device_order = ordered
 
+	var previous := {}
 	for participant in participants:
-		var icon: TextureRect = participant["icon"]
-		var mark = participant["mark"]
-		var icon_size := Vector2(view.x * 0.14, view.y * 0.10)
-		var side := int(participant["side"])
-		var center_x := view.x * (0.25 if side < 0 else (0.75 if side > 0 else 0.50))
-		var top := view.y * 0.20 + float(participant["row"]) * view.y * 0.15
-		icon.position = Vector2(center_x - icon_size.x * 0.5, top)
-		icon.size = icon_size
-		mark.position = Vector2(icon.position.x + view.x * 0.05, top + view.y * 0.13)
-		mark.size = Vector2(view.x * 0.03, view.y * 0.03)
-		mark.queue_redraw()
+		previous[str(participant["id"])] = participant
+	var next: Array = []
+	for i in _device_order.size():
+		var id := _device_order[i]
+		var device: Dictionary = by_id[id]
+		var participant: Dictionary
+		if previous.has(id):
+			participant = previous[id]
+			participant["device"] = int(device.get("device", participant["device"]))
+			participant["kind"] = str(device.get("kind", participant["kind"]))
+			participant["name"] = str(device.get("name", participant["name"]))
+		else:
+			participant = _make_participant(device, 0, i)
+		participant["tone_index"] = i
+		participant["row"] = i
+		next.append(participant)
+	participants = next
+	_refresh_view()
 
 
-func _place(label: Label, center_x: float, top: float, width: float, height: float) -> void:
-	label.position = Vector2(center_x - width * 0.5, top)
-	label.size = Vector2(width, height)
-
-
-func _input(event: InputEvent) -> void:
+func _on_joy_connection_changed(device: int, connected: bool) -> void:
 	if _committed:
 		return
-	if event is InputEventKey:
-		_handle_key(event as InputEventKey)
-	elif event is InputEventJoypadButton:
-		_handle_joy_button(event as InputEventJoypadButton)
-	elif event is InputEventJoypadMotion:
-		_handle_joy_motion(event as InputEventJoypadMotion)
+	var id := _row_id({"kind": "gamepad", "device": device})
+	if connected:
+		if not _device_order.has(id):
+			_device_order.append(id)
+	else:
+		_device_order.erase(id)
+	_sync_participants()
 
 
-func _handle_key(event: InputEventKey) -> void:
-	if event.echo or not event.pressed:
-		return
-	var participant := _participant_kind("keyboard")
-	if participant.is_empty():
-		return
-	match event.keycode:
-		KEY_LEFT:
-			_change_side(participant, -1)
-		KEY_RIGHT:
-			_change_side(participant, 1)
-		KEY_ENTER, KEY_KP_ENTER:
-			_set_ready(participant, true)
-		KEY_ESCAPE:
-			if bool(participant["ready"]):
-				_set_ready(participant, false)
-			else:
-				_leave()
-	_set_help(false)
-
-
-func _handle_joy_button(event: InputEventJoypadButton) -> void:
-	var participant := _participant_device(int(event.device))
-	if participant.is_empty() or not event.pressed:
-		return
-	match int(event.button_index):
-		JOY_BUTTON_DPAD_LEFT:
-			_change_side(participant, -1)
-		JOY_BUTTON_DPAD_RIGHT:
-			_change_side(participant, 1)
-		JOY_BUTTON_A:
-			_set_ready(participant, true)
-		JOY_BUTTON_B:
-			if bool(participant["ready"]):
-				_set_ready(participant, false)
-			else:
-				_leave()
-	_set_help(true)
-
-
-func _handle_joy_motion(event: InputEventJoypadMotion) -> void:
-	if int(event.axis) != JOY_AXIS_LEFT_X or absf(event.axis_value) < 0.5:
-		return
-	var participant := _participant_device(int(event.device))
-	if participant.is_empty():
-		return
-	var now := Time.get_ticks_msec()
-	var device := int(event.device)
-	if now - int(_gamepad_repeat.get(device, 0)) < ROW_REPEAT_MS:
-		return
-	_gamepad_repeat[device] = now
-	_change_side(participant, -1 if event.axis_value < 0.0 else 1)
-	_set_help(true)
-
-
-func _participant_kind(kind: String) -> Dictionary:
+func _rows() -> Array:
+	var result: Array = []
 	for participant in participants:
-		if str(participant["kind"]) == kind:
-			return participant
-	return {}
+		result.append({
+			"id": str(participant["id"]),
+			"kind": str(participant["kind"]),
+			"device": int(participant["device"]),
+			"name": "",
+			"side": int(participant["side"]),
+			"ready": bool(participant["ready"]),
+			"local": true,
+			"tone_index": int(participant["tone_index"]),
+		})
+	return result
 
 
-func _participant_device(device: int) -> Dictionary:
-	for participant in participants:
-		if str(participant["kind"]) == "gamepad" and int(participant["device"]) == device:
-			return participant
-	return {}
+func _refresh_view() -> void:
+	view.apply_rows(_rows())
 
 
-func _change_side(participant: Dictionary, delta: int) -> void:
+func _on_row_move(row_id: String, delta: int, _input: Dictionary) -> void:
+	var participant := _participant_by_id(row_id)
 	if participant.is_empty():
 		return
 	var spatial := _spatial_index(int(participant["side"])) + delta
@@ -230,28 +162,42 @@ func _change_side(participant: Dictionary, delta: int) -> void:
 		return
 	participant["side"] = side
 	participant["ready"] = false
-	var mark = participant["mark"]
-	mark.set_checked(false)
-	status_label.text = ""
-	_layout()
+	view.set_status("")
+	_refresh_view()
 
 
-func _set_ready(participant: Dictionary, ready: bool) -> void:
+func _on_row_confirm(row_id: String, _input: Dictionary) -> void:
+	var participant := _participant_by_id(row_id)
 	if participant.is_empty():
 		return
-	if ready and int(participant["side"]) == 0:
-		status_label.text = "Choose a side first."
+	if int(participant["side"]) == 0:
+		view.set_status("Choose a side first.", true)
 		return
-	if bool(participant["ready"]) == ready:
-		if ready and _all_ready():
-			_commit()
-		return
-	participant["ready"] = ready
-	var mark = participant["mark"]
-	mark.set_checked(ready)
-	status_label.text = ""
-	if ready and _all_ready():
+	participant["ready"] = true
+	view.set_status("")
+	_refresh_view()
+	if _all_ready():
 		_commit()
+
+
+func _on_row_cancel(row_id: String, _input: Dictionary) -> void:
+	var participant := _participant_by_id(row_id)
+	if participant.is_empty():
+		_leave()
+		return
+	if bool(participant["ready"]):
+		participant["ready"] = false
+		view.set_status("")
+		_refresh_view()
+		return
+	_leave()
+
+
+func _participant_by_id(row_id: String) -> Dictionary:
+	for participant in participants:
+		if str(participant["id"]) == row_id:
+			return participant
+	return {}
 
 
 func _all_ready() -> bool:
@@ -279,21 +225,23 @@ func _commit() -> void:
 			"name": str(participant["name"]),
 		})
 	if active.is_empty():
-		status_label.text = "Choose a side first."
+		view.set_status("Choose a side first.", true)
 		return
 	_committed = true
 	ShellState.set_controllers(active)
 	var target := PREMATCH_SCENE if ShellState.has_selection() else TEAM_SELECT_SCENE
-	get_tree().change_scene_to_file(target)
+	UiTransition.change_scene(target)
 
 
 func _leave() -> void:
-	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
+	if _committed:
+		return
+	_committed = true
+	UiTransition.change_scene(MAIN_MENU_SCENE)
 
 
-func _set_help(gamepad: bool) -> void:
-	help_label.text = ("Left/Right: side    A: ready    B: leave" if gamepad
-		else "Left/Right: side    Enter: ready    Esc: leave")
+func _row_id(device: Dictionary) -> String:
+	return "%s:%d" % [str(device.get("kind", "keyboard")), int(device.get("device", 0))]
 
 
 func _spatial_index(side: int) -> int:

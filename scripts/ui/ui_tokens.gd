@@ -30,6 +30,21 @@ const SHADOW := Color(0.015686, 0.035294, 0.078431, 0.30)
 const SHADOW_SELECTED := Color(0.015686, 0.035294, 0.078431, 0.44)
 const SHADOW_DISABLED := Color(0.015686, 0.035294, 0.078431, 0.18)
 
+const SIDE_HEAD := Color(0.376471, 0.396078, 0.478431, 0.94)
+const SIDE_HEAD_INK := Color(1.0, 1.0, 1.0, 1.0)
+const SIDE_BODY := Color(0.960784, 0.968627, 0.980392, 0.90)
+const SIDE_BODY_FADE := Color(0.960784, 0.968627, 0.980392, 0.0)
+const SIDE_LABEL := Color(0.113725, 0.129412, 0.219608, 0.22)
+const SIDE_CUE := Color(0.113725, 0.129412, 0.219608, 0.45)
+const SIDE_READY_FILL := FOCUS_MARK
+const SIDE_READY_INK := INK
+const SIDE_TONES := [
+	Color(0.184314, 0.427451, 0.964706, 1.0),
+	Color(0.901961, 0.137255, 0.431373, 1.0),
+	Color(0.941176, 0.549020, 0.0, 1.0),
+	Color(0.058824, 0.615686, 0.462745, 1.0),
+]
+
 # Geometry ------------------------------------------------------------------
 const DESIGN_SIZE := Vector2(1920.0, 1080.0)
 const SAFE := 44.0
@@ -44,6 +59,36 @@ const SELECTED_SCALE := 1.008
 const GLYPH_HERO := 152
 const GLYPH_WIDE := 120
 const GLYPH_SMALL := 76
+
+const SIDE_HEAD_H := 56.0
+const SIDE_BODY_RATIO := 0.64
+const SIDE_BODY_MIN := 440.0
+const SIDE_BODY_MAX := 700.0
+const SIDE_DEVICE := 112.0
+const SIDE_DEVICE_INSET := 260.0
+const SIDE_GLYPH := 92.0
+const SIDE_ROW_GAP := 6.0
+const SIDE_ROW_PAD := 16.0
+const SIDE_TRACK_INSET := 8.0
+const SIDE_LABEL_OFFSET := 30.0
+const SIDE_LABEL_BOX := 80.0
+const SIDE_READY := 24.0
+const SIDE_STATUS_GAP := 12.0
+const SIDE_STATUS_H := 24.0
+const SIDE_LEGEND_GAP := 16.0
+const SIDE_NAME_W := 240.0
+const SIDE_NAME_H := 18.0
+const SIDE_NAME_GAP := 4.0
+const SIDE_NAME_MIN_ROW := 110.0
+const SIDE_NAME_OUTLINE := 3
+const SIDE_CUE_W := 7.0
+const SIDE_CUE_H := 10.0
+const SIDE_CUE_GAP := 16.0
+const SIDE_READY_INSET := 4.0
+const SIDE_READY_LIFT := -8.0
+const SIDE_READY_SIDE_GAP := 4.0
+const SIDE_PHOTO_SCALE := 1.16
+const SIDE_PHOTO_INSET := 0.08
 
 # Typography ----------------------------------------------------------------
 const FONT_BARLOW_600 := "res://assets/ui/fonts/BarlowCondensed-SemiBold.ttf"
@@ -66,6 +111,10 @@ const SIZE_PANEL_NOTE := 16
 const SIZE_CRUMBS := 22
 const SIZE_LEGEND := 15
 const SIZE_KBD := 12
+const SIZE_SIDE_TITLE := 24
+const SIZE_SIDE_NAME := 64
+const SIZE_SIDE_PLAYER := 15
+const SIZE_SIDE_STATUS := 15
 
 # Motion --------------------------------------------------------------------
 const SCREEN_OUT := 0.15
@@ -79,3 +128,4 @@ const RAIL_FADE := 0.12
 const TILE_ENTER := 0.38
 const TILE_STAGGER := 0.028
 const TILE_ENTER_SHIFT := 64.0
+const SIDE_DEVICE_MOVE := 0.34
