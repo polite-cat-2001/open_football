@@ -13,10 +13,13 @@ const SCREENS := [
 	"res://scenes/controller_select.tscn",
 	"res://scenes/ui/side_select_view.tscn",
 	"res://scenes/team_select.tscn",
+	"res://scenes/kit_select.tscn",
+	"res://scenes/ui/kit_select_view.tscn",
 	"res://scenes/prematch.tscn",
 	"res://scenes/ui_lab.tscn",
 ]
 const SIDE_FIXTURE := preload("res://tests/side_select_fixture.gd")
+const KIT_FIXTURE := preload("res://tests/kit_select_fixture.gd")
 
 var failures: Array[String] = []
 
@@ -80,6 +83,11 @@ func _check_screen(path: String, size: Vector2i) -> void:
 			"back_label": "leave",
 		})
 		await _frames(3)
+	if path.ends_with("kit_select_view.tscn"):
+		screen.call("setup", KIT_FIXTURE.state_1p(), {"back_label": "back"})
+		await _frames(3)
+	if path.ends_with("kit_select.tscn"):
+		await _frames(6)
 
 	var states: Array = [""]
 	if screen.has_method("set_state") and path.ends_with("ui_lab.tscn"):

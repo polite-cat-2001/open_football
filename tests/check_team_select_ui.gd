@@ -98,8 +98,8 @@ func _run() -> void:
 		"the ready panel renders its dark ready state")
 	await _tap_key(KEY_ENTER)
 	await _frames(10)
-	_check(current_scene != null and current_scene.name == "Prematch",
-		"both sides ready opens the pre-match hub")
+	_check(current_scene != null and current_scene.name == "KitSelect",
+		"both sides ready opens the kit selection")
 	_check(int(ShellState.home_team.get("id", 0)) == HOME_ID
 		and int(ShellState.away_team.get("id", 0)) == AWAY_ID,
 		"the chosen teams land in the shell state")

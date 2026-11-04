@@ -178,8 +178,20 @@ func _run() -> void:
 		_check(NET_SHELL.action(self, "set_team_ready", 1, 1, 0), "away team ready")
 		await _frames(8)
 
+	await _frames(8)
+	_check(current_scene != null and current_scene.name == "NetworkKitSelect",
+		"both team confirmations open the network kit selection")
+	if current_scene != null and current_scene.name == "NetworkKitSelect":
+		var kit_view: KitSelectView = current_scene.get("view")
+		_check(kit_view != null and kit_view.sides().size() == 2,
+			"the network kit screen mounts the shared view")
+		await _tap_key(KEY_ENTER)
+		await _frames(4)
+		await _tap_key(KEY_ENTER)
+		await _frames(10)
+
 	_check(current_scene != null and current_scene.name == "NetworkMatchOptions",
-		"both team confirmations open the match options")
+		"the local kit step opens the match options")
 	var options := current_scene
 	if options != null and options.name == "NetworkMatchOptions":
 		_check(options.get("difficulty_slider") != null, "the options screen has difficulty")

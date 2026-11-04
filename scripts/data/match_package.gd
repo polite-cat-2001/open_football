@@ -7,7 +7,7 @@ extends RefCounted
 #
 # Schema (all keys are required by GpfRuntimeNode::set_match_package):
 #   { version, options: {duration, difficulty}, home: team, away: team }
-#   team: { database_id, name, short_name, logo_url, kit_url, colors,
+#   team: { database_id, name, short_name, logo_url, kit_url, kit,
 #           formation_xml, formation_factory_xml, tactics_xml,
 #           tactics_factory_xml, formation[11], players[] }
 #   player: { database_id, first_name, last_name, role, skin_color, hair_style,
@@ -27,7 +27,7 @@ var error := ""
 
 
 func build(catalog: TeamCatalog, home_team: Dictionary, away_team: Dictionary,
-		options: Dictionary = {}, lineups: Dictionary = {}) -> Dictionary:
+		options: Dictionary = {}, lineups: Dictionary = {}, kits: Dictionary = {}) -> Dictionary:
 	error = ""
 	if home_team.is_empty() or away_team.is_empty():
 		error = "Match package needs two selected teams."
@@ -45,10 +45,12 @@ func build(catalog: TeamCatalog, home_team: Dictionary, away_team: Dictionary,
 		error = catalog.error if not catalog.error.is_empty() else "Away squad could not be loaded."
 		return {}
 
-	var home := _team_package(home_squad, lineups.get("home"), "Home")
+	var home_kit := _kit_for_side(kits, "home", home_team, 0, {})
+	var away_kit := _kit_for_side(kits, "away", away_team, 1, home_kit)
+	var home := _team_package(home_squad, lineups.get("home"), "Home", home_kit)
 	if not error.is_empty():
 		return {}
-	var away := _team_package(away_squad, lineups.get("away"), "Away")
+	var away := _team_package(away_squad, lineups.get("away"), "Away", away_kit)
 	if not error.is_empty():
 		return {}
 
@@ -61,9 +63,9 @@ func build(catalog: TeamCatalog, home_team: Dictionary, away_team: Dictionary,
 
 
 func build_from_ids(catalog: TeamCatalog, home_id: int, away_id: int,
-		options: Dictionary = {}, lineups: Dictionary = {}) -> Dictionary:
+		options: Dictionary = {}, lineups: Dictionary = {}, kits: Dictionary = {}) -> Dictionary:
 	return build(catalog, catalog.team_by_id(home_id), catalog.team_by_id(away_id),
-		options, lineups)
+		options, lineups, kits)
 
 
 func _options(options: Dictionary) -> Dictionary:
@@ -73,7 +75,20 @@ func _options(options: Dictionary) -> Dictionary:
 	}
 
 
-func _team_package(squad: Dictionary, lineup: MatchLineup, side: String) -> Dictionary:
+func _kit_for_side(kits: Dictionary, side: String, team: Dictionary, index: int,
+		opponent_kit: Dictionary) -> Dictionary:
+	var kit = kits.get(side, {})
+	if kit is Dictionary and not (kit as Dictionary).is_empty():
+		return (kit as Dictionary).duplicate(true)
+	var kit_catalog := KitCatalog.new()
+	kit_catalog.load_data_root()
+	if side == "away":
+		return kit_catalog.default_away_kit(team, opponent_kit)
+	return kit_catalog.default_kit(team, index)
+
+
+func _team_package(squad: Dictionary, lineup: MatchLineup, side: String,
+		kit: Dictionary) -> Dictionary:
 	var team: Dictionary = squad.get("team", {})
 	var formation: Array = squad.get("formation", [])
 	var players: Array = squad.get("players", [])
@@ -138,6 +153,7 @@ func _team_package(squad: Dictionary, lineup: MatchLineup, side: String) -> Dict
 		"short_name": str(team.get("shortname", "")),
 		"logo_url": _asset_url(team.get("logo_url", "")),
 		"kit_url": _asset_url(team.get("kit_url", "")),
+		"kit": kit,
 		"color1": _color(team.get("color1", "")),
 		"color2": _color(team.get("color2", "")),
 		"formation_xml": str(team.get("formation_xml", "")),

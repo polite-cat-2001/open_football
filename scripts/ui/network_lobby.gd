@@ -5,7 +5,7 @@ extends Control
 
 const NETWORK_MENU_SCENE := "res://scenes/network_menu.tscn"
 const SIDES_SCENE := "res://scenes/network_sides.tscn"
-const OPTIONS_SCENE := "res://scenes/network_match_options.tscn"
+const KIT_SCENE := "res://scenes/network_kit_select.tscn"
 const NET_SHELL := preload("res://scripts/net/net_shell.gd")
 const UI_ASSETS := preload("res://scripts/data/ui_assets.gd")
 
@@ -246,7 +246,7 @@ func _poll_lobby() -> void:
 		UiTransition.change_scene(SIDES_SCENE)
 		return
 	if phase == 2:
-		_enter_options(lobby)
+		_enter_kits(lobby)
 		return
 
 	var revision := int(lobby.get("revision", -1))
@@ -535,7 +535,7 @@ func _on_side_cancel(side: int, input: Dictionary) -> void:
 	_leave_session()
 
 
-func _enter_options(lobby: Dictionary) -> void:
+func _enter_kits(lobby: Dictionary) -> void:
 	var ids: Array = lobby.get("team_ids", [])
 	if ids.size() != 2 or int(ids[0]) <= 0 or int(ids[1]) <= 0:
 		_set_status("Choose both teams.", true)
@@ -554,7 +554,7 @@ func _enter_options(lobby: Dictionary) -> void:
 	if _leaving:
 		return
 	_leaving = true
-	UiTransition.change_scene(OPTIONS_SCENE)
+	UiTransition.change_scene(KIT_SCENE)
 
 
 func _set_status(text: String, error := false) -> void:

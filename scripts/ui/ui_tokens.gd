@@ -148,6 +148,49 @@ const TEAM_STAR_FULL := Color(0.913725, 0.768627, 0.235294, 1.0)
 const TEAM_STAR_EMPTY := Color(0.113725, 0.129412, 0.219608, 0.18)
 const TEAM_STAR_EMPTY_FOCUS := Color(0.964706, 0.972549, 0.984314, 0.24)
 
+# Kit select (prototype .kits/.kit-panel/.preview at 1920x1080) --------------
+const KIT_PANEL_H := 420.0
+const KIT_HOME_FRACTION := 1.15
+const KIT_MIDDLE_FRACTION := 0.9
+const KIT_MIDDLE_MIN := 320.0
+const KIT_PAD_TOP := 18.0
+const KIT_PAD_SIDE := 26.0
+const KIT_PAD_BOTTOM := 20.0
+const KIT_HEAD_H := 26.0
+const KIT_LOGO := 22.0
+const KIT_LOGO_GAP := 8.0
+const KIT_NAME_TOP := 4.0
+const KIT_NAME_H := 36.0
+const KIT_CAROUSEL_TOP := 6.0
+const KIT_ARROW_W := 34.0
+const KIT_ARROW_GLYPH_W := 18.0
+const KIT_ARROW_GLYPH_H := 26.0
+const KIT_NEIGHBOR_H := 0.58
+const KIT_FOOT_H := 48.0
+const KIT_DOT_W := 26.0
+const KIT_DOT_H := 4.0
+const KIT_DOT_GAP := 8.0
+const KIT_STATUS_GAP := 12.0
+const KIT_STATUS_H := 24.0
+const KIT_LEGEND_GAP := 16.0
+const KIT_PREVIEW_PAD := 20.0
+const KIT_PREVIEW_HEAD_H := 26.0
+const KIT_PREVIEW_FOOT_H := 28.0
+const KIT_PREVIEW_GAP := 10.0
+
+const KIT_PANEL_TOP := TEAM_BLOCK_TOP
+const KIT_PANEL_BOTTOM := TEAM_BLOCK_BOTTOM
+const KIT_PANEL_FOCUS := TEAM_BLOCK_FOCUS
+const KIT_PANEL_DARK := TEAM_BLOCK_DARK
+const KIT_DOT_OFF := Color(0.113725, 0.129412, 0.219608, 0.22)
+const KIT_DOT_ON := RAIL
+const KIT_DOT_OFF_FOCUS := Color(0.964706, 0.972549, 0.984314, 0.26)
+const KIT_DOT_ON_FOCUS := FOCUS_MARK
+const KIT_ARROW_INK := INK
+const KIT_ARROW_FOCUS := FOCUS_MARK
+const KIT_ART_EDGE := Color(0.090196, 0.105882, 0.247059, 0.26)
+const KIT_PREVIEW_PITCH := Color(0.121569, 0.478431, 0.266667, 1.0)
+
 # Typography ----------------------------------------------------------------
 const FONT_BARLOW_600 := "res://assets/ui/fonts/BarlowCondensed-SemiBold.ttf"
 const FONT_BARLOW_700 := "res://assets/ui/fonts/BarlowCondensed-Bold.ttf"
@@ -181,6 +224,14 @@ const SIZE_TEAM_MARK_READY := 40
 const SIZE_TEAM_OWNER := 13
 const SIZE_TEAM_STAT_LABEL := 12
 const SIZE_TEAM_STAT_VALUE := 36
+const SIZE_KIT_TEAM := 14
+const SIZE_KIT_COUNT := 19
+const SIZE_KIT_NAME := 32
+const SIZE_KIT_READY := 40
+const SIZE_KIT_PREVIEW_TITLE := 22
+const SIZE_KIT_PREVIEW_SUB := 12
+const SIZE_KIT_PREVIEW_TEAM := 20
+const SIZE_KIT_PREVIEW_VS := 13
 
 # Motion --------------------------------------------------------------------
 const SCREEN_OUT := 0.15
@@ -195,3 +246,6 @@ const TILE_ENTER := 0.38
 const TILE_STAGGER := 0.028
 const TILE_ENTER_SHIFT := 64.0
 const SIDE_DEVICE_MOVE := 0.34
+const KIT_PANEL_COLOR := 0.16
+const KIT_PANEL_MOVE := 0.18
+const KIT_PANEL_SHADOW := 0.18

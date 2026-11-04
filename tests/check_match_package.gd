@@ -37,15 +37,23 @@ func _init() -> void:
 	var away_squad := catalog.load_squad(AWAY_ID)
 	_check(not home_squad.is_empty() and not away_squad.is_empty(), "both squads load")
 
+	var kit_catalog := KitCatalog.new()
+	kit_catalog.load_data_root(DATA_ROOT)
+	var home_kit := kit_catalog.default_kit(catalog.team_by_id(HOME_ID), 0)
+	var away_kit := kit_catalog.default_away_kit(catalog.team_by_id(AWAY_ID), home_kit)
+
 	for side in ["home", "away"]:
 		var team: Dictionary = package[side]
 		var squad: Dictionary = home_squad if side == "home" else away_squad
+		var expected_kit: Dictionary = home_kit if side == "home" else away_kit
 		_check(str(team.get("name", "")) == str(squad["team"].get("name", "")),
 			"%s name matches the catalog" % side)
 		_check(str(team.get("logo_url", "")).begins_with("databases/default/"),
 			"%s logo path matches the C++ loader" % side)
 		_check(str(team.get("kit_url", "")).begins_with("databases/default/"),
 			"%s kit path matches the C++ loader" % side)
+		_check(str(team.get("kit", {}).get("id", "")) == str(expected_kit.get("id", "")),
+			"%s has the expected default kit" % side)
 		_check(str(team.get("tactics_xml", "")) != "", "%s tactics are carried" % side)
 		var formation: Array = team.get("formation", [])
 		_check(formation.size() == Formation.SLOT_COUNT,

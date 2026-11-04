@@ -1884,3 +1884,35 @@ placeholder; национальный значок и шрифт есть. Ру�
   `ui_texture_outline.gdshader` удалён. `UiAssets.league_logo` сначала берёт эту папку.
 - PASS — `check_team_select_view` (single-choice cues), `check_team_select_ui`, `check_ui_layout`,
   `check_gpf_net_ui`; скриншоты `team_select_real_club*` пересняты.
+
+## [2026-11-04] feat | Kit Select на дизайн-системе, общий экран форм
+
+- Добавлен общий `KitSelectView` (`scenes/ui/kit_select_view.tscn`): две панели HOME/AWAY
+  с каруселью `main/white/black/reserve` → HOME/AWAY/THIRD/FOURTH, счётчик, ready и статичный
+  3D-превью матча (`SubViewport`, поле без стадиона, 22 `gpf_fullbody`, broadcast-камера).
+  Панель 1480×420, колонки 1.15/0.9/1.15, gap 10; focus — тёмный #171b3f .96 со сдвигом ∓6 и
+  scale 1.008, ready — .66; один комплект прячет стрелки/точки.
+- Компоненты: `kit_panel.gd`, `kit_art.gd` (SVG-подобная форма из спеки), `kit_arrow.gd`,
+  `kit_preview.gd`, `kit_preview_3d.gd`; данные — `kit_catalog.gd` + `kit_texture.gd`.
+- `tools/import_prototype_kits.py` импортирует kit specs прототипа в
+  `databases/default/kits.json` по `tm_id` (4625 команд, 27 без спеки); `TeamCatalog` теперь
+  отдаёт `tm_id`. Нет спеки — fallback из `color1/color2`; битый JSON — статус + retry.
+- Поток: Controller Select → Team Select → **Kit Select** → PreMatch. 1P человек по очереди
+  выбирает home и away, 2P — каждое устройство свою; мышь инертна, ввод только `UiNav`.
+  Вкладка Kit из прематча убрана, индексы вкладок сдвинуты (6 вкладок).
+- Сеть: Teams → **Network Kit Select** → Match Options; phase 2 не меняется, киты
+  не синхронизируются (каждый выбирает свои chooser-слоты). `backtoteams` по-прежнему
+  возвращает в Teams.
+- Матч: `ShellState.kit_home/kit_away` → `MatchPackage.team.kit`; `GpfActors` применяет
+  kit-shader `shaders/kit_uv.gdshader` к `gpf_kit`, поэтому выбранные формы видны на поле.
+- Открытие экрана без подлагивания: `kits.json` и pitch/grass текстуры кэшируются статически,
+  kit-текстуры больше не генерируются попиксельно (их заменил shader), а 3D-превью строится
+  отложенно после раскладки панели.
+- Превью: SVG-форма без белой обводки (тонкий тёмный кант); home по умолчанию main, away — наиболее контрастный
+  комплект (с приоритетом white/main); камера приближена, опущена и наклонена вниз — дальняя
+  боковая линия выше кадра, газона за полем не видно, а нижняя половина кадра заполнена
+  игроками.
+- PASS — `check_kit_select_view`, `check_kit_select_ui`, `check_kit_texture`, `check_ui_layout`, `check_match_package`,
+  `check_prematch_ui`, `check_team_select_ui`, `check_gpf_game_shell`, `check_gpf_net_ui`,
+  `check_gpf_slice_ui`, `check_gpf_match_package`, `check_gpf_actor_roster`; скриншоты —
+  `tests/capture_kit_select_shots.gd` → `.scratch/ui_shots/kit_select_*_{1920x1080,1280x720}.png`.
