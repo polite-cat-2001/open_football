@@ -10,9 +10,11 @@ extends RefCounted
 
 const DEFAULT_DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const DATABASE_RELATIVE_PATH := "databases/default/database.sqlite"
+const ELIGIBILITY_RELATIVE_PATH := "databases/default/team_eligibility.json"
 const MANIFEST_RELATIVE_PATH := "databases/default/manifest.json"
 const NATIONAL_LEAGUE_NAME := "National Teams"
 const MIN_MATCH_PLAYERS := 11
+const FAST_FILTER_LIMIT := 32
 const SQUAD_PLAYER_COLUMNS := [
 	"id", "team_id", "nationalteam_id", "firstname", "lastname", "role", "age",
 	"base_stat", "profile_xml", "formationorder", "nationalteamformationorder",
@@ -39,6 +41,10 @@ var _team_rows := {}
 var _national_league_id := -1
 var _national_league_loaded := false
 var _ratings := {}
+var _fieldable := {}
+var _player_counts := {}
+var _eligibility := {}
+var _eligibility_loaded := false
 
 
 func load_data_root(root: String = "") -> bool:
@@ -74,6 +80,7 @@ func load_data_root(root: String = "") -> bool:
 
 	_reader = reader
 	_loaded = true
+	_load_eligibility(data_root)
 	return true
 
 
@@ -160,14 +167,38 @@ func teams_for_league(league_id: int) -> Array:
 		PackedStringArray(TEAM_COLUMNS))
 	if not _query_ok("teams"):
 		return []
-	# Listing does not filter by player count: probing the players index per team
-	# took ~0.8 s for the 217 national teams and froze the screen. The check is
-	# done once, for the two selected teams, when the panel is readied.
+	# A team that cannot field eleven players must never appear in the picker.
+	# The generated eligibility file mirrors the original SQL count (see
+	# tools/build_team_eligibility.py); without it, small leagues probe the
+	# players index per team and large ones pay for one whole-index count pass.
+	var national := str(league_by_id(league_id).get("name", "")) == NATIONAL_LEAGUE_NAME
+	var cache_key := "national" if national else "club"
+	var eligibility_set: Dictionary = _eligibility.get(cache_key, {})
+	var use_eligibility := _eligibility_loaded
+	var column := "nationalteam_id" if national else "team_id"
+	var counts := {}
+	var use_counts := not use_eligibility and rows.size() > FAST_FILTER_LIMIT
+	if use_counts:
+		if not _player_counts.has(cache_key):
+			_player_counts[cache_key] = _require_reader("players").count_index_values(
+				"players", column)
+		counts = _player_counts[cache_key]
 	var result: Array = []
 	for row in rows:
 		var team := _team_from_row(row)
-		_team_rows[int(team["id"])] = team
-		result.append(team)
+		var team_id := int(team["id"])
+		_team_rows[team_id] = team
+		var fieldable := false
+		if use_eligibility:
+			fieldable = eligibility_set.has(team_id)
+			_fieldable[team_id] = fieldable
+		elif use_counts:
+			fieldable = int(counts.get(team_id, 0)) >= MIN_MATCH_PLAYERS
+			_fieldable[team_id] = fieldable
+		else:
+			fieldable = can_field_eleven(team_id)
+		if fieldable:
+			result.append(team)
 	result.sort_custom(_compare_teams)
 	_teams_by_league[league_id] = result
 	return result
@@ -344,17 +375,26 @@ func load_team_rating(team_id: int) -> Dictionary:
 
 
 func can_field_eleven(team_id: int) -> bool:
+	if _fieldable.has(team_id):
+		return bool(_fieldable[team_id])
 	var team := team_by_id(team_id)
 	if team.is_empty():
 		return false
 	var league := league_by_id(_int(team.get("league_id")))
 	var national := str(league.get("name", "")) == NATIONAL_LEAGUE_NAME
-	var reader := _require_reader("players")
-	if reader == null:
-		return false
-	var column := "nationalteam_id" if national else "team_id"
-	var count := reader.count_indexed("players", column, team_id)
-	return count < 0 or count >= MIN_MATCH_PLAYERS
+	var result := false
+	if _eligibility_loaded:
+		var key := "national" if national else "club"
+		result = bool((_eligibility.get(key, {}) as Dictionary).has(team_id))
+	else:
+		var reader := _require_reader("players")
+		if reader == null:
+			return false
+		var column := "nationalteam_id" if national else "team_id"
+		var count := reader.count_indexed("players", column, team_id)
+		result = count < 0 or count >= MIN_MATCH_PLAYERS
+	_fieldable[team_id] = result
+	return result
 
 
 func _player_from_row(row: Dictionary, order_column: String) -> Dictionary:
@@ -460,6 +500,30 @@ func _float(value, fallback: float = 0.0) -> float:
 	return float(value)
 
 
+func _load_eligibility(root: String) -> void:
+	_eligibility.clear()
+	_eligibility_loaded = false
+	var path := root.path_join(ELIGIBILITY_RELATIVE_PATH)
+	if not FileAccess.file_exists(path):
+		return
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return
+	var parsed = JSON.parse_string(file.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return
+	var club := {}
+	var national := {}
+	for raw_id in parsed.get("club", []):
+		club[int(raw_id)] = true
+	for raw_id in parsed.get("national", []):
+		national[int(raw_id)] = true
+	if club.is_empty() and national.is_empty():
+		return
+	_eligibility = {"club": club, "national": national}
+	_eligibility_loaded = true
+
+
 func _reset() -> void:
 	error = ""
 	_countries.clear()
@@ -472,3 +536,7 @@ func _reset() -> void:
 	_national_league_id = -1
 	_national_league_loaded = false
 	_ratings.clear()
+	_fieldable.clear()
+	_player_counts.clear()
+	_eligibility.clear()
+	_eligibility_loaded = false

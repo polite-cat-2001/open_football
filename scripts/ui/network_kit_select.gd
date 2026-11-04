@@ -7,7 +7,7 @@ extends Control
 const NETWORK_MENU_SCENE := "res://scenes/network_menu.tscn"
 const SIDES_SCENE := "res://scenes/network_sides.tscn"
 const LOBBY_SCENE := "res://scenes/network_lobby.tscn"
-const OPTIONS_SCENE := "res://scenes/network_match_options.tscn"
+const OPTIONS_SCENE := "res://scenes/network_match_hub.tscn"
 const NET_SHELL := preload("res://scripts/net/net_shell.gd")
 const UI_ASSETS := preload("res://scripts/data/ui_assets.gd")
 

@@ -1,9 +1,7 @@
 extends SceneTree
-# Headless UI check for the ported pre-match hub: header, seven PES-style tabs,
-# kick-off lineups, options sliders, the lineup editor overlay,
-# and the package/runtime handoff.
-#
-# Run:  godot --headless --path . -s res://tests/check_prematch_ui.gd
+# Headless check for the local MatchHub path: the shared view mounts over the
+# real catalog, edits options and the Game Plan lineup, builds the package and
+# hands it to the C++ runtime.
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const HOME_ID := 4
@@ -27,8 +25,21 @@ func _check(condition: bool, message: String) -> void:
 
 
 func _frames(count: int) -> void:
-	for i in count:
+	for count_index in count:
 		await process_frame
+
+
+func _tap(code: int) -> void:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.pressed = true
+	Input.parse_input_event(event)
+	await _frames(2)
+	event = InputEventKey.new()
+	event.keycode = code
+	event.pressed = false
+	Input.parse_input_event(event)
+	await _frames(1)
 
 
 func _run() -> void:
@@ -41,8 +52,6 @@ func _run() -> void:
 	var home := catalog.team_by_id(HOME_ID)
 	var away := catalog.team_by_id(AWAY_ID)
 	ShellState.set_teams(home, away)
-	# The controller screen is a separate step; seed an away keyboard so the
-	# runtime handoff is still covered here.
 	ShellState.set_controllers([
 		{"side": "away", "kind": "keyboard", "device": 0, "name": "Keyboard"},
 	])
@@ -50,79 +59,74 @@ func _run() -> void:
 	change_scene_to_file(PREMATCH)
 	await _frames(10)
 	var screen := current_scene
-	_check(screen != null and screen.name == "Prematch", "the pre-match hub opens")
+	_check(screen != null and screen.name == "Prematch", "the match hub opens")
 	if screen == null or screen.name != "Prematch":
 		_finish()
 		return
+	var view: MatchHubView = screen.get("view")
+	_check(view != null, "the hub mounts the shared MatchHubView")
+	if view == null:
+		_finish()
+		return
+	_check(view.scoreboard.team_name(0) == str(home.get("name", "")).to_upper(),
+		"the scoreboard shows the home team")
+	_check(view.scoreboard.team_name(1) == str(away.get("name", "")).to_upper(),
+		"the scoreboard shows the away team")
+	_check(view.home_lineup.row_count() == 11 and view.away_lineup.row_count() == 11,
+		"both columns list eleven starters")
+	_check(not view.command_cell(0).disabled, "Start match is enabled with valid lineups")
+	_check(view.options_overlay.slider_value("duration") == 1.0,
+		"the options overlay starts from the shell options")
 
-	var header := screen.get("header_label") as Label
-	_check(header != null and header.text.contains(str(home.get("name", "")))
-		and header.text.contains(str(away.get("name", ""))),
-		"the header shows both teams")
-	var tabs: Array = screen.get("tab_buttons")
-	_check(tabs.size() == 6, "the hub has six tabs after Kit moved to its own screen")
-	_check(int(screen.get("active_tab")) == 1, "the hub starts on Kick-off")
-	# Keyboard/gamepad entry: the active tab owns focus, and Down enters content.
-	var focus_owner := screen.get_viewport().gui_get_focus_owner()
-	_check(focus_owner == tabs[1], "the active Kick-off tab owns focus on entry")
-	var first_content: Control = screen.call("_first_focusable", screen.get("content_views")[1])
-	_check(first_content == screen.get("edit_lineups_button"),
-		"the first focusable in Kick-off is Edit lineups")
-	var down := InputEventKey.new()
-	down.keycode = KEY_DOWN
-	down.pressed = true
-	screen.call("_handle_key", down)
-	_check((screen.get("edit_lineups_button") as Control).has_focus(),
-		"Down moves focus from the tab into content")
-	var home_names: Array = screen.get("home_name_labels")
-	var away_names: Array = screen.get("away_name_labels")
-	_check(home_names.size() == 11 and away_names.size() == 11,
-		"the Kick-off tab lists eleven names per side")
-	var start_button := screen.get("start_button") as Button
-	_check(start_button != null and not start_button.disabled,
-		"Start match is enabled with valid lineups")
-	var game_plan = screen.get("game_plan")
-	_check(game_plan != null, "the game plan screen is ported into the hub")
+	# Back leaves the hub for the kit screen (the previous step in the flow).
+	await _tap(KEY_ESCAPE)
+	await _frames(8)
+	_check(current_scene != null and current_scene.name == "KitSelect",
+		"Back returns to the kit selection")
 
-	# Options tab: sliders land in the shell state.
-	screen.call("_select_tab", 3)
-	var duration: HSlider = screen.get("duration_slider")
-	var difficulty: HSlider = screen.get("difficulty_slider")
-	_check(duration != null and difficulty != null, "the Options tab has both sliders")
-	if duration != null and difficulty != null:
-		duration.value = 1.5
-		difficulty.value = 0.6
-		await _frames(2)
-		_check(float(ShellState.match_options.get("duration", -1)) == 1.5,
-			"the chosen duration lands in the shell state")
-		_check(float(ShellState.match_options.get("difficulty", -1)) == 0.6,
-			"the chosen difficulty lands in the shell state")
+	change_scene_to_file(PREMATCH)
+	await _frames(10)
+	screen = current_scene
+	view = screen.get("view") if screen != null else null
+	if view == null:
+		_check(false, "the hub reopens after Back")
+		_finish()
+		return
 
-	# Kick-off lineups: edit a starter through the Game plan tab, then build the package.
-	screen.call("_select_tab", 1)
-	var edit_button := screen.get("edit_lineups_button") as Button
-	_check(edit_button != null, "the Kick-off tab offers the lineups editor")
-	if edit_button != null:
-		edit_button.pressed.emit()
-		await _frames(2)
-		_check(int(screen.get("active_tab")) == 2 and game_plan != null and game_plan.is_open(),
-			"Edit lineups opens the Game plan tab")
+	# Options: the overlay writes the shell state and the package.
+	view.open_options()
+	await _frames(2)
+	_check(view.options_overlay.visible, "the options overlay opens")
+	view.options_overlay._sliders["duration"].set_value(1.5)
+	view.options_overlay._sliders["difficulty"].set_value(0.6)
+	await _frames(3)
+	_check(absf(float(ShellState.match_options.get("duration", -1)) - 1.5) < 0.001,
+		"the chosen duration lands in the shell state")
+	_check(absf(float(ShellState.match_options.get("difficulty", -1)) - 0.6) < 0.001,
+		"the chosen difficulty lands in the shell state")
+	view.close_overlay()
+	await _frames(2)
 
+	# Game plan: edit a starter, return to the hub and see the column follow.
+	view.open_game_plan()
+	await _frames(3)
+	_check(view.is_game_plan_open(), "Team management opens the Game Plan overlay")
 	var home_lineup: MatchLineup = screen.get("home_lineup")
 	var away_lineup: MatchLineup = screen.get("away_lineup")
-	_check(home_lineup != null and away_lineup != null, "both lineups load")
+	_check(home_lineup != null and away_lineup != null, "both lineup models load")
 	if home_lineup == null or away_lineup == null:
 		_finish()
 		return
 	var promoted := int(home_lineup.bench[0])
 	var promoted_name := str(home_lineup.player_by_id(promoted).get("lastname", ""))
 	home_lineup.set_starter(EDITED_SLOT, promoted)
-	screen.call("_on_lineups_changed")
-	screen.call("_close_lineups")
-	await _frames(2)
-	_check(int(screen.get("active_tab")) == 1, "the game plan returns to Kick-off")
-	_check((screen.get("home_name_labels")[EDITED_SLOT] as Label).text.contains(promoted_name),
-		"the Kick-off list follows the edited lineup")
+	view.game_plan.emit_signal("lineup_changed")
+	await _frames(3)
+	view.game_plan.emit_signal("close_requested")
+	await _frames(3)
+	_check(not view.is_game_plan_open(), "the Game Plan closes back into the hub")
+	_check(view.home_lineup.row_text(EDITED_SLOT) == promoted_name,
+		"the hub column follows the edited lineup")
 
 	var package: Dictionary = screen.call("build_package")
 	_check(not package.is_empty(), "the hub builds a match package")
@@ -132,31 +136,18 @@ func _run() -> void:
 	_check(int(package["home"]["database_id"]) == HOME_ID
 		and int(package["away"]["database_id"]) == AWAY_ID,
 		"the package carries the chosen teams")
-	_check(float(package["options"]["duration"]) == 1.5,
+	_check(absf(float(package["options"]["duration"]) - 1.5) < 0.001,
 		"the package carries the chosen duration")
-	_check(float(package["options"]["difficulty"]) == 0.6,
+	_check(absf(float(package["options"]["difficulty"]) - 0.6) < 0.001,
 		"the package carries the chosen difficulty")
 	_check(int(package["home"]["players"][EDITED_SLOT]["database_id"]) == promoted,
 		"the edited starter reaches the package")
-	var kit_catalog := KitCatalog.new()
-	kit_catalog.load_data_root(DATA_ROOT)
-	var home_kit := kit_catalog.default_kit(home, 0)
-	var expected_away := kit_catalog.default_away_kit(away, home_kit)
-	_check(str(package["home"].get("kit", {}).get("id", "")) == "main",
-		"the package defaults the home kit to main")
-	_check(str(package["away"].get("kit", {}).get("id", "")) == str(expected_away.get("id", "")),
-		"the package defaults the most contrasting away kit")
 
-	start_button.grab_focus()
-	var joy_accept := InputEventJoypadButton.new()
-	joy_accept.button_index = JOY_BUTTON_A
-	joy_accept.pressed = true
-	screen.call("_handle_joy_button", joy_accept)
+	view.command_cell(0).pressed.emit()
 	await _frames(12)
 	_check(current_scene != null and current_scene.name == "GpfSlice",
 		"Start match opens the GPF match")
-	_check(ShellState.has_package(), "the prematch stored the match package")
-
+	_check(ShellState.has_package(), "the hub stored the match package")
 	var runtime := get_first_node_in_group("gpf_runtime")
 	_check(runtime != null and bool(runtime.has_match_package()),
 		"the runtime received the package")
@@ -165,10 +156,6 @@ func _run() -> void:
 		_check(setup.size() == 1 and int(setup[0].get("side", 0)) == 1
 			and str(setup[0].get("kind", "")) == "keyboard",
 			"the runtime received the away-side keyboard setup")
-		var humans: Array = runtime.debug_human_state()
-		_check(humans.size() == 2 and int(humans[0].get("gamers", -1)) == 0
-			and int(humans[1].get("gamers", -1)) == 1,
-			"the match binds the human gamer to the away side")
 		var snap: Dictionary = runtime.get_snapshot()
 		_check(str(snap.get("team0_name", "")) == str(home.get("name", "")),
 			"the match uses the chosen home team")

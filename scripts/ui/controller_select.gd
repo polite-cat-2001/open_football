@@ -5,7 +5,6 @@ extends Control
 
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 const TEAM_SELECT_SCENE := "res://scenes/team_select.tscn"
-const KIT_SELECT_SCENE := "res://scenes/kit_select.tscn"
 
 @onready var view: SideSelectView = $SideSelectView
 
@@ -229,8 +228,7 @@ func _commit() -> void:
 		return
 	_committed = true
 	ShellState.set_controllers(active)
-	var target := KIT_SELECT_SCENE if ShellState.has_selection() else TEAM_SELECT_SCENE
-	UiTransition.change_scene(target)
+	UiTransition.change_scene(TEAM_SELECT_SCENE)
 
 
 func _leave() -> void:

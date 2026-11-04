@@ -2,8 +2,8 @@
 
 [ext_resource type="FontFile" path="res://assets/ui/fonts/BarlowCondensed-ExtraBold.ttf" id="1_yd0tj"]
 [ext_resource type="FontFile" path="res://assets/ui/fonts/BarlowCondensed-SemiBold.ttf" id="2_qm576"]
-[ext_resource type="FontFile" path="res://assets/ui/fonts/Inter-Variable.ttf" id="3_wkagb"]
-[ext_resource type="FontFile" path="res://assets/ui/fonts/BarlowCondensed-Bold.ttf" id="4_jer3v"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/BarlowCondensed-Bold.ttf" id="3_wkagb"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/Inter-Variable.ttf" id="4_jer3v"]
 
 [sub_resource type="FontVariation" id="FontVariation_rjkct"]
 base_font = ExtResource("1_yd0tj")
@@ -14,12 +14,32 @@ base_font = ExtResource("1_yd0tj")
 spacing_glyph = 3
 
 [sub_resource type="FontVariation" id="FontVariation_tjml5"]
-base_font = ExtResource("3_wkagb")
+base_font = ExtResource("4_jer3v")
+variation_opentype = {
+"wght": 700
+}
+
+[sub_resource type="FontVariation" id="FontVariation_gp8u1"]
+base_font = SubResource("FontVariation_tjml5")
+spacing_glyph = 1
+
+[sub_resource type="FontVariation" id="FontVariation_ummxe"]
+base_font = ExtResource("4_jer3v")
 variation_opentype = {
 "wght": 600
 }
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gp8u1"]
+[sub_resource type="FontVariation" id="FontVariation_rhsjj"]
+base_font = ExtResource("4_jer3v")
+variation_opentype = {
+"wght": 500
+}
+
+[sub_resource type="FontVariation" id="FontVariation_1dbw7"]
+base_font = ExtResource("3_wkagb")
+spacing_glyph = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1apv2"]
 content_margin_left = 8.0
 content_margin_top = 2.0
 content_margin_right = 8.0
@@ -31,84 +51,78 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(1, 1, 1, 0.22)
 
-[sub_resource type="FontVariation" id="FontVariation_ummxe"]
+[sub_resource type="FontVariation" id="FontVariation_vvkgj"]
 base_font = ExtResource("2_qm576")
 spacing_glyph = 1
 
-[sub_resource type="FontVariation" id="FontVariation_rhsjj"]
-base_font = SubResource("FontVariation_tjml5")
-spacing_glyph = 1
-
-[sub_resource type="FontVariation" id="FontVariation_1dbw7"]
-base_font = ExtResource("4_jer3v")
-spacing_glyph = 1
-
-[sub_resource type="FontVariation" id="FontVariation_1apv2"]
-base_font = ExtResource("4_jer3v")
-spacing_glyph = 2
-
-[sub_resource type="FontVariation" id="FontVariation_vvkgj"]
-base_font = SubResource("FontVariation_tjml5")
-spacing_glyph = 2
-
 [sub_resource type="FontVariation" id="FontVariation_2xvy8"]
-base_font = ExtResource("1_yd0tj")
-spacing_glyph = 2
+base_font = SubResource("FontVariation_ummxe")
+spacing_glyph = 1
 
 [sub_resource type="FontVariation" id="FontVariation_x0h1f"]
-base_font = SubResource("FontVariation_tjml5")
+base_font = ExtResource("3_wkagb")
 spacing_glyph = 1
 
 [sub_resource type="FontVariation" id="FontVariation_vxrau"]
 base_font = ExtResource("3_wkagb")
-variation_opentype = {
-"wght": 500
-}
+spacing_glyph = 2
 
 [sub_resource type="FontVariation" id="FontVariation_yx6co"]
-base_font = ExtResource("3_wkagb")
+base_font = SubResource("FontVariation_ummxe")
+spacing_glyph = 2
+
+[sub_resource type="FontVariation" id="FontVariation_jl7qu"]
+base_font = ExtResource("1_yd0tj")
+spacing_glyph = 2
+
+[sub_resource type="FontVariation" id="FontVariation_ba275"]
+base_font = SubResource("FontVariation_ummxe")
+spacing_glyph = 1
+
+[sub_resource type="FontVariation" id="FontVariation_8lfyb"]
+base_font = ExtResource("4_jer3v")
 variation_opentype = {
 "wght": 400
 }
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jl7qu"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hqoob"]
 content_margin_left = 24.0
 content_margin_top = 12.0
 content_margin_right = 24.0
 content_margin_bottom = 12.0
 bg_color = Color(0.960784, 0.968627, 0.980392, 0.86)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ba275"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ykb1j"]
 bg_color = Color(0.376471, 0.396078, 0.478431, 0.94)
 shadow_color = Color(0.015686, 0.035294, 0.078431, 0.3)
 shadow_size = 22
 shadow_offset = Vector2(0, 18)
 
-[sub_resource type="FontVariation" id="FontVariation_8lfyb"]
+[sub_resource type="FontVariation" id="FontVariation_q67n4"]
 base_font = ExtResource("1_yd0tj")
 spacing_glyph = 4
 
-[sub_resource type="FontVariation" id="FontVariation_hqoob"]
-base_font = ExtResource("4_jer3v")
+[sub_resource type="FontVariation" id="FontVariation_xdebe"]
+base_font = ExtResource("3_wkagb")
 spacing_glyph = 3
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ykb1j"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rc1ob"]
 content_margin_left = 8.0
 content_margin_top = 3.0
 content_margin_right = 8.0
 content_margin_bottom = 3.0
 bg_color = Color(0.113725, 0.129412, 0.219608, 0.16)
 
-[sub_resource type="FontVariation" id="FontVariation_q67n4"]
-base_font = ExtResource("4_jer3v")
+[sub_resource type="FontVariation" id="FontVariation_t341j"]
+base_font = ExtResource("3_wkagb")
 spacing_glyph = 2
 
-[sub_resource type="FontVariation" id="FontVariation_xdebe"]
+[sub_resource type="FontVariation" id="FontVariation_t6ocd"]
 base_font = ExtResource("1_yd0tj")
 spacing_glyph = 3
 
 [resource]
-default_font = SubResource("FontVariation_yx6co")
+default_font = SubResource("FontVariation_8lfyb")
 default_font_size = 16
 Brand/base_type = &"Label"
 Brand/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
@@ -130,16 +144,72 @@ HeroTitle/base_type = &"Label"
 HeroTitle/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 HeroTitle/font_sizes/font_size = 64
 HeroTitle/fonts/font = ExtResource("1_yd0tj")
+HubCommandLabel/base_type = &"Label"
+HubCommandLabel/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
+HubCommandLabel/font_sizes/font_size = 20
+HubCommandLabel/fonts/font = ExtResource("3_wkagb")
+HubLineupName/base_type = &"Label"
+HubLineupName/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
+HubLineupName/font_sizes/font_size = 20
+HubLineupName/fonts/font = ExtResource("3_wkagb")
+HubLineupNum/base_type = &"Label"
+HubLineupNum/colors/font_color = Color(0.964706, 0.972549, 0.984314, 0.66)
+HubLineupNum/font_sizes/font_size = 24
+HubLineupNum/fonts/font = ExtResource("3_wkagb")
+HubLineupRole/base_type = &"Label"
+HubLineupRole/colors/font_color = Color(0.964706, 0.972549, 0.984314, 0.66)
+HubLineupRole/font_sizes/font_size = 12
+HubLineupRole/fonts/font = SubResource("FontVariation_gp8u1")
+HubMeta/base_type = &"Label"
+HubMeta/colors/font_color = Color(0.964706, 0.972549, 0.984314, 0.66)
+HubMeta/font_sizes/font_size = 16
+HubMeta/fonts/font = SubResource("FontVariation_ummxe")
+HubMetaStrong/base_type = &"Label"
+HubMetaStrong/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
+HubMetaStrong/font_sizes/font_size = 16
+HubMetaStrong/fonts/font = SubResource("FontVariation_tjml5")
+HubOptionLabel/base_type = &"Label"
+HubOptionLabel/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
+HubOptionLabel/font_sizes/font_size = 18
+HubOptionLabel/fonts/font = SubResource("FontVariation_rhsjj")
+HubOptionStub/base_type = &"Label"
+HubOptionStub/colors/font_color = Color(0.964706, 0.972549, 0.984314, 0.55)
+HubOptionStub/font_sizes/font_size = 18
+HubOptionStub/fonts/font = SubResource("FontVariation_rhsjj")
+HubOptionTitle/base_type = &"Label"
+HubOptionTitle/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
+HubOptionTitle/font_sizes/font_size = 28
+HubOptionTitle/fonts/font = ExtResource("1_yd0tj")
+HubOptionValue/base_type = &"Label"
+HubOptionValue/colors/font_color = Color(0.788235, 0.94902, 0.152941, 1)
+HubOptionValue/font_sizes/font_size = 26
+HubOptionValue/fonts/font = ExtResource("3_wkagb")
+HubStatLabel/base_type = &"Label"
+HubStatLabel/colors/font_color = Color(0.964706, 0.972549, 0.984314, 0.66)
+HubStatLabel/font_sizes/font_size = 12
+HubStatLabel/fonts/font = SubResource("FontVariation_ummxe")
+HubStatValue/base_type = &"Label"
+HubStatValue/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
+HubStatValue/font_sizes/font_size = 36
+HubStatValue/fonts/font = ExtResource("3_wkagb")
+HubTeamName/base_type = &"Label"
+HubTeamName/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
+HubTeamName/font_sizes/font_size = 40
+HubTeamName/fonts/font = ExtResource("1_yd0tj")
+HubVenue/base_type = &"Label"
+HubVenue/colors/font_color = Color(0.964706, 0.972549, 0.984314, 0.66)
+HubVenue/font_sizes/font_size = 18
+HubVenue/fonts/font = SubResource("FontVariation_1dbw7")
 Kbd/base_type = &"Label"
 Kbd/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
 Kbd/font_sizes/font_size = 12
-Kbd/fonts/font = SubResource("FontVariation_tjml5")
+Kbd/fonts/font = SubResource("FontVariation_ummxe")
 KbdBox/base_type = &"PanelContainer"
-KbdBox/styles/panel = SubResource("StyleBoxFlat_gp8u1")
+KbdBox/styles/panel = SubResource("StyleBoxFlat_1apv2")
 KitCount/base_type = &"Label"
 KitCount/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 KitCount/font_sizes/font_size = 19
-KitCount/fonts/font = SubResource("FontVariation_ummxe")
+KitCount/fonts/font = SubResource("FontVariation_vvkgj")
 KitName/base_type = &"Label"
 KitName/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 KitName/font_sizes/font_size = 32
@@ -147,82 +217,82 @@ KitName/fonts/font = ExtResource("1_yd0tj")
 KitPreviewSub/base_type = &"Label"
 KitPreviewSub/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 KitPreviewSub/font_sizes/font_size = 12
-KitPreviewSub/fonts/font = SubResource("FontVariation_rhsjj")
+KitPreviewSub/fonts/font = SubResource("FontVariation_2xvy8")
 KitPreviewTeam/base_type = &"Label"
 KitPreviewTeam/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 KitPreviewTeam/font_sizes/font_size = 20
-KitPreviewTeam/fonts/font = SubResource("FontVariation_1dbw7")
+KitPreviewTeam/fonts/font = SubResource("FontVariation_x0h1f")
 KitPreviewTitle/base_type = &"Label"
 KitPreviewTitle/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 KitPreviewTitle/font_sizes/font_size = 22
-KitPreviewTitle/fonts/font = SubResource("FontVariation_1apv2")
+KitPreviewTitle/fonts/font = SubResource("FontVariation_vxrau")
 KitPreviewVs/base_type = &"Label"
 KitPreviewVs/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 KitPreviewVs/font_sizes/font_size = 13
-KitPreviewVs/fonts/font = SubResource("FontVariation_vvkgj")
+KitPreviewVs/fonts/font = SubResource("FontVariation_yx6co")
 KitReady/base_type = &"Label"
 KitReady/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
 KitReady/font_sizes/font_size = 40
-KitReady/fonts/font = SubResource("FontVariation_2xvy8")
+KitReady/fonts/font = SubResource("FontVariation_jl7qu")
 KitTeam/base_type = &"Label"
 KitTeam/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 KitTeam/font_sizes/font_size = 14
-KitTeam/fonts/font = SubResource("FontVariation_x0h1f")
+KitTeam/fonts/font = SubResource("FontVariation_ba275")
 LegendLabel/base_type = &"Label"
 LegendLabel/colors/font_color = Color(0.964706, 0.972549, 0.984314, 0.86)
 LegendLabel/font_sizes/font_size = 15
-LegendLabel/fonts/font = SubResource("FontVariation_vxrau")
+LegendLabel/fonts/font = SubResource("FontVariation_rhsjj")
 MatchValue/base_type = &"Label"
 MatchValue/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 MatchValue/font_sizes/font_size = 26
-MatchValue/fonts/font = ExtResource("4_jer3v")
+MatchValue/fonts/font = ExtResource("3_wkagb")
 PanelNote/base_type = &"Label"
 PanelNote/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 PanelNote/font_sizes/font_size = 16
-PanelNote/fonts/font = SubResource("FontVariation_yx6co")
+PanelNote/fonts/font = SubResource("FontVariation_8lfyb")
 PanelNoteBox/base_type = &"PanelContainer"
-PanelNoteBox/styles/panel = SubResource("StyleBoxFlat_jl7qu")
+PanelNoteBox/styles/panel = SubResource("StyleBoxFlat_hqoob")
 RowSub/base_type = &"Label"
 RowSub/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 RowSub/font_sizes/font_size = 15
-RowSub/fonts/font = SubResource("FontVariation_vxrau")
+RowSub/fonts/font = SubResource("FontVariation_rhsjj")
 RowTitle/base_type = &"Label"
 RowTitle/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 RowTitle/font_sizes/font_size = 34
-RowTitle/fonts/font = ExtResource("4_jer3v")
+RowTitle/fonts/font = ExtResource("3_wkagb")
 SideHead/base_type = &"PanelContainer"
-SideHead/styles/panel = SubResource("StyleBoxFlat_ba275")
+SideHead/styles/panel = SubResource("StyleBoxFlat_ykb1j")
 SideName/base_type = &"Label"
 SideName/colors/font_color = Color(0.113725, 0.129412, 0.219608, 0.22)
 SideName/font_sizes/font_size = 64
-SideName/fonts/font = SubResource("FontVariation_8lfyb")
+SideName/fonts/font = SubResource("FontVariation_q67n4")
 SidePlayerName/base_type = &"Label"
 SidePlayerName/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 SidePlayerName/colors/font_outline_color = Color(0.964706, 0.972549, 0.984314, 1)
 SidePlayerName/constants/outline_size = 3
 SidePlayerName/font_sizes/font_size = 15
-SidePlayerName/fonts/font = SubResource("FontVariation_vxrau")
+SidePlayerName/fonts/font = SubResource("FontVariation_rhsjj")
 SideStatus/base_type = &"Label"
 SideStatus/colors/font_color = Color(0.964706, 0.972549, 0.984314, 0.86)
 SideStatus/font_sizes/font_size = 15
-SideStatus/fonts/font = SubResource("FontVariation_vxrau")
+SideStatus/fonts/font = SubResource("FontVariation_rhsjj")
 SideStatusError/base_type = &"Label"
 SideStatusError/colors/font_color = Color(1, 0.607843, 0.658824, 1)
 SideStatusError/font_sizes/font_size = 15
-SideStatusError/fonts/font = SubResource("FontVariation_vxrau")
+SideStatusError/fonts/font = SubResource("FontVariation_rhsjj")
 SideTitle/base_type = &"Label"
 SideTitle/colors/font_color = Color(1, 1, 1, 1)
 SideTitle/font_sizes/font_size = 24
-SideTitle/fonts/font = SubResource("FontVariation_hqoob")
+SideTitle/fonts/font = SubResource("FontVariation_xdebe")
 SoonChip/base_type = &"PanelContainer"
-SoonChip/styles/panel = SubResource("StyleBoxFlat_ykb1j")
+SoonChip/styles/panel = SubResource("StyleBoxFlat_rc1ob")
 SoonChipLabel/base_type = &"Label"
 SoonChipLabel/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 SoonChipLabel/font_sizes/font_size = 12
-SoonChipLabel/fonts/font = SubResource("FontVariation_tjml5")
+SoonChipLabel/fonts/font = SubResource("FontVariation_ummxe")
 TabButton/base_type = &"Button"
 TabButton/font_sizes/font_size = 23
-TabButton/fonts/font = ExtResource("4_jer3v")
+TabButton/fonts/font = ExtResource("3_wkagb")
 TeamClub/base_type = &"Label"
 TeamClub/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 TeamClub/font_sizes/font_size = 36
@@ -230,48 +300,48 @@ TeamClub/fonts/font = ExtResource("1_yd0tj")
 TeamCompetition/base_type = &"Label"
 TeamCompetition/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 TeamCompetition/font_sizes/font_size = 21
-TeamCompetition/fonts/font = ExtResource("4_jer3v")
+TeamCompetition/fonts/font = ExtResource("3_wkagb")
 TeamCountry/base_type = &"Label"
 TeamCountry/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 TeamCountry/font_sizes/font_size = 24
-TeamCountry/fonts/font = ExtResource("4_jer3v")
+TeamCountry/fonts/font = ExtResource("3_wkagb")
 TeamMark/base_type = &"Label"
 TeamMark/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
 TeamMark/font_sizes/font_size = 28
-TeamMark/fonts/font = SubResource("FontVariation_q67n4")
+TeamMark/fonts/font = SubResource("FontVariation_t341j")
 TeamMarkReady/base_type = &"Label"
 TeamMarkReady/colors/font_color = Color(0.964706, 0.972549, 0.984314, 1)
 TeamMarkReady/font_sizes/font_size = 40
-TeamMarkReady/fonts/font = SubResource("FontVariation_xdebe")
+TeamMarkReady/fonts/font = SubResource("FontVariation_t6ocd")
 TeamOwner/base_type = &"Label"
 TeamOwner/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 TeamOwner/font_sizes/font_size = 13
-TeamOwner/fonts/font = SubResource("FontVariation_vxrau")
+TeamOwner/fonts/font = SubResource("FontVariation_rhsjj")
 TeamStatLabel/base_type = &"Label"
 TeamStatLabel/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 TeamStatLabel/font_sizes/font_size = 12
-TeamStatLabel/fonts/font = SubResource("FontVariation_tjml5")
+TeamStatLabel/fonts/font = SubResource("FontVariation_ummxe")
 TeamStatValue/base_type = &"Label"
 TeamStatValue/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 TeamStatValue/font_sizes/font_size = 36
-TeamStatValue/fonts/font = ExtResource("4_jer3v")
+TeamStatValue/fonts/font = ExtResource("3_wkagb")
 TileMeta/base_type = &"Label"
 TileMeta/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 TileMeta/font_sizes/font_size = 15
-TileMeta/fonts/font = SubResource("FontVariation_tjml5")
+TileMeta/fonts/font = SubResource("FontVariation_ummxe")
 TileSub/base_type = &"Label"
 TileSub/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 TileSub/font_sizes/font_size = 17
-TileSub/fonts/font = SubResource("FontVariation_vxrau")
+TileSub/fonts/font = SubResource("FontVariation_rhsjj")
 TileSubWide/base_type = &"Label"
 TileSubWide/colors/font_color = Color(0.352941, 0.372549, 0.470588, 1)
 TileSubWide/font_sizes/font_size = 18
-TileSubWide/fonts/font = SubResource("FontVariation_vxrau")
+TileSubWide/fonts/font = SubResource("FontVariation_rhsjj")
 TileTitle/base_type = &"Label"
 TileTitle/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 TileTitle/font_sizes/font_size = 44
-TileTitle/fonts/font = ExtResource("4_jer3v")
+TileTitle/fonts/font = ExtResource("3_wkagb")
 WideTitle/base_type = &"Label"
 WideTitle/colors/font_color = Color(0.113725, 0.129412, 0.219608, 1)
 WideTitle/font_sizes/font_size = 52
-WideTitle/fonts/font = ExtResource("4_jer3v")
+WideTitle/fonts/font = ExtResource("3_wkagb")
