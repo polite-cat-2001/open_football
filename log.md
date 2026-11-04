@@ -1916,3 +1916,75 @@ placeholder; национальный значок и шрифт есть. Ру�
   `check_prematch_ui`, `check_team_select_ui`, `check_gpf_game_shell`, `check_gpf_net_ui`,
   `check_gpf_slice_ui`, `check_gpf_match_package`, `check_gpf_actor_roster`; скриншоты —
   `tests/capture_kit_select_shots.gd` → `.scratch/ui_shots/kit_select_*_{1920x1080,1280x720}.png`.
+
+## [2026-11-04] feat | Предматчевый хаб на дизайн-системе и общий MatchHubView
+- Новый общий экран `scenes/ui/match_hub_view.tscn` (`MatchHubView extends UiScreen`) по
+  прототипу `MatchHub.svelte`: две колонки 11 стартовых, scoreboard с рейтингом, четыре
+  command-ячейки. Панель 1480, хаб 680 = top 530 + gap 40 + command 110; колонки 362.5 /
+  scoreboard 735 / 362.5. Компоненты — `hub_lineup_column`, `hub_scoreboard`, `hub_command_cell`,
+  `match_options_overlay`, `match_sides_overlay`, `hub_value_slider`; снапшот-хелперы —
+  `match_hub_state`.
+- Локальный `prematch.gd` стал тонким адаптером: данные `TeamCatalog`/`ShellState`, `MatchLineup`,
+  рейтинги, киты; Start собирает `MatchPackage` → `gpf_slice`; 1P стартует сразу, 2P — голос
+  каждого локального устройства (повтор/Back отзывает, статус `START x/y`). Back → Kit Select.
+- Сетевой `network_match_hub.gd` заменил `network_match_options`: host-only duration/difficulty
+  и Start, client read-only и ждёт `MatchSetup`; Game Plan локальный (составы не синхронизируются),
+  Sides read-only, Back → Network Kit Select (фаза 2 сохраняется).
+- Полноэкранные оверлеи: `TEAM MANAGEMENT` — существующий `GpfGamePlan` (добавлен
+  `handle_ui_action` для UiNav), `MATCH OPTIONS` — два слайдера + disabled-заглушки
+  Stadium/Weather/Camera/System с `SOON`, `SIDE SELECT` — стороны/команды/формы и локальный
+  `SWAP SIDES`.
+- Ввод: `UiNav` + мышь (hover/click ячеек, слайдеры, swap); Left/Right/Tab/LB-RB листают
+  command-ячейки, Up/Down в Options, Game Plan получает действия через UiNav.
+- Team Select теперь не показывает команды с <11 игроками: `TeamCatalog.teams_for_league`
+  фильтрует через `can_field_eleven`/`count_indexed` по индексам `players.team_id`/
+  `nationalteam_id`; ответы кэшируются. Хаб не имеет error-состояния — при сбое адаптер уводит
+  назад в Team Select.
+- Новые токены/вариации темы для хаба; добавлены `pitch.svg`, `tactics.svg`, `sides.svg`.
+- PASS — `check_match_hub_view`, `check_prematch_ui`, `check_prematch_vote`, `check_ui_layout`,
+  `check_team_catalog`, `check_team_select_ui`, `check_kit_select_ui`, `check_match_package`,
+  `check_prematch_lineup`, `check_gpf_game_shell`, `check_gpf_net_ui`; скриншоты —
+  `tests/capture_match_hub_shots.gd` → `.scratch/ui_shots/match_hub_*_{1920x1080,1280x720}.png`.
+
+## [2026-11-04] fix | Поток сторон и лаги каталога
+- Controller Select больше не пропускает Team Select при уже выбранной паре команд: `_commit`
+  всегда ведёт в Team Select (восстановленная пара остаётся, но экран показывается). Регресс —
+  `tests/check_controller_select_flow.gd`.
+- `SqliteReader.select_any` для `INTEGER PRIMARY KEY` (`teams.id`) идёт точечным rowid-поиском,
+  а не сканом таблицы: `team_by_id` ~90 → ~1 мс, `load_squad` ~190 → ~7 мс на команду. Это убрало
+  основной лаг при входе в хаб (раньше две команды ~380 мс) и на других экранах.
+- Для больших лиг добавлен `count_index_values` (один проход по индексу); Team Select фильтрует
+  <11 игроков точечным `count_indexed` до 32 команд и одним проходом для National Teams.
+  Клубная лига снова листается ~20 мс, национальные сборные — ~0.65 с впервые (кэш после).
+- PASS — `check_controller_select_flow`, `check_controller_select_ui`, `check_team_catalog`,
+  `check_team_select_ui`, `check_prematch_ui`, `check_match_package`, `check_kit_select_ui`,
+  `check_ui_layout`, `check_gpf_game_shell`, `check_gpf_net_ui`.
+
+## [2026-11-04] fix | Hub: EXIT вместо SIDE SELECT и быстрый Team Select
+- Четвёртая command-ячейка хаба теперь `EXIT` (иконка `exit.svg`) и выходит в главное меню:
+  локальный адаптер — `UiTransition.change_scene(MAIN_MENU_SCENE)`, сетевой — сначала
+  `net_leave`, затем главное меню. `MatchSidesOverlay` (`match_sides_overlay.gd`) и
+  `side_swap_requested` удалены; оверлеев осталось два — Options и Game Plan.
+- Team Select больше не открывается на синтетических National Teams (217 команд): по умолчанию
+  выбирается первая реальная страна, а при возврате из хаба пара восстанавливается напрямую,
+  без предварительного листинга сборных. `_ready` экрана на клубной паре: ~750 → ~115 мс
+  (headless), клубная лига листается ~20 мс.
+- Скриншоты хаба: `sides` заменён на `exit_selected`; тест `check_match_hub_view` проверяет
+  `exit_requested`, а не sides-оверлей. PASS — `check_match_hub_view`, `check_prematch_ui`,
+  `check_prematch_exit`, `check_gpf_net_ui`, `check_ui_layout`.
+
+## [2026-11-04] fix | Team eligibility cache вместо медленного GDScript-подсчёта
+- Оригинал (`teamselect.cpp:AddTeams`) отдаёт SQLite один запрос с коррелированным
+  `count(*)` по `players.team_id`/`nationalteam_id`; C++-SQLite считает по индексам и листает
+  217 сборных быстро. Наш `SqliteReader` не исполняет SQL, поэтому обход индекса в GDScript
+  стоил ~3 мс на команду (National Teams — ~0.65 с).
+- `tools/build_team_eligibility.py` пишет `databases/default/team_eligibility.json` с готовыми
+  наборами `club`/`national` (>=11 игроков); `TeamCatalog.load_data_root` загружает файл и
+  фильтрует по множествам. Без файла остаётся прежний fallback. National Teams с кэшем —
+  ~64 мс (headless) вместо ~0.65 с, клубная лига — ~20 мс.
+
+## [2026-11-04] feat | Дефолтная пара Team Select: FC Barcelona vs Real Madrid
+- Без сохранённого `ShellState` локальный Team Select открывается на Spain/LaLiga с
+  `FC Barcelona` (1795) дома и `Real Madrid` (1794) в гостях. Если пары нет в базе или есть
+  сохранённый выбор, работает прежний путь: восстановление пары либо первая реальная страна.
+- Регресс в `check_team_select_ui`: проверяются id обоих дефолтных клубов.

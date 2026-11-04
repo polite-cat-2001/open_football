@@ -104,6 +104,32 @@ static func build() -> Theme:
 		UiTokens.SIZE_KIT_PREVIEW_TEAM, UiTokens.INK)
 	_label(theme, &"KitPreviewVs", _spaced_inter(600, 2), UiTokens.SIZE_KIT_PREVIEW_VS,
 		UiTokens.INK_2)
+	_label(theme, &"HubMeta", inter(600), UiTokens.SIZE_HUB_META, UiTokens.FOCUS_INK_2)
+	_label(theme, &"HubMetaStrong", inter(700), UiTokens.SIZE_HUB_META,
+		UiTokens.FOCUS_INK)
+	_label(theme, &"HubVenue", _spaced_barlow(700, 2), UiTokens.SIZE_HUB_VENUE,
+		UiTokens.FOCUS_INK_2)
+	_label(theme, &"HubTeamName", barlow(800), UiTokens.SIZE_HUB_TEAM, UiTokens.FOCUS_INK)
+	_label(theme, &"HubLineupNum", barlow(700), UiTokens.SIZE_HUB_LINEUP_NUM,
+		UiTokens.FOCUS_INK_2)
+	_label(theme, &"HubLineupName", barlow(700), UiTokens.SIZE_HUB_LINEUP_NAME,
+		UiTokens.FOCUS_INK)
+	_label(theme, &"HubLineupRole", _spaced_inter(700, 1),
+		UiTokens.SIZE_HUB_LINEUP_ROLE, UiTokens.FOCUS_INK_2)
+	_label(theme, &"HubCommandLabel", barlow(700), UiTokens.SIZE_HUB_COMMAND,
+		UiTokens.INK)
+	_label(theme, &"HubStatLabel", inter(600), UiTokens.SIZE_TEAM_STAT_LABEL,
+		UiTokens.FOCUS_INK_2)
+	_label(theme, &"HubStatValue", barlow(700), UiTokens.SIZE_TEAM_STAT_VALUE,
+		UiTokens.FOCUS_INK)
+	_label(theme, &"HubOptionLabel", inter(500), UiTokens.SIZE_HUB_OPTION,
+		UiTokens.FOCUS_INK)
+	_label(theme, &"HubOptionValue", barlow(700), UiTokens.SIZE_HUB_OPTION_VALUE,
+		UiTokens.FOCUS_MARK)
+	_label(theme, &"HubOptionStub", inter(500), UiTokens.SIZE_HUB_OPTION,
+		UiTokens.HUB_OPTION_STUB)
+	_label(theme, &"HubOptionTitle", barlow(800), UiTokens.SIZE_HUB_OPTION_TITLE,
+		UiTokens.FOCUS_INK)
 
 	_button(theme, &"TabButton", barlow(700), UiTokens.SIZE_TAB)
 

@@ -15,11 +15,12 @@ const SCREENS := [
 	"res://scenes/team_select.tscn",
 	"res://scenes/kit_select.tscn",
 	"res://scenes/ui/kit_select_view.tscn",
-	"res://scenes/prematch.tscn",
+	"res://scenes/ui/match_hub_view.tscn",
 	"res://scenes/ui_lab.tscn",
 ]
 const SIDE_FIXTURE := preload("res://tests/side_select_fixture.gd")
 const KIT_FIXTURE := preload("res://tests/kit_select_fixture.gd")
+const HUB_FIXTURE := preload("res://tests/match_hub_fixture.gd")
 
 var failures: Array[String] = []
 
@@ -86,6 +87,9 @@ func _check_screen(path: String, size: Vector2i) -> void:
 	if path.ends_with("kit_select_view.tscn"):
 		screen.call("setup", KIT_FIXTURE.state_1p(), {"back_label": "back"})
 		await _frames(3)
+	if path.ends_with("match_hub_view.tscn"):
+		screen.call("setup", HUB_FIXTURE.state_1p(), {"back_label": "back"})
+		await _frames(3)
 	if path.ends_with("kit_select.tscn"):
 		await _frames(6)
 
@@ -100,12 +104,6 @@ func _check_screen(path: String, size: Vector2i) -> void:
 			await _frames(2)
 		_check_layout(screen, Vector2(size), label + " state " + str(state))
 		_check_focus(screen, label + " state " + str(state))
-	if path.ends_with("prematch.tscn") and screen.has_method("_select_tab"):
-		screen.call("_select_tab", 3)
-		await _frames(3)
-		_check_layout(screen, Vector2(size), label + " gameplan")
-		_check_focus(screen, label + " gameplan")
-
 	viewport.queue_free()
 	await _frames(1)
 

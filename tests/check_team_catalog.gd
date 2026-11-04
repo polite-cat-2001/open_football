@@ -74,9 +74,15 @@ func _run() -> void:
 	_check(catalog.can_field_eleven(KNOWN_TEAM), "the known team can field eleven")
 	_check(not catalog.can_field_eleven(387),
 		"a team with fewer than eleven players is rejected on ready")
-	_check(catalog.teams_for_league(21).any(
+	_check(not catalog.teams_for_league(21).any(
 		func(team: Dictionary) -> bool: return int(team.get("id", 0)) == 387),
-		"listing does not probe every team's player count")
+		"listing filters teams that cannot field eleven")
+	var listed_fieldable := true
+	for team in catalog.teams_for_league(21):
+		if not catalog.can_field_eleven(int(team.get("id", 0))):
+			listed_fieldable = false
+			break
+	_check(listed_fieldable, "every listed team can field eleven")
 	var rating := catalog.load_team_rating(KNOWN_TEAM)
 	_check(not rating.is_empty(), "the selected team's rating is computed")
 	_check(float(rating.get("stars", 0.0)) >= 0.5 and float(rating.get("stars", 0.0)) <= 5.0,

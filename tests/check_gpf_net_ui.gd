@@ -12,7 +12,6 @@ const NETWORK_HOST := "res://scenes/network_host.tscn"
 const NETWORK_JOIN := "res://scenes/network_join.tscn"
 const SIDES_SCENE := "res://scenes/network_sides.tscn"
 const LOBBY_SCENE := "res://scenes/network_lobby.tscn"
-const OPTIONS_SCENE := "res://scenes/network_match_options.tscn"
 const PORT_FIRST := 28151
 const PORT_TRIES := 20
 const NET_SHELL := preload("res://scripts/net/net_shell.gd")
@@ -190,20 +189,36 @@ func _run() -> void:
 		await _tap_key(KEY_ENTER)
 		await _frames(10)
 
-	_check(current_scene != null and current_scene.name == "NetworkMatchOptions",
-		"the local kit step opens the match options")
+	_check(current_scene != null and current_scene.name == "NetworkMatchHub",
+		"the local kit step opens the network match hub")
 	var options := current_scene
-	if options != null and options.name == "NetworkMatchOptions":
-		_check(options.get("difficulty_slider") != null, "the options screen has difficulty")
-		_check(options.get("duration_slider") != null, "the options screen has duration")
-		_check(options.get("start_button") != null, "the options screen has Start match")
-		var difficulty: HSlider = options.get("difficulty_slider")
-		var start_button: Button = options.get("start_button")
-		difficulty.value = 0.9
-		await _frames(2)
-		NET_SHELL.action(self, "set_team_ready", 0, 1, 0)
-		NET_SHELL.action(self, "set_team_ready", 1, 1, 0)
-		options.call("_start_match")
+	if options != null and options.name == "NetworkMatchHub":
+		await _tap_key(KEY_ESCAPE)
+		await _frames(8)
+		_check(current_scene != null and current_scene.name == "NetworkKitSelect",
+			"Back from the network hub returns to the kit step")
+		if current_scene != null and current_scene.name == "NetworkKitSelect":
+			await _tap_key(KEY_ENTER)
+			await _frames(4)
+			await _tap_key(KEY_ENTER)
+			await _frames(10)
+		options = current_scene
+		_check(options != null and options.name == "NetworkMatchHub",
+			"the kit step returns to the network hub")
+		var hub_view: MatchHubView = options.get("view") if options != null else null
+		_check(hub_view != null, "the network hub mounts the shared MatchHubView")
+		_check(NET_SHELL.action(self, "set_team_ready", 0, 1, 0), "host team ready")
+		_check(NET_SHELL.action(self, "set_team_ready", 1, 1, 0), "away team ready")
+		await _frames(4)
+		if hub_view != null:
+			_check(not hub_view.command_cell(0).disabled, "host Start is enabled")
+			_check(hub_view.options_overlay.is_editable(), "host options are editable")
+			hub_view.options_overlay._sliders["difficulty"].set_value(0.9)
+			await _frames(8)
+			var lobby_now: Dictionary = NET_SHELL.lobby(self).get("lobby", {})
+			_check(absf(float(lobby_now.get("match_difficulty", 0.0)) - 0.9) < 0.001,
+				"the host difficulty reaches the lobby")
+		options.call("_start_host")
 		await _frames(12)
 
 	_check(current_scene != null and current_scene.name == "GpfSlice",

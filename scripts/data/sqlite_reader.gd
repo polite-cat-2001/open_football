@@ -106,9 +106,23 @@ func select_any(table_name: String, filters: Array, wanted: PackedStringArray = 
 	var resolved := _resolve_filters(columns, filters)
 	if resolved.is_empty():
 		return []
+	var rowid_alias := int(info.get("rowid_alias", -1))
+	# INTEGER PRIMARY KEY is stored as NULL in the payload; the rowid is the
+	# value. Query it through the b-tree instead of scanning the whole table.
+	if resolved.size() == 1 and rowid_alias >= 0 and int(resolved[0]["index"]) == rowid_alias:
+		var raw_value = resolved[0]["value"]
+		var rowid := -1
+		if typeof(raw_value) == TYPE_INT:
+			rowid = int(raw_value)
+		elif typeof(raw_value) == TYPE_STRING and str(raw_value).is_valid_int():
+			rowid = int(str(raw_value))
+		if rowid > 0:
+			var row = _find_row_by_rowid(int(info["root_page"]), rowid, columns, wanted,
+				rowid_alias)
+			return [] if row == null else [row]
 	var rows: Array = []
 	if not _walk_table(int(info["root_page"]), rows, columns, wanted,
-			int(info.get("rowid_alias", -1)), resolved, Callable(), {}):
+			rowid_alias, resolved, Callable(), {}):
 		return []
 	return rows
 
@@ -134,6 +148,23 @@ func select_indexed(table_name: String, column: String, value, wanted: PackedStr
 		if row != null:
 			rows.append(row)
 	return rows
+
+
+func count_index_values(table_name: String, column: String) -> Dictionary:
+	# One pass over the whole index: value -> row count. Used by the team
+	# picker to filter every team in a large league without re-walking the
+	# players index for each one. Returns {} when the column has no index.
+	error = ""
+	if _table_info(table_name).is_empty():
+		return {}
+	var index_name := str(_index_lookup.get(table_name, {}).get(column, ""))
+	if index_name.is_empty():
+		return {}
+	var index: Dictionary = _indexes[index_name]
+	var counts := {}
+	if not _walk_index_counts(int(index["root_page"]), counts, {}):
+		return {}
+	return counts
 
 
 func count_indexed(table_name: String, column: String, value) -> int:
@@ -444,6 +475,36 @@ func _find_row_by_rowid(root_page: int, rowid: int, columns: PackedStringArray,
 		error = "page %d is not a table b-tree page (flags %d)" % [page_no, flags]
 		return null
 	return null
+
+
+func _walk_index_counts(page_no: int, counts: Dictionary, visited: Dictionary) -> bool:
+	if visited.has(page_no):
+		return true
+	visited[page_no] = true
+	var page := _read_page(page_no)
+	if page.is_empty():
+		error = "index page %d is out of range" % page_no
+		return false
+	var flags := page[0]
+	var cell_count := _u16(page, 3)
+	if flags == INDEX_LEAF:
+		for i in cell_count:
+			var offset := _u16(page, 8 + i * 2)
+			var payload = _read_index_leaf_payload(page, offset)
+			if payload == null:
+				return false
+			var entry := _index_entry(payload)
+			var key = entry[0]
+			counts[key] = int(counts.get(key, 0)) + 1
+		return true
+	if flags != INDEX_INTERIOR:
+		error = "page %d is not an index b-tree page (flags %d)" % [page_no, flags]
+		return false
+	for i in cell_count:
+		var offset := _u16(page, 12 + i * 2)
+		if not _walk_index_counts(_u32(page, offset), counts, visited):
+			return false
+	return _walk_index_counts(_u32(page, 8), counts, visited)
 
 
 func _compare_keys(a, b) -> int:

@@ -17,9 +17,13 @@
   (`scenes/ui/kit_select_view.tscn`): 4 комплекта на сторону, карусель и статичное 3D-превью
   матча. Локальный адаптер — `KitCatalog`/`ShellState`, сетевой — снапшот лобби (киты локальные,
   не синхронизируются).
-- Остальной шелл (`prematch`, `squad`, `network_menu`, `network_host/join` и т.д.)
-  и in-match UI пока живут по-старому. Kit больше не вкладка прематча: экран стоит между
-  Team Select и PreMatch.
+- **Предматчевый хаб** — `prematch` и `network_match_hub` через общий `MatchHubView`
+  (`scenes/ui/match_hub_view.tscn`): две колонки стартовых составов, scoreboard, четыре
+  command-ячейки, полноэкранные Game Plan / Options оверлеи. Поток:
+  Team Select → Kit Select → Match Hub. Локальный адаптер собирает пакет, сетевой — снапшот
+  лобби.
+- Остальной шелл (`squad`, `network_menu`, `network_host/join` и т.д.)
+  и in-match UI пока живут по-старому.
 - **Тема не глобальная**: `ui_theme.tres` назначается на корень экрана, а не через
   `gui/theme/custom`. Поэтому HUD, пауза и серия пенальти не меняются, пока их не переведут отдельно.
 - UI меню — **английский**; русские строки in-match остаются на дефолтном шрифте.
@@ -63,6 +67,16 @@ scripts/ui/kit_preview_3d.gd — статичная сцена поля и 22 т
 scripts/data/kit_catalog.gd  — чтение `databases/default/kits.json` + fallback
 scripts/data/kit_texture.gd  — kit spec → kit-shader на UV-атласе тела
 shaders/kit_uv.gdshader      — перекраска UV-маски + паттерн формы
+scripts/ui/match_hub_view.gd — общий предматчевый хаб (состояние + сигналы)
+scenes/ui/match_hub_view.tscn — сцена MatchHubView (колонки/scoreboard/command/оверлеи)
+scripts/ui/hub_lineup_column.gd — колонка 11 стартовых (номер/фамилия/роль/капитан)
+scripts/ui/hub_scoreboard.gd — scoreboard: мета, два клуба, гербы, звёзды, ATT/MID/DEF
+scripts/ui/hub_command_cell.gd — command-ячейка (фокус/hover/клик)
+scripts/ui/match_options_overlay.gd — duration/difficulty + заглушки Stadium/Weather/Camera/System
+scripts/ui/hub_value_slider.gd — слайдер дизайн-системы для Options
+scripts/ui/match_hub_state.gd — общие снапшот-хелперы локального и сетевого адаптеров
+scripts/ui/prematch.gd       — локальный адаптер MatchHubView
+scripts/ui/network_match_hub.gd — сетевой адаптер MatchHubView
 tools/import_prototype_kits.py — specs прототипа → `databases/default/kits.json`
 tools/build_ui_theme.gd      — пересборка ui_theme.tres
 shaders/ui_scrim.gdshader    — три слоя затемнения фона
@@ -153,7 +167,7 @@ ready или назад. `UiNav.last_device_id()`/`last_input_gamepad()` раз�
 
 - `scripts/ui/controller_select.gd` — `InputSetup.available_devices()` + `ShellState.controllers`;
   одинокий keyboard стартует home, несколько устройств — в центре; ready требуется от каждой
-  не-центральной строки; коммит пишет `ShellState.controllers` и ведёт в Team Select/Prematch
+  не-центральной строки; коммит пишет `ShellState.controllers` и всегда ведёт в Team Select
   через `UiTransition`. **Hot-plug:** `Input.joy_connection_changed` → `_sync_participants()`:
   новый геймпад появляется в центре, отключённый исчезает, существующие строки сохраняют
   side/ready. Порядок строк сверху вниз — порядок подключения (клавиатура первая, новые
@@ -198,6 +212,9 @@ Ready-модель «как в прототипе»: отдельного Ready-
 home — снимает ready home и возвращает на home; иначе — назад/выход. В сети ready-панель
 принадлежит своему chooser-слоту.
 
+Без сохранённого выбора локальный экран открывается на **FC Barcelona vs Real Madrid**
+(Spain/LaLiga); при возврате из хаба восстанавливает прежнюю пару.
+
 Фокус: `Up/Down` двигает блок внутри панели (кладём: country → team → competition),
 `Left/Right` меняет значение выбранного блока (зациклено). В 1P активна одна панель, вторая
 видна приглушённой; в 2P каждое устройство правит свою. В сети локальный игрок правит только
@@ -230,10 +247,10 @@ team{...}, rating{stars,attack,midfield,defence}}` плюс `status/status_error
 Адаптеры:
 
 - `scripts/ui/team_select.gd` — lazy `TeamCatalog`, индексы country/league/team, восстановление
-  выбранных команд из `ShellState`, 1P home → CPU away и 2P parallel, ready обеих → прематч.
+  выбранных команд из `ShellState`, 1P home → CPU away и 2P parallel, ready обеих → Kit Select.
 - `scripts/ui/network_lobby.gd` — снапшот лобби, `set_selection(side, kind, index)` /
   `set_team_ready`, seed дефолтов, имена/`YOU`, disconnect/join статусы, phase 0 → sides,
-  phase 2 → options. Раскладка и ввод в адаптерах не дублируются.
+  phase 2 → Kit Select → Match Hub. Раскладка и ввод в адаптерах не дублируются.
 
 ## Выбор форм
 
@@ -285,10 +302,65 @@ chooser-слоты, `Tab`/LB-RB переключает панель, если о
 Адаптеры:
 
 - `scripts/ui/kit_select.gd` — локальный: `KitCatalog` + `ShellState.home/away_team`, дефолтные
-  индексы 0/1, 1P home→away и 2P parallel, ready обеих → PreMatch.
+  индексы 0/1, 1P home→away и 2P parallel, ready обеих → Match Hub.
 - `scripts/ui/network_kit_select.gd` — сетевой: снапшот лобби (`chooser`, имена), локальные
   ready-слоты, `backtoteams` при выходе; после локального ready открывает
-  `network_match_options` (phase 2 не меняется). Киты не синхронизируются — решение владельца.
+  `network_match_hub` (phase 2 не меняется). Киты не синхронизируются — решение владельца;
+  Back из хаба возвращает на этот же экран, не меняя фазу.
+
+## Предматчевый хаб (MatchHubView)
+
+Сцена: `scenes/ui/match_hub_view.tscn` (`MatchHubView`) — `Stage` → `Design` 1920×1080 →
+`PanelWrap` (группа `ui_transition_target`) → `HubTop` (HomeLineup / Scoreboard / AwayLineup) +
+`Command` + `Status` + `Legend`; полноэкранные оверлеи — `Design/Overlay` (Options,
+Game Plan). Шапки нет, как в прототипе; фон не анимируется.
+
+Геометрия (design space): панель 1480; хаб 680 = top 530 + gap 40 + command 110; колонки
+составов 362.5, scoreboard 735, gap 10; command-ячейки 362.5×110. Составы — 11 строк с
+номером слота, фамилией (при одинаковых фамилиях — инициал), ролью и меткой капитана; `GK`
+рисуется инвертированной плашкой. Scoreboard: мета-строка (лига/`FRIENDLY`/`INTERNATIONAL`,
+difficulty, длительность), два клуба с гербом (или white `shirt`-глифом), звёздами
+(`TeamStars`) и ATT/MID/DEF. Command-ячейки: `START MATCH`, `TEAM MANAGEMENT`, `MATCH OPTIONS`,
+`EXIT`; фокус — инверсия в `FOCUS_FILL`, выбранная ячейка scale 1.008, глиф
+`RAIL`, невыбранный — тёмный `INK`.
+
+Шов: `setup(state, options)` / `apply_state(state)`; состояние — `meta`, `sides` (team,
+crest texture, rating, kit, device, owner, 11 lineup rows), `options`, `flags`
+(`can_start`, `can_manage`, `can_options`, `network`, `host`,
+`client`, `local_two_player`, `start_label`, `start_votes`, `start_votes_needed`),
+`status/status_error`. Сигналы: `start_requested(input)`, `back_requested(input)`,
+`game_plan_requested`, `lineup_changed`, `option_changed(field, value)`,
+`exit_requested`. Вью не меняет данные: адаптер возвращает новый снапшот.
+
+Экраны потока: `scenes/prematch.tscn` (локальный адаптер) и
+`scenes/network_match_hub.tscn` (сетевой). Локально 1P Start собирает `MatchPackage` и
+открывает `gpf_slice`; в 2P каждое локальное устройство голосует Start, повторное нажатие/Back
+отзывает голос, статус `START x/y`. Сеть: host правит duration/difficulty (`set_match_options`)
+и стартует (`NetworkMatch.build_package` + `runtime.net_start()`); client видит read-only
+options/Start `WAITING FOR HOST`, ждёт `MatchSetup`. Back из хаба → Kit Select (в сети — та же
+фаза 2), Back из китов → Teams.
+
+Оверлеи: `MATCH OPTIONS` — два слайдера + disabled-заглушки Stadium/Weather/Camera/System
+с чипом `SOON`; в сети редактирует только host. `EXIT` выходит в главное меню (в сети
+предварительно закрывает LAN-сессию). `TEAM MANAGEMENT` открывает существующий
+`GpfGamePlan` полноэкранно; правки `MatchLineup` сразу обновляют колонки, закрытие возвращает
+фокус на ячейку.
+
+Ввод — только `UiNav`: Left/Right и Tab/LB-RB листают command-ячейки, A/Enter активирует,
+B/Esc — назад/закрывает оверлей, Up/Down в Options выбирают строку, Left/Right меняют
+значение; в Game Plan действия маршрутизируются в `GpfGamePlan.handle_ui_action`, `X`
+отменяет замену. Мышь работает: hover/click по command-ячейкам, слайдеры,
+клик по скриму закрывает оверлей.
+
+Адаптеры:
+
+- `scripts/ui/prematch.gd` — `TeamCatalog`/`ShellState`, `MatchLineup.from_squad`, рейтинги,
+  `KitCatalog` defaults; 1P/2P start vote; `MatchPackage`; Game Plan; Exit → main menu;
+  Back → Kit.
+- `scripts/ui/network_match_hub.gd` — снапшот лобби (`NET_SHELL.lobby`), host-only options и
+  Start, client `net_take_match_setup` + `NetworkMatch.apply_setup`, Back → Network Kit,
+  Exit → main menu (с `net_leave`), disconnect → Network Menu. Game Plan локальный, правки
+  состава не синхронизируются.
 
 ## Ввод (UiNav)
 
@@ -365,6 +437,10 @@ godot --headless --path . -s res://tests/check_team_select_ui.gd
 godot --headless --path . -s res://tests/check_kit_select_view.gd
 godot --headless --path . -s res://tests/check_kit_select_ui.gd
 godot --headless --path . -s res://tests/check_kit_texture.gd
+godot --headless --path . -s res://tests/check_match_hub_view.gd
+godot --headless --path . -s res://tests/check_prematch_ui.gd
+godot --headless --path . -s res://tests/check_prematch_vote.gd
+godot --headless --path . -s res://tests/check_prematch_exit.gd
 godot --headless --path . -s res://tests/check_ui_layout.gd
 ```
 
@@ -385,10 +461,20 @@ godot --headless --path . -s res://tests/check_ui_layout.gd
   панель/карусель/точки/ready, focus и ready-состояния, один комплект, 2P-геймпад, Tab,
   error/retry, scale 2/3.
 - `check_kit_select_ui` — реальный локальный путь: `kits.json` и `tm_id`, дефолтные main/white,
-  Left/Right, ready home → away, ready away → PreMatch, `ShellState.kit_*` и `package.team.kit`,
+  Left/Right, ready home → away, ready away → Match Hub, `ShellState.kit_*` и `package.team.kit`,
   Esc → Team Select.
 - `check_kit_texture` — данные и матч-путь: `TeamCatalog.tm_id`, импортированные спеки, fallback
   из цветов, kit-shader на `gpf_kit` реального `gpf_fullbody` и CPU-атлас из `texture_for`.
+- `check_match_hub_view` — общий MatchHubView с фикстурой: геометрия 1480/680/530/110,
+  колонки 362.5/735, 11 строк, звёзды, command-ячейки, UiNav+мышь, Options/Exit, 2P
+  vote, client read-only, scale 2/3.
+- `check_prematch_ui` — локальный путь: scoreboard/колонки из каталога, Back → Kit, Options →
+  `ShellState`, Game Plan → правка состава → пакет → runtime, Start → `gpf_slice`.
+- `check_prematch_vote` — 2P: голос устройства, повторное нажатие отзывает, матч стартует только
+  когда проголосовали все локальные устройства.
+- `check_prematch_exit` — четвёртая ячейка `EXIT` возвращает в главное меню.
+- `check_gpf_net_ui` — LAN-путь теперь идёт через `NetworkMatchHub`: host options/Start,
+  client ждёт `MatchSetup` (в одном процессе — host-плечо).
 - Скриншоты главного меню: `.scratch/ui_shots/main_menu_{play,panel,gamepad}_1920x1080.png`
   (генерируются временным скриптом; в `capture_ui_shots.gd` состояния меню ещё не добавлены).
 - Скриншоты выбора сторон: `.scratch/ui_shots/side_select_{1p,2p,ready,network,network_resume}_{1920x1080,1280x720}.png`
@@ -400,21 +486,31 @@ godot --headless --path . -s res://tests/check_ui_layout.gd
 - Скриншоты выбора форм: `.scratch/ui_shots/kit_select_{local_1p_home,local_1p_away,local_2p,network,network_ready,one_kit,error,real}_{1920x1080,1280x720}.png`
   — `godot --path . -s res://tests/capture_kit_select_shots.gd` (фикстуры —
   `tests/kit_select_fixture.gd`; `real` — Barcelona/Real Madrid с imported kit specs).
+- Скриншоты хаба: `.scratch/ui_shots/match_hub_{local_1p,local_2p,network_host,network_client,game_plan,options,exit_selected}_{1920x1080,1280x720}.png`
+  — `godot --path . -s res://tests/capture_match_hub_shots.gd` (фикстура —
+  `tests/match_hub_fixture.gd`).
 
 ## Известные ограничения
 
-- Главное меню, выбор сторон, выбор команд и выбор форм переведены; прематч, состав, сетевые
-  меню и in-match UI пока живут по-старому. Kit из прематча убран — экран стоит отдельным шагом.
+- Главное меню, выбор сторон, выбор команд, выбор форм и предматчевый хаб переведены; состав,
+  сетевые меню и in-match UI пока живут по-старому. Kit стоит отдельным шагом перед хабом.
 - На выборе сторон **мышь инертна** (решение владельца): нет кликов по половинам устройства,
   ready-галочке или back. Ready/back — только клавиатура (`Enter`/`Esc`) и геймпад (`A`/`B`).
   На выборе команд и форм мышь тоже инертна, а `V` (состав) убран.
-- На выборе команд и форм нет шапки (как в прототипе); уровни читаются по блокам/панелям.
+- На выборе команд, форм и хабе нет шапки (как в прототипе); уровни читаются по блокам/панелям.
+- В сетевом хабе Game Plan доступен локально, но правки состава не синхронизируются (как формы);
+  пакет LAN по-прежнему строится из дефолтных составов. EXIT закрывает LAN-сессию и возвращает
+  в главное меню.
+- Команды с <11 игроками не попадают в список Team Select (`can_field_eleven` через
+  `players.team_id`/`nationalteam_id` индексы или готовый `team_eligibility.json`); хаб получает
+  только валидные составы и не имеет
+  собственного error-состояния.
 - 3D-превью форм — статичный диорама-снимок без стадиона и без симуляции; это не полноценный
   рендер матча. Камера подобрана так, чтобы за кромкой поля был газон, а не пустота.
 - В сети киты не синхронизируются: каждый участник выбирает свои chooser-слоты локально, поэтому
   у разных пиров матч может выглядеть в разных формах (решение владельца). Отдельного kit-ready в
-  лобби нет: host стартует из Options, не дожидаясь, пока клиент закончит локальный Kit Select
-  (так же, как раньше с Options).
+  лобби нет: host стартует из хаба, не дожидаясь, пока клиент закончит локальный Kit Select;
+  Back из хаба возвращает на Kit Select в той же фазе 2.
 - Рейтинги/звёзды считаются из состава только выбранных команд; у команд без логотипа показывается
   глиф-заглушка, у стран без флага — `globe`.
 - `UiMenuPanel.setup` рассчитан на короткие note-строки без автопереноса; длинный текст надо

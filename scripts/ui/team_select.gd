@@ -9,6 +9,9 @@ const UI_ASSETS := preload("res://scripts/data/ui_assets.gd")
 const FIELD_COUNTRY := "country"
 const FIELD_COMPETITION := "competition"
 const FIELD_TEAM := "team"
+# Default Quick Match pairing: FC Barcelona vs Real Madrid.
+const DEFAULT_HOME_TEAM_ID := 1795
+const DEFAULT_AWAY_TEAM_ID := 1794
 
 @export var data_root := ""
 
@@ -78,17 +81,30 @@ func _load_catalog() -> void:
 		_clear_entries()
 		_refresh()
 		return
-	var default_country := 0 if national_league_id >= 0 else mini(1, country_entries.size() - 1)
+	# National Teams is the synthetic first entry; opening on it would list 217
+	# teams and pay the eligibility filter. Start on the first real country and
+	# restore a previous pair directly, without listing National Teams first.
+	var default_country := 1 if national_league_id >= 0 and country_entries.size() > 1 else 0
 	for side in sides:
 		side["country_index"] = default_country
 		side["league_index"] = 0
 		side["team_index"] = 0
 		side["ready"] = false
-		_apply_country(side)
+		side["league_entries"] = []
+		side["team_entries"] = []
 	# Returning from the pre-match hub restores the teams each side had.
 	if ShellState.has_selection():
 		_restore_team(0, int(ShellState.home_team.get("id", 0)))
 		_restore_team(1, int(ShellState.away_team.get("id", 0)))
+	else:
+		_restore_team(0, DEFAULT_HOME_TEAM_ID)
+		_restore_team(1, DEFAULT_AWAY_TEAM_ID)
+		for side in sides:
+			if (side["team_entries"] as Array).is_empty():
+				side["country_index"] = default_country
+				side["league_index"] = 0
+				side["team_index"] = 0
+				_apply_country(side)
 	_resolve_devices()
 	_apply_live_flags()
 	_refresh()

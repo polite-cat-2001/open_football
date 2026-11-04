@@ -104,8 +104,10 @@ Godot-экран обязан пройти ту же матрицу; скрин�
 - Выбор команд снимается отдельно: `godot --path . -s res://tests/capture_team_select_shots.gd`
   (`team_select_{local_1p_home,local_1p_away,local_2p,network,network_ready,error,real,real_club,real_club_competition}_<WxH>.png`);
   формы — `godot --path . -s res://tests/capture_kit_select_shots.gd`
-  (`kit_select_{local_1p_home,local_1p_away,local_2p,network,network_ready,one_kit,error,real}_<WxH>.png`).
-- Именование: `main_menu_1920x1080.png`, `prematch_gameplan_1280x720.png`,
+  (`kit_select_{local_1p_home,local_1p_away,local_2p,network,network_ready,one_kit,error,real}_<WxH>.png`);
+  хаб — `godot --path . -s res://tests/capture_match_hub_shots.gd`
+  (`match_hub_{local_1p,local_2p,network_host,network_client,game_plan,options,exit_selected}_<WxH>.png`).
+- Именование: `main_menu_1920x1080.png`, `match_hub_game_plan_1280x720.png`,
   `ui_lab_kickoff_1920x1080.png`, `ui_lab_half_time_...`, `ui_lab_game_plan_...`,
   `ui_lab_game_plan_2p_...`, `ui_lab_game_plan_tactics_...`, `ui_lab_game_plan_roles_...`,
   `ui_lab_substitution_...`, `ui_lab_card_...`, `ui_lab_goal_...`,

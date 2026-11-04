@@ -297,6 +297,34 @@ func handle_joy_motion(event: InputEventJoypadMotion) -> bool:
 	return _handle_panel(panel_index, direction, false, false)
 
 
+func handle_ui_action(action: String, device: int = -1) -> bool:
+	# Shell screens route UiNav into the plan; the raw InputEvent handlers above
+	# stay for the match pause menu and the existing tests.
+	if not is_open():
+		return false
+	var panel_index := _panel_for_device(device) if device >= 0 else _panel_for_keyboard()
+	if panel_index < 0:
+		return false
+	match action:
+		"left":
+			return _handle_panel(panel_index, Vector2i(-1, 0), false, false)
+		"right":
+			return _handle_panel(panel_index, Vector2i(1, 0), false, false)
+		"up":
+			return _handle_panel(panel_index, Vector2i(0, -1), false, false)
+		"down":
+			return _handle_panel(panel_index, Vector2i(0, 1), false, false)
+		"confirm":
+			return _handle_panel(panel_index, Vector2i.ZERO, true, false)
+		"cancel":
+			return _handle_panel(panel_index, Vector2i.ZERO, false, true)
+		"cancel_sub":
+			return _handle_panel(panel_index, Vector2i.ZERO, false, false, true)
+		"bench":
+			return _toggle_bench(panel_index)
+	return false
+
+
 func _build_chrome() -> void:
 	if _built:
 		return

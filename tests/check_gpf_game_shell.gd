@@ -58,19 +58,24 @@ func _press_start(menu: Node) -> void:
 		# A lone keyboard starts on home; Enter confirms it and commits.
 		await _tap_key(KEY_ENTER)
 		await _frames(3)
-	# With teams already picked, the controller screen goes through the kit
-	# screen before the prematch hub.
+	# Side select always hands over to Team Select; the restored pair is
+	# confirmed with two Enter presses (home, then CPU away).
+	if current_scene != null and current_scene.name == "TeamSelect":
+		await _tap_key(KEY_ENTER)
+		await _frames(3)
+		await _tap_key(KEY_ENTER)
+		await _frames(8)
 	if current_scene != null and current_scene.name == "KitSelect":
 		await _tap_key(KEY_ENTER)
 		await _frames(3)
 		await _tap_key(KEY_ENTER)
 		await _frames(3)
 	if current_scene != null and current_scene.name == "Prematch":
-		var kick_off := current_scene.get("start_button") as Button
-		if kick_off == null:
-			failures.append("prematch has no Kick Off button")
+		var hub: MatchHubView = current_scene.get("view")
+		if hub == null:
+			failures.append("prematch has no shared match hub")
 			return
-		kick_off.pressed.emit()
+		hub.command_cell(0).pressed.emit()
 		await _frames(4)
 
 
