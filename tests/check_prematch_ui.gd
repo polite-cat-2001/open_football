@@ -1,6 +1,6 @@
 extends SceneTree
 # Headless UI check for the ported pre-match hub: header, seven PES-style tabs,
-# kick-off lineups, options sliders, kit selectors, the lineup editor overlay,
+# kick-off lineups, options sliders, the lineup editor overlay,
 # and the package/runtime handoff.
 #
 # Run:  godot --headless --path . -s res://tests/check_prematch_ui.gd
@@ -60,12 +60,12 @@ func _run() -> void:
 		and header.text.contains(str(away.get("name", ""))),
 		"the header shows both teams")
 	var tabs: Array = screen.get("tab_buttons")
-	_check(tabs.size() == 7, "the hub has the original seven tabs")
-	_check(int(screen.get("active_tab")) == 2, "the hub starts on Kick-off")
+	_check(tabs.size() == 6, "the hub has six tabs after Kit moved to its own screen")
+	_check(int(screen.get("active_tab")) == 1, "the hub starts on Kick-off")
 	# Keyboard/gamepad entry: the active tab owns focus, and Down enters content.
 	var focus_owner := screen.get_viewport().gui_get_focus_owner()
-	_check(focus_owner == tabs[2], "the active Kick-off tab owns focus on entry")
-	var first_content: Control = screen.call("_first_focusable", screen.get("content_views")[2])
+	_check(focus_owner == tabs[1], "the active Kick-off tab owns focus on entry")
+	var first_content: Control = screen.call("_first_focusable", screen.get("content_views")[1])
 	_check(first_content == screen.get("edit_lineups_button"),
 		"the first focusable in Kick-off is Edit lineups")
 	var down := InputEventKey.new()
@@ -85,7 +85,7 @@ func _run() -> void:
 	_check(game_plan != null, "the game plan screen is ported into the hub")
 
 	# Options tab: sliders land in the shell state.
-	screen.call("_select_tab", 4)
+	screen.call("_select_tab", 3)
 	var duration: HSlider = screen.get("duration_slider")
 	var difficulty: HSlider = screen.get("difficulty_slider")
 	_check(duration != null and difficulty != null, "the Options tab has both sliders")
@@ -98,28 +98,14 @@ func _run() -> void:
 		_check(float(ShellState.match_options.get("difficulty", -1)) == 0.6,
 			"the chosen difficulty lands in the shell state")
 
-	# Kit tab: the selected kit lands in the shell state.
-	screen.call("_select_tab", 0)
-	var kits: Array = screen.get("kit_options")
-	_check(kits.size() == 2 and kits[0].item_count >= 2,
-		"the Kit tab offers a strip for each side")
-	if kits.size() == 2 and kits[0].item_count >= 2:
-		var kit_index: int = int(kits[0].item_count) - 1
-		kits[0].select(kit_index)
-		kits[0].item_selected.emit(kit_index)
-		await _frames(1)
-		var chosen := int(kits[0].get_item_metadata(kit_index))
-		_check(int(ShellState.match_options.get("kit_home", -1)) == chosen,
-			"the chosen home kit lands in the shell state")
-
 	# Kick-off lineups: edit a starter through the Game plan tab, then build the package.
-	screen.call("_select_tab", 2)
+	screen.call("_select_tab", 1)
 	var edit_button := screen.get("edit_lineups_button") as Button
 	_check(edit_button != null, "the Kick-off tab offers the lineups editor")
 	if edit_button != null:
 		edit_button.pressed.emit()
 		await _frames(2)
-		_check(int(screen.get("active_tab")) == 3 and game_plan != null and game_plan.is_open(),
+		_check(int(screen.get("active_tab")) == 2 and game_plan != null and game_plan.is_open(),
 			"Edit lineups opens the Game plan tab")
 
 	var home_lineup: MatchLineup = screen.get("home_lineup")
@@ -134,7 +120,7 @@ func _run() -> void:
 	screen.call("_on_lineups_changed")
 	screen.call("_close_lineups")
 	await _frames(2)
-	_check(int(screen.get("active_tab")) == 2, "the game plan returns to Kick-off")
+	_check(int(screen.get("active_tab")) == 1, "the game plan returns to Kick-off")
 	_check((screen.get("home_name_labels")[EDITED_SLOT] as Label).text.contains(promoted_name),
 		"the Kick-off list follows the edited lineup")
 
@@ -152,6 +138,14 @@ func _run() -> void:
 		"the package carries the chosen difficulty")
 	_check(int(package["home"]["players"][EDITED_SLOT]["database_id"]) == promoted,
 		"the edited starter reaches the package")
+	var kit_catalog := KitCatalog.new()
+	kit_catalog.load_data_root(DATA_ROOT)
+	var home_kit := kit_catalog.default_kit(home, 0)
+	var expected_away := kit_catalog.default_away_kit(away, home_kit)
+	_check(str(package["home"].get("kit", {}).get("id", "")) == "main",
+		"the package defaults the home kit to main")
+	_check(str(package["away"].get("kit", {}).get("id", "")) == str(expected_away.get("id", "")),
+		"the package defaults the most contrasting away kit")
 
 	start_button.grab_focus()
 	var joy_accept := InputEventJoypadButton.new()

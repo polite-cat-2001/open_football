@@ -22,7 +22,7 @@ const COUNTRY_COLUMNS := ["id", "name", "tm_id"]
 const LEAGUE_COLUMNS := ["id", "name", "country_id", "tier", "logo_url"]
 const TEAM_COLUMNS := [
 	"id", "league_id", "name", "shortname", "color1", "color2",
-	"logo_url", "kit_url",
+	"logo_url", "kit_url", "tm_id",
 ]
 
 var error := ""
@@ -405,6 +405,7 @@ func _team_from_row(row: Dictionary) -> Dictionary:
 		"color2": _text(row.get("color2")),
 		"logo_url": _text(row.get("logo_url")),
 		"kit_url": _text(row.get("kit_url")),
+		"tm_id": _text(row.get("tm_id")),
 	}
 
 

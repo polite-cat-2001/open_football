@@ -3,7 +3,7 @@ extends Control
 # indices and the 1P/2P ready flow live here; layout and input live in the view.
 
 const CONTROLLER_SELECT_SCENE := "res://scenes/controller_select.tscn"
-const PREMATCH_SCENE := "res://scenes/prematch.tscn"
+const KIT_SELECT_SCENE := "res://scenes/kit_select.tscn"
 const UI_ASSETS := preload("res://scripts/data/ui_assets.gd")
 
 const FIELD_COUNTRY := "country"
@@ -418,7 +418,7 @@ func _go_prematch() -> void:
 		return
 	_leaving = true
 	ShellState.set_teams(home, away)
-	UiTransition.change_scene(PREMATCH_SCENE)
+	UiTransition.change_scene(KIT_SELECT_SCENE)
 
 
 func _leave() -> void:

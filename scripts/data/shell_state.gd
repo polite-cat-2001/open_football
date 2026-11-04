@@ -10,8 +10,6 @@ extends RefCounted
 const DEFAULT_MATCH_OPTIONS := {
 	"duration": 1.0,
 	"difficulty": 0.8,
-	"kit_home": 1.0,
-	"kit_away": 2.0,
 }
 const DEFAULT_CONTROLLERS := [
 	{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
@@ -22,6 +20,10 @@ static var away_team: Dictionary = {}
 static var preview_team: Dictionary = {}
 static var match_options: Dictionary = DEFAULT_MATCH_OPTIONS.duplicate(true)
 static var match_package: Dictionary = {}
+# Selected kits, one kit spec per side (see KitCatalog). They are not part of
+# match_options because options are numeric sliders; kits are dictionaries.
+static var kit_home: Dictionary = {}
+static var kit_away: Dictionary = {}
 # One entry per local human: which side they play and which device they use.
 # 1P today; the array shape is what the local-2P ticket extends. The default is
 # a fallback for flows that skip the controller select screen; it is not a
@@ -33,7 +35,28 @@ static var controllers_configured := false
 static func set_teams(home: Dictionary, away: Dictionary) -> void:
 	home_team = home.duplicate(true)
 	away_team = away.duplicate(true)
+	kit_home.clear()
+	kit_away.clear()
 	match_package.clear()
+
+
+static func set_kit(side: int, kit: Dictionary) -> void:
+	if side == 0:
+		kit_home = kit.duplicate(true)
+	elif side == 1:
+		kit_away = kit.duplicate(true)
+
+
+static func kit_for(side: int) -> Dictionary:
+	if side == 0:
+		return kit_home
+	if side == 1:
+		return kit_away
+	return {}
+
+
+static func has_kits() -> bool:
+	return not kit_home.is_empty() and not kit_away.is_empty()
 
 
 static func set_preview_team(team: Dictionary) -> void:
@@ -83,6 +106,8 @@ static func clear() -> void:
 	away_team.clear()
 	preview_team.clear()
 	match_options = DEFAULT_MATCH_OPTIONS.duplicate(true)
+	kit_home.clear()
+	kit_away.clear()
 	match_package.clear()
 	controllers = DEFAULT_CONTROLLERS.duplicate(true)
 	controllers_configured = false

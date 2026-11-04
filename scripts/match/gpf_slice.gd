@@ -85,6 +85,7 @@ func _ready() -> void:
 		runtime.start_runtime_now()
 	_configure_input()
 	actors.setup(runtime)
+	actors.set_match_kits(ShellState.match_package)
 	environment_view.setup(runtime, $Sun, $FillLight)
 	goal_nets.setup(runtime, environment_view)
 	camera_rig.setup(camera, actors)

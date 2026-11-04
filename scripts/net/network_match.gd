@@ -8,7 +8,7 @@ static var error := ""
 
 
 static func build_package(team_ids: Array, options: Dictionary,
-		data_root: String = "") -> Dictionary:
+		data_root: String = "", kits: Dictionary = {}) -> Dictionary:
 	error = ""
 	if team_ids.size() != 2:
 		error = "Network match needs two team ids."
@@ -30,7 +30,9 @@ static func build_package(team_ids: Array, options: Dictionary,
 		return {}
 
 	var builder := MatchPackage.new()
-	var package := builder.build_from_ids(catalog, home_id, away_id, options)
+	if kits.is_empty():
+		kits = {"home": ShellState.kit_home, "away": ShellState.kit_away}
+	var package := builder.build_from_ids(catalog, home_id, away_id, options, {}, kits)
 	if package.is_empty():
 		error = builder.error if not builder.error.is_empty() else "Network match package failed."
 		return {}

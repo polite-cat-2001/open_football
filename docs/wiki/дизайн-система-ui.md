@@ -13,9 +13,13 @@
 - **Выбор команд** — `team_select` и `network_lobby` через общий `TeamSelectView`
   (`scenes/ui/team_select_view.tscn`); локальный адаптер — `TeamCatalog`/`ShellState`, сетевой —
   снапшот лобби + `NET_SHELL.action(...)`.
+- **Выбор форм** — `kit_select` и `network_kit_select` через общий `KitSelectView`
+  (`scenes/ui/kit_select_view.tscn`): 4 комплекта на сторону, карусель и статичное 3D-превью
+  матча. Локальный адаптер — `KitCatalog`/`ShellState`, сетевой — снапшот лобби (киты локальные,
+  не синхронизируются).
 - Остальной шелл (`prematch`, `squad`, `network_menu`, `network_host/join` и т.д.)
-  и in-match UI пока живут по-старому. Выбор форм — следующий этап: сейчас Kit остаётся вкладкой
-  прематча, отдельного `KitSelectView` ещё нет.
+  и in-match UI пока живут по-старому. Kit больше не вкладка прематча: экран стоит между
+  Team Select и PreMatch.
 - **Тема не глобальная**: `ui_theme.tres` назначается на корень экрана, а не через
   `gui/theme/custom`. Поэтому HUD, пауза и серия пенальти не меняются, пока их не переведут отдельно.
 - UI меню — **английский**; русские строки in-match остаются на дефолтном шрифте.
@@ -49,6 +53,17 @@ scenes/ui/team_panel.tscn    — инстанс карточки
 scripts/ui/team_block.gd     — блок карточки: градиент/фокус
 scripts/ui/team_stars.gd     — звёзды рейтинга (full/half/empty)
 scripts/data/team_ratings.gd — чистая формула рейтинга из состава
+scripts/ui/kit_select_view.gd — общий экран выбора форм (состояние + сигналы)
+scenes/ui/kit_select_view.tscn — сцена KitSelectView (две панели/preview/status/legend)
+scripts/ui/kit_panel.gd      — одна панель HOME/AWAY с каруселью
+scripts/ui/kit_art.gd        — SVG-подобная форма из kit spec (_draw)
+scripts/ui/kit_arrow.gd      — стрелка карусели
+scripts/ui/kit_preview.gd    — средняя колонка: заголовок, 3D-превью, подписи
+scripts/ui/kit_preview_3d.gd — статичная сцена поля и 22 тел с kit-шейдером
+scripts/data/kit_catalog.gd  — чтение `databases/default/kits.json` + fallback
+scripts/data/kit_texture.gd  — kit spec → kit-shader на UV-атласе тела
+shaders/kit_uv.gdshader      — перекраска UV-маски + паттерн формы
+tools/import_prototype_kits.py — specs прототипа → `databases/default/kits.json`
 tools/build_ui_theme.gd      — пересборка ui_theme.tres
 shaders/ui_scrim.gdshader    — три слоя затемнения фона
 shaders/ui_hatch.gdshader    — диагональная штриховка hero-тайла
@@ -220,6 +235,61 @@ team{...}, rating{stars,attack,midfield,defence}}` плюс `status/status_error
   `set_team_ready`, seed дефолтов, имена/`YOU`, disconnect/join статусы, phase 0 → sides,
   phase 2 → options. Раскладка и ввод в адаптерах не дублируются.
 
+## Выбор форм
+
+Сцена: `scenes/ui/kit_select_view.tscn` (`KitSelectView`) — `Stage` → `Design` 1920×1080 →
+`PanelWrap` (группа `ui_transition_target`) → `Kits` с двумя `KitPanel` и `KitPreview` + `Status` +
+`Legend`. Шапки нет; фон не анимируется, `UiTransition` трогает только `PanelWrap`.
+
+Геометрия (design space): панель 1480, высота 420, gap 10; колонки
+`minmax(0,1.15fr) minmax(320px,0.9fr) minmax(0,1.15fr)` — home/away по 524.7, preview 410.6.
+Панель: padding `18 26 20`, head 26 (лого 22 + имя 14/600 uppercase, счётчик Barlow 19), имя
+комплекта Barlow 32/800, карусель `34 / 0.45fr / 1.9fr / 0.45fr / 34`, соседи 58% высоты,
+стрелки 18×26, точки 26×4 gap 8, ready 40/800. Focus — `#171b3f .96`, сдвиг home −6/away +6,
+scale 1.008; ready — `.66`. Фокусная панель рисует стрелки lime, ready их и точки прячет.
+Комплекты: `main/white/black/reserve` → `HOME/AWAY/THIRD/FOURTH`; home по умолчанию main,
+away — самый контрастный к домашней форме хозяев (при близком контрасте предпочитаются
+white/main, иначе третий/четвёртый). Один комплект — счётчик `1 / 1`, стрелки и точки скрыты.
+`KitArt` рисует силуэт футболки с тонким тёмным кантом (без белой обводки).
+
+Средняя колонка — `KitPreview`: заголовок `MATCH PREVIEW` / `TOP CAMERA`, статичный 3D-снимок
+(`SubViewport` 640×480, собственный `World3D`) и подписи команд с `VS`. Внутри — большое поле
+с полной разметкой и газоном вокруг (без стадиона; камера приближена, опущена и наклонена вниз,
+дальняя боковая линия выше кадра, поэтому за полем ничего не видно), 22 тела
+`gpf_fullbody` в компактной 4-3-3, мяч, broadcast-камера и свет матча. При смене любой формы
+`KitTexture` переустанавливает kit-shader, и игроки в превью переодеваются. Это не симуляция:
+позы статичные, сцена не тикает. `KitCatalog` и текстуры поля кэшируются статически, формы
+рисует `shaders/kit_uv.gdshader` (без попиксельной генерации), а 3D-сцена строится отложенно
+после раскладки панели — открытие экрана не блокируется тяжёлой сборкой.
+
+Шов: `setup(state, options)` / `apply_state(state)`; стороны —
+`{label, team{name,texture}, kits[], kit_index, ready, live, editable, device, choices, kit}`,
+плюс `preview {home{name,kit}, away{name,kit}}`, `status/status_error/error`. Сигналы:
+`side_move_requested(side, delta, input)`, `side_confirm_requested(side, input)`,
+`side_cancel_requested(side, input)`, `back_requested`, `retry_requested`. Вью не меняет данные:
+адаптер возвращает новый снапшот.
+
+Ввод — только `UiNav`: `Left/Right` листает комплект live-панели, `A/Enter` — ready, `B/Esc` —
+снять ready/назад; `Up/Down` ничего не делают. В 1P человек по очереди выбирает home, затем away
+(как команды); в 2P каждое устройство правит свою панель (`moved_gamepad`); в сети — только свои
+chooser-слоты, `Tab`/LB-RB переключает панель, если оба слота у одного. Мышь инертна.
+
+Данные: `tools/import_prototype_kits.py` читает `specs.json`/`national_specs.json` прототипа и
+пишет `databases/default/kits.json` по `tm_id` (у игровых команд `TeamCatalog` теперь отдаёт
+`tm_id`). `KitCatalog.kits_for(team)` возвращает 4 нормализованных кита или fallback из
+`color1/color2`; нет файла — fallback, битый JSON — статус + retry. `UiAssets` даёт лого команды.
+`ShellState.kit_home`/`kit_away` хранят выбранные спеки; `MatchPackage` кладёт их в
+`team.kit`, а `GpfActors` применяет `KitTexture` к поверхностям `gpf_kit` — матч показывает
+выбранные формы, а не только цвета.
+
+Адаптеры:
+
+- `scripts/ui/kit_select.gd` — локальный: `KitCatalog` + `ShellState.home/away_team`, дефолтные
+  индексы 0/1, 1P home→away и 2P parallel, ready обеих → PreMatch.
+- `scripts/ui/network_kit_select.gd` — сетевой: снапшот лобби (`chooser`, имена), локальные
+  ready-слоты, `backtoteams` при выходе; после локального ready открывает
+  `network_match_options` (phase 2 не меняется). Киты не синхронизируются — решение владельца.
+
 ## Ввод (UiNav)
 
 `UiNav` — autoload, активен только пока в дереве есть узел в группе **`ui_shell`**
@@ -292,6 +362,9 @@ godot --headless --path . -s res://tests/check_controller_select_ui.gd
 godot --headless --path . -s res://tests/check_side_select_view.gd
 godot --headless --path . -s res://tests/check_team_select_view.gd
 godot --headless --path . -s res://tests/check_team_select_ui.gd
+godot --headless --path . -s res://tests/check_kit_select_view.gd
+godot --headless --path . -s res://tests/check_kit_select_ui.gd
+godot --headless --path . -s res://tests/check_kit_texture.gd
 godot --headless --path . -s res://tests/check_ui_layout.gd
 ```
 
@@ -307,7 +380,15 @@ godot --headless --path . -s res://tests/check_ui_layout.gd
   111.5/856.5, блоки 155.8/431/213.2, фокус/cues/ready/idle, звёзды, ввод `UiNav`, 2P-геймпад,
   Tab между слотами, error/retry, scale 2/3.
 - `check_team_select_ui` — реальный локальный экран: lazy-каталог, фокус, ready home → CPU away,
-  ready away → прематч + `ShellState`, ошибка базы и повторная загрузка.
+  ready away → Kit Select + `ShellState`, ошибка базы и повторная загрузка.
+- `check_kit_select_view` — общий KitSelectView с фикстурой: 1480/420, колонки 524.7/410.6,
+  панель/карусель/точки/ready, focus и ready-состояния, один комплект, 2P-геймпад, Tab,
+  error/retry, scale 2/3.
+- `check_kit_select_ui` — реальный локальный путь: `kits.json` и `tm_id`, дефолтные main/white,
+  Left/Right, ready home → away, ready away → PreMatch, `ShellState.kit_*` и `package.team.kit`,
+  Esc → Team Select.
+- `check_kit_texture` — данные и матч-путь: `TeamCatalog.tm_id`, импортированные спеки, fallback
+  из цветов, kit-shader на `gpf_kit` реального `gpf_fullbody` и CPU-атлас из `texture_for`.
 - Скриншоты главного меню: `.scratch/ui_shots/main_menu_{play,panel,gamepad}_1920x1080.png`
   (генерируются временным скриптом; в `capture_ui_shots.gd` состояния меню ещё не добавлены).
 - Скриншоты выбора сторон: `.scratch/ui_shots/side_select_{1p,2p,ready,network,network_resume}_{1920x1080,1280x720}.png`
@@ -316,15 +397,24 @@ godot --headless --path . -s res://tests/check_ui_layout.gd
 - Скриншоты выбора команд: `.scratch/ui_shots/team_select_{local_1p_home,local_1p_away,local_2p,network,network_ready,error,real,real_club,real_club_competition}_{1920x1080,1280x720}.png`
   — `godot --path . -s res://tests/capture_team_select_shots.gd` (фикстуры —
   `tests/team_select_fixture.gd`; `real` — настоящий экран с lazy-каталогом).
+- Скриншоты выбора форм: `.scratch/ui_shots/kit_select_{local_1p_home,local_1p_away,local_2p,network,network_ready,one_kit,error,real}_{1920x1080,1280x720}.png`
+  — `godot --path . -s res://tests/capture_kit_select_shots.gd` (фикстуры —
+  `tests/kit_select_fixture.gd`; `real` — Barcelona/Real Madrid с imported kit specs).
 
 ## Известные ограничения
 
-- Главное меню, выбор сторон и выбор команд переведены; прематч, состав, сетевые меню и in-match
-  UI пока живут по-старому. Отдельного экрана выбора форм ещё нет — Kit остаётся вкладкой прематча.
+- Главное меню, выбор сторон, выбор команд и выбор форм переведены; прематч, состав, сетевые
+  меню и in-match UI пока живут по-старому. Kit из прематча убран — экран стоит отдельным шагом.
 - На выборе сторон **мышь инертна** (решение владельца): нет кликов по половинам устройства,
   ready-галочке или back. Ready/back — только клавиатура (`Enter`/`Esc`) и геймпад (`A`/`B`).
-  На выборе команд мышь тоже инертна, а `V` (состав) убран.
-- На выборе команд нет шапки (как в прототипе); уровни читаются по блокам, а не по заголовкам.
+  На выборе команд и форм мышь тоже инертна, а `V` (состав) убран.
+- На выборе команд и форм нет шапки (как в прототипе); уровни читаются по блокам/панелям.
+- 3D-превью форм — статичный диорама-снимок без стадиона и без симуляции; это не полноценный
+  рендер матча. Камера подобрана так, чтобы за кромкой поля был газон, а не пустота.
+- В сети киты не синхронизируются: каждый участник выбирает свои chooser-слоты локально, поэтому
+  у разных пиров матч может выглядеть в разных формах (решение владельца). Отдельного kit-ready в
+  лобби нет: host стартует из Options, не дожидаясь, пока клиент закончит локальный Kit Select
+  (так же, как раньше с Options).
 - Рейтинги/звёзды считаются из состава только выбранных команд; у команд без логотипа показывается
   глиф-заглушка, у стран без флага — `globe`.
 - `UiMenuPanel.setup` рассчитан на короткие note-строки без автопереноса; длинный текст надо

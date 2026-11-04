@@ -90,6 +90,20 @@ static func build() -> Theme:
 		UiTokens.INK_2)
 	_label(theme, &"TeamStatValue", barlow(700), UiTokens.SIZE_TEAM_STAT_VALUE,
 		UiTokens.INK)
+	_label(theme, &"KitTeam", _spaced_inter(600, 1), UiTokens.SIZE_KIT_TEAM, UiTokens.INK_2)
+	_label(theme, &"KitCount", _spaced_barlow(600, 1), UiTokens.SIZE_KIT_COUNT,
+		UiTokens.INK_2)
+	_label(theme, &"KitName", barlow(800), UiTokens.SIZE_KIT_NAME, UiTokens.INK)
+	_label(theme, &"KitReady", _spaced_barlow(800, 2), UiTokens.SIZE_KIT_READY,
+		UiTokens.FOCUS_INK)
+	_label(theme, &"KitPreviewTitle", _spaced_barlow(700, 2),
+		UiTokens.SIZE_KIT_PREVIEW_TITLE, UiTokens.INK)
+	_label(theme, &"KitPreviewSub", _spaced_inter(600, 1), UiTokens.SIZE_KIT_PREVIEW_SUB,
+		UiTokens.INK_2)
+	_label(theme, &"KitPreviewTeam", _spaced_barlow(700, 1),
+		UiTokens.SIZE_KIT_PREVIEW_TEAM, UiTokens.INK)
+	_label(theme, &"KitPreviewVs", _spaced_inter(600, 2), UiTokens.SIZE_KIT_PREVIEW_VS,
+		UiTokens.INK_2)
 
 	_button(theme, &"TabButton", barlow(700), UiTokens.SIZE_TAB)
 
@@ -126,6 +140,13 @@ static func _brand_font() -> FontVariation:
 static func _spaced_barlow(weight: int, spacing: int) -> FontVariation:
 	var variation := FontVariation.new()
 	variation.base_font = barlow(weight)
+	variation.spacing_glyph = spacing
+	return variation
+
+
+static func _spaced_inter(weight: int, spacing: int) -> FontVariation:
+	var variation := FontVariation.new()
+	variation.base_font = inter(weight)
 	variation.spacing_glyph = spacing
 	return variation
 

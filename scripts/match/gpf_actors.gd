@@ -42,6 +42,7 @@ var player_labels: Dictionary = {}
 var controlled_id := -1
 var controlled_ids: Dictionary = {}
 var labels_visible := true
+var team_kits: Dictionary = {}
 
 var _runtime: Node
 var _reticle: MeshInstance3D
@@ -53,6 +54,19 @@ func setup(runtime: Node) -> void:
 	_build_ball()
 	_build_reticle()
 	_build_referee_cards()
+
+
+func set_match_kits(package: Dictionary) -> void:
+	team_kits.clear()
+	for side in 2:
+		var team: Dictionary = package.get("home" if side == 0 else "away", {})
+		var kit = team.get("kit", {})
+		if kit is Dictionary and not (kit as Dictionary).is_empty():
+			team_kits[side] = (kit as Dictionary).duplicate(true)
+	for id in actor_bodies:
+		var body: Node3D = actor_bodies[id]
+		if body != null and is_instance_valid(body):
+			_apply_kit(body, _team_of_id(int(id)))
 
 
 func count() -> int:
@@ -141,7 +155,7 @@ func _spawn_entry(entry: Dictionary) -> void:
 	if bone_indices.is_empty():
 		for i in skeleton.get_bone_count():
 			bone_indices[skeleton.get_bone_name(i)] = i
-	_apply_kit_color(body, int(entry.get("team", -1)))
+	_apply_kit(body, int(entry.get("team", -1)))
 	skeletons[id] = skeleton
 	actor_bodies[id] = body
 	_build_nameplate(body, id, entry)
@@ -347,16 +361,16 @@ func _build_nameplate(body: Node3D, id: int, entry: Dictionary) -> void:
 	player_labels[id] = label
 
 
-func _apply_kit_color(body: Node3D, team: int) -> void:
-	var color: Color = TEAM_COLORS.get(team, Color.WHITE)
-	for mesh in body.find_children("*", "MeshInstance3D", true, false):
-		var mesh_instance := mesh as MeshInstance3D
-		if mesh_instance.mesh == null:
-			continue
-		for surface in mesh_instance.mesh.get_surface_count():
-			var material := mesh_instance.mesh.surface_get_material(surface)
-			if material == null or material.resource_name != "gpf_kit":
-				continue
-			var tinted := material.duplicate() as StandardMaterial3D
-			tinted.albedo_color = color
-			mesh_instance.set_surface_override_material(surface, tinted)
+func _apply_kit(body: Node3D, team: int) -> void:
+	var kit = team_kits.get(team, {})
+	if kit is Dictionary and not (kit as Dictionary).is_empty():
+		if KitTexture.apply_to_body(body, kit):
+			return
+	KitTexture.apply_color_to_body(body, TEAM_COLORS.get(team, Color.WHITE))
+
+
+func _team_of_id(id: int) -> int:
+	for entry in actors:
+		if int(entry.get("id", -1)) == id:
+			return int(entry.get("team", -1))
+	return -1

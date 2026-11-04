@@ -1,19 +1,18 @@
-﻿extends Control
+extends Control
 # Godot port of PreMatchPage (GameplayFootball src/menu/startmatch/prematch.cpp):
 # a PES-style tab strip over the match hub. The tabs keep the original names and
-# layout; the shell fills the ones it can back with data (kit preview, kick-off
-# lineups/start, options). The lineups editor is opened as an overlay so the
-# original Kick-off list stays readable.
+# layout; the shell fills the ones it can back with data (kick-off lineups/start,
+# options). Kits moved to the separate kit-select screen. The lineups editor is
+# opened as an overlay so the original Kick-off list stays readable.
 
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 const TEAM_SELECT_SCENE := "res://scenes/team_select.tscn"
 const MATCH_SCENE := "res://scenes/gpf_slice.tscn"
 const MENU_FONT := preload("res://assets/ui/fonts/AlegreyaSansSC-ExtraBold.ttf")
-const UI_ASSETS := preload("res://scripts/data/ui_assets.gd")
 
-const TAB_NAMES := ["Kit", "Stadium", "Kick-off", "Game plan", "Options", "Camera", "System"]
-const KICKOFF_TAB := 2
-const KIT_COUNT := 6
+const TAB_NAMES := ["Stadium", "Kick-off", "Game plan", "Options", "Camera", "System"]
+const KICKOFF_TAB := 1
+const GAMEPLAN_TAB := 2
 const SLOT_COUNT := 11
 
 @export var data_root := ""
@@ -45,12 +44,7 @@ var duration_slider: HSlider
 var difficulty_value: Label
 var duration_value: Label
 
-var kit_options: Array = []
-var kit_previews: Array = []
-var kit_colors: Array = []
-
 var _tab_group := ButtonGroup.new()
-var _kits_ready := false
 
 
 func _ready() -> void:
@@ -110,7 +104,6 @@ func _label(text: String, font_size: int, color: Color) -> Label:
 
 func _build_contents() -> void:
 	content_views = [
-		_build_kit_view(),
 		_build_stadium_view(),
 		_build_kickoff_view(),
 		_build_gameplan_view(),
@@ -126,63 +119,6 @@ func _build_contents() -> void:
 func _view() -> Control:
 	var view := Control.new()
 	view.visible = false
-	return view
-
-
-func _build_kit_view() -> Control:
-	var view := _view()
-	var margin := _margin(12)
-	view.add_child(margin)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 14)
-	margin.add_child(column)
-
-	var blocks := HBoxContainer.new()
-	blocks.add_theme_constant_override("separation", 30)
-	blocks.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(blocks)
-	for side in 2:
-		var block := VBoxContainer.new()
-		block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		block.add_theme_constant_override("separation", 8)
-		blocks.add_child(block)
-
-		var caption := Label.new()
-		caption.text = "Home kit" if side == 0 else "Away kit"
-		caption.add_theme_font_override("font", MENU_FONT)
-		caption.add_theme_font_size_override("font_size", 24)
-		caption.add_theme_color_override("font_color", Color(0.82, 0.84, 0.74))
-		block.add_child(caption)
-
-		var option := OptionButton.new()
-		option.add_theme_font_override("font", MENU_FONT)
-		option.add_theme_font_size_override("font_size", 20)
-		option.custom_minimum_size = Vector2(240, 44)
-		option.item_selected.connect(_on_kit_changed.bind(side))
-		block.add_child(option)
-		kit_options.append(option)
-
-		var preview := Control.new()
-		preview.custom_minimum_size = Vector2(220, 220)
-		preview.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		block.add_child(preview)
-		var color_rect := ColorRect.new()
-		color_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		preview.add_child(color_rect)
-		var texture_rect := TextureRect.new()
-		texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		preview.add_child(texture_rect)
-		kit_previews.append(texture_rect)
-		kit_colors.append(color_rect)
-
-	var info := Label.new()
-	info.text = "Pick the strip for each side. The current build renders team colours, not kit art."
-	info.add_theme_font_override("font", MENU_FONT)
-	info.add_theme_font_size_override("font_size", 17)
-	info.add_theme_color_override("font_color", Color(0.68, 0.68, 0.62))
-	column.add_child(info)
 	return view
 
 
@@ -410,7 +346,6 @@ func _load_lineups() -> void:
 		str(ShellState.home_team.get("name", "Home")),
 		str(ShellState.away_team.get("name", "Away")),
 	]
-	_build_kits()
 	_refresh_names()
 	_validate_lineups()
 
@@ -427,65 +362,6 @@ func _human_teams() -> Array:
 		teams = [0]
 	teams.sort()
 	return teams
-
-
-func _build_kits() -> void:
-	if _kits_ready:
-		return
-	_kits_ready = true
-	for side in 2:
-		var team: Dictionary = ShellState.home_team if side == 0 else ShellState.away_team
-		var option: OptionButton = kit_options[side]
-		var kits := _available_kits(team)
-		option.clear()
-		for kit in kits:
-			option.add_item("Kit %02d" % kit)
-			option.set_item_metadata(option.item_count - 1, kit)
-		var selected := int(ShellState.match_options.get("kit_home" if side == 0 else "kit_away",
-			1 if side == 0 else 2))
-		var index := kits.find(selected)
-		option.select(maxi(0, index))
-		_refresh_kit_preview(side)
-
-
-func _available_kits(team: Dictionary) -> Array:
-	var kits: Array = []
-	var url := str(team.get("kit_url", ""))
-	if not url.is_empty():
-		for kit in range(1, KIT_COUNT + 1):
-			var path := UI_ASSETS.data_root().path_join(
-				"databases/default/%s_kit_%02d.png" % [url, kit])
-			if FileAccess.file_exists(path):
-				kits.append(kit)
-	if kits.is_empty():
-		kits = [1, 2]
-	return kits
-
-
-func _refresh_kit_preview(side: int) -> void:
-	var team: Dictionary = ShellState.home_team if side == 0 else ShellState.away_team
-	var option: OptionButton = kit_options[side]
-	var kit := int(option.get_item_metadata(maxi(0, option.selected)))
-	var texture_rect: TextureRect = kit_previews[side]
-	var color_rect: ColorRect = kit_colors[side]
-	var texture := UI_ASSETS.kit_texture(team, kit)
-	texture_rect.texture = texture
-	texture_rect.visible = texture != null
-	color_rect.visible = texture == null
-	if texture == null:
-		color_rect.color = _team_color(team)
-
-
-func _team_color(team: Dictionary) -> Color:
-	var raw := str(team.get("color1", ""))
-	if raw.is_empty():
-		return Color(0.35, 0.45, 0.35)
-	return Color.from_string(raw, Color(0.35, 0.45, 0.35))
-
-
-func _on_kit_changed(index: int, side: int) -> void:
-	_refresh_kit_preview(side)
-	_store_options()
 
 
 func _on_difficulty_changed(value: float) -> void:
@@ -508,16 +384,9 @@ func _update_duration_value() -> void:
 func _store_options() -> void:
 	if difficulty_slider == null or duration_slider == null:
 		return
-	var home_kit := 1
-	var away_kit := 2
-	if kit_options.size() == 2:
-		home_kit = int(kit_options[0].get_item_metadata(maxi(0, kit_options[0].selected)))
-		away_kit = int(kit_options[1].get_item_metadata(maxi(0, kit_options[1].selected)))
 	ShellState.set_match_options({
 		"duration": duration_slider.value,
 		"difficulty": difficulty_slider.value,
-		"kit_home": home_kit,
-		"kit_away": away_kit,
 	})
 
 
@@ -592,8 +461,9 @@ func build_package() -> Dictionary:
 		"difficulty": float(ShellState.match_options.get("difficulty", 0.8)),
 	}
 	var lineups := {"home": home_lineup, "away": away_lineup}
+	var kits := {"home": ShellState.kit_home, "away": ShellState.kit_away}
 	var package := package_builder.build(catalog, ShellState.home_team, ShellState.away_team,
-		options, lineups)
+		options, lineups, kits)
 	if package.is_empty():
 		package_builder.error = package_builder.error if not package_builder.error.is_empty() \
 			else "Match package could not be built."
@@ -618,7 +488,7 @@ func _on_back() -> void:
 func _open_lineups() -> void:
 	if game_plan == null:
 		return
-	_select_tab(3, true)
+	_select_tab(GAMEPLAN_TAB, true)
 
 
 func _close_lineups() -> void:
@@ -652,7 +522,7 @@ func _select_tab(index: int, focus_content: bool = false) -> void:
 		content_views[i].visible = i == index
 	# The game plan port is a full Pitch+bench screen: it needs more room than
 	# the other hub tabs, so the content column widens while it is open.
-	if index == 3:
+	if index == GAMEPLAN_TAB:
 		content_root.position = Vector2(size.x * 0.015, size.y * 0.20)
 		content_root.size = Vector2(size.x * 0.97, size.y * 0.72)
 	else:
@@ -661,7 +531,7 @@ func _select_tab(index: int, focus_content: bool = false) -> void:
 	status_label.visible = index != 3
 	help_label.visible = index != 3
 	if game_plan != null:
-		if index == 3:
+		if index == GAMEPLAN_TAB:
 			game_plan.setup_prematch(home_lineup, away_lineup, _human_teams())
 			game_plan.open_plan()
 		else:
@@ -698,7 +568,7 @@ func _first_focusable(node: Node) -> Control:
 
 
 func _input(event: InputEvent) -> void:
-	if active_tab == 3 and game_plan != null and game_plan.is_open():
+	if active_tab == GAMEPLAN_TAB and game_plan != null and game_plan.is_open():
 		var handled := false
 		if event is InputEventKey:
 			handled = game_plan.handle_key(event as InputEventKey)
@@ -819,7 +689,7 @@ func _layout() -> void:
 	for button in tab_buttons:
 		button.add_theme_font_size_override("font_size", tab_font)
 
-	if active_tab == 3:
+	if active_tab == GAMEPLAN_TAB:
 		content_root.position = Vector2(view.x * 0.015, view.y * 0.20)
 		content_root.size = Vector2(view.x * 0.97, view.y * 0.72)
 	else:

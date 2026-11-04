@@ -66,7 +66,7 @@ append-only `log.md` в корне репозитория.
 | [[статы-и-формация]] | `PlayerStats`/`Formation`, нормализация схемы, экран состава, эталон C++ |
 | [[пакет-матча]] | `MatchPackage`, прематч, `set_match_package` в C++, статы/позиции без чтения базы |
 | [[ввод-и-контроллеры]] | выбор стороны/устройства, `InputSetup`, геймпад и клавиатура в C++ |
-| [[дизайн-система-ui]] | `UiTokens`/`UiTheme`/`UiNav`/`UiTransition`, общий Stage/`UiScreen`, бенто-меню, `SideSelectView`/`TeamSelectView` |
+| [[дизайн-система-ui]] | `UiTokens`/`UiTheme`/`UiNav`/`UiTransition`, общий Stage/`UiScreen`, бенто-меню, `SideSelectView`/`TeamSelectView`/`KitSelectView` |
 
 ## Порт ядра
 

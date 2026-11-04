@@ -58,7 +58,13 @@ func _press_start(menu: Node) -> void:
 		# A lone keyboard starts on home; Enter confirms it and commits.
 		await _tap_key(KEY_ENTER)
 		await _frames(3)
-	# With teams already picked, the controller screen goes straight to prematch.
+	# With teams already picked, the controller screen goes through the kit
+	# screen before the prematch hub.
+	if current_scene != null and current_scene.name == "KitSelect":
+		await _tap_key(KEY_ENTER)
+		await _frames(3)
+		await _tap_key(KEY_ENTER)
+		await _frames(3)
 	if current_scene != null and current_scene.name == "Prematch":
 		var kick_off := current_scene.get("start_button") as Button
 		if kick_off == null:
