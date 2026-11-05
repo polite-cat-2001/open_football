@@ -5,9 +5,9 @@ extends Button
 # the right, 6px magenta rail, dark inversion while focused. Static rows
 # ("section in progress") are visible but not focusable.
 
-var title_text := ""
-var sub_text := ""
-var is_static := false
+@export var title_text := ""
+@export var sub_text := ""
+@export var is_static := false
 
 var _bg: Panel
 var _rail: ColorRect

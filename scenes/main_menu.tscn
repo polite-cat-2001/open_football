@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/ui/ui_tab_bar.gd" id="tabbar"]
 [ext_resource type="Script" path="res://scripts/ui/bento_grid.gd" id="grid"]
 [ext_resource type="Script" path="res://scripts/ui/bento_tile.gd" id="tile"]
-[ext_resource type="Script" path="res://scripts/ui/ui_legend.gd" id="legend"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="legend"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_stage.tscn" id="stage"]
 [ext_resource type="Script" path="res://scripts/ui/ui_breadcrumb.gd" id="breadcrumb"]
 [ext_resource type="Script" path="res://scripts/ui/ui_menu_panel.gd" id="panel"]
@@ -51,7 +51,7 @@ offset_bottom = 626.0
 script = ExtResource("tile")
 title = "QUICK MATCH"
 subtitle = "One player, two players, or AI vs AI"
-meta = "1 PLAYER · 2 PLAYERS · AI"
+meta = "1 PLAYER В· 2 PLAYERS В· AI"
 glyph_name = "play"
 hero = true
 
@@ -155,12 +155,11 @@ offset_right = 1480.0
 offset_bottom = 688.0
 script = ExtResource("panel")
 
-[node name="Legend" type="HBoxContainer" parent="Design/PanelWrap"]
+[node name="Hints" parent="Design/PanelWrap" instance=ExtResource("legend")]
 layout_mode = 0
 offset_top = 704.0
 offset_right = 1480.0
-offset_bottom = 728.0
-script = ExtResource("legend")
+offset_bottom = 764.0
 
 [node name="Brand" type="HBoxContainer" parent="Design"]
 layout_mode = 0
@@ -179,3 +178,4 @@ text = "OPEN"
 layout_mode = 2
 theme_type_variation = &"BrandAccent"
 text = "FOOTBALL"
+

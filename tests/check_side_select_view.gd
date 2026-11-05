@@ -153,7 +153,7 @@ func _run() -> void:
 
 	view.set_status("Choose a side first.", true)
 	_check(view.status_text().contains("Choose a side"), "status text is visible")
-	var status := view.get_node("Design/PanelWrap/Status") as Label
+	var status := view.get_node("Design/PanelWrap/Hints/Status") as Label
 	_check(status.theme_type_variation == &"SideStatusError", "error style is applied")
 
 	view.set_overlay_mode(true)
@@ -199,3 +199,4 @@ func _finish() -> void:
 		for failure in failures:
 			print("CHECK FAIL: ", failure)
 		quit(1)
+

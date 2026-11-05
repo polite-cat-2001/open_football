@@ -22,6 +22,7 @@ var resume_mode := false
 @onready var view: SideSelectView = $SideSelectView
 
 var participants: Array = []
+var back_vote: NetworkBackVote
 
 var _player_ids: Array = []
 var _last_device := -1
@@ -33,6 +34,7 @@ var _cancel_requested := false
 var _closing := false
 var _status_text := ""
 var _status_until_ms := 0
+var _back_status := ""
 
 
 func _ready() -> void:
@@ -49,8 +51,26 @@ func _ready() -> void:
 	view.row_confirm_requested.connect(_on_row_confirm)
 	view.row_cancel_requested.connect(_on_row_cancel)
 	view.back_requested.connect(_on_back)
+	if not resume_mode:
+		_setup_back_vote()
 	_poll_lobby()
 	set_process(true)
+
+
+func _setup_back_vote() -> void:
+	back_vote = NetworkBackVote.new()
+	back_vote.name = "BackVote"
+	_back_vote_parent().add_child(back_vote)
+	back_vote.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	back_vote.setup(NetworkBackVote.VOTE_LEAVE_SESSION)
+	back_vote.action_agreed.connect(_on_back_agreed)
+	back_vote.state_changed.connect(_on_back_status)
+	if NetShell.is_active(get_tree()):
+		back_vote.clear_server_vote()
+
+
+func _back_vote_parent() -> Control:
+	return view.design if view != null and view.design != null else self
 
 
 func _rows() -> Array:
@@ -285,14 +305,34 @@ func _on_row_cancel(_row_id: String, input: Dictionary) -> void:
 	if not local.is_empty() and bool(local.get("ready", false)):
 		NET_SHELL.action(get_tree(), "set_ready", 0, 0, 0)
 		return
-	_leave()
+	_request_leave()
 
 
 func _on_back() -> void:
 	if resume_mode:
 		_cancel_resume()
 	else:
+		_request_leave()
+
+
+func _request_leave() -> void:
+	if _leaving or _closing:
+		return
+	if back_vote != null:
+		back_vote.request()
+		return
+	_leave()
+
+
+func _on_back_agreed(action: int) -> void:
+	if action == NetworkBackVote.VOTE_LEAVE_SESSION:
 		_leave()
+
+
+func _on_back_status(status: String) -> void:
+	_back_status = status
+	if view != null:
+		view.set_status(status if not status.is_empty() else _status_text)
 
 
 func _note_input(input: Dictionary) -> void:
@@ -319,6 +359,8 @@ func _leave() -> void:
 	if _leaving:
 		return
 	_leaving = true
+	if back_vote != null:
+		back_vote.withdraw()
 	if NET_SHELL.is_active(get_tree()):
 		NET_SHELL.leave(get_tree())
 	UiTransition.change_scene(NETWORK_MENU_SCENE)
@@ -354,3 +396,4 @@ func _side_to_net(side: int) -> int:
 	if side > 0:
 		return 1
 	return 2
+

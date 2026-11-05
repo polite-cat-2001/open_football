@@ -9,9 +9,8 @@ const UI_ASSETS := preload("res://scripts/data/ui_assets.gd")
 const FIELD_COUNTRY := "country"
 const FIELD_COMPETITION := "competition"
 const FIELD_TEAM := "team"
-# Default Quick Match pairing: FC Barcelona vs Real Madrid.
-const DEFAULT_HOME_TEAM_ID := 1795
-const DEFAULT_AWAY_TEAM_ID := 1794
+# Default Quick Match pairing: FC Barcelona vs Real Madrid (shared with the
+# network lobby through ShellState).
 
 @export var data_root := ""
 
@@ -97,8 +96,8 @@ func _load_catalog() -> void:
 		_restore_team(0, int(ShellState.home_team.get("id", 0)))
 		_restore_team(1, int(ShellState.away_team.get("id", 0)))
 	else:
-		_restore_team(0, DEFAULT_HOME_TEAM_ID)
-		_restore_team(1, DEFAULT_AWAY_TEAM_ID)
+		_restore_team(0, ShellState.DEFAULT_HOME_TEAM_ID)
+		_restore_team(1, ShellState.DEFAULT_AWAY_TEAM_ID)
 		for side in sides:
 			if (side["team_entries"] as Array).is_empty():
 				side["country_index"] = default_country

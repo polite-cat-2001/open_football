@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 # Geometry and navigation check for the ported main menu. Values are the
 # prototype's computed CSS at a 1920x1080 canvas; at 1280x720 the whole design
 # surface must scale uniformly by 2/3.
@@ -76,8 +76,8 @@ func _check_geometry(size: Vector2i, scale: float) -> void:
 
 	_check_vec(design.scale, Vector2(scale, scale), "design scale")
 	_check_vec(design.position, Vector2.ZERO, "design position")
-	_check_vec(panel_wrap.position, Vector2(220.0, 175.8), "panel wrap position")
-	_check_vec(panel_wrap.size, Vector2(1480.0, 728.4), "panel wrap size")
+	_check_vec(panel_wrap.position, Vector2(220.0, 157.8), "panel wrap position")
+	_check_vec(panel_wrap.size, Vector2(1480.0, 764.4), "panel wrap size")
 	_check_vec(tab.position, Vector2.ZERO, "tab bar position")
 	_check_vec(tab.size, Vector2(1480.0, 52.0), "tab bar size")
 	_check_vec(grid.position, Vector2(0.0, 62.0), "grid position")
@@ -171,8 +171,8 @@ func _check_navigation() -> void:
 	await _frames(4)
 	_check(not breadcrumb.visible and not panel.visible, "B closes the panel")
 	_check(tab.visible and settings_grid.visible, "Settings grid returns after close")
-	_check_vec(panel_wrap.position, Vector2(220.0, 175.8), "panel wrap position restored")
-	_check_vec(panel_wrap.size, Vector2(1480.0, 728.4), "panel wrap size restored")
+	_check_vec(panel_wrap.position, Vector2(220.0, 157.8), "panel wrap position restored")
+	_check_vec(panel_wrap.size, Vector2(1480.0, 764.4), "panel wrap size restored")
 
 	_joy(JOY_BUTTON_LEFT_SHOULDER)
 	await _frames(4)
@@ -188,3 +188,4 @@ func _joy(button: int) -> void:
 	event.button_index = button
 	event.pressed = true
 	Input.parse_input_event(event)
+

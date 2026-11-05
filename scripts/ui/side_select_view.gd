@@ -14,8 +14,9 @@ signal back_requested
 @onready var home_label: SideSelectVerticalLabel = $Design/PanelWrap/Body/HomeLabel
 @onready var away_label: SideSelectVerticalLabel = $Design/PanelWrap/Body/AwayLabel
 @onready var track: Control = $Design/PanelWrap/Body/Track
-@onready var status_label: Label = $Design/PanelWrap/Status
-@onready var legend: UiLegend = $Design/PanelWrap/Legend
+@onready var hints: UiHintsBar = $Design/PanelWrap/Hints
+var status_label: Label
+var legend: UiLegend
 
 var overlay_mode := false
 
@@ -44,7 +45,9 @@ func _ready() -> void:
 		_ui_nav.confirmed.connect(_on_nav_confirmed)
 		_ui_nav.cancelled.connect(_on_nav_cancelled)
 		_ui_nav.device_changed.connect(_on_device_changed)
-	legend.setup(_keyboard_hints())
+	status_label = hints.status_label
+	legend = hints.legend
+	hints.setup(_keyboard_hints())
 	theme_changed.connect(_layout)
 	resized.connect(_layout)
 	get_viewport().size_changed.connect(_layout)
@@ -63,7 +66,7 @@ func setup(new_rows: Array, options: Dictionary = {}) -> void:
 		str(options.get("status", "")),
 		bool(options.get("status_error", false))
 	)
-	legend.setup(
+	hints.setup(
 		_gamepad_hints() if _ui_nav != null and _ui_nav.using_gamepad()
 		else _keyboard_hints()
 	)
@@ -139,11 +142,9 @@ func set_title(text: String) -> void:
 
 
 func set_status(text: String, error := false) -> void:
-	if status_label == null:
+	if hints == null:
 		return
-	status_label.text = text
-	status_label.visible = not text.is_empty()
-	status_label.theme_type_variation = &"SideStatusError" if error else &"SideStatus"
+	hints.set_status(text, error)
 
 
 func set_overlay_mode(enabled: bool) -> void:
@@ -263,10 +264,9 @@ func _layout() -> void:
 		UiTokens.SIDE_BODY_MIN,
 		UiTokens.SIDE_BODY_MAX
 	)
-	var legend_height := maxf(24.0, legend.get_combined_minimum_size().y)
+	var hints_height := hints.height()
 	var total_height := UiTokens.SIDE_HEAD_H + UiTokens.GAP + _body_height \
-		+ UiTokens.SIDE_STATUS_GAP + UiTokens.SIDE_STATUS_H \
-		+ UiTokens.SIDE_LEGEND_GAP + legend_height
+		+ UiTokens.HINTS_GAP + hints_height
 	panel_wrap.position = Vector2(
 		(UiTokens.DESIGN_SIZE.x - UiTokens.PANEL_W) * 0.5,
 		(UiTokens.DESIGN_SIZE.y - total_height) * 0.5
@@ -295,14 +295,9 @@ func _layout() -> void:
 		_body_height - UiTokens.SIDE_TRACK_INSET * 2.0
 	)
 
-	var status_y := body_position.y + _body_height + UiTokens.SIDE_STATUS_GAP
-	status_label.position = Vector2(0.0, status_y)
-	status_label.size = Vector2(UiTokens.PANEL_W, UiTokens.SIDE_STATUS_H)
-	legend.position = Vector2(
-		0.0,
-		status_y + UiTokens.SIDE_STATUS_H + UiTokens.SIDE_LEGEND_GAP
-	)
-	legend.size = Vector2(UiTokens.PANEL_W, legend_height)
+	var status_y := body_position.y + _body_height + UiTokens.HINTS_GAP
+	hints.position = Vector2(0.0, status_y)
+	hints.size = Vector2(UiTokens.PANEL_W, hints_height)
 
 	_update_row_geometry()
 	for i in _rows.size():
@@ -496,6 +491,8 @@ func _current_input() -> Dictionary:
 
 
 func _on_nav_moved(direction: Vector2i) -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	# Gamepad directions arrive per device on moved_gamepad, so each player can
 	# move their own row at the same time in 2P.
 	if _ui_nav != null and _ui_nav.last_input_gamepad():
@@ -504,6 +501,8 @@ func _on_nav_moved(direction: Vector2i) -> void:
 
 
 func _on_nav_gamepad_moved(direction: Vector2i, device: int) -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	_input_override = {"kind": "gamepad", "device": device}
 	_emit_move(direction)
 	_input_override = {}
@@ -524,6 +523,8 @@ func _emit_move(direction: Vector2i) -> void:
 
 
 func _on_nav_confirmed() -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	var target := _input_row()
 	if target.is_empty():
 		return
@@ -532,6 +533,8 @@ func _on_nav_confirmed() -> void:
 
 
 func _on_nav_cancelled() -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	var target := _input_row()
 	if target.is_empty():
 		back_requested.emit()
@@ -541,12 +544,12 @@ func _on_nav_cancelled() -> void:
 
 
 func _on_device_changed(gamepad: bool) -> void:
-	legend.setup(_gamepad_hints() if gamepad else _keyboard_hints())
+	hints.setup(_gamepad_hints() if gamepad else _keyboard_hints())
 
 
 func _keyboard_hints() -> Array:
 	return [
-		{"keys": ["←", "→"], "label": "move"},
+		{"keys": ["в†ђ", "в†’"], "label": "move"},
 		{"keys": ["ENTER"], "label": "ready"},
 		{"keys": ["ESC"], "label": _back_label},
 	]
@@ -558,3 +561,7 @@ func _gamepad_hints() -> Array:
 		{"keys": ["A"], "label": "ready"},
 		{"keys": ["B"], "label": _back_label},
 	]
+
+
+
+

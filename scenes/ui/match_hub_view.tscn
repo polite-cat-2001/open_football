@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_stage.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/ui/hub_lineup_column.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/ui/hub_scoreboard.gd" id="4"]
-[ext_resource type="Script" path="res://scripts/ui/ui_legend.gd" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="5"]
 [ext_resource type="Script" path="res://scripts/ui/match_options_overlay.gd" id="6"]
 
 [node name="MatchHubView" type="Control"]
@@ -68,24 +68,12 @@ offset_right = 1480.0
 offset_bottom = 680.0
 mouse_filter = 2
 
-[node name="Status" type="Label" parent="Design/PanelWrap"]
-visible = false
+[node name="Hints" parent="Design/PanelWrap" instance=ExtResource("5")]
 layout_mode = 0
-offset_top = 692.0
-offset_right = 1480.0
-offset_bottom = 716.0
-mouse_filter = 2
-theme_type_variation = &"SideStatus"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Legend" type="HBoxContainer" parent="Design/PanelWrap"]
-layout_mode = 0
-offset_top = 732.0
+offset_top = 696.0
 offset_right = 1480.0
 offset_bottom = 756.0
 mouse_filter = 2
-script = ExtResource("5")
 
 [node name="Overlay" type="Control" parent="Design"]
 visible = false
@@ -113,3 +101,4 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+

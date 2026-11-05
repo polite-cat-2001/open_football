@@ -63,9 +63,11 @@ func _run() -> void:
 	_check(not bool(sides[1].get("live", false)), "the CPU away side is idle")
 	_check(view.get_node("Design/PanelWrap/Teams/AwayPanel").modulate.a
 		< 0.99, "the idle away panel is dimmed")
-	_check(int(String(sides[0].get("team", {}).get("id", "0"))) == 1795,
+	_check(int(String(sides[0].get("team", {}).get("id", "0")))
+		== ShellState.DEFAULT_HOME_TEAM_ID,
 		"FC Barcelona is the default home team")
-	_check(int(String(sides[1].get("team", {}).get("id", "0"))) == 1794,
+	_check(int(String(sides[1].get("team", {}).get("id", "0")))
+		== ShellState.DEFAULT_AWAY_TEAM_ID,
 		"Real Madrid is the default away team")
 
 	# Focus is local to the view; Up/Down clamps inside the panel.

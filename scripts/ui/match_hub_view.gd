@@ -23,8 +23,9 @@ const COMMAND_COUNT := 4
 @onready var scoreboard: HubScoreboard = $Design/PanelWrap/HubTop/Scoreboard
 @onready var away_lineup: HubLineupColumn = $Design/PanelWrap/HubTop/AwayLineup
 @onready var command: Control = $Design/PanelWrap/Command
-@onready var status_label: Label = $Design/PanelWrap/Status
-@onready var legend: UiLegend = $Design/PanelWrap/Legend
+@onready var hints: UiHintsBar = $Design/PanelWrap/Hints
+var status_label: Label
+var legend: UiLegend
 @onready var overlay: Control = $Design/Overlay
 @onready var options_overlay: MatchOptionsOverlay = $Design/Overlay/OptionsOverlay
 @onready var game_plan_host: Control = $Design/Overlay/GamePlanHost
@@ -53,6 +54,8 @@ func _ready() -> void:
 		_ui_nav.tab_previous.connect(_on_nav_tab)
 		_ui_nav.tab_next.connect(_on_nav_tab)
 		_ui_nav.device_changed.connect(_on_device_changed)
+	status_label = hints.status_label
+	legend = hints.legend
 	_build_commands()
 	_build_game_plan()
 	options_overlay.option_changed.connect(_on_option_changed)
@@ -85,9 +88,9 @@ func apply_state(state: Dictionary) -> void:
 
 
 func set_status(text: String, error := false) -> void:
-	status_label.text = text
-	status_label.visible = not text.is_empty()
-	status_label.theme_type_variation = &"SideStatusError" if error else &"SideStatus"
+	if hints == null:
+		return
+	hints.set_status(text, error)
 
 
 func status_text() -> String:
@@ -297,9 +300,8 @@ func _layout() -> void:
 	if view.x <= 0.0 or view.y <= 0.0:
 		return
 	layout_canvas()
-	var legend_height := maxf(24.0, legend.get_combined_minimum_size().y)
-	var total := UiTokens.HUB_H + UiTokens.HUB_STATUS_GAP + UiTokens.HUB_STATUS_H \
-		+ UiTokens.HUB_LEGEND_GAP + legend_height
+	var hints_height := hints.height()
+	var total := UiTokens.HUB_H + UiTokens.HINTS_GAP + hints_height
 	panel_wrap.position = Vector2(
 		(UiTokens.DESIGN_SIZE.x - UiTokens.PANEL_W) * 0.5,
 		(UiTokens.DESIGN_SIZE.y - total) * 0.5
@@ -320,11 +322,9 @@ func _layout() -> void:
 		var cell: HubCommandCell = _commands[index]
 		cell.position = Vector2(float(index) * (UiTokens.HUB_SIDE_W + UiTokens.GAP), 0.0)
 		cell.size = Vector2(UiTokens.HUB_SIDE_W, UiTokens.HUB_COMMAND_H)
-	var status_y := UiTokens.HUB_H + UiTokens.HUB_STATUS_GAP
-	status_label.position = Vector2(0.0, status_y)
-	status_label.size = Vector2(UiTokens.PANEL_W, UiTokens.HUB_STATUS_H)
-	legend.position = Vector2(0.0, status_y + UiTokens.HUB_STATUS_H + UiTokens.HUB_LEGEND_GAP)
-	legend.size = Vector2(UiTokens.PANEL_W, legend_height)
+	var status_y := UiTokens.HUB_H + UiTokens.HINTS_GAP
+	hints.position = Vector2(0.0, status_y)
+	hints.size = Vector2(UiTokens.PANEL_W, hints_height)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	options_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	game_plan_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -351,12 +351,16 @@ func _input(event: InputEvent) -> void:
 
 
 func _on_nav_moved(direction: Vector2i) -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	if _ui_nav != null and _ui_nav.last_input_gamepad():
 		return
 	_handle_move(direction, {"kind": "keyboard", "device": 0}, -1)
 
 
 func _on_nav_gamepad_moved(direction: Vector2i, device: int) -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	_handle_move(direction, {"kind": "gamepad", "device": device}, device)
 
 
@@ -382,6 +386,8 @@ func _handle_move(direction: Vector2i, _input: Dictionary, device: int) -> void:
 
 
 func _on_nav_confirmed() -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	match _mode:
 		"game_plan":
 			if game_plan != null:
@@ -393,6 +399,8 @@ func _on_nav_confirmed() -> void:
 
 
 func _on_nav_cancelled() -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	match _mode:
 		"game_plan":
 			if game_plan == null or not game_plan.handle_ui_action("cancel",
@@ -405,6 +413,8 @@ func _on_nav_cancelled() -> void:
 
 
 func _on_nav_tab() -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	match _mode:
 		"game_plan":
 			if game_plan != null:
@@ -420,9 +430,9 @@ func _on_device_changed(_gamepad: bool) -> void:
 
 
 func refresh_legend() -> void:
-	if legend == null:
+	if hints == null:
 		return
-	legend.setup(_gamepad_hints() if _ui_nav != null and _ui_nav.using_gamepad()
+	hints.setup(_gamepad_hints() if _ui_nav != null and _ui_nav.using_gamepad()
 		else _keyboard_hints())
 
 
@@ -430,20 +440,20 @@ func _keyboard_hints() -> Array:
 	match _mode:
 		"game_plan":
 			return [
-				{"keys": ["←↑↓→"], "label": "move"},
+				{"keys": ["в†ђв†‘в†“в†’"], "label": "move"},
 				{"keys": ["ENTER"], "label": "select"},
 				{"keys": ["TAB"], "label": "bench"},
 				{"keys": ["ESC"], "label": "close"},
 			]
 		"options":
 			return [
-				{"keys": ["↑", "↓"], "label": "option"},
-				{"keys": ["←", "→"], "label": "change"},
+				{"keys": ["в†‘", "в†“"], "label": "option"},
+				{"keys": ["в†ђ", "в†’"], "label": "change"},
 				{"keys": ["ESC"], "label": "close"},
 			]
 		_:
 			return [
-				{"keys": ["←", "→"], "label": "choose"},
+				{"keys": ["в†ђ", "в†’"], "label": "choose"},
 				{"keys": ["ENTER"], "label": "select"},
 				{"keys": ["ESC"], "label": _back_label},
 			]
@@ -465,7 +475,7 @@ func _gamepad_hints() -> Array:
 			]
 		_:
 			return [
-				{"keys": ["←", "→"], "label": "choose"},
+				{"keys": ["в†ђ", "в†’"], "label": "choose"},
 				{"keys": ["A"], "label": "select"},
 				{"keys": ["B"], "label": _back_label},
 			]
@@ -493,3 +503,5 @@ func _current_input() -> Dictionary:
 	if _ui_nav != null and _ui_nav.last_input_gamepad():
 		return {"kind": "gamepad", "device": int(_ui_nav.last_device_id())}
 	return {"kind": "keyboard", "device": 0}
+
+

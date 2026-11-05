@@ -35,6 +35,13 @@ Godot запускается с autoload `godot_mcp_runtime` (`project.godot`), 
 - **Layout:** `tests/check_ui_layout.gd` — при 1920×1080 и 1280×720 ни один интерактивный Control
   не вылезает за viewport, размеры не нулевые, интерактивные прямоугольники не накладываются;
   текстовые Label'ы тоже не выходят за экран (это ловит обрезанные длинные подсказки HUD).
+- **Сетевые меню:** `check_network_ui.gd` — реальные меню/Host/Join, OSK из поля, возврат фокуса,
+  Esc/Enter не проваливаются сквозь модальный OSK, валидация, `Connecting...`/ошибка,
+  персистентность. `check_ui_on_screen_keyboard.gd` — общий OSK; `check_network_setup.gd` —
+  валидация/`NetworkSettings`; `check_network_back_vote.gd` — fake-снапшоты голосования/диалога;
+  `check_gpf_net_back_vote_live.gd` — два процесса с реальными Host/Join экранами и голосами.
+- **Подсказки:** `check_ui_hints_bar.gd` — все shell-экраны содержат общий `UiHintsBar`
+  (статус 24 + gap 12 + легенда 24); проверяются единая высота и `setup`/`set_status`.
 
 Headless **не рисует** — PNG оттуда пустой. Скриншоты снимаются только в оконном запуске.
 
@@ -106,7 +113,9 @@ Godot-экран обязан пройти ту же матрицу; скрин�
   формы — `godot --path . -s res://tests/capture_kit_select_shots.gd`
   (`kit_select_{local_1p_home,local_1p_away,local_2p,network,network_ready,one_kit,error,real}_<WxH>.png`);
   хаб — `godot --path . -s res://tests/capture_match_hub_shots.gd`
-  (`match_hub_{local_1p,local_2p,network_host,network_client,game_plan,options,exit_selected}_<WxH>.png`).
+  (`match_hub_{local_1p,local_2p,network_host,network_client,game_plan,options,exit_selected}_<WxH>.png`);
+  сетевые экраны — `godot --path . -s res://tests/capture_network_shots.gd`
+  (`network_{menu,host,host_osk,join,join_osk,join_connecting,join_error,back_dialog}_<WxH>.png`).
 - Именование: `main_menu_1920x1080.png`, `match_hub_game_plan_1280x720.png`,
   `ui_lab_kickoff_1920x1080.png`, `ui_lab_half_time_...`, `ui_lab_game_plan_...`,
   `ui_lab_game_plan_2p_...`, `ui_lab_game_plan_tactics_...`, `ui_lab_game_plan_roles_...`,

@@ -1,8 +1,8 @@
 extends Control
 # Network adapter for KitSelectView. The lobby stays in its Options phase: every
 # peer walks this local kit step and then opens the existing match-options
-# screen. Kit choices are deliberately not synchronized (one local kit choice
-# per chooser slot); only the match options remain host-authoritative.
+# screen. Kit choices are local and deliberately not synchronized, so each peer
+# edits both sides here exactly like the 1P flow (home, then away).
 
 const NETWORK_MENU_SCENE := "res://scenes/network_menu.tscn"
 const SIDES_SCENE := "res://scenes/network_sides.tscn"
@@ -19,15 +19,16 @@ var catalog := KitCatalog.new()
 var team_catalog := TeamCatalog.new()
 var sides: Array = []
 var sides_ready := false
+var active_side := 0
+var back_vote: NetworkBackVote
 
-var _local_id := -1
-var _chooser_sides: Array = []
 var _input_device := {"kind": "keyboard", "device": 0}
 var _last_revision := -1
 var _status := ""
 var _status_error := false
 var _leaving := false
 var _last_signature := ""
+var _back_status := ""
 
 
 func _ready() -> void:
@@ -38,12 +39,30 @@ func _ready() -> void:
 	view.side_cancel_requested.connect(_on_side_cancel)
 	view.back_requested.connect(_back)
 	view.retry_requested.connect(_reload)
+	_setup_back_vote()
 	_load_data()
 	_poll_lobby()
 	set_process(true)
 
 
+func _setup_back_vote() -> void:
+	back_vote = NetworkBackVote.new()
+	back_vote.name = "BackVote"
+	_back_vote_parent().add_child(back_vote)
+	back_vote.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	back_vote.setup(NetworkBackVote.VOTE_BACK_TO_TEAMS)
+	back_vote.action_agreed.connect(_on_back_agreed)
+	back_vote.state_changed.connect(_on_back_status)
+	if NetShell.is_active(get_tree()):
+		back_vote.clear_server_vote()
+
+
+func _back_vote_parent() -> Control:
+	return view.design if view != null and view.design != null else self
+
+
 func _load_data() -> void:
+
 	_status = ""
 	_status_error = false
 	if not catalog.load_data_root(data_root):
@@ -59,6 +78,7 @@ func _load_data() -> void:
 		_refresh()
 		return
 	sides = [_side_model(0), _side_model(1)]
+	active_side = 0
 	for side in sides:
 		var index := int(side["side"])
 		var team: Dictionary = ShellState.home_team if index == 0 else ShellState.away_team
@@ -144,26 +164,14 @@ func _poll_lobby() -> void:
 	var revision := int(lobby.get("revision", -1))
 	if revision != _last_revision:
 		_last_revision = revision
-		_chooser_sides = _chooser_sides_for(lobby, int(info.get("local_id", -1)))
-	_local_id = int(info.get("local_id", -1))
-	_chooser_sides = _chooser_sides_for(lobby, _local_id)
 	_apply_live_flags()
 	_refresh()
-
-
-func _chooser_sides_for(lobby: Dictionary, local_id: int) -> Array:
-	var chooser: Array = lobby.get("chooser", [])
-	var result: Array = []
-	for side in 2:
-		if side < chooser.size() and int(chooser[side]) == local_id:
-			result.append(side)
-	return result
 
 
 func _apply_live_flags() -> void:
 	for side in sides:
 		var index := int(side["side"])
-		var editable := not _status_error and _chooser_sides.has(index)
+		var editable := not _status_error and index == active_side
 		side["editable"] = editable
 		side["live"] = editable and not bool(side["ready"])
 		side["device"] = _input_device.duplicate(true)
@@ -179,13 +187,17 @@ func _refresh() -> void:
 	_last_signature = signature
 	view.setup(_build_state(), {
 		"back_label": "back",
-		"status": _status,
-		"status_error": _status_error,
+		"status": _effective_status(),
+		"status_error": _status_error and _back_status.is_empty(),
 	})
 
 
+func _effective_status() -> String:
+	return _back_status if not _back_status.is_empty() else _status
+
+
 func _signature() -> String:
-	var parts: Array[String] = [str(_status), str(_status_error)]
+	var parts: Array[String] = [str(_status), str(_status_error), str(_back_status)]
 	for side in sides:
 			parts.append("%s/%d/%d/%d/%d" % [str((side["team"] as Dictionary).get("name", "")),
 			(side["kits"] as Array).size(), int(side["kit_index"]),
@@ -224,8 +236,8 @@ func _build_state() -> Dictionary:
 			"home": {"name": home_state["team"]["name"], "kit": home_state["kit"]},
 			"away": {"name": away_state["team"]["name"], "kit": away_state["kit"]},
 		},
-		"status": _status,
-		"status_error": _status_error,
+		"status": _effective_status(),
+		"status_error": _status_error and _back_status.is_empty(),
 		"error": _status_error,
 	}
 
@@ -270,6 +282,8 @@ func _on_side_confirm(side: int, input: Dictionary) -> void:
 	_store_kit(side)
 	_status = ""
 	_status_error = false
+	if side == active_side:
+		active_side = 1 - active_side
 	_refresh()
 	if _local_sides_ready():
 		_continue()
@@ -280,8 +294,15 @@ func _on_side_cancel(side: int, input: Dictionary) -> void:
 	var model: Dictionary = sides[side]
 	if bool(model["ready"]):
 		model["ready"] = false
+		active_side = side
 		_status = ""
 		_status_error = false
+		_refresh()
+		return
+	var other := 1 - side
+	if other >= 0 and other < sides.size() and bool(sides[other]["ready"]):
+		sides[other]["ready"] = false
+		active_side = other
 		_refresh()
 		return
 	_back()
@@ -297,10 +318,10 @@ func _store_kit(side: int) -> void:
 
 
 func _local_sides_ready() -> bool:
-	if _chooser_sides.is_empty():
+	if sides.size() != 2:
 		return false
-	for side in _chooser_sides:
-		if not bool(sides[int(side)]["ready"]):
+	for side in sides:
+		if not bool(side["ready"]):
 			return false
 	return true
 
@@ -312,6 +333,8 @@ func _continue() -> void:
 		if ShellState.kit_for(int(side)).is_empty():
 			var team: Dictionary = ShellState.home_team if int(side) == 0 else ShellState.away_team
 			ShellState.set_kit(int(side), catalog.default_kit(team, int(side)))
+	if back_vote != null:
+		back_vote.withdraw()
 	_leaving = true
 	UiTransition.change_scene(OPTIONS_SCENE)
 
@@ -319,9 +342,25 @@ func _continue() -> void:
 func _back() -> void:
 	if _leaving:
 		return
+	if back_vote != null:
+		back_vote.request()
+		return
 	_status = "Back to teams..."
 	_status_error = false
 	NET_SHELL.action(get_tree(), "backtoteams", 0, 0, 0)
+	_refresh()
+
+
+func _on_back_agreed(action: int) -> void:
+	if action == NetworkBackVote.VOTE_LEAVE_SESSION:
+		_leave_session()
+	else:
+		_back_status = "GOING BACK TO TEAM SELECT..."
+		_refresh()
+
+
+func _on_back_status(status: String) -> void:
+	_back_status = status
 	_refresh()
 
 
@@ -329,6 +368,8 @@ func _leave_session() -> void:
 	if _leaving:
 		return
 	_leaving = true
+	if back_vote != null:
+		back_vote.withdraw()
 	if NET_SHELL.is_active(get_tree()):
 		NET_SHELL.leave(get_tree())
 	UiTransition.change_scene(NETWORK_MENU_SCENE)
@@ -336,3 +377,4 @@ func _leave_session() -> void:
 
 func _process(_delta: float) -> void:
 	_poll_lobby()
+

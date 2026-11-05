@@ -52,6 +52,7 @@ const GAP := 10.0
 const RAIL_W := 6.0
 const PANEL_W := 1480.0
 const GRID_H := 626.4
+const WIDE_TILE_H := 308.2
 const TAB_H := 52.0
 const SELECTED_PUSH := 6.0
 const SELECTED_SCALE := 1.008
@@ -250,6 +251,54 @@ const HUB_OPTION_ROW := Color(0.964706, 0.972549, 0.984314, 0.08)
 const HUB_OPTION_ROW_FOCUS := Color(0.090196, 0.105882, 0.247059, 0.96)
 const HUB_OPTION_STUB := Color(0.964706, 0.972549, 0.984314, 0.55)
 
+# Network setup forms and the shared on-screen keyboard ----------------
+const FORM_PANEL_W := 980.0
+const FORM_PAD := 28.0
+const FORM_HEAD_GAP := 4.0
+const FORM_ROW_H := 96.0
+const FORM_ACTION_H := 88.0
+const FORM_ROW_GAP := 10.0
+const FORM_TITLE_H := 54.0
+const FORM_EYEBROW_H := 20.0
+const FORM_HINT_H := 16.0
+const FORM_ERROR_H := 18.0
+const FORM_VALUE_W := 0.52
+const FORM_BREADCRUMB_GAP := 14.0
+const FORM_STATUS_GAP := 12.0
+const FORM_STATUS_H := 24.0
+const FORM_LEGEND_GAP := 16.0
+
+const OSK_PANEL_W := 880.0
+const OSK_PAD := 16.0
+const OSK_HEAD_GAP := 6.0
+const OSK_EYEBROW_H := 20.0
+const OSK_DISPLAY_H := 58.0
+const OSK_BODY_GAP := 8.0
+const OSK_KEY_W := 42.0
+const OSK_KEY_H := 44.0
+const OSK_KEY_GAP := 4.0
+const OSK_ACTION_W := 230.0
+const OSK_ACTION_H := 44.0
+const OSK_ACTION_GAP := 4.0
+const OSK_ROWS := ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM", "1234567890.-_"]
+const OSK_ACTION_LABELS := ["SPACE", "DEL", "CLEAR", "APPLY"]
+const OSK_SCRIM := Color(0.015686, 0.035294, 0.078431, 0.62)
+const FORM_PANEL := Color(0.960784, 0.968627, 0.980392, 0.97)
+const FORM_ROW := Color(0.113725, 0.129412, 0.219608, 0.06)
+const FORM_ROW_FOCUS := FOCUS_FILL
+const FORM_ROW_BORDER := Color(0.113725, 0.129412, 0.219608, 0.12)
+const FORM_HINT := Color(0.352941, 0.372549, 0.470588, 0.78)
+const OSK_KEY := Color(0.113725, 0.129412, 0.219608, 0.05)
+const OSK_KEY_FOCUS := FOCUS_FILL
+const OSK_KEY_INK := INK
+const OSK_KEY_INK_FOCUS := FOCUS_MARK
+const OSK_DISPLAY := Color(0.113725, 0.129412, 0.219608, 0.06)
+
+const HINTS_GAP := 16.0
+const HINTS_STATUS_H := 24.0
+const HINTS_STATUS_GAP := 12.0
+const HINTS_LEGEND_H := 24.0
+
 # Typography ----------------------------------------------------------------
 const FONT_BARLOW_600 := "res://assets/ui/fonts/BarlowCondensed-SemiBold.ttf"
 const FONT_BARLOW_700 := "res://assets/ui/fonts/BarlowCondensed-Bold.ttf"
@@ -301,6 +350,16 @@ const SIZE_HUB_COMMAND := 20
 const SIZE_HUB_OPTION := 18
 const SIZE_HUB_OPTION_VALUE := 26
 const SIZE_HUB_OPTION_TITLE := 28
+const SIZE_FORM_TITLE := 52
+const SIZE_FORM_EYEBROW := 16
+const SIZE_FORM_LABEL := 28
+const SIZE_FORM_VALUE := 22
+const SIZE_FORM_HINT := 14
+const SIZE_FORM_ERROR := 14
+const SIZE_OSK_EYEBROW := 14
+const SIZE_OSK_DISPLAY := 28
+const SIZE_OSK_KEY := 18
+const SIZE_OSK_ACTION := 16
 
 # Motion --------------------------------------------------------------------
 const SCREEN_OUT := 0.15

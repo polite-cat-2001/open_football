@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 # Headless check for the LAN shell screens: main menu -> Network -> Host ->
 # mirrored Sides -> Teams lobby -> Match options -> GPF match, plus the Join
 # form's readable errors. Drives the same bridge the two-process harness uses,
@@ -15,6 +15,8 @@ const LOBBY_SCENE := "res://scenes/network_lobby.tscn"
 const PORT_FIRST := 28151
 const PORT_TRIES := 20
 const NET_SHELL := preload("res://scripts/net/net_shell.gd")
+const TEST_CONFIG := "user://network_gpf_ui_test.cfg"
+
 
 var failures: Array[String] = []
 
@@ -52,7 +54,10 @@ func _tap_key(code: int) -> void:
 
 func _run() -> void:
 	ShellState.clear()
+	NetworkSettings.config_path = TEST_CONFIG
+	NetworkSettings.reset()
 	change_scene_to_file(MAIN_MENU)
+
 	await _frames(6)
 	var menu := current_scene
 	_check(menu != null and menu.name == "MainMenu", "the main menu opens")
@@ -65,8 +70,11 @@ func _run() -> void:
 		"Network opens the network menu")
 	var network_menu := current_scene
 	if network_menu != null:
-		var menu_buttons: Array = network_menu.get("buttons")
-		_check(menu_buttons.size() == 3, "the network menu has Host/Join/Back")
+		_check(network_menu.get_node_or_null("Design/PanelWrap/Grid/HostTile") is Button
+			and network_menu.get_node_or_null("Design/PanelWrap/Grid/JoinTile") is Button,
+			"the network menu has Host and Join tiles")
+		(network_menu.get_node("Design/PanelWrap/Grid/HostTile") as Button).pressed.emit()
+		await _frames(6)
 
 	# Join form validation (no connection yet).
 	change_scene_to_file(NETWORK_JOIN)
@@ -74,22 +82,22 @@ func _run() -> void:
 	var join := current_scene
 	_check(join != null and join.name == "NetworkJoin", "the join screen opens")
 	if join != null:
-		var address: LineEdit = join.get("address_input")
-		var port: LineEdit = join.get("port_input")
-		var player_name: LineEdit = join.get("name_input")
+		var address: UiFormRow = join.get("address_row")
+		var port: UiFormRow = join.get("port_row")
+		var player_name: UiFormRow = join.get("name_row")
 		var join_status: Label = join.get("status_label")
-		address.text = "bad address!"
+		address.set_value("bad address!")
 		join.call("_connect")
-		_check(join_status.text.contains("Invalid address"),
-			"an invalid address is reported")
-		address.text = "127.0.0.1"
-		port.text = "0"
+		_check(address.error_text().contains("IPv4"), "an invalid address is reported")
+		address.set_value("127.0.0.1")
+		port.set_value("0")
 		join.call("_connect")
-		_check(join_status.text.contains("Invalid port"), "an invalid port is reported")
-		port.text = "27015"
-		player_name.text = ""
+		_check(port.error_text().contains("port"), "an invalid port is reported")
+		port.set_value("27015")
+		player_name.set_value("")
 		join.call("_connect")
-		_check(join_status.text.contains("Enter a name"), "an empty name is reported")
+		_check(player_name.error_text().contains("name"), "an empty name is reported")
+		_check(join_status.text.contains("highlighted"), "the form asks for the fields")
 
 	# Host screen: bind a free port through the real UI entry point.
 	change_scene_to_file(NETWORK_HOST)
@@ -98,17 +106,24 @@ func _run() -> void:
 	_check(host != null and host.name == "NetworkHost", "the host screen opens")
 	var runtime: Node = null
 	if host != null:
-		var host_port: LineEdit = host.get("port_input")
-		var host_name: LineEdit = host.get("name_input")
+		var host_port: UiFormRow = host.get("port_row")
+		var host_name: UiFormRow = host.get("name_row")
+		var bound_port := 0
 		for offset in PORT_TRIES:
-			host_port.text = str(PORT_FIRST + offset)
-			host_name.text = "UI Host"
+			bound_port = PORT_FIRST + offset
+			host_port.set_value(str(bound_port))
+			host_name.set_value("UI Host")
 			host.call("_open_lobby")
 			await _frames(3)
 			if current_scene != null and current_scene.name == "NetworkSides":
 				break
 		_check(current_scene != null and current_scene.name == "NetworkSides",
 			"Open lobby enters the side screen")
+		var saved_host := NetworkSettings.load_host()
+		_check(int(saved_host["port"]) == bound_port
+			and str(saved_host["name"]) == "UI Host",
+			"the host form values are persisted")
+
 		runtime = NET_SHELL.active_runtime(self)
 		_check(runtime != null and bool(runtime.is_net_host()),
 			"the UI host owns a NetServer")
@@ -153,6 +168,10 @@ func _run() -> void:
 		_check(catalog != null and catalog.national_league_id() > 0
 			and not catalog.teams_for_league(catalog.national_league_id()).is_empty(),
 			"the team lobby loads the catalog on demand")
+		var default_ids: Array = NET_SHELL.lobby(self).get("lobby", {}).get("team_ids", [])
+		_check(default_ids == [ShellState.DEFAULT_HOME_TEAM_ID,
+			ShellState.DEFAULT_AWAY_TEAM_ID],
+			"the network lobby seeds the Quick Match team defaults")
 		_check(NET_SHELL.action(self, "set_selection", 0, 0, 0), "home country selection")
 		_check(NET_SHELL.action(self, "set_selection", 0, 2, 3), "home team selection")
 		_check(NET_SHELL.action(self, "set_selection", 1, 0, 0), "away country selection")
@@ -184,8 +203,30 @@ func _run() -> void:
 		var kit_view: KitSelectView = current_scene.get("view")
 		_check(kit_view != null and kit_view.sides().size() == 2,
 			"the network kit screen mounts the shared view")
+		var kit_sides := kit_view.sides() if kit_view != null else []
+		_check(kit_sides.size() == 2 and bool(kit_sides[0].get("editable", false))
+			and not bool(kit_sides[1].get("editable", false)),
+			"the network kit step starts on the home kit like 1P")
+		var home_kit_before := int(kit_sides[0].get("kit_index", -1)) if kit_sides.size() == 2 else -1
+		await _tap_key(KEY_RIGHT)
+		await _frames(4)
+		kit_sides = kit_view.sides() if kit_view != null else []
+		_check(kit_sides.size() == 2
+			and int(kit_sides[0].get("kit_index", -1)) != home_kit_before,
+			"the home kit can be changed locally")
 		await _tap_key(KEY_ENTER)
 		await _frames(4)
+		kit_sides = kit_view.sides() if kit_view != null else []
+		_check(kit_sides.size() == 2 and bool(kit_sides[0].get("ready", false))
+			and bool(kit_sides[1].get("editable", false)),
+			"the away kit becomes editable after home is ready")
+		var away_kit_before := int(kit_sides[1].get("kit_index", -1)) if kit_sides.size() == 2 else -1
+		await _tap_key(KEY_RIGHT)
+		await _frames(4)
+		kit_sides = kit_view.sides() if kit_view != null else []
+		_check(kit_sides.size() == 2
+			and int(kit_sides[1].get("kit_index", -1)) != away_kit_before,
+			"the away kit can be changed locally")
 		await _tap_key(KEY_ENTER)
 		await _frames(10)
 
@@ -337,7 +378,10 @@ func _run() -> void:
 		await _frames(8)
 	_check(not NET_SHELL.is_active(self), "returning to the menu leaves the LAN session")
 
+	NetworkSettings.reset()
+	NetworkSettings.config_path = NetworkSettings.CONFIG_PATH
 	ShellState.clear()
+
 	if failures.is_empty():
 		print("== check_gpf_net_ui: PASS ==")
 	else:

@@ -1,106 +1,111 @@
-extends Control
-# Godot port of NetworkMenuPage (GameplayFootball src/menu/network/network.cpp):
-# Host game / Join game / Back.
+extends UiScreen
+# Network menu on the design system: two wide bento tiles (Host / Join), a
+# PLAY > NETWORK breadcrumb and no Back button вЂ” Esc/B returns to the main menu.
 
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 const HOST_SCENE := "res://scenes/network_host.tscn"
 const JOIN_SCENE := "res://scenes/network_join.tscn"
-const MENU_FONT := preload("res://assets/ui/fonts/AlegreyaSansSC-ExtraBold.ttf")
-const NET_SHELL := preload("res://scripts/net/net_shell.gd")
 
-var title_label: Label
-var buttons: Array[Button] = []
+@onready var panel_wrap: Control = $Design/PanelWrap
+@onready var breadcrumb: UiBreadcrumb = $Design/PanelWrap/Breadcrumb
+@onready var grid: BentoGrid = $Design/PanelWrap/Grid
+@onready var host_tile: BentoTile = $Design/PanelWrap/Grid/HostTile
+@onready var join_tile: BentoTile = $Design/PanelWrap/Grid/JoinTile
+@onready var hints: UiHintsBar = $Design/PanelWrap/Hints
+
+var _tiles: Array = []
 
 
 func _ready() -> void:
-	# A stale session must not leak into a new network menu.
-	if NET_SHELL.is_active(get_tree()):
-		NET_SHELL.leave(get_tree())
-	_build_ui()
+	add_to_group(&"ui_shell")
+	panel_wrap.add_to_group(&"ui_transition_target")
+	theme = UiTheme.load_or_build()
+	_tiles = [host_tile, join_tile]
+	breadcrumb.set_items(["PLAY", "NETWORK"])
+	grid.add_cell(host_tile, 1, 1, 2, 2)
+	grid.add_cell(join_tile, 3, 1, 2, 2)
+	host_tile.pressed.connect(_open_scene.bind(HOST_SCENE))
+	join_tile.pressed.connect(_open_scene.bind(JOIN_SCENE))
+	hints.setup(_keyboard_hints())
+	UiNav.moved.connect(_on_nav_moved)
+	UiNav.confirmed.connect(_on_nav_confirmed)
+	UiNav.cancelled.connect(_on_nav_cancelled)
+	UiNav.device_changed.connect(_on_device_changed)
 	_layout()
 	get_viewport().size_changed.connect(_layout)
-	buttons[0].grab_focus()
-
-
-func _build_ui() -> void:
-	var background := ColorRect.new()
-	background.color = Color(0.02, 0.03, 0.02)
-	background.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(background)
-
-	title_label = Label.new()
-	title_label.text = "Network"
-	title_label.add_theme_font_override("font", MENU_FONT)
-	title_label.add_theme_color_override("font_color", Color(0.95, 0.92, 0.82))
-	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	add_child(title_label)
-
-	_add_button("HostBtn", "Host game", _on_host)
-	_add_button("JoinBtn", "Join game", _on_join)
-	_add_button("BackBtn", "Back", _on_back)
-
-
-func _add_button(node_name: String, text: String, callback: Callable) -> void:
-	var button := Button.new()
-	button.name = node_name
-	button.text = text
-	button.add_theme_font_override("font", MENU_FONT)
-	button.custom_minimum_size = Vector2(320, 52)
-	button.pressed.connect(callback)
-	add_child(button)
-	buttons.append(button)
+	theme_changed.connect(_layout)
+	resized.connect(_layout)
+	call_deferred("_focus_initial")
 
 
 func _layout() -> void:
-	var view := get_viewport_rect().size
-	if view.x <= 0 or view.y <= 0:
+	if layout_canvas() <= 0.0:
 		return
-	title_label.add_theme_font_size_override("font_size",
-		clampi(int(view.y * 0.06), 28, 72))
-	title_label.position = Vector2(view.x * 0.2, view.y * 0.14)
-	title_label.size = Vector2(view.x * 0.6, view.y * 0.10)
+	var hints_height := hints.height()
+	var tile_height := UiTokens.WIDE_TILE_H
+	var total := UiTokens.TAB_H + UiTokens.GAP + tile_height + UiTokens.HINTS_GAP \
+		+ hints_height
 
-	var width := minf(360.0, view.x * 0.34)
-	var height := clampf(view.y * 0.085, 48.0, 88.0)
-	var gap := height * 0.30
-	var total := buttons.size() * height + maxf(0.0, buttons.size() - 1) * gap
-	var top := view.y * 0.52 - total * 0.5
-	var font_size := clampi(int(height * 0.34), 16, 30)
-	for i in buttons.size():
-		var button := buttons[i]
-		button.position = Vector2(view.x * 0.5 - width * 0.5, top + i * (height + gap))
-		button.size = Vector2(width, height)
-		button.add_theme_font_size_override("font_size", font_size)
-
-
-func _input(event: InputEvent) -> void:
-	if event is InputEventKey:
-		var key := event as InputEventKey
-		if not key.echo and key.pressed and key.keycode == KEY_ESCAPE:
-			_on_back()
-			get_viewport().set_input_as_handled()
-	elif event is InputEventJoypadButton:
-		var joy := event as InputEventJoypadButton
-		if not joy.pressed:
-			return
-		if int(joy.button_index) == JOY_BUTTON_B:
-			_on_back()
-			get_viewport().set_input_as_handled()
-		elif int(joy.button_index) == JOY_BUTTON_A:
-			var focus := get_viewport().gui_get_focus_owner()
-			if focus is BaseButton and not (focus as BaseButton).disabled:
-				(focus as BaseButton).pressed.emit()
-				get_viewport().set_input_as_handled()
+	panel_wrap.position = Vector2(
+		(UiTokens.DESIGN_SIZE.x - UiTokens.PANEL_W) * 0.5,
+		(UiTokens.DESIGN_SIZE.y - total) * 0.5
+	)
+	panel_wrap.size = Vector2(UiTokens.PANEL_W, total)
+	breadcrumb.position = Vector2.ZERO
+	grid.position = Vector2(0.0, UiTokens.TAB_H + UiTokens.GAP)
+	grid.size = Vector2(UiTokens.PANEL_W, tile_height)
+	hints.position = Vector2(0.0, UiTokens.TAB_H + UiTokens.GAP + tile_height + UiTokens.HINTS_GAP)
+	hints.size = Vector2(UiTokens.PANEL_W, hints_height)
 
 
-func _on_host() -> void:
-	get_tree().change_scene_to_file(HOST_SCENE)
+func _focus_initial() -> void:
+	host_tile.grab_focus()
 
 
-func _on_join() -> void:
-	get_tree().change_scene_to_file(JOIN_SCENE)
+func _on_nav_moved(direction: Vector2i) -> void:
+	if UiNav.is_modal():
+		return
+	if direction == Vector2i.LEFT or direction == Vector2i.RIGHT:
+		var focus := get_viewport().gui_get_focus_owner()
+		var index := _tiles.find(focus)
+		if index < 0:
+			index = 0
+		index = posmod(index + (-1 if direction == Vector2i.LEFT else 1), _tiles.size())
+		_tiles[index].grab_focus()
 
 
-func _on_back() -> void:
-	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
+func _on_nav_confirmed() -> void:
+	if UiNav.is_modal():
+		return
+	var focus := get_viewport().gui_get_focus_owner()
+	if focus is BaseButton and not (focus as BaseButton).disabled:
+		(focus as BaseButton).pressed.emit()
+
+
+func _on_nav_cancelled() -> void:
+	_open_scene(MAIN_MENU_SCENE)
+
+
+func _on_device_changed(_gamepad: bool) -> void:
+	hints.setup(_gamepad_hints() if UiNav.using_gamepad() else _keyboard_hints())
+
+
+func _open_scene(path: String) -> void:
+	UiTransition.change_scene(path)
+
+
+func _keyboard_hints() -> Array:
+	return [
+		{"keys": ["в†ђ", "в†’"], "label": "select"},
+		{"keys": ["ENTER"], "label": "open"},
+		{"keys": ["ESC"], "label": "back"},
+	]
+
+
+func _gamepad_hints() -> Array:
+	return [
+		{"keys": ["D-PAD"], "label": "select"},
+		{"keys": ["A"], "label": "open"},
+		{"keys": ["B"], "label": "back"},
+	]
+

@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/network_menu.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ui_stage.tscn" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/ui_breadcrumb.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/ui/bento_grid.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/ui/bento_tile.gd" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="6"]
 
 [node name="NetworkMenu" type="Control"]
 layout_mode = 3
@@ -10,3 +15,60 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
+
+[node name="Stage" parent="." instance=ExtResource("2")]
+layout_mode = 1
+
+[node name="Design" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+
+[node name="PanelWrap" type="Control" parent="Design" groups=["ui_transition_target"]]
+layout_mode = 0
+offset_right = 1480.0
+offset_bottom = 384.0
+
+[node name="Breadcrumb" type="Control" parent="Design/PanelWrap"]
+layout_mode = 0
+offset_right = 420.0
+offset_bottom = 52.0
+script = ExtResource("3")
+
+[node name="Grid" type="Control" parent="Design/PanelWrap"]
+layout_mode = 0
+offset_top = 62.0
+offset_right = 1480.0
+offset_bottom = 370.2
+script = ExtResource("4")
+
+[node name="HostTile" type="Button" parent="Design/PanelWrap/Grid"]
+layout_mode = 0
+offset_right = 735.0
+offset_bottom = 308.2
+script = ExtResource("5")
+title = "HOST GAME"
+subtitle = "Open a lobby on this machine"
+meta = "PORT + NAME"
+glyph_name = "network"
+wide = true
+
+[node name="JoinTile" type="Button" parent="Design/PanelWrap/Grid"]
+layout_mode = 0
+offset_left = 745.0
+offset_right = 1480.0
+offset_bottom = 308.2
+script = ExtResource("5")
+title = "JOIN GAME"
+subtitle = "Connect to a host on the network"
+meta = "ADDRESS + PORT + NAME"
+glyph_name = "gamepad"
+wide = true
+
+[node name="Hints" parent="Design/PanelWrap" instance=ExtResource("6")]
+layout_mode = 0
+offset_top = 386.2
+offset_right = 1480.0
+offset_bottom = 446.2
+
+

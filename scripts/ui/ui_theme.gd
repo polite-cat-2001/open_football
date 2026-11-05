@@ -130,13 +130,36 @@ static func build() -> Theme:
 		UiTokens.HUB_OPTION_STUB)
 	_label(theme, &"HubOptionTitle", barlow(800), UiTokens.SIZE_HUB_OPTION_TITLE,
 		UiTokens.FOCUS_INK)
+	_label(theme, &"FormTitle", barlow(800), UiTokens.SIZE_FORM_TITLE, UiTokens.INK)
+	_label(theme, &"FormEyebrow", _spaced_inter(600, 2), UiTokens.SIZE_FORM_EYEBROW,
+		UiTokens.INK_2)
+	_label(theme, &"FormLabel", barlow(700), UiTokens.SIZE_FORM_LABEL, UiTokens.INK)
+	_label(theme, &"FormValue", inter(500), UiTokens.SIZE_FORM_VALUE, UiTokens.INK)
+	_label(theme, &"FormHint", inter(500), UiTokens.SIZE_FORM_HINT, UiTokens.FORM_HINT)
+	_label(theme, &"FormError", inter(500), UiTokens.SIZE_FORM_ERROR, UiTokens.ERROR_PINK)
+	_label(theme, &"OskEyebrow", _spaced_inter(600, 2), UiTokens.SIZE_OSK_EYEBROW,
+		UiTokens.INK_2)
+	_label(theme, &"OskDisplayText", _spaced_barlow(700, 1), UiTokens.SIZE_OSK_DISPLAY,
+		UiTokens.INK)
 
 	_button(theme, &"TabButton", barlow(700), UiTokens.SIZE_TAB)
+	_button(theme, &"OskKey", barlow(700), UiTokens.SIZE_OSK_KEY)
+	theme.set_color(&"font_color", &"OskKey", UiTokens.OSK_KEY_INK)
+	theme.set_color(&"font_hover_color", &"OskKey", UiTokens.OSK_KEY_INK)
+	theme.set_color(&"font_pressed_color", &"OskKey", UiTokens.OSK_KEY_INK)
+	theme.set_color(&"font_focus_color", &"OskKey", UiTokens.OSK_KEY_INK_FOCUS)
+	_button(theme, &"OskAction", inter(600), UiTokens.SIZE_OSK_ACTION)
+	theme.set_color(&"font_color", &"OskAction", UiTokens.INK)
+	theme.set_color(&"font_hover_color", &"OskAction", UiTokens.INK)
+	theme.set_color(&"font_pressed_color", &"OskAction", UiTokens.INK)
+	theme.set_color(&"font_focus_color", &"OskAction", UiTokens.FOCUS_MARK)
 
 	_panel(theme, &"KbdBox", _kbd_box())
 	_panel(theme, &"SoonChip", _chip_box())
 	_panel(theme, &"PanelNoteBox", _note_box())
 	_panel(theme, &"SideHead", _side_head_box())
+	_panel(theme, &"FormPanel", _form_panel_box())
+	_panel(theme, &"OskDisplayBox", _osk_display_box())
 
 	return theme
 
@@ -216,3 +239,27 @@ static func _side_head_box() -> StyleBoxFlat:
 	box.shadow_size = 22
 	box.shadow_offset = Vector2(0.0, 18.0)
 	return box
+
+
+static func _form_panel_box() -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = UiTokens.FORM_PANEL
+	box.shadow_color = UiTokens.SHADOW
+	box.shadow_size = 32
+	box.shadow_offset = Vector2(0.0, 24.0)
+	box.content_margin_left = UiTokens.FORM_PAD
+	box.content_margin_right = UiTokens.FORM_PAD
+	box.content_margin_top = UiTokens.FORM_PAD
+	box.content_margin_bottom = UiTokens.FORM_PAD
+	return box
+
+
+static func _osk_display_box() -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = UiTokens.OSK_DISPLAY
+	box.content_margin_left = 14.0
+	box.content_margin_right = 14.0
+	box.content_margin_top = 8.0
+	box.content_margin_bottom = 8.0
+	return box
+

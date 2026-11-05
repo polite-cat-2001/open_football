@@ -21,11 +21,13 @@ var kit_catalog := KitCatalog.new()
 
 var home_lineup: MatchLineup
 var away_lineup: MatchLineup
+var back_vote: NetworkBackVote
 
 var _host := false
 var _local_id := -1
 var _lobby: Dictionary = {}
 var _status := ""
+var _back_status := ""
 var _leaving := false
 var _match_started := false
 var _last_revision := -1
@@ -38,12 +40,30 @@ func _ready() -> void:
 	view.lineup_changed.connect(_on_lineups_changed)
 	view.option_changed.connect(_on_option_changed)
 	view.exit_requested.connect(_on_exit_requested)
+	_setup_back_vote()
 	_load_data()
 	_poll_lobby()
 	set_process(true)
 
 
+func _setup_back_vote() -> void:
+	back_vote = NetworkBackVote.new()
+	back_vote.name = "BackVote"
+	_back_vote_parent().add_child(back_vote)
+	back_vote.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	back_vote.setup(NetworkBackVote.VOTE_BACK_TO_TEAMS)
+	back_vote.action_agreed.connect(_on_back_agreed)
+	back_vote.state_changed.connect(_on_back_status)
+	if NetShell.is_active(get_tree()):
+		back_vote.clear_server_vote()
+
+
+func _back_vote_parent() -> Control:
+	return view.design if view != null and view.design != null else self
+
+
 func _load_data() -> void:
+
 	if not catalog.load_data_root(data_root):
 		_leave_session()
 		return
@@ -97,10 +117,14 @@ func _poll_lobby() -> void:
 	var phase := int(_lobby.get("phase", -1))
 	if phase == 0:
 		_leaving = true
+		if back_vote != null:
+			back_vote.withdraw()
 		UiTransition.change_scene(SIDES_SCENE)
 		return
 	if phase == 1:
 		_leaving = true
+		if back_vote != null:
+			back_vote.withdraw()
 		UiTransition.change_scene(LOBBY_SCENE)
 		return
 	if phase != 2:
@@ -141,7 +165,9 @@ func _refresh_state() -> void:
 			"device": _controller_for_side(index),
 			"owner": owner,
 		})
-	var status := _status
+	var status := _back_status
+	if status.is_empty():
+		status = _status
 	if status.is_empty():
 		status = "HOST: SET OPTIONS AND START" if _host else "WAITING FOR HOST"
 	var start_label := "START MATCH" if _host else "WAITING FOR HOST"
@@ -227,6 +253,8 @@ func _start_host() -> void:
 		_status = "Network session is gone."
 		_refresh_state()
 		return
+	if back_vote != null:
+		back_vote.withdraw()
 	var package := NETWORK_MATCH.build_package(ids, _lobby_options(), data_root)
 	if package.is_empty():
 		_status = NETWORK_MATCH.error
@@ -261,8 +289,23 @@ func _start_client(setup: Dictionary) -> void:
 func _on_back_requested(_input: Dictionary) -> void:
 	if _match_started:
 		return
+	if back_vote != null:
+		back_vote.withdraw()
 	_leaving = true
 	UiTransition.change_scene(KIT_SCENE)
+
+
+func _on_back_agreed(action: int) -> void:
+	if action == NetworkBackVote.VOTE_LEAVE_SESSION:
+		_leave_session()
+	else:
+		_back_status = "GOING BACK TO TEAM SELECT..."
+		_refresh_state()
+
+
+func _on_back_status(status: String) -> void:
+	_back_status = status
+	_refresh_state()
 
 
 func _on_game_plan_requested() -> void:
@@ -287,6 +330,8 @@ func _on_option_changed(field: String, value: float) -> void:
 func _on_exit_requested() -> void:
 	if _match_started:
 		return
+	if back_vote != null:
+		back_vote.withdraw()
 	_leaving = true
 	call_deferred("_do_exit_to_main_menu")
 
@@ -301,6 +346,8 @@ func _leave_session() -> void:
 	if _leaving:
 		return
 	_leaving = true
+	if back_vote != null:
+		back_vote.withdraw()
 	call_deferred("_do_leave_session")
 
 
@@ -312,3 +359,4 @@ func _do_leave_session() -> void:
 
 func _process(_delta: float) -> void:
 	_poll_lobby()
+

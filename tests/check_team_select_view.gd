@@ -93,6 +93,11 @@ func _run() -> void:
 	_check(absf(away_panel.position.x - 856.5) < 0.01, "away card x 856.5")
 	_check(is_equal_approx(home_panel.size.x, 512.0), "card width 512")
 	_check(is_equal_approx(home_panel.size.y, 820.0), "card height 820")
+	var hints: UiHintsBar = view.get("hints")
+	_check(absf(hints.position.x - home_panel.position.x) < 0.01,
+		"hints start at the home card left edge")
+	_check(absf(hints.size.x - (away_panel.position.x + away_panel.size.x
+		- home_panel.position.x)) < 0.01, "hints span both cards")
 	var country_block: TeamBlock = home_panel.get("_country_block")
 	var team_block: TeamBlock = home_panel.get("_team_block")
 	var competition_block: TeamBlock = home_panel.get("_competition_block")
