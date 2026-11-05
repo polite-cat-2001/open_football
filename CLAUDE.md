@@ -209,6 +209,10 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## Конвенции
 
+- **Нижний блок статуса/подсказок — только `UiHintsBar`** (`scenes/ui/ui_hints_bar.tscn`): все
+  shell-экраны (главное меню, быстрый/сетевой матч) используют его, не строят локальные
+  `Status`/`UiLegend` и не задают свой отступ; сверху `UiTokens.HINTS_GAP` (16), внутри 24/12/24;
+  ширина и левый край — по контенту экрана (Team Select — обе карточки, Host/Join — FormPanel).
 - Отвечать по-русски (предпочтение пользователя); комментарии и доки — на русском.
 - Conventional Commits (`feat:`/`fix:`/`refactor:`/`docs:`/`chore:`/`test:`/`perf:`).
 - `docs/football_reference.md` — свод правил FIFA + гейм-дизайн; читать перед работой над разметкой,

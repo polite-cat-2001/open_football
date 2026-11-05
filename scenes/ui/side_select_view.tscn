@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/side_select_view.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/ui/side_select_vertical_label.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_stage.tscn" id="3"]
-[ext_resource type="Script" path="res://scripts/ui/ui_legend.gd" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="4"]
 
 [node name="SideSelectView" type="Control"]
 layout_mode = 3
@@ -90,21 +90,10 @@ offset_right = 1480.0
 offset_bottom = 683.2
 mouse_filter = 2
 
-[node name="Status" type="Label" parent="Design/PanelWrap"]
-visible = false
+[node name="Hints" parent="Design/PanelWrap" instance=ExtResource("4")]
 layout_mode = 0
 offset_top = 769.2
 offset_right = 1480.0
-offset_bottom = 793.2
+offset_bottom = 829.2
 mouse_filter = 2
-theme_type_variation = &"SideStatus"
-horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="Legend" type="HBoxContainer" parent="Design/PanelWrap"]
-layout_mode = 0
-offset_top = 809.2
-offset_right = 1480.0
-offset_bottom = 833.2
-mouse_filter = 2
-script = ExtResource("4")

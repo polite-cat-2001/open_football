@@ -11,6 +11,9 @@ const SIZES := [Vector2i(1920, 1080), Vector2i(1280, 720)]
 const SCREENS := [
 	"res://scenes/main_menu.tscn",
 	"res://scenes/controller_select.tscn",
+	"res://scenes/network_menu.tscn",
+	"res://scenes/network_host.tscn",
+	"res://scenes/network_join.tscn",
 	"res://scenes/ui/side_select_view.tscn",
 	"res://scenes/team_select.tscn",
 	"res://scenes/kit_select.tscn",

@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/team_select_view.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_stage.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/ui/team_panel.tscn" id="3"]
-[ext_resource type="Script" path="res://scripts/ui/ui_legend.gd" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="4"]
 
 [node name="TeamSelectView" type="Control"]
 layout_mode = 3
@@ -48,21 +48,10 @@ offset_left = 856.5
 offset_right = 1368.5
 offset_bottom = 820.0
 
-[node name="Status" type="Label" parent="Design/PanelWrap"]
-visible = false
+[node name="Hints" parent="Design/PanelWrap" instance=ExtResource("4")]
 layout_mode = 0
-offset_top = 832.0
-offset_right = 1480.0
-offset_bottom = 856.0
-mouse_filter = 2
-theme_type_variation = &"SideStatus"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Legend" type="HBoxContainer" parent="Design/PanelWrap"]
-layout_mode = 0
-offset_top = 872.0
+offset_top = 836.0
 offset_right = 1480.0
 offset_bottom = 896.0
 mouse_filter = 2
-script = ExtResource("4")
+

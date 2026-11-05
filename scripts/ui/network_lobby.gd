@@ -21,6 +21,7 @@ var catalog := TeamCatalog.new()
 var national_league_id := -1
 var country_entries: Array = []
 var sides: Array = []
+var back_vote: NetworkBackVote
 
 var _local_id := -1
 var _chooser_sides: Array = []
@@ -34,6 +35,7 @@ var _status := ""
 var _status_error := false
 var _leaving := false
 var _last_signature := ""
+var _back_status := ""
 
 
 func _ready() -> void:
@@ -43,14 +45,32 @@ func _ready() -> void:
 	view.side_move_requested.connect(_on_side_move)
 	view.side_confirm_requested.connect(_on_side_confirm)
 	view.side_cancel_requested.connect(_on_side_cancel)
-	view.back_requested.connect(_leave_session)
+	view.back_requested.connect(_request_back)
 	view.retry_requested.connect(_reload)
+	_setup_back_vote()
 	_load_catalog()
 	_poll_lobby()
 	set_process(true)
 
 
+func _setup_back_vote() -> void:
+	back_vote = NetworkBackVote.new()
+	back_vote.name = "BackVote"
+	_back_vote_parent().add_child(back_vote)
+	back_vote.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	back_vote.setup(NetworkBackVote.VOTE_BACK_TO_SIDES)
+	back_vote.action_agreed.connect(_on_back_agreed)
+	back_vote.state_changed.connect(_on_back_status)
+	if NetShell.is_active(get_tree()):
+		back_vote.clear_server_vote()
+
+
+func _back_vote_parent() -> Control:
+	return view.design if view != null and view.design != null else self
+
+
 func _sides_init() -> void:
+
 	sides = [
 		_side_model(0),
 		_side_model(1),
@@ -320,7 +340,15 @@ func _seed_defaults(side_index: int) -> void:
 	if _applying or _catalog_error or bool(_default_sent[side_index]):
 		return
 	var side: Dictionary = sides[side_index]
+	# Open a fresh LAN match on the same pair Quick Match shows by default.
+	var default_team_id := ShellState.DEFAULT_HOME_TEAM_ID if side_index == 0 \
+		else ShellState.DEFAULT_AWAY_TEAM_ID
+	if not _select_team_by_id(side, default_team_id):
+		# The catalog may not contain the default team; keep the first entry.
+		if _team_entry(side).is_empty():
+			return
 	var country := _country_entry(side)
+	var league := _league_entry(side)
 	var team := _team_entry(side)
 	if country.is_empty() or team.is_empty():
 		return
@@ -328,9 +356,50 @@ func _seed_defaults(side_index: int) -> void:
 	var country_id := 0 if str(country.get("id", "")) == "national" \
 		else int(str(country.get("id", "0")))
 	NET_SHELL.action(get_tree(), "set_selection", side_index, 0, country_id)
+	var league_id := int(str(league.get("id", "0")))
+	if league_id > 0:
+		NET_SHELL.action(get_tree(), "set_selection", side_index, 1, league_id)
 	var team_id := int(str(team.get("id", "0")))
 	if team_id > 0:
 		NET_SHELL.action(get_tree(), "set_selection", side_index, 2, team_id)
+
+
+func _select_team_by_id(side: Dictionary, team_id: int) -> bool:
+	if team_id <= 0:
+		return false
+	var team := catalog.team_by_id(team_id)
+	if team.is_empty():
+		return false
+	var league := catalog.league_by_id(int(team.get("league_id", 0)))
+	if league.is_empty():
+		return false
+	var country_index := _country_index_for_id(int(league.get("country_id", 0)))
+	if country_index < 0:
+		return false
+	side["country_index"] = country_index
+	_apply_country(side)
+	var league_index := _find_entry_index(side["league_entries"],
+		str(league.get("id", 0)))
+	if league_index < 0:
+		return false
+	side["league_index"] = league_index
+	_apply_league(side)
+	var team_index := _find_entry_index(side["team_entries"], str(team_id))
+	if team_index < 0:
+		return false
+	side["team_index"] = team_index
+	return true
+
+
+func _country_index_for_id(country_id: int) -> int:
+	for index in country_entries.size():
+		var id := str(country_entries[index].get("id", ""))
+		if id == "national":
+			if country_id == 0:
+				return index
+		elif id == str(country_id):
+			return index
+	return -1
 
 
 func _update_owners(lobby: Dictionary) -> void:
@@ -362,13 +431,18 @@ func _refresh() -> void:
 	_last_signature = signature
 	view.setup(_build_state(), {
 		"back_label": "leave",
-		"status": _status,
-		"status_error": _status_error,
+		"status": _effective_status(),
+		"status_error": _status_error and _back_status.is_empty(),
 	})
 
 
+func _effective_status() -> String:
+	return _back_status if not _back_status.is_empty() else _status
+
+
 func _signature() -> String:
-	var parts: Array[String] = [str(_status), str(_status_error), str(_catalog_error)]
+	var parts: Array[String] = [str(_status), str(_status_error), str(_catalog_error),
+		str(_back_status)]
 	for side in sides:
 		var device: Dictionary = side["device"]
 		parts.append("%d/%d/%d/%d/%d/%d/%s/%s:%d" % [
@@ -412,8 +486,8 @@ func _build_state() -> Dictionary:
 		})
 	return {
 		"sides": side_states,
-		"status": _status,
-		"status_error": _status_error,
+		"status": _effective_status(),
+		"status_error": _status_error and _back_status.is_empty(),
 		"error": _catalog_error,
 	}
 
@@ -523,7 +597,7 @@ func _on_side_cancel(side: int, input: Dictionary) -> void:
 	_note_input(input)
 	var model: Dictionary = sides[side]
 	if not bool(model["editable"]):
-		_leave_session()
+		_request_back()
 		return
 	if bool(model["ready"]):
 		model["ready"] = false
@@ -532,7 +606,7 @@ func _on_side_cancel(side: int, input: Dictionary) -> void:
 		NET_SHELL.action(get_tree(), "set_team_ready", side, 0, 0)
 		_refresh()
 		return
-	_leave_session()
+	_request_back()
 
 
 func _enter_kits(lobby: Dictionary) -> void:
@@ -564,10 +638,34 @@ func _set_status(text: String, error := false) -> void:
 		view.set_status(text, error)
 
 
+func _request_back() -> void:
+	if _leaving:
+		return
+	if back_vote != null:
+		back_vote.request()
+		return
+	_leave_session()
+
+
+func _on_back_agreed(action: int) -> void:
+	if action == NetworkBackVote.VOTE_LEAVE_SESSION:
+		_leave_session()
+	else:
+		_back_status = "GOING BACK TO SIDE SELECT..."
+		_refresh()
+
+
+func _on_back_status(status: String) -> void:
+	_back_status = status
+	_refresh()
+
+
 func _leave_session() -> void:
 	if _leaving:
 		return
 	_leaving = true
+	if back_vote != null:
+		back_vote.withdraw()
 	if NET_SHELL.is_active(get_tree()):
 		NET_SHELL.leave(get_tree())
 	UiTransition.change_scene(NETWORK_MENU_SCENE)
@@ -575,3 +673,4 @@ func _leave_session() -> void:
 
 func _process(_delta: float) -> void:
 	_poll_lobby()
+

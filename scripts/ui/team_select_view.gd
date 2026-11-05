@@ -16,8 +16,10 @@ const FOCUS_ORDER := [FIELD_COUNTRY, FIELD_TEAM, FIELD_COMPETITION]
 @onready var teams: Control = $Design/PanelWrap/Teams
 @onready var home_panel: TeamPanel = $Design/PanelWrap/Teams/HomePanel
 @onready var away_panel: TeamPanel = $Design/PanelWrap/Teams/AwayPanel
-@onready var status_label: Label = $Design/PanelWrap/Status
-@onready var legend: UiLegend = $Design/PanelWrap/Legend
+@onready var hints: UiHintsBar = $Design/PanelWrap/Hints
+var status_label: Label
+var legend: UiLegend
+
 
 var _ui_nav: Node
 var _sides: Array = []
@@ -42,7 +44,10 @@ func _ready() -> void:
 		_ui_nav.tab_previous.connect(_on_nav_tab)
 		_ui_nav.tab_next.connect(_on_nav_tab)
 		_ui_nav.device_changed.connect(_on_device_changed)
-	legend.setup(_keyboard_hints())
+	status_label = hints.status_label
+	legend = hints.legend
+	hints.setup(_keyboard_hints())
+
 	theme_changed.connect(_layout)
 	resized.connect(_layout)
 	get_viewport().size_changed.connect(_layout)
@@ -89,11 +94,10 @@ func apply_state(state: Dictionary) -> void:
 func set_status(text: String, error := false) -> void:
 	_status_text = text
 	_status_error = error
-	if status_label == null:
+	if hints == null:
 		return
-	status_label.text = text
-	status_label.visible = not text.is_empty()
-	status_label.theme_type_variation = &"SideStatusError" if error else &"SideStatus"
+	hints.set_status(text, error)
+
 
 
 func status_text() -> String:
@@ -170,9 +174,9 @@ func _layout() -> void:
 	if view.x <= 0.0 or view.y <= 0.0:
 		return
 	layout_canvas()
-	var legend_height := maxf(24.0, legend.get_combined_minimum_size().y)
-	var total := UiTokens.TEAM_PANEL_H + UiTokens.TEAM_STATUS_GAP + UiTokens.TEAM_STATUS_H \
-		+ UiTokens.TEAM_LEGEND_GAP + legend_height
+	var hints_height := hints.height()
+	var total := UiTokens.TEAM_PANEL_H + UiTokens.HINTS_GAP + hints_height
+
 	panel_wrap.position = Vector2(
 		(UiTokens.DESIGN_SIZE.x - UiTokens.PANEL_W) * 0.5,
 		(UiTokens.DESIGN_SIZE.y - total) * 0.5
@@ -186,11 +190,10 @@ func _layout() -> void:
 	home_panel.size = Vector2(UiTokens.TEAM_PANEL_W, UiTokens.TEAM_PANEL_H)
 	away_panel.position = Vector2(second_x, 0.0)
 	away_panel.size = Vector2(UiTokens.TEAM_PANEL_W, UiTokens.TEAM_PANEL_H)
-	var status_y := UiTokens.TEAM_PANEL_H + UiTokens.TEAM_STATUS_GAP
-	status_label.position = Vector2(0.0, status_y)
-	status_label.size = Vector2(UiTokens.PANEL_W, UiTokens.TEAM_STATUS_H)
-	legend.position = Vector2(0.0, status_y + UiTokens.TEAM_STATUS_H + UiTokens.TEAM_LEGEND_GAP)
-	legend.size = Vector2(UiTokens.PANEL_W, legend_height)
+	var status_y := UiTokens.TEAM_PANEL_H + UiTokens.HINTS_GAP
+	hints.position = Vector2(first_x, status_y)
+	hints.size = Vector2(second_x + UiTokens.TEAM_PANEL_W - first_x, hints_height)
+
 
 
 func _editable_sides() -> Array:
@@ -277,16 +280,22 @@ func _move_focus(side: int, delta: int) -> void:
 
 
 func _on_nav_moved(direction: Vector2i) -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	if _ui_nav != null and _ui_nav.last_input_gamepad():
 		return
 	_handle_move(direction, {"kind": "keyboard", "device": 0})
 
 
 func _on_nav_gamepad_moved(direction: Vector2i, device: int) -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	_handle_move(direction, {"kind": "gamepad", "device": device})
 
 
 func _on_nav_confirmed() -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	if _error:
 		retry_requested.emit()
 		return
@@ -297,6 +306,8 @@ func _on_nav_confirmed() -> void:
 
 
 func _on_nav_cancelled() -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	if _error:
 		back_requested.emit()
 		return
@@ -308,6 +319,8 @@ func _on_nav_cancelled() -> void:
 
 
 func _on_nav_tab() -> void:
+	if _ui_nav != null and _ui_nav.event_was_modal():
+		return
 	if _error or not _shares_device():
 		return
 	var editable := _editable_sides()
@@ -326,10 +339,11 @@ func _on_device_changed(_gamepad: bool) -> void:
 
 
 func refresh_legend() -> void:
-	if legend == null:
+	if hints == null:
 		return
-	legend.setup(_gamepad_hints() if _ui_nav != null and _ui_nav.using_gamepad()
+	hints.setup(_gamepad_hints() if _ui_nav != null and _ui_nav.using_gamepad()
 		else _keyboard_hints())
+
 
 
 func _keyboard_hints() -> Array:
@@ -339,8 +353,8 @@ func _keyboard_hints() -> Array:
 			{"keys": ["ESC"], "label": _back_label},
 		]
 	var hints := [
-		{"keys": ["←", "→"], "label": "change"},
-		{"keys": ["↑", "↓"], "label": "level"},
+		{"keys": ["в†ђ", "в†’"], "label": "change"},
+		{"keys": ["в†‘", "в†“"], "label": "level"},
 		{"keys": ["ENTER"], "label": "ready"},
 		{"keys": ["ESC"], "label": _back_label},
 	]
@@ -363,3 +377,4 @@ func _gamepad_hints() -> Array:
 	if _shares_device():
 		hints.insert(2, {"keys": ["LB/RB"], "label": "panel"})
 	return hints
+

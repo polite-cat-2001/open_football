@@ -1,4 +1,4 @@
-﻿extends UiScreen
+extends UiScreen
 
 # Main menu: shared stage + 1920x1080 design surface with the prototype's bento
 # menu, driven by the shared UiNav router (keyboard, gamepad, mouse).
@@ -24,7 +24,7 @@ enum Zone { GRID, TABS, PANEL }
 @onready var settings_grid: BentoGrid = $Design/PanelWrap/SettingsGrid
 @onready var breadcrumb: UiBreadcrumb = $Design/PanelWrap/Breadcrumb
 @onready var menu_panel: UiMenuPanel = $Design/PanelWrap/MenuPanel
-@onready var legend: UiLegend = $Design/PanelWrap/Legend
+@onready var hints: UiHintsBar = $Design/PanelWrap/Hints
 @onready var brand: HBoxContainer = $Design/Brand
 @onready var quick_tile: BentoTile = $Design/PanelWrap/PlayGrid/QuickMatchTile
 @onready var continue_tile: BentoTile = $Design/PanelWrap/PlayGrid/ContinueCareerTile
@@ -50,7 +50,7 @@ func _ready() -> void:
 	tab_bar.setup(["PLAY", "SETTINGS"])
 	tab_bar.tab_selected.connect(_on_tab_selected)
 	tab_bar.bar_focused.connect(_on_bar_focused)
-	legend.setup(_keyboard_hints())
+	hints.setup(_keyboard_hints())
 
 	UiNav.moved.connect(_on_nav_moved)
 	UiNav.confirmed.connect(_on_nav_confirmed)
@@ -107,27 +107,28 @@ func _apply_view_state() -> void:
 		breadcrumb.visible = false
 		menu_panel.visible = false
 
-	var legend_height := maxf(24.0, legend.get_combined_minimum_size().y)
+	var hints_height := hints.height()
 	var panel_x := (UiTokens.DESIGN_SIZE.x - UiTokens.PANEL_W) * 0.5
 
 	if _panel_open:
 		var content_height := menu_panel.content_height()
-		var block_height := UiTokens.TAB_H + UiTokens.GAP + content_height + 16.0 + legend_height
+		var block_height := UiTokens.TAB_H + UiTokens.GAP + content_height + UiTokens.HINTS_GAP + hints_height
 		var panel_top := (UiTokens.DESIGN_SIZE.y - block_height) * 0.5
 		panel_wrap.position = Vector2(panel_x, panel_top)
 		panel_wrap.size = Vector2(UiTokens.PANEL_W, block_height)
 		breadcrumb.position = Vector2.ZERO
 		menu_panel.position = Vector2(0.0, UiTokens.TAB_H + UiTokens.GAP)
 		menu_panel.size = Vector2(UiTokens.PANEL_W, content_height)
-		legend.position = Vector2(
+		hints.position = Vector2(
 			0.0,
-			UiTokens.TAB_H + UiTokens.GAP + content_height + 16.0
+			UiTokens.TAB_H + UiTokens.GAP + content_height + UiTokens.HINTS_GAP
 		)
-		legend.size = Vector2(UiTokens.PANEL_W, legend_height)
+
+		hints.size = Vector2(UiTokens.PANEL_W, hints_height)
 		_update_focus_chain()
 		return
 
-	var total_height := UiTokens.TAB_H + UiTokens.GAP + UiTokens.GRID_H + 16.0 + legend_height
+	var total_height := UiTokens.TAB_H + UiTokens.GAP + UiTokens.GRID_H + UiTokens.HINTS_GAP + hints_height
 	var top := (UiTokens.DESIGN_SIZE.y - total_height) * 0.5
 	panel_wrap.position = Vector2(panel_x, top)
 	panel_wrap.size = Vector2(UiTokens.PANEL_W, total_height)
@@ -147,8 +148,8 @@ func _apply_view_state() -> void:
 	menu_panel.position = grid_position
 	menu_panel.size = grid_size
 
-	legend.position = Vector2(0.0, grid_position.y + UiTokens.GRID_H + 16.0)
-	legend.size = Vector2(UiTokens.PANEL_W, legend_height)
+	hints.position = Vector2(0.0, grid_position.y + UiTokens.GRID_H + UiTokens.HINTS_GAP)
+	hints.size = Vector2(UiTokens.PANEL_W, hints_height)
 	_update_focus_chain()
 
 
@@ -367,7 +368,7 @@ func _apply_close_panel() -> void:
 
 
 func _on_device_changed(gamepad: bool) -> void:
-	legend.setup(_gamepad_hints() if gamepad else _keyboard_hints())
+	hints.setup(_gamepad_hints() if gamepad else _keyboard_hints())
 	_apply_view_state()
 
 
@@ -390,3 +391,4 @@ func _gamepad_hints() -> Array:
 
 func _open_scene(path: String) -> void:
 	UiTransition.change_scene(path)
+

@@ -1988,3 +1988,42 @@ placeholder; национальный значок и шрифт есть. Ру�
   `FC Barcelona` (1795) дома и `Real Madrid` (1794) в гостях. Если пары нет в базе или есть
   сохранённый выбор, работает прежний путь: восстановление пары либо первая реальная страна.
 - Регресс в `check_team_select_ui`: проверяются id обоих дефолтных клубов.
+
+## [2026-11-04] feat | Сетевые меню на дизайн-системе, OSK и Back-голосование
+- `network_menu`/`network_host`/`network_join` переписаны на `UiScreen`/`UiStage`: две wide-плитки Host/Join
+  без Back, отдельные формы с `UiFormRow` и общим `UiOnScreenKeyboard` (QWERTY + цифры/символы, модальный,
+  физическая клавиатура/мышь, первый допустимый фокус, возврат фокуса), inline-ошибки IPv4/hostname/port/имя.
+- `NetworkSettings` (`user://network.cfg`, отдельные host/join) сохраняет значения после успешного
+  `net_host`/`net_join`; `NetShell.last_*` удалены.
+- Back из sides/teams/kit — `NetworkBackVote` через `hubvote`, у второго пира диалог LEAVE TOO/STAY;
+  Back из хаба локальный. В C++ (`of_port`) `e_NetHubVote` расширен `BackToSides`/`LeaveSession`,
+  голосование разрешено в Sides/Teams/Options; библиотеки и GDExtension пересобраны.
+- Тесты: `check_network_ui`, `check_network_setup`, `check_ui_on_screen_keyboard`, `check_network_back_vote`,
+  `check_gpf_net_back_vote_live` (два процесса с реальными Host/Join экранами), обновлён `check_gpf_net_ui`;
+  скриншоты — `tests/capture_network_shots.gd` (1920×1080 и 1280×720).
+
+## [2026-11-04] refactor | Общий UiHintsBar для всех shell-экранов
+- Нижний блок статуса/подсказок вынесен в `UiHintsBar` (`scripts/ui/ui_hints_bar.gd`,
+  `scenes/ui/ui_hints_bar.tscn`): статус 24 + gap 12 + легенда 24, слот статуса резервируется
+  всегда, поэтому легенда стоит на одном расстоянии от контента.
+- Главное меню, `network_menu`/`network_host`/`network_join` и общие `SideSelectView`/
+  `TeamSelectView`/`KitSelectView`/`MatchHubView` используют один инстанс; экран задаёт только
+  `UiTokens.HINTS_GAP` (16) от контента. На Host/Join ширина блока равна `FormPanel` и выровнена
+  по её левому краю.
+- Правило записано в `AGENTS.md`, `CLAUDE.md` и `docs/wiki/дизайн-система-ui.md`; тест —
+  `tests/check_ui_hints_bar.gd`, обновлён `check_main_menu_layout` (панель +36 px).
+
+## [2026-11-05] feat | Сетевой матч стартует с дефолтной парой Quick Match
+- `ShellState.DEFAULT_HOME_TEAM_ID`/`DEFAULT_AWAY_TEAM_ID` — единый источник дефолтной пары
+  Barcelona/Real Madrid для Quick Match и сетевого лобби.
+- `network_lobby._seed_defaults` выбирает эти команды для каждой chooser-стороны (home/away)
+  через `_select_team_by_id` (страна/лига/команда), поэтому свежая LAN-игра открывается на той
+  же паре, что и Quick Match; `check_gpf_net_ui` проверяет оба id, `check_team_select_ui` — общий
+  источник констант.
+
+## [2026-11-05] feat | Сетевой Kit Select правит обе формы локально
+- Киты по сети не синхронизируются, поэтому `network_kit_select` больше не ограничивает
+  редактирование chooser-слотом: каждый пир проходит обе формы как в 1P (home → away),
+  `active_side` переключается после ready, Esc снимает ready предыдущей формы.
+- `check_gpf_net_ui` проверяет старт на home, смену home-комплекта, переход к away и смену
+  away-комплекта до открытия хаба.

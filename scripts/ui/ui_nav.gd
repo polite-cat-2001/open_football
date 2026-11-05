@@ -24,10 +24,34 @@ var _last_device_id := 0
 var _held_direction := Vector2i.ZERO
 var _repeat_timer := 0.0
 var _gamepad_state: Dictionary = {}
+var _modal_stack: Array[Object] = []
+var _event_modal := false
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+
+
+func push_modal(owner: Object) -> void:
+	if owner == null or _modal_stack.has(owner):
+		return
+	_modal_stack.append(owner)
+
+
+func pop_modal(owner: Object) -> void:
+	_modal_stack.erase(owner)
+
+
+func is_modal() -> bool:
+	return not _modal_stack.is_empty()
+
+
+func modal_owner() -> Object:
+	return _modal_stack.back() if not _modal_stack.is_empty() else null
+
+
+func event_was_modal() -> bool:
+	return _event_modal
 
 
 func _process(delta: float) -> void:
@@ -41,11 +65,13 @@ func _process(delta: float) -> void:
 	elif direction != _held_direction:
 		_held_direction = direction
 		_repeat_timer = FIRST_DELAY
+		_event_modal = is_modal()
 		moved.emit(direction)
 	else:
 		_repeat_timer -= delta
 		if _repeat_timer <= 0.0:
 			_repeat_timer = REPEAT_DELAY
+			_event_modal = is_modal()
 			moved.emit(direction)
 	_poll_gamepads(delta)
 
@@ -53,6 +79,11 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not _is_active():
 		return
+
+	# Capture the modal state for the whole event: a modal may close while its
+	# signal handlers run, and the screen underneath must still ignore that
+	# same event (Esc closing the OSK must not also trigger Back).
+	_event_modal = is_modal()
 
 	if event is InputEventMouseMotion or event is InputEventMouseButton:
 		_set_device(Device.MOUSE)
@@ -70,10 +101,19 @@ func _input(event: InputEvent) -> void:
 			return
 		var handled := true
 		match code:
-			KEY_ENTER, KEY_KP_ENTER, KEY_SPACE:
+			KEY_ENTER, KEY_KP_ENTER:
 				_set_device(Device.KEYBOARD)
 				_last_device_id = 0
 				confirmed.emit()
+			KEY_SPACE:
+				_set_device(Device.KEYBOARD)
+				_last_device_id = 0
+				# A modal text keyboard needs the physical space bar; without a
+				# modal, Space keeps acting as confirm.
+				if is_modal():
+					handled = false
+				else:
+					confirmed.emit()
 			KEY_ESCAPE:
 				_set_device(Device.KEYBOARD)
 				_last_device_id = 0
@@ -231,6 +271,7 @@ func _poll_gamepads(delta: float) -> void:
 
 func _emit_gamepad_move(direction: Vector2i, device_id: int) -> void:
 	_last_device_id = device_id
+	_event_modal = is_modal()
 	moved_gamepad.emit(direction, device_id)
 
 

@@ -7,12 +7,6 @@ extends RefCounted
 const RUNTIME_SCENE := preload("res://scenes/gpf_runtime.tscn")
 const RUNTIME_GROUP := "gpf_runtime"
 
-static var last_host_port := 27015
-static var last_host_name := "Host"
-static var last_join_address := "127.0.0.1"
-static var last_join_port := 27015
-static var last_join_name := "Player"
-
 
 static func runtime(tree: SceneTree) -> Node:
 	if tree == null:

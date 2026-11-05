@@ -22,8 +22,11 @@
   command-ячейки, полноэкранные Game Plan / Options оверлеи. Поток:
   Team Select → Kit Select → Match Hub. Локальный адаптер собирает пакет, сетевой — снапшот
   лобби.
-- Остальной шелл (`squad`, `network_menu`, `network_host/join` и т.д.)
-  и in-match UI пока живут по-старому.
+- **Сетевые меню** — `network_menu`, `network_host`, `network_join` на `UiScreen`/`UiStage`:
+  две wide-плитки Host/Join без Back, отдельные формы с общим `UiOnScreenKeyboard` и
+  `UiFormRow`, inline-ошибки и `Connecting...`. Back-цепочка `sides → teams → kit` идёт через
+  общий `NetworkBackVote` (диалог у второго пира), Back из хаба остаётся локальным.
+- Остальной шелл (`squad`) и in-match UI пока живут по-старому.
 - **Тема не глобальная**: `ui_theme.tres` назначается на корень экрана, а не через
   `gui/theme/custom`. Поэтому HUD, пауза и серия пенальти не меняются, пока их не переведут отдельно.
 - UI меню — **английский**; русские строки in-match остаются на дефолтном шрифте.
@@ -43,6 +46,8 @@ scripts/ui/bento_tile.gd     — тайл бенто (Button + Panel/StyleBox + 
 scripts/ui/bento_grid.gd     — ручная сетка 4×2 (не Container: selected-тайл уезжает)
 scripts/ui/ui_tab_bar.gd     — табы с измеряемым маркером
 scripts/ui/ui_legend.gd      — нижняя легенда, переключается по устройству
+scripts/ui/ui_hints_bar.gd   — общий блок status + legend для всех shell-экранов
+scenes/ui/ui_hints_bar.tscn  — инстанс UiHintsBar (фиксированные 24/12/24)
 scripts/ui/ui_breadcrumb.gd  — скошенная плашка пути (custom _draw)
 scripts/ui/ui_menu_row.gd    — строка панели (88 px, инверсия по фокусу)
 scripts/ui/ui_menu_panel.gd  — note + rows/static для подменю
@@ -75,6 +80,15 @@ scripts/ui/hub_command_cell.gd — command-ячейка (фокус/hover/кли
 scripts/ui/match_options_overlay.gd — duration/difficulty + заглушки Stadium/Weather/Camera/System
 scripts/ui/hub_value_slider.gd — слайдер дизайн-системы для Options
 scripts/ui/match_hub_state.gd — общие снапшот-хелперы локального и сетевого адаптеров
+scripts/ui/network_menu.gd   — меню сети: две wide-плитки Host/Join, breadcrumb, без Back
+scripts/ui/network_host.gd   — форма Host: port/name, OSK, inline-ошибки, реальный net_host
+scripts/ui/network_join.gd   — форма Join: address/port/name, OSK, Connecting/reject
+scripts/ui/ui_form_row.gd    — фокусируемая строка формы (label/value/hint/error)
+scripts/ui/ui_on_screen_keyboard.gd — общий OSK: QWERTY+символы, SPACE/DEL/CLEAR/APPLY
+scenes/ui/ui_on_screen_keyboard.tscn — сцена OSK (modal, scrim, display)
+scripts/net/network_settings.gd — user://network.cfg: отдельные host/join значения
+scripts/net/network_validation.gd — IPv4/hostname/port/name и фильтры ввода
+scripts/net/network_back_vote.gd — общий Back-голос через hubvote + диалог LEAVE TOO/STAY
 scripts/ui/prematch.gd       — локальный адаптер MatchHubView
 scripts/ui/network_match_hub.gd — сетевой адаптер MatchHubView
 tools/import_prototype_kits.py — specs прототипа → `databases/default/kits.json`
@@ -249,7 +263,8 @@ team{...}, rating{stars,attack,midfield,defence}}` плюс `status/status_error
 - `scripts/ui/team_select.gd` — lazy `TeamCatalog`, индексы country/league/team, восстановление
   выбранных команд из `ShellState`, 1P home → CPU away и 2P parallel, ready обеих → Kit Select.
 - `scripts/ui/network_lobby.gd` — снапшот лобби, `set_selection(side, kind, index)` /
-  `set_team_ready`, seed дефолтов, имена/`YOU`, disconnect/join статусы, phase 0 → sides,
+  `set_team_ready`, seed дефолтов (пара `ShellState.DEFAULT_HOME_TEAM_ID`/`DEFAULT_AWAY_TEAM_ID`,
+  как в Quick Match), имена/`YOU`, disconnect/join статусы, phase 0 → sides,
   phase 2 → Kit Select → Match Hub. Раскладка и ввод в адаптерах не дублируются.
 
 ## Выбор форм
@@ -288,8 +303,9 @@ white/main, иначе третий/четвёртый). Один комплек
 
 Ввод — только `UiNav`: `Left/Right` листает комплект live-панели, `A/Enter` — ready, `B/Esc` —
 снять ready/назад; `Up/Down` ничего не делают. В 1P человек по очереди выбирает home, затем away
-(как команды); в 2P каждое устройство правит свою панель (`moved_gamepad`); в сети — только свои
-chooser-слоты, `Tab`/LB-RB переключает панель, если оба слота у одного. Мышь инертна.
+(как команды); в 2P каждое устройство правит свою панель (`moved_gamepad`); в сети каждый пир
+локально правит обе формы как в 1P (home → away), потому что киты не синхронизируются. Мышь
+инертна.
 
 Данные: `tools/import_prototype_kits.py` читает `specs.json`/`national_specs.json` прототипа и
 пишет `databases/default/kits.json` по `tm_id` (у игровых команд `TeamCatalog` теперь отдаёт
@@ -303,9 +319,9 @@ chooser-слоты, `Tab`/LB-RB переключает панель, если о
 
 - `scripts/ui/kit_select.gd` — локальный: `KitCatalog` + `ShellState.home/away_team`, дефолтные
   индексы 0/1, 1P home→away и 2P parallel, ready обеих → Match Hub.
-- `scripts/ui/network_kit_select.gd` — сетевой: снапшот лобби (`chooser`, имена), локальные
-  ready-слоты, `backtoteams` при выходе; после локального ready открывает
-  `network_match_hub` (phase 2 не меняется). Киты не синхронизируются — решение владельца;
+- `scripts/ui/network_kit_select.gd` — сетевой: локальный шаг; обе формы
+  редактируются локально как в 1P (home → away), киты не синхронизируются;
+  после ready обеих открывает `network_match_hub` (phase 2 не меняется).
   Back из хаба возвращает на этот же экран, не меняя фазу.
 
 ## Предматчевый хаб (MatchHubView)
@@ -362,6 +378,58 @@ B/Esc — назад/закрывает оверлей, Up/Down в Options вы�
   Exit → main menu (с `net_leave`), disconnect → Network Menu. Game Plan локальный, правки
   состава не синхронизируются.
 
+## Сетевые меню и OSK
+
+Сцена меню: `Stage` → `Design` 1920×1080 → `PanelWrap` (`ui_transition_target`) →
+`Breadcrumb` (`PLAY > NETWORK`) + `Grid` с двумя wide-плитками 735×308 + `Legend`. Плитки
+`HOST GAME` и `JOIN GAME` — обычные `BentoTile`; Back-кнопки нет, `Esc/B` возвращает в главное
+меню. Мышь работает: наведение/клик по плиткам.
+
+Host и Join — **отдельные сцены**, но с общей формой: `PanelWrap` с `UiBreadcrumb`
+(`PLAY > NETWORK > HOST/JOIN`), светлая `FormPanel` 980 px и строками `UiFormRow` (label слева,
+value/hint/error справа, фокус — инверсия, клик открывает OSK), затем action-строки
+`UiMenuRow`. Breadcrumb и нижняя legend выравниваются по **левому краю** `FormPanel`, а не по
+ширине `PanelWrap`.
+ Host: Port, Name, `OPEN LOBBY`. Join: Address, Port, Name, `CONNECT`.
+Back — только `Esc/B` (строки Back в формах нет). Ошибки — под значением поля
+(`UiTokens.ERROR_PINK`) и общей status-строкой под панелью;
+Join показывает `CONNECTING TO ...`, причину отказа и отменяет клиент по Back без зависания.
+Значения читаются/пишутся `NetworkSettings` (`user://network.cfg`, секции `[host]`/`[join]`)
+после успешного `net_host`/`net_join`.
+
+`UiOnScreenKeyboard` (`scenes/ui/ui_on_screen_keyboard.tscn`) — модальный оверлей 880 px:
+scrim, дисплей, ряды `QWERTYUIOP / ASDFGHJKL / ZXCVBNM` + служебный `1234567890.-_`,
+колонка `SPACE/DEL/CLEAR/APPLY`. Открывается по `A/Enter` на поле, первый фокус — первый
+**разрешённый** символ (для port это `1`, для имени/адреса `Q`); физическая клавиатура и мышь
+работают, backdrop/Esc закрывают, Apply отдаёт текст и возвращает фокус на поле. Фильтры:
+port — только цифры (5), address — `A-Za-z0-9.-` (64), name — буквы/цифры/пробел/`_` (16).
+`UiNav` считает OSK/диалог модальными: экран под ними не обрабатывает тот же Enter/Esc
+(`event_was_modal()`), поэтому закрытие OSK не срабатывает как Back.
+
+Back-цепочка в сети: `network_sides → network_menu`, `network_lobby → sides`,
+`network_kit_select → teams` требуют согласия обоих пиров, `network_match_hub → kit` —
+индивидуально. `NetworkBackVote` шлёт `hubvote` (значения синхронизированы с `e_NetHubVote`),
+второй пир видит модальный диалог `LEAVE TOO / STAY`; при согласии сервер меняет фазу
+(`BackToSides`/`BackToTeams`) или оба уходят в меню (`LeaveSession`). В C++ голосование
+разрешено в Sides/Teams/Options; `BackToTeams` из китов по-прежнему применяет `MenuTask`.
+
+## Подсказки (UiHintsBar)
+
+**Правило:** нижний блок статуса и подсказок управления на любом shell-экране — только
+`UiHintsBar` (`scenes/ui/ui_hints_bar.tscn`). Не создавай локальные `Status`/`UiLegend` и не
+задавай свой отступ сверху. Все экраны главного меню, быстрого и сетевого матча
+(`main_menu`, `network_menu`, `network_host`, `network_join`, `SideSelectView`,
+`TeamSelectView`, `KitSelectView`, `MatchHubView`) используют один и тот же инстанс.
+
+Геометрия: `Status` 24 px + gap 12 + `Legend` 24 px = 60 px; статус занимает слот всегда (даже
+пустой), поэтому легенда стоит на одном и том же расстоянии от контента. Экран кладёт
+`Hints` через `UiTokens.HINTS_GAP` (16 px) от низа своего контента и выравнивает по его
+**левому краю и ширине**: на Host/Join — `FormPanel` (980 px), на Team Select — обе карточки
+(1257 px от x=111.5), на остальных — `PANEL_W` (1480 px). API: `setup(hints)`,
+`set_status(text, error)`, `height()`, `status_label`, `legend`. Адаптеры могут держать
+`status_label`/`legend` как алиасы для старых тестов, но вёрстку и отступ задаёт только
+`UiHintsBar`.
+
 ## Ввод (UiNav)
 
 `UiNav` — autoload, активен только пока в дереве есть узел в группе **`ui_shell`**
@@ -381,6 +449,9 @@ InputMap не задет (кроме resume-оверлея, который жи�
   `ui_*`-навигации; направления стика читаются в `_process`.
 - Экран подписывается на сигналы и сам решает, что делать; кнопки не полагаются на `ui_accept`
   (в Godot 4.7 в нём нет кнопки геймпада).
+- `UiNav` умеет модальные оверлеи (`push_modal`/`pop_modal`, `is_modal`): OSK и диалог Back
+  забирают ввод, а экран под ними проверяет `event_was_modal()` — иначе Esc, закрывший OSK,
+  тем же событием вызвал бы Back, а Enter на Apply переоткрыл бы клавиатуру.
 
 ## Переходы (UiTransition)
 
@@ -441,6 +512,12 @@ godot --headless --path . -s res://tests/check_match_hub_view.gd
 godot --headless --path . -s res://tests/check_prematch_ui.gd
 godot --headless --path . -s res://tests/check_prematch_vote.gd
 godot --headless --path . -s res://tests/check_prematch_exit.gd
+godot --headless --path . -s res://tests/check_ui_on_screen_keyboard.gd
+godot --headless --path . -s res://tests/check_network_setup.gd
+godot --headless --path . -s res://tests/check_network_ui.gd
+godot --headless --path . -s res://tests/check_network_back_vote.gd
+godot --headless --path . -s res://tests/check_gpf_net_back_vote_live.gd
+godot --headless --path . -s res://tests/check_ui_hints_bar.gd
 godot --headless --path . -s res://tests/check_ui_layout.gd
 ```
 
@@ -474,7 +551,22 @@ godot --headless --path . -s res://tests/check_ui_layout.gd
   когда проголосовали все локальные устройства.
 - `check_prematch_exit` — четвёртая ячейка `EXIT` возвращает в главное меню.
 - `check_gpf_net_ui` — LAN-путь теперь идёт через `NetworkMatchHub`: host options/Start,
-  client ждёт `MatchSetup` (в одном процессе — host-плечо).
+  client ждёт `MatchSetup` (в одном процессе — host-плечо); Host/Join формы используют
+  `UiFormRow`, проверяются inline-ошибки и сохранение host-значений; сетевой Kit Select
+  стартует на home, меняет home/away и требует ready обеих форм.
+- `check_ui_on_screen_keyboard` — общий OSK: строки/actions, фильтры, лимиты, физическая
+  клавиатура (буквы/пробел/backspace), `UiNav`-навигация, modal ownership, Apply/backdrop/cancel.
+- `check_network_setup` — чистая валидация IPv4/hostname/port/name, фильтры и round-trip
+  `NetworkSettings` (host/join отдельно, дефолты, битые значения, reset).
+- `check_network_ui` — реальные экраны: меню без Back, Host/Join формы, OSK из поля, возврат
+  фокуса, Esc/Enter не проваливаются сквозь OSK, Connecting/ошибка, персистентность join.
+- `check_ui_hints_bar` — правило общего нижнего блока: все shell-экраны (main/network/host/join
+  и общие Side/Team/Kit/Hub view) содержат `Hints` типа `UiHintsBar`; проверяются единая высота
+  60 px, `setup`/`set_status`, слот статуса и легенда.
+- `check_network_back_vote` — локальный голос, зеркальный echo, согласие, входящий диалог,
+  `LEAVE TOO`/`STAY`, `LeaveSession`, `clear_server_vote`.
+- `check_gpf_net_back_vote_live` — два процесса: реальный Host-экран + реальный Join-экран
+  (child), ready → Teams → BackToSides → Sides → LeaveSession → меню.
 - Скриншоты главного меню: `.scratch/ui_shots/main_menu_{play,panel,gamepad}_1920x1080.png`
   (генерируются временным скриптом; в `capture_ui_shots.gd` состояния меню ещё не добавлены).
 - Скриншоты выбора сторон: `.scratch/ui_shots/side_select_{1p,2p,ready,network,network_resume}_{1920x1080,1280x720}.png`
@@ -489,11 +581,14 @@ godot --headless --path . -s res://tests/check_ui_layout.gd
 - Скриншоты хаба: `.scratch/ui_shots/match_hub_{local_1p,local_2p,network_host,network_client,game_plan,options,exit_selected}_{1920x1080,1280x720}.png`
   — `godot --path . -s res://tests/capture_match_hub_shots.gd` (фикстура —
   `tests/match_hub_fixture.gd`).
+- Скриншоты сетевых экранов: `.scratch/ui_shots/network_{menu,host,host_osk,join,join_osk,join_connecting,join_error,back_dialog}_{1920x1080,1280x720}.png`
+  — `godot --path . -s res://tests/capture_network_shots.gd`.
 
 ## Известные ограничения
 
-- Главное меню, выбор сторон, выбор команд, выбор форм и предматчевый хаб переведены; состав,
-  сетевые меню и in-match UI пока живут по-старому. Kit стоит отдельным шагом перед хабом.
+- Главное меню, выбор сторон, выбор команд, выбор форм, предматчевый хаб и сетевые меню
+  (меню/Host/Join/OSK/Back-голосование) переведены; состав и in-match UI пока живут по-старому.
+  Kit стоит отдельным шагом перед хабом.
 - На выборе сторон **мышь инертна** (решение владельца): нет кликов по половинам устройства,
   ready-галочке или back. Ready/back — только клавиатура (`Enter`/`Esc`) и геймпад (`A`/`B`).
   На выборе команд и форм мышь тоже инертна, а `V` (состав) убран.
@@ -507,8 +602,8 @@ godot --headless --path . -s res://tests/check_ui_layout.gd
   собственного error-состояния.
 - 3D-превью форм — статичный диорама-снимок без стадиона и без симуляции; это не полноценный
   рендер матча. Камера подобрана так, чтобы за кромкой поля был газон, а не пустота.
-- В сети киты не синхронизируются: каждый участник выбирает свои chooser-слоты локально, поэтому
-  у разных пиров матч может выглядеть в разных формах (решение владельца). Отдельного kit-ready в
+- В сети киты не синхронизируются: каждый участник локально выбирает обе формы (home → away, как
+  в 1P), поэтому у разных пиров матч может выглядеть в разных формах (решение владельца). Отдельного kit-ready в
   лобби нет: host стартует из хаба, не дожидаясь, пока клиент закончит локальный Kit Select;
   Back из хаба возвращает на Kit Select в той же фазе 2.
 - Рейтинги/звёзды считаются из состава только выбранных команд; у команд без логотипа показывается
