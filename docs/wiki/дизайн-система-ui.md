@@ -359,24 +359,25 @@ options/Start `WAITING FOR HOST`, ждёт `MatchSetup`. Back из хаба → 
 Оверлеи: `MATCH OPTIONS` — два слайдера + disabled-заглушки Stadium/Weather/Camera/System
 с чипом `SOON`; в сети редактирует только host. `EXIT` выходит в главное меню (в сети
 предварительно закрывает LAN-сессию). `TEAM MANAGEMENT` открывает существующий
-`GpfGamePlan` полноэкранно; правки `MatchLineup` сразу обновляют колонки, закрытие возвращает
+`GpfGamePlan` полноэкранно (половинные панели, вкладки SQUAD/FORMATIONS/ROLES, READY —
+[[план-игры]]); правки `MatchLineup` сразу обновляют колонки, закрытие возвращает
 фокус на ячейку.
 
 Ввод — только `UiNav`: Left/Right и Tab/LB-RB листают command-ячейки, A/Enter активирует,
 B/Esc — назад/закрывает оверлей, Up/Down в Options выбирают строку, Left/Right меняют
-значение; в Game Plan действия маршрутизируются в `GpfGamePlan.handle_ui_action`, `X`
-отменяет замену. Мышь работает: hover/click по command-ячейкам, слайдеры,
-клик по скриму закрывает оверлей.
+значение; в Game Plan действия маршрутизируются в `GpfGamePlan.handle_ui_action` (`Q/E`/`LB/RB`
+— вкладки, `Y` — details, `B` — READY). Мышь работает: hover/click по command-ячейкам,
+слайдеры, клик по скриму закрывает оверлей.
 
 Адаптеры:
 
 - `scripts/ui/prematch.gd` — `TeamCatalog`/`ShellState`, `MatchLineup.from_squad`, рейтинги,
-  `KitCatalog` defaults; 1P/2P start vote; `MatchPackage`; Game Plan; Exit → main menu;
-  Back → Kit.
-- `scripts/ui/network_match_hub.gd` — снапшот лобби (`NET_SHELL.lobby`), host-only options и
-  Start, client `net_take_match_setup` + `NetworkMatch.apply_setup`, Back → Network Kit,
-  Exit → main menu (с `net_leave`), disconnect → Network Menu. Game Plan локальный, правки
-  состава не синхронизируются.
+  `KitCatalog` defaults; local 2P Start одним нажатием (общее подтверждение — READY плана);
+  `MatchPackage`; Game Plan; Exit → main menu; Back → Kit.
+- `scripts/ui/network_match_hub.gd` — снапшот лобби (`NET_SHELL.lobby`), host-only options,
+  двусторонний Start (`hubvote`, 2/2), client `net_take_match_setup`, Back → Network Kit,
+  Exit → main menu (с `net_leave`), disconnect → Network Menu. Game Plan синхронизирует
+  `planswap`/`planscheme`/`planrole` через pre-match `MatchData` ([[план-игры]]).
 
 ## Сетевые меню и OSK
 
@@ -593,9 +594,9 @@ godot --headless --path . -s res://tests/check_ui_layout.gd
   ready-галочке или back. Ready/back — только клавиатура (`Enter`/`Esc`) и геймпад (`A`/`B`).
   На выборе команд и форм мышь тоже инертна, а `V` (состав) убран.
 - На выборе команд, форм и хабе нет шапки (как в прототипе); уровни читаются по блокам/панелям.
-- В сетевом хабе Game Plan доступен локально, но правки состава не синхронизируются (как формы);
-  пакет LAN по-прежнему строится из дефолтных составов. EXIT закрывает LAN-сессию и возвращает
-  в главное меню.
+- В сетевом хабе Game Plan правит состав через `planswap`/`planscheme`/`planrole` в общей
+  pre-match `MatchData`; `start_match` использует её, поэтому LAN-пакет стартует с
+  согласованными составами. EXIT закрывает LAN-сессию и возвращает в главное меню.
 - Команды с <11 игроками не попадают в список Team Select (`can_field_eleven` через
   `players.team_id`/`nationalteam_id` индексы или готовый `team_eligibility.json`); хаб получает
   только валидные составы и не имеет

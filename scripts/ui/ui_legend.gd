@@ -9,7 +9,9 @@ const KEY_MIN_WIDTH := 26.0
 
 func setup(hints: Array) -> void:
 	for child in get_children():
-		child.queue_free()
+		# Immediate free so a container's minimum width updates in the same
+		# layout pass (half-width hints bars depend on shrinking between states).
+		child.free()
 	add_theme_constant_override(&"separation", 24)
 	for hint in hints:
 		var group := HBoxContainer.new()

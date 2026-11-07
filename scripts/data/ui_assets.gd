@@ -7,6 +7,8 @@ extends RefCounted
 
 static var _textures := {}
 static var _mipmapped_textures := {}
+static var _faces := {}
+static var _face_root := ""
 static var _data_root := ""
 static var _fallback: Texture2D = null
 static var _fallback_loaded := false
@@ -121,6 +123,29 @@ static func team_logo(team: Dictionary) -> Texture2D:
 		if imported != null:
 			return imported
 	return orange_fallback()
+
+
+static func player_face(tm_id: int) -> Texture2D:
+	# Player portraits live under res://assets/faces, which is gitignored and
+	# marked .gdignore so Godot never imports the 60k source PNGs. Read them as
+	# raw images and cache the resulting textures.
+	if tm_id <= 0:
+		return null
+	if _face_root.is_empty():
+		_face_root = ProjectSettings.globalize_path("res://assets/faces")
+	var path := _face_root.path_join("%d.png" % tm_id)
+	if _faces.has(path):
+		return _faces[path]
+	if not FileAccess.file_exists(path):
+		_faces[path] = null
+		return null
+	var image := Image.new()
+	if image.load(path) != OK:
+		_faces[path] = null
+		return null
+	var texture := ImageTexture.create_from_image(image)
+	_faces[path] = texture
+	return texture
 
 
 static func kit_texture(team: Dictionary, kit: int) -> Texture2D:

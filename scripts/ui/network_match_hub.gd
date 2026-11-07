@@ -31,12 +31,15 @@ var _back_status := ""
 var _leaving := false
 var _match_started := false
 var _last_revision := -1
+var _start_vote := false
+var _last_options: Dictionary = {}
 
 
 func _ready() -> void:
 	view.start_requested.connect(_on_start_requested)
 	view.back_requested.connect(_on_back_requested)
 	view.game_plan_requested.connect(_on_game_plan_requested)
+	view.options_requested.connect(_on_options_requested)
 	view.lineup_changed.connect(_on_lineups_changed)
 	view.option_changed.connect(_on_option_changed)
 	view.exit_requested.connect(_on_exit_requested)
@@ -78,7 +81,33 @@ func _load_data() -> void:
 		return
 	home_lineup = MatchLineup.from_squad(home_squad)
 	away_lineup = MatchLineup.from_squad(away_squad)
-	view.setup_game_plan(home_lineup, away_lineup, [0, 1])
+	view.setup_game_plan(home_lineup, away_lineup, [_local_team()], {
+		"network": true,
+		"local_two_player": false,
+	})
+	_ensure_network_package()
+
+
+func _ensure_network_package() -> void:
+	var runtime := NET_SHELL.runtime(get_tree())
+	if runtime == null:
+		return
+	var ids: Array = _lobby.get("team_ids", [])
+	if ids.size() != 2:
+		return
+	var builder := MatchPackage.new()
+	if not catalog.load_data_root(data_root):
+		_status = catalog.error
+		return
+	var package := builder.build(catalog, ShellState.home_team, ShellState.away_team,
+		_lobby_options(), {},
+		{"home": ShellState.kit_home, "away": ShellState.kit_away})
+	if package.is_empty():
+		_status = builder.error
+		return
+	ShellState.set_match_package(package)
+	if not bool(runtime.set_match_package(package)):
+		_status = runtime.get_last_error()
 
 
 func _populate_teams_from_lobby() -> bool:
@@ -130,10 +159,17 @@ func _poll_lobby() -> void:
 	if phase != 2:
 		_leave_session()
 		return
+	var options := _lobby_options()
+	if not _last_options.is_empty() and options != _last_options and _start_vote:
+		# Host-side option changes invalidate a previous confirmation.
+		_withdraw_start_vote()
+	_last_options = options
 	var revision := int(_lobby.get("revision", -1))
 	if revision != _last_revision:
 		_last_revision = revision
 		_refresh_state()
+	if _host and not _match_started and int(_lobby.get("hub_vote", 0)) == 2:
+		_start_host()
 	if not _host:
 		var runtime := NET_SHELL.active_runtime(get_tree())
 		if runtime != null:
@@ -168,11 +204,14 @@ func _refresh_state() -> void:
 	var status := _back_status
 	if status.is_empty():
 		status = _status
+	var votes := _start_vote_count()
+	var peers := _peer_count()
 	if status.is_empty():
-		status = "HOST: SET OPTIONS AND START" if _host else "WAITING FOR HOST"
-	var start_label := "START MATCH" if _host else "WAITING FOR HOST"
-	if _match_started:
-		start_label = "STARTING..."
+		status = "WAITING FOR OTHER PLAYER" if _start_vote else \
+			("START MATCH WHEN READY" if _host else "WAITING FOR HOST")
+	var start_label := "STARTING..." if _match_started else "START MATCH (%d/%d)" % [votes, peers]
+	if _start_vote and not _match_started:
+		start_label = "WAITING FOR OTHER PLAYER"
 	view.setup({
 		"meta": {
 			"competition": MatchHubState.competition_name(catalog, ShellState.home_team,
@@ -187,16 +226,16 @@ func _refresh_state() -> void:
 			"editable": _host and not _match_started,
 		},
 		"flags": {
-			"can_start": _host and not _match_started,
+			"can_start": not _match_started,
 			"can_manage": true,
-			"can_options": not _match_started,
+			"can_options": _host and not _match_started,
 			"network": true,
 			"host": _host,
 			"client": not _host,
 			"local_two_player": false,
 			"start_label": start_label,
-			"start_votes": 0,
-			"start_votes_needed": 1,
+			"start_votes": votes,
+			"start_votes_needed": peers,
 		},
 		"status": status,
 		"status_error": false,
@@ -239,9 +278,43 @@ func _side_index(controller: Dictionary) -> int:
 
 
 func _on_start_requested(_input: Dictionary) -> void:
-	if not _host or _match_started:
+	if _match_started:
 		return
-	_start_host()
+	if _start_vote:
+		_withdraw_start_vote()
+		return
+	_start_vote = true
+	NET_SHELL.action(get_tree(), "hubvote", 0, 2, 0)
+	_refresh_state()
+
+
+func _withdraw_start_vote() -> void:
+	if _match_started:
+		return
+	if _start_vote:
+		_start_vote = false
+		NET_SHELL.action(get_tree(), "hubvote", 0, 0, 0)
+		_refresh_state()
+
+
+func _start_vote_count() -> int:
+	var count := 0
+	for player in _lobby.get("players", []):
+		if int(player.get("hub_vote", 0)) == 2:
+			count += 1
+	return count
+
+
+func _peer_count() -> int:
+	var players: Array = _lobby.get("players", [])
+	return maxi(1, players.size())
+
+
+func _local_team() -> int:
+	for player in _lobby.get("players", []):
+		if int(player.get("id", -1)) == _local_id:
+			return 0 if int(player.get("side", 0)) == 0 else 1
+	return 0
 
 
 func _start_host() -> void:
@@ -255,15 +328,10 @@ func _start_host() -> void:
 		return
 	if back_vote != null:
 		back_vote.withdraw()
-	var package := NETWORK_MATCH.build_package(ids, _lobby_options(), data_root)
-	if package.is_empty():
-		_status = NETWORK_MATCH.error
-		_refresh_state()
-		return
-	if not bool(runtime.set_match_package(package)):
-		_status = runtime.get_last_error()
-		_refresh_state()
-		return
+	# The package (and its pre-match MatchData) was built when the hub opened;
+	# plan swaps have been applied to it. Do not rebuild it here or the edits
+	# would be lost.
+	_ensure_network_package()
 	if not bool(runtime.net_start()):
 		_status = runtime.get_last_error()
 		_refresh_state()
@@ -276,12 +344,13 @@ func _start_client(setup: Dictionary) -> void:
 	if _match_started:
 		return
 	var runtime := NET_SHELL.active_runtime(get_tree())
-	var package := NETWORK_MATCH.apply_setup(get_tree(), runtime, setup, _lobby_options(),
-		data_root)
-	if package.is_empty():
-		_status = NETWORK_MATCH.error
-		_refresh_state()
-		return
+	if runtime == null or not ShellState.has_package():
+		var package := NETWORK_MATCH.apply_setup(get_tree(), runtime, setup, _lobby_options(),
+			data_root)
+		if package.is_empty():
+			_status = NETWORK_MATCH.error
+			_refresh_state()
+			return
 	_match_started = true
 	UiTransition.change_scene(MATCH_SCENE)
 
@@ -289,6 +358,7 @@ func _start_client(setup: Dictionary) -> void:
 func _on_back_requested(_input: Dictionary) -> void:
 	if _match_started:
 		return
+	_withdraw_start_vote()
 	if back_vote != null:
 		back_vote.withdraw()
 	_leaving = true
@@ -309,17 +379,24 @@ func _on_back_status(status: String) -> void:
 
 
 func _on_game_plan_requested() -> void:
-	pass
+	# Entering the plan (or any hub submenu) invalidates this peer's kickoff
+	# confirmation; it must press Start again after leaving.
+	_withdraw_start_vote()
+
+
+func _on_options_requested() -> void:
+	_withdraw_start_vote()
 
 
 func _on_lineups_changed() -> void:
-	# Local-only in this ticket: the LAN package still uses the default lineup.
+	_withdraw_start_vote()
 	_refresh_state()
 
 
 func _on_option_changed(field: String, value: float) -> void:
 	if not _host:
 		return
+	_withdraw_start_vote()
 	var field_index := 0 if field == "difficulty" else 1
 	_lobby["match_difficulty" if field == "difficulty" else "match_duration"] = value
 	NET_SHELL.action(get_tree(), "set_match_options", 0, field_index,
@@ -330,6 +407,7 @@ func _on_option_changed(field: String, value: float) -> void:
 func _on_exit_requested() -> void:
 	if _match_started:
 		return
+	_withdraw_start_vote()
 	if back_vote != null:
 		back_vote.withdraw()
 	_leaving = true

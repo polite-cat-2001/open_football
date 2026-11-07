@@ -1,32 +1,48 @@
 class_name GpfGamePlan
 extends Control
-# Godot port of GamePlanPage (GameplayFootball src/menu/gameplan.cpp): a pitch
-# with player cards, a bench column, a per-side cursor and the original section
-# bar (Tactics / Positions / Roles / Size). The same screen is embedded in the
-# prematch hub ("Game plan" tab) and opened from the in-match pause menu.
+# Game plan screen shared by the pre-match hub and the in-match pause menu.
+# Layout follows the career prototype / FIFA reference: one half per team, a
+# tab strip (SQUAD / FORMATIONS / ROLES), a player header with a radar, a
+# vertical pitch, a bottom drawer (bench + reserve, scheme cards or role tiles)
+# and a READY overlay that replaces the whole half.
 #
-# Data comes from one of two sources, never from the screen itself:
+# Two data sources, never read by the screen itself:
 #   prematch: MatchLineup objects (swaps rewrite the lineup used by the package)
-#   match:    GpfRuntimeNode.get_squad() and its substitution bridge
-#
-# Positions is the live section: pick a starter, then a substitute (or another
-# starter in prematch) and the change is applied. Tactics/Roles/Size are present
-# but stubbed for this ticket; the original's per-device section bar is kept.
+#   match:    GpfRuntimeNode.get_squad() plus the substitution/plan bridge
 
 signal close_requested
 signal lineup_changed
+signal ready_changed(team_id: int, ready: bool)
 
 const MENU_FONT := preload("res://assets/ui/fonts/AlegreyaSansSC-ExtraBold.ttf")
-const SECTION_NAMES := ["Tactics", "Positions", "Roles", "Size"]
-const SECTION_DESCRIPTIONS := [
-	"Choose a tactical scheme",
-	"Change positions",
-	"Captain and set-piece takers",
-	"Player size",
-]
-const SECTION_TACTICS := 0
-const SECTION_POSITIONS := 1
-const SECTION_ROLES := 2
+const FONT_HEAD := preload("res://assets/ui/fonts/BarlowCondensed-Bold.ttf")
+const FONT_HEAD_X := preload("res://assets/ui/fonts/BarlowCondensed-ExtraBold.ttf")
+const FONT_BODY := preload("res://assets/ui/fonts/Inter-Variable.ttf")
+const HINTS_SCENE := preload("res://scenes/ui/ui_hints_bar.tscn")
+
+# Career prototype theme (web/src/styles/theme.css + squad*.css).
+const C_TILE := UiTokens.TILE
+const C_INK := UiTokens.INK
+const C_INK2 := UiTokens.INK_2
+const C_FOCUS_FILL := UiTokens.FOCUS_FILL
+const C_FOCUS_INK := UiTokens.FOCUS_INK
+const C_FOCUS_INK2 := UiTokens.FOCUS_INK_2
+const C_RAIL := UiTokens.RAIL
+const C_MARK := UiTokens.FOCUS_MARK
+const C_WIN := Color(0.184, 0.490, 0.310, 1.0)
+const C_LOSS := Color(0.698, 0.227, 0.282, 1.0)
+const C_WARN := Color(0.651, 0.416, 0.0, 1.0)
+const C_PITCH := Color(0.051, 0.231, 0.176, 1.0)
+const C_PITCH_HI := Color(0.165, 0.506, 0.373, 1.0)
+const C_PITCH_LINE := Color(1.0, 1.0, 1.0, 0.30)
+const C_TILE_ALT := Color(0.910, 0.925, 0.949, 1.0)
+const C_SHADOW := Color(0.016, 0.035, 0.078, 0.30)
+
+const TAB_SQUAD := 0
+const TAB_FORMATIONS := 1
+const TAB_ROLES := 2
+const TAB_NAMES := ["SQUAD", "FORMATIONS", "ROLES"]
+
 # User-facing role order from GamePlanPage::planRoleOrder.
 const TEAM_ROLE_ROWS := [
 	{"role": 0, "name": "Captain"},
@@ -36,15 +52,78 @@ const TEAM_ROLE_ROWS := [
 	{"role": 4, "name": "Left corner"},
 	{"role": 5, "name": "Right corner"},
 ]
-const DEFAULT_HINT := "Arrows/D-pad: move   Enter/A: select   Esc/B: back   Y/Tab: bench/pitch   X: cancel sub"
+
+const RADAR_AXES := [
+	{"label": "Tempo", "keys": ["physical_velocity", "physical_acceleration"]},
+	{"label": "Shots", "keys": ["technical_shot", "physical_shotpower", "technical_volley"]},
+	{"label": "Pass", "keys": ["technical_shortpass", "technical_highpass", "mental_vision"]},
+	{"label": "Dribble", "keys": ["technical_ballcontrol", "technical_dribble", "physical_agility"]},
+	{"label": "Defence", "keys": ["technical_standingtackle", "technical_slidingtackle", "mental_defensivepositioning"]},
+	{"label": "Phys", "keys": ["physical_stamina", "mental_resilience", "physical_reaction"]},
+]
+
+const STAT_LABELS := {
+	"physical_balance": "Balance",
+	"physical_reaction": "Reaction",
+	"physical_acceleration": "Acceleration",
+	"physical_velocity": "Velocity",
+	"physical_stamina": "Stamina",
+	"physical_agility": "Agility",
+	"physical_shotpower": "Shot power",
+	"technical_standingtackle": "Stand. tackle",
+	"technical_slidingtackle": "Slide tackle",
+	"technical_ballcontrol": "Ball control",
+	"technical_dribble": "Dribbling",
+	"technical_shortpass": "Short pass",
+	"technical_highpass": "High pass",
+	"technical_header": "Header",
+	"technical_shot": "Shot",
+	"technical_volley": "Volley",
+	"mental_calmness": "Calmness",
+	"mental_workrate": "Work rate",
+	"mental_resilience": "Resilience",
+	"mental_defensivepositioning": "Def. positioning",
+	"mental_offensivepositioning": "Off. positioning",
+	"mental_vision": "Vision",
+}
+
 const DEFAULT_COLORS := {
 	0: Color(0.16, 0.32, 0.95),
 	1: Color(0.95, 0.16, 0.12),
 }
-const CARD_MIN_W := 30.0
-const CARD_MAX_W := 78.0
 const PHOTO_ASPECT := 0.80
 const ROW_REPEAT_MS := 180
+const READY_HOLD_MS := 550
+const BENCH_SIZE := MatchLineup.BENCH_SIZE
+
+
+static func _draw_texture_contain(canvas: CanvasItem, texture: Texture2D,
+		rect: Rect2, align_bottom := true, modulate := Color(1, 1, 1, 1)) -> void:
+	if texture == null:
+		return
+	var tex_size := texture.get_size()
+	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
+		return
+	var scale := minf(rect.size.x / tex_size.x, rect.size.y / tex_size.y)
+	var draw_size := tex_size * scale
+	var y := rect.position.y + rect.size.y - draw_size.y
+	if not align_bottom:
+		y = rect.position.y + (rect.size.y - draw_size.y) * 0.5
+	var position := Vector2(rect.position.x + (rect.size.x - draw_size.x) * 0.5, y)
+	canvas.draw_texture_rect(texture, Rect2(position, draw_size), false, modulate)
+
+
+static func _draw_refresh_icon(canvas: CanvasItem, center: Vector2, radius: float,
+		color: Color) -> void:
+	var icon_size := int(round(clampf(radius * 2.2, 14.0, 22.0)))
+	var rect := Rect2(center - Vector2(icon_size * 0.6, icon_size * 0.5),
+		Vector2(icon_size * 1.2, icon_size))
+	var baseline := rect.position.y + icon_size * 0.78
+	canvas.draw_string(FONT_BODY, Vector2(rect.position.x + 1.0, baseline + 1.0),
+		"↻", HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, icon_size,
+		Color(0.0, 0.0, 0.0, 0.42))
+	canvas.draw_string(FONT_BODY, Vector2(rect.position.x, baseline),
+		"↻", HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, icon_size, color)
 
 
 class GamePlanPitch extends Control:
@@ -56,6 +135,24 @@ class GamePlanPitch extends Control:
 	var cursor := -1
 	var held := -1
 	var editing := false
+	var strength := -1
+	var strength_delta := 0
+	var _surface_texture: ImageTexture
+
+	func _make_surface_texture() -> ImageTexture:
+		var resolution := 256
+		var image := Image.create(resolution, resolution, false, Image.FORMAT_RGBA8)
+		for y in resolution:
+			for x in resolution:
+				var u := (float(x) + 0.5) / float(resolution)
+				var v := (float(y) + 0.5) / float(resolution)
+				var dx := (u - 0.5) / 0.62
+				var dy := (v - 1.02) / 0.78
+				var distance := sqrt(dx * dx + dy * dy)
+				var shade := clampf(1.0 - distance, 0.0, 1.0)
+				var color := C_PITCH.lerp(C_PITCH_HI, pow(shade, 0.80))
+				image.set_pixel(x, y, color)
+		return ImageTexture.create_from_image(image)
 
 	func set_cards(value: Array) -> void:
 		cards = value
@@ -67,21 +164,60 @@ class GamePlanPitch extends Control:
 		editing = is_editing
 		queue_redraw()
 
+	func set_strength(value: int, delta: int) -> void:
+		strength = value
+		strength_delta = delta
+		queue_redraw()
+
 	func _draw() -> void:
 		var area := get_size()
 		if area.x <= 0.0 or area.y <= 0.0:
 			return
-		draw_rect(Rect2(Vector2.ZERO, area), Color(0.07, 0.26, 0.11), true)
-		var line_color := Color(0.82, 0.90, 0.82, 0.70)
-		draw_rect(Rect2(Vector2(2, 2), area - Vector2(4, 4)), line_color, false, 2.0)
-		draw_line(Vector2(2, area.y * 0.5), Vector2(area.x - 2, area.y * 0.5), line_color, 1.5)
-		draw_arc(Vector2(area.x * 0.5, area.y * 0.5), area.x * 0.13, 0.0, TAU, 32, line_color, 1.5)
-		var box_w := area.x * 0.44
-		var box_h := area.y * 0.12
-		draw_rect(Rect2((area.x - box_w) * 0.5, 2, box_w, box_h), line_color, false, 1.5)
-		draw_rect(Rect2((area.x - box_w) * 0.5, area.y - box_h - 2, box_w, box_h), line_color, false, 1.5)
+		# Pitch container + trapezoid surface, straight from the career prototype:
+		# a dark base with a soft bottom-lit radial gradient and thin mowing lines.
+		draw_rect(Rect2(Vector2.ZERO, area), C_PITCH, true)
+		if _surface_texture == null:
+			_surface_texture = _make_surface_texture()
+		draw_texture_rect(_surface_texture, Rect2(Vector2.ZERO, area), false)
+		var surface := PackedVector2Array([
+			Vector2(area.x * 0.13, area.y * 0.02),
+			Vector2(area.x * 0.87, area.y * 0.02),
+			Vector2(area.x * 0.98, area.y * 0.98),
+			Vector2(area.x * 0.02, area.y * 0.98),
+		])
+		draw_colored_polygon(PackedVector2Array([
+			Vector2.ZERO, Vector2(area.x, 0.0),
+			Vector2(area.x * 0.87, area.y * 0.02), Vector2(area.x * 0.13, area.y * 0.02),
+		]), C_PITCH)
+		draw_colored_polygon(PackedVector2Array([
+			Vector2(0.0, area.y), Vector2(area.x, area.y),
+			Vector2(area.x * 0.98, area.y * 0.98), Vector2(area.x * 0.02, area.y * 0.98),
+		]), C_PITCH)
+		draw_colored_polygon(PackedVector2Array([
+			Vector2.ZERO, Vector2(area.x * 0.13, area.y * 0.02),
+			Vector2(area.x * 0.02, area.y * 0.98), Vector2(0.0, area.y * 0.98),
+		]), C_PITCH)
+		draw_colored_polygon(PackedVector2Array([
+			Vector2(area.x, 0.0), Vector2(area.x * 0.87, area.y * 0.02),
+			Vector2(area.x * 0.98, area.y * 0.98), Vector2(area.x, area.y * 0.98),
+		]), C_PITCH)
+		var line_width := maxf(2.2, area.x * 0.0026)
+		draw_polyline(_closed(surface), Color(0.0, 0.0, 0.0, 0.34), line_width + 0.4)
+		var line_color := C_PITCH_LINE
+		draw_polyline(_closed(surface), line_color, line_width)
+		draw_line(Vector2(area.x * 0.07, area.y * 0.5), Vector2(area.x * 0.93, area.y * 0.5),
+			line_color, line_width)
+		_draw_ellipse(Vector2(area.x * 0.5, area.y * 0.5), area.x * 0.12, area.y * 0.16,
+			line_color, line_width)
+		draw_polyline(_closed(PackedVector2Array([
+			Vector2(area.x * 0.33, area.y * 0.02), Vector2(area.x * 0.67, area.y * 0.02),
+			Vector2(area.x * 0.70, area.y * 0.18), Vector2(area.x * 0.30, area.y * 0.18),
+		])), line_color, line_width)
+		draw_polyline(_closed(PackedVector2Array([
+			Vector2(area.x * 0.25, area.y * 0.98), Vector2(area.x * 0.75, area.y * 0.98),
+			Vector2(area.x * 0.70, area.y * 0.80), Vector2(area.x * 0.30, area.y * 0.80),
+		])), line_color, line_width)
 
-		var font := ThemeDB.fallback_font
 		for card in cards:
 			var entry: Dictionary = card["entry"]
 			var rect: Rect2 = card["rect"]
@@ -89,34 +225,106 @@ class GamePlanPitch extends Control:
 			var name_rect: Rect2 = card["name"]
 			var role_rect: Rect2 = card["role"]
 			var bar_rect: Rect2 = card["bar"]
-			draw_rect(photo, team_color.darkened(0.15), true)
-			draw_rect(photo, Color(0.95, 0.97, 0.95, 0.65), false, 1.0)
-			draw_rect(name_rect, Color(0.03, 0.05, 0.08, 0.85), true)
-			draw_rect(role_rect, Color(0.06, 0.09, 0.12, 0.9), true)
-			draw_rect(bar_rect, Color(0.10, 0.10, 0.10, 1.0), true)
+			var focused := editing and int(card["entry_index"]) == cursor
+			var anchored := editing and int(card["entry_index"]) == held
+			if focused:
+				draw_rect(rect.grow(maxf(2.0, rect.size.x * 0.04)), C_FOCUS_FILL, true)
+			var texture: Texture2D = card.get("photo_texture", null)
+			if texture != null:
+				GpfGamePlan._draw_texture_contain(self, texture, photo)
+			else:
+				_draw_silhouette(photo)
+			draw_rect(role_rect, Color(0.031, 0.078, 0.059, 0.72), true)
+
+			var role := str(card.get("display_role", entry.get("role", "")))
+			var rating := int(entry.get("rating", -1))
+			var role_size := maxi(8, int(photo.size.y * 0.30))
+			var rating_size := maxi(9, int(photo.size.y * 0.38))
+			var role_color := C_FOCUS_INK2 if focused else Color(0.96, 0.97, 0.99, 0.78)
+			var rating_color := C_FOCUS_INK
+			draw_string(FONT_BODY, Vector2(role_rect.position.x + 2.0,
+				role_rect.position.y + role_rect.size.y * 0.76), role,
+				HORIZONTAL_ALIGNMENT_LEFT, role_rect.size.x * 0.62, role_size, role_color)
+			if rating >= 0:
+				draw_string(FONT_HEAD, Vector2(role_rect.position.x + role_rect.size.x * 0.60,
+					role_rect.position.y + role_rect.size.y * 0.80), str(rating),
+					HORIZONTAL_ALIGNMENT_RIGHT, role_rect.size.x * 0.38, rating_size, rating_color)
+
+			var name := _short_name(str(entry.get("name", "")))
+			var name_size := maxi(9, int(photo.size.y * 0.34))
+			var name_color := C_MARK if focused else C_FOCUS_INK
+			draw_string(FONT_HEAD, Vector2(name_rect.position.x + 1.0,
+				name_rect.position.y + name_rect.size.y * 0.82 + 1.0), name,
+				HORIZONTAL_ALIGNMENT_CENTER, name_rect.size.x - 2.0, name_size,
+				Color(0, 0, 0, 0.65))
+			draw_string(FONT_HEAD, Vector2(name_rect.position.x,
+				name_rect.position.y + name_rect.size.y * 0.82), name,
+				HORIZONTAL_ALIGNMENT_CENTER, name_rect.size.x, name_size, name_color)
+
 			var fatigue := clampi(int(entry.get("fatigue", 100)), 0, 100)
-			draw_rect(Rect2(bar_rect.position, Vector2(bar_rect.size.x * float(fatigue) / 100.0, bar_rect.size.y)),
-				_fatigue_color(fatigue), true)
+			draw_rect(bar_rect, Color(0.96, 0.97, 0.99, 0.28), true)
+			draw_rect(Rect2(bar_rect.position, Vector2(bar_rect.size.x * fatigue / 100.0,
+				bar_rect.size.y)), C_WIN if fatigue >= 50 else C_LOSS, true)
 
-			var font_size := maxi(9, int(photo.size.y * 0.18))
-			var role_text := "%s%s" % [str(card.get("display_role", entry.get("role", ""))),
-				_rating_suffix(entry)]
-			draw_string(font, Vector2(role_rect.position.x, role_rect.position.y + role_rect.size.y * 0.78),
-				role_text, HORIZONTAL_ALIGNMENT_CENTER, role_rect.size.x, font_size,
-				Color(0.92, 0.94, 0.88))
-			draw_string(font, Vector2(name_rect.position.x, name_rect.position.y + name_rect.size.y * 0.82),
-				_short_name(str(entry.get("name", ""))), HORIZONTAL_ALIGNMENT_CENTER,
-				name_rect.size.x, font_size, Color(0.98, 0.98, 0.94))
-
-			var selected := editing and (int(card["entry_index"]) == cursor or int(card["entry_index"]) == held)
 			if bool(entry.get("pending_out", false)):
-				draw_rect(rect.grow(1.0), Color(1.0, 0.35, 0.25, 0.95), false, 3.0)
+				draw_rect(rect.grow(1.0), Color(0.88, 0.25, 0.22, 0.95), false, 2.0)
 			elif bool(entry.get("pending_in", false)):
-				draw_rect(rect.grow(1.0), Color(0.35, 1.0, 0.45, 0.95), false, 3.0)
-			elif selected:
-				draw_rect(rect.grow(1.5), Color(1.0, 0.95, 0.35, 0.98), false, 3.0)
-			elif bool(card.get("eligible", false)):
-				draw_rect(rect.grow(0.5), Color(0.45, 1.0, 0.55, 0.95), false, 1.5)
+				draw_rect(rect.grow(1.0), Color(0.28, 0.80, 0.40, 0.95), false, 2.0)
+			if anchored:
+				var icon_radius := clampf(rect.size.x * 0.105, 6.5, 9.0)
+				GpfGamePlan._draw_refresh_icon(self,
+					Vector2(rect.end.x - icon_radius - 2.0,
+						rect.position.y + icon_radius + 2.0), icon_radius, C_RAIL)
+
+		if strength >= 0:
+			_draw_strength_badge(area)
+
+	func _draw_strength_badge(area: Vector2) -> void:
+		var h := clampf(area.y * 0.105, 42.0, 66.0)
+		var w := h * 0.78
+		var rect := Rect2(Vector2(area.x - w - 12.0, 12.0), Vector2(w, h))
+		var shield := PackedVector2Array([
+			rect.position + Vector2(w * 0.5, h * 0.03),
+			rect.position + Vector2(w * 0.94, h * 0.15),
+			rect.position + Vector2(w * 0.94, h * 0.49),
+			rect.position + Vector2(w * 0.5, h * 0.97),
+			rect.position + Vector2(w * 0.06, h * 0.49),
+			rect.position + Vector2(w * 0.06, h * 0.15),
+		])
+		var shadow := PackedVector2Array()
+		for point in shield:
+			shadow.append(point + Vector2(0, 4))
+		draw_colored_polygon(shadow, C_SHADOW)
+		draw_colored_polygon(shield, C_TILE)
+		draw_polyline(_closed(shield), C_INK2, maxf(1.4, h * 0.035))
+		var delta_text := ""
+		if strength_delta > 0:
+			delta_text = "+%d" % strength_delta
+		elif strength_delta < 0:
+			delta_text = "%d" % strength_delta
+		draw_string(FONT_HEAD, Vector2(rect.position.x, rect.position.y + h * 0.57),
+			str(strength), HORIZONTAL_ALIGNMENT_CENTER, w,
+			maxi(18, int(h * 0.38)), C_INK)
+		if not delta_text.is_empty():
+			draw_string(FONT_BODY, Vector2(rect.position.x, rect.position.y + h * 0.78),
+				delta_text, HORIZONTAL_ALIGNMENT_CENTER, w,
+				maxi(8, int(h * 0.17)),
+				C_WIN if strength_delta > 0 else C_LOSS)
+
+	func _draw_ellipse(center: Vector2, rx: float, ry: float, color: Color, width: float) -> void:
+		var points := PackedVector2Array()
+		for index in 33:
+			var angle := TAU * float(index) / 32.0
+			points.append(center + Vector2(cos(angle) * rx, sin(angle) * ry))
+		draw_polyline(points, color, width)
+
+	func _closed(points: PackedVector2Array) -> PackedVector2Array:
+		var result := PackedVector2Array()
+		for point in points:
+			result.append(point)
+		if not points.is_empty():
+			result.append(points[0])
+		return result
 
 	func _gui_input(event: InputEvent) -> void:
 		if not (event is InputEventMouseButton):
@@ -129,6 +337,13 @@ class GamePlanPitch extends Control:
 				card_clicked.emit(panel_index, int(card["entry_index"]))
 				accept_event()
 				return
+
+	func _draw_silhouette(photo: Rect2) -> void:
+		var center := photo.get_center()
+		var r := minf(photo.size.x, photo.size.y) * 0.22
+		draw_circle(center + Vector2(0, -r * 0.55), r * 0.55, Color(0.82, 0.86, 0.88, 0.55))
+		var body := Rect2(center.x - r, center.y + r * 0.1, r * 2.0, photo.size.y * 0.38)
+		draw_rect(body, Color(0.82, 0.86, 0.88, 0.45), true)
 
 	func _fatigue_color(percent: int) -> Color:
 		if percent >= 90:
@@ -149,8 +364,599 @@ class GamePlanPitch extends Control:
 		return value if value.length() <= 13 else value.substr(0, 12) + "."
 
 
+class GamePlanHeader extends Control:
+	var entry: Dictionary = {}
+	var compare: Dictionary = {}
+	var team_color := Color(0.2, 0.4, 0.9)
+
+	func set_players(primary: Dictionary, secondary: Dictionary, color: Color) -> void:
+		entry = primary
+		compare = secondary
+		team_color = color
+		queue_redraw()
+
+	func _draw() -> void:
+		var area := get_size()
+		if area.x <= 2.0 or area.y <= 2.0 or entry.is_empty():
+			return
+		draw_rect(Rect2(Vector2(0, 6), area), C_SHADOW, true)
+		draw_rect(Rect2(Vector2.ZERO, area), C_TILE, true)
+		var comparing := not compare.is_empty() \
+			and int(compare.get("id", -1)) != int(entry.get("id", -2))
+		if comparing:
+			var radar_w := clampf(area.x * 0.15, 84.0, 120.0)
+			var side_w := (area.x - radar_w - 24.0) * 0.5
+			_draw_block(Rect2(Vector2.ZERO, Vector2(side_w, area.y)), entry, false)
+			var radar_rect := Rect2(Vector2(side_w + 12.0, area.y * 0.06),
+				Vector2(radar_w, area.y * 0.88))
+			if str(entry.get("role", "")) == "GK":
+				_draw_gk_note(radar_rect)
+			else:
+				_draw_radar(radar_rect, radar_values(entry), radar_values(compare))
+			_draw_block(Rect2(Vector2(area.x - side_w, 0.0), Vector2(side_w, area.y)),
+				compare, true)
+		else:
+			var radar_w := clampf(area.x * 0.16, 96.0, 150.0)
+			_draw_block(Rect2(Vector2.ZERO, Vector2(area.x - radar_w - 12.0, area.y)),
+				entry, false)
+			var radar_rect := Rect2(Vector2(area.x - radar_w, area.y * 0.06),
+				Vector2(radar_w, area.y * 0.88))
+			if str(entry.get("role", "")) == "GK":
+				_draw_gk_note(radar_rect)
+			else:
+				_draw_radar(radar_rect, radar_values(entry), [])
+
+	func _draw_gk_note(rect: Rect2) -> void:
+		var size := maxi(10, int(rect.size.y * 0.13))
+		draw_string(FONT_BODY, rect.position + Vector2(0, rect.size.y * 0.46),
+			"Goalkeeper profile", HORIZONTAL_ALIGNMENT_CENTER,
+			rect.size.x, size, C_INK2)
+		draw_string(FONT_BODY, rect.position + Vector2(0, rect.size.y * 0.61),
+			"is not in the canon", HORIZONTAL_ALIGNMENT_CENTER,
+			rect.size.x, size, C_INK2)
+
+	func _draw_block(rect: Rect2, data: Dictionary, mirrored: bool) -> void:
+		if data.is_empty():
+			return
+		var pad := maxf(6.0, rect.size.y * 0.08)
+		var photo_w := clampf(rect.size.x * 0.20, 52.0, 66.0)
+		var photo_h := clampf(rect.size.y * 0.66, 62.0, 80.0)
+		var content_h := photo_h + 3.0 + 3.0
+		var content_top := rect.position.y + maxf(pad * 0.5, (rect.size.y - content_h) * 0.5)
+		var photo_x := rect.end.x - pad - photo_w if mirrored else rect.position.x + pad
+		var photo_rect := Rect2(Vector2(photo_x, content_top),
+			Vector2(photo_w, photo_h))
+		var texture: Texture2D = UiAssets.player_face(int(data.get("tm_id", 0)))
+		if texture != null:
+			GpfGamePlan._draw_texture_contain(self, texture, photo_rect)
+		else:
+			_draw_silhouette(photo_rect)
+		var bar := Rect2(Vector2(photo_rect.position.x, photo_rect.end.y + 3.0),
+			Vector2(photo_w, 3.0))
+		draw_rect(bar, Color(C_INK2, 0.18), true)
+		var fatigue := clampi(int(data.get("fatigue", 100)), 0, 100)
+		draw_rect(Rect2(bar.position, Vector2(bar.size.x * fatigue / 100.0, bar.size.y)),
+			C_WIN if fatigue >= 50 else C_LOSS, true)
+
+		var text_x := rect.position.x + pad if mirrored else photo_rect.end.x + pad
+		var text_w := (photo_rect.position.x - pad - text_x) if mirrored \
+			else (rect.end.x - pad - text_x)
+		var name := str(data.get("name", "")).to_upper()
+		var name_size := maxi(14, int(rect.size.y * 0.22))
+		var rating := int(data.get("rating", -1))
+		var rating_text := "—" if rating < 0 else str(rating)
+		var rating_size := maxi(18, int(rect.size.y * 0.28))
+		var align := HORIZONTAL_ALIGNMENT_RIGHT if mirrored else HORIZONTAL_ALIGNMENT_LEFT
+		draw_string(FONT_HEAD, Vector2(text_x, content_top + photo_h * 0.36),
+			name, align, text_w, name_size, C_INK)
+		draw_string(FONT_HEAD, Vector2(text_x, content_top + photo_h * 0.68),
+			rating_text, align, text_w, rating_size, C_INK)
+		draw_string(FONT_BODY, Vector2(text_x, content_top + photo_h * 0.86),
+			str(data.get("role", "")), align, text_w,
+			maxi(9, int(rect.size.y * 0.12)), C_INK2)
+
+	static func radar_values(data: Dictionary) -> Array:
+		var axes := [
+			["physical_velocity", "physical_acceleration"],
+			["technical_shot", "physical_shotpower", "technical_volley"],
+			["technical_shortpass", "technical_highpass", "mental_vision"],
+			["technical_ballcontrol", "technical_dribble", "physical_agility"],
+			["technical_standingtackle", "technical_slidingtackle", "mental_defensivepositioning"],
+			["physical_stamina", "mental_resilience", "physical_reaction"],
+		]
+		var stats: Dictionary = data.get("stats", {})
+		var values: Array = []
+		for keys in axes:
+			var total := 0.0
+			var count := 0
+			for key in keys:
+				if stats.has(key):
+					total += float(stats[key])
+					count += 1
+			values.append(total / float(count) if count > 0 else 0.0)
+		return values
+
+	func _draw_radar(rect: Rect2, values: Array, secondary_values: Array) -> void:
+		var center := rect.get_center()
+		var radius := minf(rect.size.x, rect.size.y) * 0.38
+		var grid_color := Color(C_INK, 0.20)
+		for ring in 3:
+			var points := PackedVector2Array()
+			var scale := float(ring + 1) / 3.0
+			for index in RADAR_AXES.size():
+				var angle := -PI * 0.5 + TAU * float(index) / float(RADAR_AXES.size())
+				points.append(center + Vector2(cos(angle), sin(angle)) * radius * scale)
+			points.append(points[0])
+			draw_polyline(points, grid_color if ring == 2 else Color(C_INK, 0.10), 1.0)
+		for index in RADAR_AXES.size():
+			var angle := -PI * 0.5 + TAU * float(index) / float(RADAR_AXES.size())
+			draw_line(center, center + Vector2(cos(angle), sin(angle)) * radius,
+				Color(C_INK, 0.10), 1.0)
+		_draw_radar_polygon(center, radius, values, Color(0.114, 0.129, 0.22, 0.07), C_RAIL, false)
+		if not secondary_values.is_empty():
+			_draw_radar_polygon(center, radius, secondary_values,
+				Color(0.114, 0.129, 0.22, 0.05), C_INK2, true)
+		var label_size := maxi(8, int(radius * 0.20))
+		for index in RADAR_AXES.size():
+			var angle := -PI * 0.5 + TAU * float(index) / float(RADAR_AXES.size())
+			var direction := Vector2(cos(angle), sin(angle))
+			var label_pos := center + direction * (radius + 9.0)
+			draw_string(FONT_BODY, label_pos + Vector2(-30.0, label_size * 0.34),
+				str(RADAR_AXES[index]["label"]), HORIZONTAL_ALIGNMENT_CENTER,
+				60.0, label_size, C_INK2)
+
+	func _draw_radar_polygon(center: Vector2, radius: float, values: Array,
+			fill: Color, stroke: Color, dashed: bool) -> void:
+		var polygon := PackedVector2Array()
+		for index in RADAR_AXES.size():
+			var angle := -PI * 0.5 + TAU * float(index) / float(RADAR_AXES.size())
+			var value := clampf(float(values[index]), 0.0, 1.0)
+			polygon.append(center + Vector2(cos(angle), sin(angle)) * radius * value)
+		if polygon.size() < 3:
+			return
+		draw_colored_polygon(polygon, fill)
+		var closed := PackedVector2Array()
+		for point in polygon:
+			closed.append(point)
+		closed.append(polygon[0])
+		if dashed:
+			for index in range(0, closed.size() - 1):
+				if index % 2 == 0:
+					draw_line(closed[index], closed[index + 1], stroke, 1.4)
+		else:
+			draw_polyline(closed, stroke, 1.6)
+
+	func _draw_silhouette(photo: Rect2) -> void:
+		var center := photo.get_center()
+		var r := minf(photo.size.x, photo.size.y) * 0.24
+		draw_circle(center + Vector2(0, -r * 0.45), r * 0.55, Color(C_INK2, 0.35))
+		draw_rect(Rect2(center.x - r, center.y + r * 0.15, r * 2.0, photo.size.y * 0.36),
+			Color(C_INK2, 0.25), true)
+
+	func _fatigue_color(percent: int) -> Color:
+		return C_WIN if percent >= 50 else C_LOSS
+
+
+class GamePlanDetails extends Control:
+	var entry: Dictionary = {}
+	var team_color := Color(0.2, 0.4, 0.9)
+
+	func set_player(data: Dictionary, color: Color) -> void:
+		entry = data
+		team_color = color
+		queue_redraw()
+
+	func _draw() -> void:
+		var area := get_size()
+		if area.x <= 2.0 or area.y <= 2.0 or entry.is_empty():
+			return
+		draw_rect(Rect2(Vector2(0, 6), area), C_SHADOW, true)
+		draw_rect(Rect2(Vector2.ZERO, area), Color(C_TILE.r, C_TILE.g, C_TILE.b, 1.0), true)
+		var pad := maxf(12.0, area.y * 0.035)
+		var title_h := maxf(24.0, area.y * 0.040)
+		draw_string(FONT_HEAD, Vector2(pad, pad + title_h * 0.78), "ATTRIBUTES",
+			HORIZONTAL_ALIGNMENT_LEFT, area.x - pad * 2.0,
+			maxi(16, int(title_h * 0.78)), C_INK)
+		var content_top := pad + title_h + 4.0
+		var photo_w := clampf(area.x * 0.075, 58.0, 72.0)
+		var photo_h := clampf(area.y * 0.20, 66.0, 82.0)
+		var photo := Rect2(Vector2(pad, content_top), Vector2(photo_w, photo_h))
+		var texture: Texture2D = UiAssets.player_face(int(entry.get("tm_id", 0)))
+		if texture != null:
+			GpfGamePlan._draw_texture_contain(self, texture, photo)
+		else:
+			_draw_silhouette(photo)
+		var x := photo.end.x + pad
+		var rating := int(entry.get("rating", -1))
+		draw_string(FONT_HEAD, Vector2(x, content_top + photo_h * 0.55),
+			"—" if rating < 0 else str(rating), HORIZONTAL_ALIGNMENT_LEFT,
+			area.x - x - pad, maxi(20, int(photo_h * 0.45)), C_INK)
+		draw_string(FONT_BODY, Vector2(x, content_top + photo_h * 0.78),
+			str(entry.get("role", "")), HORIZONTAL_ALIGNMENT_LEFT,
+			area.x - x - pad, maxi(10, int(photo_h * 0.20)), C_INK2)
+		draw_string(FONT_HEAD, Vector2(x + photo_w * 0.55, content_top + photo_h * 0.55),
+			str(entry.get("name", "")).to_upper(), HORIZONTAL_ALIGNMENT_LEFT,
+			area.x - x - photo_w * 0.55 - pad, maxi(18, int(photo_h * 0.30)), C_INK)
+
+		var stats: Dictionary = entry.get("stats", {})
+		var stats_top := photo.end.y + pad
+		var columns := [
+			[
+				{"label": "PHYSICAL", "keys": ["physical_balance", "physical_reaction",
+					"physical_acceleration", "physical_velocity", "physical_stamina",
+					"physical_agility", "physical_shotpower"]},
+				{"label": "MENTAL", "keys": ["mental_calmness", "mental_workrate",
+					"mental_resilience", "mental_defensivepositioning",
+					"mental_offensivepositioning", "mental_vision"]},
+			],
+			[
+				{"label": "TECHNICAL", "keys": ["technical_standingtackle",
+					"technical_slidingtackle", "technical_ballcontrol", "technical_dribble",
+					"technical_shortpass", "technical_highpass", "technical_header",
+					"technical_shot", "technical_volley"]},
+			],
+		]
+		var col_w := (area.x - pad * 2.0) * 0.5
+		var row_h := maxf(12.0, (area.y - stats_top - pad) / 18.0)
+		for column in columns.size():
+			var y := stats_top
+			for group in columns[column]:
+				var label := str(group["label"])
+				draw_string(FONT_BODY, Vector2(pad + col_w * column, y + row_h * 0.8),
+					label, HORIZONTAL_ALIGNMENT_LEFT, col_w - 18.0,
+					maxi(9, int(row_h * 0.55)), C_INK2)
+				draw_line(Vector2(pad + col_w * column, y + row_h * 0.95),
+					Vector2(pad + col_w * (column + 1) - 18.0, y + row_h * 0.95),
+					Color(C_INK2, 0.18), 1.0)
+				y += row_h * 1.2
+				for key in group["keys"]:
+					var value := int(round(float(stats.get(str(key), 0.0)) * 100.0))
+					draw_rect(Rect2(Vector2(pad + col_w * column, y + 1.0),
+						Vector2(34.0, row_h * 0.86)), C_TILE_ALT, true)
+					draw_string(FONT_HEAD, Vector2(pad + col_w * column, y + row_h * 0.72),
+						str(value), HORIZONTAL_ALIGNMENT_CENTER, 34.0,
+						maxi(8, int(row_h * 0.55)), C_INK)
+					draw_string(FONT_BODY, Vector2(pad + col_w * column + 42.0, y + row_h * 0.72),
+						str(STAT_LABELS.get(str(key), key)), HORIZONTAL_ALIGNMENT_LEFT,
+						col_w - 60.0, maxi(8, int(row_h * 0.50)), C_INK2)
+					y += row_h
+				y += row_h * 0.4
+		for dot in 3:
+			var dot_rect := Rect2(Vector2(area.x * 0.5 - 18.0 + dot * 14.0,
+				area.y - 14.0), Vector2(8, 8))
+			draw_rect(dot_rect, C_INK if dot == 0 else Color(C_INK, 0.20), true)
+
+	func _draw_silhouette(photo: Rect2) -> void:
+		var center := photo.get_center()
+		var r := minf(photo.size.x, photo.size.y) * 0.24
+		draw_circle(center + Vector2(0, -r * 0.45), r * 0.55, Color(C_INK2, 0.35))
+		draw_rect(Rect2(center.x - r, center.y + r * 0.15, r * 2.0, photo.size.y * 0.36),
+			Color(C_INK2, 0.25), true)
+
+
+class BenchCard extends Control:
+	signal activated(entry_index: int)
+
+	var entry: Dictionary = {}
+	var entry_index := 0
+	var focused := false
+	var anchor := false
+	var editable := true
+
+	func setup(data: Dictionary, index: int, can_edit: bool) -> void:
+		entry = data
+		entry_index = index
+		editable = can_edit
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		clip_contents = true
+		size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		queue_redraw()
+
+	func set_state(is_focused: bool, is_anchor: bool) -> void:
+		focused = is_focused
+		anchor = is_anchor
+		queue_redraw()
+
+	func _draw() -> void:
+		var area := get_size()
+		if area.x <= 2.0 or area.y <= 2.0:
+			return
+		var unavailable := bool(entry.get("left_pitch", false))
+		var fill := Color(1.0, 1.0, 1.0, 0.58)
+		if focused:
+			fill = C_FOCUS_FILL
+		draw_rect(Rect2(Vector2.ZERO, area), fill, true)
+		if bool(entry.get("pending_out", false)):
+			draw_rect(Rect2(Vector2.ZERO, area), Color(0.88, 0.25, 0.22, 0.95), false, 2.0)
+		elif bool(entry.get("pending_in", false)):
+			draw_rect(Rect2(Vector2.ZERO, area), Color(0.28, 0.80, 0.40, 0.95), false, 2.0)
+		if anchor:
+			GpfGamePlan._draw_refresh_icon(self, Vector2(area.x - 10.0, 11.0),
+				6.0, C_RAIL)
+
+		var ink := C_INK
+		var ink2 := C_INK2
+		var mark := C_MARK if focused else C_INK
+		if focused:
+			ink = C_FOCUS_INK
+			ink2 = C_FOCUS_INK2
+		if unavailable:
+			ink = Color(ink, 0.55)
+			ink2 = Color(ink2, 0.55)
+
+		var pad_l := clampf(area.x * 0.045, 8.0, 12.0)
+		var pad_r := clampf(area.x * 0.035, 6.0, 9.0)
+		var pad_t := clampf(area.y * 0.07, 5.0, 8.0)
+		var pad_b := clampf(area.y * 0.05, 4.0, 6.0)
+		var top_h := clampf(area.y * 0.60, 36.0, 56.0)
+		var baseline := pad_t + top_h - 5.0
+
+		var role := str(entry.get("role", ""))
+		draw_circle(Vector2(pad_l + 3.5, baseline - 4.0), 3.5, _pos_color(role))
+		draw_string(FONT_BODY, Vector2(pad_l + 11.0, baseline), _short_role(role),
+			HORIZONTAL_ALIGNMENT_LEFT, area.x * 0.38,
+			maxi(8, int(area.y * 0.12)), ink2)
+
+		var rating := int(entry.get("rating", -1))
+		draw_string(FONT_HEAD, Vector2(area.x - pad_r - 42.0, baseline),
+			"—" if rating < 0 else str(rating), HORIZONTAL_ALIGNMENT_RIGHT,
+			42.0, maxi(12, int(area.y * 0.23)), mark)
+
+		var photo_w := minf(area.x * 0.44, top_h * 0.95)
+		var photo := Rect2(Vector2(area.x * 0.5 - photo_w * 0.5, pad_t),
+			Vector2(photo_w, top_h))
+		var texture: Texture2D = UiAssets.player_face(int(entry.get("tm_id", 0)))
+		if texture != null:
+			GpfGamePlan._draw_texture_contain(self, texture, photo)
+		else:
+			_draw_silhouette(photo, ink2)
+
+		var name_size := maxi(9, int(area.y * 0.18))
+		var name_baseline := area.y - pad_b - 1.0
+		var bar_y := minf(pad_t + top_h + 2.0,
+			name_baseline - float(name_size) - 4.0)
+		var bar := Rect2(Vector2(pad_l, bar_y), Vector2(area.x - pad_l - pad_r, 3.0))
+		draw_rect(bar, Color(ink2, 0.20), true)
+		var fatigue := clampi(int(entry.get("fatigue", 100)), 0, 100)
+		draw_rect(Rect2(bar.position, Vector2(bar.size.x * fatigue / 100.0, bar.size.y)),
+			C_LOSS if fatigue < 50 else C_WIN, true)
+
+		draw_string(FONT_HEAD, Vector2(pad_l, name_baseline),
+			_short_name(str(entry.get("name", ""))), HORIZONTAL_ALIGNMENT_CENTER,
+			area.x - pad_l - pad_r, name_size, mark)
+
+	func _draw_silhouette(photo: Rect2, color: Color) -> void:
+		var center := photo.get_center()
+		var radius := minf(photo.size.x, photo.size.y) * 0.22
+		draw_circle(center + Vector2(0, -radius * 0.55), radius * 0.55,
+			Color(color, 0.35))
+		draw_rect(Rect2(center.x - radius, center.y + radius * 0.15,
+			radius * 2.0, photo.size.y * 0.36), Color(color, 0.25), true)
+
+	func _gui_input(event: InputEvent) -> void:
+		if not editable:
+			return
+		if event is InputEventMouseButton:
+			var mouse := event as InputEventMouseButton
+			if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.pressed:
+				activated.emit(entry_index)
+				accept_event()
+
+	static func _short_name(value: String) -> String:
+		if value.length() <= 15:
+			return value
+		return value.substr(0, 14) + "."
+
+	static func _short_role(role: String) -> String:
+		return role if role.length() <= 3 else role.substr(0, 3)
+
+	static func _pos_color(role: String) -> Color:
+		match role:
+			"GK":
+				return C_WARN
+			"CB", "LB", "RB", "LWB", "RWB":
+				return Color(0.12, 0.39, 0.72, 1.0)
+			"DM", "CM", "LM", "RM", "AM":
+				return C_WIN
+			"CF", "ST", "LW", "RW":
+				return Color(0.75, 0.16, 0.36, 1.0)
+			_:
+				return C_INK2
+
+
+class SchemeRail extends Control:
+	var page := 0
+	var page_count := 1
+
+	func _draw() -> void:
+		var area := get_size()
+		if area.x <= 0.0 or area.y <= 1.0:
+			return
+		draw_rect(Rect2(Vector2.ZERO, Vector2(7.0, area.y)), Color(C_INK, 0.24), true)
+		if page_count <= 1:
+			return
+		var thumb_h := area.y / float(page_count)
+		var thumb_y := thumb_h * float(clampi(page, 0, page_count - 1))
+		draw_rect(Rect2(Vector2(0, thumb_y), Vector2(7.0, thumb_h)),
+			Color(C_INK, 0.78), true)
+
+
+class SchemeCard extends Control:
+	var index := 0
+	var selected := false
+	var focused := false
+	var scheme_name := ""
+
+	func setup(scheme_index: int, name_text: String) -> void:
+		index = scheme_index
+		scheme_name = name_text
+		mouse_filter = Control.MOUSE_FILTER_STOP
+
+	func _draw() -> void:
+		var area := get_size()
+		if area.x <= 2.0 or area.y <= 2.0:
+			return
+		var fill := C_TILE_ALT
+		var ink := C_INK
+		if focused:
+			fill = C_FOCUS_FILL
+			ink = C_FOCUS_INK
+		draw_rect(Rect2(Vector2.ZERO, area), fill, true)
+		draw_string(FONT_HEAD, Vector2(8, area.y * 0.15), scheme_name,
+			HORIZONTAL_ALIGNMENT_LEFT, area.x - 16.0, maxi(12, int(area.y * 0.16)),
+			C_MARK if focused else ink)
+		var pitch := Rect2(Vector2(8, area.y * 0.22), Vector2(area.x - 16.0, area.y * 0.66))
+		var surface := PackedVector2Array([
+			Vector2(pitch.position.x + pitch.size.x * 0.08, pitch.position.y),
+			Vector2(pitch.end.x - pitch.size.x * 0.08, pitch.position.y),
+			Vector2(pitch.end.x, pitch.end.y),
+			Vector2(pitch.position.x, pitch.end.y),
+		])
+		draw_colored_polygon(surface, C_PITCH_HI.darkened(0.20))
+		draw_polyline(_closed(surface), Color(1, 1, 1, 0.30), 1.0)
+		draw_line(Vector2(pitch.position.x + 4.0, pitch.get_center().y),
+			Vector2(pitch.end.x - 4.0, pitch.get_center().y), Color(1, 1, 1, 0.26), 0.8)
+		var entries: Array = TacticalSchemes.SCHEMES[index]["entries"]
+		for entry in entries:
+			var pos: Vector2 = entry["position"]
+			var role := str(entry["role"])
+			var side := clampf(pos.y * 0.5 + 0.5, 0.06, 0.94)
+			var depth := clampf(1.0 - (pos.x * 0.5 + 0.5), 0.10, 0.90)
+			if role == "GK":
+				depth = 0.92
+			elif role in ["CB", "LB", "RB", "LWB", "RWB", "SW"]:
+				depth = clampf(depth, 0.68, 0.80)
+			var point := pitch.position + Vector2(side * pitch.size.x, depth * pitch.size.y)
+			var dot := Color(1.0, 0.30, 0.43, 1.0) if role == "GK" \
+				else Color(0.96, 0.97, 0.99, 1.0)
+			draw_circle(point, 2.2, dot)
+		if selected:
+			var check := Rect2(Vector2(8, area.y - 24.0), Vector2(18, 18))
+			draw_rect(check, C_MARK, true)
+			draw_line(check.position + Vector2(4, 9), check.position + Vector2(8, 13),
+				C_INK, 2.0)
+			draw_line(check.position + Vector2(8, 13), check.position + Vector2(14, 5),
+				C_INK, 2.0)
+
+	func _closed(points: PackedVector2Array) -> PackedVector2Array:
+		var result := PackedVector2Array()
+		for point in points:
+			result.append(point)
+		if not points.is_empty():
+			result.append(points[0])
+		return result
+
+	func _gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseButton:
+			var mouse := event as InputEventMouseButton
+			if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.pressed:
+				accept_event()
+
+
+class RoleTile extends Control:
+	var index := 0
+	var title := ""
+	var player_name := "—"
+	var focused := false
+	var assigned := false
+
+	func _draw() -> void:
+		var area := get_size()
+		if area.x <= 2.0 or area.y <= 2.0:
+			return
+		var fill := C_TILE
+		var ink := C_INK
+		var ink2 := C_INK2
+		if focused:
+			fill = C_FOCUS_FILL
+			ink = C_MARK
+			ink2 = C_FOCUS_INK2
+		draw_rect(Rect2(Vector2.ZERO, area), fill, true)
+		draw_rect(Rect2(Vector2.ZERO, area), Color(C_INK, 0.16), false, 1.0)
+		var pad := maxf(6.0, area.y * 0.06)
+		draw_string(FONT_HEAD, Vector2(pad, pad + area.y * 0.14), title.to_upper(),
+			HORIZONTAL_ALIGNMENT_CENTER, area.x - pad * 2.0,
+			maxi(9, int(area.y * 0.12)), ink)
+		var glyph_center := Vector2(area.x * 0.5, area.y * 0.48)
+		var glyph := minf(area.x, area.y) * 0.16
+		_draw_glyph(glyph_center, glyph, ink2)
+		draw_string(FONT_HEAD, Vector2(pad, area.y - pad * 0.8), player_name.to_upper(),
+			HORIZONTAL_ALIGNMENT_CENTER, area.x - pad * 2.0,
+			maxi(9, int(area.y * 0.13)), ink)
+
+	func _draw_glyph(center: Vector2, size: float, color: Color) -> void:
+		match index:
+			0:
+				draw_rect(Rect2(center - Vector2(size * 0.5, size * 0.5),
+					Vector2(size, size)), color, false, 2.0)
+				draw_string(FONT_HEAD_X, center + Vector2(-size * 0.5, size * 0.34),
+					"C", HORIZONTAL_ALIGNMENT_CENTER, size,
+					maxi(12, int(size * 1.1)), color)
+			1, 2:
+				draw_circle(center + Vector2(-size * 0.10, 0), size * 0.34, color)
+				draw_line(center + Vector2(size * 0.12, size * 0.28),
+					center + Vector2(size * 0.55, size * 0.55), color, 2.0)
+			3:
+				draw_circle(center, size * 0.55, color)
+				draw_circle(center, size * 0.16, color)
+				draw_line(center + Vector2(-size * 0.8, 0), center + Vector2(size * 0.8, 0),
+					color, 1.0)
+			4, 5:
+				draw_line(center + Vector2(-size * 0.4, size * 0.55),
+					center + Vector2(-size * 0.4, -size * 0.55), color, 2.0)
+				draw_colored_polygon(PackedVector2Array([
+					center + Vector2(-size * 0.4, -size * 0.55),
+					center + Vector2(size * 0.45, -size * 0.35),
+					center + Vector2(-size * 0.4, -size * 0.10),
+				]), color)
+			_:
+				draw_circle(center, size * 0.35, color)
+
+
+class ReadyOverlay extends Control:
+	var crest: Texture2D = null
+	var team_name := ""
+	var ready_text := "READY!"
+	var dim := true
+	var watermark := false
+
+	func _draw() -> void:
+		var area := get_size()
+		if area.x <= 2.0 or area.y <= 2.0:
+			return
+		if watermark:
+			if crest != null:
+				var watermark_size := clampf(minf(area.x, area.y) * 0.38, 160.0, 320.0)
+				var watermark_rect := Rect2(
+					Vector2(area.x * 0.5 - watermark_size * 0.5,
+						area.y * 0.5 - watermark_size * 0.5),
+					Vector2(watermark_size, watermark_size))
+				GpfGamePlan._draw_texture_contain(self, crest, watermark_rect, false,
+					Color(1, 1, 1, 0.24))
+			return
+		if dim:
+			draw_rect(Rect2(Vector2.ZERO, area), Color(0.02, 0.05, 0.04, 0.45), true)
+		var font := FONT_HEAD_X
+		var crest_size := clampf(minf(area.x, area.y) * 0.30, 120.0, 220.0)
+		var crest_rect := Rect2(
+			Vector2(area.x * 0.5 - crest_size * 0.5, area.y * 0.42 - crest_size * 0.5),
+			Vector2(crest_size, crest_size))
+		if crest != null:
+			GpfGamePlan._draw_texture_contain(self, crest, crest_rect, false)
+		else:
+			draw_circle(crest_rect.get_center(), crest_size * 0.42, Color(0.14, 0.22, 0.38, 0.9))
+			draw_string(font, crest_rect.get_center() + Vector2(-crest_size * 0.22, crest_size * 0.08),
+				team_name.substr(0, 3).to_upper(), HORIZONTAL_ALIGNMENT_LEFT,
+				crest_size * 0.44, maxi(14, int(crest_size * 0.22)), Color(0.86, 0.90, 0.94))
+		draw_string(font, Vector2(0, area.y * 0.70), ready_text, HORIZONTAL_ALIGNMENT_CENTER,
+			area.x, maxi(28, int(area.y * 0.08)), C_TILE)
+
+
 var mode := "prematch" # "prematch" | "match" | "demo"
 var runtime = null
+var network_mode := false
+var local_two_player := false
 
 var _lineups: Dictionary = {}
 var _demo_teams: Dictionary = {}
@@ -162,39 +968,53 @@ var _display_teams: Array = []
 
 var _built := false
 var _background: ColorRect
-var _header: Label
-var _hint: Label
-var _status: Label
-var _done_button: Button
 var _panels_root: Control
+var _status: Label
 var _status_until_ms := 0
 var _move_ms := 0
+var _close_at_ms := 0
+var _net_refresh_ms := 0
+
+var _match_bench_ids: Dictionary = {}
+var _match_reserve_ids: Dictionary = {}
+var _match_players_by_db: Dictionary = {}
 
 
 func _ready() -> void:
+	theme = UiTheme.load_or_build()
 	_build_chrome()
+	set_process(true)
 
 
-func setup_prematch(home_lineup: MatchLineup, away_lineup: MatchLineup, human_teams: Array = [0]) -> void:
+func setup_prematch(home_lineup: MatchLineup, away_lineup: MatchLineup,
+		human_teams: Array = [0], options: Dictionary = {}) -> void:
 	mode = "prematch"
 	runtime = null
+	network_mode = bool(options.get("network", false))
+	local_two_player = bool(options.get("local_two_player", false))
 	_lineups = {0: home_lineup, 1: away_lineup}
 	_human_teams = _unique_teams(human_teams)
 	_resolve_teams()
 	_rebuild()
 
 
-func setup_match(runtime_node, human_teams: Array = [0]) -> void:
+func setup_match(runtime_node, human_teams: Array = [0], options: Dictionary = {}) -> void:
 	mode = "match"
 	runtime = runtime_node
+	network_mode = bool(options.get("network", false))
+	local_two_player = bool(options.get("local_two_player", false))
 	_human_teams = _unique_teams(human_teams)
 	_resolve_teams()
+	_build_match_roster()
 	_rebuild()
 
 
-func setup_demo(home: Dictionary, away: Dictionary, human_teams: Array = [0]) -> void:
+func setup_demo(home: Dictionary, away: Dictionary, human_teams: Array = [0],
+		options: Dictionary = {}) -> void:
 	mode = "demo"
 	runtime = null
+	network_mode = bool(options.get("network", false))
+	local_two_player = bool(options.get("local_two_player", false))
 	_demo_teams = {0: home, 1: away}
 	_human_teams = _unique_teams(human_teams)
 	_resolve_teams()
@@ -210,12 +1030,24 @@ func open_plan() -> void:
 		_build_chrome()
 	visible = true
 	move_to_front()
+	_close_at_ms = 0
+	for panel in _panels:
+		panel["ready"] = false
+		panel["held"] = -1
+		panel["details_open"] = false
+		panel["role_picking"] = false
+		panel["strength_initial"] = -1
+		panel["drawer_open"] = false
+		var hints: UiHintsBar = panel.get("hints", null)
+		if hints != null:
+			hints.set_status("")
 	_rebuild()
-	_refresh_header()
+	_layout()
 
 
 func close_plan() -> void:
 	visible = false
+	_close_at_ms = 0
 	_held_clear()
 
 
@@ -225,27 +1057,27 @@ func handle_key(event: InputEventKey) -> bool:
 	var panel_index := _panel_for_keyboard()
 	if panel_index < 0:
 		return false
-	var direction := Vector2i.ZERO
 	match event.keycode:
 		KEY_LEFT:
-			direction = Vector2i(-1, 0)
+			return _handle_panel(panel_index, Vector2i(-1, 0), false, false)
 		KEY_RIGHT:
-			direction = Vector2i(1, 0)
+			return _handle_panel(panel_index, Vector2i(1, 0), false, false)
 		KEY_UP:
-			direction = Vector2i(0, -1)
+			return _handle_panel(panel_index, Vector2i(0, -1), false, false)
 		KEY_DOWN:
-			direction = Vector2i(0, 1)
+			return _handle_panel(panel_index, Vector2i(0, 1), false, false)
 		KEY_ENTER, KEY_KP_ENTER, KEY_SPACE:
-			return _handle_panel(panel_index, direction, true, false)
+			return _handle_panel(panel_index, Vector2i.ZERO, true, false)
 		KEY_ESCAPE:
-			return _handle_panel(panel_index, direction, false, true)
-		KEY_X:
-			return _handle_panel(panel_index, direction, false, false, true)
-		KEY_TAB:
-			return _toggle_bench(panel_index)
+			return _handle_panel(panel_index, Vector2i.ZERO, false, true)
+		KEY_Q:
+			return _switch_tab(panel_index, -1)
+		KEY_E:
+			return _switch_tab(panel_index, 1)
+		KEY_Y:
+			return _toggle_details(panel_index)
 		_:
 			return false
-	return _handle_panel(panel_index, direction, false, false)
 
 
 func handle_joy_button(event: InputEventJoypadButton) -> bool:
@@ -259,10 +1091,12 @@ func handle_joy_button(event: InputEventJoypadButton) -> bool:
 			return _handle_panel(panel_index, Vector2i.ZERO, true, false)
 		JOY_BUTTON_B:
 			return _handle_panel(panel_index, Vector2i.ZERO, false, true)
-		JOY_BUTTON_X:
-			return _handle_panel(panel_index, Vector2i.ZERO, false, false, true)
 		JOY_BUTTON_Y:
-			return _toggle_bench(panel_index)
+			return _toggle_details(panel_index)
+		JOY_BUTTON_LEFT_SHOULDER:
+			return _switch_tab(panel_index, -1)
+		JOY_BUTTON_RIGHT_SHOULDER:
+			return _switch_tab(panel_index, 1)
 		JOY_BUTTON_DPAD_LEFT:
 			return _handle_panel(panel_index, Vector2i(-1, 0), false, false)
 		JOY_BUTTON_DPAD_RIGHT:
@@ -298,8 +1132,6 @@ func handle_joy_motion(event: InputEventJoypadMotion) -> bool:
 
 
 func handle_ui_action(action: String, device: int = -1) -> bool:
-	# Shell screens route UiNav into the plan; the raw InputEvent handlers above
-	# stay for the match pause menu and the existing tests.
 	if not is_open():
 		return false
 	var panel_index := _panel_for_device(device) if device >= 0 else _panel_for_keyboard()
@@ -318,12 +1150,52 @@ func handle_ui_action(action: String, device: int = -1) -> bool:
 			return _handle_panel(panel_index, Vector2i.ZERO, true, false)
 		"cancel":
 			return _handle_panel(panel_index, Vector2i.ZERO, false, true)
-		"cancel_sub":
-			return _handle_panel(panel_index, Vector2i.ZERO, false, false, true)
-		"bench":
-			return _toggle_bench(panel_index)
+		"tab_prev", "bench":
+			return _switch_tab(panel_index, -1)
+		"tab_next":
+			return _switch_tab(panel_index, 1)
+		"details":
+			return _toggle_details(panel_index)
 	return false
 
+
+func set_context(network: bool, two_player: bool) -> void:
+	network_mode = network
+	local_two_player = two_player
+
+
+func set_status(text: String, duration_ms: int = 4000) -> void:
+	if _status != null:
+		_status.text = text
+		_status_until_ms = Time.get_ticks_msec() + duration_ms
+	for panel in _panels:
+		var hints: UiHintsBar = panel.get("hints", null)
+		if hints != null and bool(panel.get("editable", false)):
+			hints.set_status(text)
+
+
+func _process(_delta: float) -> void:
+	if _status != null and Time.get_ticks_msec() > _status_until_ms and not _status.text.is_empty():
+		_status.text = ""
+		for panel in _panels:
+			var hints: UiHintsBar = panel.get("hints", null)
+			if hints != null:
+				hints.set_status("")
+	if _close_at_ms > 0 and Time.get_ticks_msec() >= _close_at_ms:
+		_close_at_ms = 0
+		close_requested.emit()
+	if network_mode and mode == "match" and is_open():
+		var now := Time.get_ticks_msec()
+		if now - _net_refresh_ms >= 250:
+			_net_refresh_ms = now
+			for panel in _panels:
+				_refresh_panel(panel, false)
+			_layout()
+
+
+# ---------------------------------------------------------------------------
+# Chrome / panels
+# ---------------------------------------------------------------------------
 
 func _build_chrome() -> void:
 	if _built:
@@ -333,7 +1205,7 @@ func _build_chrome() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 
 	_background = ColorRect.new()
-	_background.color = Color(0.015, 0.025, 0.02, 1.0)
+	_background.color = Color(0.015, 0.035, 0.078, 0.18)
 	_background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_background)
@@ -343,56 +1215,13 @@ func _build_chrome() -> void:
 	_panels_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_panels_root)
 
-	_header = _label("GAME PLAN", 28, Color(0.96, 0.93, 0.82))
-	_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint = _label("Back: sections, Enter: open    Esc: leave", 15, Color(0.72, 0.74, 0.68))
-	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_status = _label("", 17, Color(1.0, 0.78, 0.3))
-	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_status = Label.new()
+	_status.visible = false
+	_status.text = ""
+	add_child(_status)
 
-	_done_button = Button.new()
-	_done_button.name = "GamePlanBack"
-	_done_button.text = "Back"
-	_done_button.add_theme_font_override("font", MENU_FONT)
-	_done_button.add_theme_font_size_override("font_size", 18)
-	_done_button.focus_mode = Control.FOCUS_ALL
-	_done_button.pressed.connect(_on_done_pressed)
-	add_child(_done_button)
-
-	resized.connect(_layout_chrome)
-	_layout_chrome()
-
-
-func _label(text: String, size: int, color: Color) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_font_override("font", MENU_FONT)
-	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", color)
-	add_child(label)
-	return label
-
-
-func _layout_chrome() -> void:
-	if not _built:
-		return
-	var area := size
-	if area.x < 2.0 or area.y < 2.0:
-		return
-	var title_size := maxi(12, int(area.y * 0.032))
-	_header.add_theme_font_size_override("font_size", title_size)
-	_header.position = Vector2(area.x * 0.18, area.y * 0.004)
-	_header.size = Vector2(area.x * 0.64, area.y * 0.034)
-	_hint.add_theme_font_size_override("font_size", maxi(10, int(area.y * 0.018)))
-	_hint.position = Vector2(area.x * 0.18, area.y * 0.038)
-	_hint.size = Vector2(area.x * 0.64, area.y * 0.024)
-	_status.position = Vector2(area.x * 0.12, area.y * 0.968)
-	_status.size = Vector2(area.x * 0.76, area.y * 0.03)
-	_status.add_theme_font_size_override("font_size", maxi(10, int(area.y * 0.018)))
-	_done_button.position = Vector2(area.x * 0.89, area.y * 0.012)
-	_done_button.size = Vector2(area.x * 0.095, area.y * 0.046)
-	_done_button.add_theme_font_size_override("font_size", maxi(11, int(area.y * 0.02)))
-	_layout_panels()
+	resized.connect(_layout)
+	_layout()
 
 
 func _resolve_teams() -> void:
@@ -418,8 +1247,7 @@ func _shell_color(team_id: int) -> Color:
 	var raw := str(team.get("color1", ""))
 	if raw.is_empty():
 		return DEFAULT_COLORS.get(team_id, Color(0.4, 0.4, 0.4))
-	var parsed := Color.from_string(raw, DEFAULT_COLORS.get(team_id, Color(0.4, 0.4, 0.4)))
-	return parsed
+	return Color.from_string(raw, DEFAULT_COLORS.get(team_id, Color(0.4, 0.4, 0.4)))
 
 
 func _unique_teams(values: Array) -> Array:
@@ -438,23 +1266,28 @@ func _is_editable(team_id: int) -> bool:
 	return _human_teams.has(team_id)
 
 
+func _show_crest(panel: Dictionary) -> bool:
+	var team_id := int(panel["team_id"])
+	if _is_editable(team_id):
+		return false
+	return mode != "match" and mode != "demo"
+
+
 func _rebuild() -> void:
 	if not _built or not is_inside_tree():
 		return
 	_build_panels()
-	_layout_panels()
+	_layout()
 	for index in _panels.size():
 		_refresh_panel(_panels[index])
-	_refresh_header()
 
 
 func _build_panels() -> void:
 	if not _panels.is_empty():
 		return
 	for team_id in _display_teams:
-		var panel := _make_panel(team_id)
-		_panels.append(panel)
-	_layout_panels()
+		_panels.append(_make_panel(team_id))
+	_layout()
 
 
 func _make_panel(team_id: int) -> Dictionary:
@@ -462,48 +1295,83 @@ func _make_panel(team_id: int) -> Dictionary:
 		"team_id": team_id,
 		"editable": _is_editable(team_id),
 		"control": Control.new(),
+		"tabs": HBoxContainer.new(),
+		"tab_buttons": [],
+		"header": GamePlanHeader.new(),
 		"pitch": GamePlanPitch.new(),
-		"team_header": Label.new(),
-		"bench_header": Label.new(),
+		"drawer": Control.new(),
+		"drawer_bg": Panel.new(),
 		"bench_scroll": ScrollContainer.new(),
 		"bench_box": VBoxContainer.new(),
-		"scheme_scroll": ScrollContainer.new(),
-		"scheme_box": VBoxContainer.new(),
-		"scheme_buttons": [],
+		"bench_header": Label.new(),
+		"bench_grid": GridContainer.new(),
+		"bench_cards": {},
+		"reserve_header": Label.new(),
+		"reserve_grid": GridContainer.new(),
+		"drawer_open": false,
+		"drawer_t": 0.0,
+		"drawer_tween": null,
+		"scheme_grid": GridContainer.new(),
+		"scheme_rail": SchemeRail.new(),
+		"scheme_header": Label.new(),
+		"scheme_cards": [],
+		"scheme_page": 0,
+		"role_grid": Control.new(),
+		"role_header": Label.new(),
+		"role_tiles": [],
+		"hints": null,
+		"ready_overlay": ReadyOverlay.new(),
+		"crest_overlay": ReadyOverlay.new(),
+		"details": GamePlanDetails.new(),
+		"entries": [],
+		"pitch_entries": [],
+		"bench_entries": [],
+		"reserve_entries": [],
+		"entry_points": {},
+		"cursor": -1,
+		"held": -1,
+		"tab": TAB_SQUAD,
 		"scheme_cursor": 0,
 		"committed_scheme": -1,
-		"role_scroll": ScrollContainer.new(),
-		"role_box": VBoxContainer.new(),
-		"role_buttons": [],
 		"role_cursor": 0,
 		"role_picking": false,
 		"role_picking_index": 0,
 		"pending": [],
 		"bench_order": [],
-		"section_bar": HBoxContainer.new(),
-		"section_buttons": [],
-		"section_caption": Label.new(),
-		"entries": [],
-		"cursor": -1,
-		"held": -1,
-		"bar_cursor": SECTION_POSITIONS,
-		"bar_focused": true,
-		"active_section": -1,
-		"vote_ready": false,
-		"focus_id": -1,
+		"strength_initial": -1,
+		"ready": false,
+		"details_open": false,
 		"pitch_rect": Rect2(),
-		"bench_rect": Rect2(),
-		"section_center": 0.5,
+		"drawer_rect": Rect2(),
 	}
 	var control: Control = panel["control"]
-	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	control.mouse_filter = Control.MOUSE_FILTER_PASS
 	_panels_root.add_child(control)
 
-	var team_header: Label = panel["team_header"]
-	team_header.add_theme_font_override("font", MENU_FONT)
-	team_header.add_theme_color_override("font_color", Color(0.9, 0.92, 0.85))
-	team_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	control.add_child(team_header)
+	var tabs: HBoxContainer = panel["tabs"]
+	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
+	tabs.add_theme_constant_override("separation", 4)
+	control.add_child(tabs)
+	var buttons: Array = panel["tab_buttons"]
+	for tab in TAB_NAMES.size():
+		var button := Button.new()
+		button.name = "Tab%d" % tab
+		button.text = String(TAB_NAMES[tab]).to_upper()
+		button.toggle_mode = true
+		button.focus_mode = Control.FOCUS_NONE
+		button.add_theme_font_override("font", FONT_HEAD)
+		button.add_theme_color_override("font_color", C_INK2)
+		button.add_theme_color_override("font_pressed_color", C_INK)
+		button.add_theme_color_override("font_hover_color", C_INK)
+		button.add_theme_color_override("font_hover_pressed_color", C_INK)
+		button.add_theme_color_override("font_focus_color", C_INK)
+		button.pressed.connect(_on_tab_pressed.bind(team_id, tab))
+		tabs.add_child(button)
+		buttons.append(button)
+
+	var header: GamePlanHeader = panel["header"]
+	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	control.add_child(header)
 
 	var pitch: GamePlanPitch = panel["pitch"]
 	pitch.panel_index = _panels.size()
@@ -512,228 +1380,524 @@ func _make_panel(team_id: int) -> Dictionary:
 	pitch.card_clicked.connect(_on_card_clicked)
 	control.add_child(pitch)
 
-	var bench_header: Label = panel["bench_header"]
-	bench_header.text = "Subs"
-	bench_header.add_theme_font_override("font", MENU_FONT)
-	bench_header.add_theme_color_override("font_color", Color(0.9, 0.92, 0.85))
-	bench_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	control.add_child(bench_header)
+	var drawer: Control = panel["drawer"]
+	drawer.mouse_filter = Control.MOUSE_FILTER_PASS
+	control.add_child(drawer)
+	var drawer_bg: Panel = panel["drawer_bg"]
+	drawer_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	drawer.add_child(drawer_bg)
 
 	var scroll: ScrollContainer = panel["bench_scroll"]
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_NONE
-	control.add_child(scroll)
+	drawer.add_child(scroll)
 	var box: VBoxContainer = panel["bench_box"]
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.add_theme_constant_override("separation", 1)
+	box.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	box.add_theme_constant_override("separation", 4)
 	scroll.add_child(box)
+	for header_key in ["bench_header", "reserve_header"]:
+		var header_label: Label = panel[header_key]
+		header_label.add_theme_font_override("font", FONT_BODY)
+		header_label.add_theme_color_override("font_color", C_INK2)
+		header_label.add_theme_font_size_override("font_size", 12)
+		box.add_child(header_label)
+	for grid_key in ["bench_grid", "reserve_grid"]:
+		var grid: GridContainer = panel[grid_key]
+		grid.columns = 4
+		grid.add_theme_constant_override("h_separation", 8)
+		grid.add_theme_constant_override("v_separation", 8)
+		grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		grid.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		box.add_child(grid)
 
-	var scheme_scroll: ScrollContainer = panel["scheme_scroll"]
-	scheme_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scheme_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_NONE
-	scheme_scroll.visible = false
-	control.add_child(scheme_scroll)
-	var scheme_box: VBoxContainer = panel["scheme_box"]
-	scheme_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scheme_box.add_theme_constant_override("separation", 3)
-	scheme_scroll.add_child(scheme_box)
-	var scheme_buttons: Array = panel["scheme_buttons"]
+	var scheme_header: Label = panel["scheme_header"]
+	scheme_header.add_theme_font_override("font", FONT_BODY)
+	scheme_header.add_theme_color_override("font_color", C_INK2)
+	scheme_header.add_theme_font_size_override("font_size", 13)
+	scheme_header.text = "FORMATION · 1/2"
+	drawer.add_child(scheme_header)
+	var scheme_grid: GridContainer = panel["scheme_grid"]
+	scheme_grid.columns = 3
+	scheme_grid.add_theme_constant_override("h_separation", 8)
+	scheme_grid.add_theme_constant_override("v_separation", 8)
+	drawer.add_child(scheme_grid)
+	var scheme_cards: Array = panel["scheme_cards"]
 	for scheme_index in TacticalSchemes.count():
-		var scheme_button := Button.new()
-		scheme_button.name = "Scheme%d" % scheme_index
-		scheme_button.text = TacticalSchemes.scheme_name(scheme_index)
-		scheme_button.toggle_mode = true
-		scheme_button.focus_mode = Control.FOCUS_NONE
-		scheme_button.mouse_filter = Control.MOUSE_FILTER_STOP
-		scheme_button.pressed.connect(_on_scheme_pressed.bind(int(panel["team_id"]), scheme_index))
-		scheme_box.add_child(scheme_button)
-		scheme_buttons.append(scheme_button)
+		var card := SchemeCard.new()
+		card.setup(scheme_index, TacticalSchemes.scheme_name(scheme_index))
+		card.gui_input.connect(_on_scheme_clicked.bind(team_id, scheme_index))
+		scheme_grid.add_child(card)
+		scheme_cards.append(card)
+	var scheme_rail: SchemeRail = panel["scheme_rail"]
+	scheme_rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	drawer.add_child(scheme_rail)
 
-	var role_scroll: ScrollContainer = panel["role_scroll"]
-	role_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	role_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_NONE
-	role_scroll.visible = false
-	control.add_child(role_scroll)
-	var role_box: VBoxContainer = panel["role_box"]
-	role_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	role_box.add_theme_constant_override("separation", 3)
-	role_scroll.add_child(role_box)
-	var role_buttons: Array = panel["role_buttons"]
+	var role_header: Label = panel["role_header"]
+	role_header.add_theme_font_override("font", FONT_BODY)
+	role_header.add_theme_color_override("font_color", C_INK2)
+	role_header.add_theme_font_size_override("font_size", 13)
+	role_header.text = "SET-PIECE TAKERS"
+	drawer.add_child(role_header)
+	var role_grid: Control = panel["role_grid"]
+	drawer.add_child(role_grid)
+	var role_tiles: Array = panel["role_tiles"]
 	for row_index in TEAM_ROLE_ROWS.size():
-		var role_button := Button.new()
-		role_button.name = "Role%d" % row_index
-		role_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		role_button.toggle_mode = false
-		role_button.focus_mode = Control.FOCUS_NONE
-		role_button.mouse_filter = Control.MOUSE_FILTER_STOP
-		role_button.pressed.connect(_on_role_pressed.bind(int(panel["team_id"]), row_index))
-		role_box.add_child(role_button)
-		role_buttons.append(role_button)
+		var tile := RoleTile.new()
+		tile.index = row_index
+		tile.title = str(TEAM_ROLE_ROWS[row_index]["name"])
+		tile.gui_input.connect(_on_role_clicked.bind(team_id, row_index))
+		role_grid.add_child(tile)
+		role_tiles.append(tile)
 
-	var bar: HBoxContainer = panel["section_bar"]
-	bar.alignment = BoxContainer.ALIGNMENT_CENTER
-	bar.add_theme_constant_override("separation", 4)
-	control.add_child(bar)
-	var buttons: Array = panel["section_buttons"]
-	for section in SECTION_NAMES.size():
-		var button := Button.new()
-		button.name = "Section%d" % section
-		button.text = String(SECTION_NAMES[section])
-		button.add_theme_font_override("font", MENU_FONT)
-		button.toggle_mode = true
-		button.focus_mode = Control.FOCUS_NONE
-		button.mouse_filter = Control.MOUSE_FILTER_STOP
-		button.pressed.connect(_on_section_pressed.bind(int(panel["team_id"]), section))
-		bar.add_child(button)
-		buttons.append(button)
+	var hints: UiHintsBar = HINTS_SCENE.instantiate() as UiHintsBar
+	hints.visible = false
+	control.add_child(hints)
+	panel["hints"] = hints
 
-	var caption: Label = panel["section_caption"]
-	caption.add_theme_font_override("font", MENU_FONT)
-	caption.add_theme_color_override("font_color", Color(0.72, 0.74, 0.68))
-	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	control.add_child(caption)
+	var ready_overlay: ReadyOverlay = panel["ready_overlay"]
+	ready_overlay.visible = false
+	ready_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	control.add_child(ready_overlay)
+
+	var crest_overlay: ReadyOverlay = panel["crest_overlay"]
+	crest_overlay.visible = false
+	crest_overlay.dim = true
+	crest_overlay.watermark = false
+	crest_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	control.add_child(crest_overlay)
+
+	var details: GamePlanDetails = panel["details"]
+	details.visible = false
+	details.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	control.add_child(details)
+
 	return panel
 
 
-func _layout_panels() -> void:
-	if _panels.is_empty():
+func _layout() -> void:
+	if not _built or _panels.is_empty():
 		return
 	var area := size
-	if area.x < 2.0 or area.y < 2.0:
+	if area.x < 4.0 or area.y < 4.0:
 		return
-	var single := _human_teams.size() < 2
-	var top := 0.10
-	var height := 0.76
+	var u := area.y / 1080.0
+	var pad := maxf(8.0, 24.0 * u)
+	var half_w := (area.x - pad * 3.0) * 0.5
+	var half_h := minf(area.y - pad * 2.0, 960.0 * u)
+	var top := (area.y - half_h) * 0.5
 	for panel in _panels:
 		var team_id := int(panel["team_id"])
-		var pitch_rect := Rect2()
-		var bench_rect := Rect2()
-		var center := 0.5
-		if single:
-			var human: int = _human_teams[0] if not _human_teams.is_empty() else 0
-			if team_id == human:
-				if human == 0:
-					pitch_rect = Rect2(0.015, top, 0.33, height)
-					bench_rect = Rect2(0.355, top, 0.17, height)
-					center = 0.23
-				else:
-					pitch_rect = Rect2(0.53, top, 0.29, height)
-					bench_rect = Rect2(0.825, top, 0.17, height)
-					center = 0.78
-			else:
-				pitch_rect = Rect2(0.015, top, 0.34, height) if team_id == 0 \
-					else Rect2(0.61, top, 0.33, height)
-				bench_rect = Rect2(0.0, 0.0, 0.0, 0.0)
-				center = 0.18 if team_id == 0 else 0.775
-		else:
-			if team_id == 0:
-				pitch_rect = Rect2(0.01, top, 0.25, height)
-				bench_rect = Rect2(0.265, top, 0.145, height)
-				center = 0.25
-			else:
-				pitch_rect = Rect2(0.52, top, 0.25, height)
-				bench_rect = Rect2(0.775, top, 0.145, height)
-				center = 0.75
+		var rect := Rect2(Vector2(pad, top), Vector2(half_w, half_h))
+		if team_id == 1:
+			rect.position.x = pad * 2.0 + half_w
 		var control: Control = panel["control"]
-		control.position = Vector2.ZERO
-		control.size = area
-		panel["pitch_rect"] = Rect2(Vector2(pitch_rect.position.x * area.x, pitch_rect.position.y * area.y),
-			Vector2(pitch_rect.size.x * area.x, pitch_rect.size.y * area.y))
-		panel["bench_rect"] = Rect2(Vector2(bench_rect.position.x * area.x, bench_rect.position.y * area.y),
-			Vector2(bench_rect.size.x * area.x, bench_rect.size.y * area.y))
-		panel["section_center"] = center
-
-		var header: Label = panel["team_header"]
-		header.position = Vector2(pitch_rect.position.x * area.x, (top - 0.035) * area.y)
-		header.size = Vector2(pitch_rect.size.x * area.x, 0.03 * area.y)
-		header.add_theme_font_size_override("font_size", maxi(11, int(area.y * 0.022)))
-		header.text = str(_team_names.get(team_id, ""))
-
-		var pitch: GamePlanPitch = panel["pitch"]
-		pitch.position = (panel["pitch_rect"] as Rect2).position
-		pitch.size = (panel["pitch_rect"] as Rect2).size
-		# Window resizes change the card geometry: rebuild it in place, without
-		# touching the cursor or the bench widgets.
-		if not (panel["entries"] as Array).is_empty():
-			pitch.set_cards(_build_cards(panel, panel["pitch_entries"]))
-
-		var bench_header: Label = panel["bench_header"]
-		bench_header.visible = bench_rect.size.x > 0.001
-		bench_header.position = Vector2(bench_rect.position.x * area.x, (top - 0.035) * area.y)
-		bench_header.size = Vector2(bench_rect.size.x * area.x, 0.03 * area.y)
-		bench_header.add_theme_font_size_override("font_size", maxi(11, int(area.y * 0.022)))
-
-		var scroll: ScrollContainer = panel["bench_scroll"]
-		scroll.visible = bench_rect.size.x > 0.001
-		scroll.position = (panel["bench_rect"] as Rect2).position
-		scroll.size = (panel["bench_rect"] as Rect2).size
-		for list_name in ["scheme_scroll", "role_scroll"]:
-			var list: ScrollContainer = panel[list_name]
-			list.position = (panel["bench_rect"] as Rect2).position
-			list.size = (panel["bench_rect"] as Rect2).size
-			if bench_rect.size.x <= 0.001:
-				list.visible = false
-
-		var bar: HBoxContainer = panel["section_bar"]
-		var bar_w := minf(pitch_rect.size.x * area.x, 380.0)
-		bar.position = Vector2(area.x * center - bar_w * 0.5, area.y * 0.875)
-		bar.size = Vector2(bar_w, area.y * 0.045)
-		bar.visible = bool(panel["editable"])
-		var btn_w := int(bar_w / SECTION_NAMES.size()) - 4
-		for button in panel["section_buttons"]:
-			button.custom_minimum_size = Vector2(btn_w, bar.size.y)
-			button.add_theme_font_size_override("font_size", maxi(10, int(area.y * 0.018)))
-
-		var caption: Label = panel["section_caption"]
-		caption.position = Vector2(area.x * center - bar_w * 0.5, area.y * (0.925 if panel["editable"] else 0.875))
-		caption.size = Vector2(bar_w, area.y * 0.028)
-		caption.add_theme_font_size_override("font_size", maxi(9, int(area.y * 0.016)))
-func _refresh_header() -> void:
-	if not _built:
-		return
-	var votes := 0
-	for panel in _panels:
-		if panel["vote_ready"]:
-			votes += 1
-	if _human_teams.size() >= 2:
-		_header.text = "GAME PLAN" if votes == 0 else "READY TO LEAVE %d/%d" % [votes, _panels.size()]
-	else:
-		_header.text = "GAME PLAN"
-	_hint.text = DEFAULT_HINT
+		control.position = rect.position
+		control.size = rect.size
+		_layout_panel(panel, rect.size, u)
 
 
-func _refresh_panel(panel: Dictionary) -> void:
+func _layout_panel(panel: Dictionary, panel_size: Vector2, u: float) -> void:
+	var control: Control = panel["control"]
 	var team_id := int(panel["team_id"])
-	var old_focus := int(panel["focus_id"])
-	if panel["cursor"] >= 0 and panel["cursor"] < (panel["entries"] as Array).size():
-		old_focus = int((panel["entries"] as Array)[panel["cursor"]].get("id", -1))
-	var old_held := -1
-	if panel["held"] >= 0 and panel["held"] < (panel["entries"] as Array).size():
-		old_held = int((panel["entries"] as Array)[panel["held"]].get("id", -1))
+	var editable := bool(panel["editable"])
+	var crest := _show_crest(panel)
+	var read_only_pitch := not editable and not crest
 
+	var tabs_h := maxf(30.0, 38.0 * u)
+	var header_h := maxf(84.0, 112.0 * u)
+	var hints_h := maxf(44.0, 60.0 * u)
+	var collapsed_h := maxf(84.0, 112.0 * u)
+	var max_opened_h := minf(panel_size.y * 0.62, 460.0 * u)
+	var opened_h := _drawer_content_height(panel, u)
+	var gap := maxf(6.0, 10.0 * u)
+	var tab := int(panel["tab"])
+
+	var tabs: HBoxContainer = panel["tabs"]
+	tabs.visible = editable
+	tabs.position = Vector2.ZERO
+	tabs.size = Vector2(panel_size.x, tabs_h)
+	var button_w := panel_size.x / 3.0 - 4.0
+	for button in panel["tab_buttons"]:
+		button.custom_minimum_size = Vector2(button_w, tabs_h)
+		button.add_theme_font_size_override("font_size", maxi(10, int(tabs_h * 0.44)))
+
+	var header: GamePlanHeader = panel["header"]
+	header.visible = editable
+	header.position = Vector2(0, tabs_h + gap)
+	header.size = Vector2(panel_size.x, header_h)
+
+	var hints: UiHintsBar = panel["hints"]
+	hints.visible = editable and not bool(panel["ready"])
+	hints.position = Vector2(0, panel_size.y - hints_h)
+	hints.size = Vector2(panel_size.x, hints_h)
+
+	var drawer: Control = panel["drawer"]
+	var drawer_h := collapsed_h
+	if tab == TAB_FORMATIONS:
+		drawer_h = maxf(140.0, 196.0 * u)
+		panel["drawer_t"] = 1.0
+	elif tab == TAB_ROLES:
+		drawer_h = maxf(156.0, 208.0 * u)
+		panel["drawer_t"] = 1.0
+	else:
+		var open_h := clampf(opened_h, collapsed_h, maxf(collapsed_h, max_opened_h))
+		drawer_h = lerpf(collapsed_h, open_h,
+			clampf(float(panel["drawer_t"]), 0.0, 1.0))
+	drawer.visible = editable and not bool(panel["details_open"])
+	drawer.position = Vector2(0, panel_size.y - hints_h - drawer_h)
+	drawer.size = Vector2(panel_size.x, drawer_h)
+	var drawer_bg: Panel = panel["drawer_bg"]
+	drawer_bg.position = Vector2.ZERO
+	drawer_bg.size = drawer.size
+	var bg_style := StyleBoxFlat.new()
+	bg_style.bg_color = Color(0.941, 0.949, 0.969, 1.0) if tab == TAB_SQUAD else C_TILE
+	bg_style.border_width_top = 2
+	bg_style.border_color = Color(C_INK, 0.12)
+	drawer_bg.add_theme_stylebox_override("panel", bg_style)
+
+	var pitch_bottom_pad := collapsed_h
+	if tab == TAB_FORMATIONS or tab == TAB_ROLES:
+		pitch_bottom_pad = drawer_h
+	var pitch_rect := Rect2(
+		Vector2(0, tabs_h + gap + header_h + gap),
+		Vector2(panel_size.x, panel_size.y - tabs_h - header_h - gap * 3 - hints_h
+			- pitch_bottom_pad))
+	if read_only_pitch:
+		pitch_rect = Rect2(Vector2.ZERO, panel_size)
+	var pitch: GamePlanPitch = panel["pitch"]
+	pitch.visible = not crest
+	pitch.position = pitch_rect.position
+	pitch.size = pitch_rect.size
+	panel["pitch_rect"] = pitch_rect
+	panel["drawer_rect"] = Rect2(drawer.position, drawer.size)
+
+	var bench_scroll: ScrollContainer = panel["bench_scroll"]
+	var bench_margin := maxf(8.0, 10.0 * u)
+	bench_scroll.position = Vector2(bench_margin, bench_margin)
+	bench_scroll.size = Vector2(maxf(1.0, drawer.size.x - bench_margin * 2.0),
+		maxf(1.0, drawer.size.y - bench_margin * 2.0))
+
+	var scheme_header: Label = panel["scheme_header"]
+	scheme_header.position = Vector2(10, 4)
+	scheme_header.size = Vector2(drawer.size.x - 20.0, maxf(24.0, 28.0 * u))
+	scheme_header.add_theme_font_size_override("font_size", maxi(10, int(13.0 * u)))
+	var scheme_grid: GridContainer = panel["scheme_grid"]
+	var scheme_w := maxf(200.0, drawer.size.x - 28.0)
+	var scheme_content_h := maxf(80.0, drawer.size.y - scheme_header.size.y - 12.0)
+	var card_w := (scheme_w - 16.0) / 3.0
+	for card in panel["scheme_cards"]:
+		card.custom_minimum_size = Vector2(card_w, scheme_content_h)
+	scheme_grid.position = Vector2(10, scheme_header.position.y + scheme_header.size.y + 4.0)
+	scheme_grid.size = Vector2(scheme_w, scheme_content_h)
+	scheme_grid.columns = 3
+	var scheme_rail: SchemeRail = panel["scheme_rail"]
+	scheme_rail.visible = tab == TAB_FORMATIONS
+	scheme_rail.position = Vector2(drawer.size.x - 10.0, scheme_grid.position.y + 4.0)
+	scheme_rail.size = Vector2(7.0, maxf(1.0, scheme_content_h - 8.0))
+
+	var role_header: Label = panel["role_header"]
+	role_header.position = Vector2(10, 4)
+	role_header.size = Vector2(drawer.size.x - 20.0, maxf(24.0, 28.0 * u))
+	role_header.add_theme_font_size_override("font_size", maxi(10, int(13.0 * u)))
+	var role_grid: Control = panel["role_grid"]
+	role_grid.position = Vector2(0, role_header.size.y + 6.0)
+	role_grid.size = Vector2(drawer.size.x, drawer.size.y - role_header.size.y - 6.0)
+	var role_col_w := role_grid.size.x / 4.0
+	var role_row_h := role_grid.size.y / 2.0
+	var role_cells := [Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0),
+		Vector2i(1, 1), Vector2i(2, 1)]
+	for index in (panel["role_tiles"] as Array).size():
+		var tile: RoleTile = (panel["role_tiles"] as Array)[index]
+		if index == 0:
+			tile.position = Vector2.ZERO
+			tile.size = Vector2(role_col_w, role_row_h * 2.0)
+		else:
+			var cell: Vector2i = role_cells[index - 1]
+			tile.position = Vector2(role_col_w * cell.x, role_row_h * cell.y)
+			tile.size = Vector2(role_col_w, role_row_h)
+
+	var details: GamePlanDetails = panel["details"]
+	details.visible = bool(panel["details_open"])
+	details.position = Vector2(0, tabs_h + gap)
+	details.size = Vector2(panel_size.x, panel_size.y - tabs_h - gap - hints_h)
+	if bool(panel["details_open"]):
+		header.visible = false
+		pitch.visible = false
+		drawer.visible = false
+
+	var ready_overlay: ReadyOverlay = panel["ready_overlay"]
+	ready_overlay.visible = bool(panel["ready"])
+	ready_overlay.position = Vector2.ZERO
+	ready_overlay.size = panel_size
+	ready_overlay.crest = _crest_texture(team_id)
+	ready_overlay.team_name = str(_team_names.get(team_id, ""))
+	ready_overlay.ready_text = "READY!"
+	ready_overlay.queue_redraw()
+
+	var crest_overlay: ReadyOverlay = panel["crest_overlay"]
+	crest_overlay.visible = crest and not bool(panel["ready"])
+	crest_overlay.position = Vector2.ZERO
+	crest_overlay.size = panel_size
+	crest_overlay.crest = _crest_texture(team_id)
+	crest_overlay.team_name = str(_team_names.get(team_id, ""))
+	crest_overlay.ready_text = "READY!"
+	crest_overlay.dim = true
+	crest_overlay.watermark = false
+	crest_overlay.queue_redraw()
+
+	if bool(panel["ready"]):
+		tabs.visible = false
+		header.visible = false
+		hints.visible = false
+		drawer.visible = false
+		pitch.visible = false
+		details.visible = false
+	elif crest:
+		tabs.visible = false
+		header.visible = false
+		hints.visible = false
+		drawer.visible = false
+		pitch.visible = false
+	elif read_only_pitch:
+		tabs.visible = false
+		header.visible = false
+		hints.visible = false
+		drawer.visible = false
+	if not crest and not read_only_pitch and not bool(panel["ready"]):
+		_update_entry_points(panel)
+
+
+func _update_entry_points(panel: Dictionary) -> void:
+	var tab := int(panel["tab"])
+	var preview := _scheme_preview(panel) if tab == TAB_FORMATIONS else {}
+	panel["entry_points"] = {}
+	var cards := _build_cards(panel, panel["pitch_entries"], preview)
+	(panel["pitch"] as GamePlanPitch).set_cards(cards)
+	var points: Dictionary = panel["entry_points"]
+	var drawer_rect: Rect2 = panel["drawer_rect"]
+	var margin := maxf(8.0, 10.0 * size.y / 1080.0)
+	var origin := drawer_rect.position + Vector2(margin, margin)
+	var usable_w := maxf(1.0, drawer_rect.size.x - margin * 2.0)
+	var open := bool(panel["drawer_open"])
+	var card_h := clampf(size.y * 0.086, 64.0, 94.0)
+	var header_h := maxf(18.0, size.y * 0.020)
+	var bench_entries: Array = panel["bench_entries"]
+	var visible_bench: Array = bench_entries
+	if not open and visible_bench.size() > 4:
+		visible_bench = visible_bench.slice(0, 4)
+	for row in visible_bench.size():
+		var index := int(visible_bench[row])
+		var col := row % 4
+		var grid_row := row / 4
+		points[index] = origin + Vector2(
+			usable_w * 0.125 + usable_w * 0.25 * col,
+			(header_h if open else 0.0) + card_h * float(grid_row) + card_h * 0.5)
+	if open and mode != "match":
+		var reserve_entries: Array = panel["reserve_entries"]
+		for row in reserve_entries.size():
+			var index := int(reserve_entries[row])
+			var col := row % 4
+			var grid_row := row / 4
+			var reserve_y: float = header_h * 2.0 \
+				+ card_h * ceil(float(bench_entries.size()) / 4.0) + card_h * 0.5 \
+				+ card_h * float(grid_row)
+			points[index] = origin + Vector2(
+				usable_w * 0.125 + usable_w * 0.25 * col, reserve_y)
+	panel["entry_points"] = points
+
+func _team_data(team_id: int) -> Dictionary:
+	if mode == "match" and runtime != null:
+		var data: Dictionary = runtime.get_squad(team_id)
+		if data.is_empty():
+			return {"name": _team_names.get(team_id, ""), "players": [], "roles": []}
+		return data
+	if mode == "demo":
+		return _demo_teams.get(team_id, {"name": _team_names.get(team_id, ""), "players": [], "roles": []})
+	return {"name": _team_names.get(team_id, ""), "players": [], "roles": []}
+
+
+func _build_match_roster() -> void:
+	_match_bench_ids.clear()
+	_match_reserve_ids.clear()
+	_match_players_by_db.clear()
+	var package: Dictionary = ShellState.match_package
+	if package.is_empty():
+		return
+	for team_id in [0, 1]:
+		var side := "home" if team_id == 0 else "away"
+		var team: Dictionary = package.get(side, {})
+		var players: Array = team.get("players", [])
+		var bench_ids := {}
+		var reserve_ids := {}
+		for index in players.size():
+			if typeof(players[index]) != TYPE_DICTIONARY:
+				continue
+			var player: Dictionary = players[index]
+			var db := int(player.get("database_id", -1))
+			if db <= 0:
+				continue
+			_match_players_by_db[db] = player
+			if index >= Formation.SLOT_COUNT and index < Formation.SLOT_COUNT + BENCH_SIZE:
+				bench_ids[db] = true
+			elif index >= Formation.SLOT_COUNT + BENCH_SIZE:
+				reserve_ids[db] = true
+		_match_bench_ids[team_id] = bench_ids
+		_match_reserve_ids[team_id] = reserve_ids
+
+
+func _entries_for(team_id: int, team_data: Dictionary) -> Array:
+	if mode == "match":
+		return _match_entries(team_id, team_data)
+	return _lineup_entries(team_id)
+
+
+func _lineup_entries(team_id: int) -> Array:
+	var result: Array = []
+	if mode == "demo":
+		var team_data: Dictionary = _demo_teams.get(team_id, {})
+		var players: Array = team_data.get("players", [])
+		for index in players.size():
+			if typeof(players[index]) != TYPE_DICTIONARY:
+				continue
+			var entry: Dictionary = (players[index] as Dictionary).duplicate(true)
+			entry["entry_group"] = "pitch" if bool(entry.get("active", false)) else "bench"
+			result.append(entry)
+		return result
+	var lineup: MatchLineup = _lineups.get(team_id)
+	if lineup == null:
+		return result
+	var formation: Array = lineup.formation
+	for slot in mini(Formation.SLOT_COUNT, lineup.lineup.size()):
+		var player_id := int(lineup.lineup[slot])
+		var player := lineup.player_by_id(player_id)
+		if player.is_empty():
+			continue
+		var role := "CM"
+		var position := Vector2.ZERO
+		if slot < formation.size():
+			role = str(formation[slot].get("role", "CM"))
+			position = formation[slot].get("database_position",
+				formation[slot].get("position", Vector2.ZERO))
+		result.append(_entry_from_player(player_id, slot, player, role, position, true, "pitch"))
+	for index in lineup.bench.size():
+		var player_id := int(lineup.bench[index])
+		var player := lineup.player_by_id(player_id)
+		if player.is_empty():
+			continue
+		result.append(_entry_from_player(player_id, index, player, _natural_role(player),
+			Vector2.ZERO, false, "bench"))
+	for index in lineup.reserve.size():
+		var player_id := int(lineup.reserve[index])
+		var player := lineup.player_by_id(player_id)
+		if player.is_empty():
+			continue
+		result.append(_entry_from_player(player_id, index, player, _natural_role(player),
+			Vector2.ZERO, false, "reserve"))
+	return result
+
+
+func _match_entries(team_id: int, team_data: Dictionary) -> Array:
+	var result: Array = []
+	var bench_ids: Dictionary = _match_bench_ids.get(team_id, {})
+	var reserve_ids: Dictionary = _match_reserve_ids.get(team_id, {})
+	var fallback_bench := 0
+	for raw in team_data.get("players", []):
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = (raw as Dictionary).duplicate(true)
+		var db := int(entry.get("database_id", -1))
+		var package_player: Dictionary = _match_players_by_db.get(db, {})
+		if not package_player.is_empty():
+			entry["tm_id"] = int(package_player.get("tm_id", entry.get("tm_id", 0)))
+			entry["stats"] = (package_player.get("stats", {}) as Dictionary).duplicate(true)
+		if str(entry.get("name", "")).strip_edges().is_empty():
+			entry["name"] = str(entry.get("first_name", "?"))
+		if bool(entry.get("active", false)):
+			entry["entry_group"] = "pitch"
+			result.append(entry)
+			continue
+		if bool(entry.get("left_pitch", false)):
+			continue
+		if not reserve_ids.is_empty() or not bench_ids.is_empty():
+			if reserve_ids.has(db):
+				continue
+			entry["entry_group"] = "bench" if bench_ids.has(db) else "reserve"
+			if entry["entry_group"] == "reserve":
+				continue
+		else:
+			if fallback_bench >= BENCH_SIZE:
+				continue
+			fallback_bench += 1
+			entry["entry_group"] = "bench"
+		result.append(entry)
+	return result
+
+
+func _entry_from_player(player_id: int, slot: int, player: Dictionary, role: String,
+		position: Vector2, active: bool, group: String) -> Dictionary:
+	var rating := _rating_for_player(player)
+	return {
+		"id": player_id,
+		"database_id": player_id,
+		"tm_id": int(player.get("tm_id", 0)),
+		"slot": slot,
+		"name": _player_display_name(player),
+		"role": role,
+		"position": position,
+		"active": active,
+		"entry_group": group,
+		"left_pitch": false,
+		"pending_out": false,
+		"pending_in": false,
+		"rating": rating,
+		"fatigue": 100,
+		"stats": (player.get("stats", {}) as Dictionary).duplicate(true),
+	}
+
+
+func _rating_for_player(player: Dictionary) -> int:
+	var base_stat := float(player.get("base_stat", 0.0))
+	if base_stat > 0.0:
+		return int(round(base_stat * 100.0))
+	var average := float(player.get("average", 0.0))
+	if average > 0.0:
+		return int(round(average * 100.0))
+	return -1
+
+
+func _natural_role(player: Dictionary) -> String:
+	var roles := str(player.get("role", "CM")).to_upper().replace(",", " ")
+	for token in roles.split(" ", false):
+		if Formation.VALID_ROLES.has(token):
+			return token
+	return "CM"
+
+
+func _refresh_panel(panel: Dictionary, update_hints: bool = true) -> void:
+	var team_id := int(panel["team_id"])
+	var editable := _is_editable(team_id)
+	panel["editable"] = editable
 	var team_data := _team_data(team_id)
-	var entries := _entries_for(team_data)
-	panel["entries"] = entries
 	panel["team_data"] = team_data
 	panel["team_name"] = str(team_data.get("name", _team_names.get(team_id, "")))
-	panel["editable"] = _is_editable(team_id)
 	panel["pending"] = _pending_for_team(team_id)
-
-	var header: Label = panel["team_header"]
-	header.text = String(panel["team_name"])
-	if mode == "match":
-		header.text += "    subs %d/%d" % [
-			int(team_data.get("substitutions", 0)),
-			int(team_data.get("max_substitutions", 5)),
-		]
+	var entries := _entries_for(team_id, team_data)
+	panel["entries"] = entries
 
 	var pitch_entries: Array = []
 	var bench_entries: Array = []
+	var reserve_entries: Array = []
 	for index in entries.size():
-		if bool(entries[index].get("active", false)):
+		var group := str(entries[index].get("entry_group", "pitch"))
+		if group == "pitch":
 			pitch_entries.append(index)
-		else:
+		elif group == "bench":
 			bench_entries.append(index)
+		elif group == "reserve":
+			reserve_entries.append(index)
+	if mode == "match":
+		reserve_entries.clear()
 	if not (panel["bench_order"] as Array).is_empty():
 		var rank: Dictionary = {}
 		var order: Array = panel["bench_order"]
@@ -744,72 +1908,161 @@ func _refresh_panel(panel: Dictionary) -> void:
 				< int(rank.get(int(entries[b].get("id", -1)), 10000 + b)))
 	panel["pitch_entries"] = pitch_entries
 	panel["bench_entries"] = bench_entries
+	panel["reserve_entries"] = reserve_entries
 
-	panel["cursor"] = _find_by_id(entries, old_focus)
-	if panel["cursor"] < 0 and not pitch_entries.is_empty():
-		panel["cursor"] = int(pitch_entries[0])
-	panel["held"] = _find_by_id(entries, old_held)
-	panel["focus_id"] = -1
+	if int(panel["cursor"]) < 0 or int(panel["cursor"]) >= entries.size():
+		panel["cursor"] = int(pitch_entries[0]) if not pitch_entries.is_empty() else -1
+		if panel["cursor"] < 0 and not bench_entries.is_empty():
+			panel["cursor"] = int(bench_entries[0])
+	var was_drawer_open := bool(panel["drawer_open"])
+	if int(panel["cursor"]) >= 0:
+		panel["drawer_open"] = not bool(entries[int(panel["cursor"])].get("active", false))
+	if was_drawer_open != bool(panel["drawer_open"]):
+		_animate_drawer(panel, bool(panel["drawer_open"]))
 
-	var section := int(panel["active_section"])
-	var detected := _detect_committed_scheme(entries)
-	if detected >= 0:
-		panel["committed_scheme"] = detected
-	var preview: Dictionary = {}
-	var tactics_preview := section == SECTION_TACTICS and not bool(panel["bar_focused"]) \
-		and bool(panel["editable"])
-	if tactics_preview:
-		preview = _scheme_preview(panel, pitch_entries)
-
+	panel["entry_points"] = {}
+	var preview := _scheme_preview(panel) if int(panel["tab"]) == TAB_FORMATIONS else {}
+	var cards := _build_cards(panel, pitch_entries, preview)
 	var pitch: GamePlanPitch = panel["pitch"]
 	pitch.team_color = _team_colors.get(team_id, Color(0.3, 0.4, 0.8))
-	pitch.set_cards(_build_cards(panel, pitch_entries, preview))
-	var editing: bool = section == SECTION_POSITIONS \
-		or (section == SECTION_ROLES and bool(panel["role_picking"]))
-	pitch.set_markers(int(panel["cursor"]), int(panel["held"]), editing)
+	pitch.set_cards(cards)
+	var show_cursor := editable and not bool(panel["details_open"]) \
+		and (int(panel["tab"]) == TAB_SQUAD
+			or (int(panel["tab"]) == TAB_ROLES and bool(panel["role_picking"])))
+	pitch.set_markers(int(panel["cursor"]), int(panel["held"]), show_cursor)
+	panel["strength_current"] = _team_strength(entries, pitch_entries)
+	if int(panel["strength_initial"]) < 0:
+		panel["strength_initial"] = int(panel["strength_current"])
+	pitch.set_strength(int(panel["strength_current"]),
+		int(panel["strength_current"]) - int(panel["strength_initial"]))
 
-	var bench_scroll: ScrollContainer = panel["bench_scroll"]
-	var scheme_scroll: ScrollContainer = panel["scheme_scroll"]
-	var role_scroll: ScrollContainer = panel["role_scroll"]
-	var bench_visible := section == -1 or section == SECTION_POSITIONS
-	bench_scroll.visible = bench_visible and (panel["bench_rect"] as Rect2).size.x > 0.001
-	scheme_scroll.visible = section == SECTION_TACTICS \
-		and (panel["bench_rect"] as Rect2).size.x > 0.001
-	role_scroll.visible = section == SECTION_ROLES \
-		and not bool(panel["role_picking"]) \
-		and (panel["bench_rect"] as Rect2).size.x > 0.001
-	var bench_header: Label = panel["bench_header"]
-	bench_header.visible = (panel["bench_rect"] as Rect2).size.x > 0.001
-	if section == SECTION_TACTICS:
-		bench_header.text = "Scheme"
-	elif section == SECTION_ROLES:
-		bench_header.text = "Roles"
-	else:
-		bench_header.text = "Subs"
-
-	if bench_visible:
-		_rebuild_bench(panel, bench_entries)
-	_refresh_scheme_list(panel)
-	_refresh_role_list(panel)
-	_refresh_section_bar(panel)
-	_update_status()
+	_refresh_header(panel)
+	_rebuild_drawer(panel)
+	_refresh_tabs(panel)
+	_refresh_ready(panel)
+	if update_hints:
+		_refresh_hints(panel)
+	var cursor := int(panel["cursor"])
+	if cursor >= 0 and cursor < entries.size() \
+			and not bool(entries[cursor].get("active", false)):
+		call_deferred("_ensure_cursor_visible", team_id)
 
 
-func _detect_committed_scheme(entries: Array) -> int:
-	var formation: Array = []
-	for entry in entries:
-		if not bool(entry.get("active", false)):
-			continue
-		formation.append({
-			"role": str(entry.get("role", "CM")),
-			"position": entry.get("position", Vector2.ZERO),
+func _ensure_cursor_visible(team_id: int) -> void:
+	await get_tree().process_frame
+	var panel_index := _panel_index_for_team(team_id)
+	if panel_index < 0:
+		return
+	var panel: Dictionary = _panels[panel_index]
+	var cursor := int(panel["cursor"])
+	var card: BenchCard = panel["bench_cards"].get(cursor, null)
+	if card == null or not is_instance_valid(card):
+		return
+	var scroll: ScrollContainer = panel["bench_scroll"]
+	if scroll != null:
+		scroll.ensure_control_visible(card)
+
+
+func _animate_drawer(panel: Dictionary, open: bool) -> void:
+	var active_tween: Tween = panel.get("drawer_tween", null)
+	if active_tween != null and active_tween.is_valid():
+		active_tween.kill()
+	var target := 1.0 if open else 0.0
+	var current := clampf(float(panel["drawer_t"]), 0.0, 1.0)
+	if is_equal_approx(current, target):
+		panel["drawer_t"] = target
+		_layout()
+		return
+	var tween := create_tween()
+	panel["drawer_tween"] = tween
+	tween.tween_method(_set_drawer_t.bind(int(panel["team_id"])),
+		current, target, 0.24).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+func _set_drawer_t(value: float, team_id: int) -> void:
+	var panel_index := _panel_index_for_team(team_id)
+	if panel_index < 0:
+		return
+	_panels[panel_index]["drawer_t"] = clampf(value, 0.0, 1.0)
+	_layout()
+
+
+func _refresh_header(panel: Dictionary) -> void:
+	var header: GamePlanHeader = panel["header"]
+	var entries: Array = panel["entries"]
+	var cursor := int(panel["cursor"])
+	var held := int(panel["held"])
+	var primary: Dictionary = {}
+	var secondary: Dictionary = {}
+	if cursor >= 0 and cursor < entries.size():
+		primary = entries[cursor]
+	if held >= 0 and held < entries.size() and held != cursor:
+		secondary = entries[held]
+	header.set_players(primary, secondary, _team_colors.get(int(panel["team_id"]), Color(0.3, 0.4, 0.8)))
+	var details: GamePlanDetails = panel["details"]
+	details.set_player(primary, _team_colors.get(int(panel["team_id"]), Color(0.3, 0.4, 0.8)))
+	details.queue_redraw()
+
+
+func _build_cards(panel: Dictionary, pitch_entries: Array, preview: Dictionary = {}) -> Array:
+	var pitch_rect: Rect2 = panel["pitch_rect"]
+	var entries: Array = panel["entries"]
+	if pitch_rect.size.x <= 2.0 or pitch_rect.size.y <= 2.0:
+		return []
+	var card_w := clampf(pitch_rect.size.x * 0.095, 48.0, 80.0)
+	var photo_h := clampf(card_w * 0.55, 26.0, 40.0)
+	var badge_h := maxf(12.0, card_w * 0.22)
+	var name_h := maxf(12.0, card_w * 0.20)
+	var bar_h := 3.0
+	var gap := 1.0
+	var card_h := photo_h + badge_h + name_h + bar_h + gap * 3.0
+	var cards: Array = []
+	var points: Dictionary = panel["entry_points"]
+	for index in pitch_entries:
+		var entry: Dictionary = entries[index]
+		var display: Dictionary = preview.get(index, {})
+		var role := str(display.get("role", entry.get("role", "CM")))
+		var position: Vector2 = display.get("database_position", entry.get("position", Vector2.ZERO))
+		var shown := position
+		if role == "GK":
+			shown.x = -0.74
+			shown.y = 0.0
+		else:
+			if role in ["CB", "LB", "RB", "LWB", "RWB", "SW"]:
+				shown.x = -0.40
+			else:
+				shown.x *= 0.82 if shown.x < 0.0 else 0.68
+			shown.y = clampf(shown.y * 0.80, -0.68, 0.68)
+		var depth := shown.x * 0.5 + 0.5
+		var side := shown.y * 0.5 + 0.5
+		var anchor := Vector2((1.0 - side) * pitch_rect.size.x, (1.0 - depth) * pitch_rect.size.y)
+		var x := clampf(anchor.x - card_w * 0.5, 0.0, pitch_rect.size.x - card_w)
+		var y := clampf(anchor.y - card_h * 0.5, 0.0, pitch_rect.size.y - card_h)
+		var rect := Rect2(Vector2(x, y), Vector2(card_w, card_h))
+		var photo := Rect2(Vector2(x, y), Vector2(card_w, photo_h))
+		var plate_w := clampf(card_w * 0.68, 34.0, 54.0)
+		var role_rect := Rect2(Vector2(x + (card_w - plate_w) * 0.5, y + photo_h + gap),
+			Vector2(plate_w, badge_h))
+		var name_rect := Rect2(Vector2(x, role_rect.end.y + gap), Vector2(card_w, name_h))
+		var bar_rect := Rect2(Vector2(x, name_rect.end.y + gap), Vector2(card_w, bar_h))
+		cards.append({
+			"entry_index": index,
+			"entry": entry,
+			"display_role": role,
+			"rect": rect,
+			"photo": photo,
+			"role": role_rect,
+			"name": name_rect,
+			"bar": bar_rect,
+			"photo_texture": UiAssets.player_face(int(entry.get("tm_id", 0))),
 		})
-	if formation.size() != Formation.SLOT_COUNT:
-		return -1
-	return TacticalSchemes.match_scheme(formation)
+		points[index] = pitch_rect.position + rect.get_center()
+	panel["entry_points"] = points
+	return cards
 
 
-func _scheme_preview(panel: Dictionary, pitch_entries: Array) -> Dictionary:
+func _scheme_preview(panel: Dictionary) -> Dictionary:
+	var pitch_entries: Array = panel["pitch_entries"]
 	if pitch_entries.is_empty():
 		return {}
 	var entries: Array = panel["entries"]
@@ -825,159 +2078,180 @@ func _scheme_preview(panel: Dictionary, pitch_entries: Array) -> Dictionary:
 	var assignment := TacticalSchemes.assign(candidates, scheme_cursor)
 	var preview: Dictionary = {}
 	for offset in mini(assignment.size(), candidates.size()):
-		var index := int(candidates[offset]["slot"])
-		preview[index] = assignment[offset]
+		preview[int(candidates[offset]["slot"])] = assignment[offset]
 	return preview
-func _find_by_id(entries: Array, player_id: int) -> int:
-	if player_id < 0:
-		return -1
-	for index in entries.size():
-		if int(entries[index].get("id", -1)) == player_id:
-			return index
-	return -1
 
 
-func _build_cards(panel: Dictionary, pitch_entries: Array, preview: Dictionary = {}) -> Array:
-	var pitch_rect: Rect2 = panel["pitch_rect"]
-	var entries: Array = panel["entries"]
-	if pitch_rect.size.x <= 2.0 or pitch_rect.size.y <= 2.0:
-		return []
-	var card_w := clampf(pitch_rect.size.x * 0.105, CARD_MIN_W, CARD_MAX_W)
-	var photo_h := card_w * PHOTO_ASPECT
-	var badge_h := maxf(10.0, card_w * 0.26)
-	var name_h := maxf(11.0, card_w * 0.30)
-	var bar_h := clampf(card_w * 0.08, 3.0, 7.0)
-	var gap := 2.0
-	var card_h := photo_h + badge_h + name_h + bar_h + gap * 3.0
-	var held_index := int(panel["held"])
-	var can_pick := int(panel["active_section"]) == SECTION_POSITIONS and held_index >= 0
-	var cards: Array = []
+func _team_strength(entries: Array, pitch_entries: Array) -> int:
+	var total := 0
+	var count := 0
 	for index in pitch_entries:
-		var entry: Dictionary = entries[index]
-		var display: Dictionary = preview.get(index, {})
-		var role := str(display.get("role", entry.get("role", "CM")))
-		var position: Vector2 = display.get("database_position", entry.get("position", Vector2.ZERO))
-		var shown := position
-		if role != "GK":
-			shown.x = shown.x * 0.8 + 0.1
-			shown.y = clampf(shown.y, -0.75, 0.75)
-		var depth := shown.x * 0.5 + 0.5
-		var side := shown.y * 0.5 + 0.5
-		var anchor := Vector2((1.0 - side) * pitch_rect.size.x, (1.0 - depth) * pitch_rect.size.y)
-		var x := clampf(anchor.x - card_w * 0.5, 0.0, pitch_rect.size.x - card_w)
-		var y := clampf(anchor.y - photo_h * 0.5, 0.0, pitch_rect.size.y - card_h)
-		var rect := Rect2(Vector2(x, y), Vector2(card_w, card_h))
-		var photo := Rect2(Vector2(x, y), Vector2(card_w, photo_h))
-		var role_rect := Rect2(Vector2(x, y + photo_h + gap), Vector2(card_w, badge_h))
-		var name_rect := Rect2(Vector2(x, role_rect.end.y + gap), Vector2(card_w, name_h))
-		var bar_rect := Rect2(Vector2(x, name_rect.end.y + gap), Vector2(card_w, bar_h))
-		var eligible: bool = can_pick and not bool(entry.get("left_pitch", false)) \
-			and index != held_index
-		cards.append({
-			"entry_index": index,
-			"entry": entry,
-			"display_role": role,
-			"eligible": eligible,
-			"rect": rect,
-			"photo": photo,
-			"role": role_rect,
-			"name": name_rect,
-			"bar": bar_rect,
-		})
-	return cards
-func _rebuild_bench(panel: Dictionary, bench_entries: Array) -> void:
-	var box: VBoxContainer = panel["bench_box"]
-	for child in box.get_children():
-		child.queue_free()
-	var area := size
-	var row_h := clampf(area.y * 0.038, 17.0, 34.0)
-	var font_size := maxi(9, int(row_h * 0.48))
+		var rating := int(entries[index].get("rating", -1))
+		if rating < 0:
+			continue
+		total += rating
+		count += 1
+	if count <= 0:
+		return -1
+	return int(round(float(total) / float(count)))
+
+
+func _drawer_content_height(panel: Dictionary, u: float) -> float:
+	var card_h := clampf(size.y * 0.086, 64.0, 94.0)
+	var header_h := maxf(18.0, size.y * 0.020)
+	var margin := maxf(8.0, 10.0 * u)
+	var bench_rows := int(ceil(float((panel["bench_entries"] as Array).size()) / 4.0))
+	var content := margin * 2.0 + header_h + 4.0
+	if bench_rows > 0:
+		content += card_h * float(bench_rows) + 8.0 * float(bench_rows - 1)
+	if mode != "match":
+		var reserve_rows := int(ceil(float((panel["reserve_entries"] as Array).size()) / 4.0))
+		if reserve_rows > 0:
+			content += 4.0 + header_h + 4.0 + card_h * float(reserve_rows) \
+				+ 8.0 * float(reserve_rows - 1)
+	return content
+
+
+func _rebuild_drawer(panel: Dictionary) -> void:
+	var tab := int(panel["tab"])
+	var bench_scroll: ScrollContainer = panel["bench_scroll"]
+	var scheme_grid: GridContainer = panel["scheme_grid"]
+	var role_grid: Control = panel["role_grid"]
+	bench_scroll.visible = tab == TAB_SQUAD
+	scheme_grid.visible = tab == TAB_FORMATIONS
+	role_grid.visible = tab == TAB_ROLES
+	(panel["scheme_header"] as Control).visible = tab == TAB_FORMATIONS
+	(panel["role_header"] as Control).visible = tab == TAB_ROLES
+	if tab == TAB_SQUAD:
+		_rebuild_bench(panel)
+	elif tab == TAB_FORMATIONS:
+		_refresh_scheme_cards(panel)
+	else:
+		_refresh_role_tiles(panel)
+
+
+func _rebuild_bench(panel: Dictionary) -> void:
 	var entries: Array = panel["entries"]
-	var held_index := int(panel["held"])
-	var can_pick := int(panel["active_section"]) == SECTION_POSITIONS and held_index >= 0
-	for index in bench_entries:
+	var bench_entries: Array = panel["bench_entries"]
+	var reserve_entries: Array = panel["reserve_entries"]
+	var points: Dictionary = panel["entry_points"]
+	var drawer_rect: Rect2 = panel["drawer_rect"]
+	var open := bool(panel["drawer_open"])
+	var team_id := int(panel["team_id"])
+	var cursor := int(panel["cursor"])
+	var held := int(panel["held"])
+	var bench_header: Label = panel["bench_header"]
+	var reserve_header: Label = panel["reserve_header"]
+	var bench_grid: GridContainer = panel["bench_grid"]
+	var reserve_grid: GridContainer = panel["reserve_grid"]
+	for grid in [bench_grid, reserve_grid]:
+		for child in grid.get_children():
+			child.queue_free()
+	panel["bench_cards"] = {}
+
+	bench_header.text = "BENCH · %d" % bench_entries.size()
+	if mode == "match":
+		var team_data: Dictionary = panel.get("team_data", {})
+		var pending_count := (panel.get("pending", []) as Array).size()
+		bench_header.text += "    SUBS %d/%d" % [
+			int(team_data.get("substitutions", 0)) + pending_count,
+			int(team_data.get("max_substitutions", 5)),
+		]
+	bench_header.visible = open
+	reserve_header.text = "RESERVE · %d" % reserve_entries.size()
+	reserve_header.visible = open and mode != "match" and not reserve_entries.is_empty()
+
+	var card_h := clampf(size.y * 0.086, 64.0, 94.0)
+	var header_h := maxf(18.0, size.y * 0.020)
+	var visible_bench: Array = bench_entries
+	if not open and visible_bench.size() > 4:
+		visible_bench = visible_bench.slice(0, 4)
+	for row in visible_bench.size():
+		var index := int(visible_bench[row])
 		var entry: Dictionary = entries[index]
-		var eligible: bool = can_pick and not bool(entry.get("left_pitch", false)) \
-			and index != held_index
-		var button := Button.new()
-		button.name = "Bench%d" % index
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		var prefix := "→ " if eligible else ""
-		button.text = "%s%s  %s%s" % [
-			prefix,
-			str(entry.get("role", "")),
-			_short_name(str(entry.get("name", ""))),
-			_entry_suffix(entry),
-		]
-		button.custom_minimum_size = Vector2(0, row_h)
-		button.add_theme_font_override("font", MENU_FONT)
-		button.add_theme_font_size_override("font_size", font_size)
-		button.focus_mode = Control.FOCUS_NONE
-		button.mouse_filter = Control.MOUSE_FILTER_STOP
-		button.disabled = not bool(panel["editable"]) or bool(entry.get("left_pitch", false))
-		button.pressed.connect(_on_bench_pressed.bind(int(panel["team_id"]), index))
-		box.add_child(button)
-		if int(panel["active_section"]) == SECTION_POSITIONS and index == int(panel["cursor"]):
-			button.modulate = Color(1.0, 0.90, 0.40)
-		elif eligible:
-			button.modulate = Color(0.70, 1.0, 0.70)
-		# Keep the cursor's bench row visible when navigating with the pad.
-		if index == int(panel["cursor"]):
-			var scroll: ScrollContainer = panel["bench_scroll"]
-			scroll.call_deferred("ensure_control_visible", button)
+		var card := BenchCard.new()
+		card.custom_minimum_size = Vector2(40, card_h)
+		card.setup(entry, index, bool(panel["editable"]))
+		card.set_state(cursor == index, held == index)
+		card.activated.connect(_on_entry_pressed.bind(team_id, index))
+		bench_grid.add_child(card)
+		(panel["bench_cards"] as Dictionary)[index] = card
+		var col := row % 4
+		var grid_row := row / 4
+		points[index] = drawer_rect.position + Vector2(
+			drawer_rect.size.x * 0.125 + drawer_rect.size.x * 0.25 * col,
+			(header_h if open else 0.0) + card_h * float(grid_row) + card_h * 0.5)
+	if open and mode != "match":
+		for row in reserve_entries.size():
+			var index := int(reserve_entries[row])
+			var entry: Dictionary = entries[index]
+			var card := BenchCard.new()
+			card.custom_minimum_size = Vector2(40, card_h)
+			card.setup(entry, index, bool(panel["editable"]))
+			card.set_state(cursor == index, held == index)
+			card.activated.connect(_on_entry_pressed.bind(team_id, index))
+			reserve_grid.add_child(card)
+			(panel["bench_cards"] as Dictionary)[index] = card
+			var col := row % 4
+			var grid_row := row / 4
+			var reserve_y: float = header_h * 2.0 \
+				+ card_h * ceil(float(bench_entries.size()) / 4.0) + card_h * 0.5 \
+				+ card_h * float(grid_row)
+			points[index] = drawer_rect.position + Vector2(
+				drawer_rect.size.x * 0.125 + drawer_rect.size.x * 0.25 * col, reserve_y)
+	panel["entry_points"] = points
 
-func _refresh_scheme_list(panel: Dictionary) -> void:
-	var buttons: Array = panel["scheme_buttons"]
-	if buttons.is_empty():
-		return
-	var area := size
-	var row_h := clampf(area.y * 0.045, 22.0, 42.0)
-	var font_size := maxi(10, int(row_h * 0.46))
-	var committed := int(panel["committed_scheme"])
+
+func _refresh_scheme_cards(panel: Dictionary) -> void:
+	var committed := _detect_committed_scheme(panel)
+	panel["committed_scheme"] = committed
+	var focused := int(panel["tab"]) == TAB_FORMATIONS
 	var cursor := int(panel["scheme_cursor"])
-	var focused := int(panel["active_section"]) == SECTION_TACTICS \
-		and not bool(panel["bar_focused"])
-	for index in buttons.size():
-		var button := buttons[index] as Button
-		button.custom_minimum_size = Vector2(0, row_h)
-		button.add_theme_font_size_override("font_size", font_size)
-		button.set_pressed_no_signal(index == committed)
-		button.text = "%s%s" % [
-			"→ " if focused and index == cursor else "",
-			TacticalSchemes.scheme_name(index),
-		]
-		if focused and index == cursor:
-			button.modulate = Color(1.0, 0.90, 0.40)
-		elif index == committed:
-			button.modulate = Color(0.75, 1.0, 0.75)
-		else:
-			button.modulate = Color(0.78, 0.80, 0.76)
+	var page := cursor / 3
+	panel["scheme_page"] = page
+	var page_count := int(ceil(float(TacticalSchemes.count()) / 3.0))
+	var rail: SchemeRail = panel["scheme_rail"]
+	rail.page = page
+	rail.page_count = page_count
+	rail.queue_redraw()
+	var scheme_label := "CUSTOM"
+	if committed >= 0:
+		scheme_label = TacticalSchemes.scheme_name(committed)
+	(panel["scheme_header"] as Label).text = "FORMATION · %s · %d/%d" \
+		% [scheme_label, page + 1, page_count]
+	for index in (panel["scheme_cards"] as Array).size():
+		var card: SchemeCard = (panel["scheme_cards"] as Array)[index]
+		card.visible = index / 3 == page
+		card.selected = index == committed
+		card.focused = focused and index == cursor
+		card.queue_redraw()
 
 
-func _refresh_role_list(panel: Dictionary) -> void:
-	var buttons: Array = panel["role_buttons"]
-	if buttons.is_empty():
-		return
-	var area := size
-	var row_h := clampf(area.y * 0.045, 22.0, 42.0)
-	var font_size := maxi(9, int(row_h * 0.40))
-	var cursor := int(panel["role_cursor"])
-	var focused := int(panel["active_section"]) == SECTION_ROLES \
-		and not bool(panel["bar_focused"]) and not bool(panel["role_picking"])
-	for row_index in buttons.size():
-		var button := buttons[row_index] as Button
+func _detect_committed_scheme(panel: Dictionary) -> int:
+	var entries: Array = panel["entries"]
+	var formation: Array = []
+	for entry in entries:
+		if not bool(entry.get("active", false)):
+			continue
+		formation.append({
+			"role": str(entry.get("role", "CM")),
+			"position": entry.get("position", Vector2.ZERO),
+		})
+	if formation.size() != Formation.SLOT_COUNT:
+		return -1
+	return TacticalSchemes.match_scheme(formation)
+
+
+func _refresh_role_tiles(panel: Dictionary) -> void:
+	for row_index in (panel["role_tiles"] as Array).size():
+		var tile: RoleTile = (panel["role_tiles"] as Array)[row_index]
 		var role := int(TEAM_ROLE_ROWS[row_index]["role"])
-		button.custom_minimum_size = Vector2(0, row_h)
-		button.add_theme_font_size_override("font_size", font_size)
-		button.text = "%s%s   %s" % [
-			"→ " if focused and row_index == cursor else "",
-			str(TEAM_ROLE_ROWS[row_index]["name"]),
-			_role_player_name(panel, role),
-		]
-		if focused and row_index == cursor:
-			button.modulate = Color(1.0, 0.90, 0.40)
-		else:
-			button.modulate = Color(0.80, 0.82, 0.78)
+		tile.title = str(TEAM_ROLE_ROWS[row_index]["name"])
+		tile.player_name = _role_player_name(panel, role)
+		tile.assigned = _role_player_name(panel, role) != "—"
+		tile.focused = int(panel["tab"]) == TAB_ROLES and not bool(panel["role_picking"]) \
+			and row_index == int(panel["role_cursor"])
+		tile.queue_redraw()
 
 
 func _role_player_name(panel: Dictionary, role: int) -> String:
@@ -1006,29 +2280,6 @@ func _role_player_name(panel: Dictionary, role: int) -> String:
 	return "—"
 
 
-func _role_player_id(panel: Dictionary, role: int) -> int:
-	var team_id := int(panel["team_id"])
-	var team_data: Dictionary = panel.get("team_data", {})
-	if mode == "match":
-		for entry in team_data.get("roles", []):
-			if int(entry.get("role", -1)) == role:
-				return int(entry.get("player_id", -1))
-	elif mode == "demo":
-		var roles: Array = team_data.get("roles", [])
-		if role >= 0 and role < roles.size():
-			var slot := int(roles[role])
-			var players: Array = team_data.get("players", [])
-			if slot >= 0 and slot < players.size():
-				return int(players[slot].get("id", -1))
-	else:
-		var lineup: MatchLineup = _lineups.get(team_id)
-		if lineup != null:
-			var slot := lineup.role_slot(role)
-			if slot >= 0 and slot < lineup.lineup.size():
-				return int(lineup.lineup[slot])
-	return -1
-
-
 func _pending_for_team(team_id: int) -> Array:
 	var result: Array = []
 	if mode != "match" or runtime == null:
@@ -1040,358 +2291,90 @@ func _pending_for_team(team_id: int) -> Array:
 	return result
 
 
-func _toggle_bench(panel_index: int) -> bool:
-	if panel_index < 0 or panel_index >= _panels.size():
-		return false
-	var panel: Dictionary = _panels[panel_index]
-	if not bool(panel["editable"]) or int(panel["active_section"]) != SECTION_POSITIONS:
-		return false
-	var entries: Array = panel["entries"]
-	if entries.is_empty():
-		return false
-	var cursor := int(panel["cursor"])
-	var want_bench := cursor >= 0 and cursor < entries.size() \
-		and bool(entries[cursor].get("active", false))
-	var next := -1
-	for index in entries.size():
-		if bool(entries[index].get("left_pitch", false)):
-			continue
-		if bool(entries[index].get("active", false)) != want_bench:
-			next = index
-			break
-	if next < 0:
-		set_status("No %s available" % ("substitutes" if want_bench else "starters"))
-		return true
-	panel["cursor"] = next
-	panel["bar_focused"] = false
-	_refresh_panel(panel)
-	set_status("On the %s" % ("bench" if want_bench else "pitch"), 2000)
-	return true
+func _refresh_tabs(panel: Dictionary) -> void:
+	var tab := int(panel["tab"])
+	for index in (panel["tab_buttons"] as Array).size():
+		var button: Button = (panel["tab_buttons"] as Array)[index]
+		var active := index == tab
+		button.set_pressed_no_signal(active)
+		button.add_theme_stylebox_override("normal", _tab_style(false))
+		button.add_theme_stylebox_override("hover", _tab_style(active))
+		button.add_theme_stylebox_override("hover_pressed", _tab_style(true))
+		button.add_theme_stylebox_override("pressed", _tab_style(true))
+		button.add_theme_stylebox_override("focus", _tab_style(active))
 
 
-func _cancel_pending(panel: Dictionary) -> bool:
-	if mode != "match" or runtime == null:
-		return false
-	var entries: Array = panel["entries"]
-	var cursor := int(panel["cursor"])
-	if cursor < 0 or cursor >= entries.size():
-		return false
-	var entry: Dictionary = entries[cursor]
-	var pair: Dictionary = {}
-	for candidate in panel["pending"]:
-		if int(candidate.get("out_id", -2)) == int(entry.get("id", -1)) \
-				or int(candidate.get("in_id", -2)) == int(entry.get("id", -1)):
-			pair = candidate
-			break
-	if pair.is_empty():
-		set_status("No queued substitution for this player", 2500)
-		return true
-	if runtime.cancel_substitution(int(panel["team_id"]), int(pair.get("out_slot", -1))):
-		set_status("Substitution cancelled", 3000)
-	else:
-		set_status("Could not cancel the substitution")
-	_refresh_panel(panel)
-	return true
+func _tab_style(active: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = C_TILE if active else Color(C_TILE.r, C_TILE.g, C_TILE.b, 0.55)
+	style.border_width_bottom = 4 if active else 0
+	style.border_color = C_RAIL
+	style.content_margin_left = 16.0
+	style.content_margin_right = 16.0
+	style.content_margin_top = 0.0
+	style.content_margin_bottom = 0.0
+	return style
 
 
-func _on_scheme_pressed(team_id: int, scheme_index: int) -> void:
-	var panel_index := _panel_index_for_team(team_id)
-	if panel_index < 0:
+func _refresh_hints(panel: Dictionary) -> void:
+	var hints: UiHintsBar = panel["hints"]
+	if hints == null:
 		return
-	var panel: Dictionary = _panels[panel_index]
-	if not bool(panel["editable"]):
+	hints.visible = bool(panel["editable"]) and not bool(panel["ready"])
+	if not hints.visible:
 		return
-	panel["scheme_cursor"] = scheme_index
-	panel["bar_focused"] = false
-	_commit_scheme(panel)
+	hints.setup(_hints_for(panel))
+	var panel_control: Control = panel["control"]
+	hints.size = Vector2(panel_control.size.x, hints.size.y)
 
 
-func _move_scheme_cursor(panel: Dictionary, delta: int) -> void:
-	var count := TacticalSchemes.count()
-	if count <= 0:
-		return
-	var next := clampi(int(panel["scheme_cursor"]) + delta, 0, count - 1)
-	if next == int(panel["scheme_cursor"]):
-		return
-	panel["scheme_cursor"] = next
-	_refresh_panel(panel)
-
-
-func _commit_scheme(panel: Dictionary) -> void:
-	var team_id := int(panel["team_id"])
-	var scheme_index := int(panel["scheme_cursor"])
-	if scheme_index < 0 or scheme_index >= TacticalSchemes.count():
-		return
-	if mode == "prematch":
-		var lineup: MatchLineup = _lineups.get(team_id)
-		if lineup == null or not lineup.apply_scheme(scheme_index):
-			set_status("Could not apply the scheme")
-			return
-		lineup_changed.emit()
-	elif mode == "match":
-		if runtime == null:
-			return
-		runtime.apply_tactical_scheme(team_id, scheme_index)
-	else:
-		_apply_demo_scheme(team_id, scheme_index)
-	panel["committed_scheme"] = scheme_index
-	set_status("%s applied" % TacticalSchemes.scheme_name(scheme_index), 3000)
-	_refresh_panel(panel)
-
-
-func _apply_demo_scheme(team_id: int, scheme_index: int) -> void:
-	var team_data: Dictionary = _demo_teams.get(team_id, {})
-	var players: Array = team_data.get("players", [])
-	var active: Array = []
-	for index in players.size():
-		if bool(players[index].get("active", false)):
-			active.append(index)
-	var candidates: Array = []
-	for index in active:
-		candidates.append({
-			"slot": index,
-			"role": str(players[index].get("role", "CM")),
-			"position": players[index].get("position", Vector2.ZERO),
-		})
-	var assignment := TacticalSchemes.assign(candidates, scheme_index)
-	for offset in mini(assignment.size(), candidates.size()):
-		var index := int(candidates[offset]["slot"])
-		players[index]["role"] = str(assignment[offset]["role"])
-		players[index]["position"] = assignment[offset]["database_position"]
-
-
-func _on_role_pressed(team_id: int, row_index: int) -> void:
-	var panel_index := _panel_index_for_team(team_id)
-	if panel_index < 0:
-		return
-	var panel: Dictionary = _panels[panel_index]
-	if not bool(panel["editable"]) or row_index < 0 or row_index >= TEAM_ROLE_ROWS.size():
-		return
-	panel["role_cursor"] = row_index
-	_start_role_picking(panel)
-
-
-func _move_role_cursor(panel: Dictionary, delta: int) -> void:
-	var next := clampi(int(panel["role_cursor"]) + delta, 0, TEAM_ROLE_ROWS.size() - 1)
-	if next == int(panel["role_cursor"]):
-		return
-	panel["role_cursor"] = next
-	_refresh_panel(panel)
-
-
-func _start_role_picking(panel: Dictionary) -> void:
-	panel["role_picking"] = true
-	panel["role_picking_index"] = int(panel["role_cursor"])
-	panel["bar_focused"] = false
-	var role := int(TEAM_ROLE_ROWS[int(panel["role_picking_index"])]["role"])
-	var player_id := _role_player_id(panel, role)
-	var target := _find_by_id(panel["entries"], player_id)
-	if target < 0:
-		var pitch_entries: Array = panel["pitch_entries"]
-		target = int(pitch_entries[0]) if not pitch_entries.is_empty() else -1
-	panel["cursor"] = target
-	_refresh_panel(panel)
-	set_status("Pick a player for %s — A: assign, B: cancel" % TEAM_ROLE_ROWS[int(panel["role_cursor"])]["name"])
-
-
-func _stop_role_picking(panel: Dictionary) -> void:
-	panel["role_picking"] = false
-	_refresh_panel(panel)
-
-
-func _confirm_role_pick(panel: Dictionary) -> void:
-	if not bool(panel["role_picking"]):
-		return
-	var entries: Array = panel["entries"]
-	var cursor := int(panel["cursor"])
-	if cursor < 0 or cursor >= entries.size() or not bool(entries[cursor].get("active", false)):
-		set_status("Pick a player on the pitch")
-		return
-	var role := int(TEAM_ROLE_ROWS[int(panel["role_picking_index"])]["role"])
-	var entry: Dictionary = entries[cursor]
-	var team_id := int(panel["team_id"])
-	if mode == "prematch":
-		var lineup: MatchLineup = _lineups.get(team_id)
-		if lineup == null:
-			return
-		var slot := lineup.slot_for_player(int(entry.get("id", -1)))
-		if slot < 0 or not lineup.set_role(role, slot):
-			set_status("Could not assign the role")
-			return
-		lineup_changed.emit()
-	elif mode == "match":
-		if runtime == null or not runtime.set_team_role(team_id, role, int(entry.get("slot", -1))):
-			set_status("Could not assign the role")
-			return
-	else:
-		var team_data: Dictionary = _demo_teams.get(team_id, {})
-		var roles: Array = team_data.get("roles", [])
-		if role >= 0 and role < roles.size():
-			roles[role] = int(entry.get("slot", 0))
-	panel["role_picking"] = false
-	set_status("%s: %s" % [TEAM_ROLE_ROWS[int(panel["role_picking_index"])]["name"],
-		str(entry.get("name", ""))], 3500)
-	_refresh_panel(panel)
-
-func _refresh_section_bar(panel: Dictionary) -> void:
-	var active := int(panel["active_section"])
-	for section in (panel["section_buttons"] as Array).size():
-		var button := (panel["section_buttons"] as Array)[section] as Button
-		button.set_pressed_no_signal(section == active)
-		if panel["bar_focused"] and section == int(panel["bar_cursor"]):
-			button.modulate = Color(1.0, 0.88, 0.35)
-		elif section == active:
-			button.modulate = Color(1.0, 1.0, 1.0)
-		else:
-			button.modulate = Color(0.72, 0.74, 0.70)
-	var caption: Label = panel["section_caption"]
-	if panel["bar_focused"]:
-		caption.text = "%s: %s" % [
-			SECTION_NAMES[int(panel["bar_cursor"])],
-			SECTION_DESCRIPTIONS[int(panel["bar_cursor"])],
+func _hints_for(panel: Dictionary) -> Array:
+	var tab := int(panel["tab"])
+	if bool(panel["details_open"]):
+		return [{"keys": ["B"], "label": "back"}]
+	if tab == TAB_FORMATIONS:
+		return [
+			{"keys": ["Q/E"], "label": "tabs"},
+			{"keys": ["A"], "label": "apply"},
+			{"keys": ["B"], "label": "ready"},
 		]
-	elif active == SECTION_TACTICS:
-		caption.text = "Scheme: %s — A: apply, B: back" \
-			% TacticalSchemes.scheme_name(int(panel["scheme_cursor"]))
-	elif active == SECTION_ROLES:
-		if bool(panel["role_picking"]):
-			caption.text = "Pick for %s — A: assign, B: cancel" \
-				% TEAM_ROLE_ROWS[int(panel["role_picking_index"])]["name"]
-		else:
-			caption.text = "Roles: A: pick player, B: back"
-	elif active >= 0:
-		caption.text = String(SECTION_DESCRIPTIONS[active])
-	else:
-		caption.text = ""
-	# The cursor row on the bar is shown by the section toggle state; the
-	# keyboard device still owns the panel while the bar is focused.
-	if not panel["editable"]:
-		caption.text = "Read-only (opponent)"
+	if tab == TAB_ROLES:
+		return [
+			{"keys": ["Q/E"], "label": "tabs"},
+			{"keys": ["A"], "label": "pick"},
+			{"keys": ["B"], "label": "ready"},
+		]
+	return [
+		{"keys": ["Q/E"], "label": "tabs"},
+		{"keys": ["A"], "label": "select"},
+		{"keys": ["Y"], "label": "details"},
+		{"keys": ["B"], "label": "ready"},
+	]
 
 
-func _update_status() -> void:
-	if _status == null:
-		return
-	if Time.get_ticks_msec() > _status_until_ms and not _status.text.is_empty():
-		_status.text = ""
+func _refresh_ready(panel: Dictionary) -> void:
+	var overlay: ReadyOverlay = panel["ready_overlay"]
+	overlay.visible = bool(panel["ready"])
+	overlay.queue_redraw()
+	var crest: ReadyOverlay = panel["crest_overlay"]
+	crest.visible = _show_crest(panel) and not bool(panel["ready"])
+	crest.queue_redraw()
+	var hints: UiHintsBar = panel["hints"]
+	hints.visible = bool(panel["editable"]) and not bool(panel["ready"])
 
 
-func set_status(text: String, duration_ms: int = 4000) -> void:
-	if _status == null:
-		return
-	_status.text = text
-	_status_until_ms = Time.get_ticks_msec() + duration_ms
-
-
-func _entry_suffix(entry: Dictionary) -> String:
-	if bool(entry.get("left_pitch", false)):
-		return "  (out)"
-	if bool(entry.get("pending_out", false)):
-		return "  -"
-	if bool(entry.get("pending_in", false)):
-		return "  +"
-	return ""
-
-
-func _short_name(value: String) -> String:
-	if value.length() <= 15:
-		return value
-	return value.substr(0, 14) + "."
-
-
-func _shell_lineup_team_data(team_id: int) -> Dictionary:
-	var lineup: MatchLineup = _lineups.get(team_id)
-	if lineup == null:
-		return {"name": _team_names.get(team_id, ""), "players": []}
-	var players: Array = []
-	var formation: Array = lineup.formation
-	for slot in mini(Formation.SLOT_COUNT, lineup.lineup.size()):
-		var player_id := int(lineup.lineup[slot])
-		var player := lineup.player_by_id(player_id)
-		if player.is_empty():
-			continue
-		var role := "CM"
-		var position := Vector2.ZERO
-		if slot < formation.size():
-			role = str(formation[slot].get("role", "CM"))
-			position = formation[slot].get("database_position",
-				formation[slot].get("position", Vector2.ZERO))
-		players.append(_entry_from_player(player_id, slot, player, role, position, true))
-	for index in lineup.bench.size():
-		var player_id := int(lineup.bench[index])
-		var player := lineup.player_by_id(player_id)
-		if player.is_empty():
-			continue
-		players.append(_entry_from_player(player_id, index, player, _natural_role(player),
-			Vector2.ZERO, false))
-	return {"name": lineup.team_name, "players": players}
-
-
-func _entry_from_player(player_id: int, slot: int, player: Dictionary, role: String,
-		position: Vector2, active: bool) -> Dictionary:
-	var rating := -1
-	var base_stat := float(player.get("base_stat", 0.0))
-	if base_stat > 0.0:
-		rating = int(round(base_stat * 100.0))
-	else:
-		var average := float(player.get("average", 0.0))
-		if average > 0.0:
-			rating = int(round(average * 100.0))
-	return {
-		"id": player_id,
-		"slot": slot,
-		"name": str(player.get("lastname", player.get("name", "?"))),
-		"role": role,
-		"position": position,
-		"active": active,
-		"left_pitch": false,
-		"pending_out": false,
-		"pending_in": false,
-		"rating": rating,
-		"fatigue": 100,
-	}
-
-
-func _natural_role(player: Dictionary) -> String:
-	var roles := str(player.get("role", "CM")).to_upper().replace(",", " ")
-	for token in roles.split(" ", false):
-		if Formation.VALID_ROLES.has(token):
-			return token
-	return "CM"
-
-
-func _team_data(team_id: int) -> Dictionary:
-	if mode == "match" and runtime != null:
-		var data: Dictionary = runtime.get_squad(team_id)
-		if data.is_empty():
-			return {"name": _team_names.get(team_id, ""), "players": []}
-		return data
+func _crest_texture(team_id: int) -> Texture2D:
 	if mode == "demo":
-		return _demo_teams.get(team_id, {"name": _team_names.get(team_id, ""), "players": []})
-	return _shell_lineup_team_data(team_id)
+		return null
+	var team: Dictionary = ShellState.home_team if team_id == 0 else ShellState.away_team
+	if team.is_empty():
+		return null
+	return UiAssets.usable_texture(UiAssets.team_logo(team))
 
 
-func _entries_for(team_data: Dictionary) -> Array:
-	var source: Array = team_data.get("players", [])
-	var active: Array = []
-	var bench: Array = []
-	var left: Array = []
-	for raw in source:
-		if typeof(raw) != TYPE_DICTIONARY:
-			continue
-		var entry: Dictionary = (raw as Dictionary).duplicate(true)
-		if bool(entry.get("active", false)):
-			active.append(entry)
-		elif bool(entry.get("left_pitch", false)):
-			left.append(entry)
-		else:
-			bench.append(entry)
-	var result: Array = []
-	result.append_array(active)
-	result.append_array(bench)
-	result.append_array(left)
-	return result
-
+# ---------------------------------------------------------------------------
+# Input
+# ---------------------------------------------------------------------------
 
 func _panel_for_keyboard() -> int:
 	for panel in _panels:
@@ -1426,53 +2409,65 @@ func _side_team(controller: Dictionary) -> int:
 	return 1 if str(controller.get("side", "home")) == "away" else 0
 
 
-func _handle_panel(panel_index: int, direction: Vector2i, accept: bool, back: bool,
-		cancel: bool = false) -> bool:
+func _handle_panel(panel_index: int, direction: Vector2i, accept: bool, back: bool) -> bool:
 	if panel_index < 0 or panel_index >= _panels.size():
 		return false
 	var panel: Dictionary = _panels[panel_index]
 	if not bool(panel["editable"]):
 		return false
-	if panel["vote_ready"] and (direction != Vector2i.ZERO or accept or back or cancel):
-		panel["vote_ready"] = false
-		_refresh_header()
+	if bool(panel["ready"]):
+		if back and local_two_player:
+			_unready_panel(panel)
+			return true
+		return true
+	if bool(panel["details_open"]):
+		if back or accept:
+			panel["details_open"] = false
+			_refresh_panel(panel)
+			_layout()
+			return true
 		return true
 
-	if panel["bar_focused"]:
+	var tab := int(panel["tab"])
+	if tab == TAB_SQUAD:
 		if back:
-			_leave(panel)
+			if int(panel["held"]) != -1:
+				panel["held"] = -1
+				_refresh_panel(panel)
+				set_status("Selection cleared", 1500)
+				return true
+			_ready_panel(panel)
 			return true
 		if accept:
-			_set_section(panel, int(panel["bar_cursor"]))
+			if int(panel["cursor"]) >= 0:
+				_press_entry(panel_index, int(panel["cursor"]))
 			return true
-		if direction.x != 0:
-			panel["bar_cursor"] = wrapi(int(panel["bar_cursor"]) + direction.x, 0, SECTION_NAMES.size())
-			_refresh_section_bar(panel)
-			return true
-		if direction.y > 0 and int(panel["active_section"]) >= 0:
-			panel["bar_focused"] = false
-			_refresh_panel(panel)
-			return true
+		if direction != Vector2i.ZERO:
+			var next := _navigate_entry(panel, direction)
+			if next >= 0:
+				panel["cursor"] = next
+				_refresh_panel(panel)
+				_layout()
+				return true
 		return false
 
-	var section := int(panel["active_section"])
-	if section == SECTION_TACTICS:
+	if tab == TAB_FORMATIONS:
 		if back:
-			panel["bar_focused"] = true
-			_refresh_panel(panel)
+			_ready_panel(panel)
 			return true
 		if accept:
 			_commit_scheme(panel)
 			return true
-		if direction.y != 0:
-			_move_scheme_cursor(panel, direction.y)
+		if direction != Vector2i.ZERO:
+			_move_scheme_cursor(panel, direction)
 			return true
 		return true
 
-	if section == SECTION_ROLES:
+	if tab == TAB_ROLES:
 		if bool(panel["role_picking"]):
 			if back:
-				_stop_role_picking(panel)
+				panel["role_picking"] = false
+				_refresh_panel(panel)
 				return true
 			if accept:
 				_confirm_role_pick(panel)
@@ -1483,131 +2478,143 @@ func _handle_panel(panel_index: int, direction: Vector2i, accept: bool, back: bo
 					panel["cursor"] = next
 					_refresh_panel(panel)
 				return true
-			return false
+			return true
 		if back:
-			panel["bar_focused"] = true
-			_refresh_panel(panel)
+			_ready_panel(panel)
 			return true
 		if accept:
 			_start_role_picking(panel)
 			return true
-		if direction.y != 0:
-			_move_role_cursor(panel, direction.y)
+		if direction != Vector2i.ZERO:
+			_move_role_cursor(panel, direction)
 			return true
 		return true
-
-	if section != SECTION_POSITIONS:
-		if back or accept or direction.y < 0:
-			panel["bar_focused"] = true
-			_refresh_panel(panel)
-			return true
-		return false
-
-	if cancel:
-		return _cancel_pending(panel)
-
-	if back:
-		if int(panel["held"]) != -1:
-			panel["held"] = -1
-			set_status("Selection cleared", 1500)
-		else:
-			panel["bar_focused"] = true
-		_refresh_panel(panel)
-		return true
-
-	if accept:
-		if int(panel["cursor"]) >= 0:
-			_press_entry(panel_index, int(panel["cursor"]))
-		return true
-
-	if direction != Vector2i.ZERO:
-		var next := _find_next_entry(panel, int(panel["cursor"]), direction)
-		if next >= 0:
-			panel["cursor"] = next
-			panel["focus_id"] = -1
-			_refresh_panel(panel)
-			return true
-		if direction.y > 0:
-			panel["bar_focused"] = true
-			_refresh_panel(panel)
-			return true
 	return false
-
-func _leave(panel: Dictionary) -> void:
-	if _human_teams.size() >= 2:
-		panel["vote_ready"] = true
-		_refresh_header()
-		var votes := 0
-		for candidate in _panels:
-			if candidate["vote_ready"]:
-				votes += 1
-		if votes >= _panels.size():
-			close_requested.emit()
-		return
-	close_requested.emit()
 
 
 func _set_section(panel: Dictionary, section: int) -> void:
-	panel["active_section"] = section
-	panel["bar_cursor"] = section
-	panel["bar_focused"] = false
+	# Compatibility hook for the UI lab, which still speaks the old section ids.
+	match section:
+		0:
+			panel["tab"] = TAB_FORMATIONS
+		2:
+			panel["tab"] = TAB_ROLES
+		_:
+			panel["tab"] = TAB_SQUAD
 	panel["held"] = -1
 	panel["role_picking"] = false
-	if section == SECTION_TACTICS:
+	_refresh_panel(panel)
+	_layout()
+
+
+func _switch_tab(panel_index: int, delta: int) -> bool:
+	if panel_index < 0 or panel_index >= _panels.size():
+		return false
+	var panel: Dictionary = _panels[panel_index]
+	if not bool(panel["editable"]) or bool(panel["ready"]) or bool(panel["details_open"]):
+		return false
+	var next := wrapi(int(panel["tab"]) + delta, 0, TAB_NAMES.size())
+	panel["tab"] = next
+	panel["held"] = -1
+	panel["role_picking"] = false
+	if next == TAB_FORMATIONS:
 		var committed := int(panel["committed_scheme"])
 		panel["scheme_cursor"] = committed if committed >= 0 else 0
-		set_status("Choose a scheme — A: apply, B: back", 4000)
-	elif section == SECTION_ROLES:
+	elif next == TAB_ROLES:
 		panel["role_cursor"] = clampi(int(panel["role_cursor"]), 0, TEAM_ROLE_ROWS.size() - 1)
-		set_status("Choose a role — A: pick player, B: back", 4000)
-	elif section == 3:
-		set_status("Player size: not ported yet", 2500)
 	_refresh_panel(panel)
+	_layout()
+	return true
 
 
-func _on_section_pressed(team_id: int, section: int) -> void:
+func _toggle_details(panel_index: int) -> bool:
+	if panel_index < 0 or panel_index >= _panels.size():
+		return false
+	var panel: Dictionary = _panels[panel_index]
+	if not bool(panel["editable"]) or bool(panel["ready"]):
+		return false
+	if int(panel["tab"]) != TAB_SQUAD and not bool(panel["details_open"]):
+		return false
+	panel["details_open"] = not bool(panel["details_open"])
+	_refresh_panel(panel)
+	_layout()
+	return true
+
+
+func _on_tab_pressed(team_id: int, tab: int) -> void:
 	var panel_index := _panel_index_for_team(team_id)
 	if panel_index < 0:
 		return
 	var panel: Dictionary = _panels[panel_index]
-	if not panel["editable"]:
+	if not bool(panel["editable"]) or bool(panel["ready"]):
 		return
-	_set_section(panel, section)
+	panel["tab"] = tab
+	panel["held"] = -1
+	panel["role_picking"] = false
+	if tab == TAB_FORMATIONS:
+		var committed := _detect_committed_scheme(panel)
+		panel["scheme_cursor"] = committed if committed >= 0 else 0
+	_refresh_panel(panel)
+	_layout()
 
 
 func _on_card_clicked(panel_index: int, entry_index: int) -> void:
 	if panel_index < 0 or panel_index >= _panels.size():
 		return
 	var panel: Dictionary = _panels[panel_index]
-	if not panel["editable"] or int(panel["active_section"]) != SECTION_POSITIONS:
+	if not bool(panel["editable"]) or bool(panel["ready"]) \
+			or int(panel["tab"]) != TAB_SQUAD:
 		return
 	panel["cursor"] = entry_index
-	panel["bar_focused"] = false
 	_press_entry(panel_index, entry_index)
 
 
-func _on_bench_pressed(team_id: int, entry_index: int) -> void:
+func _on_entry_pressed(team_id: int, entry_index: int) -> void:
 	var panel_index := _panel_index_for_team(team_id)
 	if panel_index < 0:
 		return
 	var panel: Dictionary = _panels[panel_index]
-	if not panel["editable"] or int(panel["active_section"]) != SECTION_POSITIONS:
+	if not bool(panel["editable"]) or bool(panel["ready"]):
 		return
 	panel["cursor"] = entry_index
-	panel["bar_focused"] = false
 	_press_entry(panel_index, entry_index)
 
 
-func _panel_index_for_team(team_id: int) -> int:
-	for index in _panels.size():
-		if int(_panels[index]["team_id"]) == team_id:
-			return index
-	return -1
+func _on_scheme_clicked(event: InputEvent, team_id: int, scheme_index: int) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse := event as InputEventMouseButton
+	if mouse.button_index != MOUSE_BUTTON_LEFT or not mouse.pressed:
+		return
+	var panel_index := _panel_index_for_team(team_id)
+	if panel_index < 0:
+		return
+	var panel: Dictionary = _panels[panel_index]
+	if not bool(panel["editable"]) or bool(panel["ready"]):
+		return
+	panel["scheme_cursor"] = scheme_index
+	_commit_scheme(panel)
+
+
+func _on_role_clicked(event: InputEvent, team_id: int, row_index: int) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse := event as InputEventMouseButton
+	if mouse.button_index != MOUSE_BUTTON_LEFT or not mouse.pressed:
+		return
+	var panel_index := _panel_index_for_team(team_id)
+	if panel_index < 0:
+		return
+	var panel: Dictionary = _panels[panel_index]
+	if not bool(panel["editable"]) or bool(panel["ready"]):
+		return
+	panel["role_cursor"] = row_index
+	_start_role_picking(panel)
 
 
 func _press_entry(panel_index: int, entry_index: int) -> void:
 	var panel: Dictionary = _panels[panel_index]
-	if not bool(panel["editable"]):
+	if not bool(panel["editable"]) or bool(panel["ready"]):
 		return
 	var entries: Array = panel["entries"]
 	if entry_index < 0 or entry_index >= entries.size():
@@ -1619,7 +2626,7 @@ func _press_entry(panel_index: int, entry_index: int) -> void:
 	if int(panel["held"]) == -1:
 		panel["held"] = entry_index
 		_refresh_panel(panel)
-		set_status("Selected %s - choose another player (Y/Tab: bench/pitch) - B: cancel" \
+		set_status("Selected %s - choose another player - B: cancel" \
 			% str(entry.get("name", "")), 60000)
 		return
 	if int(panel["held"]) == entry_index:
@@ -1631,48 +2638,43 @@ func _press_entry(panel_index: int, entry_index: int) -> void:
 	var first: Dictionary = entries[first_index]
 	panel["held"] = -1
 	if mode == "match":
-		if bool(first.get("active", false)) and bool(entry.get("active", false)):
+		var first_group := str(first.get("entry_group", "pitch"))
+		var second_group := str(entry.get("entry_group", "pitch"))
+		if first_group == "pitch" and second_group == "pitch":
 			_match_position_swap(panel, first, entry)
-		elif not bool(first.get("active", false)) and not bool(entry.get("active", false)):
-			_swap_bench_order(panel, first, entry)
+		elif first_group == "bench" and second_group == "bench":
+			# A player already queued to come on can be chained out for another
+			# bench player: C++ normalises A->B, B->C into A->C (one sub).
+			if bool(first.get("pending_in", false)) and not bool(entry.get("pending_in", false)):
+				_match_substitution(panel, first, entry)
+			elif bool(entry.get("pending_in", false)) and not bool(first.get("pending_in", false)):
+				_match_substitution(panel, entry, first)
+			else:
+				_swap_bench_order(panel, first, entry)
+		elif first_group == "pitch" and second_group == "bench":
+			_match_substitution(panel, first, entry)
+		elif first_group == "bench" and second_group == "pitch":
+			_match_substitution(panel, entry, first)
 		else:
-			_match_swap(panel, first, entry)
+			set_status("Those players cannot be exchanged")
 	else:
-		_prematch_swap(panel, first, entry)
-
-
-
-func _match_swap(panel: Dictionary, first: Dictionary, second: Dictionary) -> void:
-	if runtime == null:
-		return
-	var out: Dictionary = first if bool(first.get("active", false)) else second
-	var incoming: Dictionary = second if bool(first.get("active", false)) else first
-	var team_id := int(panel["team_id"])
-	if _is_pending_pair(panel, out, incoming):
-		if runtime.cancel_substitution(team_id, int(out.get("slot", -1))):
-			set_status("Substitution cancelled: %s stays" % str(out.get("name", "")))
-		else:
-			set_status("Could not cancel the substitution")
-		panel["focus_id"] = int(out.get("id", -1))
-		_refresh_panel(panel)
-		return
-	if runtime.queue_substitution(team_id, int(out.get("id", -1)), int(incoming.get("id", -1))):
-		set_status("QUEUED: %s off, %s on - next restart (X: cancel)" % [
-			str(out.get("name", "")), str(incoming.get("name", ""))], 60000)
-		panel["focus_id"] = int(incoming.get("id", -1))
-	else:
-		set_status("Substitution refused: limit reached or player unavailable")
-	_refresh_panel(panel)
+		_lineup_swap(panel, first, entry)
 
 
 func _match_position_swap(panel: Dictionary, first: Dictionary, second: Dictionary) -> void:
 	if runtime == null:
 		return
 	var team_id := int(panel["team_id"])
-	if runtime.swap_squad_players(team_id, int(first.get("id", -1)), int(second.get("id", -1))):
+	var first_db := int(first.get("database_id", -1))
+	var second_db := int(second.get("database_id", -1))
+	var ok := false
+	if network_mode and runtime.has_method("net_action"):
+		ok = bool(runtime.net_action("planswap", team_id, first_db, second_db))
+	elif runtime.has_method("swap_squad_players"):
+		ok = bool(runtime.swap_squad_players(team_id, int(first.get("id", -1)), int(second.get("id", -1))))
+	if ok:
 		set_status("Swapped positions: %s <-> %s" % [
 			str(first.get("name", "")), str(second.get("name", ""))], 4000)
-		panel["focus_id"] = int(second.get("id", -1))
 	else:
 		set_status("Could not swap those players")
 	_refresh_panel(panel)
@@ -1697,7 +2699,39 @@ func _swap_bench_order(panel: Dictionary, first: Dictionary, second: Dictionary)
 	_refresh_panel(panel)
 
 
-func _prematch_swap(panel: Dictionary, first: Dictionary, second: Dictionary) -> void:
+func _match_substitution(panel: Dictionary, out: Dictionary, incoming: Dictionary) -> void:
+	if runtime == null:
+		return
+	var team_id := int(panel["team_id"])
+	var out_slot := int(out.get("slot", -1))
+	var in_slot := int(incoming.get("slot", -1))
+	if _is_pending_pair(panel, out, incoming):
+		var cancelled := false
+		if network_mode and runtime.has_method("net_action"):
+			cancelled = bool(runtime.net_action("cancelsubstitution", team_id, out_slot, 0))
+		elif runtime.has_method("cancel_substitution"):
+			cancelled = bool(runtime.cancel_substitution(team_id, out_slot))
+		if cancelled:
+			set_status("Substitution cancelled: %s stays" % str(out.get("name", "")))
+		else:
+			set_status("Could not cancel the substitution")
+		_refresh_panel(panel)
+		return
+	var queued := false
+	if network_mode and runtime.has_method("net_action"):
+		queued = bool(runtime.net_action("requestsubstitution", team_id, out_slot, in_slot))
+	elif runtime.has_method("queue_substitution"):
+		queued = bool(runtime.queue_substitution(team_id,
+			int(out.get("id", -1)), int(incoming.get("id", -1))))
+	if queued:
+		set_status("QUEUED: %s off, %s on - next restart" % [
+			str(out.get("name", "")), str(incoming.get("name", ""))], 60000)
+	else:
+		set_status("Substitution refused: limit reached or player unavailable")
+	_refresh_panel(panel)
+
+
+func _lineup_swap(panel: Dictionary, first: Dictionary, second: Dictionary) -> void:
 	var team_id := int(panel["team_id"])
 	var lineup: MatchLineup = _lineups.get(team_id)
 	if lineup == null:
@@ -1705,7 +2739,11 @@ func _prematch_swap(panel: Dictionary, first: Dictionary, second: Dictionary) ->
 	var first_id := int(first.get("id", -1))
 	var second_id := int(second.get("id", -1))
 	if lineup.swap_players(first_id, second_id):
-		panel["focus_id"] = second_id
+		panel["cursor"] = _find_entry_by_id(panel, second_id)
+		if network_mode:
+			var net = _network_runtime()
+			if net != null:
+				net.net_action("planswap", team_id, first_id, second_id)
 		lineup_changed.emit()
 		_refresh_panel(panel)
 		set_status("Lineup updated")
@@ -1715,27 +2753,371 @@ func _prematch_swap(panel: Dictionary, first: Dictionary, second: Dictionary) ->
 
 
 func _is_pending_pair(panel: Dictionary, out: Dictionary, incoming: Dictionary) -> bool:
-	for entry in panel["entries"]:
-		if bool(entry.get("pending_out", false)) and int(entry.get("id", -1)) == int(out.get("id", -2)):
-			for other in panel["entries"]:
-				if bool(other.get("pending_in", false)) \
-						and int(other.get("id", -1)) == int(incoming.get("id", -2)):
-					return true
+	for candidate in panel["pending"]:
+		if int(candidate.get("out_id", -2)) == int(out.get("id", -1)) \
+				and int(candidate.get("in_id", -2)) == int(incoming.get("id", -1)):
+			return true
 	return false
+
+
+func _commit_scheme(panel: Dictionary) -> void:
+	var team_id := int(panel["team_id"])
+	var scheme_index := int(panel["scheme_cursor"])
+	if scheme_index < 0 or scheme_index >= TacticalSchemes.count():
+		return
+	if mode == "prematch":
+		var lineup: MatchLineup = _lineups.get(team_id)
+		if lineup == null or not lineup.apply_scheme(scheme_index):
+			set_status("Could not apply the scheme")
+			return
+		if network_mode:
+			var net = _network_runtime()
+			if net != null:
+				net.net_action("planscheme", team_id, scheme_index, 0)
+		lineup_changed.emit()
+	elif mode == "match":
+		if runtime == null:
+			return
+		if network_mode and runtime.has_method("net_action"):
+			runtime.net_action("planscheme", team_id, scheme_index, 0)
+		else:
+			runtime.apply_tactical_scheme(team_id, scheme_index)
+	else:
+		_apply_demo_scheme(team_id, scheme_index)
+	panel["committed_scheme"] = scheme_index
+	set_status("%s applied" % TacticalSchemes.scheme_name(scheme_index), 3000)
+	_refresh_panel(panel)
+
+
+func _apply_demo_scheme(team_id: int, scheme_index: int) -> void:
+	var team_data: Dictionary = _demo_teams.get(team_id, {})
+	var players: Array = team_data.get("players", [])
+	var active: Array = []
+	for index in players.size():
+		if bool(players[index].get("active", false)):
+			active.append(index)
+	var candidates: Array = []
+	for index in active:
+		candidates.append({
+			"slot": index,
+			"role": str(players[index].get("role", "CM")),
+			"position": players[index].get("position", Vector2.ZERO),
+		})
+	var assignment := TacticalSchemes.assign(candidates, scheme_index)
+	for offset in mini(assignment.size(), candidates.size()):
+		var index := int(candidates[offset]["slot"])
+		players[index]["role"] = str(assignment[offset]["role"])
+		players[index]["position"] = assignment[offset]["database_position"]
+
+
+func _move_scheme_cursor(panel: Dictionary, direction: Vector2i) -> void:
+	var count := TacticalSchemes.count()
+	if count <= 0:
+		return
+	var cursor := int(panel["scheme_cursor"])
+	var columns := 3
+	var next := cursor
+	if direction.x != 0:
+		next = clampi(cursor + direction.x, 0, count - 1)
+	elif direction.y > 0:
+		next = clampi(cursor + columns, 0, count - 1)
+	elif direction.y < 0:
+		next = clampi(cursor - columns, 0, count - 1)
+	if next == cursor:
+		return
+	panel["scheme_cursor"] = next
+	_refresh_panel(panel)
+
+
+func _move_role_cursor(panel: Dictionary, direction: Vector2i) -> void:
+	var count := TEAM_ROLE_ROWS.size()
+	var cursor := int(panel["role_cursor"])
+	var columns := 3
+	var next := cursor
+	if direction.x != 0:
+		next = clampi(cursor + direction.x, 0, count - 1)
+	elif direction.y > 0:
+		next = clampi(cursor + columns, 0, count - 1)
+	elif direction.y < 0:
+		next = clampi(cursor - columns, 0, count - 1)
+	if next == cursor:
+		return
+	panel["role_cursor"] = next
+	_refresh_panel(panel)
+
+
+func _start_role_picking(panel: Dictionary) -> void:
+	panel["role_picking"] = true
+	panel["role_picking_index"] = int(panel["role_cursor"])
+	var role := int(TEAM_ROLE_ROWS[int(panel["role_picking_index"])]["role"])
+	var player_id := _role_player_id(panel, role)
+	var target := _find_entry_by_id(panel, player_id)
+	if target < 0:
+		var pitch_entries: Array = panel["pitch_entries"]
+		target = int(pitch_entries[0]) if not pitch_entries.is_empty() else -1
+	panel["cursor"] = target
+	_refresh_panel(panel)
+	set_status("Pick a player for %s - A: assign, B: cancel" % TEAM_ROLE_ROWS[int(panel["role_cursor"])]["name"])
+
+
+func _confirm_role_pick(panel: Dictionary) -> void:
+	if not bool(panel["role_picking"]):
+		return
+	var entries: Array = panel["entries"]
+	var cursor := int(panel["cursor"])
+	if cursor < 0 or cursor >= entries.size() or not bool(entries[cursor].get("active", false)):
+		set_status("Pick a player on the pitch")
+		return
+	var role := int(TEAM_ROLE_ROWS[int(panel["role_picking_index"])]["role"])
+	var entry: Dictionary = entries[cursor]
+	var team_id := int(panel["team_id"])
+	if mode == "prematch":
+		var lineup: MatchLineup = _lineups.get(team_id)
+		if lineup == null:
+			return
+		var slot := lineup.slot_for_player(int(entry.get("id", -1)))
+		if slot < 0 or not lineup.set_role(role, slot):
+			set_status("Could not assign the role")
+			return
+		if network_mode:
+			var net = _network_runtime()
+			if net != null:
+				net.net_action("planrole", team_id, role, slot)
+		lineup_changed.emit()
+	elif mode == "match":
+		if runtime == null:
+			return
+		var slot := int(entry.get("slot", -1))
+		if network_mode and runtime.has_method("net_action"):
+			runtime.net_action("planrole", team_id, role, slot)
+		elif not runtime.set_team_role(team_id, role, slot):
+			set_status("Could not assign the role")
+			return
+	else:
+		var team_data: Dictionary = _demo_teams.get(team_id, {})
+		var roles: Array = team_data.get("roles", [])
+		if role >= 0 and role < roles.size():
+			roles[role] = int(entry.get("slot", 0))
+	panel["role_picking"] = false
+	set_status("%s: %s" % [TEAM_ROLE_ROWS[int(panel["role_picking_index"])]["name"],
+		str(entry.get("name", ""))], 3500)
+	_refresh_panel(panel)
+
+
+func _role_player_id(panel: Dictionary, role: int) -> int:
+	var team_id := int(panel["team_id"])
+	var team_data: Dictionary = panel.get("team_data", {})
+	if mode == "match":
+		for entry in team_data.get("roles", []):
+			if int(entry.get("role", -1)) == role:
+				return int(entry.get("player_id", -1))
+	elif mode == "demo":
+		var roles: Array = team_data.get("roles", [])
+		if role >= 0 and role < roles.size():
+			var slot := int(roles[role])
+			var players: Array = team_data.get("players", [])
+			if slot >= 0 and slot < players.size():
+				return int(players[slot].get("id", -1))
+	else:
+		var lineup: MatchLineup = _lineups.get(team_id)
+		if lineup != null:
+			var slot := lineup.role_slot(role)
+			if slot >= 0 and slot < lineup.lineup.size():
+				return int(lineup.lineup[slot])
+	return -1
+
+
+# ---------------------------------------------------------------------------
+# Ready / close
+# ---------------------------------------------------------------------------
+
+func _ready_panel(panel: Dictionary) -> void:
+	if not bool(panel["editable"]) or bool(panel["ready"]):
+		return
+	panel["ready"] = true
+	panel["details_open"] = false
+	panel["held"] = -1
+	ready_changed.emit(int(panel["team_id"]), true)
+	_refresh_panel(panel)
+	_layout()
+	if local_two_player:
+		if _all_editable_ready():
+			_schedule_close()
+	else:
+		_schedule_close()
+
+
+func _unready_panel(panel: Dictionary) -> void:
+	if not bool(panel["editable"]) or not bool(panel["ready"]):
+		return
+	panel["ready"] = false
+	ready_changed.emit(int(panel["team_id"]), false)
+	_refresh_panel(panel)
+	_layout()
+
+
+func _all_editable_ready() -> bool:
+	for panel in _panels:
+		if bool(panel["editable"]) and not bool(panel["ready"]):
+			return false
+	return true
+
+
+func _schedule_close() -> void:
+	_close_at_ms = Time.get_ticks_msec() + READY_HOLD_MS
+
+
+# ---------------------------------------------------------------------------
+# Navigation helpers
+# ---------------------------------------------------------------------------
+
+func _navigate_entry(panel: Dictionary, direction: Vector2i) -> int:
+	var entries: Array = panel["entries"]
+	var cursor := int(panel["cursor"])
+	if cursor < 0 or cursor >= entries.size():
+		return -1
+	var entry: Dictionary = entries[cursor]
+	var group := "pitch" if bool(entry.get("active", false)) \
+		else str(entry.get("entry_group", "bench"))
+	if group == "pitch":
+		if direction.y > 0:
+			var role := str(entry.get("role", ""))
+			if role in ["CB", "LB", "RB", "LWB", "RWB", "SW"]:
+				for index in panel["pitch_entries"]:
+					var other: Dictionary = entries[int(index)]
+					if str(other.get("role", "")) == "GK":
+						var from_point := _entry_point(panel, cursor)
+						if _entry_point(panel, int(index)).y > from_point.y + 10.0:
+							return int(index)
+			var below := _forward_entry(panel, cursor, direction, true)
+			if below >= 0:
+				return below
+			var bench_entries: Array = panel["bench_entries"]
+			if not bench_entries.is_empty():
+				return int(bench_entries[0])
+			return -1
+		if str(entry.get("role", "")) == "GK" and direction.y < 0:
+			var cb := _nearest_role_entry(panel, cursor, ["CB", "SW"])
+			if cb >= 0:
+				return cb
+		return _forward_entry(panel, cursor, direction, true)
+
+	var list: Array = (panel["bench_entries"] as Array).duplicate()
+	if bool(panel["drawer_open"]) and mode != "match":
+		list.append_array(panel["reserve_entries"])
+	var position := list.find(cursor)
+	if position < 0:
+		return -1
+	var columns := 4
+	if direction.x != 0:
+		var next_column := position + direction.x
+		return int(list[next_column]) if next_column >= 0 and next_column < list.size() else -1
+	if direction.y > 0:
+		var below := position + columns
+		return int(list[below]) if below < list.size() else -1
+	if position >= columns:
+		return int(list[position - columns])
+	var gk := _gk_entry(panel)
+	return gk if gk >= 0 else _forward_entry(panel, cursor, direction, true)
+
+
+func _nearest_role_entry(panel: Dictionary, from_index: int, roles: Array) -> int:
+	var entries: Array = panel["entries"]
+	var points: Dictionary = panel["entry_points"]
+	if not points.has(from_index):
+		return -1
+	var from_point: Vector2 = points[from_index]
+	var best := -1
+	var best_score := 1e9
+	for index in panel["pitch_entries"]:
+		var candidate: Dictionary = entries[int(index)]
+		if not roles.has(str(candidate.get("role", ""))):
+			continue
+		var point: Vector2 = points.get(int(index), Vector2.ZERO)
+		var score := absf(point.x - from_point.x) + absf(point.y - from_point.y) * 0.25
+		if score < best_score:
+			best_score = score
+			best = int(index)
+	return best
+
+
+func _gk_entry(panel: Dictionary) -> int:
+	var entries: Array = panel["entries"]
+	for index in panel["pitch_entries"]:
+		if str(entries[int(index)].get("role", "")) == "GK":
+			return int(index)
+	return -1
+
+
+func _forward_entry(panel: Dictionary, from_index: int, direction: Vector2i,
+		pitch_only: bool) -> int:
+	var entries: Array = panel["entries"]
+	var points: Dictionary = panel["entry_points"]
+	if not points.has(from_index) or direction == Vector2i.ZERO:
+		return -1
+	var from_point: Vector2 = points[from_index]
+	var bench_entries: Array = panel["bench_entries"]
+	var reserve_entries: Array = panel["reserve_entries"]
+	var open := bool(panel["drawer_open"])
+	var visible_bench: Array = bench_entries
+	if not open and visible_bench.size() > 4:
+		visible_bench = visible_bench.slice(0, 4)
+	var best := -1
+	var best_score := 1e9
+	for index in entries.size():
+		if index == from_index:
+			continue
+		var candidate: Dictionary = entries[index]
+		if bool(candidate.get("left_pitch", false)):
+			continue
+		if pitch_only and not bool(candidate.get("active", false)):
+			continue
+		if not pitch_only and not bool(candidate.get("active", false)):
+			if not visible_bench.has(index):
+				if not (open and mode != "match" and reserve_entries.has(index)):
+					continue
+		if not points.has(index):
+			continue
+		var point: Vector2 = points[index]
+		var delta := point - from_point
+		var forward := 0.0
+		var sideways := 0.0
+		if direction.x > 0:
+			forward = delta.x
+			sideways = absf(delta.y)
+		elif direction.x < 0:
+			forward = -delta.x
+			sideways = absf(delta.y)
+		elif direction.y > 0:
+			forward = delta.y
+			sideways = absf(delta.x)
+		else:
+			forward = -delta.y
+			sideways = absf(delta.x)
+		if forward <= 8.0:
+			continue
+		var weight := 4.0 if direction.x != 0 else 1.8
+		var score := forward + sideways * weight
+		if score < best_score:
+			best_score = score
+			best = index
+	return best
+
+
+func _entry_point(panel: Dictionary, index: int) -> Vector2:
+	return (panel["entry_points"] as Dictionary).get(index, Vector2.ZERO)
 
 
 func _find_next_entry(panel: Dictionary, from_index: int, direction: Vector2i,
 		pitch_only: bool = false) -> int:
 	var entries: Array = panel["entries"]
-	if from_index < 0 or from_index >= entries.size():
+	if from_index < 0 or from_index >= entries.size() or entries.is_empty():
 		return -1
-	var from_active := bool(entries[from_index].get("active", false))
-	var from_point := _entry_point(panel, from_index)
+	var points: Dictionary = panel["entry_points"]
+	var from_point: Vector2 = points.get(from_index, Vector2.ZERO)
 	var dir := Vector2(direction.x, direction.y)
-	var best_same := -1
-	var best_same_score := 1e9
-	var best_any := -1
-	var best_any_score := 1e9
+	var best := -1
+	var best_score := 1e9
 	for index in entries.size():
 		if index == from_index:
 			continue
@@ -1744,49 +3126,36 @@ func _find_next_entry(panel: Dictionary, from_index: int, direction: Vector2i,
 			continue
 		if pitch_only and not bool(entry.get("active", false)):
 			continue
-		var delta: Vector2 = _entry_point(panel, index) - from_point
+		var point: Vector2 = points.get(index, Vector2.ZERO)
+		var delta := point - from_point
 		var along := delta.dot(dir)
 		if along <= 1.0:
 			continue
 		var perp := absf(delta.x * -dir.y + delta.y * dir.x)
-		if perp > along * 0.9 + 40.0:
+		if perp > along * 1.1 + 48.0:
 			continue
 		var score := along + perp * 0.75
-		if score < best_any_score:
-			best_any_score = score
-			best_any = index
-		if bool(entry.get("active", false)) == from_active and score < best_same_score:
-			best_same_score = score
-			best_same = index
-	return best_same if best_same >= 0 else best_any
+		if score < best_score:
+			best_score = score
+			best = index
+	return best
 
 
-func _entry_point(panel: Dictionary, entry_index: int) -> Vector2:
+func _find_entry_by_id(panel: Dictionary, player_id: int) -> int:
+	if player_id < 0:
+		return -1
 	var entries: Array = panel["entries"]
-	if entry_index < 0 or entry_index >= entries.size():
-		return Vector2.ZERO
-	if bool(entries[entry_index].get("active", false)):
-		var pitch: GamePlanPitch = panel["pitch"]
-		for card in pitch.cards:
-			if int(card["entry_index"]) == entry_index:
-				return (pitch.position + (card["rect"] as Rect2).get_center())
-		return pitch.position + pitch.size * 0.5
-	var bench_index := 0
-	for index in (panel["bench_entries"] as Array):
-		if int(index) == entry_index:
-			break
-		bench_index += 1
-	var rect: Rect2 = panel["bench_rect"]
-	var row_h := rect.size.y / maxf(1.0, float((panel["bench_entries"] as Array).size()))
-	return rect.position + Vector2(rect.size.x * 0.5, row_h * (bench_index + 0.5))
+	for index in entries.size():
+		if int(entries[index].get("id", -1)) == player_id:
+			return index
+	return -1
 
 
-func _on_done_pressed() -> void:
-	var panel_index := _panel_for_keyboard()
-	if panel_index < 0:
-		panel_index = 0
-	if panel_index < _panels.size():
-		_leave(_panels[panel_index])
+func _panel_index_for_team(team_id: int) -> int:
+	for index in _panels.size():
+		if int(_panels[index]["team_id"]) == team_id:
+			return index
+	return -1
 
 
 func _held_clear() -> void:
@@ -1794,32 +3163,73 @@ func _held_clear() -> void:
 		panel["held"] = -1
 
 
-# A fresh match resets the shell's local bench ordering.
 func clear_local_orders() -> void:
 	for panel in _panels:
 		panel["bench_order"] = []
 
 
+# ---------------------------------------------------------------------------
+# Radar / small helpers
+# ---------------------------------------------------------------------------
 
-# Dev/test hook: what the per-side cursors point at right now.
+func _radar_values(data: Dictionary) -> Array:
+	var stats: Dictionary = data.get("stats", {})
+	var values: Array = []
+	for axis in RADAR_AXES:
+		var keys: Array = axis["keys"]
+		var total := 0.0
+		var count := 0
+		for key in keys:
+			if stats.has(key):
+				total += float(stats[key])
+				count += 1
+		values.append(total / float(count) if count > 0 else 0.0)
+	return values
+
+
+func _network_runtime():
+	if runtime != null:
+		return runtime
+	if is_inside_tree():
+		return NetShell.runtime(get_tree())
+	return null
+
+
+func _player_display_name(player: Dictionary) -> String:
+	var last := str(player.get("lastname", "")).strip_edges()
+	if not last.is_empty():
+		return last
+	var full := str(player.get("name", "")).strip_edges()
+	if not full.is_empty():
+		return full
+	var first := str(player.get("firstname", "")).strip_edges()
+	return first if not first.is_empty() else "?"
+
+
+func _short_name(value: String) -> String:
+	if value.length() <= 15:
+		return value
+	return value.substr(0, 14) + "."
+
+
+# Dev/test hook.
 func debug_state() -> Dictionary:
 	var result: Array = []
 	for panel in _panels:
 		var entries: Array = panel["entries"]
 		var cursor := int(panel["cursor"])
 		var held := int(panel["held"])
-		var cursor_id := int(entries[cursor].get("id", -1)) if cursor >= 0 and cursor < entries.size() else -1
-		var held_id := int(entries[held].get("id", -1)) if held >= 0 and held < entries.size() else -1
 		result.append({
 			"team": int(panel["team_id"]),
 			"editable": bool(panel["editable"]),
+			"ready": bool(panel["ready"]),
+			"tab": int(panel["tab"]),
 			"cursor": cursor,
-			"cursor_id": cursor_id,
-			"cursor_active": bool(entries[cursor].get("active", false)) if cursor >= 0 and cursor < entries.size() else false,
+			"cursor_id": int(entries[cursor].get("id", -1)) if cursor >= 0 and cursor < entries.size() else -1,
 			"held": held,
-			"held_id": held_id,
-			"bar_focused": bool(panel["bar_focused"]),
-			"section": int(panel["active_section"]),
+			"held_id": int(entries[held].get("id", -1)) if held >= 0 and held < entries.size() else -1,
+			"details": bool(panel["details_open"]),
 			"bench_entries": (panel["bench_entries"] as Array).size(),
+			"reserve_entries": (panel["reserve_entries"] as Array).size(),
 		})
 	return {"open": is_open(), "panels": result}

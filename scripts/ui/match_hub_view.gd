@@ -7,6 +7,7 @@ extends UiScreen
 signal start_requested(input: Dictionary)
 signal back_requested(input: Dictionary)
 signal game_plan_requested
+signal options_requested
 signal lineup_changed
 signal option_changed(field: String, value: float)
 signal exit_requested
@@ -51,8 +52,8 @@ func _ready() -> void:
 			_ui_nav.moved_gamepad.connect(_on_nav_gamepad_moved)
 		_ui_nav.confirmed.connect(_on_nav_confirmed)
 		_ui_nav.cancelled.connect(_on_nav_cancelled)
-		_ui_nav.tab_previous.connect(_on_nav_tab)
-		_ui_nav.tab_next.connect(_on_nav_tab)
+		_ui_nav.tab_previous.connect(_on_nav_tab.bind(-1))
+		_ui_nav.tab_next.connect(_on_nav_tab.bind(1))
 		_ui_nav.device_changed.connect(_on_device_changed)
 	status_label = hints.status_label
 	legend = hints.legend
@@ -98,10 +99,10 @@ func status_text() -> String:
 
 
 func setup_game_plan(home_lineup_model: MatchLineup, away_lineup_model: MatchLineup,
-		human_teams: Array = [0]) -> void:
+		human_teams: Array = [0], options: Dictionary = {}) -> void:
 	if game_plan == null:
 		return
-	game_plan.setup_prematch(home_lineup_model, away_lineup_model, human_teams)
+	game_plan.setup_prematch(home_lineup_model, away_lineup_model, human_teams, options)
 
 
 func open_game_plan() -> void:
@@ -111,8 +112,12 @@ func open_game_plan() -> void:
 	overlay.visible = true
 	options_overlay.visible = false
 	game_plan_host.visible = true
+	# The half-panel plan replaces the hub chrome; only the stage background
+	# stays behind it (matches the reference screen).
+	hub_top.visible = false
+	command.visible = false
+	hints.visible = false
 	game_plan.open_plan()
-	refresh_legend()
 
 
 func is_game_plan_open() -> bool:
@@ -250,6 +255,7 @@ func _activate_command(index: int) -> void:
 			game_plan_requested.emit()
 			open_game_plan()
 		COMMAND_OPTIONS:
+			options_requested.emit()
 			open_options()
 		COMMAND_EXIT:
 			exit_requested.emit()
@@ -269,6 +275,9 @@ func _close_overlay() -> void:
 	overlay.visible = false
 	options_overlay.visible = false
 	game_plan_host.visible = false
+	hub_top.visible = true
+	command.visible = true
+	hints.visible = true
 	if game_plan != null:
 		game_plan.close_plan()
 	refresh_legend()
@@ -279,6 +288,9 @@ func _close_game_plan() -> void:
 	_mode = "hub"
 	overlay.visible = false
 	game_plan_host.visible = false
+	hub_top.visible = true
+	command.visible = true
+	hints.visible = true
 	if game_plan != null:
 		game_plan.close_plan()
 	refresh_legend()
@@ -339,13 +351,18 @@ func _input(event: InputEvent) -> void:
 	var device := -1
 	if event is InputEventKey:
 		var key := event as InputEventKey
-		if key.pressed and not key.echo and key.keycode == KEY_X:
-			handled = game_plan.handle_ui_action("cancel_sub", -1)
+		if key.pressed and not key.echo:
+			if key.keycode == KEY_Q:
+				handled = game_plan.handle_ui_action("tab_prev", -1)
+			elif key.keycode == KEY_E:
+				handled = game_plan.handle_ui_action("tab_next", -1)
+			elif key.keycode == KEY_Y:
+				handled = game_plan.handle_ui_action("details", -1)
 	elif event is InputEventJoypadButton:
 		var joy := event as InputEventJoypadButton
-		if joy.pressed and int(joy.button_index) == JOY_BUTTON_X:
+		if joy.pressed and int(joy.button_index) == JOY_BUTTON_Y:
 			device = int(joy.device)
-			handled = game_plan.handle_ui_action("cancel_sub", device)
+			handled = game_plan.handle_ui_action("details", device)
 	if handled:
 		get_viewport().set_input_as_handled()
 
@@ -412,13 +429,14 @@ func _on_nav_cancelled() -> void:
 			back_requested.emit(_current_input())
 
 
-func _on_nav_tab() -> void:
+func _on_nav_tab(delta: int) -> void:
 	if _ui_nav != null and _ui_nav.event_was_modal():
 		return
 	match _mode:
 		"game_plan":
 			if game_plan != null:
-				game_plan.handle_ui_action("bench", _device_for_confirm())
+				game_plan.handle_ui_action("tab_prev" if delta < 0 else "tab_next",
+					_device_for_confirm())
 		"hub":
 			_set_command_index(_next_enabled(_command_index, 1), true)
 		_:
@@ -440,10 +458,10 @@ func _keyboard_hints() -> Array:
 	match _mode:
 		"game_plan":
 			return [
-				{"keys": ["в†ђв†‘в†“в†’"], "label": "move"},
+				{"keys": ["Q", "E"], "label": "tabs"},
 				{"keys": ["ENTER"], "label": "select"},
-				{"keys": ["TAB"], "label": "bench"},
-				{"keys": ["ESC"], "label": "close"},
+				{"keys": ["Y"], "label": "details"},
+				{"keys": ["ESC"], "label": "ready"},
 			]
 		"options":
 			return [
@@ -463,10 +481,10 @@ func _gamepad_hints() -> Array:
 	match _mode:
 		"game_plan":
 			return [
-				{"keys": ["D-PAD"], "label": "move"},
+				{"keys": ["LB/RB"], "label": "tabs"},
 				{"keys": ["A"], "label": "select"},
-				{"keys": ["B"], "label": "close"},
-				{"keys": ["LB/RB"], "label": "bench"},
+				{"keys": ["Y"], "label": "details"},
+				{"keys": ["B"], "label": "ready"},
 			]
 		"options":
 			return [

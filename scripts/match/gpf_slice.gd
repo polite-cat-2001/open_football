@@ -162,7 +162,7 @@ func _build_game_plan() -> void:
 	game_plan.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_game_plan_layer.add_child(game_plan)
 	game_plan.close_requested.connect(_on_game_plan_closed)
-	game_plan.setup_match(runtime, _human_teams())
+	game_plan.setup_match(runtime, _human_teams(), _game_plan_options())
 
 
 func _human_teams() -> Array:
@@ -179,17 +179,31 @@ func _human_teams() -> Array:
 	return teams
 
 
+func _game_plan_options() -> Dictionary:
+	return {
+		"network": runtime != null and bool(runtime.is_net_active()),
+		"local_two_player": _human_teams().size() >= 2,
+	}
+
+
 func _open_game_plan() -> void:
 	if game_plan == null or game_plan.is_open():
 		return
+	# A network plan is a local submenu of the shared pause. Opening it must
+	# withdraw the local "continue" vote so the match cannot resume while the
+	# player is editing.
+	if runtime != null and bool(runtime.is_net_active()):
+		runtime.net_action("setresumeready", 0, 0, 0)
 	pause_menu.hide_for_submenu()
-	game_plan.setup_match(runtime, _human_teams())
+	hud.set_visible(false)
+	game_plan.setup_match(runtime, _human_teams(), _game_plan_options())
 	game_plan.open_plan()
 
 
 func _on_game_plan_closed() -> void:
 	if game_plan != null:
 		game_plan.close_plan()
+	hud.set_visible(true)
 	if pause_menu != null:
 		pause_menu.open()
 
@@ -437,11 +451,17 @@ func _update_network_pause(snap: Dictionary) -> void:
 		_net_last_player_ids = _lobby_player_ids(lobby)
 
 	if not paused:
-		if pause_menu.is_open() and (game_plan == null or not game_plan.is_open()):
+		if game_plan != null and game_plan.is_open():
+			game_plan.close_plan()
+			hud.set_visible(true)
+		if pause_menu.is_open():
 			pause_menu.dismiss()
 		return
 	if blocked:
-		if pause_menu.is_open() and (game_plan == null or not game_plan.is_open()):
+		if game_plan != null and game_plan.is_open():
+			game_plan.close_plan()
+			hud.set_visible(true)
+		if pause_menu.is_open():
 			pause_menu.dismiss()
 		return
 	if side_select:
@@ -603,8 +623,8 @@ func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 	# Start is the pause key and works from any pad, even one that is not
 	# assigned to a side in this match.
 	if pressed and button == JOY_BUTTON_START:
+		# The plan's exit is its READY overlay (B / Esc); Start is unused there.
 		if game_plan != null and game_plan.is_open():
-			_on_game_plan_closed()
 			return
 		if pause_menu.is_open():
 			pause_menu.close()

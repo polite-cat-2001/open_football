@@ -65,6 +65,7 @@ append-only `log.md` в корне репозитория.
 | [[каталог-команд]] | `SqliteReader`/`TeamCatalog`/`ShellState`, экран выбора лиг и команд из базы |
 | [[статы-и-формация]] | `PlayerStats`/`Formation`, нормализация схемы, экран состава, эталон C++ |
 | [[пакет-матча]] | `MatchPackage`, прематч, `set_match_package` в C++, статы/позиции без чтения базы |
+| [[план-игры]] | `GpfGamePlan`: вкладки, bench/reserve, READY, фото/радар, сетевые правки состава |
 | [[ввод-и-контроллеры]] | выбор стороны/устройства, `InputSetup`, геймпад и клавиатура в C++ |
 | [[дизайн-система-ui]] | `UiTokens`/`UiTheme`/`UiNav`/`UiTransition`, общий Stage/`UiScreen`, бенто-меню, `SideSelectView`/`TeamSelectView`/`KitSelectView`/`MatchHubView`, сетевые меню/OSK/Back-голосование |
 

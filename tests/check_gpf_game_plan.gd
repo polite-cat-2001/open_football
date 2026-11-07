@@ -1,8 +1,18 @@
-﻿extends SceneTree
-# Headless behaviour check for the ported Game Plan screen: prematch swaps,
-# in-match substitution queue/cancel, 2P ownership and section navigation.
-#
-# Run:  godot --headless --path . -s res://tests/check_gpf_game_plan.gd
+extends SceneTree
+# Headless behaviour check for the ported Game Plan screen: tabs, bench/reserve
+# swaps, ready matrix, details, and the in-match bridge.
+
+const PLAYER_STATS := {
+	"physical_balance": 0.6, "physical_reaction": 0.6, "physical_acceleration": 0.6,
+	"physical_velocity": 0.6, "physical_stamina": 0.6, "physical_agility": 0.6,
+	"physical_shotpower": 0.6, "technical_standingtackle": 0.6,
+	"technical_slidingtackle": 0.6, "technical_ballcontrol": 0.6,
+	"technical_dribble": 0.6, "technical_shortpass": 0.6, "technical_highpass": 0.6,
+	"technical_header": 0.6, "technical_shot": 0.6, "technical_volley": 0.6,
+	"mental_calmness": 0.6, "mental_workrate": 0.6, "mental_resilience": 0.6,
+	"mental_defensivepositioning": 0.6, "mental_offensivepositioning": 0.6,
+	"mental_vision": 0.6,
+}
 
 var failures: Array[String] = []
 
@@ -16,6 +26,12 @@ class FakeRuntime:
 	var schemes: Array = []
 	var role_sets: Array = []
 	var swaps: Array = []
+	var net_actions: Array = []
+
+	func net_action(action_type, side: int = 0, value: int = 0, value2: int = 0) -> bool:
+		net_actions.append({"action": str(action_type), "side": side,
+			"value": value, "value2": value2})
+		return true
 
 	func get_squad(team_id: int) -> Dictionary:
 		var data: Dictionary = (squads.get(team_id, {}) as Dictionary).duplicate(true)
@@ -94,7 +110,7 @@ func _key(code: int) -> InputEventKey:
 func _squad(team_id: int, team_name: String) -> Dictionary:
 	var roles := ["GK", "CB", "CB", "LB", "RB", "DM", "CM", "CM", "LM", "RM", "ST"]
 	var players: Array = []
-	for index in 18:
+	for index in 20:
 		players.append({
 			"id": team_id * 100 + index + 1,
 			"firstname": "First%d" % index,
@@ -102,8 +118,9 @@ func _squad(team_id: int, team_name: String) -> Dictionary:
 			"name": "%s %d" % [team_name, index + 1],
 			"role": roles[index] if index < roles.size() else "CM",
 			"base_stat": 0.5 + 0.01 * index,
-			"average": 0.5,
-			"stats": {},
+			"average": 0.6,
+			"tm_id": team_id * 1000 + index,
+			"stats": PLAYER_STATS.duplicate(true),
 		})
 	var formation: Array = []
 	for index in 11:
@@ -123,14 +140,10 @@ func _squad(team_id: int, team_name: String) -> Dictionary:
 			"database_position": Vector2(x, 0.0),
 			"position": Vector2(x, 0.0),
 		})
-	return {
-		"team": {"id": team_id, "name": team_name},
-		"players": players,
-		"formation": formation,
-	}
+	return {"team": {"id": team_id, "name": team_name}, "players": players, "formation": formation}
 
 
-func _team_data(team_id: int, team_name: String, pending: bool = false) -> Dictionary:
+func _team_data(team_id: int, team_name: String) -> Dictionary:
 	var roles := ["GK", "CB", "CB", "LB", "RB", "DM", "CM", "CM", "LM", "RM", "ST"]
 	var positions := [
 		Vector2(-1.0, 0.0), Vector2(-0.8, -0.2), Vector2(-0.8, 0.2),
@@ -142,13 +155,15 @@ func _team_data(team_id: int, team_name: String, pending: bool = false) -> Dicti
 	for index in roles.size():
 		players.append({
 			"id": team_id * 100 + index + 1,
+			"database_id": team_id * 100 + index + 1,
+			"tm_id": team_id * 1000 + index,
 			"slot": index,
 			"name": "%s%d" % [team_name.substr(0, 3), index + 1],
 			"role": roles[index],
 			"position": positions[index],
 			"active": true,
 			"left_pitch": false,
-			"pending_out": pending and index == 6,
+			"pending_out": false,
 			"pending_in": false,
 			"rating": 70,
 			"fatigue": 100,
@@ -156,6 +171,8 @@ func _team_data(team_id: int, team_name: String, pending: bool = false) -> Dicti
 	for index in 7:
 		players.append({
 			"id": team_id * 100 + 20 + index,
+			"database_id": team_id * 100 + 20 + index,
+			"tm_id": team_id * 1000 + 20 + index,
 			"slot": roles.size() + index,
 			"name": "%sSUB%d" % [team_name.substr(0, 3), index + 1],
 			"role": "CM" if index < 4 else "ST",
@@ -163,7 +180,7 @@ func _team_data(team_id: int, team_name: String, pending: bool = false) -> Dicti
 			"active": false,
 			"left_pitch": false,
 			"pending_out": false,
-			"pending_in": pending and index == 3,
+			"pending_in": false,
 			"rating": 65,
 			"fatigue": 100,
 		})
@@ -187,20 +204,18 @@ func _team_data(team_id: int, team_name: String, pending: bool = false) -> Dicti
 	}
 
 
-
 func _run() -> void:
 	await _check_prematch()
+	await _check_drawer_scroll()
+	await _check_ready_matrix()
+	await _check_network_prematch()
 	await _check_match()
-	await _check_2p()
 	print("== check_gpf_game_plan: ", "PASS" if failures.is_empty() else "FAIL", " ==")
 	quit(0 if failures.is_empty() else 1)
 
 
 func _make_plan() -> GpfGamePlan:
 	var plan := GpfGamePlan.new()
-	if plan == null:
-		_check(false, "GpfGamePlan instantiates")
-		return null
 	get_root().add_child(plan)
 	plan.size = Vector2(1920, 1080)
 	return plan
@@ -218,7 +233,7 @@ func _find_entry(panel: Dictionary, player_id: int) -> int:
 
 
 func _check_prematch() -> void:
-	print("-- prematch lineups")
+	print("-- prematch tabs / bench / reserve")
 	ShellState.clear()
 	ShellState.set_teams(
 		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
@@ -228,106 +243,83 @@ func _check_prematch() -> void:
 	])
 	var home := MatchLineup.from_squad(_squad(1, "HOME"))
 	var away := MatchLineup.from_squad(_squad(2, "AWAY"))
+	_check(home.lineup.size() == 11 and home.bench.size() == 7 and home.reserve.size() == 2,
+		"the squad splits into 11 starters, 7 bench and 2 reserve")
 	var plan := _make_plan()
 	plan.setup_prematch(home, away, [0])
 	plan.open_plan()
 	await _frames(2)
 
 	_check(plan.is_open(), "the game plan opens")
-	_check((plan.get("_panels") as Array).size() == 2, "single player sees his team and the opponent")
+	_check((plan.get("_panels") as Array).size() == 2, "1P sees both halves")
 	var home_panel := _panel(plan, 0)
-	_check(bool(home_panel["bar_focused"]), "the section bar starts focused")
-	_check(int(home_panel["bar_cursor"]) == 1, "Positions is the default section")
+	_check(GpfGamePlan.TAB_NAMES.size() == 3, "there are three tabs")
+	_check(int(home_panel["tab"]) == GpfGamePlan.TAB_SQUAD, "SQUAD is the default tab")
+	_check((home_panel["entries"] as Array).size() == 20, "all squad players are listed")
+	_check((home_panel["bench_entries"] as Array).size() == 7, "the drawer lists seven bench players")
+	_check((home_panel["reserve_entries"] as Array).size() == 2, "the drawer lists the reserve")
 
-	# Tactics: open the section, move to 4-3-3 and apply it.
-	plan.handle_key(_key(KEY_LEFT))
-	plan.handle_key(_key(KEY_ENTER))
-	_check(int(home_panel["active_section"]) == 0, "Tactics opens")
-	var scheme_scroll := home_panel["scheme_scroll"] as ScrollContainer
-	_check(scheme_scroll.visible, "the scheme list replaces the bench")
-	plan.handle_key(_key(KEY_DOWN))
-	plan.handle_key(_key(KEY_ENTER))
-	_check(home.current_scheme() == 1, "the chosen scheme is written into the lineup")
-	plan.handle_key(_key(KEY_ESCAPE))
+	# Starter -> bench, starter -> reserve.
+	var starter_id := int(home.lineup[1])
+	var bench_id := int(home.bench[0])
+	plan._press_entry(0, _find_entry(home_panel, starter_id))
+	plan._press_entry(0, _find_entry(home_panel, bench_id))
+	_check(home.lineup.has(bench_id) and home.bench.has(starter_id),
+		"a starter and a bench player exchange places")
+	var reserve_id := int(home.reserve[0])
+	var current_starter := int(home.lineup[2])
+	plan._press_entry(0, _find_entry(home_panel, current_starter))
+	plan._press_entry(0, _find_entry(home_panel, reserve_id))
+	_check(home.lineup.has(reserve_id) and home.reserve.has(current_starter),
+		"a starter and a reserve player exchange places")
 
-	# Roles: pick the captain from the pitch.
-	plan.handle_key(_key(KEY_RIGHT))
+	# Formations tab.
+	plan.handle_key(_key(KEY_E))
+	_check(int(home_panel["tab"]) == GpfGamePlan.TAB_FORMATIONS, "E switches to FORMATIONS")
 	plan.handle_key(_key(KEY_RIGHT))
 	plan.handle_key(_key(KEY_ENTER))
-	_check(int(home_panel["active_section"]) == 2, "Roles opens")
-	var role_scroll := home_panel["role_scroll"] as ScrollContainer
-	_check(role_scroll.visible, "the role list replaces the bench")
+	_check(home.current_scheme() >= 0, "a formation can be applied")
+
+	# Roles tab.
+	plan.handle_key(_key(KEY_E))
+	_check(int(home_panel["tab"]) == GpfGamePlan.TAB_ROLES, "E switches to ROLES")
 	plan.handle_key(_key(KEY_ENTER))
-	_check(bool(home_panel["role_picking"]), "Enter starts picking a role player")
+	_check(bool(home_panel["role_picking"]), "A starts role picking")
+	_check(bool(home_panel["pitch"].get("editing")), "role picking highlights the pitch player")
 	home_panel["cursor"] = 5
 	plan.handle_key(_key(KEY_ENTER))
-	_check(not bool(home_panel["role_picking"]), "assigning a player closes picking")
+	_check(not bool(home_panel["role_picking"]), "assigning a role closes picking")
 	_check(int(home.roles.get(0, -1)) == 5, "the captain is stored by starting slot")
+
+	# Details toggles over the pitch.
+	plan.handle_key(_key(KEY_E))
+	_check(int(home_panel["tab"]) == GpfGamePlan.TAB_SQUAD, "E wraps back to SQUAD")
+
+	# The bench drawer expands when focus moves into it and collapses back.
+	home_panel["cursor"] = _find_entry(home_panel, int(home.lineup[0]))
+	plan.handle_key(_key(KEY_DOWN))
+	_check(bool(home_panel["drawer_open"]), "moving down opens the bench drawer")
+	plan.handle_key(_key(KEY_UP))
+	_check(not bool(home_panel["drawer_open"]), "moving back to the pitch closes it")
+
+	plan.handle_key(_key(KEY_Y))
+	_check(bool(home_panel["details_open"]), "Y opens the details panel")
+	plan.handle_key(_key(KEY_Y))
+	_check(not bool(home_panel["details_open"]), "Y closes the details panel")
+
+	# 1P READY closes the plan (after the crest hold).
 	plan.handle_key(_key(KEY_ESCAPE))
-	plan.handle_key(_key(KEY_LEFT))
-	plan.handle_key(_key(KEY_ENTER))
-	_check(int(home_panel["active_section"]) == 1, "Positions is active again")
-
-	# Any two players of the same team can be exchanged: starters between
-	# themselves and bench players between themselves.
-	var starter_a := int(home.lineup[1])
-	var starter_b := int(home.lineup[2])
-	home_panel["cursor"] = _find_entry(home_panel, starter_a)
-	plan.handle_key(_key(KEY_ENTER))
-	home_panel["cursor"] = _find_entry(home_panel, starter_b)
-	plan.handle_key(_key(KEY_ENTER))
-	_check(int(home.lineup[1]) == starter_b and int(home.lineup[2]) == starter_a,
-		"two starters swap slots in prematch")
-
-	var bench_a := int(home.bench[0])
-	var bench_b := int(home.bench[1])
-	home_panel["cursor"] = _find_entry(home_panel, bench_a)
-	plan.handle_key(_key(KEY_ENTER))
-	home_panel["cursor"] = _find_entry(home_panel, bench_b)
-	plan.handle_key(_key(KEY_ENTER))
-	_check(int(home.bench[0]) == bench_b and int(home.bench[1]) == bench_a,
-		"two bench players swap positions in prematch")
-
-	# Y/Tab moves between the pitch and the bench.
-	var first_pitch := int(home_panel["pitch_entries"][0])
-	home_panel["cursor"] = first_pitch
-	plan.handle_key(_key(KEY_TAB))
-	var bench_cursor := int(home_panel["cursor"])
-	_check(not bool((home_panel["entries"] as Array)[bench_cursor].get("active", true)),
-		"Tab jumps from the pitch to the bench")
-	plan.handle_key(_key(KEY_TAB))
-	_check(bool((home_panel["entries"] as Array)[int(home_panel["cursor"])].get("active", false)),
-		"Tab jumps back to the pitch")
-
-	var starter_id := int(home.lineup[5])
-	var bench_id := int(home.bench[0])
-	var starter_index := _find_entry(home_panel, starter_id)
-	var bench_index := _find_entry(home_panel, bench_id)
-	_check(starter_index >= 0 and bench_index >= 0, "both players are on the screen")
-
-	home_panel["cursor"] = starter_index
-	plan.handle_key(_key(KEY_ENTER))
-	_check(int(home_panel["held"]) == starter_index, "the first pick is held")
-	var changed := [false]
-	plan.lineup_changed.connect(func(): changed[0] = true)
-	home_panel["cursor"] = bench_index
-	plan.handle_key(_key(KEY_ENTER))
-	_check(changed[0], "a prematch swap emits lineup_changed")
-	_check(home.lineup.has(bench_id), "the substitute joined the starting eleven")
-	_check(home.bench.has(starter_id), "the replaced starter moved to the bench")
-	_check(home.is_valid(), "the edited lineup is still valid")
-
-	var closed := [false]
-	plan.close_requested.connect(func(): closed[0] = true)
-	plan.handle_key(_key(KEY_ESCAPE))
-	plan.handle_key(_key(KEY_ESCAPE))
-	_check(closed[0], "Back on the section bar asks to leave")
+	_check(bool(home_panel["ready"]), "B marks the team ready")
+	_check(not (home_panel["pitch"] as Control).visible
+		and (home_panel["ready_overlay"] as Control).visible,
+		"ready replaces the plan with the crest panel")
+	_check(int(plan.get("_close_at_ms")) > 0, "1P schedules the close after the crest hold")
 	plan.queue_free()
 	await _frames(1)
 
 
-func _check_match() -> void:
-	print("-- in-match substitutions")
+func _check_drawer_scroll() -> void:
+	print("-- drawer scroll")
 	ShellState.clear()
 	ShellState.set_teams(
 		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
@@ -335,103 +327,41 @@ func _check_match() -> void:
 	ShellState.set_controllers([
 		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
 	])
-	var fake := FakeRuntime.new()
-	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var home_squad := _squad(1, "HOME")
+	var template: Dictionary = (home_squad["players"] as Array)[10]
+	for extra in 10:
+		var player := template.duplicate(true)
+		player["id"] = 500 + extra
+		player["name"] = "RESERVE %d" % (extra + 1)
+		player["lastname"] = "RESERVE%d" % (extra + 1)
+		(home_squad["players"] as Array).append(player)
+	var home := MatchLineup.from_squad(home_squad)
+	var away := MatchLineup.from_squad(_squad(2, "AWAY"))
 	var plan := _make_plan()
-	plan.setup_match(fake, [0])
+	plan.setup_prematch(home, away, [0])
 	plan.open_plan()
-	await _frames(2)
-
+	await create_timer(0.3).timeout
 	var panel := _panel(plan, 0)
-	plan.handle_key(_key(KEY_ENTER))
-
-	# Any pair is exchangeable: two starters swap positions via C++, two bench
-	# players swap their bench order locally.
-	panel["cursor"] = _find_entry(panel, 2)
-	plan.handle_key(_key(KEY_ENTER))
-	panel["cursor"] = _find_entry(panel, 3)
-	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.swaps.size() == 1
-		and int(fake.swaps[0]["first"]) == 2 and int(fake.swaps[0]["second"]) == 3,
-		"two starters swap positions in-match")
-	panel["cursor"] = _find_entry(panel, 20)
-	plan.handle_key(_key(KEY_ENTER))
-	panel["cursor"] = _find_entry(panel, 21)
-	plan.handle_key(_key(KEY_ENTER))
-	_check((panel["bench_order"] as Array).find(20) == 1
-		and (panel["bench_order"] as Array).find(21) == 0,
-		"two bench players swap their bench order")
-
-	var out_id := int((panel["entries"] as Array)[_find_entry(panel, 6)].get("id"))
-	var in_id := int((panel["entries"] as Array)[_find_entry(panel, 20)].get("id"))
-	var out_index := _find_entry(panel, out_id)
-	var in_index := _find_entry(panel, in_id)
-	panel["cursor"] = out_index
-	plan.handle_key(_key(KEY_ENTER))
-	panel["cursor"] = in_index
-	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.queued.size() == 1, "starter + substitute queues a substitution")
-	if fake.queued.size() == 1:
-		_check(int(fake.queued[0]["team"]) == 0 and int(fake.queued[0]["out"]) == out_id
-			and int(fake.queued[0]["in"]) == in_id, "the queued pair carries the C++ ids")
-	_check(str(plan.get("_status").text).to_lower().contains("queued"), "the screen confirms the queue")
-
-	panel["cursor"] = out_index
-	plan.handle_key(_key(KEY_ENTER))
-	panel["cursor"] = in_index
-	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.cancelled.size() == 1, "picking the same pair again cancels the queue")
-
-	# Bench is reachable with the arrows: from the right-back, Right lands on a
-	# substitute row and Enter queues that pair.
-	panel["cursor"] = 3
-	plan.handle_key(_key(KEY_ENTER))
-	var queued_before := fake.queued.size()
-	plan.handle_key(_key(KEY_RIGHT))
-	var landed := int(panel["cursor"])
-	var landed_active := bool((panel["entries"] as Array)[landed].get("active", true))
-	_check(not landed_active, "Right from the right-back reaches the bench")
-	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.queued.size() == queued_before + 1, "the bench pick queues a substitution")
-
-	# X cancels the queued pair under the cursor.
-	var pending_out := int(fake.queued[queued_before]["out"])
-	var pending_index := _find_entry(panel, pending_out)
-	panel["cursor"] = pending_index
-	var cancelled_before := fake.cancelled.size()
-	plan.handle_key(_key(KEY_X))
-	_check(fake.cancelled.size() == cancelled_before + 1, "X cancels the queued substitution")
-
-	# Tactics and Roles drive the runtime bridge in-match.
-	panel["cursor"] = 0
-	plan.handle_key(_key(KEY_ESCAPE))
-	_check(bool(panel["bar_focused"]), "Back returns to the section bar")
-	plan.handle_key(_key(KEY_LEFT))
-	plan.handle_key(_key(KEY_ENTER))
-	_check(int(panel["active_section"]) == 0, "in-match Tactics opens")
-	plan.handle_key(_key(KEY_DOWN))
-	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.schemes.size() == 1 and int(fake.schemes[0]["scheme"]) == 1,
-		"in-match tactics call the C++ scheme bridge")
-	plan.handle_key(_key(KEY_ESCAPE))
-	plan.handle_key(_key(KEY_RIGHT))
-	plan.handle_key(_key(KEY_RIGHT))
-	plan.handle_key(_key(KEY_ENTER))
-	_check(int(panel["active_section"]) == 2, "in-match Roles opens")
-	plan.handle_key(_key(KEY_ENTER))
-	panel["cursor"] = 5
-	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.role_sets.size() == 1 and int(fake.role_sets[0]["role"]) == 0,
-		"in-match role assignment calls the C++ bridge")
-	plan.handle_key(_key(KEY_ESCAPE))
-	plan.handle_key(_key(KEY_ESCAPE))
-
+	var last_reserve := int(home.reserve[home.reserve.size() - 1])
+	panel["cursor"] = _find_entry(panel, last_reserve)
+	plan.call("_refresh_panel", panel)
+	plan.call("_layout")
+	await create_timer(0.35).timeout
+	var scroll: ScrollContainer = panel["bench_scroll"]
+	_check(scroll.scroll_vertical > 0,
+		"the bench drawer scrolls to a selected reserve")
+	var card = (panel["bench_cards"] as Dictionary).get(int(panel["cursor"]), null)
+	_check(card != null, "the selected reserve has a bench card")
+	if card != null:
+		var view: Rect2 = scroll.get_global_rect()
+		var rect: Rect2 = card.get_global_rect()
+		_check(rect.position.y >= view.position.y - 2.0 and rect.end.y <= view.end.y + 2.0,
+			"the selected reserve card is visible")
 	plan.queue_free()
 	await _frames(1)
 
-
-func _check_2p() -> void:
-	print("-- two players, own team only")
+func _check_ready_matrix() -> void:
+	print("-- ready matrix")
 	ShellState.clear()
 	ShellState.set_teams(
 		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
@@ -440,79 +370,178 @@ func _check_2p() -> void:
 		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
 		{"side": "away", "kind": "gamepad", "device": 3, "name": "Pad"},
 	])
-	var fake := FakeRuntime.new()
-	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var home := MatchLineup.from_squad(_squad(1, "HOME"))
+	var away := MatchLineup.from_squad(_squad(2, "AWAY"))
 	var plan := _make_plan()
-	plan.setup_match(fake, [0, 1])
+	plan.setup_prematch(home, away, [0, 1], {"local_two_player": true})
 	plan.open_plan()
 	await _frames(2)
 	var panels: Array = plan.get("_panels")
-	_check(panels.size() == 2, "both teams are shown")
-	_check(bool(panels[0]["editable"]) and bool(panels[1]["editable"]),
-		"both sides are editable")
-
-	# Keyboard drives home only.
-	plan.handle_key(_key(KEY_ENTER))
-	_check(int(panels[0]["active_section"]) == 1, "keyboard opens the home section")
-	_check(int(panels[1]["active_section"]) != 1, "the keyboard cannot open the away section")
-
-	# Gamepad 3 drives away only.
+	plan.handle_key(_key(KEY_ESCAPE))
+	_check(bool(panels[0]["ready"]) and not bool(panels[1]["ready"]),
+		"local 2P: one ready waits for the other")
+	_check(int(plan.get("_close_at_ms")) == 0, "the shared plan stays open")
+	plan.handle_key(_key(KEY_ESCAPE))
+	_check(not bool(panels[0]["ready"]), "B again withdraws READY")
 	var joy := InputEventJoypadButton.new()
-	joy.button_index = JOY_BUTTON_A
+	joy.button_index = JOY_BUTTON_B
 	joy.pressed = true
 	joy.device = 3
 	plan.handle_joy_button(joy)
-	_check(int(panels[1]["active_section"]) == 1, "the away pad opens the away section")
+	plan.handle_key(_key(KEY_ESCAPE))
+	_check(bool(panels[0]["ready"]) and bool(panels[1]["ready"]),
+		"local 2P closes only when both are ready")
+	_check(int(plan.get("_close_at_ms")) > 0, "both ready schedules the close")
+	plan.queue_free()
+	await _frames(1)
 
-	var home_out := _find_entry(panels[0], 6)
-	var home_in := _find_entry(panels[0], 20)
-	panels[0]["cursor"] = home_out
+
+func _check_network_prematch() -> void:
+	print("-- network pre-match edits")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var home := MatchLineup.from_squad(_squad(1, "HOME"))
+	var away := MatchLineup.from_squad(_squad(2, "AWAY"))
+	var fake := FakeRuntime.new()
+	var plan := _make_plan()
+	plan.setup_prematch(home, away, [0], {"network": true})
+	plan.open_plan()
+	plan.set("runtime", fake)
+	await _frames(2)
+	var panel := _panel(plan, 0)
+	var first := int(home.lineup[1])
+	var second := int(home.bench[0])
+	plan._press_entry(0, _find_entry(panel, first))
+	plan._press_entry(0, _find_entry(panel, second))
+	_check(fake.net_actions.size() == 1 and fake.net_actions[0]["action"] == "planswap",
+		"a network lineup swap sends PlanSwap")
+	plan.handle_key(_key(KEY_E))
 	plan.handle_key(_key(KEY_ENTER))
-	panels[0]["cursor"] = home_in
+	_check(fake.net_actions.size() == 2 and fake.net_actions[1]["action"] == "planscheme",
+		"a network formation sends PlanScheme")
+	plan.handle_key(_key(KEY_E))
 	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.queued.size() == 1 and int(fake.queued[0]["team"]) == 0,
-		"the keyboard queues for home")
+	panel["cursor"] = 5
+	plan.handle_key(_key(KEY_ENTER))
+	_check(fake.net_actions.size() == 3 and fake.net_actions[2]["action"] == "planrole",
+		"a network role pick sends PlanRole")
+	plan.queue_free()
+	await _frames(1)
 
-	var away_out := _find_entry(panels[1], 106)
-	var away_in := _find_entry(panels[1], 120)
-	panels[1]["cursor"] = away_out
-	plan.handle_joy_button(joy)
-	panels[1]["cursor"] = away_in
-	plan.handle_joy_button(joy)
-	_check(fake.queued.size() == 2 and int(fake.queued[1]["team"]) == 1,
-		"the away pad queues for away")
 
-	# Gamepad Y jumps to the bench, X cancels the queued pair.
-	var joy_y := InputEventJoypadButton.new()
-	joy_y.button_index = JOY_BUTTON_Y
-	joy_y.pressed = true
-	joy_y.device = 3
-	panels[1]["cursor"] = _find_entry(panels[1], 106)
-	plan.handle_joy_button(joy_y)
-	var pad_cursor := int(panels[1]["cursor"])
-	_check(not bool((panels[1]["entries"] as Array)[pad_cursor].get("active", true)),
-		"gamepad Y jumps to the bench")
-	var joy_x := InputEventJoypadButton.new()
-	joy_x.button_index = JOY_BUTTON_X
-	joy_x.pressed = true
-	joy_x.device = 3
-	panels[1]["cursor"] = _find_entry(panels[1], 106)
-	var cancelled_before := fake.cancelled.size()
-	plan.handle_joy_button(joy_x)
-	_check(fake.cancelled.size() == cancelled_before + 1,
-		"gamepad X cancels the queued substitution")
-
-	# Read-only opponents in 1P cannot be changed.
+func _check_match() -> void:
+	print("-- in-match plan")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var fake := FakeRuntime.new()
+	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var plan := _make_plan()
 	plan.setup_match(fake, [0])
 	plan.open_plan()
-	await _frames(1)
-	var solo: Array = plan.get("_panels")
-	_check(not bool(solo[1]["editable"]), "the opponent panel is read-only")
-	var before := fake.queued.size()
-	solo[1]["cursor"] = _find_entry(solo[1], 106)
-	solo[1]["active_section"] = 1
-	solo[1]["held"] = -1
-	plan._press_entry(1, _find_entry(solo[1], 106))
-	_check(fake.queued.size() == before, "a read-only panel cannot queue substitutions")
+	await _frames(2)
+	var panel := _panel(plan, 0)
+	_check((panel["bench_entries"] as Array).size() == 7, "only the seven matchday subs are shown")
+	_check((panel["reserve_entries"] as Array).size() == 0, "the reserve is hidden in-match")
+
+	var gk_index := _find_entry(panel, 1)
+	var centre_index := _find_entry(panel, 7)
+	panel["cursor"] = gk_index
+	plan.handle_key(_key(KEY_UP))
+	_check(int(panel["cursor"]) != gk_index, "up moves off the keeper")
+	_check(str((panel["entries"] as Array)[int(panel["cursor"])].get("role", "")) == "CB",
+		"up from the keeper goes to a centre-back")
+	panel["cursor"] = centre_index
+	plan.handle_key(_key(KEY_LEFT))
+	_check(int(panel["cursor"]) != centre_index, "left moves between outfielders")
+
+	panel["cursor"] = gk_index
+	var closed_drawer_h := (panel["drawer"] as Control).size.y
+	plan.handle_key(_key(KEY_DOWN))
+	var first_bench := int(panel["cursor"])
+	_check(bool(panel["drawer_open"]), "down from the keeper enters the bench")
+	await create_timer(0.30).timeout
+	_check((panel["drawer"] as Control).size.y > closed_drawer_h + 40.0,
+		"the bench drawer animates open")
+	plan.handle_key(_key(KEY_RIGHT))
+	_check(int(panel["cursor"]) != first_bench, "right moves across the bench")
+	plan.handle_key(_key(KEY_DOWN))
+	_check(int(panel["cursor"]) != first_bench, "down moves to the next bench row")
+	plan.handle_key(_key(KEY_UP))
+	_check(bool(panel["drawer_open"]), "one up stays inside the bench")
+	plan.handle_key(_key(KEY_UP))
+	await create_timer(0.30).timeout
+	_check(not bool(panel["drawer_open"]) and bool((panel["entries"] as Array)[int(panel["cursor"])].get("active", false)), "up returns to the pitch")
+	_check((panel["drawer"] as Control).size.y <= closed_drawer_h + 2.0,
+		"the bench drawer animates closed")
+
+	# Two starters swap (free, no substitution).
+	var first := _find_entry(panel, 2)
+	var second := _find_entry(panel, 3)
+	panel["cursor"] = first
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = second
+	plan.handle_key(_key(KEY_ENTER))
+	_check(fake.swaps.size() == 1 and int(fake.swaps[0]["first"]) == 2
+		and int(fake.swaps[0]["second"]) == 3, "two starters swap positions through the bridge")
+
+	# Two bench players swap order locally.
+	panel["cursor"] = _find_entry(panel, 20)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 21)
+	plan.handle_key(_key(KEY_ENTER))
+	_check((panel["bench_order"] as Array).find(20) == 1
+		and (panel["bench_order"] as Array).find(21) == 0,
+		"two bench players swap their drawer order")
+
+	# Starter + substitute queues a substitution; the same pair cancels it.
+	var out_id := 6
+	var in_id := 20
+	panel["cursor"] = _find_entry(panel, out_id)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, in_id)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(fake.queued.size() == 1, "pitch + bench queues a substitution")
+	panel["cursor"] = _find_entry(panel, out_id)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, in_id)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(fake.cancelled.size() == 1, "the same pair cancels the queued substitution")
+
+	# Chain: a queued-in bench player can be chained out for another bench
+	# player (C++ collapses A->B, B->C into A->C).
+	panel["cursor"] = _find_entry(panel, out_id)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, in_id)
+	plan.handle_key(_key(KEY_ENTER))
+	var queued_before_chain := fake.queued.size()
+	panel["cursor"] = _find_entry(panel, in_id)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 21)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(fake.queued.size() == queued_before_chain + 1
+		and int(fake.queued[-1]["out"]) == in_id and int(fake.queued[-1]["in"]) == 21,
+		"a queued-in bench player can be chained out")
+
+	# Tactics and roles still drive the bridge.
+	plan.handle_key(_key(KEY_E))
+	plan.handle_key(_key(KEY_ENTER))
+	_check(fake.schemes.size() == 1, "in-match FORMATIONS applies a scheme")
+	plan.handle_key(_key(KEY_E))
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = 5
+	plan.handle_key(_key(KEY_ENTER))
+	_check(fake.role_sets.size() == 1 and int(fake.role_sets[0]["role"]) == 0,
+		"in-match ROLES assigns a role")
+
 	plan.queue_free()
 	await _frames(1)

@@ -104,6 +104,7 @@ func _run() -> void:
 	_check(not pause_menu.is_open() and game_plan.is_open(),
 		"Enter opens the game plan instead of skipping it")
 	await _inject_key(KEY_ESCAPE)
+	await create_timer(0.7).timeout
 	_check(pause_menu.is_open() and not game_plan.is_open(),
 		"Back from the game plan returns to the pause menu")
 	await _inject_key(KEY_ESCAPE)
@@ -118,6 +119,7 @@ func _run() -> void:
 	await _inject_joy(JOY_BUTTON_A)
 	_check(game_plan.is_open(), "gamepad A opens the game plan")
 	await _inject_joy(JOY_BUTTON_B)
+	await create_timer(0.7).timeout
 	_check(pause_menu.is_open() and not game_plan.is_open(),
 		"gamepad B returns from the game plan to the pause menu")
 	await _inject_joy(JOY_BUTTON_B)

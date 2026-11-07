@@ -319,7 +319,8 @@ func set_state(index: int) -> void:
 		elif state_name == "GAME PLAN SELECT":
 			var panel: Dictionary = (game_plan.get("_panels") as Array)[0]
 			game_plan.call("_set_section", panel, 1)
-			panel["held"] = int((panel["pitch_entries"] as Array)[3])
+			panel["cursor"] = int((panel["pitch_entries"] as Array)[3])
+			panel["held"] = int((panel["pitch_entries"] as Array)[4])
 			game_plan.call("_refresh_panel", panel)
 			game_plan.call("set_status", "Selected player - choose any other player", 60000)
 	caption.text = "UI LAB  [1..9,0] state  Left/Right  —  %s" % [state_name]

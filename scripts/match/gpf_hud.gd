@@ -44,6 +44,7 @@ var _shootout_active := false
 var taker_menu: GpfSetPieceTakerMenu
 var _hint_player_id := -2
 
+var root_layer: CanvasLayer
 var phase_menu_layer: CanvasLayer
 var phase_menu_title: Label
 var phase_menu_subtitle: Label
@@ -602,8 +603,14 @@ func _set_piece_name(piece: int) -> String:
 	return ""
 
 
+func set_visible(value: bool) -> void:
+	if root_layer != null:
+		root_layer.visible = value
+
+
 func _build_hud() -> void:
-	var layer := CanvasLayer.new()
+	root_layer = CanvasLayer.new()
+	var layer := root_layer
 	layer.name = "HudOverlay"
 	add_child(layer)
 

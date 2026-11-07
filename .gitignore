@@ -25,3 +25,7 @@ gdextension/build-runtime/
 gdextension/build-ofport/
 # Built GDExtension DLL and its runtime dependencies
 bin/
+
+# Player face cutouts (Transfermarkt-derived, external bundle)
+assets/faces/*
+!assets/faces/.gdignore

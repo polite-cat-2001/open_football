@@ -1,6 +1,6 @@
 extends SceneTree
-# Headless check for the local 2P start vote: each device votes, a repeated
-# press withdraws, and the match starts only when every local device agreed.
+# Headless check for local 2P kickoff: the plan's READY overlay is the shared
+# confirmation, so the hub starts on a single Start press (no start vote).
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const PREMATCH := "res://scenes/prematch.tscn"
@@ -50,25 +50,12 @@ func _run() -> void:
 		_finish()
 		return
 
+	_check(view.command_cell(0).label_text() == "START MATCH",
+		"local 2P shows a plain Start command")
 	view.start_requested.emit({"kind": "keyboard", "device": 0})
-	await _frames(3)
-	_check(view.command_cell(0).label_text() == "START MATCH (1/2)",
-		"the first device vote is shown")
-	_check(current_scene != null and current_scene.name == "Prematch",
-		"one vote does not start the match")
-	_check(view.status_text() == "START 1/2", "the status shows the vote tally")
-
-	view.start_requested.emit({"kind": "keyboard", "device": 0})
-	await _frames(3)
-	_check(view.command_cell(0).label_text() == "START MATCH (0/2)",
-		"pressing Start again withdraws the vote")
-
-	view.start_requested.emit({"kind": "keyboard", "device": 0})
-	await _frames(2)
-	view.start_requested.emit({"kind": "gamepad", "device": 1})
 	await _frames(12)
 	_check(current_scene != null and current_scene.name == "GpfSlice",
-		"all local devices agreeing starts the match")
+		"a single Start press begins the match")
 	_check(ShellState.has_package(), "the hub stored the package")
 
 	ShellState.clear()
@@ -77,7 +64,7 @@ func _run() -> void:
 
 func _finish() -> void:
 	if failures.is_empty():
-		print("CHECK PASS: prematch vote")
+		print("CHECK PASS: prematch start")
 		quit(0)
 	else:
 		for failure in failures:

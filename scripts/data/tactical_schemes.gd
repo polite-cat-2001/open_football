@@ -172,6 +172,7 @@ static func assign(candidates: Array, scheme_index: int) -> Array:
 
 
 # Index of the scheme matching the current formation exactly, or -1.
+# Falls back to the same role set when the database formation is a close variant.
 static func match_scheme(formation: Array) -> int:
 	for scheme_index in SCHEMES.size():
 		var entries: Array = SCHEMES[scheme_index]["entries"]
@@ -199,7 +200,39 @@ static func match_scheme(formation: Array) -> int:
 			used[found] = true
 		if matches:
 			return scheme_index
-	return -1
+	var best_index := -1
+	var best_cost := 1e9
+	for scheme_index in SCHEMES.size():
+		var entries: Array = SCHEMES[scheme_index]["entries"]
+		if formation.size() != entries.size():
+			continue
+		var used: Array = []
+		used.resize(entries.size())
+		used.fill(false)
+		var matches := true
+		var cost := 0.0
+		for entry in formation:
+			var found := -1
+			var best_distance := 1e9
+			for index in entries.size():
+				if used[index]:
+					continue
+				if str(entries[index]["role"]) != str(entry.get("role", "")):
+					continue
+				var position: Vector2 = entry.get("position", entry.get("database_position", Vector2.ZERO))
+				var distance := (entries[index]["position"] as Vector2).distance_to(position)
+				if distance < best_distance:
+					best_distance = distance
+					found = index
+			if found < 0:
+				matches = false
+				break
+			used[found] = true
+			cost += best_distance
+		if matches and cost < best_cost:
+			best_cost = cost
+			best_index = scheme_index
+	return best_index
 
 
 static func _make_entry(entry: Dictionary) -> Dictionary:

@@ -18,6 +18,7 @@
 #include "onthepitch/net/netsim.hpp"
 
 class Match;
+class MatchData;
 class Player;
 class NetServer;
 class NetClient;
@@ -75,6 +76,12 @@ private:
     std::map<int, int> gamepad_virtual_ids; // Godot device id -> SDL virtual joystick id
 
     Match *match = nullptr;
+    // Pre-match MatchData built from the package so the hub / network game plan
+    // can edit lineups, schemes and roles before start_match(). Ownership moves
+    // to Match when the match starts; otherwise this node deletes it.
+    MatchData *prematch_plan_data = nullptr;
+    void ensure_prematch_plan_data();
+    void clear_prematch_plan_data();
 
     // LAN session. The original MenuTask owns the pointers the C++ runtime
     // checks; this node holds the same objects so the Godot shell can drive the
@@ -136,7 +143,7 @@ public:
     bool net_host(int port, const String &name);
     bool net_join(const String &address, int port, const String &name);
     bool net_leave();
-    Dictionary net_lobby() const;
+    Dictionary net_lobby();
     // An e_NetLobbyAction type (int) or its name ("set_side", "set_ready", ...).
     bool net_action(const Variant &action_type, int side, int value, int value2);
     // Host only: broadcast the lobby's teams, then build and start the match.
@@ -160,6 +167,7 @@ public:
     Array debug_human_state() const;
     void step_fixed(int ticks);
     Dictionary get_snapshot() const;
+    PackedInt32Array debug_get_plan_order(int team_id);
     PackedVector3Array get_goal_net_positions(int goal) const;
     PackedInt32Array get_goal_net_edges() const;
     Ref<Image> generate_pitch_texture(int width, int height) const;

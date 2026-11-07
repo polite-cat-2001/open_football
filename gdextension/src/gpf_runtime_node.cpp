@@ -230,6 +230,10 @@ GpfRuntimeNode::GpfRuntimeNode() {
 
 GpfRuntimeNode::~GpfRuntimeNode() {
     // The original runtime is intentionally one-shot: do not call Exit/Shutdown.
+    if (prematch_plan_data) {
+        delete prematch_plan_data;
+        prematch_plan_data = nullptr;
+    }
 }
 
 void GpfRuntimeNode::_bind_methods() {
@@ -272,6 +276,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("debug_human_state"), &GpfRuntimeNode::debug_human_state);
     ClassDB::bind_method(D_METHOD("step_fixed", "ticks"), &GpfRuntimeNode::step_fixed);
     ClassDB::bind_method(D_METHOD("get_snapshot"), &GpfRuntimeNode::get_snapshot);
+    ClassDB::bind_method(D_METHOD("debug_get_plan_order", "team_id"), &GpfRuntimeNode::debug_get_plan_order);
     ClassDB::bind_method(D_METHOD("get_goal_net_positions", "goal"), &GpfRuntimeNode::get_goal_net_positions);
     ClassDB::bind_method(D_METHOD("get_goal_net_edges"), &GpfRuntimeNode::get_goal_net_edges);
     ClassDB::bind_method(D_METHOD("generate_pitch_texture", "width", "height"), &GpfRuntimeNode::generate_pitch_texture);
@@ -527,7 +532,12 @@ bool GpfRuntimeNode::net_leave() {
     return was_active;
 }
 
-Dictionary GpfRuntimeNode::net_lobby() const {
+Dictionary GpfRuntimeNode::net_lobby() {
+    // The shell polls the lobby from a non-ticking (manual-step) runtime. Drain
+    // queued plan edits here so pre-match swaps/schemes/roles apply and relay.
+    // Wait until the pre-match MatchData exists, otherwise an early poll would
+    // consume a queued swap with nowhere to apply it.
+    if (menuTask && menuTask->GetMatchData()) menuTask->ProcessNetworkPlanEditsNow();
     Dictionary result;
     const bool host = net_server != nullptr;
     const bool client = net_client != nullptr;
@@ -836,7 +846,45 @@ bool GpfRuntimeNode::set_match_package(const Dictionary &package) {
     package_duration = std::clamp(duration, 0.0f, 2.0f);
     package_difficulty = std::clamp(difficulty, 0.0f, 1.0f);
     match_package_ready = true;
+
+    // The pre-match hub edits MatchData, not the raw package. Build it as soon
+    // as a package exists so plan swaps / schemes / roles can be applied before
+    // start_match(); the runtime can also be started before the package, in
+    // which case start_runtime() calls this after MenuTask is ready.
+    ensure_prematch_plan_data();
     return true;
+}
+
+
+void GpfRuntimeNode::clear_prematch_plan_data() {
+    if (!prematch_plan_data) return;
+    delete prematch_plan_data;
+    prematch_plan_data = nullptr;
+    if (menuTask) menuTask->SetMatchData(0);
+}
+
+
+void GpfRuntimeNode::ensure_prematch_plan_data() {
+    if (!menuTask || match || !match_package_ready) return;
+    if (prematch_plan_data) {
+        // Keep plan edits when the shell re-sets the same fixture (network
+        // start sends the package again). Replace only on a different fixture.
+        if (prematch_plan_data->GetTeamData(0)->GetDatabaseID() == match_package[0].databaseID &&
+            prematch_plan_data->GetTeamData(1)->GetDatabaseID() == match_package[1].databaseID) {
+            return;
+        }
+        clear_prematch_plan_data();
+    }
+    MatchData *data = new MatchData(match_package[0], match_package[1]);
+    for (int team = 0; team < 2; ++team) {
+        for (int role = 0; role < e_TeamRole_SIZE; ++role) {
+            if (package_roles[team][role] >= 0) {
+                data->SetRolePlayer(team, (e_TeamRole)role, package_roles[team][role]);
+            }
+        }
+    }
+    prematch_plan_data = data;
+    menuTask->SetMatchData(data);
 }
 
 
@@ -927,6 +975,7 @@ bool GpfRuntimeNode::start_runtime() {
 
     menuTask->SetTeamIDs("3", "8");
     runtime_ready = true;
+    ensure_prematch_plan_data();
 
     // The menu/LAN lobby only needs the original singletons (MenuTask, game
     // task, input/audio) and creates the match later from the shell package.
@@ -979,11 +1028,19 @@ bool GpfRuntimeNode::start_match() {
     // straight from it (no database queries).
     menuTask->SetTeamIDs(std::to_string(match_package[0].databaseID),
                          std::to_string(match_package[1].databaseID));
-    MatchData *match_data = new MatchData(match_package[0], match_package[1]);
-    for (int team = 0; team < 2; ++team) {
-        for (int role = 0; role < e_TeamRole_SIZE; ++role) {
-            if (package_roles[team][role] >= 0) {
-                match_data->SetRolePlayer(team, (e_TeamRole)role, package_roles[team][role]);
+    // Reuse the hub's pre-match MatchData so lineup / scheme / role edits (and
+    // network plan swaps already applied to it) carry into the match. Build a
+    // fresh one only for paths that never created the pre-match state.
+    MatchData *match_data = prematch_plan_data;
+    if (match_data) {
+        prematch_plan_data = nullptr; // Match now owns it.
+    } else {
+        match_data = new MatchData(match_package[0], match_package[1]);
+        for (int team = 0; team < 2; ++team) {
+            for (int role = 0; role < e_TeamRole_SIZE; ++role) {
+                if (package_roles[team][role] >= 0) {
+                    match_data->SetRolePlayer(team, (e_TeamRole)role, package_roles[team][role]);
+                }
             }
         }
     }
@@ -1073,6 +1130,8 @@ void GpfRuntimeNode::stop_match() {
     // Safe to call repeatedly: GameTask only tears down when a match exists.
     gameTask->Action(e_GameTaskMessage_StopMatch);
     match = nullptr;
+    // A pre-match plan that was never handed to a Match must be released here.
+    clear_prematch_plan_data();
     sim_time_ms = 0;
     accumulator_ms = 0.0;
     game_over_seen = false;
@@ -2006,8 +2065,11 @@ Dictionary GpfRuntimeNode::get_squad(int team_id) const {
 
         Dictionary entry;
         entry["id"] = player->GetID();
+        entry["database_id"] = player_data->GetDatabaseID();
+        entry["tm_id"] = player_data->GetRaw().tmId;
         entry["slot"] = (int)slot;
         entry["name"] = String::utf8(player_data->GetLastName().c_str());
+        entry["first_name"] = String::utf8(player_data->GetFirstName().c_str());
         entry["role"] = String(role_name.c_str());
         entry["position"] = position;
         entry["active"] = active;
@@ -2089,6 +2151,21 @@ bool GpfRuntimeNode::swap_squad_players(int team_id, int first_player_id, int se
     team->SetRuntimeFormationEntry(second_player_id, first_entry);
     return true;
 }
+
+PackedInt32Array GpfRuntimeNode::debug_get_plan_order(int team_id) {
+    PackedInt32Array result;
+    if (!menuTask || team_id < 0 || team_id > 1) return result;
+    MatchData *data = menuTask->GetMatchData();
+    if (!data) return result;
+    TeamData *team = data->GetTeamData(team_id);
+    if (!team) return result;
+    for (int i = 0; i < team->GetPlayerNum(); ++i) {
+        PlayerData *player = team->GetPlayerData(i);
+        if (player) result.push_back(player->GetDatabaseID());
+    }
+    return result;
+}
+
 
 PackedVector3Array GpfRuntimeNode::get_goal_net_positions(int goal) const {
     PackedVector3Array positions;

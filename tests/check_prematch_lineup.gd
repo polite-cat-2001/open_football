@@ -29,8 +29,10 @@ func _init() -> void:
 	var home := MatchLineup.from_squad(home_squad)
 	var away := MatchLineup.from_squad(away_squad)
 	_check(home.lineup.size() == Formation.SLOT_COUNT, "the default lineup has eleven slots")
-	_check(home.bench.size() == home.players.size() - Formation.SLOT_COUNT,
-		"the rest of the squad sits on the bench")
+	_check(home.bench.size() == mini(MatchLineup.BENCH_SIZE,
+		home.players.size() - Formation.SLOT_COUNT)
+		and home.bench.size() + home.reserve.size() == home.players.size() - Formation.SLOT_COUNT,
+		"the rest of the squad sits on the bench and in reserve")
 	_check(home.is_valid(), "the default lineup is valid: " + home.error)
 
 	var displaced := home.lineup[EDITED_SLOT]
@@ -41,8 +43,10 @@ func _init() -> void:
 		_check(home.lineup[EDITED_SLOT] == promoted, "the promoted player owns the slot")
 		_check(home.slot_for_player(displaced) < 0 and home.bench.has(displaced),
 			"the displaced starter moves to the bench")
-		_check(home.lineup.size() == Formation.SLOT_COUNT and home.bench.size()
-			== home.players.size() - Formation.SLOT_COUNT, "the squad stays eleven plus bench")
+		_check(home.lineup.size() == Formation.SLOT_COUNT
+			and home.bench.size() + home.reserve.size()
+				== home.players.size() - Formation.SLOT_COUNT,
+			"the squad stays eleven plus bench and reserve")
 		_check(home.is_valid(), "swapping a starter keeps the lineup valid: " + home.error)
 
 	var starter_a := home.lineup[EDITED_SLOT]

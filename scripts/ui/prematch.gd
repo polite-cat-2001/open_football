@@ -19,7 +19,6 @@ var kit_catalog := KitCatalog.new()
 var home_lineup: MatchLineup
 var away_lineup: MatchLineup
 
-var _start_votes: Dictionary = {}
 var _match_started := false
 var _status := ""
 
@@ -50,7 +49,9 @@ func _load_lineups() -> void:
 		return
 	home_lineup = MatchLineup.from_squad(home_squad)
 	away_lineup = MatchLineup.from_squad(away_squad)
-	view.setup_game_plan(home_lineup, away_lineup, _human_teams())
+	view.setup_game_plan(home_lineup, away_lineup, _human_teams(), {
+		"local_two_player": _device_keys().size() > 1,
+	})
 
 
 func _refresh_state() -> void:
@@ -58,17 +59,8 @@ func _refresh_state() -> void:
 		return
 	var validation_ok := _lineups_valid()
 	var message := _lineup_message()
-	if validation_ok:
-		_status = _vote_status()
-	else:
-		_status = message
-	var devices := _device_keys()
-	var votes := _start_votes.size()
-	var start_label := "START MATCH"
-	if _match_started:
-		start_label = "STARTING..."
-	elif devices.size() > 1:
-		start_label = "START MATCH (%d/%d)" % [votes, devices.size()]
+	_status = "" if validation_ok else message
+	var start_label := "STARTING..." if _match_started else "START MATCH"
 	view.setup(_build_state(start_label), {"back_label": "back"})
 
 
@@ -115,8 +107,8 @@ func _build_state(start_label: String) -> Dictionary:
 			"client": false,
 			"local_two_player": devices.size() > 1,
 			"start_label": start_label,
-			"start_votes": _start_votes.size(),
-			"start_votes_needed": devices.size(),
+			"start_votes": 0,
+			"start_votes_needed": 1,
 		},
 		"status": _status,
 		"status_error": false,
@@ -177,12 +169,6 @@ func _input_device_key(input: Dictionary) -> String:
 	return ""
 
 
-func _vote_status() -> String:
-	if _start_votes.is_empty():
-		return ""
-	return "START %d/%d" % [_start_votes.size(), _device_keys().size()]
-
-
 func _lineups_valid() -> bool:
 	if home_lineup == null or away_lineup == null:
 		return false
@@ -202,35 +188,15 @@ func _lineup_message() -> String:
 	return ""
 
 
-func _on_start_requested(input: Dictionary) -> void:
+func _on_start_requested(_input: Dictionary) -> void:
+	# Local 2P has no kickoff vote: the plan's READY gate is the only shared
+	# confirmation, so one Start press begins the match.
 	if _match_started or not _lineups_valid():
 		return
-	var devices := _device_keys()
-	if devices.size() <= 1:
-		_start_match()
-		return
-	var key := _input_device_key(input)
-	if key.is_empty() or not devices.has(key):
-		return
-	if _start_votes.has(key):
-		_start_votes.erase(key)
-	else:
-		_start_votes[key] = true
-	if _start_votes.size() >= devices.size():
-		_start_match()
-		return
-	_refresh_state()
+	_start_match()
 
 
-func _on_back_requested(input: Dictionary) -> void:
-	if not _start_votes.is_empty():
-		var key := _input_device_key(input)
-		if _start_votes.has(key):
-			_start_votes.erase(key)
-		else:
-			_start_votes.clear()
-		_refresh_state()
-		return
+func _on_back_requested(_input: Dictionary) -> void:
 	_leave_to(KIT_SCENE)
 
 
@@ -252,7 +218,6 @@ func _on_option_changed(field: String, value: float) -> void:
 func _on_exit_requested() -> void:
 	if _match_started:
 		return
-	_start_votes.clear()
 	UiTransition.change_scene(MAIN_MENU_SCENE)
 
 
@@ -295,7 +260,6 @@ func _start_match() -> void:
 		_refresh_state()
 		return
 	_match_started = true
-	_start_votes.clear()
 	_refresh_state()
 	UiTransition.change_scene(MATCH_SCENE)
 

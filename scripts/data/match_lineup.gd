@@ -1,11 +1,12 @@
 class_name MatchLineup
 extends RefCounted
-# Editable prematch squad: which eleven players start, who sits on the bench
-# and where each formation slot stands. The match package flattens this into
-# "starters first, bench after" so the C++ runtime (which activates the first
-# eleven in package order) fields exactly the chosen players.
+# Editable prematch squad: which eleven players start, the seven matchday
+# substitutes and the reserve list behind them. The match package flattens this
+# into "starters first, bench next, reserve last" so the C++ runtime (which
+# activates the first eleven in package order) fields exactly the chosen players.
 
 const SLOT_COUNT := Formation.SLOT_COUNT
+const BENCH_SIZE := 7
 const TEAM_ROLE_COUNT := 6
 const TEAM_ROLE_CAPTAIN := 0
 const TEAM_ROLE_PENALTY := 1
@@ -20,6 +21,7 @@ var players: Array[Dictionary] = []
 var formation: Array[Dictionary] = []
 var lineup: Array[int] = []
 var bench: Array[int] = []
+var reserve: Array[int] = []
 # Designated team roles (C++ e_TeamRole -> starting slot, -1/absent = auto).
 var roles: Dictionary = {}
 var error := ""
@@ -47,8 +49,10 @@ static func from_squad(squad: Dictionary) -> MatchLineup:
 		var player_id := int(result.players[index].get("id", 0))
 		if result.lineup.size() < SLOT_COUNT:
 			result.lineup.append(player_id)
-		else:
+		elif result.bench.size() < BENCH_SIZE:
 			result.bench.append(player_id)
+		else:
+			result.reserve.append(player_id)
 	if result.lineup.size() < SLOT_COUNT:
 		result.lineup.resize(SLOT_COUNT)
 	return result
@@ -80,9 +84,19 @@ func bench_players() -> Array[Dictionary]:
 	return result
 
 
+func reserve_players() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for player_id in reserve:
+		var player := player_by_id(player_id)
+		if not player.is_empty():
+			result.append(player)
+	return result
+
+
 func ordered_players() -> Array[Dictionary]:
 	var result := lineup_players()
 	result.append_array(bench_players())
+	result.append_array(reserve_players())
 	return result
 
 
@@ -102,17 +116,25 @@ func set_starter(slot: int, player_id: int) -> bool:
 		lineup[existing_slot] = displaced
 		return true
 
-	var bench_index := bench.find(player_id)
-	if bench_index < 0:
-		error = "Player %d is neither in the lineup nor on the bench." % player_id
-		return false
 	var current := lineup[slot]
-	lineup[slot] = player_id
-	if current != 0:
-		bench[bench_index] = current
-	else:
-		bench.remove_at(bench_index)
-	return true
+	var bench_index := bench.find(player_id)
+	if bench_index >= 0:
+		lineup[slot] = player_id
+		if current != 0:
+			bench[bench_index] = current
+		else:
+			bench.remove_at(bench_index)
+		return true
+	var reserve_index := reserve.find(player_id)
+	if reserve_index >= 0:
+		lineup[slot] = player_id
+		if current != 0:
+			reserve[reserve_index] = current
+		else:
+			reserve.remove_at(reserve_index)
+		return true
+	error = "Player %d is neither in the lineup, on the bench nor in reserve." % player_id
+	return false
 
 
 func clear_slot(slot: int) -> bool:
@@ -124,7 +146,10 @@ func clear_slot(slot: int) -> bool:
 	if current == 0:
 		return false
 	lineup[slot] = 0
-	bench.append(current)
+	if bench.size() < BENCH_SIZE:
+		bench.append(current)
+	else:
+		reserve.append(current)
 	return true
 
 
@@ -139,6 +164,8 @@ func swap_players(first_id: int, second_id: int) -> bool:
 	var second_slot := slot_for_player(second_id)
 	var first_bench := bench.find(first_id)
 	var second_bench := bench.find(second_id)
+	var first_reserve := reserve.find(first_id)
+	var second_reserve := reserve.find(second_id)
 	if first_slot >= 0 and second_slot >= 0:
 		lineup[first_slot] = second_id
 		lineup[second_slot] = first_id
@@ -147,11 +174,27 @@ func swap_players(first_id: int, second_id: int) -> bool:
 		bench[first_bench] = second_id
 		bench[second_bench] = first_id
 		return true
+	if first_reserve >= 0 and second_reserve >= 0:
+		reserve[first_reserve] = second_id
+		reserve[second_reserve] = first_id
+		return true
+	if first_bench >= 0 and second_reserve >= 0:
+		bench[first_bench] = second_id
+		reserve[second_reserve] = first_id
+		return true
+	if first_reserve >= 0 and second_bench >= 0:
+		reserve[first_reserve] = second_id
+		bench[second_bench] = first_id
+		return true
 	if first_slot >= 0 and second_bench >= 0:
 		return set_starter(first_slot, second_id)
 	if first_bench >= 0 and second_slot >= 0:
 		return set_starter(second_slot, first_id)
-	error = "A player is neither in the lineup nor on the bench."
+	if first_slot >= 0 and second_reserve >= 0:
+		return set_starter(first_slot, second_id)
+	if first_reserve >= 0 and second_slot >= 0:
+		return set_starter(second_slot, first_id)
+	error = "A player is neither in the lineup, on the bench nor in reserve."
 	return false
 
 
@@ -286,6 +329,9 @@ func validate() -> Dictionary:
 	if formation.size() != SLOT_COUNT:
 		return _invalid("Formation needs exactly %d slots (currently %d)." \
 			% [SLOT_COUNT, formation.size()])
+	if bench.size() > BENCH_SIZE:
+		return _invalid("The matchday bench can hold at most %d players (currently %d)." \
+			% [BENCH_SIZE, bench.size()])
 
 	for player_id in bench:
 		if player_id == 0:
@@ -295,9 +341,17 @@ func validate() -> Dictionary:
 		seen[player_id] = true
 		if player_by_id(player_id).is_empty():
 			return _invalid("The bench contains a player outside the squad.")
-	if starter_count + bench.size() != players.size():
-		return _invalid("Squad and lineup do not match: %d starters, %d on the bench, %d in the squad." \
-			% [starter_count, bench.size(), players.size()])
+	for player_id in reserve:
+		if player_id == 0:
+			return _invalid("The reserve list contains an empty slot.")
+		if seen.has(player_id):
+			return _invalid("A player is listed twice in the squad.")
+		seen[player_id] = true
+		if player_by_id(player_id).is_empty():
+			return _invalid("The reserve list contains a player outside the squad.")
+	if starter_count + bench.size() + reserve.size() != players.size():
+		return _invalid("Squad and lineup do not match: %d starters, %d on the bench, %d in reserve, %d in the squad." \
+			% [starter_count, bench.size(), reserve.size(), players.size()])
 
 	var goalkeeper_slot := -1
 	for index in formation.size():
@@ -329,6 +383,47 @@ func warning() -> String:
 
 func is_valid() -> bool:
 	return bool(validate().get("ok", false))
+
+
+func snapshot() -> Dictionary:
+	# Wire-friendly state for the network pre-match handshake. Only ids and
+	# formation/roles travel; both peers already hold the same squad data.
+	return {
+		"team_id": team_id,
+		"lineup": lineup.duplicate(),
+		"bench": bench.duplicate(),
+		"reserve": reserve.duplicate(),
+		"formation": formation.duplicate(true),
+		"roles": roles.duplicate(true),
+	}
+
+
+func apply_snapshot(data: Dictionary) -> bool:
+	error = ""
+	var new_lineup: Array = data.get("lineup", [])
+	var new_bench: Array = data.get("bench", [])
+	var new_reserve: Array = data.get("reserve", [])
+	var new_formation: Array = data.get("formation", [])
+	if new_lineup.size() != SLOT_COUNT or new_formation.size() != SLOT_COUNT:
+		error = "The network lineup is incomplete."
+		return false
+	lineup.clear()
+	for value in new_lineup:
+		lineup.append(int(value))
+	bench.clear()
+	for value in new_bench:
+		bench.append(int(value))
+	reserve.clear()
+	for value in new_reserve:
+		reserve.append(int(value))
+	formation.clear()
+	for entry in new_formation:
+		if typeof(entry) != TYPE_DICTIONARY:
+			error = "The network formation is invalid."
+			return false
+		formation.append((entry as Dictionary).duplicate(true))
+	roles = (data.get("roles", {}) as Dictionary).duplicate(true)
+	return true
 
 
 static func is_goalkeeper(player: Dictionary) -> bool:
