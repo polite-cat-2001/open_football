@@ -223,7 +223,7 @@ class GamePlanPitch extends Control:
 			var rating := int(entry.get("rating", -1))
 			var role_size := maxi(11, int(photo.size.y * 0.32))
 			var rating_size := maxi(16, int(photo.size.y * 0.46))
-			var role_color := C_FOCUS_INK2 if focused else Color(0.96, 0.97, 0.99, 0.78)
+			var role_color := BenchCard._pos_color(role)
 			var rating_color := C_FOCUS_INK
 			draw_string(FONT_BODY, Vector2(role_rect.position.x + 2.0,
 				role_rect.position.y + role_rect.size.y * 0.76), role,
