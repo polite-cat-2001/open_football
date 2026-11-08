@@ -254,6 +254,12 @@ func _check_prematch() -> void:
 	_check((plan.get("_panels") as Array).size() == 2, "1P sees both halves")
 	var home_panel := _panel(plan, 0)
 	_check(GpfGamePlan.TAB_NAMES.size() == 3, "there are three tabs")
+	_check(GpfGamePlan._full_player_name({"first_name": "Karim", "last_name": "Adeyemi"})
+		== "Karim Adeyemi", "the header keeps the first name before the surname")
+	_check(GpfGamePlan._full_player_name({"name": "Adeyemi"}) == "Adeyemi",
+		"the header falls back to the stored name")
+	_check(GpfGamePlan._full_player_name({"first_name": "Rodri", "name": "Rodri"}) == "Rodri",
+		"a one-word name is not duplicated")
 	_check(int(home_panel["tab"]) == GpfGamePlan.TAB_SQUAD, "SQUAD is the default tab")
 	_check((home_panel["entries"] as Array).size() == 20, "all squad players are listed")
 	_check((home_panel["bench_entries"] as Array).size() == 7, "the drawer lists seven bench players")
@@ -276,6 +282,12 @@ func _check_prematch() -> void:
 	# Formations tab.
 	plan.handle_key(_key(KEY_E))
 	_check(int(home_panel["tab"]) == GpfGamePlan.TAB_FORMATIONS, "E switches to FORMATIONS")
+	_check((home_panel["tabs"] as UiTabBar).get_active_tab() == GpfGamePlan.TAB_FORMATIONS,
+		"the shared tab bar follows the active tab")
+	_check(not (home_panel["header"] as Control).visible,
+		"FORMATIONS hides the player comparison header")
+	var formation_drawer_h := (home_panel["drawer"] as Control).size.y
+	var formation_pitch_h := (home_panel["pitch"] as Control).size.y
 	plan.handle_key(_key(KEY_RIGHT))
 	plan.handle_key(_key(KEY_ENTER))
 	_check(home.current_scheme() >= 0, "a formation can be applied")
@@ -283,6 +295,12 @@ func _check_prematch() -> void:
 	# Roles tab.
 	plan.handle_key(_key(KEY_E))
 	_check(int(home_panel["tab"]) == GpfGamePlan.TAB_ROLES, "E switches to ROLES")
+	_check(not (home_panel["header"] as Control).visible,
+		"ROLES hides the player comparison header")
+	_check(is_equal_approx((home_panel["drawer"] as Control).size.y, formation_drawer_h),
+		"FORMATIONS and ROLES share the same drawer height")
+	_check(is_equal_approx((home_panel["pitch"] as Control).size.y, formation_pitch_h),
+		"the pitch keeps the same height across FORMATIONS and ROLES")
 	plan.handle_key(_key(KEY_ENTER))
 	_check(bool(home_panel["role_picking"]), "A starts role picking")
 	_check(bool(home_panel["pitch"].get("editing")), "role picking highlights the pitch player")
@@ -294,6 +312,20 @@ func _check_prematch() -> void:
 	# Details toggles over the pitch.
 	plan.handle_key(_key(KEY_E))
 	_check(int(home_panel["tab"]) == GpfGamePlan.TAB_SQUAD, "E wraps back to SQUAD")
+	_check((home_panel["header"] as Control).visible,
+		"SQUAD restores the player comparison header")
+	_check(is_equal_approx(float(home_panel["drawer_t"]), 0.0),
+		"returning to SQUAD keeps the bench drawer collapsed")
+
+	# Returning from a tab collapses a drawer that was open in SQUAD.
+	home_panel["cursor"] = _find_entry(home_panel, int(home.bench[0]))
+	plan.call("_refresh_panel", home_panel)
+	plan.handle_key(_key(KEY_E))
+	plan.handle_key(_key(KEY_E))
+	plan.handle_key(_key(KEY_E))
+	_check(not bool(home_panel["drawer_open"])
+		and is_equal_approx(float(home_panel["drawer_t"]), 0.0),
+		"returning to SQUAD resets an open bench drawer to collapsed")
 
 	# The bench drawer expands when focus moves into it and collapses back.
 	home_panel["cursor"] = _find_entry(home_panel, int(home.lineup[0]))
@@ -301,6 +333,24 @@ func _check_prematch() -> void:
 	_check(bool(home_panel["drawer_open"]), "moving down opens the bench drawer")
 	plan.handle_key(_key(KEY_UP))
 	_check(not bool(home_panel["drawer_open"]), "moving back to the pitch closes it")
+
+	# Mouse hover mirrors arrow selection (web prototype behaviour).
+	var hover_bench := _find_entry(home_panel, int(home.bench[0]))
+	plan.call("_on_entry_hovered", 0, hover_bench)
+	_check(int(home_panel["cursor"]) == hover_bench and bool(home_panel["drawer_open"]),
+		"hovering a bench card selects it and opens the drawer")
+	plan.call("_on_entry_hovered", 0, _find_entry(home_panel, int(home.lineup[0])))
+	_check(not bool(home_panel["drawer_open"]),
+		"hovering a pitch card closes the drawer")
+	plan.handle_key(_key(KEY_E))
+	plan.call("_on_scheme_hovered", 0, 2)
+	_check(int(home_panel["scheme_cursor"]) == 2,
+		"hovering a formation moves the scheme cursor")
+	plan.handle_key(_key(KEY_E))
+	plan.call("_on_role_hovered", 0, 3)
+	_check(int(home_panel["role_cursor"]) == 3,
+		"hovering a role tile moves the role cursor")
+	plan.handle_key(_key(KEY_E))
 
 	plan.handle_key(_key(KEY_Y))
 	_check(bool(home_panel["details_open"]), "Y opens the details panel")
@@ -357,6 +407,25 @@ func _check_drawer_scroll() -> void:
 		var rect: Rect2 = card.get_global_rect()
 		_check(rect.position.y >= view.position.y - 2.0 and rect.end.y <= view.end.y + 2.0,
 			"the selected reserve card is visible")
+
+	# The RESERVE label belongs between the bench and the reserve rows.
+	var box: VBoxContainer = panel["bench_box"]
+	_check(box.get_child(1) == panel["bench_grid"]
+		and box.get_child(2) == panel["reserve_rule"]
+		and box.get_child(3) == panel["reserve_header"],
+		"the RESERVE label sits between the bench and the reserve")
+	_check((panel["reserve_rule"] as Control).visible,
+		"a rule separates the bench from the reserve")
+
+	# Scrolling back up to the first bench row must reveal the BENCH header.
+	panel["cursor"] = int((panel["bench_entries"] as Array)[0])
+	plan.call("_refresh_panel", panel)
+	plan.call("_layout")
+	await create_timer(0.35).timeout
+	var bench_header: Control = panel["bench_header"]
+	_check(bench_header.visible and bench_header.get_global_rect().position.y
+		>= scroll.get_global_rect().position.y - 2.0,
+		"the first bench row keeps the BENCH header visible")
 	plan.queue_free()
 	await _frames(1)
 

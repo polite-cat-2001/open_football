@@ -45,6 +45,9 @@ static func from_squad(squad: Dictionary) -> MatchLineup:
 			result.formation.append(entry.duplicate(true))
 
 	result._reindex()
+	var matched_scheme := result.current_scheme()
+	if matched_scheme >= 0:
+		result.apply_scheme(matched_scheme)
 	for index in result.players.size():
 		var player_id := int(result.players[index].get("id", 0))
 		if result.lineup.size() < SLOT_COUNT:

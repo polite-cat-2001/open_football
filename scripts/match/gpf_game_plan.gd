@@ -32,16 +32,20 @@ const C_MARK := UiTokens.FOCUS_MARK
 const C_WIN := Color(0.184, 0.490, 0.310, 1.0)
 const C_LOSS := Color(0.698, 0.227, 0.282, 1.0)
 const C_WARN := Color(0.651, 0.416, 0.0, 1.0)
-const C_PITCH := Color(0.051, 0.231, 0.176, 1.0)
-const C_PITCH_HI := Color(0.165, 0.506, 0.373, 1.0)
-const C_PITCH_LINE := Color(1.0, 1.0, 1.0, 0.30)
+const C_PITCH := Color("#528023")
+const C_PITCH_HI := Color("#5a8929")
+const C_PITCH_LINE := Color(1.0, 1.0, 1.0, 0.86)
 const C_TILE_ALT := Color(0.910, 0.925, 0.949, 1.0)
 const C_SHADOW := Color(0.016, 0.035, 0.078, 0.30)
 
 const TAB_SQUAD := 0
 const TAB_FORMATIONS := 1
 const TAB_ROLES := 2
-const TAB_NAMES := ["SQUAD", "FORMATIONS", "ROLES"]
+const TAB_NAMES: Array[String] = ["SQUAD", "FORMATIONS", "ROLES"]
+# FORMATIONS and ROLES share one drawer height so the pitch above them keeps
+# the same size when the tab changes.
+const TAB_DRAWER_H := 224.0
+const TAB_DRAWER_MIN_H := 168.0
 
 # User-facing role order from GamePlanPage::planRoleOrder.
 const TEAM_ROLE_ROWS := [
@@ -126,8 +130,45 @@ static func _draw_refresh_icon(canvas: CanvasItem, center: Vector2, radius: floa
 		"↻", HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, icon_size, color)
 
 
+static func _fatigue_bar_polygon(rect: Rect2, slant: float) -> PackedVector2Array:
+	return PackedVector2Array([
+		rect.position + Vector2(slant, 0.0),
+		rect.position + Vector2(rect.size.x, 0.0),
+		rect.position + Vector2(rect.size.x - slant, rect.size.y),
+		rect.position + Vector2(0.0, rect.size.y),
+	])
+
+
+static func _draw_fatigue_bar(canvas: CanvasItem, rect: Rect2, percent: int) -> void:
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return
+	var slant := clampf(rect.size.y * 0.8, 1.5, 4.0)
+	var outer := _fatigue_bar_polygon(rect, slant)
+	canvas.draw_colored_polygon(outer, Color(0.0, 0.0, 0.0, 0.92))
+	var inset := 1.0
+	var inner_rect := Rect2(rect.position + Vector2(inset, inset),
+		rect.size - Vector2(inset * 2.0, inset * 2.0))
+	var inner := _fatigue_bar_polygon(inner_rect, maxf(1.0, slant * 0.7))
+	var ratio := clampf(float(percent) / 100.0, 0.0, 1.0)
+	var fill := Rect2(rect.position, Vector2(rect.size.x * ratio, rect.size.y))
+	var pieces := Geometry2D.intersect_polygons(inner, PackedVector2Array([
+		fill.position,
+		fill.position + Vector2(fill.size.x, 0.0),
+		fill.position + fill.size,
+		fill.position + Vector2(0.0, fill.size.y),
+	]))
+	var fill_color := C_WIN if percent >= 50 else C_LOSS
+	for piece in pieces:
+		canvas.draw_colored_polygon(piece, fill_color)
+	var outline := outer.duplicate()
+	outline.append(outer[0])
+	canvas.draw_polyline(outline, Color(0.0, 0.0, 0.0, 1.0), 1.0)
+
+
+
 class GamePlanPitch extends Control:
 	signal card_clicked(panel_index: int, entry_index: int)
+	signal card_hovered(panel_index: int, entry_index: int)
 
 	var panel_index := 0
 	var team_color := Color(0.2, 0.4, 0.9)
@@ -137,22 +178,7 @@ class GamePlanPitch extends Control:
 	var editing := false
 	var strength := -1
 	var strength_delta := 0
-	var _surface_texture: ImageTexture
-
-	func _make_surface_texture() -> ImageTexture:
-		var resolution := 256
-		var image := Image.create(resolution, resolution, false, Image.FORMAT_RGBA8)
-		for y in resolution:
-			for x in resolution:
-				var u := (float(x) + 0.5) / float(resolution)
-				var v := (float(y) + 0.5) / float(resolution)
-				var dx := (u - 0.5) / 0.62
-				var dy := (v - 1.02) / 0.78
-				var distance := sqrt(dx * dx + dy * dy)
-				var shade := clampf(1.0 - distance, 0.0, 1.0)
-				var color := C_PITCH.lerp(C_PITCH_HI, pow(shade, 0.80))
-				image.set_pixel(x, y, color)
-		return ImageTexture.create_from_image(image)
+	var _hover_index := -1
 
 	func set_cards(value: Array) -> void:
 		cards = value
@@ -173,50 +199,7 @@ class GamePlanPitch extends Control:
 		var area := get_size()
 		if area.x <= 0.0 or area.y <= 0.0:
 			return
-		# Pitch container + trapezoid surface, straight from the career prototype:
-		# a dark base with a soft bottom-lit radial gradient and thin mowing lines.
-		draw_rect(Rect2(Vector2.ZERO, area), C_PITCH, true)
-		if _surface_texture == null:
-			_surface_texture = _make_surface_texture()
-		draw_texture_rect(_surface_texture, Rect2(Vector2.ZERO, area), false)
-		var surface := PackedVector2Array([
-			Vector2(area.x * 0.13, area.y * 0.02),
-			Vector2(area.x * 0.87, area.y * 0.02),
-			Vector2(area.x * 0.98, area.y * 0.98),
-			Vector2(area.x * 0.02, area.y * 0.98),
-		])
-		draw_colored_polygon(PackedVector2Array([
-			Vector2.ZERO, Vector2(area.x, 0.0),
-			Vector2(area.x * 0.87, area.y * 0.02), Vector2(area.x * 0.13, area.y * 0.02),
-		]), C_PITCH)
-		draw_colored_polygon(PackedVector2Array([
-			Vector2(0.0, area.y), Vector2(area.x, area.y),
-			Vector2(area.x * 0.98, area.y * 0.98), Vector2(area.x * 0.02, area.y * 0.98),
-		]), C_PITCH)
-		draw_colored_polygon(PackedVector2Array([
-			Vector2.ZERO, Vector2(area.x * 0.13, area.y * 0.02),
-			Vector2(area.x * 0.02, area.y * 0.98), Vector2(0.0, area.y * 0.98),
-		]), C_PITCH)
-		draw_colored_polygon(PackedVector2Array([
-			Vector2(area.x, 0.0), Vector2(area.x * 0.87, area.y * 0.02),
-			Vector2(area.x * 0.98, area.y * 0.98), Vector2(area.x, area.y * 0.98),
-		]), C_PITCH)
-		var line_width := maxf(2.2, area.x * 0.0026)
-		draw_polyline(_closed(surface), Color(0.0, 0.0, 0.0, 0.34), line_width + 0.4)
-		var line_color := C_PITCH_LINE
-		draw_polyline(_closed(surface), line_color, line_width)
-		draw_line(Vector2(area.x * 0.07, area.y * 0.5), Vector2(area.x * 0.93, area.y * 0.5),
-			line_color, line_width)
-		_draw_ellipse(Vector2(area.x * 0.5, area.y * 0.5), area.x * 0.12, area.y * 0.16,
-			line_color, line_width)
-		draw_polyline(_closed(PackedVector2Array([
-			Vector2(area.x * 0.33, area.y * 0.02), Vector2(area.x * 0.67, area.y * 0.02),
-			Vector2(area.x * 0.70, area.y * 0.18), Vector2(area.x * 0.30, area.y * 0.18),
-		])), line_color, line_width)
-		draw_polyline(_closed(PackedVector2Array([
-			Vector2(area.x * 0.25, area.y * 0.98), Vector2(area.x * 0.75, area.y * 0.98),
-			Vector2(area.x * 0.70, area.y * 0.80), Vector2(area.x * 0.30, area.y * 0.80),
-		])), line_color, line_width)
+		_draw_pitch_surface(area)
 
 		for card in cards:
 			var entry: Dictionary = card["entry"]
@@ -238,8 +221,8 @@ class GamePlanPitch extends Control:
 
 			var role := str(card.get("display_role", entry.get("role", "")))
 			var rating := int(entry.get("rating", -1))
-			var role_size := maxi(8, int(photo.size.y * 0.30))
-			var rating_size := maxi(9, int(photo.size.y * 0.38))
+			var role_size := maxi(11, int(photo.size.y * 0.32))
+			var rating_size := maxi(16, int(photo.size.y * 0.46))
 			var role_color := C_FOCUS_INK2 if focused else Color(0.96, 0.97, 0.99, 0.78)
 			var rating_color := C_FOCUS_INK
 			draw_string(FONT_BODY, Vector2(role_rect.position.x + 2.0,
@@ -251,7 +234,7 @@ class GamePlanPitch extends Control:
 					HORIZONTAL_ALIGNMENT_RIGHT, role_rect.size.x * 0.38, rating_size, rating_color)
 
 			var name := _short_name(str(entry.get("name", "")))
-			var name_size := maxi(9, int(photo.size.y * 0.34))
+			var name_size := maxi(14, int(photo.size.y * 0.40))
 			var name_color := C_MARK if focused else C_FOCUS_INK
 			draw_string(FONT_HEAD, Vector2(name_rect.position.x + 1.0,
 				name_rect.position.y + name_rect.size.y * 0.82 + 1.0), name,
@@ -262,9 +245,7 @@ class GamePlanPitch extends Control:
 				HORIZONTAL_ALIGNMENT_CENTER, name_rect.size.x, name_size, name_color)
 
 			var fatigue := clampi(int(entry.get("fatigue", 100)), 0, 100)
-			draw_rect(bar_rect, Color(0.96, 0.97, 0.99, 0.28), true)
-			draw_rect(Rect2(bar_rect.position, Vector2(bar_rect.size.x * fatigue / 100.0,
-				bar_rect.size.y)), C_WIN if fatigue >= 50 else C_LOSS, true)
+			GpfGamePlan._draw_fatigue_bar(self, bar_rect, fatigue)
 
 			if bool(entry.get("pending_out", false)):
 				draw_rect(rect.grow(1.0), Color(0.88, 0.25, 0.22, 0.95), false, 2.0)
@@ -278,6 +259,74 @@ class GamePlanPitch extends Control:
 
 		if strength >= 0:
 			_draw_strength_badge(area)
+
+	func _draw_pitch_surface(area: Vector2) -> void:
+		var top_y := area.y * 0.02
+		var bottom_y := area.y * 0.98
+		var top_left := Vector2(area.x * 0.13, top_y)
+		var top_right := Vector2(area.x * 0.87, top_y)
+		var bottom_left := Vector2(area.x * 0.02, bottom_y)
+		var bottom_right := Vector2(area.x * 0.98, bottom_y)
+		var surface := PackedVector2Array([top_left, top_right, bottom_right, bottom_left])
+		var shadow := PackedVector2Array()
+		for point in surface:
+			shadow.append(point + Vector2(0.0, area.y * 0.024))
+		draw_colored_polygon(shadow, Color(0.0, 0.0, 0.0, 0.35))
+		draw_colored_polygon(surface, C_PITCH)
+
+		# Mowing bands: 8 keeps the halfway line on a stripe edge.
+		var bands := 8
+		for band in bands:
+			if band % 2 != 0:
+				continue
+			var v0 := float(band) / float(bands)
+			var v1 := float(band + 1) / float(bands)
+			draw_colored_polygon(PackedVector2Array([
+				_pitch_point(area, 0.0, v0),
+				_pitch_point(area, 1.0, v0),
+				_pitch_point(area, 1.0, v1),
+				_pitch_point(area, 0.0, v1),
+			]), C_PITCH_HI)
+
+		var line_width := maxf(2.0, area.x * 0.0026)
+		var line_color := C_PITCH_LINE
+		draw_polyline(_closed(surface), Color(0.0, 0.0, 0.0, 0.30), line_width + 0.5)
+		draw_polyline(_closed(surface), line_color, line_width)
+		draw_line(_pitch_point(area, 0.0, 0.5), _pitch_point(area, 1.0, 0.5),
+			line_color, line_width)
+		var center := _pitch_point(area, 0.5, 0.5)
+		_draw_ellipse(center, area.x * 0.11, area.y * 0.075, line_color, line_width)
+		draw_circle(center, maxf(1.6, line_width), line_color)
+		_draw_penalty_area(area, true, line_color, line_width)
+		_draw_penalty_area(area, false, line_color, line_width)
+
+	func _pitch_point(area: Vector2, u: float, v: float) -> Vector2:
+		var left_x := lerpf(area.x * 0.13, area.x * 0.02, v)
+		var right_x := lerpf(area.x * 0.87, area.x * 0.98, v)
+		return Vector2(lerpf(left_x, right_x, u),
+			lerpf(area.y * 0.02, area.y * 0.98, v))
+
+	func _draw_penalty_area(area: Vector2, top: bool, color: Color,
+			width: float) -> void:
+		var goal_v := 0.0 if top else 1.0
+		var far_v := 0.1875 if top else 0.8125
+		# Three sides only: the goal-line edge is already the pitch outline, and
+		# drawing it again made that horizontal line read thicker.
+		draw_polyline(PackedVector2Array([
+			_pitch_point(area, 0.75, goal_v),
+			_pitch_point(area, 0.75, far_v),
+			_pitch_point(area, 0.25, far_v),
+			_pitch_point(area, 0.25, goal_v),
+		]), color, width)
+		var goal_far_v := 0.0729 if top else 0.9271
+		draw_polyline(PackedVector2Array([
+			_pitch_point(area, 0.60, goal_v),
+			_pitch_point(area, 0.60, goal_far_v),
+			_pitch_point(area, 0.40, goal_far_v),
+			_pitch_point(area, 0.40, goal_v),
+		]), color, width)
+		draw_circle(_pitch_point(area, 0.5, 0.125 if top else 0.875),
+			maxf(1.4, width * 0.8), color)
 
 	func _draw_strength_badge(area: Vector2) -> void:
 		var h := clampf(area.y * 0.105, 42.0, 66.0)
@@ -327,6 +376,18 @@ class GamePlanPitch extends Control:
 		return result
 
 	func _gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseMotion:
+			var motion := event as InputEventMouseMotion
+			var hovered := -1
+			for card in cards:
+				if (card["rect"] as Rect2).has_point(motion.position):
+					hovered = int(card["entry_index"])
+					break
+			if hovered != _hover_index:
+				_hover_index = hovered
+				if hovered >= 0:
+					card_hovered.emit(panel_index, hovered)
+			return
 		if not (event is InputEventMouseButton):
 			return
 		var mouse := event as InputEventMouseButton
@@ -337,6 +398,10 @@ class GamePlanPitch extends Control:
 				card_clicked.emit(panel_index, int(card["entry_index"]))
 				accept_event()
 				return
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_MOUSE_EXIT:
+			_hover_index = -1
 
 	func _draw_silhouette(photo: Rect2) -> void:
 		var center := photo.get_center()
@@ -418,10 +483,11 @@ class GamePlanHeader extends Control:
 	func _draw_block(rect: Rect2, data: Dictionary, mirrored: bool) -> void:
 		if data.is_empty():
 			return
-		var pad := maxf(6.0, rect.size.y * 0.08)
-		var photo_w := clampf(rect.size.x * 0.20, 52.0, 66.0)
-		var photo_h := clampf(rect.size.y * 0.66, 62.0, 80.0)
-		var content_h := photo_h + 3.0 + 3.0
+		var pad := maxf(8.0, rect.size.y * 0.08)
+		var photo_w := clampf(rect.size.x * 0.18, 64.0, 96.0)
+		var photo_h := clampf(rect.size.y * 0.68, 76.0, 118.0)
+		var bar_h := maxf(8.0, rect.size.y * 0.055)
+		var content_h := photo_h + 4.0 + bar_h
 		var content_top := rect.position.y + maxf(pad * 0.5, (rect.size.y - content_h) * 0.5)
 		var photo_x := rect.end.x - pad - photo_w if mirrored else rect.position.x + pad
 		var photo_rect := Rect2(Vector2(photo_x, content_top),
@@ -431,29 +497,27 @@ class GamePlanHeader extends Control:
 			GpfGamePlan._draw_texture_contain(self, texture, photo_rect)
 		else:
 			_draw_silhouette(photo_rect)
-		var bar := Rect2(Vector2(photo_rect.position.x, photo_rect.end.y + 3.0),
-			Vector2(photo_w, 3.0))
-		draw_rect(bar, Color(C_INK2, 0.18), true)
+		var bar := Rect2(Vector2(photo_rect.position.x, photo_rect.end.y + 4.0),
+			Vector2(photo_w, bar_h))
 		var fatigue := clampi(int(data.get("fatigue", 100)), 0, 100)
-		draw_rect(Rect2(bar.position, Vector2(bar.size.x * fatigue / 100.0, bar.size.y)),
-			C_WIN if fatigue >= 50 else C_LOSS, true)
+		GpfGamePlan._draw_fatigue_bar(self, bar, fatigue)
 
 		var text_x := rect.position.x + pad if mirrored else photo_rect.end.x + pad
 		var text_w := (photo_rect.position.x - pad - text_x) if mirrored \
 			else (rect.end.x - pad - text_x)
-		var name := str(data.get("name", "")).to_upper()
-		var name_size := maxi(14, int(rect.size.y * 0.22))
+		var name := GpfGamePlan._full_player_name(data).to_upper()
+		var name_size := maxi(18, int(rect.size.y * 0.22))
 		var rating := int(data.get("rating", -1))
 		var rating_text := "—" if rating < 0 else str(rating)
-		var rating_size := maxi(18, int(rect.size.y * 0.28))
+		var rating_size := maxi(24, int(rect.size.y * 0.30))
 		var align := HORIZONTAL_ALIGNMENT_RIGHT if mirrored else HORIZONTAL_ALIGNMENT_LEFT
 		draw_string(FONT_HEAD, Vector2(text_x, content_top + photo_h * 0.36),
 			name, align, text_w, name_size, C_INK)
-		draw_string(FONT_HEAD, Vector2(text_x, content_top + photo_h * 0.68),
+		draw_string(FONT_HEAD, Vector2(text_x, content_top + photo_h * 0.74),
 			rating_text, align, text_w, rating_size, C_INK)
-		draw_string(FONT_BODY, Vector2(text_x, content_top + photo_h * 0.86),
+		draw_string(FONT_BODY, Vector2(text_x, content_top + photo_h * 0.96),
 			str(data.get("role", "")), align, text_w,
-			maxi(9, int(rect.size.y * 0.12)), C_INK2)
+			maxi(12, int(rect.size.y * 0.14)), C_INK2)
 
 	static func radar_values(data: Dictionary) -> Array:
 		var axes := [
@@ -496,7 +560,7 @@ class GamePlanHeader extends Control:
 		if not secondary_values.is_empty():
 			_draw_radar_polygon(center, radius, secondary_values,
 				Color(0.114, 0.129, 0.22, 0.05), C_INK2, true)
-		var label_size := maxi(8, int(radius * 0.20))
+		var label_size := maxi(10, int(radius * 0.24))
 		for index in RADAR_AXES.size():
 			var angle := -PI * 0.5 + TAU * float(index) / float(RADAR_AXES.size())
 			var direction := Vector2(cos(angle), sin(angle))
@@ -685,42 +749,43 @@ class BenchCard extends Control:
 			ink = Color(ink, 0.55)
 			ink2 = Color(ink2, 0.55)
 
-		var pad_l := clampf(area.x * 0.045, 8.0, 12.0)
-		var pad_r := clampf(area.x * 0.035, 6.0, 9.0)
-		var pad_t := clampf(area.y * 0.07, 5.0, 8.0)
-		var pad_b := clampf(area.y * 0.05, 4.0, 6.0)
-		var top_h := clampf(area.y * 0.60, 36.0, 56.0)
+		var pad_l := clampf(area.x * 0.045, 8.0, 14.0)
+		var pad_r := clampf(area.x * 0.035, 6.0, 11.0)
+		var pad_t := clampf(area.y * 0.07, 5.0, 9.0)
+		var pad_b := clampf(area.y * 0.05, 4.0, 7.0)
+		var top_h := clampf(area.y * 0.62, 44.0, 68.0)
 		var baseline := pad_t + top_h - 5.0
 
 		var role := str(entry.get("role", ""))
-		draw_circle(Vector2(pad_l + 3.5, baseline - 4.0), 3.5, _pos_color(role))
-		draw_string(FONT_BODY, Vector2(pad_l + 11.0, baseline), _short_role(role),
+		draw_circle(Vector2(pad_l + 5.0, baseline - 4.0), 5.0, _pos_color(role))
+		draw_string(FONT_BODY, Vector2(pad_l + 15.0, baseline), _short_role(role),
 			HORIZONTAL_ALIGNMENT_LEFT, area.x * 0.38,
-			maxi(8, int(area.y * 0.12)), ink2)
+			maxi(11, int(area.y * 0.14)), ink2)
 
 		var rating := int(entry.get("rating", -1))
-		draw_string(FONT_HEAD, Vector2(area.x - pad_r - 42.0, baseline),
+		draw_string(FONT_HEAD, Vector2(area.x - pad_r - 48.0, baseline),
 			"—" if rating < 0 else str(rating), HORIZONTAL_ALIGNMENT_RIGHT,
-			42.0, maxi(12, int(area.y * 0.23)), mark)
+			48.0, maxi(17, int(area.y * 0.28)), mark)
 
-		var photo_w := minf(area.x * 0.44, top_h * 0.95)
-		var photo := Rect2(Vector2(area.x * 0.5 - photo_w * 0.5, pad_t),
-			Vector2(photo_w, top_h))
+		var photo_top := pad_t + maxf(2.0, area.y * 0.025)
+		var photo_h := maxf(28.0, top_h - (photo_top - pad_t))
+		var photo_w := minf(area.x * 0.46, photo_h * 0.95)
+		var photo := Rect2(Vector2(area.x * 0.5 - photo_w * 0.5, photo_top),
+			Vector2(photo_w, photo_h))
 		var texture: Texture2D = UiAssets.player_face(int(entry.get("tm_id", 0)))
 		if texture != null:
 			GpfGamePlan._draw_texture_contain(self, texture, photo)
 		else:
 			_draw_silhouette(photo, ink2)
 
-		var name_size := maxi(9, int(area.y * 0.18))
+		var name_size := maxi(14, int(area.y * 0.21))
 		var name_baseline := area.y - pad_b - 1.0
 		var bar_y := minf(pad_t + top_h + 2.0,
 			name_baseline - float(name_size) - 4.0)
-		var bar := Rect2(Vector2(pad_l, bar_y), Vector2(area.x - pad_l - pad_r, 3.0))
-		draw_rect(bar, Color(ink2, 0.20), true)
+		var bar_h := maxf(4.0, area.y * 0.035)
+		var bar := Rect2(Vector2(pad_l, bar_y), Vector2(area.x - pad_l - pad_r, bar_h))
 		var fatigue := clampi(int(entry.get("fatigue", 100)), 0, 100)
-		draw_rect(Rect2(bar.position, Vector2(bar.size.x * fatigue / 100.0, bar.size.y)),
-			C_LOSS if fatigue < 50 else C_WIN, true)
+		GpfGamePlan._draw_fatigue_bar(self, bar, fatigue)
 
 		draw_string(FONT_HEAD, Vector2(pad_l, name_baseline),
 			_short_name(str(entry.get("name", ""))), HORIZONTAL_ALIGNMENT_CENTER,
@@ -754,13 +819,13 @@ class BenchCard extends Control:
 	static func _pos_color(role: String) -> Color:
 		match role:
 			"GK":
-				return C_WARN
-			"CB", "LB", "RB", "LWB", "RWB":
-				return Color(0.12, 0.39, 0.72, 1.0)
+				return Color(0.95, 0.55, 0.10, 1.0)
+			"CB", "LB", "RB", "LWB", "RWB", "SW":
+				return Color(0.95, 0.82, 0.16, 1.0)
 			"DM", "CM", "LM", "RM", "AM":
-				return C_WIN
+				return Color(0.30, 0.78, 0.35, 1.0)
 			"CF", "ST", "LW", "RW":
-				return Color(0.75, 0.16, 0.36, 1.0)
+				return Color(0.22, 0.52, 0.95, 1.0)
 			_:
 				return C_INK2
 
@@ -804,19 +869,54 @@ class SchemeCard extends Control:
 			ink = C_FOCUS_INK
 		draw_rect(Rect2(Vector2.ZERO, area), fill, true)
 		draw_string(FONT_HEAD, Vector2(8, area.y * 0.15), scheme_name,
-			HORIZONTAL_ALIGNMENT_LEFT, area.x - 16.0, maxi(12, int(area.y * 0.16)),
+			HORIZONTAL_ALIGNMENT_LEFT, area.x - 16.0, maxi(14, int(area.y * 0.16)),
 			C_MARK if focused else ink)
 		var pitch := Rect2(Vector2(8, area.y * 0.22), Vector2(area.x - 16.0, area.y * 0.66))
 		var surface := PackedVector2Array([
-			Vector2(pitch.position.x + pitch.size.x * 0.08, pitch.position.y),
-			Vector2(pitch.end.x - pitch.size.x * 0.08, pitch.position.y),
-			Vector2(pitch.end.x, pitch.end.y),
-			Vector2(pitch.position.x, pitch.end.y),
+			_pitch_point(pitch, 0.0, 0.0),
+			_pitch_point(pitch, 1.0, 0.0),
+			_pitch_point(pitch, 1.0, 1.0),
+			_pitch_point(pitch, 0.0, 1.0),
 		])
-		draw_colored_polygon(surface, C_PITCH_HI.darkened(0.20))
-		draw_polyline(_closed(surface), Color(1, 1, 1, 0.30), 1.0)
-		draw_line(Vector2(pitch.position.x + 4.0, pitch.get_center().y),
-			Vector2(pitch.end.x - 4.0, pitch.get_center().y), Color(1, 1, 1, 0.26), 0.8)
+		draw_colored_polygon(surface, C_PITCH)
+		var bands := 8
+		for band in bands:
+			if band % 2 != 0:
+				continue
+			var v0 := float(band) / float(bands)
+			var v1 := float(band + 1) / float(bands)
+			draw_colored_polygon(PackedVector2Array([
+				_pitch_point(pitch, 0.0, v0),
+				_pitch_point(pitch, 1.0, v0),
+				_pitch_point(pitch, 1.0, v1),
+				_pitch_point(pitch, 0.0, v1),
+			]), C_PITCH_HI)
+		var line := Color(1, 1, 1, 0.55)
+		draw_polyline(_closed(surface), line, 1.0)
+		draw_line(_pitch_point(pitch, 0.0, 0.5), _pitch_point(pitch, 1.0, 0.5), line, 0.8)
+		var center := _pitch_point(pitch, 0.5, 0.5)
+		var circle := PackedVector2Array()
+		for i in 24:
+			var angle := TAU * float(i) / 24.0
+			circle.append(center + Vector2(cos(angle) * pitch.size.x * 0.11,
+				sin(angle) * pitch.size.y * 0.06))
+		draw_polyline(circle, line, 0.8)
+		for top in [true, false]:
+			var goal_v := 0.0 if top else 1.0
+			var far_v := 0.16 if top else 0.84
+			draw_polyline(PackedVector2Array([
+				_pitch_point(pitch, 0.75, goal_v),
+				_pitch_point(pitch, 0.75, far_v),
+				_pitch_point(pitch, 0.25, far_v),
+				_pitch_point(pitch, 0.25, goal_v),
+			]), line, 0.8)
+			var goal_far_v := 0.06 if top else 0.94
+			draw_polyline(PackedVector2Array([
+				_pitch_point(pitch, 0.60, goal_v),
+				_pitch_point(pitch, 0.60, goal_far_v),
+				_pitch_point(pitch, 0.40, goal_far_v),
+				_pitch_point(pitch, 0.40, goal_v),
+			]), line, 0.8)
 		var entries: Array = TacticalSchemes.SCHEMES[index]["entries"]
 		for entry in entries:
 			var pos: Vector2 = entry["position"]
@@ -827,10 +927,12 @@ class SchemeCard extends Control:
 				depth = 0.92
 			elif role in ["CB", "LB", "RB", "LWB", "RWB", "SW"]:
 				depth = clampf(depth, 0.68, 0.80)
-			var point := pitch.position + Vector2(side * pitch.size.x, depth * pitch.size.y)
+			var point := _pitch_point(pitch, side, depth)
 			var dot := Color(1.0, 0.30, 0.43, 1.0) if role == "GK" \
 				else Color(0.96, 0.97, 0.99, 1.0)
-			draw_circle(point, 2.2, dot)
+			var dot_r := clampf(pitch.size.x * 0.018, 2.4, 3.6)
+			draw_circle(point + Vector2(0.0, 0.8), dot_r + 0.8, Color(0, 0, 0, 0.28))
+			draw_circle(point, dot_r, dot)
 		if selected:
 			var check := Rect2(Vector2(8, area.y - 24.0), Vector2(18, 18))
 			draw_rect(check, C_MARK, true)
@@ -838,6 +940,11 @@ class SchemeCard extends Control:
 				C_INK, 2.0)
 			draw_line(check.position + Vector2(8, 13), check.position + Vector2(14, 5),
 				C_INK, 2.0)
+
+	func _pitch_point(pitch: Rect2, u: float, v: float) -> Vector2:
+		var left := lerpf(pitch.position.x + pitch.size.x * 0.08, pitch.position.x, v)
+		var right := lerpf(pitch.end.x - pitch.size.x * 0.08, pitch.end.x, v)
+		return Vector2(lerpf(left, right, u), lerpf(pitch.position.y, pitch.end.y, v))
 
 	func _closed(points: PackedVector2Array) -> PackedVector2Array:
 		var result := PackedVector2Array()
@@ -875,15 +982,15 @@ class RoleTile extends Control:
 		draw_rect(Rect2(Vector2.ZERO, area), fill, true)
 		draw_rect(Rect2(Vector2.ZERO, area), Color(C_INK, 0.16), false, 1.0)
 		var pad := maxf(6.0, area.y * 0.06)
-		draw_string(FONT_HEAD, Vector2(pad, pad + area.y * 0.14), title.to_upper(),
+		draw_string(FONT_HEAD_X, Vector2(pad, pad + area.y * 0.16), title.to_upper(),
 			HORIZONTAL_ALIGNMENT_CENTER, area.x - pad * 2.0,
-			maxi(9, int(area.y * 0.12)), ink)
+			maxi(15, int(area.y * 0.17)), ink)
 		var glyph_center := Vector2(area.x * 0.5, area.y * 0.48)
 		var glyph := minf(area.x, area.y) * 0.16
 		_draw_glyph(glyph_center, glyph, ink2)
-		draw_string(FONT_HEAD, Vector2(pad, area.y - pad * 0.8), player_name.to_upper(),
+		draw_string(FONT_HEAD_X, Vector2(pad, area.y - pad * 0.7), player_name.to_upper(),
 			HORIZONTAL_ALIGNMENT_CENTER, area.x - pad * 2.0,
-			maxi(9, int(area.y * 0.13)), ink)
+			maxi(15, int(area.y * 0.18)), ink)
 
 	func _draw_glyph(center: Vector2, size: float, color: Color) -> void:
 		match index:
@@ -1037,7 +1144,7 @@ func open_plan() -> void:
 		panel["details_open"] = false
 		panel["role_picking"] = false
 		panel["strength_initial"] = -1
-		panel["drawer_open"] = false
+		_collapse_drawer(panel)
 		var hints: UiHintsBar = panel.get("hints", null)
 		if hints != null:
 			hints.set_status("")
@@ -1295,8 +1402,7 @@ func _make_panel(team_id: int) -> Dictionary:
 		"team_id": team_id,
 		"editable": _is_editable(team_id),
 		"control": Control.new(),
-		"tabs": HBoxContainer.new(),
-		"tab_buttons": [],
+		"tabs": UiTabBar.new(),
 		"header": GamePlanHeader.new(),
 		"pitch": GamePlanPitch.new(),
 		"drawer": Control.new(),
@@ -1306,6 +1412,7 @@ func _make_panel(team_id: int) -> Dictionary:
 		"bench_header": Label.new(),
 		"bench_grid": GridContainer.new(),
 		"bench_cards": {},
+		"reserve_rule": ColorRect.new(),
 		"reserve_header": Label.new(),
 		"reserve_grid": GridContainer.new(),
 		"drawer_open": false,
@@ -1348,26 +1455,11 @@ func _make_panel(team_id: int) -> Dictionary:
 	control.mouse_filter = Control.MOUSE_FILTER_PASS
 	_panels_root.add_child(control)
 
-	var tabs: HBoxContainer = panel["tabs"]
-	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
-	tabs.add_theme_constant_override("separation", 4)
+	var tabs: UiTabBar = panel["tabs"]
+	tabs.always_focused = true
+	tabs.setup(TAB_NAMES)
+	tabs.tab_selected.connect(_on_tab_bar_selected.bind(team_id))
 	control.add_child(tabs)
-	var buttons: Array = panel["tab_buttons"]
-	for tab in TAB_NAMES.size():
-		var button := Button.new()
-		button.name = "Tab%d" % tab
-		button.text = String(TAB_NAMES[tab]).to_upper()
-		button.toggle_mode = true
-		button.focus_mode = Control.FOCUS_NONE
-		button.add_theme_font_override("font", FONT_HEAD)
-		button.add_theme_color_override("font_color", C_INK2)
-		button.add_theme_color_override("font_pressed_color", C_INK)
-		button.add_theme_color_override("font_hover_color", C_INK)
-		button.add_theme_color_override("font_hover_pressed_color", C_INK)
-		button.add_theme_color_override("font_focus_color", C_INK)
-		button.pressed.connect(_on_tab_pressed.bind(team_id, tab))
-		tabs.add_child(button)
-		buttons.append(button)
 
 	var header: GamePlanHeader = panel["header"]
 	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1378,6 +1470,7 @@ func _make_panel(team_id: int) -> Dictionary:
 	pitch.team_color = _team_colors.get(team_id, Color(0.3, 0.4, 0.8))
 	pitch.mouse_filter = Control.MOUSE_FILTER_STOP
 	pitch.card_clicked.connect(_on_card_clicked)
+	pitch.card_hovered.connect(_on_card_hovered)
 	control.add_child(pitch)
 
 	var drawer: Control = panel["drawer"]
@@ -1400,8 +1493,7 @@ func _make_panel(team_id: int) -> Dictionary:
 		var header_label: Label = panel[header_key]
 		header_label.add_theme_font_override("font", FONT_BODY)
 		header_label.add_theme_color_override("font_color", C_INK2)
-		header_label.add_theme_font_size_override("font_size", 12)
-		box.add_child(header_label)
+		header_label.add_theme_font_size_override("font_size", 18)
 	for grid_key in ["bench_grid", "reserve_grid"]:
 		var grid: GridContainer = panel[grid_key]
 		grid.columns = 4
@@ -1409,12 +1501,24 @@ func _make_panel(team_id: int) -> Dictionary:
 		grid.add_theme_constant_override("v_separation", 8)
 		grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		grid.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		box.add_child(grid)
+	# Header above its own group: BENCH header, bench row, thin rule,
+	# RESERVE header, reserve row (the reserve label must not float above
+	# the bench).
+	var reserve_rule: ColorRect = panel["reserve_rule"]
+	reserve_rule.color = Color(C_INK, 0.16)
+	reserve_rule.custom_minimum_size = Vector2(0.0, 1.0)
+	reserve_rule.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	reserve_rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(panel["bench_header"])
+	box.add_child(panel["bench_grid"])
+	box.add_child(reserve_rule)
+	box.add_child(panel["reserve_header"])
+	box.add_child(panel["reserve_grid"])
 
 	var scheme_header: Label = panel["scheme_header"]
 	scheme_header.add_theme_font_override("font", FONT_BODY)
 	scheme_header.add_theme_color_override("font_color", C_INK2)
-	scheme_header.add_theme_font_size_override("font_size", 13)
+	scheme_header.add_theme_font_size_override("font_size", 18)
 	scheme_header.text = "FORMATION · 1/2"
 	drawer.add_child(scheme_header)
 	var scheme_grid: GridContainer = panel["scheme_grid"]
@@ -1427,6 +1531,7 @@ func _make_panel(team_id: int) -> Dictionary:
 		var card := SchemeCard.new()
 		card.setup(scheme_index, TacticalSchemes.scheme_name(scheme_index))
 		card.gui_input.connect(_on_scheme_clicked.bind(team_id, scheme_index))
+		card.mouse_entered.connect(_on_scheme_hovered.bind(team_id, scheme_index))
 		scheme_grid.add_child(card)
 		scheme_cards.append(card)
 	var scheme_rail: SchemeRail = panel["scheme_rail"]
@@ -1436,7 +1541,7 @@ func _make_panel(team_id: int) -> Dictionary:
 	var role_header: Label = panel["role_header"]
 	role_header.add_theme_font_override("font", FONT_BODY)
 	role_header.add_theme_color_override("font_color", C_INK2)
-	role_header.add_theme_font_size_override("font_size", 13)
+	role_header.add_theme_font_size_override("font_size", 18)
 	role_header.text = "SET-PIECE TAKERS"
 	drawer.add_child(role_header)
 	var role_grid: Control = panel["role_grid"]
@@ -1447,6 +1552,7 @@ func _make_panel(team_id: int) -> Dictionary:
 		tile.index = row_index
 		tile.title = str(TEAM_ROLE_ROWS[row_index]["name"])
 		tile.gui_input.connect(_on_role_clicked.bind(team_id, row_index))
+		tile.mouse_entered.connect(_on_role_hovered.bind(team_id, row_index))
 		role_grid.add_child(tile)
 		role_tiles.append(tile)
 
@@ -1504,26 +1610,25 @@ func _layout_panel(panel: Dictionary, panel_size: Vector2, u: float) -> void:
 	var crest := _show_crest(panel)
 	var read_only_pitch := not editable and not crest
 
-	var tabs_h := maxf(30.0, 38.0 * u)
-	var header_h := maxf(84.0, 112.0 * u)
+	var tabs_h := UiTokens.TAB_H
+	var header_h := maxf(110.0, 150.0 * u)
 	var hints_h := maxf(44.0, 60.0 * u)
-	var collapsed_h := maxf(84.0, 112.0 * u)
+	var collapsed_h := maxf(104.0, 138.0 * u)
 	var max_opened_h := minf(panel_size.y * 0.62, 460.0 * u)
 	var opened_h := _drawer_content_height(panel, u)
 	var gap := maxf(6.0, 10.0 * u)
 	var tab := int(panel["tab"])
 
-	var tabs: HBoxContainer = panel["tabs"]
+	var tabs: UiTabBar = panel["tabs"]
 	tabs.visible = editable
 	tabs.position = Vector2.ZERO
-	tabs.size = Vector2(panel_size.x, tabs_h)
-	var button_w := panel_size.x / 3.0 - 4.0
-	for button in panel["tab_buttons"]:
-		button.custom_minimum_size = Vector2(button_w, tabs_h)
-		button.add_theme_font_size_override("font_size", maxi(10, int(tabs_h * 0.44)))
+	var tabs_size := Vector2(panel_size.x, tabs_h)
+	if tabs.size != tabs_size:
+		tabs.size = tabs_size
+		tabs.refresh_layout()
 
 	var header: GamePlanHeader = panel["header"]
-	header.visible = editable
+	header.visible = editable and tab == TAB_SQUAD
 	header.position = Vector2(0, tabs_h + gap)
 	header.size = Vector2(panel_size.x, header_h)
 
@@ -1534,12 +1639,8 @@ func _layout_panel(panel: Dictionary, panel_size: Vector2, u: float) -> void:
 
 	var drawer: Control = panel["drawer"]
 	var drawer_h := collapsed_h
-	if tab == TAB_FORMATIONS:
-		drawer_h = maxf(140.0, 196.0 * u)
-		panel["drawer_t"] = 1.0
-	elif tab == TAB_ROLES:
-		drawer_h = maxf(156.0, 208.0 * u)
-		panel["drawer_t"] = 1.0
+	if tab == TAB_FORMATIONS or tab == TAB_ROLES:
+		drawer_h = maxf(TAB_DRAWER_MIN_H, TAB_DRAWER_H * u)
 	else:
 		var open_h := clampf(opened_h, collapsed_h, maxf(collapsed_h, max_opened_h))
 		drawer_h = lerpf(collapsed_h, open_h,
@@ -1559,9 +1660,10 @@ func _layout_panel(panel: Dictionary, panel_size: Vector2, u: float) -> void:
 	var pitch_bottom_pad := collapsed_h
 	if tab == TAB_FORMATIONS or tab == TAB_ROLES:
 		pitch_bottom_pad = drawer_h
+	var header_span := header_h + gap if tab == TAB_SQUAD else 0.0
 	var pitch_rect := Rect2(
-		Vector2(0, tabs_h + gap + header_h + gap),
-		Vector2(panel_size.x, panel_size.y - tabs_h - header_h - gap * 3 - hints_h
+		Vector2(0, tabs_h + gap + header_span),
+		Vector2(panel_size.x, panel_size.y - tabs_h - header_span - gap * 2 - hints_h
 			- pitch_bottom_pad))
 	if read_only_pitch:
 		pitch_rect = Rect2(Vector2.ZERO, panel_size)
@@ -1843,6 +1945,8 @@ func _entry_from_player(player_id: int, slot: int, player: Dictionary, role: Str
 		"tm_id": int(player.get("tm_id", 0)),
 		"slot": slot,
 		"name": _player_display_name(player),
+		"first_name": str(player.get("firstname", player.get("first_name", ""))).strip_edges(),
+		"last_name": str(player.get("lastname", player.get("last_name", ""))).strip_edges(),
 		"role": role,
 		"position": position,
 		"active": active,
@@ -1961,6 +2065,52 @@ func _ensure_cursor_visible(team_id: int) -> void:
 	var scroll: ScrollContainer = panel["bench_scroll"]
 	if scroll != null:
 		scroll.ensure_control_visible(card)
+		# The group label lives inside the scroll box; landing on the first
+		# row must also reveal it, otherwise the header stays scrolled away.
+		var header: Control = _group_header_for(panel, cursor)
+		if header != null and header.visible:
+			scroll.ensure_control_visible(header)
+
+
+func _group_header_for(panel: Dictionary, cursor: int) -> Control:
+	var entries: Array = panel["entries"]
+	if cursor < 0 or cursor >= entries.size():
+		return null
+	var group := str(entries[cursor].get("entry_group", "pitch"))
+	var list: Array = []
+	var header_key := ""
+	if group == "bench":
+		list = panel["bench_entries"]
+		header_key = "bench_header"
+	elif group == "reserve":
+		list = panel["reserve_entries"]
+		header_key = "reserve_header"
+	else:
+		return null
+	var position := list.find(cursor)
+	if position < 0 or position >= 4:
+		return null
+	return panel[header_key]
+
+
+func _collapse_drawer(panel: Dictionary) -> void:
+	var active_tween: Tween = panel.get("drawer_tween", null)
+	if active_tween != null and active_tween.is_valid():
+		active_tween.kill()
+	panel["drawer_t"] = 0.0
+	panel["drawer_open"] = false
+	var scroll: ScrollContainer = panel["bench_scroll"]
+	if scroll != null:
+		scroll.scroll_vertical = 0
+	# The drawer opens whenever the cursor sits on a bench player, so returning
+	# to SQUAD must put the cursor back on the pitch to keep it collapsed.
+	var entries: Array = panel["entries"]
+	var cursor := int(panel["cursor"])
+	if cursor >= 0 and cursor < entries.size() \
+			and not bool(entries[cursor].get("active", false)):
+		var pitch_entries: Array = panel["pitch_entries"]
+		if not pitch_entries.is_empty():
+			panel["cursor"] = int(pitch_entries[0])
 
 
 func _animate_drawer(panel: Dictionary, open: bool) -> void:
@@ -2009,11 +2159,11 @@ func _build_cards(panel: Dictionary, pitch_entries: Array, preview: Dictionary =
 	var entries: Array = panel["entries"]
 	if pitch_rect.size.x <= 2.0 or pitch_rect.size.y <= 2.0:
 		return []
-	var card_w := clampf(pitch_rect.size.x * 0.095, 48.0, 80.0)
-	var photo_h := clampf(card_w * 0.55, 26.0, 40.0)
-	var badge_h := maxf(12.0, card_w * 0.22)
-	var name_h := maxf(12.0, card_w * 0.20)
-	var bar_h := 3.0
+	var card_w := clampf(pitch_rect.size.x * 0.10, 54.0, 86.0)
+	var photo_h := clampf(card_w * 0.58, 30.0, 46.0)
+	var badge_h := maxf(14.0, card_w * 0.24)
+	var name_h := maxf(16.0, card_w * 0.24)
+	var bar_h := clampf(card_w * 0.07, 4.0, 6.0)
 	var gap := 1.0
 	var card_h := photo_h + badge_h + name_h + bar_h + gap * 3.0
 	var cards: Array = []
@@ -2040,7 +2190,7 @@ func _build_cards(panel: Dictionary, pitch_entries: Array, preview: Dictionary =
 		var y := clampf(anchor.y - card_h * 0.5, 0.0, pitch_rect.size.y - card_h)
 		var rect := Rect2(Vector2(x, y), Vector2(card_w, card_h))
 		var photo := Rect2(Vector2(x, y), Vector2(card_w, photo_h))
-		var plate_w := clampf(card_w * 0.68, 34.0, 54.0)
+		var plate_w := clampf(card_w * 0.78, 44.0, 68.0)
 		var role_rect := Rect2(Vector2(x + (card_w - plate_w) * 0.5, y + photo_h + gap),
 			Vector2(plate_w, badge_h))
 		var name_rect := Rect2(Vector2(x, role_rect.end.y + gap), Vector2(card_w, name_h))
@@ -2107,7 +2257,7 @@ func _drawer_content_height(panel: Dictionary, u: float) -> float:
 	if mode != "match":
 		var reserve_rows := int(ceil(float((panel["reserve_entries"] as Array).size()) / 4.0))
 		if reserve_rows > 0:
-			content += 4.0 + header_h + 4.0 + card_h * float(reserve_rows) \
+			content += 5.0 + 4.0 + header_h + 4.0 + card_h * float(reserve_rows) \
 				+ 8.0 * float(reserve_rows - 1)
 	return content
 
@@ -2157,9 +2307,11 @@ func _rebuild_bench(panel: Dictionary) -> void:
 			int(team_data.get("substitutions", 0)) + pending_count,
 			int(team_data.get("max_substitutions", 5)),
 		]
-	bench_header.visible = open
+	bench_header.visible = true
 	reserve_header.text = "RESERVE · %d" % reserve_entries.size()
 	reserve_header.visible = open and mode != "match" and not reserve_entries.is_empty()
+	var reserve_rule: Control = panel["reserve_rule"]
+	reserve_rule.visible = reserve_header.visible
 
 	var card_h := clampf(size.y * 0.086, 64.0, 94.0)
 	var header_h := maxf(18.0, size.y * 0.020)
@@ -2174,13 +2326,14 @@ func _rebuild_bench(panel: Dictionary) -> void:
 		card.setup(entry, index, bool(panel["editable"]))
 		card.set_state(cursor == index, held == index)
 		card.activated.connect(_on_entry_pressed.bind(team_id, index))
+		card.mouse_entered.connect(_on_entry_hovered.bind(team_id, index))
 		bench_grid.add_child(card)
 		(panel["bench_cards"] as Dictionary)[index] = card
 		var col := row % 4
 		var grid_row := row / 4
 		points[index] = drawer_rect.position + Vector2(
 			drawer_rect.size.x * 0.125 + drawer_rect.size.x * 0.25 * col,
-			(header_h if open else 0.0) + card_h * float(grid_row) + card_h * 0.5)
+			header_h + card_h * float(grid_row) + card_h * 0.5)
 	if open and mode != "match":
 		for row in reserve_entries.size():
 			var index := int(reserve_entries[row])
@@ -2190,6 +2343,7 @@ func _rebuild_bench(panel: Dictionary) -> void:
 			card.setup(entry, index, bool(panel["editable"]))
 			card.set_state(cursor == index, held == index)
 			card.activated.connect(_on_entry_pressed.bind(team_id, index))
+			card.mouse_entered.connect(_on_entry_hovered.bind(team_id, index))
 			reserve_grid.add_child(card)
 			(panel["bench_cards"] as Dictionary)[index] = card
 			var col := row % 4
@@ -2292,28 +2446,13 @@ func _pending_for_team(team_id: int) -> Array:
 
 
 func _refresh_tabs(panel: Dictionary) -> void:
-	var tab := int(panel["tab"])
-	for index in (panel["tab_buttons"] as Array).size():
-		var button: Button = (panel["tab_buttons"] as Array)[index]
-		var active := index == tab
-		button.set_pressed_no_signal(active)
-		button.add_theme_stylebox_override("normal", _tab_style(false))
-		button.add_theme_stylebox_override("hover", _tab_style(active))
-		button.add_theme_stylebox_override("hover_pressed", _tab_style(true))
-		button.add_theme_stylebox_override("pressed", _tab_style(true))
-		button.add_theme_stylebox_override("focus", _tab_style(active))
+	var tabs: UiTabBar = panel["tabs"]
+	if tabs != null:
+		tabs.select_tab(int(panel["tab"]), false)
 
 
-func _tab_style(active: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = C_TILE if active else Color(C_TILE.r, C_TILE.g, C_TILE.b, 0.55)
-	style.border_width_bottom = 4 if active else 0
-	style.border_color = C_RAIL
-	style.content_margin_left = 16.0
-	style.content_margin_right = 16.0
-	style.content_margin_top = 0.0
-	style.content_margin_bottom = 0.0
-	return style
+func _on_tab_bar_selected(tab: int, team_id: int) -> void:
+	_on_tab_pressed(team_id, tab)
 
 
 func _refresh_hints(panel: Dictionary) -> void:
@@ -2503,6 +2642,8 @@ func _set_section(panel: Dictionary, section: int) -> void:
 			panel["tab"] = TAB_SQUAD
 	panel["held"] = -1
 	panel["role_picking"] = false
+	if int(panel["tab"]) == TAB_SQUAD:
+		_collapse_drawer(panel)
 	_refresh_panel(panel)
 	_layout()
 
@@ -2522,6 +2663,8 @@ func _switch_tab(panel_index: int, delta: int) -> bool:
 		panel["scheme_cursor"] = committed if committed >= 0 else 0
 	elif next == TAB_ROLES:
 		panel["role_cursor"] = clampi(int(panel["role_cursor"]), 0, TEAM_ROLE_ROWS.size() - 1)
+	else:
+		_collapse_drawer(panel)
 	_refresh_panel(panel)
 	_layout()
 	return true
@@ -2554,6 +2697,8 @@ func _on_tab_pressed(team_id: int, tab: int) -> void:
 	if tab == TAB_FORMATIONS:
 		var committed := _detect_committed_scheme(panel)
 		panel["scheme_cursor"] = committed if committed >= 0 else 0
+	elif tab == TAB_SQUAD:
+		_collapse_drawer(panel)
 	_refresh_panel(panel)
 	_layout()
 
@@ -2610,6 +2755,57 @@ func _on_role_clicked(event: InputEvent, team_id: int, row_index: int) -> void:
 		return
 	panel["role_cursor"] = row_index
 	_start_role_picking(panel)
+
+
+func _on_card_hovered(panel_index: int, entry_index: int) -> void:
+	_hover_entry(panel_index, entry_index)
+
+
+func _on_entry_hovered(team_id: int, entry_index: int) -> void:
+	_hover_entry(_panel_index_for_team(team_id), entry_index)
+
+
+func _hover_entry(panel_index: int, entry_index: int) -> void:
+	if panel_index < 0 or panel_index >= _panels.size():
+		return
+	var panel: Dictionary = _panels[panel_index]
+	if not bool(panel["editable"]) or bool(panel["ready"]) or bool(panel["details_open"]):
+		return
+	var tab := int(panel["tab"])
+	if tab != TAB_SQUAD and not (tab == TAB_ROLES and bool(panel["role_picking"])):
+		return
+	if int(panel["cursor"]) == entry_index:
+		return
+	panel["cursor"] = entry_index
+	_refresh_panel(panel)
+	_layout()
+
+
+func _on_scheme_hovered(team_id: int, scheme_index: int) -> void:
+	var panel_index := _panel_index_for_team(team_id)
+	if panel_index < 0:
+		return
+	var panel: Dictionary = _panels[panel_index]
+	if not bool(panel["editable"]) or bool(panel["ready"]) or bool(panel["details_open"]):
+		return
+	if int(panel["tab"]) != TAB_FORMATIONS or int(panel["scheme_cursor"]) == scheme_index:
+		return
+	panel["scheme_cursor"] = scheme_index
+	_refresh_panel(panel)
+
+
+func _on_role_hovered(team_id: int, row_index: int) -> void:
+	var panel_index := _panel_index_for_team(team_id)
+	if panel_index < 0:
+		return
+	var panel: Dictionary = _panels[panel_index]
+	if not bool(panel["editable"]) or bool(panel["ready"]) or bool(panel["details_open"]):
+		return
+	if int(panel["tab"]) != TAB_ROLES or bool(panel["role_picking"]) \
+			or int(panel["role_cursor"]) == row_index:
+		return
+	panel["role_cursor"] = row_index
+	_refresh_panel(panel)
 
 
 func _press_entry(panel_index: int, entry_index: int) -> void:
@@ -3204,6 +3400,20 @@ func _player_display_name(player: Dictionary) -> String:
 		return full
 	var first := str(player.get("firstname", "")).strip_edges()
 	return first if not first.is_empty() else "?"
+
+
+static func _full_player_name(data: Dictionary) -> String:
+	var first := str(data.get("first_name", data.get("firstname", ""))).strip_edges()
+	var last := str(data.get("last_name", data.get("lastname", ""))).strip_edges()
+	if last.is_empty():
+		last = str(data.get("name", "")).strip_edges()
+	if first.is_empty():
+		return last
+	if last.is_empty():
+		return first
+	if first.to_lower() == last.to_lower():
+		return last
+	return "%s %s" % [first, last]
 
 
 func _short_name(value: String) -> String:

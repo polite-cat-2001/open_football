@@ -19,6 +19,9 @@ var _focused_marker: StyleBoxFlat
 var _active := 0
 var _bar_focused := false
 var _marker_tween: Tween
+# Screens that never hand keyboard focus to the tabs (the game plan) still
+# want the focused look, so they can pin it on.
+var always_focused := false
 
 
 func setup(labels: Array[String]) -> void:
@@ -123,15 +126,16 @@ func _layout_tabs() -> void:
 
 
 func _update_colors() -> void:
+	var focused := _bar_focused or always_focused
 	for i in _buttons.size():
 		var color := UiTokens.TAB_INACTIVE
 		if i == _active:
-			color = UiTokens.FOCUS_MARK if _bar_focused else UiTokens.INK
+			color = UiTokens.FOCUS_MARK if focused else UiTokens.INK
 		for item in [&"font_color", &"font_hover_color", &"font_pressed_color",
 				&"font_focus_color", &"font_disabled_color"]:
 			_buttons[i].add_theme_color_override(item, color)
 	_marker.add_theme_stylebox_override(
-		&"panel", _focused_marker if _bar_focused else _normal_marker
+		&"panel", _focused_marker if focused else _normal_marker
 	)
 
 

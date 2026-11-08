@@ -18,6 +18,13 @@ const COMMAND_OPTIONS := 2
 const COMMAND_EXIT := 3
 const COMMAND_COUNT := 4
 
+# Same feel as the shell screen transition (UiTransition): 150 ms out,
+# 240 ms in, 0.96 scale. Headless applies the end state immediately so the
+# existing synchronous tests keep working.
+const TRANSITION_OUT := 0.15
+const TRANSITION_IN := 0.24
+const TRANSITION_SCALE_FROM := 0.96
+
 @onready var panel_wrap: Control = $Design/PanelWrap
 @onready var hub_top: Control = $Design/PanelWrap/HubTop
 @onready var home_lineup: HubLineupColumn = $Design/PanelWrap/HubTop/HomeLineup
@@ -40,6 +47,7 @@ var _mode := "hub"
 var _command_index := COMMAND_START
 var _commands: Array = []
 var _back_label := "back"
+var _transitioning := false
 
 
 func _ready() -> void:
@@ -106,18 +114,19 @@ func setup_game_plan(home_lineup_model: MatchLineup, away_lineup_model: MatchLin
 
 
 func open_game_plan() -> void:
-	if game_plan == null:
+	if game_plan == null or _mode == "game_plan":
 		return
 	_mode = "game_plan"
-	overlay.visible = true
+	_transitioning = true
 	options_overlay.visible = false
-	game_plan_host.visible = true
-	# The half-panel plan replaces the hub chrome; only the stage background
-	# stays behind it (matches the reference screen).
-	hub_top.visible = false
-	command.visible = false
-	hints.visible = false
-	game_plan.open_plan()
+	if _animations_instant():
+		_show_game_plan_overlay()
+		_transitioning = false
+		return
+	await _animate_out(panel_wrap)
+	_show_game_plan_overlay()
+	await _animate_in(game_plan_host)
+	_transitioning = false
 
 
 func is_game_plan_open() -> bool:
@@ -125,6 +134,8 @@ func is_game_plan_open() -> bool:
 
 
 func open_options() -> void:
+	if _transitioning or _mode == "game_plan":
+		return
 	_mode = "options"
 	overlay.visible = true
 	options_overlay.visible = true
@@ -244,7 +255,7 @@ func _refresh_command_focus(focus: bool) -> void:
 
 
 func _activate_command(index: int) -> void:
-	if not _command_enabled(index):
+	if _transitioning or not _command_enabled(index):
 		return
 	_command_index = index
 	_refresh_command_focus(true)
@@ -271,6 +282,9 @@ func _on_command_selected(index: int) -> void:
 
 
 func _close_overlay() -> void:
+	if _mode == "game_plan":
+		_close_game_plan()
+		return
 	_mode = "hub"
 	overlay.visible = false
 	options_overlay.visible = false
@@ -285,16 +299,75 @@ func _close_overlay() -> void:
 
 
 func _close_game_plan() -> void:
+	if _mode != "game_plan" or _transitioning:
+		return
 	_mode = "hub"
+	_transitioning = true
+	if _animations_instant():
+		_hide_game_plan_overlay()
+		_set_command_index(COMMAND_MANAGE, true)
+		_transitioning = false
+		return
+	await _animate_out(game_plan_host)
+	_hide_game_plan_overlay()
+	await _animate_in(panel_wrap)
+	_set_command_index(COMMAND_MANAGE, true)
+	_transitioning = false
+
+
+func _show_game_plan_overlay() -> void:
+	# The half-panel plan replaces the hub chrome; only the stage background
+	# stays behind it (matches the reference screen). Start hidden so the
+	# first visible frame is already part of the fade-in (no one-frame flash).
+	panel_wrap.visible = false
+	overlay.visible = true
+	if _animations_instant():
+		game_plan_host.modulate.a = 1.0
+		game_plan_host.scale = Vector2.ONE
+	else:
+		game_plan_host.pivot_offset = game_plan_host.size * 0.5
+		game_plan_host.modulate.a = 0.0
+		game_plan_host.scale = Vector2.ONE * TRANSITION_SCALE_FROM
+	game_plan_host.visible = true
+	game_plan.open_plan()
+
+
+func _hide_game_plan_overlay() -> void:
 	overlay.visible = false
 	game_plan_host.visible = false
-	hub_top.visible = true
-	command.visible = true
-	hints.visible = true
+	game_plan_host.modulate.a = 1.0
+	game_plan_host.scale = Vector2.ONE
 	if game_plan != null:
 		game_plan.close_plan()
+	panel_wrap.visible = true
 	refresh_legend()
-	_set_command_index(COMMAND_MANAGE, true)
+	_refresh_command_focus(true)
+
+
+func _animations_instant() -> bool:
+	return DisplayServer.get_name() == "headless"
+
+
+func _animate_out(target: Control) -> void:
+	target.pivot_offset = target.size * 0.5
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(target, "modulate:a", 0.0, TRANSITION_OUT) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(target, "scale", Vector2.ONE * TRANSITION_SCALE_FROM,
+		TRANSITION_OUT).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await tween.finished
+
+
+func _animate_in(target: Control) -> void:
+	target.pivot_offset = target.size * 0.5
+	target.modulate.a = 0.0
+	target.scale = Vector2.ONE * TRANSITION_SCALE_FROM
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(target, "modulate:a", 1.0, TRANSITION_IN) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(target, "scale", Vector2.ONE, TRANSITION_IN) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	await tween.finished
 
 
 func _on_game_plan_changed() -> void:
@@ -345,7 +418,7 @@ func _layout() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if _mode != "game_plan" or game_plan == null:
+	if _transitioning or _mode != "game_plan" or game_plan == null:
 		return
 	var handled := false
 	var device := -1
@@ -368,6 +441,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _on_nav_moved(direction: Vector2i) -> void:
+	if _transitioning:
+		return
 	if _ui_nav != null and _ui_nav.event_was_modal():
 		return
 	if _ui_nav != null and _ui_nav.last_input_gamepad():
@@ -376,6 +451,8 @@ func _on_nav_moved(direction: Vector2i) -> void:
 
 
 func _on_nav_gamepad_moved(direction: Vector2i, device: int) -> void:
+	if _transitioning:
+		return
 	if _ui_nav != null and _ui_nav.event_was_modal():
 		return
 	_handle_move(direction, {"kind": "gamepad", "device": device}, device)
@@ -403,6 +480,8 @@ func _handle_move(direction: Vector2i, _input: Dictionary, device: int) -> void:
 
 
 func _on_nav_confirmed() -> void:
+	if _transitioning:
+		return
 	if _ui_nav != null and _ui_nav.event_was_modal():
 		return
 	match _mode:
@@ -416,6 +495,8 @@ func _on_nav_confirmed() -> void:
 
 
 func _on_nav_cancelled() -> void:
+	if _transitioning:
+		return
 	if _ui_nav != null and _ui_nav.event_was_modal():
 		return
 	match _mode:
@@ -430,6 +511,8 @@ func _on_nav_cancelled() -> void:
 
 
 func _on_nav_tab(delta: int) -> void:
+	if _transitioning:
+		return
 	if _ui_nav != null and _ui_nav.event_was_modal():
 		return
 	match _mode:

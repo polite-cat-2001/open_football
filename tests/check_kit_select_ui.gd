@@ -73,10 +73,23 @@ func _run() -> void:
 	_check(bool(sides[0].get("live", false)), "1P starts on the home side")
 	_check(not bool(sides[1].get("live", false)), "the away side is idle until home is ready")
 	_check(int(sides[0].get("kit_index", -1)) == 0, "home defaults to the main kit")
+	var clash_kits := [
+		{"id": "main", "shirt": "#cc0000", "shorts": "#cc0000"},
+		{"id": "white", "shirt": "#ffffff", "shorts": "#ffffff"},
+		{"id": "black", "shirt": "#000000", "shorts": "#000000"},
+	]
+	_check(catalog.default_away_index(clash_kits, {"shirt": "#cc0000", "shorts": "#cc0000"}) != 0,
+		"away leaves its home kit when it clashes with the home side")
+	var contrast_kits := [
+		{"id": "main", "shirt": "#ffff00", "shorts": "#ffff00"},
+		{"id": "white", "shirt": "#ffffff", "shorts": "#ffffff"},
+	]
+	_check(catalog.default_away_index(contrast_kits, {"shirt": "#cc0000", "shorts": "#cc0000"}) == 0,
+		"away keeps its home kit when it contrasts with the home side")
 	var expected_away_index := catalog.default_away_index(sides[1].get("kits", []), sides[0].get("kit", {}))
 	var expected_away_id := str((sides[1].get("kits", []) as Array)[expected_away_index].get("id", ""))
 	_check(int(sides[1].get("kit_index", -1)) == expected_away_index,
-		"away defaults to the most contrasting kit")
+		"away defaults follow the contrast rule")
 	_check(str(sides[0].get("kit", {}).get("label", "")) == "HOME",
 		"the main kit is labelled HOME")
 	var home_panel: KitPanel = view.get_node("Design/PanelWrap/Kits/HomePanel")

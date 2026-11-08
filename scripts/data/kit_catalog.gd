@@ -101,8 +101,9 @@ func default_away_kit(team: Dictionary, opponent_kit: Dictionary) -> Dictionary:
 func default_away_index(kits: Array, opponent_kit: Dictionary) -> int:
 	if kits.is_empty():
 		return 0
+	var main_index := kit_index(kits, "main")
 	if opponent_kit.is_empty():
-		return kit_index(kits, "white") if kit_index(kits, "white") >= 0 else 0
+		return main_index if main_index >= 0 else 0
 	var scores: Array[float] = []
 	var best := -1.0
 	var best_index := 0
@@ -112,12 +113,10 @@ func default_away_index(kits: Array, opponent_kit: Dictionary) -> int:
 		if score > best:
 			best = score
 			best_index = index
-	# Prefer the away/main shirt when it is close to the maximum contrast; only
-	# fall through to a third/fourth strip when it is clearly more distinct.
-	for id in ["white", "main"]:
-		var index := kit_index(kits, id)
-		if index >= 0 and scores[index] >= best * 0.72:
-			return index
+	# Keep the away team's home (main) shirt when it is distinct enough from
+	# the home side; only fall back to the most contrasting strip otherwise.
+	if main_index >= 0 and scores[main_index] >= best * 0.72:
+		return main_index
 	return best_index
 
 
