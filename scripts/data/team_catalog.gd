@@ -21,11 +21,24 @@ const SQUAD_PLAYER_COLUMNS := [
 	"skincolor", "hairstyle", "haircolor", "height", "strong_foot",
 ]
 const COUNTRY_COLUMNS := ["id", "name"]
-const LEAGUE_COLUMNS := ["id", "legacy_id", "name", "country_id", "tier", "logo_url"]
-const TEAM_COLUMNS := [
-	"id", "league_id", "name", "shortname", "color1", "color2",
-	"logo_url", "kit_url",
+const LEAGUE_COLUMNS := [
+	"id", "legacy_id", "name", "country_id", "tier", "tier_rank", "tier_name",
+	"logo_url",
 ]
+const TEAM_COLUMNS := [
+	"id", "league_id", "country_id", "name", "shortname", "color1", "color2",
+	"colors", "logo_url", "career_logo", "kit_url", "stadium_name", "stadium_seats",
+	"founded_on",
+]
+const CAREER_PLAYER_COLUMNS := [
+	"id", "team_id", "name", "firstname", "lastname", "birth_date", "age", "role",
+	"career_role", "position", "position_other", "height", "height_cm", "foot", "weak_foot",
+	"skill_moves", "citizenship", "shirt_number", "market_value", "overall", "pot",
+]
+const CAREER_ROLE_ORDER := {
+	"GK": 0, "CB": 1, "LB": 2, "RB": 3, "DM": 4, "CM": 5,
+	"LM": 6, "RM": 7, "AM": 8, "CF": 9,
+}
 
 var error := ""
 
@@ -129,7 +142,11 @@ func countries() -> Array:
 			with_leagues[country_id] = true
 	for row in country_rows:
 		var id := _int(row.get("id"))
-		var entry := {"id": id, "name": _text(row.get("name")), "tm_id": str(id)}
+		var entry := {
+			"id": id,
+			"name": _text(row.get("name")),
+			"tm_id": str(id),
+		}
 		_country_rows[id] = entry
 		if with_leagues.has(id):
 			_countries.append(entry)
@@ -204,6 +221,80 @@ func teams_for_league(league_id: String) -> Array:
 	result.sort_custom(_compare_teams)
 	_teams_by_league[league_id] = result
 	return result
+
+
+func all_teams_for_league(league_id: String) -> Array:
+	# Career schedules need every club, including one that is temporarily
+	# unable to field eleven players (the match picker filters those out).
+	var reader := _require_reader("teams")
+	if reader == null:
+		return []
+	var rows := reader.select_indexed("teams", "league_id", league_id,
+		PackedStringArray(TEAM_COLUMNS))
+	if not _query_ok("teams"):
+		return []
+	var result: Array = []
+	for row in rows:
+		var team := _team_from_row(row)
+		_team_rows[int(team["id"])] = team
+		result.append(team)
+	result.sort_custom(_compare_teams)
+	return result
+
+
+func career_squad(team_id: int) -> Array:
+	var reader := _require_reader("players")
+	if reader == null:
+		return []
+	var rows := reader.select_indexed("players", "team_id", team_id,
+		PackedStringArray(CAREER_PLAYER_COLUMNS))
+	if not _query_ok("players"):
+		return []
+	var players: Array = []
+	for row in rows:
+		players.append(_career_player_from_row(row))
+	players.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var role_a := int(CAREER_ROLE_ORDER.get(str(a.get("role", "")), 99))
+		var role_b := int(CAREER_ROLE_ORDER.get(str(b.get("role", "")), 99))
+		if role_a != role_b:
+			return role_a < role_b
+		if not is_equal_approx(float(a.get("overall", 0.0)),
+				float(b.get("overall", 0.0))):
+			return float(a.get("overall", 0.0)) > float(b.get("overall", 0.0))
+		if str(a.get("name", "")) != str(b.get("name", "")):
+			return str(a.get("name", "")) < str(b.get("name", ""))
+		return int(a.get("id", 0)) < int(b.get("id", 0)))
+	return players
+
+
+func career_club(team_id: int) -> Dictionary:
+	var team := team_by_id(team_id)
+	if team.is_empty():
+		return {}
+	var league := league_by_id(str(team.get("league_id", "")))
+	var country := country_by_id(int(team.get("country_id", 0)))
+	return {
+		"id": str(team.get("id", "")),
+		"tm_id": str(team.get("id", "")),
+		"color1": str(team.get("color1", "")),
+		"color2": str(team.get("color2", "")),
+		"name": str(team.get("name", "")),
+		"league_id": str(team.get("league_id", "")),
+		"league_name": str(league.get("name", "")),
+		"tier": int(league.get("tier", 0)),
+		"tier_rank": int(league.get("tier_rank", 0)),
+		"tier_name": str(league.get("tier_name", "")),
+		"country_id": str(team.get("country_id", "")),
+		"country_name": str(country.get("name", "")),
+		"logo": str(team.get("logo_url", "")),
+		"career_logo": str(team.get("career_logo", "")),
+		"colors": _json_array(team.get("colors")),
+		"stadium": {
+			"name": str(team.get("stadium_name", "")),
+			"seats": int(team.get("stadium_seats", 0)),
+		},
+		"founded_on": str(team.get("founded_on", "")),
+	}
 
 
 func country_by_id(country_id: int) -> Dictionary:
@@ -425,6 +516,34 @@ func _player_from_row(row: Dictionary, order_column: String) -> Dictionary:
 	}
 
 
+func _career_player_from_row(row: Dictionary) -> Dictionary:
+	var first_name := _text(row.get("firstname"))
+	var last_name := _text(row.get("lastname"))
+	return {
+		"id": str(_int(row.get("id"))),
+		"team_id": str(_int(row.get("team_id"))),
+		"firstname": first_name,
+		"lastname": last_name,
+		"name": _text(row.get("name")),
+		"birth_date": _text(row.get("birth_date")),
+		"age": _int(row.get("age")),
+		"role": _text(row.get("career_role")) if not _text(
+			row.get("career_role")).is_empty() else _text(row.get("role")),
+		"position": _text(row.get("position")),
+		"position_other": _json_array(row.get("position_other")),
+		"height": _int(row.get("height_cm")) if _int(row.get("height_cm")) > 0 \
+			else int(round(_float(row.get("height"), 1.8) * 100.0)),
+		"foot": _text(row.get("foot")),
+		"weak_foot": _int(row.get("weak_foot")),
+		"skill_moves": _int(row.get("skill_moves")),
+		"citizenship": _json_array(row.get("citizenship")),
+		"shirt_number": _int(row.get("shirt_number"), -1),
+		"market_value": _int(row.get("market_value")),
+		"overall": _float(row.get("overall")),
+		"pot": _float(row.get("pot")),
+	}
+
+
 func _league_from_row(row: Dictionary) -> Dictionary:
 	var country_id := _int(row.get("country_id"))
 	return {
@@ -434,6 +553,8 @@ func _league_from_row(row: Dictionary) -> Dictionary:
 		"country_id": country_id,
 		"country": _text(_country_rows.get(country_id, {}).get("name", "")),
 		"tier": _int(row.get("tier")),
+		"tier_rank": _int(row.get("tier_rank")),
+		"tier_name": _text(row.get("tier_name")),
 		"logo_url": _text(row.get("logo_url")),
 	}
 
@@ -442,12 +563,18 @@ func _team_from_row(row: Dictionary) -> Dictionary:
 	return {
 		"id": _int(row.get("id")),
 		"league_id": _text(row.get("league_id")),
+		"country_id": _int(row.get("country_id")),
 		"name": _text(row.get("name")),
 		"shortname": _text(row.get("shortname")),
 		"color1": _text(row.get("color1")),
 		"color2": _text(row.get("color2")),
+		"colors": _json_array(row.get("colors")),
 		"logo_url": _text(row.get("logo_url")),
+		"career_logo": _text(row.get("career_logo")),
 		"kit_url": _text(row.get("kit_url")),
+		"stadium_name": _text(row.get("stadium_name")),
+		"stadium_seats": _int(row.get("stadium_seats")),
+		"founded_on": _text(row.get("founded_on")),
 		"tm_id": str(_int(row.get("id"))),
 	}
 
@@ -501,6 +628,15 @@ func _float(value, fallback: float = 0.0) -> float:
 	if value == null:
 		return fallback
 	return float(value)
+
+
+func _json_array(value) -> Array:
+	if value is Array:
+		return value
+	if not (value is String) or String(value).is_empty():
+		return []
+	var parsed = JSON.parse_string(value)
+	return parsed if parsed is Array else []
 
 
 func _load_eligibility(root: String) -> void:

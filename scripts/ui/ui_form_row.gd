@@ -8,6 +8,7 @@ extends Button
 @export var field_value := ""
 @export var field_hint := ""
 @export var field_error := ""
+@export var opaque := false
 
 var _bg: Panel
 var _rail: ColorRect
@@ -116,7 +117,7 @@ func _build() -> void:
 
 func _init_boxes() -> void:
 	_normal_box = StyleBoxFlat.new()
-	_normal_box.bg_color = UiTokens.FORM_ROW
+	_normal_box.bg_color = UiTokens.TILE if opaque else UiTokens.FORM_ROW
 	_normal_box.border_color = UiTokens.FORM_ROW_BORDER
 	_normal_box.set_border_width_all(1)
 	_normal_box.anti_aliasing = true

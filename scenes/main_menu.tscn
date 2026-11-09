@@ -51,7 +51,7 @@ offset_bottom = 626.0
 script = ExtResource("tile")
 title = "QUICK MATCH"
 subtitle = "One player, two players, or AI vs AI"
-meta = "1 PLAYER В· 2 PLAYERS В· AI"
+meta = "1 PLAYER · 2 PLAYERS · AI"
 glyph_name = "play"
 hero = true
 
@@ -62,10 +62,10 @@ offset_right = 1480.0
 offset_bottom = 308.0
 script = ExtResource("tile")
 title = "CONTINUE CAREER"
-subtitle = "Return to your last save"
+subtitle = "Create a new career first"
+meta = "NO SAVES"
 glyph_name = "trophy"
 wide = true
-chip = "SOON"
 disabled = true
 
 [node name="CareerTile" type="Button" parent="Design/PanelWrap/PlayGrid"]
@@ -78,8 +78,6 @@ script = ExtResource("tile")
 title = "CAREER"
 subtitle = "New, continue, load"
 glyph_name = "shirt"
-chip = "SOON"
-disabled = true
 
 [node name="NetworkTile" type="Button" parent="Design/PanelWrap/PlayGrid"]
 layout_mode = 0

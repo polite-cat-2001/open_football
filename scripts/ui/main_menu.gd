@@ -5,6 +5,8 @@ extends UiScreen
 
 const CONTROLLER_SCENE := "res://scenes/controller_select.tscn"
 const NETWORK_SCENE := "res://scenes/network_menu.tscn"
+const CAREER_START_SCENE := "res://scenes/career_start.tscn"
+const CAREER_HUB_SCENE := "res://scenes/career_hub.tscn"
 
 const PLAY_TAB := 0
 const SETTINGS_TAB := 1
@@ -39,6 +41,9 @@ var _zone := Zone.GRID
 var _panel_open := false
 var _panel_opener: BentoTile
 var _last_tab := PLAY_TAB
+var _latest_career: Career
+var _career_store: CareerSaveStore
+var _career_catalog: TeamCatalog
 
 
 func _ready() -> void:
@@ -46,6 +51,7 @@ func _ready() -> void:
 	panel_wrap.add_to_group(&"ui_transition_target")
 	theme = UiTheme.load_or_build()
 
+	_refresh_career()
 	_setup_grids()
 	tab_bar.setup(["PLAY", "SETTINGS"])
 	tab_bar.tab_selected.connect(_on_tab_selected)
@@ -61,6 +67,8 @@ func _ready() -> void:
 
 	quick_tile.pressed.connect(_open_scene.bind(CONTROLLER_SCENE))
 	network_tile.pressed.connect(_open_scene.bind(NETWORK_SCENE))
+	career_tile.pressed.connect(_open_scene.bind(CAREER_START_SCENE))
+	continue_tile.pressed.connect(_continue_career)
 	for tile in [gameplay_tile, controls_tile, graphics_tile, audio_tile]:
 		tile.pressed.connect(_open_settings_panel.bind(tile))
 	for tile in [quick_tile, continue_tile, career_tile, network_tile,
@@ -179,15 +187,26 @@ func _update_focus_chain() -> void:
 	tab_settings.focus_neighbor_left = tab_settings.get_path_to(tab_play)
 
 	if tab_bar.get_active_tab() == PLAY_TAB:
+		var after_quick := career_tile if continue_tile.disabled else continue_tile
+		var after_career := continue_tile if not continue_tile.disabled else quick_tile
 		tab_settings.focus_next = tab_settings.get_path_to(quick_tile)
 		tab_play.focus_neighbor_bottom = tab_play.get_path_to(quick_tile)
 		tab_settings.focus_neighbor_bottom = tab_settings.get_path_to(quick_tile)
-		quick_tile.focus_next = quick_tile.get_path_to(network_tile)
-		quick_tile.focus_neighbor_right = quick_tile.get_path_to(network_tile)
+		quick_tile.focus_next = quick_tile.get_path_to(after_quick)
+		quick_tile.focus_neighbor_right = quick_tile.get_path_to(after_quick)
+		quick_tile.focus_neighbor_bottom = quick_tile.get_path_to(after_quick)
 		quick_tile.focus_neighbor_top = quick_tile.get_path_to(tab_play)
+		continue_tile.focus_next = continue_tile.get_path_to(career_tile)
+		continue_tile.focus_neighbor_left = continue_tile.get_path_to(quick_tile)
+		continue_tile.focus_neighbor_bottom = continue_tile.get_path_to(career_tile)
+		continue_tile.focus_neighbor_top = continue_tile.get_path_to(tab_play)
+		career_tile.focus_next = career_tile.get_path_to(network_tile)
+		career_tile.focus_neighbor_left = career_tile.get_path_to(quick_tile)
+		career_tile.focus_neighbor_right = career_tile.get_path_to(network_tile)
+		career_tile.focus_neighbor_top = career_tile.get_path_to(after_career)
 		network_tile.focus_next = network_tile.get_path_to(tab_play)
-		network_tile.focus_neighbor_left = network_tile.get_path_to(quick_tile)
-		network_tile.focus_neighbor_top = network_tile.get_path_to(tab_play)
+		network_tile.focus_neighbor_left = network_tile.get_path_to(career_tile)
+		network_tile.focus_neighbor_top = network_tile.get_path_to(after_career)
 	else:
 		tab_settings.focus_next = tab_settings.get_path_to(gameplay_tile)
 		tab_play.focus_neighbor_bottom = tab_play.get_path_to(gameplay_tile)
@@ -235,14 +254,32 @@ func _focus_active_tab() -> void:
 func _move_in_grid(direction: Vector2i) -> void:
 	var focus := get_viewport().gui_get_focus_owner()
 	if tab_bar.get_active_tab() == PLAY_TAB:
+		var after_quick := career_tile if continue_tile.disabled else continue_tile
+		var after_career := continue_tile if not continue_tile.disabled else quick_tile
 		if focus == quick_tile:
 			if direction == Vector2i.UP:
 				_focus_active_tab()
 			elif direction == Vector2i.RIGHT or direction == Vector2i.DOWN:
-				network_tile.grab_focus()
-		elif focus == network_tile:
-			if direction == Vector2i.UP or direction == Vector2i.LEFT:
+				after_quick.grab_focus()
+		elif focus == continue_tile:
+			if direction == Vector2i.LEFT:
 				quick_tile.grab_focus()
+			elif direction == Vector2i.DOWN:
+				career_tile.grab_focus()
+			elif direction == Vector2i.UP:
+				_focus_active_tab()
+		elif focus == career_tile:
+			if direction == Vector2i.LEFT:
+				quick_tile.grab_focus()
+			elif direction == Vector2i.RIGHT:
+				network_tile.grab_focus()
+			elif direction == Vector2i.UP:
+				after_career.grab_focus()
+		elif focus == network_tile:
+			if direction == Vector2i.LEFT:
+				career_tile.grab_focus()
+			elif direction == Vector2i.UP:
+				after_career.grab_focus()
 		else:
 			quick_tile.grab_focus()
 	else:
@@ -329,6 +366,66 @@ func _on_bar_focused() -> void:
 
 func _on_tile_focused() -> void:
 	_zone = Zone.GRID
+
+
+func _refresh_career() -> void:
+	_career_store = CareerSaveStore.new()
+	_career_catalog = null
+	_latest_career = null
+	var entries := _career_store.scan()
+	if entries.is_empty() and _career_store.last_error.is_empty():
+		continue_tile.set_copy("CONTINUE CAREER", "Create a new career first", "NO SAVES")
+		continue_tile.set_art(null)
+		continue_tile.set_enabled(false)
+		return
+	if entries.is_empty():
+		continue_tile.set_copy("CONTINUE CAREER", "Save folder is unavailable", "ERROR")
+		continue_tile.set_art(null)
+		continue_tile.set_enabled(false)
+		return
+	_career_catalog = TeamCatalog.new()
+	if not _career_catalog.load_data_root():
+		continue_tile.set_copy("CONTINUE CAREER", "Career database is unavailable", "ERROR")
+		continue_tile.set_art(null)
+		continue_tile.set_enabled(false)
+		return
+	var club := {}
+	for entry in entries:
+		var career = entry.get("career")
+		if career == null:
+			continue
+		var candidate := _career_catalog.career_club(int(career.club_id))
+		if not candidate.is_empty():
+			_latest_career = career
+			club = candidate
+			break
+	if _latest_career == null:
+		continue_tile.set_copy("CONTINUE CAREER", "No compatible saves", "CHECK LOAD")
+		continue_tile.set_art(null)
+		continue_tile.set_enabled(false)
+		return
+	var team := _career_catalog.team_by_id(int(_latest_career.club_id))
+	continue_tile.set_copy(
+		"CONTINUE CAREER",
+		"%s · %s" % [str(club.get("name", "")), _latest_career.manager.name],
+		"LATEST SAVE · %s" % _timestamp(_latest_career.updated_at)
+	)
+	continue_tile.set_art(UiAssets.usable_texture(UiAssets.team_logo(team)))
+	continue_tile.set_enabled(true)
+
+
+func _continue_career() -> void:
+	if _latest_career == null or _career_catalog == null:
+		_open_scene(CAREER_START_SCENE)
+		return
+	CareerSession.career = _latest_career
+	CareerSession.store = _career_store
+	CareerSession.catalog = _career_catalog
+	UiTransition.change_scene(CAREER_HUB_SCENE)
+
+
+func _timestamp(iso: String) -> String:
+	return iso.substr(0, 16).replace("T", " ") if iso.length() >= 16 else iso
 
 
 func _open_settings_panel(tile: BentoTile) -> void:

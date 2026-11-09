@@ -14,6 +14,7 @@ const HATCH_SHADER := preload("res://shaders/ui_hatch.gdshader")
 @export var hero := false
 @export var wide := false
 @export var chip := ""
+@export var tags := ""
 
 var _bg: Panel
 var _rail: ColorRect
@@ -21,7 +22,9 @@ var _hatch: ColorRect
 var _title_label: Label
 var _sub_label: Label
 var _meta_label: Label
+var _tags_label: Label
 var _glyph_rect: TextureRect
+var _art_rect: TextureRect
 var _chip: PanelContainer
 var _chip_label: Label
 
@@ -115,6 +118,16 @@ func _build_nodes() -> void:
 	_meta_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	add_child(_meta_label)
 
+	_tags_label = Label.new()
+	_tags_label.name = "Tags"
+	_tags_label.text = tags
+	_tags_label.theme_type_variation = &"TileMeta"
+	_tags_label.visible = not tags.is_empty()
+	_tags_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_tags_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	_tags_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_tags_label)
+
 	_glyph_rect = TextureRect.new()
 	_glyph_rect.name = "Glyph"
 	_glyph_rect.texture = UiIcon.texture(glyph_name)
@@ -122,6 +135,14 @@ func _build_nodes() -> void:
 	_glyph_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_glyph_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_glyph_rect)
+
+	_art_rect = TextureRect.new()
+	_art_rect.name = "Art"
+	_art_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_art_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_art_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_art_rect.visible = false
+	add_child(_art_rect)
 
 	_chip = PanelContainer.new()
 	_chip.name = "Chip"
@@ -168,6 +189,43 @@ func _make_box(fill: Color, shadow: Color, blur: int, offset: Vector2) -> StyleB
 	return box
 
 
+func set_copy(next_title: String, next_subtitle: String, next_meta: String,
+		next_tags := "") -> void:
+	title = next_title
+	subtitle = next_subtitle
+	meta = next_meta
+	tags = next_tags
+	if _title_label == null:
+		return
+	_title_label.text = title
+	_sub_label.text = subtitle
+	_sub_label.visible = not subtitle.is_empty()
+	_meta_label.text = meta
+	_meta_label.visible = not meta.is_empty()
+	_tags_label.text = tags
+	_tags_label.visible = not tags.is_empty()
+	_layout_content()
+
+
+func set_enabled(enabled: bool) -> void:
+	disabled = not enabled
+	focus_mode = Control.FOCUS_NONE if disabled else Control.FOCUS_ALL
+	mouse_filter = Control.MOUSE_FILTER_IGNORE if disabled else Control.MOUSE_FILTER_STOP
+	if disabled and has_focus():
+		release_focus()
+	if _bg != null:
+		_apply_state(false)
+
+
+func set_art(texture: Texture2D) -> void:
+	if _art_rect == null:
+		return
+	_art_rect.texture = texture
+	_art_rect.visible = texture != null
+	_glyph_rect.visible = texture == null
+	_layout_content()
+
+
 func _layout_content() -> void:
 	if _bg == null or size.x <= 0.0:
 		return
@@ -206,6 +264,17 @@ func _layout_content() -> void:
 
 	_meta_label.position = Vector2(pad_left, size.y - pad_bottom - 20.0)
 	_meta_label.size = Vector2(size.x - pad_left * 2.0, 20.0)
+
+	var tags_width := size.x * 0.45
+	_tags_label.position = Vector2(size.x - pad_left - tags_width, pad_top)
+	_tags_label.size = Vector2(tags_width, 20.0)
+
+	var art_size := _glyph_size
+	_art_rect.position = Vector2(
+		size.x - pad_left - art_size,
+		size.y - pad_bottom - art_size
+	)
+	_art_rect.size = Vector2(art_size, art_size)
 
 	_glyph_rect.position = Vector2(
 		size.x - pad_left - _glyph_size,
@@ -277,7 +346,9 @@ func _apply_state(animate: bool) -> void:
 	_title_label.add_theme_color_override(&"font_color", title_color)
 	_sub_label.add_theme_color_override(&"font_color", sub_color)
 	_meta_label.add_theme_color_override(&"font_color", sub_color)
+	_tags_label.add_theme_color_override(&"font_color", sub_color)
 	_glyph_rect.modulate = glyph_color
+	_art_rect.modulate = Color.WHITE
 
 	var material := _hatch.material as ShaderMaterial
 	if material != null:

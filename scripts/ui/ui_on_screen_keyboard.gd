@@ -20,6 +20,9 @@ var _title := ""
 var _text := ""
 var _max_length := 0
 var _allowed := ""
+var _rows: Array = []
+var _tween: Tween
+var apply_on_confirm := false
 var _zone := Zone.KEYS
 var _focus_row := 0
 var _focus_col := 0
@@ -47,7 +50,8 @@ func _ready() -> void:
 	call_deferred("_layout")
 
 
-func open(title: String, text: String, max_length: int, allowed: String = "") -> void:
+func open(title: String, text: String, max_length: int, allowed := "",
+		rows: Array = []) -> void:
 	_title = title
 	_text = text
 	_max_length = max_length
@@ -56,25 +60,36 @@ func open(title: String, text: String, max_length: int, allowed: String = "") ->
 	_focus_row = 0
 	_focus_col = 0
 	_focus_action = 0
+	var next_rows := rows if not rows.is_empty() else UiTokens.OSK_ROWS
+	if next_rows != _rows:
+		_rebuild_keys(next_rows)
 	_eyebrow.text = title.to_upper()
 	_refresh_display()
 	_update_key_hints()
+	if _tween != null:
+		_tween.kill()
 	visible = true
 	_open = true
 	var ui_nav := _ui_nav()
 	if ui_nav != null:
 		ui_nav.push_modal(self)
 	_layout()
+	_panel.modulate.a = 0.0
+	_panel.scale = Vector2(0.96, 0.96)
+	_scrim.modulate.a = 0.0
+	_tween = create_tween().set_parallel(true)
+	_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_tween.tween_property(_panel, "modulate:a", 1.0, 0.24)
+	_tween.tween_property(_panel, "scale", Vector2.ONE, 0.24)
+	_tween.tween_property(_scrim, "modulate:a", 1.0, 0.15)
 	_focus_first_allowed()
 	_focus_current()
-
 
 
 func close(apply := false) -> void:
 	if not _open:
 		return
 	_open = false
-	visible = false
 	var ui_nav := _ui_nav()
 	if ui_nav != null:
 		ui_nav.pop_modal(self)
@@ -82,6 +97,15 @@ func close(apply := false) -> void:
 		applied.emit(_text)
 	else:
 		closed.emit()
+	if _tween != null:
+		_tween.kill()
+	_panel.pivot_offset = _panel.size * 0.5
+	_tween = create_tween().set_parallel(true)
+	_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_tween.tween_property(_panel, "modulate:a", 0.0, 0.15)
+	_tween.tween_property(_panel, "scale", Vector2(0.96, 0.96), 0.15)
+	_tween.tween_property(_scrim, "modulate:a", 0.0, 0.15)
+	_tween.chain().tween_callback(func() -> void: visible = false)
 
 
 func is_open() -> bool:
@@ -223,19 +247,7 @@ func _build() -> void:
 	_actions_box.add_theme_constant_override(&"separation", int(UiTokens.OSK_ACTION_GAP))
 	body.add_child(_actions_box)
 
-	for row_index in UiTokens.OSK_ROWS.size():
-		var row := HBoxContainer.new()
-		row.name = "Row%d" % row_index
-		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_theme_constant_override(&"separation", int(UiTokens.OSK_KEY_GAP))
-		_keys_box.add_child(row)
-		var buttons: Array = []
-		var text := String(UiTokens.OSK_ROWS[row_index])
-		for col_index in text.length():
-			var button := _make_key_button(text[col_index], row_index, col_index)
-			row.add_child(button)
-			buttons.append(button)
-		_key_buttons.append(buttons)
+	_rebuild_keys(UiTokens.OSK_ROWS)
 
 	for action_index in UiTokens.OSK_ACTION_LABELS.size():
 		var button := _make_action_button(String(UiTokens.OSK_ACTION_LABELS[action_index]),
@@ -244,6 +256,29 @@ func _build() -> void:
 		_action_buttons.append(button)
 
 	_layout()
+
+
+func _rebuild_keys(rows: Array) -> void:
+	if _keys_box == null:
+		return
+	for child in _keys_box.get_children():
+		_keys_box.remove_child(child)
+		child.queue_free()
+	_key_buttons.clear()
+	_rows = rows.duplicate()
+	for row_index in _rows.size():
+		var row := HBoxContainer.new()
+		row.name = "Row%d" % row_index
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override(&"separation", int(UiTokens.OSK_KEY_GAP))
+		_keys_box.add_child(row)
+		var buttons: Array = []
+		var text := String(_rows[row_index])
+		for col_index in text.length():
+			var button := _make_key_button(text[col_index], row_index, col_index)
+			row.add_child(button)
+			buttons.append(button)
+		_key_buttons.append(buttons)
 
 
 func _make_key_button(character: String, row: int, col: int) -> Button:
@@ -309,6 +344,7 @@ func _layout() -> void:
 	var panel_height := _panel.get_combined_minimum_size().y
 	_panel.size = Vector2(UiTokens.OSK_PANEL_W, panel_height)
 	_panel.position = (size - _panel.size) * 0.5
+	_panel.pivot_offset = _panel.size * 0.5
 
 
 func _refresh_display() -> void:
@@ -320,7 +356,7 @@ func _refresh_display() -> void:
 func _update_key_hints() -> void:
 	for row in _key_buttons.size():
 		var buttons: Array = _key_buttons[row]
-		var text := String(UiTokens.OSK_ROWS[row])
+		var text := String(_rows[row])
 		for col in buttons.size():
 			var button := buttons[col] as Button
 			var allowed := _allowed.is_empty() or _allowed.find(text[col]) >= 0
@@ -387,7 +423,7 @@ func _run_action(index: int) -> void:
 
 func _press_current() -> void:
 	if _zone == Zone.KEYS:
-		var text := String(UiTokens.OSK_ROWS[_focus_row])
+		var text := String(_rows[_focus_row])
 		_insert_character(text[_focus_col])
 	else:
 		_run_action(_focus_action)
@@ -411,7 +447,7 @@ func _focus_first_allowed() -> void:
 		_focus_col = 0
 		return
 	for row in _key_buttons.size():
-		var text := String(UiTokens.OSK_ROWS[row])
+		var text := String(_rows[row])
 		for col in text.length():
 			if _allowed.find(text[col]) >= 0:
 				_focus_row = row
@@ -426,7 +462,7 @@ func _move(direction: Vector2i) -> void:
 	if not _open:
 		return
 	if _zone == Zone.KEYS:
-		var text := String(UiTokens.OSK_ROWS[_focus_row])
+		var text := String(_rows[_focus_row])
 		match direction:
 			Vector2i.LEFT:
 				_focus_col = maxi(0, _focus_col - 1)
@@ -438,10 +474,10 @@ func _move(direction: Vector2i) -> void:
 					_focus_action = mini(_focus_row, _action_buttons.size() - 1)
 			Vector2i.UP:
 				_focus_row = maxi(0, _focus_row - 1)
-				_focus_col = mini(_focus_col, String(UiTokens.OSK_ROWS[_focus_row]).length() - 1)
+				_focus_col = mini(_focus_col, String(_rows[_focus_row]).length() - 1)
 			Vector2i.DOWN:
 				_focus_row = mini(_key_buttons.size() - 1, _focus_row + 1)
-				_focus_col = mini(_focus_col, String(UiTokens.OSK_ROWS[_focus_row]).length() - 1)
+				_focus_col = mini(_focus_col, String(_rows[_focus_row]).length() - 1)
 	else:
 		match direction:
 			Vector2i.UP:
@@ -451,7 +487,7 @@ func _move(direction: Vector2i) -> void:
 			Vector2i.LEFT:
 				_zone = Zone.KEYS
 				_focus_row = _focus_action
-				_focus_col = String(UiTokens.OSK_ROWS[_focus_row]).length() - 1
+				_focus_col = String(_rows[_focus_row]).length() - 1
 	_focus_current()
 
 
@@ -502,7 +538,10 @@ func _on_nav_moved(direction: Vector2i) -> void:
 
 func _on_nav_confirmed() -> void:
 	if _is_modal_owner():
-		_press_current()
+		if apply_on_confirm:
+			_apply()
+		else:
+			_press_current()
 
 
 func _on_nav_cancelled() -> void:

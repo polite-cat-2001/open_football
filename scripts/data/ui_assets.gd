@@ -114,6 +114,18 @@ static func league_logo(league: Dictionary) -> Texture2D:
 
 
 static func team_logo(team: Dictionary) -> Texture2D:
+	# National teams have no career emblem; use their country flag.
+	if str(team.get("league_id", "")) == "NAT":
+		var flag := country_flag({"tm_id": str(team.get("country_id", ""))})
+		if usable_texture(flag) != null:
+			return flag
+	# Career clubs use the prototype's emblems (career_logo); the game's
+	# logo_url files are not shipped in the unified data tree.
+	var career_url := str(team.get("career_logo", ""))
+	if not career_url.is_empty():
+		var career_texture := load_texture(career_url.trim_prefix("/"))
+		if career_texture != null:
+			return career_texture
 	var url := str(team.get("logo_url", ""))
 	if not url.is_empty():
 		var texture := load_texture("databases/default/%s" % url)

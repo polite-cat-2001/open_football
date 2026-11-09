@@ -45,6 +45,7 @@ func _finish() -> void:
 
 
 func _run() -> void:
+	CareerSaveStore.root_override = "user://main_menu_layout_empty_%d" % Time.get_ticks_usec()
 	await _check_geometry(Vector2i(1920, 1080), 1.0)
 	await _check_geometry(Vector2i(1280, 720), 2.0 / 3.0)
 	await _check_navigation()
@@ -99,11 +100,11 @@ func _check_geometry(size: Vector2i, scale: float) -> void:
 	_check(tab.get_tab_button(0).get_theme_font_size(&"font_size") == 23,
 		"tab label is 23px")
 	_check(continued.disabled and continued.focus_mode == Control.FOCUS_NONE,
-		"Continue Career is disabled and unfocusable")
-	_check(career.disabled and career.focus_mode == Control.FOCUS_NONE,
-		"Career is disabled and unfocusable")
-	_check(quick.find_next_valid_focus() == network,
-		"focus follows hero -> network")
+		"Continue Career is disabled and unfocusable without saves")
+	_check(not career.disabled and career.focus_mode == Control.FOCUS_ALL,
+		"Career is enabled and focusable")
+	_check(quick.find_next_valid_focus() == career,
+		"focus follows hero -> career when Continue is disabled")
 
 	viewport.queue_free()
 	await _frames(1)

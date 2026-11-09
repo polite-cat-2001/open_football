@@ -9,6 +9,7 @@ const MAIN_MENU := "res://scenes/main_menu.tscn"
 const QUICK_TILE := "Design/PanelWrap/PlayGrid/QuickMatchTile"
 const NETWORK_TILE := "Design/PanelWrap/PlayGrid/NetworkTile"
 const CONTINUE_TILE := "Design/PanelWrap/PlayGrid/ContinueCareerTile"
+const CAREER_TILE := "Design/PanelWrap/PlayGrid/CareerTile"
 
 var failures: Array[String] = []
 
@@ -36,6 +37,7 @@ func _finish() -> void:
 
 
 func _run() -> void:
+	CareerSaveStore.root_override = "user://main_menu_empty_%d" % Time.get_ticks_usec()
 	change_scene_to_file(MAIN_MENU)
 	await _frames(8)
 	var screen := current_scene
@@ -52,13 +54,16 @@ func _run() -> void:
 	_check(quick.has_focus(), "Quick Match owns focus on entry")
 	_check(quick.focus_mode == Control.FOCUS_ALL, "Quick Match is focusable")
 	var next := quick.find_next_valid_focus()
-	_check(next != null and next == screen.get_node(NETWORK_TILE),
-		"focus traversal reaches Network Match")
+	_check(next != null and next == screen.get_node(CAREER_TILE),
+		"focus traversal reaches Career when there is no save")
 
 	var disabled := screen.get_node_or_null(CONTINUE_TILE) as Button
-	_check(disabled != null and disabled.disabled, "Continue Career is disabled")
+	_check(disabled != null and disabled.disabled, "Continue Career is disabled without saves")
 	_check(disabled != null and disabled.focus_mode == Control.FOCUS_NONE,
 		"disabled tile is skipped by focus")
+	var career := screen.get_node_or_null(CAREER_TILE) as Button
+	_check(career != null and not career.disabled and career.focus_mode == Control.FOCUS_ALL,
+		"Career is enabled and focusable")
 
 	# Godot 4.7's default ui_accept has no joypad button: UiNav handles A.
 	var joy := InputEventJoypadButton.new()

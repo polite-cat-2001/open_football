@@ -281,6 +281,8 @@ const OSK_ACTION_W := 230.0
 const OSK_ACTION_H := 44.0
 const OSK_ACTION_GAP := 4.0
 const OSK_ROWS := ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM", "1234567890.-_"]
+# Player-search / manager-name keyboard from the career prototype.
+const OSK_ROWS_CAREER := ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
 const OSK_ACTION_LABELS := ["SPACE", "DEL", "CLEAR", "APPLY"]
 const OSK_SCRIM := Color(0.015686, 0.035294, 0.078431, 0.62)
 const FORM_PANEL := Color(0.960784, 0.968627, 0.980392, 0.97)

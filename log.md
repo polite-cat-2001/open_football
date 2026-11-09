@@ -2038,3 +2038,47 @@ etwork_lobby читают новую БД; eligibility и manifest —
   Barcelona 131 / Real Madrid 418.
 - SqliteReader больше не принимает TEXT PRIMARY KEY за rowid-алиас (нужно для leagues.id);
   UiAssets.league_logo берёт старый числовой legacy_id только как ключ медиа.
+
+## [2026-11-09] feat | Вход в карьеру: Start / New Career / Load
+- `scripts/career/` — `Career`/`CareerManager`/`CareerSaveStore` (JSON-схема прототипа, `version`
+  проверяется, сейвы прототипа читаются без конвертации) и `CareerFactory` (состав, двойной
+  round-robin расписание, снимок клуба/сезона из единой БД через `TeamCatalog`).
+- Экраны `career_start` / `career_new` / `career_load` на `UiScreen`/`UiNav`/`UiHintsBar`:
+  Continue (последний совместимый), New Career (страна → лига → клуб → менеджер), Load
+  (клуб, тренер, дата, сезон); создание сохраняется в `user://career/saves/`.
+- В главном меню включены Career и Continue; Career ведёт на старт, Continue — в последний сейв.
+  Промежуточный `career_hub` показывает снимок и выход в меню; полный хаб — тикет 03.
+- Тесты: `check_career_creation` (golden seed 42), `check_career_save_store` (round-trip,
+  version, сейв прототипа), `check_career_ui` (UiNav-навигация); дополнительные `check_main_menu_ui`
+  и `check_main_menu_layout`.
+
+## [2026-11-09] feat | Выбор клуба в карьере в стиле Quick Match
+- `career_new`: слева один `TeamPanel` (Country / Club / League), справа `CareerClubInfo` —
+  слева лига/страна/тир/основание/стадион/вместимость, справа состав/средний OVR/возраст/
+  стоимость состава, внизу четыре формы клуба (HOME/AWAY/THIRD/FOURTH, `KitArt` как на выборе
+  форм). Навигация: Up/Down по плиткам, Left/Right меняет значение, Enter — к менеджеру.
+  Скругления у досье убраны под острый стиль проекта. `TeamCatalog.countries()` больше не
+  считает клубы/лиги на каждую страну (открытие экрана: 223 мс → 5 мс на этом запросе).
+- `UiAssets.team_logo`: сначала `career_logo` из `data/raster/teams_emblems`, сборные — флаг
+  страны; оранжевые заглушки скрываются через `usable_texture` в карьерных экранах.
+- Проверка: `check_career_ui` (+ досье клуба), `check_team_select_ui`, `check_kit_select_ui` — PASS.
+
+## [2026-11-09] fix | Карьера: шаг менеджера, клавиатура и стрелки
+- Переход клуб → менеджер (и назад) анимирован fade+scale 150/240; ввод блокируется только на
+  выходе. Подсказки внизу переключаются вместе с шагом.
+- OSK для имени менеджера — трёхрядная раскладка из поиска игроков; физическая клавиатура,
+  анимация открытия/закрытия, A/Enter = Apply. Esc/B при открытой OSK закрывают только её.
+- У строки национальности кликабельные контрастные стрелки; строка MANAGER NAME непрозрачная;
+  у START CAREER убран meta-текст, из-за которого было наложение.
+- `TeamCatalog.countries()` больше не считает клубы/лиги по каждой стране: открытие экрана
+  ускорилось (223 мс → 5 мс на этом запросе).
+- Проверка: `check_career_ui` (анимация, Esc, стрелки, OSK), `check_ui_on_screen_keyboard`,
+  `check_network_ui`, `check_kit_select_ui` — PASS.
+
+## [2026-11-09] fix | Плитка сейва в Load: герб, лого лиги и отступы
+- `CareerRow` принимает два логотипа (клуб + лига) и хранит текстуры до входа в дерево
+  (раньше `set_lead` до `add_child` терялся). Отступы увеличены, высота строки 88, детали
+  больше не залезают под соседнюю плитку.
+- `CareerFactory.list_entries` отдаёт `league`; `career_load` рисует оба логотипа.
+- Проверка: `check_career_ui` (оба логотипа в строке), `check_team_catalog`,
+  `check_team_select_ui` — PASS.
