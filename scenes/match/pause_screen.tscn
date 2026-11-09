@@ -1,0 +1,217 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/pause_screen.gd" id="screen"]
+[ext_resource type="Script" path="res://scripts/ui/pause_scoreboard.gd" id="score"]
+[ext_resource type="Script" path="res://scripts/ui/bento_tile.gd" id="tile"]
+[ext_resource type="Script" path="res://scripts/ui/bento_grid.gd" id="grid"]
+[ext_resource type="Script" path="res://scripts/ui/ui_breadcrumb.gd" id="crumb"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="hints"]
+
+[node name="PauseScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("screen")
+
+[node name="Scrim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0156863, 0.0352941, 0.0784314, 0.55)
+
+[node name="Design" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+
+[node name="Scoreboard" type="Control" parent="Design"]
+layout_mode = 0
+offset_right = 1480.0
+offset_bottom = 156.0
+script = ExtResource("score")
+
+[node name="Breadcrumb" type="Control" parent="Design"]
+visible = false
+layout_mode = 0
+offset_right = 480.0
+offset_bottom = 52.0
+script = ExtResource("crumb")
+
+[node name="PanelWrap" type="Control" parent="Design"]
+layout_mode = 0
+offset_top = 166.0
+offset_right = 1480.0
+offset_bottom = 792.0
+
+[node name="LineupTile" type="Button" parent="Design/PanelWrap"]
+layout_mode = 0
+offset_right = 600.0
+offset_bottom = 626.0
+script = ExtResource("tile")
+title = "TEAM"
+still = true
+
+[node name="MenuGrid" type="Control" parent="Design/PanelWrap"]
+layout_mode = 0
+offset_left = 610.0
+offset_right = 1480.0
+offset_bottom = 626.0
+script = ExtResource("grid")
+columns = 2
+rows = 3
+
+[node name="ContinueTile" type="Button" parent="Design/PanelWrap/MenuGrid"]
+layout_mode = 0
+offset_right = 430.0
+offset_bottom = 202.0
+script = ExtResource("tile")
+title = "CONTINUE MATCH"
+glyph_name = "resume"
+
+[node name="ReplayTile" type="Button" parent="Design/PanelWrap/MenuGrid"]
+layout_mode = 0
+offset_left = 440.0
+offset_right = 870.0
+offset_bottom = 202.0
+script = ExtResource("tile")
+title = "REPLAY"
+glyph_name = "replay"
+
+[node name="RatingsTile" type="Button" parent="Design/PanelWrap/MenuGrid"]
+layout_mode = 0
+offset_top = 212.0
+offset_right = 430.0
+offset_bottom = 414.0
+script = ExtResource("tile")
+title = "PLAYER RATINGS"
+glyph_name = "ratings"
+chip = "SOON"
+disabled = true
+
+[node name="InfoTile" type="Button" parent="Design/PanelWrap/MenuGrid"]
+layout_mode = 0
+offset_left = 440.0
+offset_top = 212.0
+offset_right = 870.0
+offset_bottom = 414.0
+script = ExtResource("tile")
+title = "MATCH INFO"
+glyph_name = "tactics"
+chip = "SOON"
+disabled = true
+
+[node name="SettingsTile" type="Button" parent="Design/PanelWrap/MenuGrid"]
+layout_mode = 0
+offset_top = 424.0
+offset_right = 430.0
+offset_bottom = 626.0
+script = ExtResource("tile")
+title = "SETTINGS"
+glyph_name = "gear"
+
+[node name="QuitTile" type="Button" parent="Design/PanelWrap/MenuGrid"]
+layout_mode = 0
+offset_left = 440.0
+offset_top = 424.0
+offset_right = 870.0
+offset_bottom = 626.0
+script = ExtResource("tile")
+title = "QUIT MATCH"
+glyph_name = "exit"
+glyph_center = true
+
+[node name="SettingsGrid" type="Control" parent="Design/PanelWrap"]
+visible = false
+layout_mode = 0
+offset_right = 1480.0
+offset_bottom = 626.0
+script = ExtResource("grid")
+
+[node name="ControlTile" type="Button" parent="Design/PanelWrap/SettingsGrid"]
+layout_mode = 0
+offset_right = 362.5
+offset_bottom = 308.0
+script = ExtResource("tile")
+title = "CONTROL SETTINGS"
+glyph_name = "gamepad"
+chip = "SOON"
+disabled = true
+
+[node name="ParamsTile" type="Button" parent="Design/PanelWrap/SettingsGrid"]
+layout_mode = 0
+offset_left = 372.5
+offset_right = 735.0
+offset_bottom = 308.0
+script = ExtResource("tile")
+title = "GAME PARAMETERS"
+glyph_name = "sliders"
+chip = "SOON"
+disabled = true
+
+[node name="SideTile" type="Button" parent="Design/PanelWrap/SettingsGrid"]
+layout_mode = 0
+offset_left = 745.0
+offset_right = 1107.5
+offset_bottom = 308.0
+script = ExtResource("tile")
+title = "SIDE SELECTION"
+glyph_name = "sides"
+
+[node name="VideoTile" type="Button" parent="Design/PanelWrap/SettingsGrid"]
+layout_mode = 0
+offset_left = 1117.5
+offset_right = 1480.0
+offset_bottom = 308.0
+script = ExtResource("tile")
+title = "VIDEO CALIBRATION"
+glyph_name = "monitor"
+chip = "SOON"
+disabled = true
+
+[node name="BasicsTile" type="Button" parent="Design/PanelWrap/SettingsGrid"]
+layout_mode = 0
+offset_top = 318.0
+offset_right = 362.5
+offset_bottom = 626.0
+script = ExtResource("tile")
+title = "CONTROL BASICS"
+glyph_name = "gamepad"
+chip = "SOON"
+disabled = true
+
+[node name="CelebrationsTile" type="Button" parent="Design/PanelWrap/SettingsGrid"]
+layout_mode = 0
+offset_left = 372.5
+offset_top = 318.0
+offset_right = 735.0
+offset_bottom = 626.0
+script = ExtResource("tile")
+title = "CELEBRATIONS"
+glyph_name = "celebrate"
+chip = "SOON"
+disabled = true
+
+[node name="SkillsTile" type="Button" parent="Design/PanelWrap/SettingsGrid"]
+layout_mode = 0
+offset_left = 745.0
+offset_top = 318.0
+offset_right = 1107.5
+offset_bottom = 626.0
+script = ExtResource("tile")
+title = "SKILL MOVES"
+glyph_name = "skills"
+chip = "SOON"
+disabled = true
+
+[node name="Hints" parent="Design/PanelWrap" instance=ExtResource("hints")]
+layout_mode = 0
+offset_top = 642.0
+offset_right = 1480.0
+offset_bottom = 702.0
+

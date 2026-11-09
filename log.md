@@ -2027,3 +2027,125 @@ placeholder; национальный значок и шрифт есть. Ру�
   `active_side` переключается после ready, Esc снимает ready предыдущей формы.
 - `check_gpf_net_ui` проверяет старт на home, смену home-комплекта, переход к away и смену
   away-комплекта до открытия хаба.
+
+## [2026-11-08] feat | Экран паузы матча на дизайн-системе
+
+- `scenes/match/pause_screen.tscn` + `PauseScreen` (`scripts/ui/pause_screen.gd`) — порт
+  `IngamePage` по референсу: шапка `PauseScoreboard` (гербы, счёт, часы), карточка состава
+  `PauseLineup` (перспективное поле, 11 фишек с рейтингом/фамилией; клик/Enter → game plan,
+  команда открывшего паузу) и bento-сетка 2×3 (Continue / Replay / Player Ratings / Match Info /
+  Settings / Quit). `GpfPauseMenu` стал тонким CanvasLayer-носителем, старый список из 9 строк
+  удалён; camera/visual/system в матче больше не выведены.
+- Settings — вторая страница того же экрана: breadcrumb + сетка 4×2, живая только Side Selection
+  (сеть), остальное SOON. Quit — три страницы слота (`QUIT MATCH` + `RESTART MATCH` /
+  `CHANGE TEAMS` SOON) с листанием Left/Right и точками; подтверждение — `UiMenuPanel`.
+- `BentoGrid` получил `columns`/`rows`; `BentoTile` — `set_page`/`set_heading`/`set_note`/
+  `set_pages` с dots. `UiHintsBar` биндит детей лениво (пауза открывается в headless до `_ready`).
+  В сети Continue показывает `WAITING FOR RIVAL n/m`; ввод — `UiNav` (fallback `handle_key/joy`).
+- Новые иконки: `resume`, `replay`, `ratings`, `gear`, `sides`, `celebrate`, `skills`.
+- Тесты: `check_gpf_pause` (PASS), `check_gpf_slice_ui` (PASS), `check_gpf_net_ui` (PASS),
+  `check_ui_hints_bar`, `check_main_menu_ui` (PASS); вики — `docs/wiki/дизайн-система-ui.md`
+  (раздел «Пауза матча») и `docs/wiki/порт-gdextension.md`.
+
+## [2026-11-08] fix | Пауза: ширина, переход, гербы, состав как в премате
+
+- Блок паузы расширен до `PAUSE_W` 1700 (шапка/сетка/подсказки), карточка состава — 840.
+- `UiTransition.show_target`/`hide_target`: открытие/закрытие паузы тем же fade+scale
+  150/240 мс, что у shell-экранов (весь `Content` — `ui_transition_target`; в headless мгновенно).
+- Гербы: пакетный `logo_url` не совпадает с импортом, добавлен fallback
+  `UiAssets.team_logo({"id": database_id})` → `images_teams/<id>.png`; тот же fallback в Game Plan.
+- Превью состава берёт данные из пакета (позиции формации + `base_stat`), как план игры в
+  предматчевом хабе; трансформа карточек повторяет `GpfGamePlan._build_cards` (GK −0.74,
+  защита −0.40), стороны больше не зеркалятся. `MatchPackage` теперь несёт `base_stat`.
+- Game Plan в матче: нередактируемая сторона — герб + `READY!` (как прематч), карточки получают
+  рейтинги из `base_stat` пакета. Отступы/сетка совпадают с прематом.
+- PASS: `check_gpf_pause`, `check_gpf_game_plan`, `check_gpf_slice_ui`, `check_gpf_net_ui`.
+
+## [2026-11-08] fix | Пауза не залипает на зажатом направлении
+
+- Причина «иногда бегут не туда»: пока открыто меню паузы, `_handle_key` съедал и
+  **release** событий — кнопка направления оставалась зажатой в runtime и после resume игрок
+  продолжал бежать, а следующий ввод давал конфликт направлений. Аналогично для кнопок геймпада;
+  стик ещё и оставался в последнем положении (оси event-driven).
+- Фикс: `gpf_slice` при открытой паузе отдаёт меню только нажатия; release клавиш и кнопок
+  проходит в `runtime.set_button(..., false)`. На открытии паузы (`_open_pause` и сетевой
+  автооткрыв) оси левого стика всех зарегистрированных падов обнуляются (`_release_sticks`).
+- Регресс-тест: `tests/check_gpf_pause_release.gd` (держать направление → пауза → release →
+  resume: игрок останавливается, 0.09 м дрейфа). PASS: `check_gpf_pause`, `check_gpf_slice_ui`,
+  `check_gpf_net_ui`.
+
+## [2026-11-08] fix | Пауза: навигация/листание, превью без дрожи; план игры — плита и отступы
+
+- Пауза: `Left` с Replay возвращает на Continue (раньше вторая колонка не ходила влево);
+  `Left/Right` больше не листают страницы Quit. Листание — `Q/E`, правый стик геймпада или
+  мышь по треугольным стрелкам на плитке (новый `PageArrow`, z выше выбранного тайла).
+- Выбранная карточка состава не двигается/не масштабируется (`BentoTile.still`), поэтому
+  перспективное поле не дёргается при фокусе.
+- План игры: синяя полупрозрачная плита (`C_PANEL_BG`) под полем и панелью соперника (стадион
+  виден), шапка игрока и радар — на ней же со светлым текстом; текст «Goalkeeper profile is not
+  in the canon» удалён, у GK рисуется радар. Внешние и центральный отступы ×4 (`max(32, 96·u)`).
+- PASS: `check_gpf_pause` (включая Q/E-пагинацию), `check_gpf_game_plan`, `check_gpf_slice_ui`,
+  `check_gpf_pause_release`.
+
+## [2026-11-08] style | План игры: фиолетовая плита только под полем/сравнением, светлые табы
+
+- Панельный фон (`C_PANEL_BG`, теперь фиолетовый) покрывает только шапку сравнения и поле;
+  табы выше с зазором, bench/подсказки — вне плиты. Панель соперника вернулась к стандартному
+  ready-фону (`ReadyOverlay.dim`), без плиты.
+- `UiTabBar.solid_style` для плана: сплошная светло-серая полоса, серый текст неактивных,
+  белая активная вкладка с тёмно-синим текстом и magenta-подчёркиванием (без фокус-инверсии).
+- Проверки визуально: `.scratch/game_plan.png`. Локальная БД исходной игры оказалась залочена
+  зависшим процессом Godot (SQLite disk I/O error), поэтому игра запущена на теневой копии
+  (`%TEMP%/opencode/gpfdata`, БД скопирована, медиа — junction).
+
+## [2026-11-08] fix | Пауза: одиночный шаг навигации, пагинатор, ready-фон плана
+
+- Двойной шаг влево (Replay→lineup, Quit→lineup) лечился удалением паузы из группы `ui_shell`:
+  экран теперь получает ввод только через форвардер `gpf_slice`, UiNav-поллинг больше не
+  повторяет то же нажатие. Подсказки переключаются по локальному флагу устройства.
+- Quit-пагинатор: `<- -> • • •` в правом нижнем углу плитки, стрелки крупнее, точки крупные и
+  кликабельные (переход на страницу); встроенные точки `BentoTile` для этой плитки выключены,
+  глиф поднят в центр-право (`glyph_center`).
+- Game Plan: фиолетовая плита скрывается при READY своей команды (остаётся стандартный ready
+  фон, как у соперника); цвет плиты затемнён (`0.19,0.16,0.30 @0.78`).
+- PASS: `check_gpf_pause`, `check_gpf_game_plan`, `check_gpf_slice_ui`.
+
+## [2026-11-08] feat | Fade для плана игры и страницы настроек
+
+- `GpfGamePlan.open_plan`/`close_plan` анимируют `_panels_root` (вместе со scrim) через
+  `UiTransition.show_target`/`hide_target` (150/240 мс, в headless мгновенно). `close_plan`
+  держит `visible` до конца fade, `is_open()` остаётся true 150 мс.
+- Страница Settings в паузе переключается `UiTransition.change_content(content, ...)`; на время
+  перехода `_switching` игнорирует ввод, фокус ставится после fade. `change_content` теперь
+  awaitable (использует `await _run_content_change`), ожидание занятого перехода — цикл по
+  `is_busy()`.
+- PASS: `check_gpf_pause`, `check_gpf_game_plan`, `check_gpf_slice_ui`, `check_gpf_net_ui`.
+
+## [2026-11-08] fix | Диалог выхода из матча поверх меню паузы
+
+- Причина: выбранный тайл поднимает `z_index` до 3, пагинатор — до 10, а Confirm-скрим/панель
+  были z=0, поэтому диалог оказывался под контентом. Выставил `ConfirmScrim.z_index=20`
+  (mouse STOP) и `ConfirmPanel.z_index=21`. Геометрия диалога 720×340, строки 720×88×2.
+- PASS: `check_gpf_pause` (путь forfeit/confirm); визуально — `.scratch/pause_confirm.png`.
+
+## [2026-11-08] fix | START MATCH больше не перекидывает выделение на TEAM MANAGEMENT
+
+- `prematch._start_match` после `_match_started = true` звал `_refresh_state`; в новом снапшоте
+  `can_start` становился false, и `MatchHubView._apply_command_states` переносил выделение на
+  первый доступный пункт — TEAM MANAGEMENT (плитка плана игры). Refresh убран: сцена и так
+  уходит в fade, а `_match_started` не даёт стартовать повторно.
+- PASS: `check_prematch_ui`, `check_prematch_vote`.
+
+## [2026-11-08] feat | Переиспользуемая модалка UiModal в стиле референса
+
+- Новый компонент `scripts/ui/ui_modal.gd` (`UiModal`): скрим на весь вьюпорт, светло-серая
+  плашка сообщения (Inter 600/28, тёмный текст), полноширинные строки действий; фокус — navy +
+  lime текст + кейкап с клавишей, остальные — белые. API: `open(message, [{id,label,key}])`,
+  `close/is_open/move_focus/activate_focused`, сигнал `action_chosen(id)`. Добавлять в корень
+  экрана (не в `Design`) — иначе скрим не покрывает letterbox. `z_index=100`.
+- Пауза: старые Confirm-узлы и `_confirm_*`/`UiMenuPanel` удалены; Quit открывает `UiModal`
+  с коротким текстом «Are you sure you want to quit? / Unsaved progress will be lost.».
+  Esc закрывает, Enter подтверждает; пагинатор снова появляется после закрытия.
+- Попутно: `ModalAction` текст задаётся после `add_child` (иначе `_label` ещё null), кейкапы
+  `↵`/`ESC`; BOM убран из `pause_screen.tscn`/`pause_screen.gd`/`gpf_game_plan.gd`.
+- PASS: `check_gpf_pause`, `check_gpf_game_plan`; визуально — `.scratch/pause_confirm.png`.

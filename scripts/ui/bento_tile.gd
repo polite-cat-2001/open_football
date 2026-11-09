@@ -7,6 +7,23 @@ extends Button
 
 const HATCH_SHADER := preload("res://shaders/ui_hatch.gdshader")
 
+# Bottom-right page indicator: a slot can host several pages (prototype's
+# in-tile paging).
+class TileDots extends Control:
+	var count := 0
+	var index := 0
+	var active_color := Color.WHITE
+	var idle_color := Color(0.0, 0.0, 0.0, 0.3)
+
+	func _draw() -> void:
+		if count <= 0:
+			return
+		var step := 9.0
+		var x := (size.x - step * float(count - 1)) * 0.5
+		for i in count:
+			draw_circle(Vector2(x + step * float(i), size.y * 0.5), 2.6,
+				active_color if i == index else idle_color)
+
 @export var title := ""
 @export var subtitle := ""
 @export var meta := ""
@@ -14,6 +31,8 @@ const HATCH_SHADER := preload("res://shaders/ui_hatch.gdshader")
 @export var hero := false
 @export var wide := false
 @export var chip := ""
+@export var still := false
+@export var glyph_center := false
 
 var _bg: Panel
 var _rail: ColorRect
@@ -24,6 +43,10 @@ var _meta_label: Label
 var _glyph_rect: TextureRect
 var _chip: PanelContainer
 var _chip_label: Label
+var _dots: TileDots
+
+var page_count := 0
+var page_index := 0
 
 var _normal_box: StyleBoxFlat
 var _selected_box: StyleBoxFlat
@@ -67,8 +90,50 @@ func set_base_rect(rect: Rect2, push: Vector2) -> void:
 	_push = push
 	size = rect.size
 	pivot_offset = size * 0.5
-	position = rect.position + (_push if _selected else Vector2.ZERO)
+	position = rect.position + (_push if _selected and not still else Vector2.ZERO)
 	_layout_content()
+
+
+func set_page(page_title: String, glyph: String, new_chip := "") -> void:
+	title = page_title
+	if not is_node_ready():
+		return
+	_chip_label.text = new_chip
+	_chip.visible = not new_chip.is_empty()
+	_glyph_rect.texture = UiIcon.texture(glyph)
+	_title_label.text = page_title
+	_layout_content()
+
+
+func set_note(text: String) -> void:
+	meta = text
+	if not is_node_ready():
+		return
+	_meta_label.text = text
+	_meta_label.visible = not text.is_empty()
+
+
+func set_heading(new_title: String, new_subtitle: String) -> void:
+	title = new_title
+	subtitle = new_subtitle
+	if not is_node_ready():
+		return
+	_title_label.text = new_title
+	_sub_label.text = new_subtitle
+	_sub_label.visible = not new_subtitle.is_empty()
+	_layout_content()
+
+
+func set_pages(count: int, index: int, show_dots := true) -> void:
+	page_count = count
+	page_index = index
+	if not is_node_ready():
+		return
+	_dots.count = count
+	_dots.index = index
+	_dots.visible = count > 1 and show_dots
+	_layout_content()
+	_apply_state(false)
 
 
 func _build_nodes() -> void:
@@ -134,6 +199,12 @@ func _build_nodes() -> void:
 	_chip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_chip.add_child(_chip_label)
 	add_child(_chip)
+
+	_dots = TileDots.new()
+	_dots.name = "Dots"
+	_dots.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dots.visible = false
+	add_child(_dots)
 
 	var title_variation := &"TileTitle"
 	if hero:
@@ -207,16 +278,21 @@ func _layout_content() -> void:
 	_meta_label.position = Vector2(pad_left, size.y - pad_bottom - 20.0)
 	_meta_label.size = Vector2(size.x - pad_left * 2.0, 20.0)
 
-	_glyph_rect.position = Vector2(
-		size.x - pad_left - _glyph_size,
-		size.y - pad_bottom - _glyph_size
-	)
+	var glyph_y := size.y - pad_bottom - _glyph_size
+	if glyph_center:
+		glyph_y = (size.y - _glyph_size) * 0.5
+	_glyph_rect.position = Vector2(size.x - pad_left - _glyph_size, glyph_y)
 	_glyph_rect.size = Vector2(_glyph_size, _glyph_size)
 
 	if _chip.visible:
 		_chip.position = Vector2(pad_left, 0.0)
 		_chip.size = _chip.get_combined_minimum_size()
 		_chip.position = Vector2(pad_left, size.y - pad_bottom - _chip.size.y)
+
+	if _dots.visible:
+		_dots.position = Vector2(size.x - pad_left - 40.0, size.y - 14.0)
+		_dots.size = Vector2(40.0, 8.0)
+		_dots.queue_redraw()
 
 
 func _on_mouse_entered() -> void:
@@ -279,6 +355,12 @@ func _apply_state(animate: bool) -> void:
 	_meta_label.add_theme_color_override(&"font_color", sub_color)
 	_glyph_rect.modulate = glyph_color
 
+	if _dots != null:
+		_dots.active_color = UiTokens.FOCUS_MARK if _selected else UiTokens.RAIL
+		_dots.idle_color = Color(UiTokens.FOCUS_INK, 0.26) if _selected \
+			else Color(UiTokens.INK, 0.22)
+		_dots.queue_redraw()
+
 	var material := _hatch.material as ShaderMaterial
 	if material != null:
 		material.set_shader_parameter(&"line_color", title_color)
@@ -290,6 +372,10 @@ func _apply_state(animate: bool) -> void:
 func _animate_selection(animate: bool) -> void:
 	var target_position := _base_rect.position + (_push if _selected else Vector2.ZERO)
 	var target_scale := Vector2.ONE * (UiTokens.SELECTED_SCALE if _selected else 1.0)
+	if still:
+		position = _base_rect.position
+		scale = Vector2.ONE
+		return
 	if not animate:
 		position = target_position
 		scale = target_scale

@@ -91,18 +91,19 @@ func _run() -> void:
 		"controlled player's nameplate is highlighted")
 
 	# Pause menu navigation must not be double-stepped by Godot's GUI focus:
-	# Down selects "game plan" and Enter opens it (keyboard path).
+	# Up moves to the lineup card, Enter opens the game plan (keyboard path).
 	var pause_menu := scene.get("pause_menu") as GpfPauseMenu
 	var game_plan := scene.get("game_plan") as GpfGamePlan
 	await _inject_key(KEY_ESCAPE)
 	_check(pause_menu.is_open(), "Esc opens the pause menu")
-	await _inject_key(KEY_DOWN)
-	_check(int(pause_menu.index) == 1, "Down moves to the game plan row")
+	_check(pause_menu.buttons[0].has_focus(), "Continue owns focus on entry")
+	await _inject_key(KEY_LEFT)
 	var focus_owner := scene.get_viewport().gui_get_focus_owner()
-	_check(focus_owner == pause_menu.buttons[1], "the game plan row owns focus")
+	_check(focus_owner == pause_menu.screen.lineup_tile,
+		"Left moves to the lineup card")
 	await _inject_key(KEY_ENTER)
 	_check(not pause_menu.is_open() and game_plan.is_open(),
-		"Enter opens the game plan instead of skipping it")
+		"Enter opens the game plan from the lineup card")
 	await _inject_key(KEY_ESCAPE)
 	await create_timer(0.7).timeout
 	_check(pause_menu.is_open() and not game_plan.is_open(),
@@ -110,12 +111,11 @@ func _run() -> void:
 	await _inject_key(KEY_ESCAPE)
 	_check(not pause_menu.is_open(), "Esc resumes from the pause menu")
 
-	# Gamepad path: D-pad down then A must hit the same row, not slip past it.
+	# Gamepad path: D-pad left then A must hit the same lineup card.
 	await _inject_key(KEY_ESCAPE)
-	await _inject_joy(JOY_BUTTON_DPAD_DOWN)
-	_check(int(pause_menu.index) == 1, "D-pad Down moves to the game plan row")
-	_check(scene.get_viewport().gui_get_focus_owner() == pause_menu.buttons[1],
-		"the game plan row owns focus on the gamepad too")
+	await _inject_joy(JOY_BUTTON_DPAD_LEFT)
+	_check(scene.get_viewport().gui_get_focus_owner() == pause_menu.screen.lineup_tile,
+		"the lineup card owns focus on the gamepad too")
 	await _inject_joy(JOY_BUTTON_A)
 	_check(game_plan.is_open(), "gamepad A opens the game plan")
 	await _inject_joy(JOY_BUTTON_B)

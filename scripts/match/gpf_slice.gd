@@ -96,6 +96,8 @@ func _ready() -> void:
 	replay.setup(runtime, camera, actors, goal_nets, hud)
 	shootout.setup()
 	pause_menu.setup()
+	pause_menu.set_match(runtime, ShellState.match_package)
+	pause_menu.set_team(_pause_team(-1))
 	_build_game_plan()
 
 	hud.main_menu_requested.connect(_return_to_main_menu)
@@ -103,9 +105,7 @@ func _ready() -> void:
 	shootout.restart_requested.connect(_start_fresh_match)
 	pause_menu.resume_requested.connect(_on_pause_resume)
 	pause_menu.forfeit_requested.connect(_return_to_main_menu)
-	pause_menu.camera_requested.connect(_on_pause_camera)
-	pause_menu.visual_requested.connect(_on_pause_visual)
-	pause_menu.system_requested.connect(_on_pause_system)
+	pause_menu.replay_requested.connect(_on_pause_replay)
 	pause_menu.game_plan_requested.connect(_open_game_plan)
 	pause_menu.side_select_requested.connect(_open_side_select)
 
@@ -417,9 +417,33 @@ func _can_pause() -> bool:
 		and not bool(snap.get("shootout_active", false))
 
 
-func _open_pause() -> void:
+func _open_pause(device := -1) -> void:
+	pause_menu.set_team(_pause_team(device))
+	pause_menu.set_waiting("")
 	pause_menu.open()
 	runtime.pause_match()
+	_release_sticks()
+
+
+# Stick axes are event-driven: the runtime keeps the last value, so a stick
+# pushed when the pause opens would keep running after resume. Zero them.
+func _release_sticks() -> void:
+	for device in input_slots:
+		var slot := int(input_slots[device])
+		runtime.set_gamepad_axis(slot, JOY_AXIS_LEFT_X, 0.0)
+		runtime.set_gamepad_axis(slot, JOY_AXIS_LEFT_Y, 0.0)
+
+
+# The lineup card shows the team of the human who opened the pause: the pad
+# that pressed Start in local 2P, otherwise the first configured human (the
+# keyboard in 1P).
+func _pause_team(device: int) -> int:
+	for controller in ShellState.controllers:
+		if not (controller is Dictionary):
+			continue
+		if device < 0 or int(controller.get("device", -1)) == device:
+			return 1 if str(controller.get("side", "home")) == "away" else 0
+	return int(_human_teams()[0])
 
 
 func _on_pause_resume() -> void:
@@ -473,6 +497,7 @@ func _update_network_pause(snap: Dictionary) -> void:
 		return
 	if not _menu_open():
 		pause_menu.open()
+		_release_sticks()
 	if not pause_menu.is_open():
 		return
 	var players: Array = lobby.get("players", [])
@@ -480,25 +505,12 @@ func _update_network_pause(snap: Dictionary) -> void:
 	for player in players:
 		if bool(player.get("resume_ready", false)):
 			ready += 1
+	pause_menu.set_waiting("WAITING FOR RIVAL %d/%d" % [ready, players.size()])
 	pause_menu.set_hint("resume ready %d/%d    Enter/Esc: vote" % [ready, players.size()])
 
 
-func _on_pause_camera() -> void:
-	camera_rig.toggle()
-	pause_menu.set_hint("camera: " + ("stadium" if camera_rig.stadium else "broadcast"))
-
-
-func _on_pause_visual() -> void:
-	environment_view.cycle_lighting()
-	pause_menu.set_hint("lighting: " + environment_view.lighting_name())
-
-
-func _on_pause_system() -> void:
-	var fullscreen := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
-	DisplayServer.window_set_mode(
-		DisplayServer.WINDOW_MODE_WINDOWED if fullscreen else DisplayServer.WINDOW_MODE_FULLSCREEN
-	)
-	pause_menu.set_hint("fullscreen: " + ("off" if fullscreen else "on"))
+func _on_pause_replay() -> void:
+	pause_menu.set_hint("replay: not ported")
 
 
 func _open_side_select() -> void:
@@ -631,13 +643,18 @@ func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 			return
 		if not _other_menu_open():
 			if _can_pause():
-				_open_pause()
+				_open_pause(device)
 			return
 	if game_plan != null and game_plan.is_open():
 		game_plan.handle_joy_button(event)
 		return
 	if pause_menu.is_open():
-		pause_menu.handle_joy(event)
+		# Menu consumes presses; releases go straight to the runtime so a held pad
+		# button does not stay down when the match resumes.
+		if pause_menu.handle_joy(event) or pressed:
+			return
+		if input_slots.has(device):
+			runtime.set_gamepad_button(int(input_slots[device]), button, false)
 		return
 	# The taker's own device owns the overlay; another local player's pad must
 	# keep driving its team (the runtime freezes the taker on its side).
@@ -723,8 +740,11 @@ func _handle_key(key_event: InputEventKey) -> void:
 		game_plan.handle_key(key_event)
 		return
 	if pause_menu.is_open():
-		pause_menu.handle_key(key_event)
-		return
+		# Presses belong to the menu, but releases must still reach the runtime:
+		# otherwise a direction held when the pause opened stays stuck down and
+		# the player keeps running the wrong way after resume.
+		if pause_menu.handle_key(key_event):
+			return
 	if replay.is_active():
 		if key_event.pressed and key_event.keycode in [KEY_SPACE, KEY_ESCAPE, KEY_ENTER]:
 			replay.finish()

@@ -32,7 +32,36 @@ func change_scene_packed(packed: PackedScene) -> void:
 
 
 func change_content(target: Control, swap: Callable) -> void:
-	_run_content_change(target, swap)
+	await _run_content_change(target, swap)
+
+
+# Overlay open/close (e.g. the in-match pause): the same fade/scale as shell
+# screens, without swapping scenes. In headless both are instant.
+func show_target(target: Control) -> void:
+	if target == null:
+		return
+	_busy = true
+	if instant:
+		target.modulate.a = 1.0
+		target.scale = Vector2.ONE
+		_busy = false
+		return
+	target.modulate.a = 0.0
+	target.scale = Vector2.ONE * SCALE_FROM
+	target.pivot_offset = target.size * 0.5
+	await _animate_in(target)
+	_busy = false
+
+
+func hide_target(target: Control, done: Callable) -> void:
+	_busy = true
+	if instant or target == null:
+		done.call()
+		_busy = false
+		return
+	await _animate_out(target)
+	done.call()
+	_busy = false
 
 
 func _run_content_change(target: Control, swap: Callable) -> void:

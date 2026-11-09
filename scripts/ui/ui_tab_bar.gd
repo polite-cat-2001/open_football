@@ -22,6 +22,9 @@ var _marker_tween: Tween
 # Screens that never hand keyboard focus to the tabs (the game plan) still
 # want the focused look, so they can pin it on.
 var always_focused := false
+# Game plan reference style: a solid light-grey strip, grey inactive tabs and a
+# white active tab with the magenta rule, regardless of focus.
+var solid_style := false
 
 
 func setup(labels: Array[String]) -> void:
@@ -70,7 +73,7 @@ func _build() -> void:
 		return
 	_strip = ColorRect.new()
 	_strip.name = "Strip"
-	_strip.color = UiTokens.TAB_STRIP
+	_strip.color = Color(0.80, 0.82, 0.86, 1.0) if solid_style else UiTokens.TAB_STRIP
 	_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_strip)
 
@@ -126,6 +129,14 @@ func _layout_tabs() -> void:
 
 
 func _update_colors() -> void:
+	if solid_style:
+		for i in _buttons.size():
+			var color := Color(0.42, 0.44, 0.50) if i != _active else UiTokens.INK
+			for item in [&"font_color", &"font_hover_color", &"font_pressed_color",
+					&"font_focus_color", &"font_disabled_color"]:
+				_buttons[i].add_theme_color_override(item, color)
+		_marker.add_theme_stylebox_override(&"panel", _normal_marker)
+		return
 	var focused := _bar_focused or always_focused
 	for i in _buttons.size():
 		var color := UiTokens.TAB_INACTIVE

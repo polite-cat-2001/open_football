@@ -302,8 +302,9 @@ func _run() -> void:
 		_check(pause_menu != null and pause_menu.is_open(),
 			"the pause menu reopens for side selection")
 		if pause_menu != null:
-			for i in 3:
-				slice.call("_input", _key(KEY_DOWN))
+			# Continue -> Settings tile -> Settings page -> Side Selection.
+			slice.call("_input", _key(KEY_DOWN))
+			slice.call("_input", _key(KEY_ENTER))
 			slice.call("_input", _key(KEY_ENTER))
 			await _frames(6)
 			var overlay = slice.get("side_select_overlay")
@@ -336,7 +337,8 @@ func _run() -> void:
 		await _frames(8)
 		var pause_menu = slice.get("pause_menu")
 		if pause_menu != null and pause_menu.is_open():
-			pause_menu.index = 3
+			slice.call("_input", _key(KEY_DOWN))
+			slice.call("_input", _key(KEY_ENTER))
 			slice.call("_input", _key(KEY_ENTER))
 			await _frames(6)
 			var overlay = slice.get("side_select_overlay")

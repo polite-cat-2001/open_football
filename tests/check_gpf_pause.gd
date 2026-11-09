@@ -32,9 +32,7 @@ func _init() -> void:
 		print("CHECK FAIL: runtime: ", runtime.get_last_error())
 		quit(1)
 		return
-	_run()
-	print("== check_gpf_pause: ", "PASS" if failures.is_empty() else "FAIL", " ==")
-	quit(0 if failures.is_empty() else 1)
+	_run.call_deferred(package)
 
 
 func _check(condition: bool, message: String) -> void:
@@ -52,7 +50,7 @@ func _key(code: int) -> InputEventKey:
 	return event
 
 
-func _run() -> void:
+func _run(package: Dictionary) -> void:
 	var before := int(runtime.get_tick())
 	runtime.step_fixed(10)
 	_check(int(runtime.get_tick()) > before, "ticks advance before pause")
@@ -70,7 +68,10 @@ func _run() -> void:
 
 	var menu := GpfPauseMenu.new()
 	get_root().add_child(menu)
+	await process_frame
 	menu.setup()
+	menu.set_match(runtime, package)
+	menu.set_team(0)
 	var resumed := [false]
 	var forfeited := [false]
 	menu.resume_requested.connect(func(): resumed[0] = true)
@@ -78,20 +79,60 @@ func _run() -> void:
 
 	menu.open()
 	_check(menu.is_open(), "the pause menu opens")
+	_check(menu.buttons.size() == 6, "the pause menu has the six prototype tiles")
+	_check(menu.buttons[0].has_focus(), "Continue owns focus on entry")
+	_check(is_equal_approx(menu.screen.scoreboard.size.x, PauseScreen.PAUSE_W),
+		"the pause block uses the wide pause layout")
+	_check(menu.screen.lineup.card_count() == 11, "the lineup card shows all eleven starters")
+	_check(not menu.screen.lineup_tile.title.is_empty()
+		and menu.screen.lineup_tile.subtitle.contains("-"),
+		"the lineup card carries the team name and formation")
+	menu.set_waiting("WAITING FOR RIVAL 1/2")
+	_check(menu.screen.continue_tile.meta.contains("WAITING FOR RIVAL"),
+		"the continue tile carries the waiting-for-rival note")
 	_check(menu.handle_key(_key(KEY_ENTER)), "Enter is handled by the menu")
 	_check(resumed[0] and not menu.is_open(), "Continue resumes and closes the menu")
 
 	menu.open()
-	for i in 8:
-		menu.handle_key(_key(KEY_DOWN))
+	menu.handle_key(_key(KEY_DOWN))
+	_check(menu.buttons[4].has_focus(), "Down reaches the Settings tile")
 	menu.handle_key(_key(KEY_ENTER))
-	_check(menu.confirm_open, "forfeit asks for confirmation")
+	_check(menu.screen.is_settings_page(), "Settings opens the settings page")
+	_check(menu.screen.side_tile.has_focus(), "Side Selection owns focus there")
+	menu.handle_key(_key(KEY_ESCAPE))
+	_check(not menu.screen.is_settings_page(), "Esc returns to the pause page")
+	menu.handle_key(_key(KEY_ESCAPE))
+	_check(not menu.is_open(), "Esc resumes from the pause page")
+
+	menu.open()
+	menu.handle_key(_key(KEY_RIGHT))
+	_check(menu.buttons[1].has_focus(), "Right moves to Replay")
+	menu.handle_key(_key(KEY_LEFT))
+	_check(menu.buttons[0].has_focus(), "Left returns to Continue")
+	menu.handle_key(_key(KEY_RIGHT))
+	menu.handle_key(_key(KEY_DOWN))
+	_check(menu.buttons[5].has_focus(), "Down skips the SOON tiles to Quit Match")
+	_check(menu.screen.quit_tile.page_count == 3, "Quit Match is a three-page slot")
+	menu.handle_key(_key(KEY_E))
+	_check(menu.screen.quit_tile.title == "RESTART MATCH"
+		and menu.screen.quit_tile.page_index == 1, "E pages the slot to Restart")
+	menu.handle_key(_key(KEY_Q))
+	_check(menu.screen.quit_tile.title == "QUIT MATCH"
+		and menu.screen.quit_tile.page_index == 0, "Q pages back to Quit")
+	menu.handle_key(_key(KEY_RIGHT))
+	_check(menu.buttons[5].has_focus() and menu.screen.quit_tile.page_index == 0,
+		"sideways arrows no longer page the slot")
+	menu.handle_key(_key(KEY_ENTER))
+	_check(menu.screen.is_confirm_open(), "forfeit asks for confirmation")
 	menu.handle_key(_key(KEY_ENTER))
 	_check(forfeited[0], "confirming forfeit emits forfeit_requested")
 
 	menu.open()
 	menu.handle_joy(_joy(JOY_BUTTON_B))
 	_check(not menu.is_open(), "gamepad B closes the menu")
+
+	print("== check_gpf_pause: ", "PASS" if failures.is_empty() else "FAIL", " ==")
+	quit(0 if failures.is_empty() else 1)
 
 
 func _joy(button: int) -> InputEventJoypadButton:

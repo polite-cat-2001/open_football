@@ -1,9 +1,12 @@
 class_name BentoGrid
 extends Control
 
-# Manual 4-column bento layout. Not a Container: the selected tile has to be
-# able to translate/scale outside its cell, which a Container would undo.
+# Manual bento layout (4x2 by default). Not a Container: the selected tile has
+# to be able to translate/scale outside its cell, which a Container would undo.
 # Cells are declared in grid coordinates (1-based, CSS-like).
+
+@export var columns := 4
+@export var rows := 2
 
 var _cells: Array[Dictionary] = []
 
@@ -27,8 +30,8 @@ func _layout_cells() -> void:
 	if size.x <= 0.0 or size.y <= 0.0:
 		return
 	var gap := UiTokens.GAP
-	var column_width := (size.x - gap * 3.0) / 4.0
-	var row_height := (size.y - gap) / 2.0
+	var column_width := (size.x - gap * float(columns - 1)) / float(columns)
+	var row_height := (size.y - gap * float(rows - 1)) / float(rows)
 	var center := size * 0.5
 
 	for cell in _cells:

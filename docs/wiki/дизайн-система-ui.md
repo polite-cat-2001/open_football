@@ -118,6 +118,10 @@ shaders/ui_hatch.gdshader    — диагональная штриховка her
 
 Значения живут в `UiTokens`; не дублируй их в экранах.
 
+`BentoGrid` принимает `columns`/`rows` (по умолчанию 4×2; пауза матча — 2×3), а `BentoTile`
+умеет менять страницу слота (`set_page`, `set_pages` + точки-индикатор), заголовок
+(`set_heading`) и нижнюю meta-строку (`set_note`).
+
 ## Theme
 
 Варианты типов (`theme_type_variation`):
@@ -415,6 +419,49 @@ Back-цепочка в сети: `network_sides → network_menu`, `network_lobb
 (`BackToSides`/`BackToTeams`) или оба уходят в меню (`LeaveSession`). В C++ голосование
 разрешено в Sides/Teams/Options; `BackToTeams` из китов по-прежнему применяет `MenuTask`.
 
+## Пауза матча (PauseScreen)
+
+`scenes/match/pause_screen.tscn` (`scripts/ui/pause_screen.gd`, `PauseScreen`) — дизайн-системный
+порт `IngamePage`; носитель — `GpfPauseMenu` (`scripts/match/gpf_pause_menu.gd`, CanvasLayer над
+замороженным 3D-матчем). Ширина блока — `PAUSE_W` 1700 (шире shell-панели 1480, как в референсе).
+Сцена живёт постоянно, `open()`/`close()` показывают/прячут её; `hide_for_submenu()`/`dismiss()` —
+без resume. Открытие/закрытие — те же 150/240 мс fade+scale через `UiTransition.show_target`/
+`hide_target` (весь `Content` — `ui_transition_target`; скрим статичен). Ввод — через форвардер
+`gpf_slice` (`handle_key`/`handle_joy`): экран **не** входит в `ui_shell`, иначе UiNav-поллинг
+обрабатывал бы то же нажатие вторым шагом (Left с Replay улетал на lineup). Правый стик для
+пагинации — в `PauseScreen._input`; мышь — через `BentoTile`/стрелки.
+
+- Шапка `PauseScoreboard` (`scripts/ui/pause_scoreboard.gd`): тёмная полоса `PAUSE_W × 156`,
+  гербы (сначала `logo_url` пакета, затем импортированный `images_teams/<team_id>.png` через
+  `UiAssets.team_logo`), названия, `score0/score1`, часы `match_time_ms`.
+- Карточка состава — `BentoTile` + `PauseLineup` (`scripts/ui/pause_lineup.gd`): перспективное
+  поле, 11 фишек (`KitArt`-футболка, рейтинг, фамилия). Данные — те же, что в плане игры
+  предматчевого хаба: `package.players` + `package.formation` (нормализованные позиции) и
+  `base_stat` (добавлен в пакет); позиция карточки повторяет `GpfGamePlan._build_cards` (GK −0.74,
+  защита −0.40, остальные ×0.82/0.68 и `y×0.8`), поэтому ЦЗ не садятся на линию вратаря.
+  Заголовок — имя команды, подзаголовок — формация. Показывается команда человека, открывшего
+  паузу (`_pause_team`: устройство Start в 2P, иначе первый human); нажатие/Enter → game plan.
+- Сетка 2×3: Continue, Replay, Player Ratings (SOON), Match Info (SOON), Settings, Quit Match.
+  Слот может содержать несколько страниц: у Quit их три (`QUIT MATCH` + `RESTART MATCH` /
+  `CHANGE TEAMS` SOON). Страницы листаются `Q/E`, правым стиком геймпада или мышью по
+  `<- -> • • •` в правом нижнем углу плитки (стрелки и точки кликабельны, точки крупные);
+  `Left/Right` двигают фокус между плитками. В сети Continue получает meta
+  `WAITING FOR RIVAL n/m` (`set_waiting`). Карточка состава не «прыгает» при фокусе
+  (`BentoTile.still`).
+- Settings — вторая страница того же экрана: шапка скрыта, breadcrumb `PAUSE MENU > SETTINGS`,
+  сетка 4×2 поднимается под крошку (низ общий с меню-страницей); живая только Side Selection
+  (сетевой матч), остальное SOON. Переход туда/обратно — `UiTransition.change_content`
+  (fade+scale 150/240), ввод на время перехода игнорируется (`_switching`).
+  camera/visual/system в матче больше не выведены.
+- Quit — подтверждение `UiModal` (`scripts/ui/ui_modal.gd`, переиспользуемый компонент): скрим
+  на весь вьюпорт + светло-серая плашка сообщения (Inter 600/28, тёмный текст) и полноширинные
+  строки действий (фокус — navy + lime + кейкап-подсказка, остальные — белые с тёмным текстом).
+  Компонент добавляется в **корень экрана**, не в `Design`, иначе скрим не покроет letterbox;
+  `z_index=100`, поэтому тайлы/пагинатор его не перекрывают. Esc закрывает.
+- Проверки: `tests/check_gpf_pause.gd` (фокус, сетка, settings, пагинация, подтверждение,
+  ожидание), `check_gpf_slice_ui` (Esc → пауза → lineup → game plan → возврат),
+  `check_gpf_net_ui` (голосование и side selection).
+
 ## Подсказки (UiHintsBar)
 
 **Правило:** нижний блок статуса и подсказок управления на любом shell-экране — только
@@ -435,8 +482,8 @@ Back-цепочка в сети: `network_sides → network_menu`, `network_lobb
 ## Ввод (UiNav)
 
 `UiNav` — autoload, активен только пока в дереве есть узел в группе **`ui_shell`**
-(главное меню и выбор сторон добавляют себя в `_ready`). В матче он молчит, поэтому геймплейный
-InputMap не задет (кроме resume-оверлея, который живёт в группе только пока открыт).
+(главное меню и выбор сторон добавляют себя в `_ready`; меню паузы — только пока открыто).
+Вне открытого меню он молчит, поэтому геймплейный InputMap не задет.
 
 - Направления читаются из стрелок, D-pad и левого стика (порог 0.5); первое нажатие сразу,
   удержание — повтор через 320 мс, далее каждые 220 мс.
@@ -521,6 +568,7 @@ godot --headless --path . -s res://tests/check_network_back_vote.gd
 godot --headless --path . -s res://tests/check_gpf_net_back_vote_live.gd
 godot --headless --path . -s res://tests/check_ui_hints_bar.gd
 godot --headless --path . -s res://tests/check_ui_layout.gd
+godot --headless --path . -s res://tests/check_gpf_pause.gd
 ```
 
 - `check_main_menu_layout` — геометрия ±2 px на 1920×1080 и при масштабе 2/3, фокус

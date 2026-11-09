@@ -135,6 +135,7 @@ func _team_package(squad: Dictionary, lineup: MatchLineup, side: String,
 			"height": float(player.get("height", 1.8)),
 			"strong_foot": int(player.get("strong_foot", 0)),
 			"tm_id": int(player.get("tm_id", 0)),
+			"base_stat": float(player.get("base_stat", 0.0)),
 			"stats": stats.duplicate(),
 		})
 

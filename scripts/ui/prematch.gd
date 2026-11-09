@@ -260,7 +260,8 @@ func _start_match() -> void:
 		_refresh_state()
 		return
 	_match_started = true
-	_refresh_state()
+	# No state refresh here: disabling START would make the hub jump its
+	# selection to TEAM MANAGEMENT while the scene fades out.
 	UiTransition.change_scene(MATCH_SCENE)
 
 
