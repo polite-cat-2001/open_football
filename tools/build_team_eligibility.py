@@ -7,7 +7,7 @@ b-tree reader, where the same probe costs milliseconds per team and makes the
 217-team National Teams list visible as a hitch. This tool computes the two
 id sets once with Python's sqlite3 and writes them next to the database:
 
-  databases/default/team_eligibility.json
+  databases/default/open_football_eligibility.json
   {"version": 1, "club": [ids...], "national": [ids...]}
 
 TeamCatalog loads the file when present and falls back to the per-team index
@@ -21,11 +21,9 @@ import json
 import sqlite3
 from pathlib import Path
 
-DEFAULT_DATA_ROOT = Path(
-    r"C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
-)
-DATABASE_RELATIVE_PATH = Path("databases/default/database.sqlite")
-OUTPUT_RELATIVE_PATH = Path("databases/default/team_eligibility.json")
+DEFAULT_DATA_ROOT = Path(__file__).resolve().parent.parent / "data"
+DATABASE_RELATIVE_PATH = Path("databases/default/open_football.sqlite")
+OUTPUT_RELATIVE_PATH = Path("databases/default/open_football_eligibility.json")
 MIN_MATCH_PLAYERS = 11
 
 

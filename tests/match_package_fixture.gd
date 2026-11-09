@@ -4,7 +4,7 @@ extends RefCounted
 # checks (the shipping path builds the same package in prematch/gpf_slice).
 
 
-static func build(data_root: String = "", home_id: int = 3, away_id: int = 8,
+static func build(data_root: String = "", home_id: int = 7633, away_id: int = 8590,
 		options: Dictionary = {}) -> Dictionary:
 	var catalog := TeamCatalog.new()
 	if not catalog.load_data_root(data_root):

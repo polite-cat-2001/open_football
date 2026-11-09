@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 # End-to-end check for the GPF game shell: main menu -> match -> final whistle ->
 # main menu -> second match, all in one process. The C++ runtime node must survive
 # the scene change while every presentation piece is rebuilt from scratch.
@@ -87,7 +87,7 @@ func _run() -> void:
 		failures.append("team catalog could not be loaded: " + catalog.error)
 		_finish()
 		return
-	ShellState.set_teams(catalog.team_by_id(4), catalog.team_by_id(5))
+	ShellState.set_teams(catalog.team_by_id(4941), catalog.team_by_id(4035))
 
 	change_scene_to_file(MAIN_MENU)
 	await _frames(3)

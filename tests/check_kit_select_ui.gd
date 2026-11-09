@@ -4,8 +4,8 @@ extends SceneTree
 # package handoff.
 
 const KIT_SELECT := "res://scenes/kit_select.tscn"
-const HOME_ID := 4
-const AWAY_ID := 5
+const HOME_ID := 4941
+const AWAY_ID := 4035
 
 var failures: Array[String] = []
 

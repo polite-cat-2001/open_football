@@ -299,9 +299,9 @@ int main(int argc, char **argv) {
     }
 
     const int sampleStride = 100;
-    const int sampleTeams[] = {3, 8, 4407};
-    const int samplePlayerIds[] = {16694}; // Declan Rice: high base_stat at peak age
-    const int formationTeams[] = {1, 3, 8, 100, 1000, 280, 4407};
+    const int sampleTeams[] = {7633, 8590, 3377};
+    const int samplePlayerIds[] = {357662}; // Declan Rice: high base_stat at peak age
+    const int formationTeams[] = {7055, 7633, 8590, 82686, 40655, 55744, 3377};
 
     sqlite3_stmt *statement = nullptr;
     const char *query = "select id, team_id, age, base_stat, profile_xml from players order by id";

@@ -98,7 +98,7 @@ func _capture_real(size: Vector2i, club := false, focus := "") -> void:
 	if club:
 		var catalog := TeamCatalog.new()
 		if catalog.load_data_root(""):
-			ShellState.set_teams(catalog.team_by_id(4), catalog.team_by_id(5))
+			ShellState.set_teams(catalog.team_by_id(4941), catalog.team_by_id(4035))
 		catalog.close()
 	var packed := load("res://scenes/team_select.tscn") as PackedScene
 	if packed == null:

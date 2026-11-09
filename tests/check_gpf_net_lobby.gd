@@ -6,7 +6,7 @@ extends SceneTree
 #
 # Run:  godot --headless --path . -s res://tests/check_gpf_net_lobby.gd
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 const PORT_FIRST := 27851
 const PORT_TRIES := 20
@@ -16,7 +16,7 @@ var runtime: Node
 
 
 func _init() -> void:
-	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8)
+	var package := MatchPackageFixture.build(DATA_ROOT, 7633, 8590)
 	if package.is_empty():
 		print("CHECK FAIL: package")
 		quit(1)
@@ -119,15 +119,15 @@ func _run() -> void:
 	_check(chooser.size() == 2 and int(chooser[0]) == 0 and int(chooser[1]) == 0,
 		"the host chooses both sides when alone")
 
-	# Home picks team 3, away picks team 8 (the fixture package).
+	# Home picks UNAM Pumas, away picks Atlas (the fixture package).
 	_check(runtime.net_action("set_selection", 0, 0, 0), "home country selection is accepted")
-	_check(runtime.net_action("set_selection", 0, 2, 3), "home team selection is accepted")
+	_check(runtime.net_action("set_selection", 0, 2, 7633), "home team selection is accepted")
 	_check(runtime.net_action("set_selection", 1, 0, 0), "away country selection is accepted")
-	_check(runtime.net_action("set_selection", 1, 2, 8), "away team selection is accepted")
+	_check(runtime.net_action("set_selection", 1, 2, 8590), "away team selection is accepted")
 	info = runtime.net_lobby()
 	lobby = info.get("lobby", {})
 	var team_ids := Array(lobby.get("team_ids", []))
-	_check(team_ids == [3, 8], "the lobby holds the chosen team ids")
+	_check(team_ids == [7633, 8590], "the lobby holds the chosen team ids")
 	_check(Array(lobby.get("team_ready", [])) == [false, false], "teams are not confirmed yet")
 
 	check_not_started_yet(info)

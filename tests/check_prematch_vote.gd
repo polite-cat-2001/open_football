@@ -2,7 +2,7 @@ extends SceneTree
 # Headless check for local 2P kickoff: the plan's READY overlay is the shared
 # confirmation, so the hub starts on a single Start press (no start vote).
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const PREMATCH := "res://scenes/prematch.tscn"
 
 var failures: Array[String] = []
@@ -32,7 +32,7 @@ func _run() -> void:
 		_check(false, "the catalog loads")
 		_finish()
 		return
-	ShellState.set_teams(catalog.team_by_id(4), catalog.team_by_id(5))
+	ShellState.set_teams(catalog.team_by_id(4941), catalog.team_by_id(4035))
 	ShellState.set_controllers([
 		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
 		{"side": "away", "kind": "gamepad", "device": 1, "name": "Gamepad"},

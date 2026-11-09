@@ -1,11 +1,11 @@
-﻿extends SceneTree
+extends SceneTree
 # Headless regression for the original phase-break signal: at half-time the
 # bridge must expose a pending break, begin_phase_break() must pause, and
 # continue_after_phase_break() must resume. AI vs AI with the accelerated clock.
 #
 # Run:  godot --headless --path . -s res://tests/check_gpf_phase_break.gd
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 const MAX_TICKS := 60000
 
@@ -22,7 +22,7 @@ func _init() -> void:
 	runtime.set("human_control", false)
 	runtime.set("match_duration", 0.0)
 	runtime.set("data_root", DATA_ROOT)
-	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8, {"duration": 0.0})
+	var package := MatchPackageFixture.build(DATA_ROOT, 7633, 8590, {"duration": 0.0})
 	if package.is_empty():
 		print("CHECK FAIL: match package could not be built")
 		quit(1)

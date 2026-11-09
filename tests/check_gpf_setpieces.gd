@@ -4,7 +4,7 @@ extends SceneTree
 #   GPF_SCENARIO=taker|keeper|free|corner|goal|throw|kickoff
 # Run: godot --headless --path . -s res://tests/check_gpf_setpieces.gd
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 
 var failures: Array[String] = []
@@ -24,7 +24,7 @@ func _init() -> void:
 	runtime.set("human_control", true)
 	runtime.set("match_duration", 0.0)
 	runtime.set("data_root", DATA_ROOT)
-	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8, {"duration": 0.0})
+	var package := MatchPackageFixture.build(DATA_ROOT, 7633, 8590, {"duration": 0.0})
 	if package.is_empty():
 		print("CHECK FAIL: match package could not be built")
 		quit(1)

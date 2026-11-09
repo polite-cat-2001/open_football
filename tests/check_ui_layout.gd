@@ -6,7 +6,7 @@ extends SceneTree
 #
 # Run:  godot --headless --path . -s res://tests/check_ui_layout.gd
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const SIZES := [Vector2i(1920, 1080), Vector2i(1280, 720)]
 const SCREENS := [
 	"res://scenes/main_menu.tscn",
@@ -48,8 +48,8 @@ func _seed() -> void:
 	if not catalog.load_data_root(DATA_ROOT):
 		_fail("catalog loads: " + str(catalog.error))
 		return
-	var home := catalog.team_by_id(3)
-	var away := catalog.team_by_id(8)
+	var home := catalog.team_by_id(7633)
+	var away := catalog.team_by_id(8590)
 	ShellState.set_teams(home, away)
 	ShellState.set_controllers([
 		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},

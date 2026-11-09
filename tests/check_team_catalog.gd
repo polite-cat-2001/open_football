@@ -3,7 +3,7 @@ extends SceneTree
 # the database, countries/leagues/teams are fetched on demand, squads/ratings
 # only for the selected team, and errors stay readable.
 
-const KNOWN_TEAM := 3
+const KNOWN_TEAM := 7633
 
 var failures: Array[String] = []
 
@@ -45,7 +45,7 @@ func _run() -> void:
 	_check(str(leagues[0].get("country", "")) == str(countries[0].get("name", "")),
 		"a league resolves its country name")
 
-	var first_league := int(leagues[0].get("id", 0))
+	var first_league := str(leagues[0].get("id", ""))
 	var teams := catalog.teams_for_league(first_league)
 	_check(not teams.is_empty(), "a league lists its teams on demand")
 	var names_ok := true
@@ -57,14 +57,14 @@ func _run() -> void:
 	var known := catalog.team_by_id(KNOWN_TEAM)
 	_check(not known.is_empty() and not str(known.get("name", "")).is_empty(),
 		"a known team id resolves to a real team (%s)" % str(known.get("name", "")))
-	var known_league := catalog.league_by_id(int(known.get("league_id", 0)))
+	var known_league := catalog.league_by_id(str(known.get("league_id", "")))
 	_check(not known_league.is_empty(), "its league resolves by id")
-	_check(catalog.teams_for_league(int(known_league.get("id", 0))).any(
+	_check(catalog.teams_for_league(str(known_league.get("id", ""))).any(
 		func(team: Dictionary) -> bool: return int(team.get("id", 0)) == KNOWN_TEAM),
 		"the known team is in its league's list")
 
 	var national := catalog.national_league_id()
-	_check(national > 0, "the National Teams league is found")
+	_check(not national.is_empty(), "the National Teams league is found")
 	_check(not catalog.teams_for_league(national).is_empty(),
 		"national teams are listed on demand")
 
@@ -72,13 +72,13 @@ func _run() -> void:
 	_check(not squad.is_empty() and (squad.get("players", []) as Array).size() >= 11,
 		"a squad is loaded only for the selected team")
 	_check(catalog.can_field_eleven(KNOWN_TEAM), "the known team can field eleven")
-	_check(not catalog.can_field_eleven(387),
+	_check(not catalog.can_field_eleven(105806),
 		"a team with fewer than eleven players is rejected on ready")
-	_check(not catalog.teams_for_league(21).any(
-		func(team: Dictionary) -> bool: return int(team.get("id", 0)) == 387),
+	_check(not catalog.teams_for_league("VN2A").any(
+		func(team: Dictionary) -> bool: return int(team.get("id", 0)) == 105806),
 		"listing filters teams that cannot field eleven")
 	var listed_fieldable := true
-	for team in catalog.teams_for_league(21):
+	for team in catalog.teams_for_league("VN2A"):
 		if not catalog.can_field_eleven(int(team.get("id", 0))):
 			listed_fieldable = false
 			break
@@ -102,7 +102,7 @@ func _run() -> void:
 
 	ShellState.clear()
 	_check(not ShellState.has_selection(), "shell state starts without a selection")
-	ShellState.set_teams(known, catalog.team_by_id(4))
+	ShellState.set_teams(known, catalog.team_by_id(4941))
 	_check(ShellState.has_selection(), "shell state keeps a two-team selection")
 	_check(int(ShellState.home_team["id"]) == KNOWN_TEAM,
 		"shell state keeps the home team")
@@ -147,7 +147,8 @@ func _check_corrupt_database() -> void:
 	var corrupt_root := "user://__team_catalog_corrupt"
 	var database_dir := corrupt_root.path_join("databases/default")
 	DirAccess.make_dir_recursive_absolute(database_dir)
-	var file := FileAccess.open(database_dir.path_join("database.sqlite"), FileAccess.WRITE)
+	var file := FileAccess.open(database_dir.path_join(
+		TeamCatalog.DATABASE_RELATIVE_PATH.get_file()), FileAccess.WRITE)
 	if file != null:
 		file.store_string("this is definitely not a sqlite database")
 		file.close()
@@ -158,7 +159,8 @@ func _check_corrupt_database() -> void:
 		"the corrupt database message says it could not be read: " + catalog.error)
 	_check(catalog.countries().is_empty(), "a corrupt database leaves no half-loaded catalog")
 
-	DirAccess.remove_absolute(database_dir.path_join("database.sqlite"))
+	DirAccess.remove_absolute(database_dir.path_join(
+		TeamCatalog.DATABASE_RELATIVE_PATH.get_file()))
 	DirAccess.remove_absolute(database_dir)
 	DirAccess.remove_absolute(corrupt_root.path_join("databases"))
 	DirAccess.remove_absolute(corrupt_root)

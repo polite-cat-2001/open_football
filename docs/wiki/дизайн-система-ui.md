@@ -599,7 +599,7 @@ godot --headless --path . -s res://tests/check_ui_layout.gd
   pre-match `MatchData`; `start_match` использует её, поэтому LAN-пакет стартует с
   согласованными составами. EXIT закрывает LAN-сессию и возвращает в главное меню.
 - Команды с <11 игроками не попадают в список Team Select (`can_field_eleven` через
-  `players.team_id`/`nationalteam_id` индексы или готовый `team_eligibility.json`); хаб получает
+  `players.team_id`/`nationalteam_id` индексы или готовый `open_football_eligibility.json`); хаб получает
   только валидные составы и не имеет
   собственного error-состояния.
 - 3D-превью форм — статичный диорама-снимок без стадиона и без симуляции; это не полноценный

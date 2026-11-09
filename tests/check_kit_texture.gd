@@ -28,7 +28,7 @@ func _frames(count: int) -> void:
 func _run() -> void:
 	var teams := TeamCatalog.new()
 	_check(teams.load_data_root(""), "the team catalog loads")
-	var barca := teams.team_by_id(1795)
+	var barca := teams.team_by_id(131)
 	_check(str(barca.get("tm_id", "")) == "131", "TeamCatalog carries tm_id")
 	var kits_catalog := KitCatalog.new()
 	_check(kits_catalog.load_data_root(""), "the kit catalog loads")

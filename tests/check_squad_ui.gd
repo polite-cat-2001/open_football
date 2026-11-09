@@ -7,10 +7,10 @@ extends SceneTree
 #
 # Run:  godot --headless --path . -s res://tests/check_squad_ui.gd
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const TEAM_SELECT := "res://scenes/team_select.tscn"
 const SQUAD := "res://scenes/squad.tscn"
-const TEAM_ID := 4
+const TEAM_ID := 4941
 
 var failures: Array[String] = []
 

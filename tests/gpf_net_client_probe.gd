@@ -12,7 +12,7 @@ extends SceneTree
 # MatchSetup, build the paused match, join the mirrored side selection and
 # report the resumed match instead of playing through the lobby.
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 const GpfHudScript := preload("res://scripts/match/gpf_hud.gd")
 
@@ -194,7 +194,7 @@ func _run(address: String, port: int, running_marker: String = "",
 		mode: String = "", message_marker: String = "",
 		message_seen_marker: String = "") -> bool:
 	probe_result["stage"] = "runtime"
-	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8)
+	var package := MatchPackageFixture.build(DATA_ROOT, 7633, 8590)
 	if package.is_empty():
 		return _check(false, "client could not build the bootstrap package")
 
@@ -241,7 +241,7 @@ func _run(address: String, port: int, running_marker: String = "",
 
 	probe_result["stage"] = "team-select"
 	_check(runtime.net_action("set_selection", 1, 0, 0), "client country selection failed")
-	_check(runtime.net_action("set_selection", 1, 2, 8), "client team selection failed")
+	_check(runtime.net_action("set_selection", 1, 2, 8590), "client team selection failed")
 	_check(runtime.net_action("set_team_ready", 1, 1, 0), "client team confirmation failed")
 
 	probe_result["stage"] = "match-setup"
@@ -249,7 +249,7 @@ func _run(address: String, port: int, running_marker: String = "",
 		return _check(false, "client did not receive NetMatchSetup")
 	probe_result["team_ids"] = match_setup.get("team_ids", [])
 	var ids: Array = match_setup.get("team_ids", [])
-	if not _check(ids.size() == 2 and int(ids[0]) == 3 and int(ids[1]) == 8,
+	if not _check(ids.size() == 2 and int(ids[0]) == 7633 and int(ids[1]) == 8590,
 			"unexpected MatchSetup team ids: " + str(ids)):
 		return false
 

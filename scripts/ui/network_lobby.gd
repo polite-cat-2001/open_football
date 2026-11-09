@@ -18,7 +18,7 @@ const FIELD_TEAM := "team"
 @onready var view: TeamSelectView = $TeamSelectView
 
 var catalog := TeamCatalog.new()
-var national_league_id := -1
+var national_league_id := ""
 var country_entries: Array = []
 var sides: Array = []
 var back_vote: NetworkBackVote
@@ -131,7 +131,7 @@ func _clear_entries() -> void:
 
 func _build_country_entries() -> void:
 	country_entries.clear()
-	if national_league_id >= 0:
+	if not national_league_id.is_empty():
 		country_entries.append({
 			"id": "national",
 			"name": TeamCatalog.NATIONAL_LEAGUE_NAME,
@@ -170,7 +170,7 @@ func _apply_league(side: Dictionary) -> void:
 	_setup_teams(side, _league_id(side))
 
 
-func _setup_teams(side: Dictionary, league_id: int) -> void:
+func _setup_teams(side: Dictionary, league_id: String) -> void:
 	side["team_entries"] = _team_entries(league_id)
 	if int(side["team_index"]) >= (side["team_entries"] as Array).size():
 		side["team_index"] = 0
@@ -181,6 +181,7 @@ func _league_entries(country_id: int) -> Array:
 	for league in catalog.leagues_for_country(country_id):
 		entries.append({
 			"id": str(league.get("id", 0)),
+			"legacy_id": int(league.get("legacy_id", 0)),
 			"name": str(league.get("name", "")),
 			"logo_url": str(league.get("logo_url", "")),
 			"_texture_loaded": false,
@@ -188,7 +189,7 @@ func _league_entries(country_id: int) -> Array:
 	return entries
 
 
-func _team_entries(league_id: int) -> Array:
+func _team_entries(league_id: String) -> Array:
 	var entries: Array = []
 	for team in catalog.teams_for_league(league_id):
 		entries.append({
@@ -240,8 +241,8 @@ func _ensure_texture(entry: Dictionary, kind: String) -> Dictionary:
 	return entry
 
 
-func _league_id(side: Dictionary) -> int:
-	return int(str(_league_entry(side).get("id", "0")))
+func _league_id(side: Dictionary) -> String:
+	return str(_league_entry(side).get("id", ""))
 
 
 func _team_id(side: Dictionary) -> int:
@@ -305,23 +306,25 @@ func _apply_lobby_state(lobby: Dictionary) -> void:
 		var country_index := _find_country_index(country_id)
 		side["country_index"] = country_index
 		_apply_country(side)
-		var league_id := int(leagues[index]) if index < leagues.size() else -1
-		if league_id > 0:
-			var league_index := _find_entry_index(side["league_entries"], str(league_id))
-			if league_index >= 0:
-				side["league_index"] = league_index
-				_apply_league(side)
+		# The network carries the league cursor as an index, not a database id.
+		var league_index := int(leagues[index]) if index < leagues.size() else -1
+		if league_index >= 0 and not (side["league_entries"] as Array).is_empty():
+			side["league_index"] = mini(league_index, (side["league_entries"] as Array).size() - 1)
+			_apply_league(side)
 		var team_id := int(teams[index]) if index < teams.size() else -1
 		if team_id > 0:
 			var team_index := _find_entry_index(side["team_entries"], str(team_id))
 			if team_index >= 0:
 				side["team_index"] = team_index
+			else:
+				# Older peers may send only the team; derive its country/league.
+				_select_team_by_id(side, team_id)
 		side["ready"] = bool(ready[index]) if index < ready.size() else false
 	_applying = false
 
 
 func _find_country_index(country_id: int) -> int:
-	if country_id <= 0 and national_league_id >= 0:
+	if country_id <= 0 and not national_league_id.is_empty():
 		return 0
 	for index in country_entries.size():
 		if str(country_entries[index].get("id", "")) == str(country_id):
@@ -348,7 +351,6 @@ func _seed_defaults(side_index: int) -> void:
 		if _team_entry(side).is_empty():
 			return
 	var country := _country_entry(side)
-	var league := _league_entry(side)
 	var team := _team_entry(side)
 	if country.is_empty() or team.is_empty():
 		return
@@ -356,9 +358,7 @@ func _seed_defaults(side_index: int) -> void:
 	var country_id := 0 if str(country.get("id", "")) == "national" \
 		else int(str(country.get("id", "0")))
 	NET_SHELL.action(get_tree(), "set_selection", side_index, 0, country_id)
-	var league_id := int(str(league.get("id", "0")))
-	if league_id > 0:
-		NET_SHELL.action(get_tree(), "set_selection", side_index, 1, league_id)
+	NET_SHELL.action(get_tree(), "set_selection", side_index, 1, int(side["league_index"]))
 	var team_id := int(str(team.get("id", "0")))
 	if team_id > 0:
 		NET_SHELL.action(get_tree(), "set_selection", side_index, 2, team_id)
@@ -370,7 +370,7 @@ func _select_team_by_id(side: Dictionary, team_id: int) -> bool:
 	var team := catalog.team_by_id(team_id)
 	if team.is_empty():
 		return false
-	var league := catalog.league_by_id(int(team.get("league_id", 0)))
+	var league := catalog.league_by_id(str(team.get("league_id", "")))
 	if league.is_empty():
 		return false
 	var country_index := _country_index_for_id(int(league.get("country_id", 0)))
@@ -379,7 +379,7 @@ func _select_team_by_id(side: Dictionary, team_id: int) -> bool:
 	side["country_index"] = country_index
 	_apply_country(side)
 	var league_index := _find_entry_index(side["league_entries"],
-		str(league.get("id", 0)))
+		str(league.get("id", "")))
 	if league_index < 0:
 		return false
 	side["league_index"] = league_index
@@ -541,7 +541,6 @@ func _send_selection(side: int, field: String) -> void:
 		return
 	var model: Dictionary = sides[side]
 	var country := _country_entry(model)
-	var league := _league_entry(model)
 	var team := _team_entry(model)
 	if field == FIELD_COUNTRY:
 		var country_id := 0 if str(country.get("id", "")) == "national" \
@@ -552,16 +551,12 @@ func _send_selection(side: int, field: String) -> void:
 			if national_team > 0:
 				NET_SHELL.action(get_tree(), "set_selection", side, 2, national_team)
 			return
-		var league_id := int(str(league.get("id", "0")))
-		if league_id > 0:
-			NET_SHELL.action(get_tree(), "set_selection", side, 1, league_id)
+		NET_SHELL.action(get_tree(), "set_selection", side, 1, int(model["league_index"]))
 		var default_team := int(str(team.get("id", "0")))
 		if default_team > 0:
 			NET_SHELL.action(get_tree(), "set_selection", side, 2, default_team)
 	elif field == FIELD_COMPETITION:
-		var league_id := int(str(league.get("id", "0")))
-		if league_id > 0:
-			NET_SHELL.action(get_tree(), "set_selection", side, 1, league_id)
+		NET_SHELL.action(get_tree(), "set_selection", side, 1, int(model["league_index"]))
 		var team_id := int(str(team.get("id", "0")))
 		if team_id > 0:
 			NET_SHELL.action(get_tree(), "set_selection", side, 2, team_id)

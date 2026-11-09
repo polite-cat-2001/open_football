@@ -671,7 +671,9 @@ func _parse_columns(definitions: Array[String]) -> PackedStringArray:
 
 func _rowid_alias_index(definitions: Array[String], columns: PackedStringArray) -> int:
 	for definition in definitions:
-		if not definition.to_upper().contains("PRIMARY KEY"):
+		# Only INTEGER PRIMARY KEY is an alias for the rowid; a TEXT PRIMARY
+		# KEY keeps its value in the payload, like any other column.
+		if not definition.to_upper().contains("INTEGER PRIMARY KEY"):
 			continue
 		return columns.find(_column_name(definition))
 	return -1

@@ -1,7 +1,7 @@
 extends SceneTree
 # Regression check: the hub's EXIT command returns to the main menu.
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const PREMATCH := "res://scenes/prematch.tscn"
 
 var failures: Array[String] = []
@@ -31,7 +31,7 @@ func _run() -> void:
 		_check(false, "the catalog loads")
 		_finish()
 		return
-	ShellState.set_teams(catalog.team_by_id(4), catalog.team_by_id(5))
+	ShellState.set_teams(catalog.team_by_id(4941), catalog.team_by_id(4035))
 	ShellState.set_controllers([
 		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
 	])

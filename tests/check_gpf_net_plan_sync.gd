@@ -3,7 +3,7 @@ extends SceneTree
 # reaches the shared MatchData (so Start uses the edited lineup) and in-match
 # PlanSwap edits the live runtime formation.
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 const PORT := 28293
 
@@ -12,7 +12,7 @@ var runtime: Node
 
 
 func _init() -> void:
-	var package := MatchPackageFixture.build(DATA_ROOT, 4, 5, {"duration": 0.0})
+	var package := MatchPackageFixture.build(DATA_ROOT, 4941, 4035, {"duration": 0.0})
 	if package.is_empty():
 		print("CHECK FAIL: package")
 		quit(1)

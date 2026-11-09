@@ -5,10 +5,10 @@ extends SceneTree
 #
 # Run:  godot --headless --path . -s res://tests/check_gpf_local_2p_highlights.gd
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
-const HOME_ID := 4
-const AWAY_ID := 5
+const HOME_ID := 4941
+const AWAY_ID := 4035
 
 var failures: Array[String] = []
 var runtime: Node

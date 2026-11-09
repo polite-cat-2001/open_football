@@ -5,7 +5,7 @@ extends SceneTree
 #
 # Run:  godot --headless --path . -s res://tests/check_gpf_net_two_process.gd
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 const CLIENT_SCRIPT := "res://tests/gpf_net_client_probe.gd"
 const PORT_FIRST := 27951
@@ -18,7 +18,7 @@ var last_snapshot: Dictionary = {}
 
 
 func _init() -> void:
-	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8)
+	var package := MatchPackageFixture.build(DATA_ROOT, 7633, 8590)
 	if package.is_empty():
 		print("CHECK FAIL: package")
 		quit(1)
@@ -133,7 +133,7 @@ func _options_ready() -> bool:
 	var state := _lobby()
 	var ids: Array = state.get("team_ids", [])
 	var ready: Array = state.get("team_ready", [])
-	return int(state.get("phase", -1)) == 2 and ids == [3, 8] and ready == [true, true]
+	return int(state.get("phase", -1)) == 2 and ids == [7633, 8590] and ready == [true, true]
 
 
 func _wait_until(predicate: Callable, timeout_ms: int, poll_ms: int = 50) -> bool:
@@ -244,13 +244,13 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 	_check(true, "both peers ready advanced the lobby to Teams")
 
 	_check(runtime.net_action("set_selection", 0, 0, 0), "host country selection is accepted")
-	_check(runtime.net_action("set_selection", 0, 2, 3), "host team selection is accepted")
+	_check(runtime.net_action("set_selection", 0, 2, 7633), "host team selection is accepted")
 	_check(runtime.net_action("set_team_ready", 0, 1, 0), "host team confirmation is accepted")
 
 	if not _wait_until(_options_ready, 15000):
 		_check(false, "the lobby did not reach Options with both teams: " + str(_lobby()))
 		return
-	_check(true, "both peers chose teams 3 and 8 and confirmed")
+	_check(true, "both peers chose their teams and confirmed")
 
 	_check(runtime.net_start(), "host net_start succeeds: " + String(runtime.get_last_error()))
 	var snap: Dictionary = runtime.get_snapshot()
@@ -403,7 +403,7 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		"client status is ok: " + str(client_result.get("failures", [])))
 	_check(bool(client_result.get("accepted", false)), "the client was accepted")
 	var client_ids: Array = client_result.get("team_ids", [])
-	_check(client_ids.size() == 2 and int(client_ids[0]) == 3 and int(client_ids[1]) == 8,
+	_check(client_ids.size() == 2 and int(client_ids[0]) == 7633 and int(client_ids[1]) == 8590,
 		"the client received the same team ids: " + str(client_ids))
 	_check(bool(client_result.get("net_active", false)), "the client has a net session")
 	_check(bool(client_result.get("net_is_client", false)), "the client snapshot is a client")

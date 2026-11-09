@@ -7,7 +7,7 @@ extends SceneTree
 #
 # Run:  godot --headless --path . -s res://tests/check_gpf_hud_messages.gd
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
 const GpfHudScript := preload("res://scripts/match/gpf_hud.gd")
 
@@ -130,7 +130,7 @@ func _check_synthetic_hud() -> void:
 
 func _check_bridge_messages() -> void:
 	print("-- real match --")
-	var package := MatchPackageFixture.build(DATA_ROOT, 3, 8, {"duration": 0.0})
+	var package := MatchPackageFixture.build(DATA_ROOT, 7633, 8590, {"duration": 0.0})
 	if package.is_empty():
 		_check(false, "match package could not be built")
 		return

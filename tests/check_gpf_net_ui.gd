@@ -165,7 +165,7 @@ func _run() -> void:
 		_check(lobby_view != null and lobby_view.sides().size() == 2,
 			"the team lobby has HOME and AWAY panels")
 		var catalog: TeamCatalog = lobby_screen.get("catalog")
-		_check(catalog != null and catalog.national_league_id() > 0
+		_check(catalog != null and not catalog.national_league_id().is_empty()
 			and not catalog.teams_for_league(catalog.national_league_id()).is_empty(),
 			"the team lobby loads the catalog on demand")
 		var default_ids: Array = NET_SHELL.lobby(self).get("lobby", {}).get("team_ids", [])
@@ -173,9 +173,9 @@ func _run() -> void:
 			ShellState.DEFAULT_AWAY_TEAM_ID],
 			"the network lobby seeds the Quick Match team defaults")
 		_check(NET_SHELL.action(self, "set_selection", 0, 0, 0), "home country selection")
-		_check(NET_SHELL.action(self, "set_selection", 0, 2, 3), "home team selection")
+		_check(NET_SHELL.action(self, "set_selection", 0, 2, 7633), "home team selection")
 		_check(NET_SHELL.action(self, "set_selection", 1, 0, 0), "away country selection")
-		_check(NET_SHELL.action(self, "set_selection", 1, 2, 8), "away team selection")
+		_check(NET_SHELL.action(self, "set_selection", 1, 2, 8590), "away team selection")
 		await _frames(4)
 
 		# The shared view sends the same lobby actions through UiNav.
@@ -185,7 +185,7 @@ func _run() -> void:
 		var after_team := int(NET_SHELL.lobby(self).get("lobby", {}).get("team_ids", [0])[0])
 		_check(after_team != before_team,
 			"the team view sends set_selection through the lobby")
-		NET_SHELL.action(self, "set_selection", 0, 2, 3)
+		NET_SHELL.action(self, "set_selection", 0, 2, 7633)
 		await _frames(4)
 		await _tap_key(KEY_ENTER)
 		await _frames(4)

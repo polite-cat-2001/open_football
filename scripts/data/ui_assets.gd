@@ -92,10 +92,12 @@ static func country_flag(country: Dictionary) -> Texture2D:
 
 
 static func league_logo(league: Dictionary) -> Texture2D:
-	var league_id := int(league.get("id", 0))
-	if league_id > 0:
+	# Legacy media names stay keyed by the old numeric league id; the league's
+	# public id is its transfermarkt code.
+	var legacy_id := int(league.get("legacy_id", 0))
+	if legacy_id > 0:
 		var outlined := load_texture_mipmapped(
-			"databases/default/images_leagues_outline/%d.png" % league_id)
+			"databases/default/images_leagues_outline/%d.png" % legacy_id)
 		if outlined != null:
 			return outlined
 	var url := str(league.get("logo_url", ""))
@@ -103,9 +105,9 @@ static func league_logo(league: Dictionary) -> Texture2D:
 		var texture := load_texture("databases/default/%s" % url)
 		if texture != null:
 			return texture
-	if league_id > 0:
+	if legacy_id > 0:
 		var imported := load_texture_mipmapped(
-			"databases/default/images_leagues/%d.png" % league_id)
+			"databases/default/images_leagues/%d.png" % legacy_id)
 		if imported != null:
 			return imported
 	return orange_fallback()

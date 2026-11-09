@@ -2027,3 +2027,14 @@ placeholder; национальный значок и шрифт есть. Ру�
   `active_side` переключается после ready, Esc снимает ready предыдущей формы.
 - `check_gpf_net_ui` проверяет старт на home, смену home-комплекта, переход к away и смену
   away-комплекта до открытия хаба.
+
+## [2026-11-09] feat | Единая БД на tm_id для игры и карьеры
+- python tools/build_open_football_db.py сливает игровую database.sqlite и canon.db
+  карьеры в databases/default/open_football.sqlite: один id = tm_id (лиги — коды),
+  3 500 дублей «клуб + сборная» схлопнуты, добавлены поля карьеры и свободные агенты.
+- TeamCatalog/UiAssets/
+etwork_lobby читают новую БД; eligibility и manifest —
+  open_football_eligibility.json / open_football_manifest.json; дефолт Quick Match —
+  Barcelona 131 / Real Madrid 418.
+- SqliteReader больше не принимает TEXT PRIMARY KEY за rowid-алиас (нужно для leagues.id);
+  UiAssets.league_logo берёт старый числовой legacy_id только как ключ медиа.

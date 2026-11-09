@@ -5,9 +5,9 @@ extends SceneTree
 #
 # Run:  godot --headless --path . -s res://tests/check_prematch_lineup.gd
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
-const HOME_ID := 4
-const AWAY_ID := 5
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
+const HOME_ID := 4941
+const AWAY_ID := 4035
 const EDITED_SLOT := 5
 
 var failures: Array[String] = []

@@ -132,11 +132,14 @@ func _exit_tree() -> void:
 func _acquire_runtime(package: Dictionary) -> Node:
 	var existing := get_tree().get_first_node_in_group(RUNTIME_GROUP)
 	if existing != null:
+		if str(existing.get_data_root()).is_empty():
+			existing.set("data_root", TeamCatalog.new().resolve_data_root())
 		# A live LAN host match keeps the package it was started with.
 		if existing.get_snapshot().is_empty():
 			existing.set_match_package(package)
 		return existing
 	var node: Node = RUNTIME_SCENE.instantiate()
+	node.set("data_root", TeamCatalog.new().resolve_data_root())
 	if not node.set_match_package(package):
 		push_error("GpfRuntime rejected the match package: " + str(node.get_last_error()))
 	node.add_to_group(RUNTIME_GROUP)

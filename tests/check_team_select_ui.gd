@@ -4,8 +4,8 @@ extends SceneTree
 # home -> CPU-away flow, and the lazy catalog.
 
 const TEAM_SELECT := "res://scenes/team_select.tscn"
-const HOME_ID := 4
-const AWAY_ID := 5
+const HOME_ID := 4941
+const AWAY_ID := 4035
 
 var failures: Array[String] = []
 

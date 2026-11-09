@@ -5,7 +5,7 @@ extends SceneTree
 # Run:  godot --path . -s res://tests/capture_ui_shots.gd
 # Out:  .scratch/ui_shots/<screen>_<WxH>.png
 
-const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
+const DATA_ROOT := "C:/Users/Egor/Desktop/projects/open_football_career/data"
 const OUT_DIR := "C:/Users/Egor/Desktop/projects/open_football/.scratch/ui_shots"
 const SIZES := [Vector2i(1920, 1080), Vector2i(1280, 720)]
 const SCREENS := [
@@ -35,7 +35,7 @@ func _seed() -> void:
 	if not catalog.load_data_root(DATA_ROOT):
 		push_error("capture_ui_shots: catalog: " + str(catalog.error))
 		return
-	ShellState.set_teams(catalog.team_by_id(3), catalog.team_by_id(8))
+	ShellState.set_teams(catalog.team_by_id(7633), catalog.team_by_id(8590))
 	ShellState.set_controllers([
 		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
 	])

@@ -49,8 +49,8 @@ static func competition_name(catalog: TeamCatalog, home_team: Dictionary,
 
 
 static func league_name(catalog: TeamCatalog, team: Dictionary) -> String:
-	var league_id := int(team.get("league_id", 0))
-	if league_id <= 0:
+	var league_id := str(team.get("league_id", ""))
+	if league_id.is_empty():
 		return ""
 	return str(catalog.league_by_id(league_id).get("name", ""))
 

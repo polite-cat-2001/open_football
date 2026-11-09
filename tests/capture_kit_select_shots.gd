@@ -98,7 +98,7 @@ func _capture_real(size: Vector2i) -> void:
 	ShellState.clear()
 	var catalog := TeamCatalog.new()
 	if catalog.load_data_root(""):
-		ShellState.set_teams(catalog.team_by_id(1795), catalog.team_by_id(1794))
+		ShellState.set_teams(catalog.team_by_id(131), catalog.team_by_id(418))
 	catalog.close()
 	ShellState.set_controllers([
 		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},

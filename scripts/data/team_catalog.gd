@@ -8,23 +8,23 @@ extends RefCounted
 # only validates the database, countries/leagues/teams are fetched per screen
 # demand and cached, and squads/ratings only for the selected teams.
 
-const DEFAULT_DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
-const DATABASE_RELATIVE_PATH := "databases/default/database.sqlite"
-const ELIGIBILITY_RELATIVE_PATH := "databases/default/team_eligibility.json"
-const MANIFEST_RELATIVE_PATH := "databases/default/manifest.json"
+const DEFAULT_DATA_ROOT := "res://data"
+const DATABASE_RELATIVE_PATH := "databases/default/open_football.sqlite"
+const ELIGIBILITY_RELATIVE_PATH := "databases/default/open_football_eligibility.json"
+const MANIFEST_RELATIVE_PATH := "databases/default/open_football_manifest.json"
 const NATIONAL_LEAGUE_NAME := "National Teams"
 const MIN_MATCH_PLAYERS := 11
 const FAST_FILTER_LIMIT := 32
 const SQUAD_PLAYER_COLUMNS := [
 	"id", "team_id", "nationalteam_id", "firstname", "lastname", "role", "age",
 	"base_stat", "profile_xml", "formationorder", "nationalteamformationorder",
-	"skincolor", "hairstyle", "haircolor", "height", "strong_foot", "tm_id",
+	"skincolor", "hairstyle", "haircolor", "height", "strong_foot",
 ]
-const COUNTRY_COLUMNS := ["id", "name", "tm_id"]
-const LEAGUE_COLUMNS := ["id", "name", "country_id", "tier", "logo_url"]
+const COUNTRY_COLUMNS := ["id", "name"]
+const LEAGUE_COLUMNS := ["id", "legacy_id", "name", "country_id", "tier", "logo_url"]
 const TEAM_COLUMNS := [
 	"id", "league_id", "name", "shortname", "color1", "color2",
-	"logo_url", "kit_url", "tm_id",
+	"logo_url", "kit_url",
 ]
 
 var error := ""
@@ -38,7 +38,7 @@ var _leagues_by_country := {}
 var _league_rows := {}
 var _teams_by_league := {}
 var _team_rows := {}
-var _national_league_id := -1
+var _national_league_id := ""
 var _national_league_loaded := false
 var _ratings := {}
 var _fieldable := {}
@@ -96,12 +96,14 @@ func close() -> void:
 
 
 func resolve_data_root(root: String = "") -> String:
-	if not root.is_empty():
-		return root
-	var environment := OS.get_environment("GPF_DATA_ROOT")
-	if not environment.is_empty():
-		return environment
-	return DEFAULT_DATA_ROOT
+	var resolved := root
+	if resolved.is_empty():
+		var environment := OS.get_environment("GPF_DATA_ROOT")
+		resolved = environment if not environment.is_empty() else DEFAULT_DATA_ROOT
+	# The C++ runtime uses std::filesystem, so hand it a real path.
+	if resolved.begins_with("res://"):
+		resolved = ProjectSettings.globalize_path(resolved)
+	return resolved
 
 
 func database_path(root: String = "") -> String:
@@ -127,7 +129,7 @@ func countries() -> Array:
 			with_leagues[country_id] = true
 	for row in country_rows:
 		var id := _int(row.get("id"))
-		var entry := {"id": id, "name": _text(row.get("name")), "tm_id": _text(row.get("tm_id"))}
+		var entry := {"id": id, "name": _text(row.get("name")), "tm_id": str(id)}
 		_country_rows[id] = entry
 		if with_leagues.has(id):
 			_countries.append(entry)
@@ -150,14 +152,14 @@ func leagues_for_country(country_id: int) -> Array:
 	var result: Array = []
 	for row in rows:
 		var league := _league_from_row(row)
-		_league_rows[int(league["id"])] = league
+		_league_rows[str(league["id"])] = league
 		result.append(league)
 	result.sort_custom(_compare_leagues)
 	_leagues_by_country[country_id] = result
 	return result
 
 
-func teams_for_league(league_id: int) -> Array:
+func teams_for_league(league_id: String) -> Array:
 	if _teams_by_league.has(league_id):
 		return _teams_by_league[league_id]
 	var reader := _require_reader("teams")
@@ -217,26 +219,26 @@ func country_by_id(country_id: int) -> Dictionary:
 	var country := {
 		"id": _int(rows[0].get("id")),
 		"name": _text(rows[0].get("name")),
-		"tm_id": _text(rows[0].get("tm_id")),
+		"tm_id": str(_int(rows[0].get("id"))),
 	}
 	_country_rows[int(country["id"])] = country
 	return country
 
 
-func national_league_id() -> int:
+func national_league_id() -> String:
 	if _national_league_loaded:
 		return _national_league_id
 	var reader := _require_reader("leagues")
 	if reader == null:
-		return -1
+		return ""
 	var rows := reader.select_any("leagues", [{"column": "name", "value": NATIONAL_LEAGUE_NAME}],
 		PackedStringArray(["id"]))
 	if not _query_ok("leagues") or rows.is_empty():
 		_national_league_loaded = true
-		_national_league_id = -1
+		_national_league_id = ""
 		return _national_league_id
 	_national_league_loaded = true
-	_national_league_id = _int(rows[0].get("id"))
+	_national_league_id = _text(rows[0].get("id"))
 	return _national_league_id
 
 
@@ -255,7 +257,7 @@ func team_by_id(team_id: int) -> Dictionary:
 	return team
 
 
-func league_by_id(league_id: int) -> Dictionary:
+func league_by_id(league_id: String) -> Dictionary:
 	if _league_rows.has(league_id):
 		return _league_rows[league_id]
 	var reader := _require_reader("leagues")
@@ -295,7 +297,7 @@ func load_squad(team_id: int) -> Dictionary:
 	var reader := _require_reader("players")
 	if reader == null:
 		return {}
-	var league := league_by_id(_int(team.get("league_id")))
+	var league := league_by_id(str(team.get("league_id", "")))
 	var national := str(league.get("name", "")) == NATIONAL_LEAGUE_NAME
 
 	var team_rows := reader.select_indexed("teams", "id", team_id,
@@ -353,7 +355,7 @@ func load_team_rating(team_id: int) -> Dictionary:
 	var team := team_by_id(team_id)
 	if team.is_empty():
 		return {}
-	var league := league_by_id(_int(team.get("league_id")))
+	var league := league_by_id(str(team.get("league_id", "")))
 	var national := str(league.get("name", "")) == NATIONAL_LEAGUE_NAME
 	var reader := _require_reader("players")
 	if reader == null:
@@ -380,7 +382,7 @@ func can_field_eleven(team_id: int) -> bool:
 	var team := team_by_id(team_id)
 	if team.is_empty():
 		return false
-	var league := league_by_id(_int(team.get("league_id")))
+	var league := league_by_id(str(team.get("league_id", "")))
 	var national := str(league.get("name", "")) == NATIONAL_LEAGUE_NAME
 	var result := false
 	if _eligibility_loaded:
@@ -419,14 +421,15 @@ func _player_from_row(row: Dictionary, order_column: String) -> Dictionary:
 		"hair_color": _text(row.get("haircolor")),
 		"height": _float(row.get("height"), 1.8),
 		"strong_foot": _int(row.get("strong_foot"), 0),
-		"tm_id": _int(row.get("tm_id"), 0),
+		"tm_id": _int(row.get("id"), 0),
 	}
 
 
 func _league_from_row(row: Dictionary) -> Dictionary:
 	var country_id := _int(row.get("country_id"))
 	return {
-		"id": _int(row.get("id")),
+		"id": _text(row.get("id")),
+		"legacy_id": _int(row.get("legacy_id")),
 		"name": _text(row.get("name")),
 		"country_id": country_id,
 		"country": _text(_country_rows.get(country_id, {}).get("name", "")),
@@ -438,14 +441,14 @@ func _league_from_row(row: Dictionary) -> Dictionary:
 func _team_from_row(row: Dictionary) -> Dictionary:
 	return {
 		"id": _int(row.get("id")),
-		"league_id": _int(row.get("league_id")),
+		"league_id": _text(row.get("league_id")),
 		"name": _text(row.get("name")),
 		"shortname": _text(row.get("shortname")),
 		"color1": _text(row.get("color1")),
 		"color2": _text(row.get("color2")),
 		"logo_url": _text(row.get("logo_url")),
 		"kit_url": _text(row.get("kit_url")),
-		"tm_id": _text(row.get("tm_id")),
+		"tm_id": str(_int(row.get("id"))),
 	}
 
 
@@ -533,7 +536,7 @@ func _reset() -> void:
 	_league_rows.clear()
 	_teams_by_league.clear()
 	_team_rows.clear()
-	_national_league_id = -1
+	_national_league_id = ""
 	_national_league_loaded = false
 	_ratings.clear()
 	_fieldable.clear()

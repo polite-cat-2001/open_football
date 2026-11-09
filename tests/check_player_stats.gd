@@ -168,8 +168,8 @@ func _check_formations(reader: SqliteReader, fixture: Dictionary) -> void:
 
 
 func _check_squad(catalog: TeamCatalog, sample_stats: Dictionary) -> void:
-	var squad := catalog.load_squad(3)
-	_check(catalog.error.is_empty(), "team 3 squad loads: " + catalog.error)
+	var squad := catalog.load_squad(7633)
+	_check(catalog.error.is_empty(), "UNAM Pumas squad loads: " + catalog.error)
 	if not catalog.error.is_empty():
 		return
 	_check(str(squad["team"]["name"]) == "UNAM Pumas", "the squad screen gets the right team")
@@ -180,7 +180,7 @@ func _check_squad(catalog: TeamCatalog, sample_stats: Dictionary) -> void:
 	var players: Array = squad["players"]
 	_check(players.size() >= Formation.SLOT_COUNT, "the squad has a bench")
 	var first: Dictionary = players[0]
-	_check(int(first["id"]) == 48 and first["name"] == "Keylor Navas",
+	_check(int(first["id"]) == 79422 and first["name"] == "Keylor Navas",
 		"the first squad player is the first by formation order")
 	var expected: Dictionary = sample_stats.get(int(first["id"]), {})
 	_check(not expected.is_empty(), "the first squad player is in the C++ sample")
@@ -197,7 +197,7 @@ func _check_squad(catalog: TeamCatalog, sample_stats: Dictionary) -> void:
 			stats_ok = false
 	_check(stats_ok, "every squad player has all final stats in range")
 
-	var national := catalog.load_squad(4407)
+	var national := catalog.load_squad(3377)
 	_check(catalog.error.is_empty(), "a national team squad loads: " + catalog.error)
 	if not catalog.error.is_empty():
 		return

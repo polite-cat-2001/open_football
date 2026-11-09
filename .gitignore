@@ -29,3 +29,8 @@ bin/
 # Player face cutouts (Transfermarkt-derived, external bundle)
 assets/faces/*
 !assets/faces/.gdignore
+
+# Local game data root: databases, images, kits, media (copied from the
+# GameplayFootball data tree). Rebuild the career DB with
+# tools/build_open_football_db.py.
+data/

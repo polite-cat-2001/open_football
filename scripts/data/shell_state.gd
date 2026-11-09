@@ -13,8 +13,8 @@ const DEFAULT_MATCH_OPTIONS := {
 }
 # Quick Match's default pairing. The network team lobby seeds the same pair so
 # a fresh LAN match opens on the teams the host sees in Quick Match by default.
-const DEFAULT_HOME_TEAM_ID := 1795
-const DEFAULT_AWAY_TEAM_ID := 1794
+const DEFAULT_HOME_TEAM_ID := 131
+const DEFAULT_AWAY_TEAM_ID := 418
 const DEFAULT_CONTROLLERS := [
 	{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
 ]

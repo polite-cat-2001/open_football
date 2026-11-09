@@ -17,7 +17,7 @@ const FIELD_TEAM := "team"
 @onready var view: TeamSelectView = $TeamSelectView
 
 var catalog := TeamCatalog.new()
-var national_league_id := -1
+var national_league_id := ""
 var country_entries: Array = []
 var sides: Array = []
 var parallel := false
@@ -83,7 +83,7 @@ func _load_catalog() -> void:
 	# National Teams is the synthetic first entry; opening on it would list 217
 	# teams and pay the eligibility filter. Start on the first real country and
 	# restore a previous pair directly, without listing National Teams first.
-	var default_country := 1 if national_league_id >= 0 and country_entries.size() > 1 else 0
+	var default_country := 1 if not national_league_id.is_empty() and country_entries.size() > 1 else 0
 	for side in sides:
 		side["country_index"] = default_country
 		side["league_index"] = 0
@@ -125,7 +125,7 @@ func _clear_entries() -> void:
 
 func _build_country_entries() -> void:
 	country_entries.clear()
-	if national_league_id >= 0:
+	if not national_league_id.is_empty():
 		country_entries.append({
 			"id": "national",
 			"name": TeamCatalog.NATIONAL_LEAGUE_NAME,
@@ -164,7 +164,7 @@ func _apply_league(side: Dictionary) -> void:
 	_setup_teams(side, _league_id(side))
 
 
-func _setup_teams(side: Dictionary, league_id: int) -> void:
+func _setup_teams(side: Dictionary, league_id: String) -> void:
 	side["team_entries"] = _team_entries(league_id)
 	if int(side["team_index"]) >= (side["team_entries"] as Array).size():
 		side["team_index"] = 0
@@ -175,6 +175,7 @@ func _league_entries(country_id: int) -> Array:
 	for league in catalog.leagues_for_country(country_id):
 		entries.append({
 			"id": str(league.get("id", 0)),
+			"legacy_id": int(league.get("legacy_id", 0)),
 			"name": str(league.get("name", "")),
 			"logo_url": str(league.get("logo_url", "")),
 			"_texture_loaded": false,
@@ -182,7 +183,7 @@ func _league_entries(country_id: int) -> Array:
 	return entries
 
 
-func _team_entries(league_id: int) -> Array:
+func _team_entries(league_id: String) -> Array:
 	var entries: Array = []
 	for team in catalog.teams_for_league(league_id):
 		entries.append({
@@ -234,8 +235,8 @@ func _ensure_texture(entry: Dictionary, kind: String) -> Dictionary:
 	return entry
 
 
-func _league_id(side: Dictionary) -> int:
-	return int(str(_league_entry(side).get("id", "0")))
+func _league_id(side: Dictionary) -> String:
+	return str(_league_entry(side).get("id", ""))
 
 
 func _team_id(side: Dictionary) -> int:
@@ -447,7 +448,7 @@ func _restore_team(side_index: int, team_id: int) -> void:
 	var team := catalog.team_by_id(team_id)
 	if team.is_empty():
 		return
-	var league := catalog.league_by_id(int(team.get("league_id", 0)))
+	var league := catalog.league_by_id(str(team.get("league_id", "")))
 	if league.is_empty():
 		return
 	var national := str(league.get("name", "")) == TeamCatalog.NATIONAL_LEAGUE_NAME
