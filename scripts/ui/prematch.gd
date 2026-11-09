@@ -103,6 +103,7 @@ func _build_state(start_label: String) -> Dictionary:
 			"can_manage": true,
 			"can_options": not _match_started,
 			"network": false,
+			"settings_sides": not _match_started,
 			"host": true,
 			"client": false,
 			"local_two_player": devices.size() > 1,
@@ -201,6 +202,12 @@ func _on_back_requested(_input: Dictionary) -> void:
 
 
 func _on_game_plan_requested() -> void:
+	# Side Selection can change which side the human controls; the plan keeps
+	# the team list it was built with, so rebuild it before opening.
+	if home_lineup != null and away_lineup != null:
+		view.setup_game_plan(home_lineup, away_lineup, _human_teams(), {
+			"local_two_player": _device_keys().size() > 1,
+		})
 	_refresh_state()
 
 
@@ -219,6 +226,7 @@ func _on_exit_requested() -> void:
 	if _match_started:
 		return
 	UiTransition.change_scene(MAIN_MENU_SCENE)
+
 
 
 func build_package() -> Dictionary:

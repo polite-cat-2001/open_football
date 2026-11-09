@@ -42,6 +42,20 @@ func _tap(code: int) -> void:
 	await _frames(1)
 
 
+func _key(code: int) -> InputEventKey:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.pressed = true
+	return event
+
+
+func _open_options_page(view) -> void:
+	view.open_settings()
+	view.settings_screen.handle_nav(Vector2i.DOWN)
+	view.settings_screen.handle_nav(Vector2i.RIGHT)
+	view.settings_screen.handle_confirm()
+
+
 func _run() -> void:
 	ShellState.clear()
 	var catalog := TeamCatalog.new()
@@ -75,8 +89,13 @@ func _run() -> void:
 	_check(view.home_lineup.row_count() == 11 and view.away_lineup.row_count() == 11,
 		"both columns list eleven starters")
 	_check(not view.command_cell(0).disabled, "Start match is enabled with valid lineups")
-	_check(view.options_overlay.slider_value("duration") == 1.0,
-		"the options overlay starts from the shell options")
+	_open_options_page(view)
+	var duration_row: Dictionary = view.settings_screen.focused_row()
+	view.settings_screen.handle_nav(Vector2i.DOWN)
+	duration_row = view.settings_screen.focused_row()
+	_check(is_equal_approx((duration_row["slider"] as HubValueSlider).value, 1.0),
+		"the options page starts from the shell options")
+	view.settings_screen.close()
 
 	# Back leaves the hub for the kit screen (the previous step in the flow).
 	await _tap(KEY_ESCAPE)
@@ -93,12 +112,18 @@ func _run() -> void:
 		_finish()
 		return
 
-	# Options: the overlay writes the shell state and the package.
+	# Options: the settings page writes the shell state and the package.
 	view.open_options()
 	await _frames(2)
-	_check(view.options_overlay.visible, "the options overlay opens")
-	view.options_overlay._sliders["duration"].set_value(1.5)
-	view.options_overlay._sliders["difficulty"].set_value(0.6)
+	_check(view.settings_screen.is_open(), "the settings screen opens")
+	view.settings_screen.handle_nav(Vector2i.DOWN)
+	view.settings_screen.handle_nav(Vector2i.RIGHT)
+	view.settings_screen.handle_confirm()
+	var difficulty_slider: HubValueSlider = view.settings_screen.focused_row()["slider"]
+	view.settings_screen.handle_nav(Vector2i.DOWN)
+	var duration_slider: HubValueSlider = view.settings_screen.focused_row()["slider"]
+	duration_slider.set_value(1.5)
+	difficulty_slider.set_value(0.6)
 	await _frames(3)
 	_check(absf(float(ShellState.match_options.get("duration", -1)) - 1.5) < 0.001,
 		"the chosen duration lands in the shell state")
@@ -107,10 +132,27 @@ func _run() -> void:
 	view.close_overlay()
 	await _frames(2)
 
+	# Side selection from settings opens over the grid and returns to settings.
+	view.open_settings()
+	view.settings_screen.handle_nav(Vector2i.DOWN)
+	view.settings_screen.handle_nav(Vector2i.RIGHT)
+	view.settings_screen.handle_nav(Vector2i.RIGHT)
+	view.settings_screen.handle_confirm()
+	_check(view.side_select != null, "Side Selection opens over the settings")
+	_check(view.settings_screen.is_open(), "the settings screen stays behind it")
+	if view.side_select != null:
+		await _tap(KEY_ENTER)
+		_check(view.side_select == null, "Enter readies the device and closes side select")
+		_check(view.settings_screen.is_open(), "closing side select returns to settings")
+	view.settings_screen.close()
+	await _frames(2)
+
 	# Game plan: edit a starter, return to the hub and see the column follow.
-	view.open_game_plan()
+	view.call("_activate_command", 1)
 	await _frames(3)
 	_check(view.is_game_plan_open(), "Team management opens the Game Plan overlay")
+	_check(view.game_plan.human_teams().has(1) and not view.game_plan.human_teams().has(0),
+		"the side chosen in settings carries into the game plan")
 	var home_lineup: MatchLineup = screen.get("home_lineup")
 	var away_lineup: MatchLineup = screen.get("away_lineup")
 	_check(home_lineup != null and away_lineup != null, "both lineup models load")
@@ -166,6 +208,88 @@ func _run() -> void:
 			if int(entry.get("team", -2)) == 0:
 				active_names.append(str(entry.get("name", "")))
 		_check(active_names.has(promoted_name), "the edited starter is on the pitch")
+
+	# In-match local side select uses UiNav; GpfSlice must not swallow Esc first.
+	var slice := current_scene
+	if slice != null and slice.name == "GpfSlice":
+		slice.call("_open_pause")
+		await _frames(4)
+		var pause = slice.get("pause_menu")
+		if pause != null and pause.is_open():
+			var pause_screen = pause.screen
+			pause.handle_key(_key(KEY_DOWN))
+			pause.handle_key(_key(KEY_ENTER))
+			await _frames(3)
+			pause.handle_key(_key(KEY_DOWN))
+			pause.handle_key(_key(KEY_RIGHT))
+			pause.handle_key(_key(KEY_RIGHT))
+			pause.handle_key(_key(KEY_ENTER))
+			await _frames(4)
+			_check(pause_screen.has_local_side_select(),
+				"Side Selection opens in the live match")
+			Input.parse_input_event(_key(KEY_ESCAPE))
+			await _frames(3)
+			var release := InputEventKey.new()
+			release.keycode = KEY_ESCAPE
+			release.pressed = false
+			Input.parse_input_event(release)
+			await _frames(3)
+			_check(not pause_screen.has_local_side_select(),
+				"Esc closes the live in-match side select")
+			_check(pause_screen.is_settings_page(),
+				"Esc returns to settings in the live match")
+			pause.handle_key(_key(KEY_ENTER))
+			await _frames(3)
+			_check(pause_screen.has_local_side_select(),
+				"Side Selection reopens from the live settings")
+			Input.parse_input_event(_key(KEY_ENTER))
+			await _frames(3)
+			var enter_release := InputEventKey.new()
+			enter_release.keycode = KEY_ENTER
+			enter_release.pressed = false
+			Input.parse_input_event(enter_release)
+			await _frames(3)
+			_check(not pause_screen.has_local_side_select(),
+				"Enter readies and closes the live side select")
+			var human_state: Array = runtime.debug_human_state()
+			var away_state: Dictionary = {}
+			for entry in human_state:
+				if int(entry.get("team", -1)) == 1:
+					away_state = entry
+			_check(int(away_state.get("gamers", 0)) >= 1
+				and int(away_state.get("controlled", 0)) >= 1,
+				"the switched side owns a human-controlled player")
+			_check(int(runtime.get_human_team_id()) == 1,
+				"the human team follows the in-match side change")
+			var controlled := int(runtime.get_human_player_id())
+			_check(controlled > 0, "the switched side selects an outfield player")
+			if controlled > 0:
+				runtime.set("manual_step", true)
+				runtime.resume_match()
+				# Kickoff freezes players until the ball leaves the spot.
+				for _step in 20:
+					if Vector3(runtime.get_snapshot().get("ball_pos",
+							Vector3.ZERO)).length() > 1.5:
+						break
+					runtime.step_fixed(50)
+				var before: Dictionary = runtime.get_player_pose(controlled)
+				runtime.set_button(1, true)
+				runtime.step_fixed(20)
+				runtime.set_button(1, false)
+				var after: Dictionary = runtime.get_player_pose(controlled)
+				var moved := (Vector3(after.get("pos", Vector3.ZERO))
+					- Vector3(before.get("pos", Vector3.ZERO))).length()
+				_check(moved > 0.02,
+					"the human still moves after the side change")
+				var up_before: Dictionary = runtime.get_player_pose(controlled)
+				runtime.set_button(0, true)
+				runtime.step_fixed(20)
+				runtime.set_button(0, false)
+				var up_after: Dictionary = runtime.get_player_pose(controlled)
+				var up_moved := (Vector3(up_after.get("pos", Vector3.ZERO))
+					- Vector3(up_before.get("pos", Vector3.ZERO))).length()
+				_check(up_moved > 0.02, "Up still moves after the side change")
+				runtime.set("manual_step", false)
 
 	ShellState.clear()
 	_finish()

@@ -45,6 +45,8 @@ func _ready() -> void:
 	add_to_group(&"ui_shell")
 	panel_wrap.add_to_group(&"ui_transition_target")
 	theme = UiTheme.load_or_build()
+	SettingsStore.apply_graphics()
+	SettingsStore.apply_audio()
 
 	_setup_grids()
 	tab_bar.setup(["PLAY", "SETTINGS"])

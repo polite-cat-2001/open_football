@@ -15,11 +15,15 @@ signal replay_requested
 signal game_plan_requested
 signal side_select_requested
 
+const SIDE_SELECT_SCENE := preload("res://scenes/ui/settings_side_select.tscn")
 const HEADER_H := 156.0
 const PAUSE_W := 1700.0
 const LINEUP_W := 840.0
 const GRID_COLS := 2
 const GRID_ROWS := 3
+const SCREEN_OUT := 0.15
+const SCREEN_IN := 0.24
+const SCREEN_SCALE := 0.96
 
 const QUIT_PAGES := [
 	{"title": "QUIT MATCH", "glyph": "exit", "chip": "", "action": "quit"},
@@ -105,14 +109,7 @@ var ratings_tile: BentoTile
 var info_tile: BentoTile
 var settings_tile: BentoTile
 var quit_tile: BentoTile
-var settings_grid: BentoGrid
-var control_tile: BentoTile
-var params_tile: BentoTile
-var side_tile: BentoTile
-var video_tile: BentoTile
-var basics_tile: BentoTile
-var celebrations_tile: BentoTile
-var skills_tile: BentoTile
+var settings_screen: SettingsScreen
 var breadcrumb: UiBreadcrumb
 var hints: UiHintsBar
 var modal: UiModal
@@ -130,13 +127,15 @@ var _pending_entries: Array = []
 var _pending_kit: Dictionary = {}
 
 var _runtime: Node = null
+var _local_side_select: SettingsSideSelect = null
+var _local_side_layer: CanvasLayer = null
+var _local_side_opening := false
 var _package: Dictionary = {}
 var _team_id := 0
 var _page := Page.MENU
 var _quit_page := 0
 var _nav: Node = null
 var _menu_tiles: Array[BentoTile] = []
-var _settings_tiles: Array[BentoTile] = []
 
 
 func _ready() -> void:
@@ -165,14 +164,7 @@ func _build_once() -> void:
 	info_tile = $Design/PanelWrap/MenuGrid/InfoTile
 	settings_tile = $Design/PanelWrap/MenuGrid/SettingsTile
 	quit_tile = $Design/PanelWrap/MenuGrid/QuitTile
-	settings_grid = $Design/PanelWrap/SettingsGrid
-	control_tile = $Design/PanelWrap/SettingsGrid/ControlTile
-	params_tile = $Design/PanelWrap/SettingsGrid/ParamsTile
-	side_tile = $Design/PanelWrap/SettingsGrid/SideTile
-	video_tile = $Design/PanelWrap/SettingsGrid/VideoTile
-	basics_tile = $Design/PanelWrap/SettingsGrid/BasicsTile
-	celebrations_tile = $Design/PanelWrap/SettingsGrid/CelebrationsTile
-	skills_tile = $Design/PanelWrap/SettingsGrid/SkillsTile
+	settings_screen = $Design/SettingsScreen
 	breadcrumb = $Design/Breadcrumb
 	hints = $Design/PanelWrap/Hints
 
@@ -205,8 +197,6 @@ func _build_once() -> void:
 
 	_menu_tiles = [continue_tile, replay_tile, ratings_tile, info_tile,
 		settings_tile, quit_tile]
-	_settings_tiles = [control_tile, params_tile, side_tile, video_tile,
-		basics_tile, celebrations_tile, skills_tile]
 
 	menu_grid.columns = GRID_COLS
 	menu_grid.rows = GRID_ROWS
@@ -217,27 +207,20 @@ func _build_once() -> void:
 	menu_grid.add_cell(settings_tile, 1, 3)
 	menu_grid.add_cell(quit_tile, 2, 3)
 
-	settings_grid.add_cell(control_tile, 1, 1)
-	settings_grid.add_cell(params_tile, 2, 1)
-	settings_grid.add_cell(side_tile, 3, 1)
-	settings_grid.add_cell(video_tile, 4, 1)
-	settings_grid.add_cell(basics_tile, 1, 2)
-	settings_grid.add_cell(celebrations_tile, 2, 2)
-	settings_grid.add_cell(skills_tile, 3, 2)
+	settings_screen.set_scrim(false)
+	settings_screen.closed.connect(_on_settings_closed)
+	settings_screen.side_select_requested.connect(_on_settings_side_select)
 
 	lineup_tile.pressed.connect(func(): game_plan_requested.emit())
 	continue_tile.pressed.connect(close)
 	replay_tile.pressed.connect(func(): replay_requested.emit())
 	settings_tile.pressed.connect(_show_settings)
-	side_tile.pressed.connect(func(): side_select_requested.emit())
 	quit_tile.pressed.connect(func(): _activate_quit(_quit_page))
 
 	_nav = get_node_or_null("/root/UiNav")
-	if _nav != null:
-		_nav.moved.connect(_on_moved)
-		_nav.confirmed.connect(_on_confirmed)
-		_nav.cancelled.connect(_on_cancelled)
-		_nav.device_changed.connect(_on_device_changed)
+	# In-match input is routed directly by GpfSlice; do not also subscribe to the
+	# shell router here. The local side-select overlay adds "ui_shell", which
+	# would otherwise wake these handlers and double-handle Esc/Enter.
 
 	_install_lineup()
 	_apply_hints()
@@ -297,10 +280,26 @@ func open(team_id := -1) -> void:
 	_page = Page.MENU
 	_quit_page = 0
 	visible = true
+	_local_side_clear()
+	settings_screen.dismiss()
 	_refresh_data()
 	_apply_quit_page()
 	_show_page(Page.MENU)
 	_focus_initial()
+	if not was_open:
+		_animate_open()
+
+
+# Resume after an in-match side-select overlay: land on the settings screen
+# that opened it, not on the pause root.
+func open_settings_page() -> void:
+	_build_once()
+	var was_open := visible
+	_switching = false
+	_page = Page.SETTINGS
+	visible = true
+	_refresh_data()
+	_show_page(Page.SETTINGS)
 	if not was_open:
 		_animate_open()
 
@@ -335,11 +334,14 @@ func hide_now() -> void:
 	visible = false
 	_closing = false
 	_switching = false
+	_local_side_clear()
 	if content != null:
 		content.modulate.a = 1.0
 		content.scale = Vector2.ONE
 	if not _built:
 		return
+	if settings_screen != null:
+		settings_screen.dismiss()
 	if modal != null:
 		modal.close()
 	var viewport := get_viewport()
@@ -374,7 +376,14 @@ func set_waiting(text: String) -> void:
 func handle_key(event: InputEventKey) -> bool:
 	if not visible or not event.pressed:
 		return false
+	if has_local_side_select():
+		return true
 	_set_gamepad(false)
+	if _page == Page.SETTINGS:
+		# Settings owns every key while open; debug/menu hotkeys underneath
+		# (Tab, F1..F3, V) must not fire through the overlay.
+		settings_screen.handle_key(event)
+		return true
 	match event.keycode:
 		KEY_UP:
 			_on_moved(Vector2i.UP)
@@ -398,11 +407,17 @@ func handle_key(event: InputEventKey) -> bool:
 
 
 func _input(event: InputEvent) -> void:
-	if not visible or _page != Page.MENU:
+	if not visible or has_local_side_select():
 		return
 	if not (event is InputEventJoypadMotion):
 		return
 	var motion := event as InputEventJoypadMotion
+	if _page == Page.SETTINGS:
+		settings_screen.handle_motion(motion)
+		get_viewport().set_input_as_handled()
+		return
+	if _page != Page.MENU:
+		return
 	if motion.axis != JOY_AXIS_RIGHT_X or absf(motion.axis_value) <= 0.6:
 		return
 	_set_gamepad(true)
@@ -423,7 +438,12 @@ func _set_gamepad(value: bool) -> void:
 func handle_joy(event: InputEventJoypadButton) -> bool:
 	if not visible or not event.pressed:
 		return false
+	if has_local_side_select():
+		return true
 	_set_gamepad(true)
+	if _page == Page.SETTINGS:
+		settings_screen.handle_joy(event)
+		return true
 	match int(event.button_index):
 		JOY_BUTTON_A:
 			_on_confirmed()
@@ -481,7 +501,9 @@ func _layout() -> void:
 	lineup.position = Vector2(24.0, 104.0)
 	lineup.size = Vector2(LINEUP_W - 48.0, UiTokens.GRID_H - 128.0)
 
-	_apply_page_layout()
+	settings_screen.position = Vector2(panel_x, top)
+	settings_screen.size = Vector2(PAUSE_W, total_height)
+
 	_update_pager()
 
 
@@ -507,20 +529,20 @@ func _on_pager_page(target: int) -> void:
 	_apply_quit_page()
 
 
-# The settings page uses the space the scoreboard occupies on the pause page:
-# breadcrumb plate at the top, then a taller 4x2 grid whose bottom edge stays
-# put (so the hints bar never jumps).
-func _apply_page_layout() -> void:
-	if settings_grid == null:
-		return
-	if _page == Page.SETTINGS:
-		var inset := UiBreadcrumb.HEIGHT + UiTokens.GAP
-		var offset := HEADER_H + UiTokens.GAP - inset
-		settings_grid.position = Vector2(0.0, -offset)
-		settings_grid.size = Vector2(PAUSE_W, UiTokens.GRID_H + offset)
-	else:
-		settings_grid.position = Vector2.ZERO
-		settings_grid.size = Vector2(PAUSE_W, UiTokens.GRID_H)
+# The settings page is the shared SettingsScreen overlay; it owns its own
+# breadcrumb, grid and hints, so the pause chrome is hidden behind it.
+func _settings_context() -> Dictionary:
+	var options: Dictionary = _package.get("options", {})
+	return {
+		"runtime": _runtime,
+		"animate_close": true,
+		"options": {
+			"difficulty": float(options.get("difficulty", 0.8)),
+			"duration": float(options.get("duration", 1.0)),
+			"editable": false,
+		},
+		"side_select_available": true,
+	}
 
 
 func _refresh_data() -> void:
@@ -600,16 +622,107 @@ func _show_page(page: int) -> void:
 	_page = page
 	var menu_page := page == Page.MENU
 	scoreboard.visible = menu_page
-	panel_wrap.visible = true
+	panel_wrap.visible = menu_page
 	lineup_tile.visible = menu_page
 	menu_grid.visible = menu_page
-	settings_grid.visible = not menu_page
-	breadcrumb.visible = not menu_page
+	breadcrumb.visible = false
+	settings_screen.visible = not menu_page
 	if not menu_page:
-		breadcrumb.set_items(["PAUSE MENU", "SETTINGS"])
-	_apply_page_layout()
+		settings_screen.open(_settings_context())
+		_animate_screen(settings_screen, true)
 	_update_pager()
 	_apply_hints()
+
+
+func _on_settings_closed() -> void:
+	if _page != Page.SETTINGS:
+		return
+	if _animations_instant():
+		settings_screen.dismiss()
+		_switch_page(Page.MENU)
+		return
+	await _animate_screen(settings_screen, false)
+	settings_screen.dismiss()
+	_switch_page(Page.MENU)
+
+
+func _animate_screen(target: Control, show: bool) -> void:
+	if target == null:
+		return
+	if _animations_instant():
+		target.modulate.a = 1.0
+		target.scale = Vector2.ONE
+		return
+	target.pivot_offset = target.size * 0.5
+	if show:
+		target.modulate.a = 0.0
+		target.scale = Vector2.ONE * SCREEN_SCALE
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(target, "modulate:a", 1.0 if show else 0.0,
+		SCREEN_IN if show else SCREEN_OUT) \
+		.set_trans(Tween.TRANS_CUBIC if show else Tween.TRANS_QUAD) \
+		.set_ease(Tween.EASE_OUT if show else Tween.EASE_IN)
+	tween.tween_property(target, "scale",
+		Vector2.ONE if show else Vector2.ONE * SCREEN_SCALE,
+		SCREEN_IN if show else SCREEN_OUT) \
+		.set_trans(Tween.TRANS_CUBIC if show else Tween.TRANS_QUAD) \
+		.set_ease(Tween.EASE_OUT if show else Tween.EASE_IN)
+	await tween.finished
+
+
+func _animations_instant() -> bool:
+	return DisplayServer.get_name() == "headless"
+
+
+func _on_settings_side_select() -> void:
+	# Network matches use the host-authoritative mirrored overlay; a local
+	# match re-binds the HumanGamers through the C++ controller setup.
+	if _runtime != null and is_instance_valid(_runtime) \
+			and _runtime.has_method("is_net_active") and bool(_runtime.is_net_active()):
+		side_select_requested.emit()
+		return
+	if has_local_side_select() or _local_side_layer != null:
+		return
+	_local_side_opening = true
+	if not _animations_instant():
+		await _animate_screen(settings_screen, false)
+	if not visible or _local_side_layer != null:
+		_local_side_opening = false
+		return
+	settings_screen.visible = false
+	_local_side_layer = CanvasLayer.new()
+	_local_side_layer.name = "LocalSideSelectLayer"
+	_local_side_layer.layer = 9
+	add_child(_local_side_layer)
+	_local_side_select = SIDE_SELECT_SCENE.instantiate() as SettingsSideSelect
+	_local_side_select.name = "LocalSideSelect"
+	_local_side_select.runtime = _runtime
+	_local_side_select.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_local_side_select.closed.connect(_close_local_side_select)
+	_local_side_layer.add_child(_local_side_select)
+	_local_side_opening = false
+
+
+func _close_local_side_select() -> void:
+	_local_side_clear()
+	if not visible or settings_screen == null or not settings_screen.is_open():
+		# settings_screen.visible was false while the overlay was up; restore it.
+		if settings_screen != null:
+			settings_screen.visible = true
+	if settings_screen != null and _page == Page.SETTINGS:
+		_animate_screen(settings_screen, true)
+
+
+func _local_side_clear() -> void:
+	if _local_side_layer != null:
+		_local_side_layer.queue_free()
+		_local_side_layer = null
+	_local_side_select = null
+	_local_side_opening = false
+
+
+func has_local_side_select() -> bool:
+	return _local_side_select != null or _local_side_opening
 
 
 func _show_settings() -> void:
@@ -634,9 +747,8 @@ func _switch_page(target: int) -> void:
 
 func _focus_page(target: int) -> void:
 	if target == Page.SETTINGS:
-		side_tile.grab_focus()
-	else:
-		settings_tile.grab_focus()
+		return
+	settings_tile.grab_focus()
 
 
 func _apply_quit_page() -> void:
@@ -663,8 +775,6 @@ func _on_moved(direction: Vector2i) -> void:
 		modal.move_focus(direction)
 		return
 	if _page == Page.SETTINGS:
-		if _settings_tiles.find(get_viewport().gui_get_focus_owner()) == -1:
-			side_tile.grab_focus()
 		return
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus == lineup_tile:

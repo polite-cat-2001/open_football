@@ -34,22 +34,7 @@ var _net_status_layer: CanvasLayer
 var _net_status_label: Label
 var _net_last_player_ids: Array = []
 var _host_lost := false
-
-const BUTTONS := {
-	KEY_UP: [0],
-	KEY_RIGHT: [1],
-	KEY_DOWN: [2],
-	KEY_LEFT: [3],
-	KEY_W: [4, 8],
-	KEY_A: [5, 9],
-	KEY_S: [6, 10],
-	KEY_D: [7, 11],
-	KEY_Q: [12],
-	KEY_Z: [13],
-	KEY_E: [14],
-	KEY_C: [15],
-	KEY_ENTER: [17],
-}
+var _side_select_closing := false
 
 const SET_PIECE_KEYS := {
 	KEY_P: 6,
@@ -84,6 +69,7 @@ func _ready() -> void:
 	if not bool(runtime.is_runtime_ready()):
 		runtime.start_runtime_now()
 	_configure_input()
+	SettingsStore.apply_to_runtime(runtime)
 	actors.setup(runtime)
 	actors.set_match_kits(ShellState.match_package)
 	environment_view.setup(runtime, $Sun, $FillLight)
@@ -167,7 +153,22 @@ func _build_game_plan() -> void:
 
 func _human_teams() -> Array:
 	var teams: Array = []
+	# The C++ controller setup is authoritative after an in-match side change;
+	# ShellState is only the pre-match snapshot.
+	if runtime != null and is_instance_valid(runtime) and runtime.has_method("get_controller_setup"):
+		var setup: Array = runtime.get_controller_setup()
+		for entry in setup:
+			if not (entry is Dictionary):
+				continue
+			var side := int(entry.get("side", 0))
+			if side == 0:
+				continue
+			var team_id := 1 if side > 0 else 0
+			if not teams.has(team_id):
+				teams.append(team_id)
 	for controller in ShellState.controllers:
+		if not teams.is_empty():
+			break
 		if not (controller is Dictionary):
 			continue
 		var team_id := 1 if str(controller.get("side", "home")) == "away" else 0
@@ -368,6 +369,12 @@ func _input(event: InputEvent) -> void:
 		# The mirrored side-select overlay owns the input; it consumes its own
 		# events, the match must not act on the same buttons.
 		return
+	if pause_menu != null and pause_menu.has_local_side_select():
+		# The local side-select overlay is driven by UiNav; do not consume the
+		# event (or Enter/Esc starve). Keep the C++ device state in sync so a
+		# held direction released over the overlay does not stick afterwards.
+		_forward_overlay_input(event)
+		return
 	var viewport := get_viewport()
 	var menu_before := _menu_open()
 	if event is InputEventJoypadButton:
@@ -423,6 +430,21 @@ func _open_pause(device := -1) -> void:
 	pause_menu.open()
 	runtime.pause_match()
 	_release_sticks()
+	_release_buttons()
+
+
+# Function states are edge-tracked too: a direction held when the pause opens
+# would otherwise stay down after the side-select trip and make that arrow feel
+# dead (or keep the player running).
+func _release_buttons() -> void:
+	for function in 18:
+		runtime.set_button(function, false)
+	# D-pad buttons are edge-tracked in SDL; release them too so a held
+	# direction does not survive the pause/side-select trip.
+	for device in input_slots:
+		var slot := int(input_slots[device])
+		for button in 21:
+			runtime.set_gamepad_button(slot, button, false)
 
 
 # Stick axes are event-driven: the runtime keeps the last value, so a stick
@@ -438,6 +460,26 @@ func _release_sticks() -> void:
 # that pressed Start in local 2P, otherwise the first configured human (the
 # keyboard in 1P).
 func _pause_team(device: int) -> int:
+	# Runtime setup reflects a live network side change; ShellState would still
+	# hold the side chosen in the lobby.
+	if runtime != null and is_instance_valid(runtime) and runtime.has_method("get_controller_setup"):
+		var setup: Array = runtime.get_controller_setup()
+		var slot := int(input_slots.get(device, -1)) if device >= 0 else -1
+		for entry in setup:
+			if not (entry is Dictionary):
+				continue
+			var kind := str(entry.get("kind", "keyboard"))
+			var matches := device < 0
+			if not matches and kind == "gamepad" and slot >= 0 \
+					and int(entry.get("slot", -1)) == slot:
+				matches = true
+			elif not matches and kind == "keyboard" and device == 0:
+				matches = true
+			if not matches:
+				continue
+			var side := int(entry.get("side", 0))
+			if side != 0:
+				return 1 if side > 0 else 0
 	for controller in ShellState.controllers:
 		if not (controller is Dictionary):
 			continue
@@ -496,6 +538,7 @@ func _update_network_pause(snap: Dictionary) -> void:
 		_ensure_side_select_overlay(roster_status)
 		return
 	if not _menu_open():
+		pause_menu.set_team(_pause_team(-1))
 		pause_menu.open()
 		_release_sticks()
 	if not pause_menu.is_open():
@@ -546,6 +589,7 @@ func _ensure_side_select_overlay(status: String = "") -> void:
 	side_select_overlay = overlay
 	if not status.is_empty():
 		overlay.call("set_status", status)
+	_fade_screen(overlay, true)
 
 
 func _on_side_select_closed() -> void:
@@ -553,19 +597,45 @@ func _on_side_select_closed() -> void:
 
 
 func _close_side_select_overlay(reopen_pause: bool) -> void:
-	if side_select_overlay != null:
-		side_select_overlay.queue_free()
-		side_select_overlay = null
-	if _side_select_layer != null:
-		_side_select_layer.queue_free()
-		_side_select_layer = null
+	if _side_select_closing:
+		return
+	_side_select_closing = true
+	var overlay := side_select_overlay
+	var layer := _side_select_layer
+	side_select_overlay = null
+	_side_select_layer = null
+	if overlay != null and is_instance_valid(overlay):
+		await _fade_screen(overlay, false)
+		overlay.queue_free()
+	if layer != null and is_instance_valid(layer):
+		layer.queue_free()
+	_side_select_closing = false
 	if not reopen_pause or _host_lost:
 		return
 	# A commit resumed the match (nothing to show); a cancel stayed paused, so
-	# the pause menu comes back like IngamePage after GoBack.
+	# the settings screen that opened side select comes back.
 	var snap: Dictionary = runtime.get_snapshot()
 	if bool(snap.get("paused", false)):
-		pause_menu.open()
+		pause_menu.open_settings_page()
+
+
+func _fade_screen(target: Control, show: bool) -> void:
+	if target == null or DisplayServer.get_name() == "headless":
+		return
+	target.pivot_offset = target.size * 0.5
+	if show:
+		target.modulate.a = 0.0
+		target.scale = Vector2(0.96, 0.96)
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(target, "modulate:a", 1.0 if show else 0.0,
+		0.24 if show else 0.15) \
+		.set_trans(Tween.TRANS_CUBIC if show else Tween.TRANS_QUAD) \
+		.set_ease(Tween.EASE_OUT if show else Tween.EASE_IN)
+	tween.tween_property(target, "scale",
+		Vector2.ONE if show else Vector2(0.96, 0.96), 0.24 if show else 0.15) \
+		.set_trans(Tween.TRANS_CUBIC if show else Tween.TRANS_QUAD) \
+		.set_ease(Tween.EASE_OUT if show else Tween.EASE_IN)
+	await tween.finished
 
 
 func _lobby_player_ids(lobby: Dictionary) -> Array:
@@ -731,6 +801,29 @@ func _synthetic_key(keycode: int) -> InputEventKey:
 	return key
 
 
+func _forward_overlay_input(event: InputEvent) -> void:
+	# No set_input_as_handled(): UiNav must still see the event. This only
+	# mirrors the hardware state into the paused C++ match so releases land.
+	if event is InputEventKey:
+		var key := event as InputEventKey
+		if key.echo:
+			return
+		for function in SettingsStore.functions_for_key(key.keycode):
+			runtime.set_button(int(function), key.pressed)
+	elif event is InputEventJoypadButton:
+		var joy := event as InputEventJoypadButton
+		var device := int(joy.device)
+		if input_slots.has(device):
+			runtime.set_gamepad_button(int(input_slots[device]),
+				int(joy.button_index), joy.pressed)
+	elif event is InputEventJoypadMotion:
+		var motion := event as InputEventJoypadMotion
+		var device := int(motion.device)
+		if input_slots.has(device):
+			runtime.set_gamepad_axis(int(input_slots[device]),
+				int(motion.axis), motion.axis_value)
+
+
 func _handle_key(key_event: InputEventKey) -> void:
 	if key_event.keycode == KEY_F4:
 		if key_event.pressed:
@@ -801,7 +894,7 @@ func _handle_key(key_event: InputEventKey) -> void:
 					team = 1 - human_team
 				runtime.debug_force_set_piece(SET_PIECE_KEYS[key_event.keycode], team)
 			return
-	var functions: Array = BUTTONS.get(key_event.keycode, [])
+	var functions: Array = SettingsStore.functions_for_key(key_event.keycode)
 	for function in functions:
 		runtime.set_button(int(function), key_event.pressed)
 
@@ -838,6 +931,7 @@ func _start_fresh_match() -> void:
 	if game_plan != null:
 		game_plan.clear_local_orders()
 	_configure_input()
+	SettingsStore.apply_to_runtime(runtime)
 	if not runtime.restart_match():
 		push_error("GpfRuntime restart failed: " + str(runtime.get_last_error()))
 		return
@@ -866,3 +960,4 @@ func _save_screenshot() -> void:
 	var err := image.save_png(shot_path)
 	print("screenshot saved=", shot_path, " err=", err)
 	get_tree().quit()
+

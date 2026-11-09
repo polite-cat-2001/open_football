@@ -137,6 +137,10 @@ static func state_options() -> Dictionary:
 	return state
 
 
+static func state_settings_sides() -> Dictionary:
+	return _state({"settings_sides": true})
+
+
 static func _state(flags: Dictionary) -> Dictionary:
 	var home := side(0, "FC Barcelona", HOME_NAMES, HOME_ROLES, HOME_RATING,
 		kit("HOME", "#a50044", "#004d98"))
@@ -158,6 +162,7 @@ static func _state(flags: Dictionary) -> Dictionary:
 			"host": bool(flags.get("host", true)),
 			"client": bool(flags.get("client", false)),
 			"local_two_player": bool(flags.get("local_two_player", false)),
+			"settings_sides": bool(flags.get("settings_sides", false)),
 			"start_label": str(flags.get("start_label", "START MATCH")),
 			"start_votes": int(flags.get("start_votes", 0)),
 			"start_votes_needed": int(flags.get("start_votes_needed", 1)),

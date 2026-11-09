@@ -138,6 +138,17 @@ public:
     bool set_match_package(const Dictionary &package);
     bool has_match_package() const;
 
+    // System settings bridged from the Godot shell (SettingsStore). Gameplay
+    // and camera values are read by the original runtime itself; gamepad
+    // mapping is written straight onto its HIDGamepad devices.
+    void set_gameplay_settings(const Dictionary &values);
+    void set_camera_settings(const Dictionary &values);
+    void set_gamepad_settings(const Dictionary &values);
+    void set_audio_volume(float value);
+    // Local in-match side select: rebinds the HumanGamers from the queued
+    // controller setup (Match::UpdateControllerSetup).
+    void refresh_human_controllers();
+
     // LAN session (ticket 18). Host/join start the original NetServer/NetClient
     // and install them into MenuTask; the lobby itself is host-authoritative C++.
     bool net_host(int port, const String &name);

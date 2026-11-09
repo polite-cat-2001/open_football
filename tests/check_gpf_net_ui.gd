@@ -253,12 +253,20 @@ func _run() -> void:
 		await _frames(4)
 		if hub_view != null:
 			_check(not hub_view.command_cell(0).disabled, "host Start is enabled")
-			_check(hub_view.options_overlay.is_editable(), "host options are editable")
-			hub_view.options_overlay._sliders["difficulty"].set_value(0.9)
+			hub_view.open_settings()
+			await _frames(2)
+			_check(hub_view.settings_screen.options_editable(),
+				"host options are editable")
+			hub_view.settings_screen.handle_nav(Vector2i.DOWN)
+			hub_view.settings_screen.handle_nav(Vector2i.RIGHT)
+			hub_view.settings_screen.handle_confirm()
+			var difficulty: HubValueSlider = hub_view.settings_screen.focused_row()["slider"]
+			difficulty.set_value(0.9)
 			await _frames(8)
 			var lobby_now: Dictionary = NET_SHELL.lobby(self).get("lobby", {})
 			_check(absf(float(lobby_now.get("match_difficulty", 0.0)) - 0.9) < 0.001,
 				"the host difficulty reaches the lobby")
+			hub_view.settings_screen.close()
 		options.call("_start_host")
 		await _frames(12)
 
@@ -302,9 +310,12 @@ func _run() -> void:
 		_check(pause_menu != null and pause_menu.is_open(),
 			"the pause menu reopens for side selection")
 		if pause_menu != null:
-			# Continue -> Settings tile -> Settings page -> Side Selection.
+			# Continue -> Settings tile -> category grid -> Side Selection.
 			slice.call("_input", _key(KEY_DOWN))
 			slice.call("_input", _key(KEY_ENTER))
+			slice.call("_input", _key(KEY_DOWN))
+			slice.call("_input", _key(KEY_RIGHT))
+			slice.call("_input", _key(KEY_RIGHT))
 			slice.call("_input", _key(KEY_ENTER))
 			await _frames(6)
 			var overlay = slice.get("side_select_overlay")
@@ -339,6 +350,9 @@ func _run() -> void:
 		if pause_menu != null and pause_menu.is_open():
 			slice.call("_input", _key(KEY_DOWN))
 			slice.call("_input", _key(KEY_ENTER))
+			slice.call("_input", _key(KEY_DOWN))
+			slice.call("_input", _key(KEY_RIGHT))
+			slice.call("_input", _key(KEY_RIGHT))
 			slice.call("_input", _key(KEY_ENTER))
 			await _frames(6)
 			var overlay = slice.get("side_select_overlay")

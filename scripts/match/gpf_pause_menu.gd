@@ -79,6 +79,12 @@ func close() -> void:
 		screen.close()
 
 
+# Returning from the mirrored side-select overlay lands back in settings.
+func open_settings_page() -> void:
+	if screen != null:
+		screen.open_settings_page()
+
+
 # Hide the menu without resuming the match: a submenu (game plan) takes over
 # the same frozen match and returns to the pause menu when it closes.
 func hide_for_submenu() -> void:
@@ -101,6 +107,10 @@ func set_hint(text: String) -> void:
 func set_waiting(text: String) -> void:
 	if screen != null:
 		screen.set_waiting(text)
+
+
+func has_local_side_select() -> bool:
+	return screen != null and screen.has_local_side_select()
 
 
 func handle_key(event: InputEventKey) -> bool:

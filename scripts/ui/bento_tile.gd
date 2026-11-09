@@ -85,6 +85,14 @@ func _notification(what: int) -> void:
 		_apply_state(false)
 
 
+func set_tile_disabled(value: bool) -> void:
+	disabled = value
+	focus_mode = Control.FOCUS_NONE if value else Control.FOCUS_ALL
+	mouse_filter = Control.MOUSE_FILTER_IGNORE if value else Control.MOUSE_FILTER_STOP
+	if is_node_ready():
+		_apply_state(false)
+
+
 func set_base_rect(rect: Rect2, push: Vector2) -> void:
 	_base_rect = rect
 	_push = push
@@ -389,3 +397,4 @@ func _animate_selection(animate: bool) -> void:
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_tween.tween_property(self, "scale", target_scale, UiTokens.TILE_MOVE) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+

@@ -228,8 +228,9 @@ func _refresh_state() -> void:
 		"flags": {
 			"can_start": not _match_started,
 			"can_manage": true,
-			"can_options": _host and not _match_started,
+			"can_options": true,
 			"network": true,
+			"settings_sides": false,
 			"host": _host,
 			"client": not _host,
 			"local_two_player": false,

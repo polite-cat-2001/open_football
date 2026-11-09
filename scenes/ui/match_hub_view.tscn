@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/ui/hub_lineup_column.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/ui/hub_scoreboard.gd" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="5"]
-[ext_resource type="Script" path="res://scripts/ui/match_options_overlay.gd" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/ui/settings_screen.tscn" id="6"]
 
 [node name="MatchHubView" type="Control"]
 layout_mode = 3
@@ -82,7 +82,7 @@ offset_right = 1920.0
 offset_bottom = 1080.0
 mouse_filter = 2
 
-[node name="OptionsOverlay" type="Control" parent="Design/Overlay"]
+[node name="SettingsScreen" parent="Design/Overlay" instance=ExtResource("6")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -90,7 +90,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("6")
 
 [node name="GamePlanHost" type="Control" parent="Design/Overlay"]
 visible = false

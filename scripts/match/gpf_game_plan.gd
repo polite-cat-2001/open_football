@@ -1117,6 +1117,10 @@ func is_open() -> bool:
 	return _built and visible
 
 
+func human_teams() -> Array:
+	return _human_teams.duplicate()
+
+
 func open_plan() -> void:
 	if not _built:
 		_build_chrome()

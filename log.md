@@ -2149,3 +2149,12 @@ placeholder; национальный значок и шрифт есть. Ру�
 - Попутно: `ModalAction` текст задаётся после `add_child` (иначе `_label` ещё null), кейкапы
   `↵`/`ESC`; BOM убран из `pause_screen.tscn`/`pause_screen.gd`/`gpf_game_plan.gd`.
 - PASS: `check_gpf_pause`, `check_gpf_game_plan`; визуально — `.scratch/pause_confirm.png`.
+
+## [2026-11-09] feat | порт системных настроек
+
+Общий SettingsScreen в паузе и предматчевом хабе (плитка SYSTEM SETTINGS):
+Gameplay (12 слайдеров), Controls (клавиатура + геймпад mapping/function),
+Graphics, Audio, Camera, Match Options и Side Selection. Хранилище —
+SettingsStore (user://settings.cfg). C++-мост: set_gameplay_settings,
+set_camera_settings, set_gamepad_settings, set_audio_volume; клавиатурные
+биндинги слайса берутся из настроек. Вики — docs/wiki/система-настроек.md.

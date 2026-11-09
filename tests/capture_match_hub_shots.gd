@@ -15,6 +15,11 @@ const STATES := [
 	{"name": "network_client", "state": "state_network_client"},
 	{"name": "game_plan", "state": "state_1p", "overlay": "game_plan"},
 	{"name": "options", "state": "state_1p", "overlay": "options"},
+	{"name": "settings", "state": "state_1p", "overlay": "settings"},
+	{"name": "settings_gameplay", "state": "state_1p", "overlay": "settings_gameplay"},
+	{"name": "settings_keyboard", "state": "state_1p", "overlay": "settings_keyboard"},
+	{"name": "settings_graphics", "state": "state_1p", "overlay": "settings_graphics"},
+	{"name": "settings_sides", "state": "state_settings_sides", "overlay": "settings_sides"},
 	{"name": "exit_selected", "state": "state_1p", "select": 3},
 ]
 
@@ -62,6 +67,8 @@ func _capture(state: Dictionary, size: Vector2i) -> void:
 			data = FIXTURE.state_network_host()
 		"state_network_client":
 			data = FIXTURE.state_network_client()
+		"state_settings_sides":
+			data = FIXTURE.state_settings_sides()
 		_:
 			data = FIXTURE.state_1p()
 	view.setup(data, {"back_label": "back"})
@@ -71,7 +78,30 @@ func _capture(state: Dictionary, size: Vector2i) -> void:
 				view.setup_game_plan(FIXTURE.lineup_model(0), FIXTURE.lineup_model(1), [0])
 				view.open_game_plan()
 			"options":
-				view.open_options()
+				await view.open_options()
+			"settings":
+				await view.open_settings()
+			"settings_gameplay":
+				await view.open_settings()
+				view.settings_screen.handle_confirm()
+			"settings_keyboard":
+				await view.open_settings()
+				view.settings_screen.handle_nav(Vector2i.RIGHT)
+				view.settings_screen.handle_confirm()
+				view.settings_screen.handle_confirm()
+			"settings_graphics":
+				await view.open_settings()
+				view.settings_screen.handle_confirm()
+				view.settings_screen.handle_cancel()
+				view.settings_screen.handle_nav(Vector2i.RIGHT)
+				view.settings_screen.handle_nav(Vector2i.RIGHT)
+				view.settings_screen.handle_confirm()
+			"settings_sides":
+				await view.open_settings()
+				view.settings_screen.handle_nav(Vector2i.DOWN)
+				view.settings_screen.handle_nav(Vector2i.RIGHT)
+				view.settings_screen.handle_nav(Vector2i.RIGHT)
+				view.settings_screen.handle_confirm()
 	if state.has("select"):
 		view.call("_set_command_index", int(state["select"]), true)
 	await _frames(12)

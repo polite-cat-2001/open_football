@@ -68,6 +68,7 @@ append-only `log.md` в корне репозитория.
 | [[план-игры]] | `GpfGamePlan`: вкладки, bench/reserve, READY, фото/радар, сетевые правки состава |
 | [[ввод-и-контроллеры]] | выбор стороны/устройства, `InputSetup`, геймпад и клавиатура в C++ |
 | [[дизайн-система-ui]] | `UiTokens`/`UiTheme`/`UiNav`/`UiTransition`, общий Stage/`UiScreen`, бенто-меню, `SideSelectView`/`TeamSelectView`/`KitSelectView`/`MatchHubView`, сетевые меню/OSK/Back-голосование |
+| [[система-настроек]] | общий экран SettingsScreen в паузе и хабе, `SettingsStore` (`user://settings.cfg`), мост настроек в C++ |
 
 ## Порт ядра
 

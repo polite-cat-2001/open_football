@@ -32,6 +32,8 @@ func _init() -> void:
 		print("CHECK FAIL: runtime: ", runtime.get_last_error())
 		quit(1)
 		return
+	_check(runtime.has_method("set_gameplay_settings"), "the settings bridge is present")
+	_check(runtime.has_method("set_gamepad_settings"), "the gamepad bridge is present")
 	_run.call_deferred(package)
 
 
@@ -48,6 +50,18 @@ func _key(code: int) -> InputEventKey:
 	event.keycode = code
 	event.pressed = true
 	return event
+
+
+func _tap_key(code: int) -> void:
+	var event := _key(code)
+	Input.parse_input_event(event)
+	await process_frame
+	event = InputEventKey.new()
+	event.keycode = code
+	event.pressed = false
+	Input.parse_input_event(event)
+	await process_frame
+	await process_frame
 
 
 func _run(package: Dictionary) -> void:
@@ -98,9 +112,46 @@ func _run(package: Dictionary) -> void:
 	_check(menu.buttons[4].has_focus(), "Down reaches the Settings tile")
 	menu.handle_key(_key(KEY_ENTER))
 	_check(menu.screen.is_settings_page(), "Settings opens the settings page")
-	_check(menu.screen.side_tile.has_focus(), "Side Selection owns focus there")
+	_check(menu.screen.settings_screen.is_open(), "the shared settings screen is open")
+	_check(menu.screen.settings_screen.mode_name() == "menu",
+		"settings opens on the category grid")
+	menu.handle_key(_key(KEY_ENTER))
+	_check(menu.screen.settings_screen.mode_name() == "gameplay",
+		"Enter opens the gameplay sliders")
+	menu.handle_key(_key(KEY_DOWN))
+	menu.handle_key(_key(KEY_RIGHT))
+	_check(not menu.screen.settings_screen.is_capturing(),
+		"gameplay rows adjust instead of binding keys")
 	menu.handle_key(_key(KEY_ESCAPE))
-	_check(not menu.screen.is_settings_page(), "Esc returns to the pause page")
+	_check(menu.screen.settings_screen.mode_name() == "menu",
+		"Esc returns to the category grid")
+	# Local in-match side selection: opens over the settings, commits back.
+	menu.handle_key(_key(KEY_DOWN))
+	menu.handle_key(_key(KEY_RIGHT))
+	menu.handle_key(_key(KEY_RIGHT))
+	menu.handle_key(_key(KEY_ENTER))
+	_check(menu.screen.has_local_side_select(), "Side Selection opens in a local match")
+	_check(menu.screen.is_settings_page(), "settings stay behind the local side select")
+	_check(not menu.screen.settings_screen.visible,
+		"the settings screen is replaced by the overlay")
+	await _tap_key(KEY_RIGHT)
+	await _tap_key(KEY_RIGHT)
+	await _tap_key(KEY_ENTER)
+	_check(not menu.screen.has_local_side_select(),
+		"Enter readies and closes the local side select")
+	_check(menu.screen.is_settings_page(), "local side select returns to settings")
+	_check(menu.screen.settings_screen.visible, "the settings screen comes back")
+	# Esc closes the overlay too.
+	menu.handle_key(_key(KEY_DOWN))
+	menu.handle_key(_key(KEY_RIGHT))
+	menu.handle_key(_key(KEY_RIGHT))
+	menu.handle_key(_key(KEY_ENTER))
+	_check(menu.screen.has_local_side_select(), "Side Selection reopens")
+	await _tap_key(KEY_ESCAPE)
+	_check(not menu.screen.has_local_side_select(), "Esc closes the local side select")
+	_check(menu.screen.is_settings_page(), "Esc returns to settings")
+	menu.handle_key(_key(KEY_ESCAPE))
+	_check(not menu.screen.is_settings_page(), "Esc closes settings to the pause page")
 	menu.handle_key(_key(KEY_ESCAPE))
 	_check(not menu.is_open(), "Esc resumes from the pause page")
 

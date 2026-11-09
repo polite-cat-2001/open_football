@@ -12,6 +12,7 @@ signal lineup_changed
 signal option_changed(field: String, value: float)
 signal exit_requested
 
+const SIDE_SELECT_SCENE := preload("res://scenes/ui/settings_side_select.tscn")
 const COMMAND_START := 0
 const COMMAND_MANAGE := 1
 const COMMAND_OPTIONS := 2
@@ -35,10 +36,13 @@ const TRANSITION_SCALE_FROM := 0.96
 var status_label: Label
 var legend: UiLegend
 @onready var overlay: Control = $Design/Overlay
-@onready var options_overlay: MatchOptionsOverlay = $Design/Overlay/OptionsOverlay
+@onready var settings_screen: SettingsScreen = $Design/Overlay/SettingsScreen
 @onready var game_plan_host: Control = $Design/Overlay/GamePlanHost
 
 var game_plan: GpfGamePlan
+var side_select: SettingsSideSelect
+var _side_select_layer: CanvasLayer
+var _side_select_opening := false
 
 var _ui_nav: Node
 var _state: Dictionary = {}
@@ -65,10 +69,13 @@ func _ready() -> void:
 		_ui_nav.device_changed.connect(_on_device_changed)
 	status_label = hints.status_label
 	legend = hints.legend
+	if settings_screen != null:
+		settings_screen.set_scrim(false)
 	_build_commands()
 	_build_game_plan()
-	options_overlay.option_changed.connect(_on_option_changed)
-	options_overlay.closed.connect(_close_overlay)
+	settings_screen.match_options_changed.connect(_on_option_changed)
+	settings_screen.closed.connect(_close_overlay)
+	settings_screen.side_select_requested.connect(_open_side_select)
 	theme_changed.connect(_layout)
 	resized.connect(_layout)
 	get_viewport().size_changed.connect(_layout)
@@ -89,7 +96,8 @@ func apply_state(state: Dictionary) -> void:
 	home_lineup.setup(sides[0] if sides.size() > 0 else {})
 	away_lineup.setup(sides[1] if sides.size() > 1 else {})
 	scoreboard.setup(state)
-	options_overlay.setup(state)
+	if settings_screen.is_open():
+		settings_screen.update_context(_settings_context())
 	_apply_command_states()
 	set_status(str(state.get("status", "")), bool(state.get("status_error", false)))
 	refresh_legend()
@@ -118,7 +126,8 @@ func open_game_plan() -> void:
 		return
 	_mode = "game_plan"
 	_transitioning = true
-	options_overlay.visible = false
+	if settings_screen != null:
+		settings_screen.dismiss()
 	if _animations_instant():
 		_show_game_plan_overlay()
 		_transitioning = false
@@ -133,14 +142,78 @@ func is_game_plan_open() -> bool:
 	return _mode == "game_plan" and game_plan != null and game_plan.is_open()
 
 
-func open_options() -> void:
+func open_settings() -> void:
 	if _transitioning or _mode == "game_plan":
 		return
-	_mode = "options"
+	_mode = "settings"
+	_transitioning = true
 	overlay.visible = true
-	options_overlay.visible = true
 	game_plan_host.visible = false
-	refresh_legend()
+	if _animations_instant():
+		panel_wrap.visible = false
+		settings_screen.open(_settings_context())
+		settings_screen.modulate.a = 1.0
+		settings_screen.scale = Vector2.ONE
+		_transitioning = false
+		return
+	await _animate_out(panel_wrap)
+	panel_wrap.visible = false
+	settings_screen.open(_settings_context())
+	await _animate_in(settings_screen)
+	_transitioning = false
+
+
+# Kept for callers/tests that still name the old options overlay.
+func open_options() -> void:
+	open_settings()
+
+
+func _open_side_select() -> void:
+	if side_select != null or _side_select_opening \
+			or not bool(_flags.get("settings_sides", false)):
+		return
+	_side_select_opening = true
+	# Same choreography as every other screen: 150 ms out, 240 ms in. The
+	# side-select stage is the same stadium, so it swaps in after the fade-out.
+	if settings_screen != null and not _animations_instant():
+		await _animate_out(settings_screen)
+	side_select = SIDE_SELECT_SCENE.instantiate() as SettingsSideSelect
+	side_select.name = "SettingsSideSelect"
+	side_select.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	side_select.closed.connect(_close_side_select)
+	side_select.controllers_changed.connect(func(): lineup_changed.emit())
+	_side_select_layer = CanvasLayer.new()
+	_side_select_layer.name = "SettingsSideSelectLayer"
+	_side_select_layer.layer = 8
+	add_child(_side_select_layer)
+	_side_select_layer.add_child(side_select)
+	_side_select_opening = false
+
+
+func _close_side_select() -> void:
+	if _side_select_layer != null:
+		_side_select_layer.queue_free()
+		_side_select_layer = null
+	if side_select != null:
+		side_select = null
+	# The side stage vanishes with its node; fade the settings screen back in.
+	if settings_screen != null and settings_screen.is_open() \
+			and not _animations_instant():
+		await _animate_in(settings_screen)
+
+
+func _settings_context() -> Dictionary:
+	var options: Dictionary = _state.get("options", {})
+	return {
+		"runtime": get_tree().get_first_node_in_group(&"gpf_runtime") if is_inside_tree() else null,
+		"animate_close": true,
+		"options": {
+			"difficulty": float(options.get("difficulty", 0.8)),
+			"duration": float(options.get("duration", 1.0)),
+			"editable": bool(options.get("editable", true)),
+		},
+		"side_select_available": bool(_flags.get("settings_sides", false)),
+	}
 
 
 func close_overlay() -> void:
@@ -182,7 +255,7 @@ func _build_commands() -> void:
 		var data: Dictionary = [
 			{"id": "start", "label": "START MATCH", "glyph": "play"},
 			{"id": "manage", "label": "TEAM MANAGEMENT", "glyph": "tactics"},
-			{"id": "options", "label": "MATCH OPTIONS", "glyph": "sliders"},
+			{"id": "options", "label": "SYSTEM SETTINGS", "glyph": "gear"},
 			{"id": "exit", "label": "EXIT", "glyph": "exit"},
 		][index]
 		cell.setup(str(data["id"]), str(data["label"]), str(data["glyph"]))
@@ -267,7 +340,7 @@ func _activate_command(index: int) -> void:
 			open_game_plan()
 		COMMAND_OPTIONS:
 			options_requested.emit()
-			open_options()
+			open_settings()
 		COMMAND_EXIT:
 			exit_requested.emit()
 
@@ -285,15 +358,47 @@ func _close_overlay() -> void:
 	if _mode == "game_plan":
 		_close_game_plan()
 		return
+	if _mode == "settings":
+		_close_settings()
+		return
 	_mode = "hub"
 	overlay.visible = false
-	options_overlay.visible = false
 	game_plan_host.visible = false
+	panel_wrap.visible = true
 	hub_top.visible = true
 	command.visible = true
 	hints.visible = true
 	if game_plan != null:
 		game_plan.close_plan()
+	refresh_legend()
+	_refresh_command_focus(true)
+
+
+func _close_settings() -> void:
+	if _transitioning:
+		return
+	if side_select != null:
+		_close_side_select()
+	_transitioning = true
+	if _animations_instant():
+		_hide_settings_overlay()
+		_transitioning = false
+		return
+	await _animate_out(settings_screen)
+	_hide_settings_overlay()
+	await _animate_in(panel_wrap)
+	_transitioning = false
+
+
+func _hide_settings_overlay() -> void:
+	_mode = "hub"
+	settings_screen.dismiss()
+	overlay.visible = false
+	game_plan_host.visible = false
+	panel_wrap.visible = true
+	hub_top.visible = true
+	command.visible = true
+	hints.visible = true
 	refresh_legend()
 	_refresh_command_focus(true)
 
@@ -411,13 +516,22 @@ func _layout() -> void:
 	hints.position = Vector2(0.0, status_y)
 	hints.size = Vector2(UiTokens.PANEL_W, hints_height)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	options_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	settings_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	game_plan_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if game_plan != null:
 		game_plan.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
 func _input(event: InputEvent) -> void:
+	if _mode == "settings" and settings_screen != null and settings_screen.is_capturing():
+		var captured := false
+		if event is InputEventKey:
+			captured = settings_screen.handle_key(event as InputEventKey)
+		elif event is InputEventJoypadButton:
+			captured = settings_screen.handle_joy(event as InputEventJoypadButton)
+		if captured:
+			get_viewport().set_input_as_handled()
+		return
 	if _transitioning or _mode != "game_plan" or game_plan == null:
 		return
 	var handled := false
@@ -459,19 +573,14 @@ func _on_nav_gamepad_moved(direction: Vector2i, device: int) -> void:
 
 
 func _handle_move(direction: Vector2i, _input: Dictionary, device: int) -> void:
+	if side_select != null or _side_select_opening:
+		return
 	match _mode:
 		"game_plan":
 			if game_plan != null:
 				game_plan.handle_ui_action(_direction_action(direction), device)
-		"options":
-			if direction == Vector2i.UP:
-				options_overlay.move_focus(-1)
-			elif direction == Vector2i.DOWN:
-				options_overlay.move_focus(1)
-			elif direction == Vector2i.LEFT:
-				options_overlay.adjust(-1)
-			elif direction == Vector2i.RIGHT:
-				options_overlay.adjust(1)
+		"settings":
+			settings_screen.handle_nav(direction)
 		_:
 			if direction == Vector2i.LEFT:
 				_set_command_index(_next_enabled(_command_index, -1), true)
@@ -480,6 +589,8 @@ func _handle_move(direction: Vector2i, _input: Dictionary, device: int) -> void:
 
 
 func _on_nav_confirmed() -> void:
+	if side_select != null or _side_select_opening:
+		return
 	if _transitioning:
 		return
 	if _ui_nav != null and _ui_nav.event_was_modal():
@@ -488,13 +599,15 @@ func _on_nav_confirmed() -> void:
 		"game_plan":
 			if game_plan != null:
 				game_plan.handle_ui_action("confirm", _device_for_confirm())
-		"options":
-			options_overlay.confirm()
-		_:
+		"settings":
+			settings_screen.handle_confirm()
+		_: 
 			_activate_command(_command_index)
 
 
 func _on_nav_cancelled() -> void:
+	if side_select != null or _side_select_opening:
+		return
 	if _transitioning:
 		return
 	if _ui_nav != null and _ui_nav.event_was_modal():
@@ -504,13 +617,15 @@ func _on_nav_cancelled() -> void:
 			if game_plan == null or not game_plan.handle_ui_action("cancel",
 					_device_for_confirm()):
 				_close_game_plan()
-		"options":
-			_close_overlay()
+		"settings":
+			settings_screen.handle_cancel()
 		_:
 			back_requested.emit(_current_input())
 
 
 func _on_nav_tab(delta: int) -> void:
+	if side_select != null or _side_select_opening:
+		return
 	if _transitioning:
 		return
 	if _ui_nav != null and _ui_nav.event_was_modal():
@@ -604,5 +719,8 @@ func _current_input() -> Dictionary:
 	if _ui_nav != null and _ui_nav.last_input_gamepad():
 		return {"kind": "gamepad", "device": int(_ui_nav.last_device_id())}
 	return {"kind": "keyboard", "device": 0}
+
+
+
 
 

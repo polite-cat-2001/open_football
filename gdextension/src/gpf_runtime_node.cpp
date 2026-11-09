@@ -1,4 +1,4 @@
-﻿#include "gpf_runtime_node.h"
+#include "gpf_runtime_node.h"
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/classes/os.hpp>
@@ -8,6 +8,7 @@
 #include "gamecontext.hpp"
 #include "gametask.hpp"
 #include "hid/ihidevice.hpp"
+#include "hid/gamepad.hpp"
 #include "main.hpp"
 #include "menu/menutask.hpp"
 #include "menu/pagefactory.hpp"
@@ -257,6 +258,11 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("restart_match"), &GpfRuntimeNode::restart_match);
     ClassDB::bind_method(D_METHOD("set_match_package", "package"), &GpfRuntimeNode::set_match_package);
     ClassDB::bind_method(D_METHOD("has_match_package"), &GpfRuntimeNode::has_match_package);
+    ClassDB::bind_method(D_METHOD("set_gameplay_settings", "values"), &GpfRuntimeNode::set_gameplay_settings);
+    ClassDB::bind_method(D_METHOD("set_camera_settings", "values"), &GpfRuntimeNode::set_camera_settings);
+    ClassDB::bind_method(D_METHOD("set_gamepad_settings", "values"), &GpfRuntimeNode::set_gamepad_settings);
+    ClassDB::bind_method(D_METHOD("set_audio_volume", "value"), &GpfRuntimeNode::set_audio_volume);
+    ClassDB::bind_method(D_METHOD("refresh_human_controllers"), &GpfRuntimeNode::refresh_human_controllers);
     ClassDB::bind_method(D_METHOD("net_host", "port", "name"), &GpfRuntimeNode::net_host);
     ClassDB::bind_method(D_METHOD("net_join", "address", "port", "name"), &GpfRuntimeNode::net_join);
     ClassDB::bind_method(D_METHOD("net_leave"), &GpfRuntimeNode::net_leave);
@@ -425,6 +431,84 @@ void GpfRuntimeNode::set_match_duration(float value) {
 
 bool GpfRuntimeNode::has_match_package() const {
     return match_package_ready;
+}
+
+void GpfRuntimeNode::set_gameplay_settings(const Dictionary &values) {
+    if (!runtime_ready) {
+        return;
+    }
+    static const char *const keys[] = {
+        "gameplay_shortpass_autodirection", "gameplay_shortpass_autopower",
+        "gameplay_throughpass_autodirection", "gameplay_throughpass_autopower",
+        "gameplay_highpass_autodirection", "gameplay_highpass_autopower",
+        "gameplay_shot_autodirection", "gameplay_shot_curlspin",
+        "gameplay_shot_curlaimout", "gameplay_agilityfactor",
+        "gameplay_accelerationfactor", "gameplay_quantizeddirectionbias",
+    };
+    for (const char *key : keys) {
+        if (values.has(key)) {
+            GetConfiguration()->Set(key, (float)(double)values[key]);
+        }
+    }
+}
+
+void GpfRuntimeNode::set_camera_settings(const Dictionary &values) {
+    if (!runtime_ready) {
+        return;
+    }
+    const float zoom = (float)(double)value_or(values, "zoom", 0.5);
+    const float height = (float)(double)value_or(values, "height", 0.3);
+    const float fov = (float)(double)value_or(values, "fov", 0.4);
+    const float angle = (float)(double)value_or(values, "angle", 0.0);
+    GetConfiguration()->Set("camera_zoom", zoom);
+    GetConfiguration()->Set("camera_height", height);
+    GetConfiguration()->Set("camera_fov", fov);
+    GetConfiguration()->Set("camera_anglefactor", angle);
+    if (match) {
+        match->SetCameraParams(zoom, height, fov, angle);
+    }
+}
+
+void GpfRuntimeNode::set_gamepad_settings(const Dictionary &values) {
+    if (!runtime_ready) {
+        return;
+    }
+    const Array buttons = value_or(values, "buttons");
+    const Array functions = value_or(values, "functions");
+    const std::vector<IHIDevice *> &devices = GetControllers();
+    for (size_t i = 0; i < devices.size(); ++i) {
+        if (devices[i]->GetDeviceType() != e_HIDeviceType_Gamepad) {
+            continue;
+        }
+        HIDGamepad *pad = static_cast<HIDGamepad *>(devices[i]);
+        for (int b = 0; b < buttons.size() && b < e_ControllerButton_Size; ++b) {
+            pad->SetControllerMapping((e_ControllerButton)b, (int)buttons[b]);
+        }
+        for (int f = 0; f < functions.size() && f < e_ButtonFunction_Size; ++f) {
+            pad->SetFunctionMapping((e_ButtonFunction)f, (e_ControllerButton)(int)functions[f]);
+        }
+    }
+}
+
+
+
+void GpfRuntimeNode::set_audio_volume(float value) {
+    if (!runtime_ready) {
+        return;
+    }
+    GetConfiguration()->Set("audio_volume", std::clamp(value, 0.0f, 1.0f));
+}
+
+void GpfRuntimeNode::refresh_human_controllers() {
+    if (!runtime_ready || !menuTask || !match) {
+        return;
+    }
+    // Network sides are authoritative on the host (NetMatchSession).
+    if (is_net_active()) {
+        return;
+    }
+    apply_controller_setup();
+    match->UpdateControllerSetup();
 }
 
 bool GpfRuntimeNode::is_net_active() const {

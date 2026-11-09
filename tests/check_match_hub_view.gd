@@ -108,7 +108,7 @@ func _run() -> void:
 		"away stats share the stars width")
 	_check(view.command_cell(0).label_text() == "START MATCH", "start cell label")
 	_check(view.command_cell(1).label_text() == "TEAM MANAGEMENT", "manage cell label")
-	_check(view.command_cell(2).label_text() == "MATCH OPTIONS", "options cell label")
+	_check(view.command_cell(2).label_text() == "SYSTEM SETTINGS", "options cell label")
 	_check(view.command_cell(3).label_text() == "EXIT", "exit cell label")
 	_check(not view.command_cell(0).disabled, "start is enabled locally")
 
@@ -126,17 +126,26 @@ func _run() -> void:
 	await _tap(KEY_RIGHT)
 	_check(view.command_index() == 2, "Right reaches Match options")
 	await _tap(KEY_ENTER)
-	_check(view.options_overlay.visible, "Enter opens the options overlay")
-	_check(view.options_overlay.slider_value("difficulty") == 0.8,
+	_check(view.settings_screen.is_open(), "Enter opens the system settings")
+	_check(view.settings_screen.mode_name() == "menu", "settings opens on the grid")
+	await _tap(KEY_DOWN)
+	await _tap(KEY_RIGHT)
+	await _tap(KEY_ENTER)
+	_check(view.settings_screen.mode_name() == "options",
+		"the Match Options tile opens the options page")
+	var slider: HubValueSlider = view.settings_screen.focused_row().get("slider")
+	_check(slider != null and slider.value == 0.8,
 		"options show the snapshot difficulty")
-	view.options_overlay.adjust(1)
+	view.settings_screen.handle_nav(Vector2i.RIGHT)
 	await _frames(2)
 	_check(not option_changes.is_empty(), "slider change emits option_changed")
 	if not option_changes.is_empty():
 		_check(str(option_changes[0]["field"]) == "difficulty",
 			"the changed field is difficulty")
 	await _tap(KEY_ESCAPE)
-	_check(not view.options_overlay.visible, "Esc closes the options overlay")
+	_check(view.settings_screen.mode_name() == "menu", "Esc backs to the grid")
+	await _tap(KEY_ESCAPE)
+	_check(not view.settings_screen.is_open(), "Esc closes the settings")
 
 	await _tap(KEY_RIGHT)
 	_check(view.command_index() == 3, "Right reaches Exit")
@@ -155,7 +164,10 @@ func _run() -> void:
 	_check(view.command_cell(0).label_text() == "WAITING FOR HOST",
 		"client Start says it waits for the host")
 	_check(view.status_text() == "WAITING FOR HOST", "client status mirrors the wait")
-	_check(not view.options_overlay.is_editable(), "client options are read-only")
+	view.open_settings()
+	await _frames(2)
+	_check(not view.settings_screen.options_editable(), "client options are read-only")
+	await _tap(KEY_ESCAPE)
 
 	var small := await _make_view(Vector2i(1280, 720))
 	small.setup(FIXTURE.state_1p())
