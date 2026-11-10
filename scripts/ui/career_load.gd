@@ -3,6 +3,7 @@ extends UiScreen
 
 const START_SCENE := "res://scenes/career_start.tscn"
 const HUB_SCENE := "res://scenes/career_hub.tscn"
+const UI_MODAL := preload("res://scripts/ui/ui_modal.gd")
 
 @onready var panel_wrap: Control = $Design/PanelWrap
 @onready var breadcrumb: UiBreadcrumb = $Design/PanelWrap/Breadcrumb
@@ -17,6 +18,7 @@ var _catalog: TeamCatalog
 var _entries: Array = []
 var _rows: Array = []
 var _focus_index := 0
+var _delete_modal
 
 
 func _ready() -> void:
@@ -35,6 +37,12 @@ func _ready() -> void:
 	UiNav.confirmed.connect(_on_nav_confirmed)
 	UiNav.cancelled.connect(_back)
 	UiNav.device_changed.connect(_on_device_changed)
+	_delete_modal = UI_MODAL.new()
+	_delete_modal.name = "DeleteModal"
+	add_child(_delete_modal)
+	_delete_modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_delete_modal.action_chosen.connect(_on_delete_action)
+	_delete_modal.closed.connect(_on_delete_closed)
 	_refresh()
 	_layout()
 	get_viewport().size_changed.connect(_layout)
@@ -140,6 +148,11 @@ func _on_row_focused(index: int, row: Control) -> void:
 
 
 func _on_nav_moved(direction: Vector2i) -> void:
+	if _delete_modal.is_open():
+		_delete_modal.move_focus(direction)
+		return
+	if UiNav.is_modal() or UiNav.event_was_modal():
+		return
 	if _rows.is_empty():
 		return
 	if direction != Vector2i.UP and direction != Vector2i.DOWN:
@@ -151,12 +164,81 @@ func _on_nav_moved(direction: Vector2i) -> void:
 
 
 func _on_nav_confirmed() -> void:
+	if _delete_modal.is_open():
+		_delete_modal.activate_focused()
+		return
+	if UiNav.is_modal() or UiNav.event_was_modal():
+		return
 	if _rows.is_empty():
 		return
 	_rows[_focus_index].pressed.emit()
 
 
+func _input(event: InputEvent) -> void:
+	if _delete_modal == null or _delete_modal.is_open() or UiNav.is_modal():
+		return
+	var wants_delete := false
+	if event is InputEventKey:
+		var key := event as InputEventKey
+		wants_delete = key.pressed and not key.echo and (
+			key.keycode == KEY_DELETE or key.physical_keycode == KEY_DELETE)
+	elif event is InputEventJoypadButton:
+		var button := event as InputEventJoypadButton
+		wants_delete = button.pressed and button.button_index == JOY_BUTTON_X
+	if wants_delete:
+		get_viewport().set_input_as_handled()
+		_open_delete()
+
+
+func _open_delete() -> void:
+	if _rows.is_empty():
+		return
+	var entry: Dictionary = _entries[_focus_index]
+	var confirm_key := "A" if UiNav.using_gamepad() else "ENTER"
+	var cancel_key := "B" if UiNav.using_gamepad() else "ESC"
+	_delete_modal.open(
+		"Are you sure you want to delete this career save?\n\n%s — %s. This cannot be undone." % [
+			str(entry.get("club_name", "")), str(entry.get("manager_name", "")),
+		],
+		[
+			{"id": "delete", "label": "DELETE CAREER", "key": confirm_key},
+			{"id": "cancel", "label": "CANCEL", "key": cancel_key},
+		]
+	)
+	hints.setup(_modal_hints())
+
+
+func _on_delete_action(id: String) -> void:
+	if id == "delete":
+		_delete_focused()
+	_delete_modal.close()
+
+
+func _delete_focused() -> void:
+	if _entries.is_empty():
+		return
+	var entry: Dictionary = _entries[_focus_index]
+	if not _store.delete(str(entry.get("id", ""))):
+		hints.set_status(_store.last_error, true)
+		return
+	_refresh()
+	_focus_index = clampi(_focus_index, 0, maxi(0, _rows.size() - 1))
+
+
+func _on_delete_closed() -> void:
+	hints.setup(_gamepad_hints() if UiNav.using_gamepad() else _keyboard_hints())
+	if _rows.is_empty():
+		hints.set_status("0 saves", false)
+		return
+	_focus_index = clampi(_focus_index, 0, _rows.size() - 1)
+	_rows[_focus_index].grab_focus()
+	scroll.ensure_control_visible(_rows[_focus_index])
+
+
 func _on_device_changed(_gamepad: bool) -> void:
+	if _delete_modal != null and _delete_modal.is_open():
+		hints.setup(_modal_hints())
+		return
 	hints.setup(_gamepad_hints() if UiNav.using_gamepad() else _keyboard_hints())
 
 
@@ -176,6 +258,11 @@ func _load_entry(index: int) -> void:
 
 
 func _back() -> void:
+	if _delete_modal != null and _delete_modal.is_open():
+		_delete_modal.close()
+		return
+	if UiNav.event_was_modal():
+		return
 	UiTransition.change_scene(START_SCENE)
 
 
@@ -183,6 +270,7 @@ func _keyboard_hints() -> Array:
 	return [
 		{"keys": ["ARROWS"], "label": "move"},
 		{"keys": ["ENTER"], "label": "open"},
+		{"keys": ["DEL"], "label": "delete"},
 		{"keys": ["ESC"], "label": "back"},
 	]
 
@@ -191,7 +279,16 @@ func _gamepad_hints() -> Array:
 	return [
 		{"keys": ["D-PAD"], "label": "move"},
 		{"keys": ["A"], "label": "open"},
+		{"keys": ["X"], "label": "delete"},
 		{"keys": ["B"], "label": "back"},
+	]
+
+
+func _modal_hints() -> Array:
+	return [
+		{"keys": ["LEFT", "RIGHT"], "label": "choose"},
+		{"keys": ["ENTER"], "label": "confirm"},
+		{"keys": ["ESC"], "label": "cancel"},
 	]
 
 

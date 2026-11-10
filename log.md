@@ -2075,6 +2075,14 @@ etwork_lobby читают новую БД; eligibility и manifest —
 - Проверка: `check_career_ui` (анимация, Esc, стрелки, OSK), `check_ui_on_screen_keyboard`,
   `check_network_ui`, `check_kit_select_ui` — PASS.
 
+## [2026-11-09] feat | Удаление сейва карьеры из Load
+- Del (клавиатура) и X (геймпад) на выбранном сейве открывают удаление через общий `UiModal`
+  (перенесён из нового меню паузы): full-viewport scrim, светлая карточка, полноширинные
+  действия с keycap; fade+scale открытие/закрытие. DELETE реально удаляет JSON, Esc/B
+  закрывают только модалку. `CareerSaveStore.delete` + `check_career_delete`.
+- Проверка: `check_career_delete`, `check_career_ui`, `check_ui_on_screen_keyboard`,
+  `check_network_ui` — PASS.
+
 ## [2026-11-09] fix | Плитка сейва в Load: герб, лого лиги и отступы
 - `CareerRow` принимает два логотипа (клуб + лига) и хранит текстуры до входа в дерево
   (раньше `set_lead` до `add_child` терялся). Отступы увеличены, высота строки 88, детали

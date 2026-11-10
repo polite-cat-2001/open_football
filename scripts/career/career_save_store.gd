@@ -70,6 +70,22 @@ func save(career: Career) -> bool:
 	return true
 
 
+func delete(career_id: String) -> bool:
+	last_error = ""
+	last_error_kind = ""
+	var path := path_for(career_id)
+	if path.is_empty() or not FileAccess.file_exists(path):
+		last_error = "Save %s was not found." % career_id
+		last_error_kind = "not_found"
+		return false
+	var error := DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	if error != OK:
+		last_error = "Save %s could not be deleted." % career_id
+		last_error_kind = "format"
+		return false
+	return true
+
+
 func load_career(career_id: String) -> Career:
 	last_error = ""
 	last_error_kind = ""
