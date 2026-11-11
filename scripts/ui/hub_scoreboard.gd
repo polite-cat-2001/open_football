@@ -24,7 +24,7 @@ func setup(state: Dictionary) -> void:
 	var duration := float(meta.get("duration", 1.0))
 	_meta.text = competition
 	_meta_strong.text = "DIFFICULTY %.2f  ·  ~%d MIN" % [
-		difficulty, 5 + int(round(20.0 * duration))
+		difficulty, int(round(MatchPackage.minutes_from_duration(duration)))
 	]
 	var sides: Array = state.get("sides", [])
 	for index in CLUB_COUNT:

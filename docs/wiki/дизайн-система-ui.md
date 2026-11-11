@@ -192,7 +192,9 @@ ready или назад. `UiNav.last_device_id()`/`last_input_gamepad()` раз�
   геймпады добавляются в конец).
 - `scripts/ui/network_sides.gd` — снапшот лобби (имена, YOU, ready, device), `resume_mode`
   (не выходит из сессии), host-authoritative commit, resume-голосование, disconnect/join
-  статусы. Оверлей в матче — тот же view с `overlay=true`.
+  статусы. Оверлей в матче — тот же view с `overlay=true`; `gpf_slice` анимирует
+  только `Design/PanelWrap`, а stage/scrim появляется сразу — иначе на 150/240 мс
+  просвечивает ярко-зелёный газон матча (моргание при открытии).
 
 Цвета устройств — по номеру участника: blue `#2f6df6`, magenta `#e6236e`, orange `#f08c00`,
 green `#0f9d76` (`UiTokens.SIDE_TONES`); клавиатура тоже получает тон по индексу.
@@ -356,7 +358,7 @@ crest texture, rating, kit, device, owner, 11 lineup rows), `options`, `flags`
 Экраны потока: `scenes/prematch.tscn` (локальный адаптер) и
 `scenes/network_match_hub.tscn` (сетевой). Локально 1P Start собирает `MatchPackage` и
 открывает `gpf_slice`; в 2P каждое локальное устройство голосует Start, повторное нажатие/Back
-отзывает голос, статус `START x/y`. Сеть: host правит duration/difficulty (`set_match_options`)
+отзывает голос, статус `START x/y`. Сеть: host правит difficulty/match length (`set_match_options`)
 и стартует (`NetworkMatch.build_package` + `runtime.net_start()`); client видит read-only
 options/Start `WAITING FOR HOST`, ждёт `MatchSetup`. Back из хаба → Kit Select (в сети — та же
 фаза 2), Back из китов → Teams.
@@ -446,7 +448,9 @@ Back-цепочка в сети: `network_sides → network_menu`, `network_lobb
   `CHANGE TEAMS` SOON). Страницы листаются `Q/E`, правым стиком геймпада или мышью по
   `<- -> • • •` в правом нижнем углу плитки (стрелки и точки кликабельны, точки крупные);
   `Left/Right` двигают фокус между плитками. В сети Continue получает meta
-  `WAITING FOR RIVAL n/m` (`set_waiting`). Карточка состава не «прыгает» при фокусе
+  `WAITING FOR RIVAL n/m` (`set_waiting`); нажатие Continue/Esc/B только шлёт голос и
+  меняет эту meta — меню не закрывается и не открывается заново (иначе экран моргал у
+  первого проголосовавшего). Карточка состава не «прыгает» при фокусе
   (`BentoTile.still`).
 - Settings — вторая страница того же экрана: шапка скрыта, breadcrumb `PAUSE MENU > SETTINGS`,
   сетка 4×2 поднимается под крошку (низ общий с меню-страницей); живая только Side Selection

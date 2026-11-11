@@ -136,6 +136,10 @@ var _page := Page.MENU
 var _quit_page := 0
 var _nav: Node = null
 var _menu_tiles: Array[BentoTile] = []
+# Phase break reuses this screen: the scoreboard shows the period caption and
+# the continue tile starts the next period (original MatchPhasePage wording).
+var _break_caption := ""
+var _break_continue := ""
 
 
 func _ready() -> void:
@@ -212,7 +216,7 @@ func _build_once() -> void:
 	settings_screen.side_select_requested.connect(_on_settings_side_select)
 
 	lineup_tile.pressed.connect(func(): game_plan_requested.emit())
-	continue_tile.pressed.connect(close)
+	continue_tile.pressed.connect(_request_resume)
 	replay_tile.pressed.connect(func(): replay_requested.emit())
 	settings_tile.pressed.connect(_show_settings)
 	quit_tile.pressed.connect(func(): _activate_quit(_quit_page))
@@ -262,6 +266,17 @@ func set_match(runtime_node: Node, package: Dictionary) -> void:
 
 func set_team(team_id: int) -> void:
 	_team_id = clampi(team_id, 0, 1)
+
+
+# Empty caption returns the screen to the regular pause wording.
+func set_break_mode(caption: String, continue_label: String) -> void:
+	_break_caption = caption
+	_break_continue = continue_label
+	if not _built:
+		return
+	if is_open():
+		_refresh_data()
+		_apply_hints()
 
 
 func tiles() -> Array:
@@ -353,6 +368,10 @@ func hide_now() -> void:
 
 func is_open() -> bool:
 	return visible
+
+
+func is_closing() -> bool:
+	return _closing
 
 
 func is_confirm_open() -> bool:
@@ -553,7 +572,10 @@ func _refresh_data() -> void:
 	var away: Dictionary = _package.get("away", {})
 	scoreboard.setup(home, away, int(snapshot.get("score0", 0)),
 		int(snapshot.get("score1", 0)),
-		_format_clock(int(snapshot.get("match_time_ms", 0))))
+		_format_clock(int(snapshot.get("match_time_ms", 0))),
+		_break_caption)
+	continue_tile.set_page("CONTINUE MATCH" if _break_continue.is_empty() else _break_continue,
+		"resume", "")
 
 	var team: Dictionary = home if _team_id == 0 else away
 	var entries := _squad_entries(team)
@@ -847,6 +869,16 @@ func _on_cancelled() -> void:
 	if _page == Page.SETTINGS:
 		_switch_page(Page.MENU)
 		return
+	_request_resume()
+
+
+func _request_resume() -> void:
+	# A network pause is a vote, not an exit: keep the menu up so voting does not
+	# blink the overlay (close then reopen); the caller only edits the Continue note.
+	if _runtime != null and is_instance_valid(_runtime) \
+			and _runtime.has_method("is_net_active") and bool(_runtime.is_net_active()):
+		resume_requested.emit()
+		return
 	close()
 
 
@@ -885,5 +917,6 @@ func _apply_hints() -> void:
 	hints.setup([
 		{"keys": ["D-PAD"] if gamepad else ["в†ђ", "в†‘", "в†“", "в†’"], "label": "move"},
 		{"keys": ["A"] if gamepad else ["ENTER"], "label": "select"},
-		{"keys": ["B"] if gamepad else ["ESC"], "label": "resume"},
+		{"keys": ["B"] if gamepad else ["ESC"],
+			"label": "resume" if _break_continue.is_empty() else _break_continue.to_lower()},
 	])

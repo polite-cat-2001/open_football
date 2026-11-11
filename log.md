@@ -2158,3 +2158,55 @@ Graphics, Audio, Camera, Match Options и Side Selection. Хранилище —
 SettingsStore (user://settings.cfg). C++-мост: set_gameplay_settings,
 set_camera_settings, set_gamepad_settings, set_audio_volume; клавиатурные
 биндинги слайса берутся из настроек. Вики — docs/wiki/система-настроек.md.
+
+## [2026-11-09] fix | превью камеры в паузе
+
+`set_camera_settings` для локального паузнутого матча пересчитывает
+`UpdateIngameCamera` и публикует кадр в презентационные буферы, поэтому слайдеры
+CAMERA в паузе меняют картинку сразу, а не после resume. В сети камера по умолчанию
+остаётся кадром хоста; после изменения своих настроек клиент включает
+`SetRemoteCameraOverride` и считает камеру локально, так что у каждого участника
+свой вид. Тест — `check_gpf_camera_pause`.
+
+## [2026-11-09] fix | своя команда в сетевом плане игры
+
+Причина: `NetworkMatchHub` строил Game Plan в `_load_data()` до первого
+`_poll_lobby()`, когда `_lobby`/`_local_id` ещё пусты, поэтому `_local_team()`
+возвращал HOME обоим пирам и они правили одну команду. Теперь план пересобирается
+из `lobby.players[local_id].side` (`_apply_plan_team`). В паузе матча plan берёт
+команду из `net_lobby()` (`_net_local_team`), а не из снимка `shell_controllers`,
+который устаревал после mirrored side select; `_pause_team` использует тот же
+источник. Тест — `check_net_plan_team`.
+
+## [2026-11-09] fix | моргание паузы при голосе в сети
+
+Continue/Esc/B в сетевой паузе больше не закрывают меню. Раньше `continue_tile`
+вызывал `close()` (fade-out), а `_on_pause_resume` сразу открывал меню заново
+(fade-in) — у первого проголосовавшего экран моргал. Теперь `PauseScreen`
+различает сеть (`is_net_active`), просто эмитит `resume_requested`, а слайс шлёт
+голос и меняет meta Continue (`WAITING FOR RIVAL n/m`) на уже открытом меню.
+Тест — `check_gpf_pause` (сетевой кейс).
+
+## [2026-11-09] fix | зелёная вспышка при открытии side select
+
+В матче `_ensure_side_select_overlay` фейдил весь `NetworkSides` оверлей, включая
+stage/scrim. Пауза к этому моменту уже скрыта, поэтому 0.24 с просвечивал
+незатемнённый ярко-зелёный газон матча. Теперь `_fade_screen` получает только
+`SideSelectView/Design/PanelWrap` (как `UiTransition` на других экранах), а
+stage/scrim виден с первого кадра; закрытие так же фейдит только контент.
+
+## [2026-11-11] feat | перерыв на экране паузы, длина матча в минутах
+
+Перерыв (45:00 / 90:00 при ничьей / 105:00) больше не рисует прежнюю чёрную
+HUD-панель: `GpfPauseMenu.open_break` переиспользует дизайн-системный
+`PauseScreen` — в шапке вместо часов подпись `HALF TIME`/`END OF 90`/`EXTRA TIME`,
+Continue переименован в `BEGIN SECOND HALF`/`BEGIN EXTRA TIME`/`BEGIN SECOND EXTRA
+TIME`; в сети это тот же resume-vote. Финал остаётся отдельной HUD-панелью
+`FULL TIME`/`AFTER EXTRA TIME`.
+
+`MATCH OPTIONS` вместо `duration`-слайдера показывает минуты реального матча:
+пресеты 5/7/10/12/15, дефолт 10; в пакет уходит `duration = (minutes - 4.5) / 18`
+— та же формула оригинала `factor = 0.2*d + 0.05`, часы и усталость масштабируются
+как раньше. Табло хаба и HUD-легенда считают минуты тем же хелпером
+`MatchPackage.minutes_from_duration`. Тесты: `check_prematch_ui`,
+`check_match_package`, `check_gpf_slice_ui`, `check_gpf_net_ui`.

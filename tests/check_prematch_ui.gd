@@ -93,7 +93,9 @@ func _run() -> void:
 	var duration_row: Dictionary = view.settings_screen.focused_row()
 	view.settings_screen.handle_nav(Vector2i.DOWN)
 	duration_row = view.settings_screen.focused_row()
-	_check(is_equal_approx((duration_row["slider"] as HubValueSlider).value, 1.0),
+	_check(str(duration_row.get("kind", "")) == "choice",
+		"match length is a minute preset list")
+	_check((duration_row["value"] as Label).text == "10 MIN",
 		"the options page starts from the shell options")
 	view.settings_screen.close()
 
@@ -121,12 +123,13 @@ func _run() -> void:
 	view.settings_screen.handle_confirm()
 	var difficulty_slider: HubValueSlider = view.settings_screen.focused_row()["slider"]
 	view.settings_screen.handle_nav(Vector2i.DOWN)
-	var duration_slider: HubValueSlider = view.settings_screen.focused_row()["slider"]
-	duration_slider.set_value(1.5)
+	var chosen_duration := MatchPackage.duration_from_minutes(15.0)
+	view.settings_screen.handle_nav(Vector2i.RIGHT)
+	view.settings_screen.handle_nav(Vector2i.RIGHT)
 	difficulty_slider.set_value(0.6)
 	await _frames(3)
-	_check(absf(float(ShellState.match_options.get("duration", -1)) - 1.5) < 0.001,
-		"the chosen duration lands in the shell state")
+	_check(absf(float(ShellState.match_options.get("duration", -1)) - chosen_duration) < 0.001,
+		"the chosen match length lands in the shell state")
 	_check(absf(float(ShellState.match_options.get("difficulty", -1)) - 0.6) < 0.001,
 		"the chosen difficulty lands in the shell state")
 	view.close_overlay()
@@ -178,8 +181,8 @@ func _run() -> void:
 	_check(int(package["home"]["database_id"]) == HOME_ID
 		and int(package["away"]["database_id"]) == AWAY_ID,
 		"the package carries the chosen teams")
-	_check(absf(float(package["options"]["duration"]) - 1.5) < 0.001,
-		"the package carries the chosen duration")
+	_check(absf(float(package["options"]["duration"]) - chosen_duration) < 0.001,
+		"the package carries the chosen match length")
 	_check(absf(float(package["options"]["difficulty"]) - 0.6) < 0.001,
 		"the package carries the chosen difficulty")
 	_check(int(package["home"]["players"][EDITED_SLOT]["database_id"]) == promoted,

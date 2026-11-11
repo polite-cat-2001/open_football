@@ -277,22 +277,25 @@ func _run() -> void:
 	runtime.debug_force_phase_break(2)
 	for i in 10:
 		await process_frame
-	_check(bool(hud.get("phase_menu_open")), "phase break opens the menu")
-	var phase_title := hud.get("phase_menu_title") as Label
-	_check(phase_title != null and phase_title.text == "HALF TIME", "half-time title is shown")
+	_check(pause_menu.is_open() and pause_menu.is_break(),
+		"phase break opens the pause screen")
+	_check(pause_menu.screen.continue_tile.title == "BEGIN SECOND HALF",
+		"half-time continue reads begin second half")
+	_check(str(pause_menu.screen.get("_break_caption")) == "HALF TIME",
+		"the scoreboard shows the half-time caption")
 	_check(bool(runtime.get_snapshot().get("paused", false)), "phase break pauses the match")
 	scene.call("_input", _key(KEY_ENTER))
 	await process_frame
-	_check(not bool(hud.get("phase_menu_open")), "Enter continues after the phase break")
+	_check(not pause_menu.is_open(), "Enter continues after the phase break")
 	_check(not bool(runtime.get_snapshot().get("paused", false)), "continue unpauses the match")
 
 	runtime.debug_force_game_over()
 	for i in 10:
 		await process_frame
 	_check(bool(hud.get("phase_menu_open")), "game over opens the result menu")
+	var phase_title := hud.get("phase_menu_title") as Label
 	_check(phase_title != null and phase_title.text in ["FULL TIME", "AFTER EXTRA TIME"], "full-time title is shown")
-	var continue_button := hud.get("phase_menu_continue") as Button
-	_check(continue_button != null and not continue_button.visible, "result menu has no continue button")
+	_check(hud.get("phase_menu_quit") != null, "result menu has the main-menu button")
 	_finish()
 
 func _wait_for_set_piece(type: int) -> Dictionary:

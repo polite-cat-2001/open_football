@@ -12,6 +12,8 @@ var _away: Dictionary = {}
 var _score0 := 0
 var _score1 := 0
 var _clock := "00:00"
+# Phase break replaces the frozen clock with the period caption (HALF TIME).
+var _caption := ""
 
 var _name_font: Font = UiTheme.barlow(800)
 var _score_font: Font = UiTheme.barlow(800)
@@ -24,12 +26,13 @@ func _ready() -> void:
 
 
 func setup(home: Dictionary, away: Dictionary, score0: int, score1: int,
-		clock: String) -> void:
+		clock: String, caption := "") -> void:
 	_home = home
 	_away = away
 	_score0 = score0
 	_score1 = score1
 	_clock = clock
+	_caption = caption
 	queue_redraw()
 
 
@@ -43,8 +46,12 @@ func _draw() -> void:
 	_draw_crest(_away, Rect2(size.x - PAD - CREST, (size.y - CREST) * 0.5,
 		CREST, CREST))
 
-	draw_string(_clock_font, Vector2(center - 90.0, 34.0), _clock,
-		HORIZONTAL_ALIGNMENT_CENTER, 180.0, 18, UiTokens.FOCUS_INK_2)
+	if _caption.is_empty():
+		draw_string(_clock_font, Vector2(center - 90.0, 34.0), _clock,
+			HORIZONTAL_ALIGNMENT_CENTER, 180.0, 18, UiTokens.FOCUS_INK_2)
+	else:
+		draw_string(_name_font, Vector2(center - 240.0, 36.0), _caption,
+			HORIZONTAL_ALIGNMENT_CENTER, 480.0, 22, UiTokens.FOCUS_MARK)
 
 	var score_y := 96.0
 	draw_string(_score_font, Vector2(center - 74.0, score_y), str(_score0),

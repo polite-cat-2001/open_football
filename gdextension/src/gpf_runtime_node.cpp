@@ -466,6 +466,24 @@ void GpfRuntimeNode::set_camera_settings(const Dictionary &values) {
     GetConfiguration()->Set("camera_anglefactor", angle);
     if (match) {
         match->SetCameraParams(zoom, height, fov, angle);
+        // Thin LAN client: the camera normally comes from the host snapshot. Once this
+        // peer changes its own camera settings, compute it locally from the synced
+        // positions (same rule as the original CameraPage::UpdateCamera).
+        if (match->IsRemotePresentation()) {
+            match->SetRemoteCameraOverride(true);
+        }
+        // A paused local match stops simulating, so the presentation camera would stay
+        // frozen until resume. Recompute it and publish it once per slider change so the
+        // camera setup previews behind the pause menu. Stamping the sample just past the
+        // last put and fetching a smoother-history later makes GetValue return it whole.
+        // Network pauses keep the host frame.
+        if (match->GetPause() && !is_net_active()) {
+            const unsigned long preview_ms = sim_time_ms + (unsigned long)TICK_MS;
+            match->UpdateIngameCamera();
+            match->SetPresentationClock(true, preview_ms, preview_ms);
+            match->PreparePutBuffers();
+            put_frame(preview_ms + (unsigned long)temporalSmoother_history_ms);
+        }
     }
 }
 

@@ -466,8 +466,13 @@ func _build_page() -> void:
 			_add_slider_row("difficulty (human vs cpu)",
 				float(_context.get("difficulty", 0.8)), 0.6, 1.0, 0.05, "ratio",
 				"option:difficulty", editable)
-			_add_slider_row("match duration", float(_context.get("duration", 1.0)),
-				0.5, 1.5, 0.5, "minutes", "option:duration", editable)
+			var lengths: Array = []
+			for minutes in MatchPackage.LENGTH_PRESETS:
+				lengths.append(MatchPackage.duration_from_minutes(float(minutes)))
+			_add_choice_row("match length",
+				lengths,
+				float(_context.get("duration", MatchPackage.DEFAULT_DURATION)),
+				"minutes", "option:duration", editable)
 			_add_note_row("substitutions per match: 3")
 			if not editable:
 				_add_note_row("applies to the next match (locked while playing)")
@@ -594,6 +599,57 @@ func _add_slider_row(caption: String, value: float, minimum: float, maximum: flo
 	_update_row_value(row, value)
 
 
+# Discrete value list (match length): left/right cycles the presets, the label
+# shows the unit the player cares about, the stored value stays the option value.
+func _add_choice_row(caption: String, values: Array, current: float,
+		format: String, target: String, editable := true) -> void:
+	var row := _make_row(caption, editable)
+	row["kind"] = "choice"
+	row["target"] = target
+	row["format"] = format
+	row["values"] = values
+	row["editable"] = editable
+	row["index"] = _nearest_choice(values, current)
+	_update_choice_value(row)
+
+
+func _nearest_choice(values: Array, current: float) -> int:
+	var best := 0
+	var best_delta := INF
+	for index in values.size():
+		var delta := absf(float(values[index]) - current)
+		if delta < best_delta:
+			best_delta = delta
+			best = index
+	return best
+
+
+func _update_choice_value(row: Dictionary) -> void:
+	var values: Array = row["values"]
+	if values.is_empty():
+		return
+	var index := clampi(int(row.get("index", 0)), 0, values.size() - 1)
+	row["index"] = index
+	(row["value"] as Label).text = _format_choice(float(values[index]),
+		str(row.get("format", "")))
+
+
+func _format_choice(value: float, format: String) -> String:
+	match format:
+		"minutes":
+			return "%d MIN" % int(round(MatchPackage.minutes_from_duration(value)))
+	return "%0.2f" % value
+
+
+func _step_choice(row: Dictionary, delta: int) -> void:
+	var values: Array = row["values"]
+	if values.is_empty() or delta == 0 or not bool(row.get("editable", true)):
+		return
+	row["index"] = posmod(int(row.get("index", 0)) + delta, values.size())
+	_update_choice_value(row)
+	_on_slider_changed(float(values[row["index"]]), row)
+
+
 func _add_note_row(text: String) -> void:
 	var row := _make_row(text, false)
 	row["kind"] = "note"
@@ -663,7 +719,7 @@ func _update_row_value(row: Dictionary, value: float) -> void:
 		"aim":
 			text = "%0.2f" % (value * SettingsStore.CURL_AIM_MAX)
 		"minutes":
-			text = "~%d min" % (5 + int(round(20.0 * value)))
+			text = "%d MIN" % int(round(MatchPackage.minutes_from_duration(value)))
 		"percent":
 			text = "%d%%" % int(round(value * 100.0))
 		_:
@@ -672,7 +728,7 @@ func _update_row_value(row: Dictionary, value: float) -> void:
 
 
 func _on_row_pressed(row: Dictionary) -> void:
-	if row["kind"] == "slider":
+	if row["kind"] in ["slider", "choice"]:
 		_focus = _rows.find(row)
 		_refresh_rows()
 		return
@@ -793,7 +849,10 @@ func _on_slider_changed(value: float, row: Dictionary) -> void:
 	elif target.begins_with("option:"):
 		_context[target.substr(7)] = value
 		match_options_changed.emit(target.substr(7), value)
-	_update_row_value(row, value)
+	if str(row.get("kind", "")) == "choice":
+		_update_choice_value(row)
+	else:
+		_update_row_value(row, value)
 
 
 func _refresh_rows() -> void:
@@ -1211,6 +1270,9 @@ func _adjust_focused(delta: int) -> void:
 	if _focus < 0 or _focus >= _rows.size():
 		return
 	var row: Dictionary = _rows[_focus]
+	if str(row.get("kind", "")) == "choice":
+		_step_choice(row, delta)
+		return
 	var slider: HubValueSlider = row["slider"]
 	if slider == null or not slider.editable:
 		return

@@ -151,7 +151,21 @@ func _build_game_plan() -> void:
 	game_plan.setup_match(runtime, _human_teams(), _game_plan_options())
 
 
+func _net_local_team() -> int:
+	if runtime == null or not is_instance_valid(runtime) \
+			or not runtime.has_method("is_net_active") or not bool(runtime.is_net_active()) \
+			or not runtime.has_method("net_lobby"):
+		return -1
+	return NetShell.local_team_id(runtime.net_lobby())
+
+
 func _human_teams() -> Array:
+	# Network sides live in the host-authoritative lobby, which is the only source
+	# that follows an in-match side swap; the shell controller setup is a snapshot
+	# taken when this scene loaded.
+	var net_team := _net_local_team()
+	if net_team >= 0:
+		return [net_team]
 	var teams: Array = []
 	# The C++ controller setup is authoritative after an in-match side change;
 	# ShellState is only the pre-match snapshot.
@@ -206,6 +220,11 @@ func _on_game_plan_closed() -> void:
 		game_plan.close_plan()
 	hud.set_visible(true)
 	if pause_menu != null:
+		var snap: Dictionary = runtime.get_snapshot()
+		if bool(snap.get("phase_break_pending", false)) \
+				or bool(snap.get("phase_break", false)):
+			_show_break_overlay(snap)
+			return
 		pause_menu.open()
 
 
@@ -325,6 +344,7 @@ func _process(delta: float) -> void:
 			runtime.clear_phase_break_pending()
 			_net_break_seen = false
 	shootout.update(snap, delta)
+	_sync_phase_break(snap)
 	# A substitution applied at the C++ restart changes the active roster: add
 	# the new bodies and drop the players who left the pitch. The thin client
 	# derives its own banner from the delta (the original client applies the
@@ -433,6 +453,39 @@ func _open_pause(device := -1) -> void:
 	_release_buttons()
 
 
+# Phase break (original MatchPhasePage): the design-system pause screen with the
+# period caption and a "begin <period>" continue tile. The runtime pauses when
+# the latched break opens; a network host broadcasts that pause, a thin client
+# only mirrors the host snapshot.
+func _sync_phase_break(snap: Dictionary) -> void:
+	var breaking := bool(snap.get("phase_break_pending", false)) \
+		or bool(snap.get("phase_break", false))
+	if not breaking or bool(snap.get("game_over", false)) \
+			or bool(snap.get("shootout_active", false)):
+		if pause_menu.is_break():
+			pause_menu.dismiss()
+		return
+	if pause_menu.is_break():
+		return
+	# A local submenu owns the frozen match: open the break screen when it closes.
+	if game_plan != null and game_plan.is_open():
+		return
+	if not bool(runtime.is_net_client()):
+		runtime.begin_phase_break()
+	_show_break_overlay(snap)
+
+
+func _show_break_overlay(snap: Dictionary) -> void:
+	var next_phase := int(snap.get("phase_break_next_phase", 0))
+	if next_phase <= 0:
+		# Thin client: the host's latch never runs here, so its match phase is
+		# the period being started.
+		next_phase = int(snap.get("match_phase", 0))
+	pause_menu.open_break(next_phase, _pause_team(-1))
+	_release_sticks()
+	_release_buttons()
+
+
 # Function states are edge-tracked too: a direction held when the pause opens
 # would otherwise stay down after the side-select trip and make that arrow feel
 # dead (or keep the player running).
@@ -460,6 +513,11 @@ func _release_sticks() -> void:
 # that pressed Start in local 2P, otherwise the first configured human (the
 # keyboard in 1P).
 func _pause_team(device: int) -> int:
+	# A network side swap is applied by the host after this scene read the shell
+	# setup, so the lobby is the live source for the local team.
+	var net_team := _net_local_team()
+	if net_team >= 0:
+		return net_team
 	# Runtime setup reflects a live network side change; ShellState would still
 	# hold the side chosen in the lobby.
 	if runtime != null and is_instance_valid(runtime) and runtime.has_method("get_controller_setup"):
@@ -493,8 +551,11 @@ func _on_pause_resume() -> void:
 	# (NetMatchSession::ProcessHost consumes the all-resume-ready event).
 	if bool(runtime.is_net_active()):
 		runtime.net_action("set_resume_ready", 0, 1, 0)
-		pause_menu.open()
+		pause_menu.set_waiting("WAITING FOR RIVAL")
 		pause_menu.set_hint("resume vote sent")
+		return
+	if pause_menu.is_break():
+		runtime.continue_after_phase_break()
 		return
 	runtime.resume_match()
 
@@ -508,6 +569,14 @@ func _update_network_pause(snap: Dictionary) -> void:
 	var info: Dictionary = runtime.net_lobby()
 	var lobby: Dictionary = info.get("lobby", {})
 	var side_select := bool(lobby.get("side_select", false))
+	# The phase break is a resume vote on every peer too: keep its overlay and
+	# only refresh the vote counts.
+	if pause_menu.is_break():
+		if not paused:
+			pause_menu.dismiss()
+			return
+		_show_resume_votes(lobby)
+		return
 	# The roster change that opens side selection is only visible as a delta:
 	# remember the live list until the flag flips.
 	var roster_status := ""
@@ -543,6 +612,10 @@ func _update_network_pause(snap: Dictionary) -> void:
 		_release_sticks()
 	if not pause_menu.is_open():
 		return
+	_show_resume_votes(lobby)
+
+
+func _show_resume_votes(lobby: Dictionary) -> void:
 	var players: Array = lobby.get("players", [])
 	var ready := 0
 	for player in players:
@@ -589,7 +662,15 @@ func _ensure_side_select_overlay(status: String = "") -> void:
 	side_select_overlay = overlay
 	if not status.is_empty():
 		overlay.call("set_status", status)
-	_fade_screen(overlay, true)
+	# Fade only the side-select content: the stage/scrim must cover the pitch from
+	# the first frame, otherwise the bright 3D field flashes while it fades in.
+	_fade_screen(_side_select_content(overlay), true)
+
+
+func _side_select_content(overlay: Control) -> Control:
+	var view := overlay.get_node_or_null("SideSelectView") if overlay != null else null
+	var content := view.get_node_or_null("Design/PanelWrap") if view != null else null
+	return content if content != null else overlay
 
 
 func _on_side_select_closed() -> void:
@@ -605,7 +686,7 @@ func _close_side_select_overlay(reopen_pause: bool) -> void:
 	side_select_overlay = null
 	_side_select_layer = null
 	if overlay != null and is_instance_valid(overlay):
-		await _fade_screen(overlay, false)
+		await _fade_screen(_side_select_content(overlay), false)
 		overlay.queue_free()
 	if layer != null and is_instance_valid(layer):
 		layer.queue_free()

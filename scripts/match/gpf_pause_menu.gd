@@ -21,6 +21,7 @@ var index := 0
 var _runtime: Node = null
 var _package: Dictionary = {}
 var _team_id := 0
+var _break := false
 
 
 func setup() -> void:
@@ -65,13 +66,56 @@ func is_open() -> bool:
 	return screen != null and screen.visible
 
 
+func is_break() -> bool:
+	return _break
+
+
 func open(team_id := -1) -> void:
+	_break = false
+	if screen != null:
+		screen.set_break_mode("", "")
+	_open(team_id)
+
+
+# Phase break (original MatchPhasePage): the pause screen with the period
+# caption and a "begin <period>" continue tile.
+func open_break(next_phase: int, team_id := -1) -> void:
+	_break = true
+	if screen != null:
+		screen.set_break_mode(_phase_break_title(next_phase),
+			_phase_break_continue(next_phase))
+	_open(team_id)
+
+
+func _open(team_id: int) -> void:
 	if team_id >= 0:
 		_team_id = team_id
 	if screen == null:
 		return
 	screen.set_team(_team_id)
 	screen.open(_team_id)
+
+
+func _phase_break_title(next_phase: int) -> String:
+	match next_phase:
+		2:
+			return "HALF TIME"
+		3:
+			return "END OF 90"
+		4:
+			return "EXTRA TIME"
+	return "BREAK"
+
+
+func _phase_break_continue(next_phase: int) -> String:
+	match next_phase:
+		2:
+			return "BEGIN SECOND HALF"
+		3:
+			return "BEGIN EXTRA TIME"
+		4:
+			return "BEGIN SECOND EXTRA TIME"
+	return "BEGIN NEXT PERIOD"
 
 
 func close() -> void:
@@ -95,7 +139,8 @@ func hide_for_submenu() -> void:
 # Close the menu without emitting resume_requested: a network replay/resume
 # already moved the authoritative match out of the pause.
 func dismiss() -> void:
-	if screen != null:
+	_break = false
+	if screen != null and not screen.is_closing():
 		screen.hide_now()
 
 

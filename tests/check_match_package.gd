@@ -33,6 +33,14 @@ func _init() -> void:
 	_check(float(package.get("options", {}).get("duration", -1)) == 0.5, "duration option is carried")
 	_check(float(package.get("options", {}).get("difficulty", -1)) == 1.0, "difficulty option is carried")
 
+	# Match length presets: every offered minute value round-trips onto the
+	# runtime's duration factor (90 game minutes compressed into N real ones).
+	for minutes in MatchPackage.LENGTH_PRESETS:
+		var round_trip := MatchPackage.minutes_from_duration(
+			MatchPackage.duration_from_minutes(float(minutes)))
+		_check(absf(round_trip - float(minutes)) < 0.001,
+			"match length %d min round-trips" % int(minutes))
+
 	var home_squad := catalog.load_squad(HOME_ID)
 	var away_squad := catalog.load_squad(AWAY_ID)
 	_check(not home_squad.is_empty() and not away_squad.is_empty(), "both squads load")

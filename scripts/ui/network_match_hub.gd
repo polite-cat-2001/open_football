@@ -33,6 +33,7 @@ var _match_started := false
 var _last_revision := -1
 var _start_vote := false
 var _last_options: Dictionary = {}
+var _plan_team := -1
 
 
 func _ready() -> void:
@@ -81,11 +82,24 @@ func _load_data() -> void:
 		return
 	home_lineup = MatchLineup.from_squad(home_squad)
 	away_lineup = MatchLineup.from_squad(away_squad)
-	view.setup_game_plan(home_lineup, away_lineup, [_local_team()], {
+	_apply_plan_team()
+	_ensure_network_package()
+
+
+# The hub opens before the first lobby poll, so the local id/side are unknown
+# then. Rebuild the plan once the poll reveals the peer's side; both peers used
+# to fall back to HOME and edit the same team.
+func _apply_plan_team() -> void:
+	if home_lineup == null or away_lineup == null:
+		return
+	var team := _local_team()
+	if team == _plan_team:
+		return
+	_plan_team = team
+	view.setup_game_plan(home_lineup, away_lineup, [team], {
 		"network": true,
 		"local_two_player": false,
 	})
-	_ensure_network_package()
 
 
 func _ensure_network_package() -> void:
@@ -143,6 +157,7 @@ func _poll_lobby() -> void:
 	_lobby = info.get("lobby", {})
 	_host = bool(info.get("is_host", false))
 	_local_id = int(info.get("local_id", -1))
+	_apply_plan_team()
 	var phase := int(_lobby.get("phase", -1))
 	if phase == 0:
 		_leaving = true

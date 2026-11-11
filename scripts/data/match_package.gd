@@ -18,12 +18,28 @@ extends RefCounted
 # package order; its formation (roles + dragged positions) replaces the default.
 
 const VERSION := 1
+# Match length is chosen in minutes of real play; the original runtime compresses
+# the 90-minute clock by factor = 0.2*duration + 0.05, so the same knob is
+# duration = (minutes - 4.5) / 18 (Match::matchDurationFactor in of_port).
+const MINUTES_BASE := 4.5
+const MINUTES_PER_DURATION := 18.0
+const LENGTH_PRESETS := [5.0, 7.0, 10.0, 12.0, 15.0]
+const DEFAULT_MINUTES := 10.0
+const DEFAULT_DURATION := (DEFAULT_MINUTES - MINUTES_BASE) / MINUTES_PER_DURATION
 const DEFAULT_OPTIONS := {
-	"duration": 1.0,
+	"duration": DEFAULT_DURATION,
 	"difficulty": 0.8,
 }
 
 var error := ""
+
+
+static func minutes_from_duration(duration: float) -> float:
+	return MINUTES_BASE + MINUTES_PER_DURATION * duration
+
+
+static func duration_from_minutes(minutes: float) -> float:
+	return (minutes - MINUTES_BASE) / MINUTES_PER_DURATION
 
 
 func build(catalog: TeamCatalog, home_team: Dictionary, away_team: Dictionary,

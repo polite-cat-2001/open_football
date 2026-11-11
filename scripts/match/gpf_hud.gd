@@ -1,7 +1,8 @@
 class_name GpfHud
 extends Node
-# In-match HUD and its menus: score/clock/status bar, the set-piece taker overlay and
-# the half-time / full-time phase menu.
+# In-match HUD and its overlays: score/clock/status bar, the set-piece taker overlay and
+# the full-time result menu. The phase break is not drawn here: it reuses the
+# design-system pause screen (GpfPauseMenu.open_break).
 
 signal main_menu_requested
 
@@ -51,7 +52,6 @@ var phase_menu_subtitle: Label
 var phase_menu_score: Label
 var phase_menu_details: Label
 var phase_menu_hint: Label
-var phase_menu_continue: Button
 var phase_menu_quit: Button
 var phase_menu_open := false
 var phase_menu_game_over := false
@@ -77,7 +77,7 @@ func apply_snapshot(snap: Dictionary, display_player_id: int = -1,
 
 func update(snap: Dictionary, display_player_id: int, actor_count: int,
 		stadium_camera: bool, lighting_name: String) -> void:
-	_sync_phase_menu(snap)
+	_sync_game_over_menu(snap)
 	_sync_taker_ui(snap)
 	_sync_substitution_notice(snap)
 	_sync_spam_message(snap)
@@ -103,7 +103,7 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 		duration = float(_runtime.get("match_duration"))
 	elif snap.has("match_duration"):
 		duration = float(snap.get("match_duration", 1.0))
-	var match_minutes := 5 + int(round(20.0 * duration))
+	var match_minutes := int(round(MatchPackage.minutes_from_duration(duration)))
 	# The ported taker overlay replaces the dev key legend while it is up: the
 	# original page draws over the pitch and has no second text block under it.
 	hud.visible = not _replay_mode and not is_taker_menu_open()
@@ -297,31 +297,11 @@ func is_phase_menu_open() -> bool:
 	return phase_menu_open
 
 
-func is_phase_menu_game_over() -> bool:
-	return phase_menu_game_over
-
-
 func handle_phase_menu_key(event: InputEventKey) -> void:
-	if not event.pressed:
+	if not event.pressed or not phase_menu_game_over:
 		return
-	if phase_menu_game_over:
-		if event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_ESCAPE]:
-			_quit_game()
-	elif event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_ESCAPE]:
-		continue_phase_break()
-
-
-func continue_phase_break() -> void:
-	if not phase_menu_open or phase_menu_game_over:
-		return
-	if _runtime != null:
-		if bool(_runtime.is_net_active()):
-			# Every peer votes; the host unpauses once all are ready.
-			_runtime.net_action("set_resume_ready", 0, 1, 0)
-			phase_menu_hint.text = "waiting for all players..."
-			return
-		_runtime.continue_after_phase_break()
-	_close_phase_menu()
+	if event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_ESCAPE]:
+		_quit_game()
 
 
 func _sync_taker_ui(snap: Dictionary) -> void:
@@ -426,23 +406,17 @@ func _message_showing() -> bool:
 	return message_label != null and message_label.visible
 
 
-func _sync_phase_menu(snap: Dictionary) -> void:
+func _sync_game_over_menu(snap: Dictionary) -> void:
 	# The shootout presentation owns the end of the match: it shows its own winner banner and quits.
 	if bool(snap.get("shootout_active", false)):
 		if phase_menu_open:
 			_close_phase_menu()
 		return
-	var game_over := bool(snap.get("game_over", false))
-	var phase_break := bool(snap.get("phase_break_pending", false)) \
-		or bool(snap.get("phase_break", false))
-	if not game_over and not phase_break:
+	if not bool(snap.get("game_over", false)):
 		if phase_menu_open:
 			_close_phase_menu()
 		return
 	if not phase_menu_open:
-		if not game_over and not bool(snap.get("phase_break", false)):
-			if _runtime != null:
-				_runtime.begin_phase_break()
 		_open_phase_menu(snap)
 	else:
 		_refresh_phase_menu(snap)
@@ -454,28 +428,15 @@ func _open_phase_menu(snap: Dictionary) -> void:
 	phase_menu_open = true
 	phase_menu_layer.visible = true
 	_refresh_phase_menu(snap)
-	if phase_menu_game_over:
-		phase_menu_quit.grab_focus()
-	else:
-		phase_menu_continue.grab_focus()
+	phase_menu_quit.grab_focus()
 
 
 func _refresh_phase_menu(snap: Dictionary) -> void:
-	phase_menu_game_over = bool(snap.get("game_over", false))
-	var game_over := phase_menu_game_over
-	var next_phase := int(snap.get("phase_break_next_phase", 0))
-	if next_phase <= 0:
-		# Thin LAN client: the host's phase-change latch never runs here, so the
-		# snapshot's match phase is the next period.
-		next_phase = int(snap.get("match_phase", 0))
-	if game_over:
-		var after_extra := int(snap.get("match_time_ms", 0)) >= 7200000 \
-			or int(snap.get("match_phase", 0)) == 5
-		phase_menu_title.text = "AFTER EXTRA TIME" if after_extra else "FULL TIME"
-		phase_menu_subtitle.text = "Final score"
-	else:
-		phase_menu_title.text = _phase_break_title(next_phase)
-		phase_menu_subtitle.text = _phase_break_subtitle(next_phase)
+	phase_menu_game_over = true
+	var after_extra := int(snap.get("match_time_ms", 0)) >= 7200000 \
+		or int(snap.get("match_phase", 0)) == 5
+	phase_menu_title.text = "AFTER EXTRA TIME" if after_extra else "FULL TIME"
+	phase_menu_subtitle.text = "Final score"
 	var home := String(snap.get("team0_name", ""))
 	if home == "":
 		home = "HOME"
@@ -500,35 +461,8 @@ func _refresh_phase_menu(snap: Dictionary) -> void:
 		int(snap.get("shots0", 0)),
 		int(snap.get("shots1", 0)),
 	]
-	phase_menu_continue.visible = not game_over
-	if game_over:
-		phase_menu_hint.text = "Enter / Esc: main menu"
-		phase_menu_quit.text = "Main menu"
-	else:
-		phase_menu_hint.text = "Enter / Space: continue"
-		phase_menu_quit.text = "Quit"
-
-
-func _phase_break_title(next_phase: int) -> String:
-	match next_phase:
-		2:
-			return "HALF TIME"
-		3:
-			return "END OF 90"
-		4:
-			return "EXTRA TIME"
-	return "BREAK"
-
-
-func _phase_break_subtitle(next_phase: int) -> String:
-	match next_phase:
-		2:
-			return "Begin second half"
-		3:
-			return "Begin extra time"
-		4:
-			return "Begin second extra time"
-	return "Continue"
+	phase_menu_hint.text = "Enter / Esc: main menu"
+	phase_menu_quit.text = "Main menu"
 
 
 func _close_phase_menu() -> void:
@@ -537,8 +471,8 @@ func _close_phase_menu() -> void:
 
 
 func _quit_game() -> void:
-	# Both the full-time and the abandoned-break "Quit" leave for the main menu; the
-	# scene orchestrator stops the match on its way out.
+	# The result menu's "Main menu" leaves; the scene orchestrator stops the
+	# match on its way out.
 	main_menu_requested.emit()
 
 
@@ -760,14 +694,8 @@ func _build_phase_menu() -> void:
 	buttons.add_theme_constant_override("separation", 16)
 	box.add_child(buttons)
 
-	phase_menu_continue = Button.new()
-	phase_menu_continue.text = "Continue"
-	phase_menu_continue.custom_minimum_size = Vector2(160, 40)
-	buttons.add_child(phase_menu_continue)
-	phase_menu_continue.pressed.connect(continue_phase_break)
-
 	phase_menu_quit = Button.new()
-	phase_menu_quit.text = "Quit"
+	phase_menu_quit.text = "Main menu"
 	phase_menu_quit.custom_minimum_size = Vector2(160, 40)
 	buttons.add_child(phase_menu_quit)
 	phase_menu_quit.pressed.connect(_quit_game)

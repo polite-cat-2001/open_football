@@ -182,6 +182,20 @@ func _run(package: Dictionary) -> void:
 	menu.handle_joy(_joy(JOY_BUTTON_B))
 	_check(not menu.is_open(), "gamepad B closes the menu")
 
+	# A network pause is a vote: the menu must stay up (no close/reopen blink),
+	# only the Continue note changes.
+	_check(bool(runtime.net_host(28637, "Pause Test")), "the pause test binds a LAN session")
+	menu.open()
+	resumed[0] = false
+	_check(menu.handle_key(_key(KEY_ENTER)), "the network menu handles Continue")
+	_check(resumed[0] and menu.is_open(), "a network vote keeps the pause menu open")
+	_check(menu.screen.continue_tile.meta.contains("WAITING FOR RIVAL"),
+		"the continue note shows the waiting state")
+	resumed[0] = false
+	menu.handle_joy(_joy(JOY_BUTTON_B))
+	_check(resumed[0] and menu.is_open(), "gamepad B votes without closing the menu")
+	runtime.net_leave()
+
 	print("== check_gpf_pause: ", "PASS" if failures.is_empty() else "FAIL", " ==")
 	quit(0 if failures.is_empty() else 1)
 

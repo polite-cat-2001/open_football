@@ -372,22 +372,25 @@ func _run() -> void:
 				_check(not bool(runtime.get_snapshot().get("paused", true)),
 					"the match resumes after the cancel path")
 
-	# LAN half-time: the host break overlay is a resume vote for every peer.
+	# LAN half-time: the break overlay is a resume vote for every peer.
 	if runtime != null and slice != null:
 		runtime.debug_force_phase_break(2)
 		runtime.step_fixed(5)
 		await _frames(10)
-		var hud = slice.get("hud")
+		var break_menu = slice.get("pause_menu")
 		snap = runtime.get_snapshot()
 		_check(bool(snap.get("paused", false)), "the forced break pauses the net match")
-		_check(hud != null and bool(hud.phase_menu_open), "the break overlay opens")
-		if hud != null:
-			hud.call("continue_phase_break")
+		_check(break_menu != null and break_menu.is_open() and break_menu.is_break(),
+			"the break overlay opens the pause screen")
+		if break_menu != null:
+			_check(break_menu.screen.continue_tile.title == "BEGIN SECOND HALF",
+				"the break continue tile begins the second half")
+			slice.call("_on_pause_resume")
 			runtime.step_fixed(5)
 			await _frames(12)
 			snap = runtime.get_snapshot()
 			_check(not bool(snap.get("paused", true)), "the break resume vote unpauses")
-			_check(not bool(hud.phase_menu_open), "the break overlay closes after the resume")
+			_check(not break_menu.is_open(), "the break overlay closes after the resume")
 
 	if current_scene != null and current_scene.has_method("_return_to_main_menu"):
 		current_scene.call("_return_to_main_menu")

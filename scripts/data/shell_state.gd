@@ -8,7 +8,7 @@ extends RefCounted
 # not create autoloads) can exercise the same code path as the running game.
 
 const DEFAULT_MATCH_OPTIONS := {
-	"duration": 1.0,
+	"duration": MatchPackage.DEFAULT_DURATION,
 	"difficulty": 0.8,
 }
 # Quick Match's default pairing. The network team lobby seeds the same pair so
