@@ -205,6 +205,8 @@ func _run() -> void:
 		_check(menu_continue.find_next_valid_focus() == menu_career
 			or menu_continue.focus_mode == Control.FOCUS_ALL,
 			"the main menu Continue tile is focusable")
+		_check(not menu_continue.get_signal_connection_list(&"mouse_entered").is_empty(),
+			"the main menu Continue tile answers the mouse once enabled")
 		menu_continue.grab_focus()
 		nav.confirmed.emit()
 		await _frames(8)

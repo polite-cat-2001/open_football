@@ -59,6 +59,19 @@ func refresh_layout() -> void:
 	_update_marker(false)
 
 
+func fit_width() -> void:
+	# The bar is only as wide as its tabs, like the prototype's flex: 0 1 auto.
+	if _strip == null:
+		return
+	_layout_tabs()
+	var width := 0.0
+	if not _buttons.is_empty():
+		width = _buttons[-1].position.x + _buttons[-1].size.x
+	size = Vector2(width, UiTokens.TAB_H)
+	_layout_tabs()
+	_update_marker(false)
+
+
 func focus_tab(index: int) -> void:
 	if index < 0 or index >= _buttons.size():
 		return
@@ -170,6 +183,8 @@ func _on_tab_focus_exited() -> void:
 
 
 func _check_focus_lost() -> void:
+	if not is_inside_tree():
+		return
 	var owner := get_viewport().gui_get_focus_owner()
 	if owner != null and _buttons.has(owner):
 		return

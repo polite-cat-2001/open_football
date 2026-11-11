@@ -71,6 +71,7 @@ static func create(
 		"league_id": str(club.get("league_id", "")),
 		"league_club_ids": league_ids,
 		"formation": Career.DEFAULT_FORMATION,
+		"hub_tab": "centre",
 		"schedule": build_schedule(league_ids, Career.START_DATE),
 		"schedule_version": SCHEDULE_VERSION,
 		"incoming_market_date": Career.START_DATE,
@@ -331,6 +332,11 @@ static func _sort_players(players: Array) -> Array:
 	return copy
 
 
+static func _club_logo(club: Dictionary) -> String:
+	var career_logo := str(club.get("career_logo", ""))
+	return career_logo if not career_logo.is_empty() else str(club.get("logo", ""))
+
+
 static func _clubs_for_schedule(catalog: TeamCatalog, career: Career) -> Dictionary:
 	var clubs := {}
 	for club_id in career.league_club_ids:
@@ -370,19 +376,87 @@ static func _season_state(career: Career, clubs: Dictionary) -> Dictionary:
 			"opponent": {
 				"id": opponent_id,
 				"name": str(opponent.get("name", opponent_id)),
-				"logo": str(opponent.get("logo", "")),
+				"logo": _club_logo(opponent),
 			},
 		}
 	return {
 		"season_start": career.season_start,
 		"round": int(next_fixture.get("round", rounds_total)) if not next_fixture.is_empty() else rounds_total,
+		"played_round": _played_round(career),
 		"rounds_total": rounds_total,
 		"complete": next_fixture.is_empty() and rounds_total > 0,
 		"next": next_match,
-		"last_result": null,
-		"form": [],
+		"last_result": _last_result(career, clubs),
+		"form": _recent_form(career, clubs),
 		"standings": _standings(career, clubs),
+		"promotion_places": PROMOTION_PLACES,
+		"relegation_places": RELEGATION_PLACES,
 	}
+
+
+static func _played_fixtures(career: Career) -> Array:
+	var played: Array = []
+	for fixture in career.schedule:
+		var fixture_id := str(fixture.get("id", ""))
+		if not career.results.has(fixture_id):
+			continue
+		if career.club_id not in [str(fixture.get("home", "")), str(fixture.get("away", ""))]:
+			continue
+		played.append(fixture)
+	played.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if int(a.get("round", 0)) != int(b.get("round", 0)):
+			return int(a.get("round", 0)) < int(b.get("round", 0))
+		return str(a.get("date", "")) < str(b.get("date", "")))
+	return played
+
+
+static func _match_summary(career: Career, fixture: Dictionary, clubs: Dictionary) -> Dictionary:
+	var score = career.results.get(str(fixture.get("id", "")))
+	if not (score is Dictionary):
+		return {}
+	var home := str(fixture.get("home", "")) == career.club_id
+	var opponent_id := str(fixture.get("away", "")) if home else str(fixture.get("home", ""))
+	var opponent: Dictionary = clubs.get(opponent_id, {})
+	var goals_for := int(score.get("home", 0)) if home else int(score.get("away", 0))
+	var goals_against := int(score.get("away", 0)) if home else int(score.get("home", 0))
+	var outcome := "W" if goals_for > goals_against else ("D" if goals_for == goals_against else "L")
+	return {
+		"fixture_id": str(fixture.get("id", "")),
+		"date": str(fixture.get("date", "")),
+		"round": int(fixture.get("round", 0)),
+		"home": home,
+		"goals_for": goals_for,
+		"goals_against": goals_against,
+		"outcome": outcome,
+		"opponent": {
+			"id": opponent_id,
+			"name": str(opponent.get("name", opponent_id)),
+			"logo": _club_logo(opponent),
+		},
+	}
+
+
+static func _last_result(career: Career, clubs: Dictionary):
+	var played := _played_fixtures(career)
+	if played.is_empty():
+		return null
+	var summary := _match_summary(career, played[-1], clubs)
+	return summary if not summary.is_empty() else null
+
+
+static func _recent_form(career: Career, clubs: Dictionary, limit := 5) -> Array:
+	var played := _played_fixtures(career)
+	var form: Array = []
+	for fixture in played.slice(maxi(0, played.size() - limit)):
+		var summary := _match_summary(career, fixture, clubs)
+		if not summary.is_empty():
+			form.append(summary)
+	return form
+
+
+static func _played_round(career: Career):
+	var played := _played_fixtures(career)
+	return int(played[-1].get("round", 0)) if not played.is_empty() else null
 
 
 static func _standings(career: Career, clubs: Dictionary) -> Array:
@@ -392,7 +466,7 @@ static func _standings(career: Career, clubs: Dictionary) -> Array:
 		table[club_id] = {
 			"club_id": club_id,
 			"club_name": str(club.get("name", club_id)),
-			"club_logo": str(club.get("logo", "")),
+			"club_logo": _club_logo(club),
 			"played": 0, "won": 0, "drawn": 0, "lost": 0,
 			"goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0,
 		}

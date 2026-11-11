@@ -53,8 +53,9 @@ func _ready() -> void:
 	resized.connect(_layout_content)
 	focus_entered.connect(_on_focus_changed)
 	focus_exited.connect(_on_focus_changed)
-	if not disabled:
-		mouse_entered.connect(_on_mouse_entered)
+	# Always connect: tiles like Continue Career start disabled in the scene and
+	# are enabled later, and would otherwise never answer the mouse.
+	mouse_entered.connect(_on_mouse_entered)
 	_apply_state(false)
 	call_deferred("_layout_content")
 

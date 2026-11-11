@@ -1,44 +1,75 @@
 extends UiScreen
-# Minimal career landing screen after create/load. Ticket 03 replaces this with
-# the full Centre/Squad/Transfers/Scouting hub; until then it proves the loaded
-# snapshot is real and gives the player a way back to the menu.
+# Career hub: the prototype's tabbed shell (Centre / Squad / Transfers /
+# Scouting) with the Centre dashboard, save and exit. Only the Centre tab is
+# built; the other tabs show the shared "in progress" panel until their
+# tickets land. Input goes through UiNav; the active tab is saved in the career.
 
 const START_SCENE := "res://scenes/career_start.tscn"
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 
+enum Zone { TABS, GRID }
+
 @onready var panel_wrap: Control = $Design/PanelWrap
+@onready var body: Control = $Design/PanelWrap/Body
+@onready var tab_bar: UiTabBar = $Design/PanelWrap/Body/TabBar
+@onready var grid: BentoGrid = $Design/PanelWrap/Body/Grid
+@onready var next_tile: CareerHubNextTile = $Design/PanelWrap/Body/Grid/NextTile
+@onready var table_tile: CareerHubTableTile = $Design/PanelWrap/Body/Grid/TableTile
+@onready var transfer_tile: BentoTile = $Design/PanelWrap/Body/Grid/TransferTile
+@onready var news_tile: BentoTile = $Design/PanelWrap/Body/Grid/NewsTile
+@onready var training_tile: BentoTile = $Design/PanelWrap/Body/Grid/TrainingTile
+@onready var placeholder: UiMenuPanel = $Design/PanelWrap/Body/Placeholder
 @onready var hints: UiHintsBar = $Design/PanelWrap/Hints
+@onready var overlay: CareerHubOverlay = $Design/Overlay
 
 var _snapshot: Dictionary = {}
-var _header: Panel
-var _crest: TextureRect
-var _name: Label
-var _meta: Label
-var _next_panel: Panel
-var _next_title: Label
-var _next_opponent: Label
-var _next_meta: Label
-var _squad_panel: Panel
-var _squad_values: Array = []
-var _exit_tile: BentoTile
+var _career: Career
+var _zone := Zone.GRID
+var _tab := 0
+var _busy := false
 
 
 func _ready() -> void:
 	add_to_group(&"ui_shell")
 	panel_wrap.add_to_group(&"ui_transition_target")
 	theme = UiTheme.load_or_build()
-	var career := CareerSession.career
-	if career == null or CareerSession.catalog == null:
+	_career = CareerSession.career
+	if _career == null or CareerSession.catalog == null:
 		call_deferred("_leave", START_SCENE)
 		return
-	_snapshot = CareerFactory.snapshot(CareerSession.catalog, career)
+	_snapshot = CareerFactory.snapshot(CareerSession.catalog, _career)
 	if _snapshot.is_empty():
 		call_deferred("_leave", START_SCENE)
 		return
-	_build()
-	hints.setup(_keyboard_hints())
-	UiNav.confirmed.connect(_on_confirmed)
-	UiNav.cancelled.connect(_on_cancelled)
+
+	overlay.z_index = 10
+	hints.z_index = 20
+	tab_bar.setup(CareerHubModel.TABS)
+	tab_bar.tab_selected.connect(_on_tab_selected)
+	tab_bar.bar_focused.connect(_on_bar_focused)
+	grid.add_cell(next_tile, 1, 1, 2, 1)
+	grid.add_cell(table_tile, 3, 1, 2, 1)
+	grid.add_cell(transfer_tile, 1, 2)
+	grid.add_cell(news_tile, 2, 2, 2, 1)
+	grid.add_cell(training_tile, 4, 2)
+	for tile in [transfer_tile, news_tile, training_tile]:
+		tile.focus_mode = Control.FOCUS_NONE
+	next_tile.pressed.connect(_on_next_pressed)
+	table_tile.pressed.connect(_open_overlay)
+	next_tile.focus_entered.connect(_on_tile_focused)
+	table_tile.focus_entered.connect(_on_tile_focused)
+	_apply_snapshot()
+
+	UiNav.moved.connect(_on_nav_moved)
+	UiNav.confirmed.connect(_on_nav_confirmed)
+	UiNav.cancelled.connect(_on_nav_cancelled)
+	UiNav.tab_previous.connect(_on_nav_tab_previous)
+	UiNav.tab_next.connect(_on_nav_tab_next)
+	UiNav.device_changed.connect(_on_device_changed)
+
+	_tab = maxi(0, CareerHubModel.TAB_IDS.find(_career.hub_tab))
+	tab_bar.select_tab(_tab, false)
+	_apply_tab()
 	_layout()
 	get_viewport().size_changed.connect(_layout)
 	theme_changed.connect(_layout)
@@ -46,153 +77,272 @@ func _ready() -> void:
 	call_deferred("_focus_initial")
 
 
-func _build() -> void:
-	var club: Dictionary = _snapshot.get("club", {})
-	var manager: Dictionary = _snapshot.get("manager", {})
-	var season: Dictionary = _snapshot.get("season", {})
-
-	_header = _panel()
-	panel_wrap.add_child(_header)
-	_crest = TextureRect.new()
-	_crest.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_crest.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_header.add_child(_crest)
-	var team := CareerSession.catalog.team_by_id(int(club.get("id", 0)))
-	_crest.texture = UiAssets.usable_texture(UiAssets.team_logo(team))
-	_name = _label(44, UiTheme.barlow(800), UiTokens.INK)
-	_header.add_child(_name)
-	_meta = _label(17, UiTheme.inter(500), UiTokens.INK_2)
-	_header.add_child(_meta)
-
-	_next_panel = _panel()
-	panel_wrap.add_child(_next_panel)
-	_next_title = _label(16, UiTheme.inter(600), UiTokens.INK_2)
-	_next_panel.add_child(_next_title)
-	_next_opponent = _label(34, UiTheme.barlow(800), UiTokens.INK)
-	_next_panel.add_child(_next_opponent)
-	_next_meta = _label(16, UiTheme.inter(500), UiTokens.INK_2)
-	_next_panel.add_child(_next_meta)
-
-	_squad_panel = _panel()
-	panel_wrap.add_child(_squad_panel)
-	var squad_title := _label(16, UiTheme.inter(600), UiTokens.INK_2)
-	squad_title.text = "SQUAD"
-	_squad_panel.add_child(squad_title)
-	for index in range(4):
-		var value := _label(30, UiTheme.barlow(700), UiTokens.INK)
-		_squad_panel.add_child(value)
-		_squad_values.append(value)
-
-	_exit_tile = BentoTile.new()
-	_exit_tile.name = "ExitTile"
-	_exit_tile.title = "EXIT TO MENU"
-	_exit_tile.subtitle = "Your career is saved"
-	_exit_tile.meta = "ENTER · EXIT"
-	_exit_tile.glyph_name = "exit"
-	_exit_tile.wide = true
-	_exit_tile.pressed.connect(_on_cancelled)
-	panel_wrap.add_child(_exit_tile)
-
-	_name.text = str(club.get("name", ""))
-	_meta.text = "%s · %s · %s" % [
-		str(manager.get("name", "")),
-		str(club.get("league_name", "")),
-		_date(str(_snapshot.get("date", ""))),
-	]
-	var next = season.get("next")
-	if next is Dictionary:
-		_next_title.text = "NEXT MATCH · ROUND %d" % int(next.get("round", 0))
-		_next_opponent.text = str(next.get("opponent", {}).get("name", ""))
-		_next_meta.text = "%s · %s" % [
-			"HOME" if bool(next.get("home", false)) else "AWAY",
-			_date(str(next.get("date", ""))),
-		]
-	else:
-		_next_title.text = "NEXT MATCH"
-		_next_opponent.text = "Season complete"
-		_next_meta.text = ""
-	var summary: Dictionary = _snapshot.get("squad", {}).get("summary", {})
-	_squad_values[0].text = "SIZE %d" % int(summary.get("squad_size", 0))
-	_squad_values[1].text = "OVR %.1f" % float(summary.get("average_overall", 0.0))
-	_squad_values[2].text = "AGE %s" % str(summary.get("average_age", "-"))
-	_squad_values[3].text = "VALUE €%.1fM" % (
-		float(summary.get("total_market_value", 0)) / 1000000.0)
-	hints.set_status("%s · SEASON %s" % [
-		str(club.get("name", "")), _season_label(str(_snapshot.get("date", "")))])
-
-
-func _panel() -> Panel:
-	var panel := Panel.new()
-	var box := StyleBoxFlat.new()
-	box.bg_color = UiTokens.TILE
-	box.shadow_color = UiTokens.SHADOW
-	box.shadow_size = 22
-	box.shadow_offset = Vector2(0.0, 18.0)
-	panel.add_theme_stylebox_override(&"panel", box)
-	return panel
-
-
-func _label(size: int, font: Font, color: Color) -> Label:
-	var label := Label.new()
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_override(&"font", font)
-	label.add_theme_font_size_override(&"font_size", size)
-	label.add_theme_color_override(&"font_color", color)
-	return label
+func _apply_snapshot() -> void:
+	next_tile.setup(CareerHubModel.next_tile(_snapshot))
+	table_tile.setup(CareerHubModel.table_tile(_snapshot))
 
 
 func _layout() -> void:
 	if layout_canvas() <= 0.0:
 		return
 	var hints_height := hints.height()
-	var total := 170.0 + UiTokens.GAP + 240.0 + UiTokens.GAP + 160.0 + UiTokens.GAP \
-		+ 112.0 + UiTokens.HINTS_GAP + hints_height
+	var total := UiTokens.TAB_H + UiTokens.GAP + UiTokens.GRID_H \
+		+ UiTokens.HINTS_GAP + hints_height
 	panel_wrap.position = Vector2(
 		(UiTokens.DESIGN_SIZE.x - UiTokens.PANEL_W) * 0.5,
 		(UiTokens.DESIGN_SIZE.y - total) * 0.5
 	)
 	panel_wrap.size = Vector2(UiTokens.PANEL_W, total)
-
-	_header.position = Vector2.ZERO
-	_header.size = Vector2(UiTokens.PANEL_W, 170.0)
-	_crest.position = Vector2(24.0, 24.0)
-	_crest.size = Vector2(120.0, 120.0)
-	_name.position = Vector2(168.0, 28.0)
-	_name.size = Vector2(UiTokens.PANEL_W - 200.0, 62.0)
-	_meta.position = Vector2(168.0, 96.0)
-	_meta.size = Vector2(UiTokens.PANEL_W - 200.0, 30.0)
-
-	_next_panel.position = Vector2(0.0, 180.0)
-	_next_panel.size = Vector2(735.0, 240.0)
-	_next_title.position = Vector2(24.0, 22.0)
-	_next_title.size = Vector2(687.0, 24.0)
-	_next_opponent.position = Vector2(24.0, 58.0)
-	_next_opponent.size = Vector2(687.0, 70.0)
-	_next_meta.position = Vector2(24.0, 140.0)
-	_next_meta.size = Vector2(687.0, 28.0)
-
-	_squad_panel.position = Vector2(745.0, 180.0)
-	_squad_panel.size = Vector2(735.0, 240.0)
-	for index in range(_squad_values.size()):
-		var label: Label = _squad_values[index]
-		label.position = Vector2(24.0 + (index % 2) * 350.0, 26.0 + (index / 2) * 90.0)
-		label.size = Vector2(320.0, 70.0)
-
-	_exit_tile.set_base_rect(Rect2(Vector2(0.0, 430.0), Vector2(UiTokens.PANEL_W, 112.0)),
-		Vector2.ZERO)
-	hints.position = Vector2(0.0, 430.0 + 112.0 + UiTokens.HINTS_GAP)
+	var content_top := UiTokens.TAB_H + UiTokens.GAP
+	body.position = Vector2.ZERO
+	body.size = Vector2(UiTokens.PANEL_W, content_top + UiTokens.GRID_H)
+	tab_bar.position = Vector2.ZERO
+	tab_bar.fit_width()
+	grid.position = Vector2(0.0, content_top)
+	grid.size = Vector2(UiTokens.PANEL_W, UiTokens.GRID_H)
+	placeholder.position = grid.position
+	placeholder.size = grid.size
+	hints.position = Vector2(0.0, content_top + UiTokens.GRID_H + UiTokens.HINTS_GAP)
 	hints.size = Vector2(UiTokens.PANEL_W, hints_height)
+	# The overlay is a full shell replacement: it covers the tabs too, like the
+	# prototype hides the hub while a tournament/match screen is open.
+	overlay.layout_overlay(Rect2(panel_wrap.position, body.size))
 
 
 func _focus_initial() -> void:
-	_exit_tile.grab_focus()
+	if _tab == 0:
+		next_tile.grab_focus()
+		_zone = Zone.GRID
+	else:
+		tab_bar.focus_tab(_tab)
+		_zone = Zone.TABS
 
 
-func _on_confirmed() -> void:
-	_on_cancelled()
+func _apply_tab() -> void:
+	var centre := _tab == 0
+	grid.visible = centre
+	placeholder.visible = not centre
+	if not centre:
+		placeholder.setup("%s arrives in a later build." % CareerHubModel.TABS[_tab], [])
+	_update_hints()
 
 
-func _on_cancelled() -> void:
+func _on_tab_selected(index: int) -> void:
+	_tab = index
+	if _career != null:
+		_career.hub_tab = CareerHubModel.TAB_IDS[index]
+	_apply_tab()
+	if _zone == Zone.GRID:
+		_focus_first_tile()
+
+
+func _on_bar_focused() -> void:
+	_zone = Zone.TABS
+
+
+func _on_tile_focused() -> void:
+	_zone = Zone.GRID
+
+
+func _cycle_tab(delta: int) -> void:
+	var next := posmod(_tab + delta, CareerHubModel.TABS.size())
+	_tab = next
+	if _career != null:
+		_career.hub_tab = CareerHubModel.TAB_IDS[next]
+	tab_bar.select_tab(next, false)
+	_apply_tab()
+	if _zone == Zone.GRID:
+		_focus_first_tile()
+	else:
+		tab_bar.focus_tab(next)
+
+
+func _focus_first_tile() -> void:
+	if _tab == 0:
+		next_tile.grab_focus()
+		_zone = Zone.GRID
+	else:
+		tab_bar.focus_tab(_tab)
+		_zone = Zone.TABS
+
+
+func _focus_active_tab() -> void:
+	tab_bar.focus_tab(_tab)
+	_zone = Zone.TABS
+
+
+func _on_nav_moved(direction: Vector2i) -> void:
+	if _busy:
+		return
+	if overlay.is_open():
+		if direction == Vector2i.UP or direction == Vector2i.DOWN:
+			overlay.scroll_step(-1 if direction == Vector2i.UP else 1)
+		return
+	if _zone == Zone.TABS:
+		if direction == Vector2i.LEFT:
+			_cycle_tab(-1)
+		elif direction == Vector2i.RIGHT:
+			_cycle_tab(1)
+		elif direction == Vector2i.DOWN:
+			_focus_first_tile()
+		return
+	var focus := get_viewport().gui_get_focus_owner()
+	if direction == Vector2i.UP:
+		_focus_active_tab()
+	elif focus == next_tile and direction == Vector2i.RIGHT:
+		table_tile.grab_focus()
+	elif focus == table_tile and direction == Vector2i.LEFT:
+		next_tile.grab_focus()
+
+
+func _on_nav_confirmed() -> void:
+	if _busy or overlay.is_open():
+		return
+	if _zone == Zone.TABS:
+		_focus_first_tile()
+		return
+	var focus := get_viewport().gui_get_focus_owner()
+	if focus is BaseButton and not (focus as BaseButton).disabled:
+		(focus as BaseButton).pressed.emit()
+
+
+func _on_nav_cancelled() -> void:
+	if _busy:
+		return
+	if overlay.is_open():
+		_close_overlay()
+		return
+	if UiNav.event_was_modal():
+		return
+	if _tab != 0:
+		_cycle_tab(-_tab)
+		return
+	_exit()
+
+
+func _on_nav_tab_previous() -> void:
+	if _busy or overlay.is_open():
+		return
+	_cycle_tab(-1)
+
+
+func _on_nav_tab_next() -> void:
+	if _busy or overlay.is_open():
+		return
+	_cycle_tab(1)
+
+
+func _on_device_changed(_gamepad: bool) -> void:
+	if overlay.is_open():
+		hints.setup(_overlay_hints())
+		return
+	_update_hints()
+
+
+func _input(event: InputEvent) -> void:
+	if _busy or overlay.is_open() or UiNav.is_modal():
+		return
+	var wants_save := false
+	if event is InputEventKey:
+		var key := event as InputEventKey
+		wants_save = key.pressed and not key.echo and (
+			key.keycode == KEY_S or key.physical_keycode == KEY_S)
+	elif event is InputEventJoypadButton:
+		var button := event as InputEventJoypadButton
+		wants_save = button.pressed and button.button_index == JOY_BUTTON_START
+	if wants_save:
+		get_viewport().set_input_as_handled()
+		_save()
+
+
+func _on_next_pressed() -> void:
+	var next = _snapshot.get("season", {}).get("next")
+	if not (next is Dictionary):
+		hints.set_status("The season is complete.")
+		return
+	if str(_snapshot.get("date", "")) >= str(next.get("date", "")):
+		hints.set_status("Match day · the match screen arrives in the next build.")
+		return
+	hints.set_status("Next match · %s · round %d" % [
+		CareerHubModel.short_date(str(next.get("date", ""))),
+		int(next.get("round", 0)),
+	])
+
+
+func _open_overlay() -> void:
+	if overlay.is_open() or _busy:
+		return
+	_busy = true
+	overlay.setup(CareerHubModel.overlay(_snapshot))
+	hints.setup(_overlay_hints())
+	await _fade_out(body)
+	body.visible = false
+	overlay.open()
+	await _fade_in(overlay.card())
+	_busy = false
+
+
+func _close_overlay() -> void:
+	if not overlay.is_open() or _busy:
+		return
+	_busy = true
+	overlay.close()
+	await _fade_out(overlay.card())
+	overlay.hide_card()
+	body.visible = true
+	await _fade_in(body)
+	_update_hints()
+	table_tile.grab_focus()
+	_zone = Zone.GRID
+	_busy = false
+
+
+func _fade_out(node: Control) -> void:
+	node.pivot_offset = node.size * 0.5
+	if UiTransition.instant:
+		node.modulate.a = 0.0
+		node.scale = Vector2.ONE * UiTransition.SCALE_FROM
+		return
+	var tween := create_tween().set_parallel(true)
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(node, "modulate:a", 0.0, UiTransition.OUT_TIME)
+	tween.tween_property(node, "scale", Vector2.ONE * UiTransition.SCALE_FROM,
+		UiTransition.OUT_TIME)
+	await tween.finished
+
+
+func _fade_in(node: Control) -> void:
+	node.pivot_offset = node.size * 0.5
+	if UiTransition.instant:
+		node.modulate.a = 1.0
+		node.scale = Vector2.ONE
+		return
+	node.modulate.a = 0.0
+	node.scale = Vector2.ONE * UiTransition.SCALE_FROM
+	var tween := create_tween().set_parallel(true)
+	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(node, "modulate:a", 1.0, UiTransition.IN_TIME)
+	tween.tween_property(node, "scale", Vector2.ONE, UiTransition.IN_TIME)
+	await tween.finished
+
+
+func _save() -> bool:
+	if _career == null:
+		return false
+	_career.touch()
+	var store := CareerSession.store if CareerSession.store != null else CareerSaveStore.new()
+	if not store.save(_career):
+		hints.set_status(store.last_error, true)
+		return false
+	CareerSession.store = store
+	hints.set_status("Career saved · %s" % _timestamp(_career.updated_at))
+	return true
+
+
+func _exit() -> void:
+	if not _save():
+		return
+	CareerSession.clear()
 	_leave(MAIN_MENU_SCENE)
 
 
@@ -200,18 +350,39 @@ func _leave(path: String) -> void:
 	UiTransition.change_scene(path)
 
 
+func _update_hints() -> void:
+	hints.setup(_gamepad_hints() if UiNav.using_gamepad() else _keyboard_hints())
+
+
 func _keyboard_hints() -> Array:
-	return [{"keys": ["ENTER"], "label": "exit"}, {"keys": ["ESC"], "label": "back"}]
+	return [
+		{"keys": ["Q", "E"], "label": "tabs"},
+		{"keys": ["ENTER"], "label": "select"},
+		{"keys": ["ESC"], "label": "menu"},
+		{"keys": ["S"], "label": "save"},
+	]
 
 
-func _season_label(date: String) -> String:
-	if date.length() < 7:
-		return date
-	var year := int(date.substr(0, 4))
-	var month := int(date.substr(5, 2))
-	var start := year if month >= 7 else year - 1
-	return "%d/%d" % [start, start + 1]
+func _gamepad_hints() -> Array:
+	return [
+		{"keys": ["LB", "RB"], "label": "tabs"},
+		{"keys": ["A"], "label": "select"},
+		{"keys": ["B"], "label": "menu"},
+		{"keys": ["START"], "label": "save"},
+	]
 
 
-func _date(iso: String) -> String:
-	return iso.substr(0, 10) if iso.length() >= 10 else iso
+func _overlay_hints() -> Array:
+	if UiNav.using_gamepad():
+		return [
+			{"keys": ["L-STICK"], "label": "scroll"},
+			{"keys": ["B"], "label": "back"},
+		]
+	return [
+		{"keys": ["↑", "↓"], "label": "scroll"},
+		{"keys": ["ESC"], "label": "back"},
+	]
+
+
+static func _timestamp(iso: String) -> String:
+	return iso.substr(0, 16).replace("T", " ") if iso.length() >= 16 else iso

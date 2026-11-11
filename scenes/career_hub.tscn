@@ -1,8 +1,15 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/career_hub.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_stage.tscn" id="2"]
-[ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/ui/ui_tab_bar.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/ui/bento_grid.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/ui/career_hub_next_tile.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/ui/career_hub_table_tile.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/ui/bento_tile.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/ui/ui_menu_panel.gd" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="9"]
+[ext_resource type="Script" path="res://scripts/ui/career_hub_overlay.gd" id="10"]
 
 [node name="CareerHub" type="Control"]
 layout_mode = 3
@@ -24,10 +31,91 @@ offset_bottom = 1080.0
 [node name="PanelWrap" type="Control" parent="Design" groups=["ui_transition_target"]]
 layout_mode = 0
 offset_right = 1480.0
-offset_bottom = 728.0
-
-[node name="Hints" parent="Design/PanelWrap" instance=ExtResource("3")]
-layout_mode = 0
-offset_top = 704.0
-offset_right = 1480.0
 offset_bottom = 764.0
+
+[node name="Body" type="Control" parent="Design/PanelWrap"]
+layout_mode = 0
+offset_right = 1480.0
+offset_bottom = 688.4
+
+[node name="TabBar" type="Control" parent="Design/PanelWrap/Body"]
+layout_mode = 0
+offset_right = 1220.0
+offset_bottom = 52.0
+script = ExtResource("3")
+
+[node name="Grid" type="Control" parent="Design/PanelWrap/Body"]
+layout_mode = 0
+offset_top = 62.0
+offset_right = 1480.0
+offset_bottom = 688.4
+script = ExtResource("4")
+
+[node name="NextTile" type="Button" parent="Design/PanelWrap/Body/Grid"]
+layout_mode = 0
+offset_right = 735.0
+offset_bottom = 308.2
+script = ExtResource("5")
+hero = true
+
+[node name="TableTile" type="Button" parent="Design/PanelWrap/Body/Grid"]
+layout_mode = 0
+offset_left = 745.0
+offset_right = 1480.0
+offset_bottom = 308.2
+script = ExtResource("6")
+
+[node name="TransferTile" type="Button" parent="Design/PanelWrap/Body/Grid"]
+layout_mode = 0
+offset_top = 318.2
+offset_right = 362.5
+offset_bottom = 626.4
+script = ExtResource("7")
+title = "TRANSFER CENTRE"
+subtitle = "Offers, talks and signings — soon."
+glyph_name = "shirt"
+chip = "SOON"
+
+[node name="NewsTile" type="Button" parent="Design/PanelWrap/Body/Grid"]
+layout_mode = 0
+offset_left = 372.5
+offset_top = 318.2
+offset_right = 1107.5
+offset_bottom = 626.4
+script = ExtResource("7")
+title = "URGENT NEWS"
+subtitle = "News feed and match results — soon."
+glyph_name = "globe"
+chip = "SOON"
+
+[node name="TrainingTile" type="Button" parent="Design/PanelWrap/Body/Grid"]
+layout_mode = 0
+offset_left = 1117.5
+offset_top = 318.2
+offset_right = 1480.0
+offset_bottom = 626.4
+script = ExtResource("7")
+title = "TRAINING"
+subtitle = "Up to five sessions a week: attributes and cost."
+glyph_name = "tactics"
+chip = "SOON"
+
+[node name="Placeholder" type="Control" parent="Design/PanelWrap/Body"]
+visible = false
+layout_mode = 0
+offset_top = 62.0
+offset_right = 1480.0
+offset_bottom = 688.4
+script = ExtResource("8")
+
+[node name="Hints" parent="Design/PanelWrap" instance=ExtResource("9")]
+layout_mode = 0
+offset_top = 704.4
+offset_right = 1480.0
+offset_bottom = 764.4
+
+[node name="Overlay" type="Control" parent="Design"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+script = ExtResource("10")

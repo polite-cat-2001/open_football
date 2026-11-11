@@ -2090,3 +2090,45 @@ etwork_lobby читают новую БД; eligibility и manifest —
 - `CareerFactory.list_entries` отдаёт `league`; `career_load` рисует оба логотипа.
 - Проверка: `check_career_ui` (оба логотипа в строке), `check_team_catalog`,
   `check_team_select_ui` — PASS.
+
+## [2026-11-10] feat | Хаб карьеры: Centre и табы
+- `career_hub` переписан с заглушки: шапка `UiTabBar` (CENTRE/SQUAD/TRANSFERS/SCOUTING) + клубная
+  плашка, центр — bento из Next Match (hero: eyebrow/месяц, недельная лента с днём матча,
+  фикстура, серия формы), Overview (окно таблицы из 6 строк вокруг своего клуба + точки секций)
+  и трёх «скоро»-плиток (Transfer Centre / Urgent News / Training), как в прототипе.
+- Overlay турнира: полная таблица лиги (20 клубов) поверх хаба, скролл ↑/↓, Esc/B; подсказки
+  внизу остаются общими `UiHintsBar`.
+- `L1/R1`/`Q/E` листают табы, активный таб пишется в сейв (`Career.hub_tab`); `S`/`Start` сохраняет,
+  Esc с Centre сохраняет и выходит в главное меню. Прочие табы показывают общий placeholder.
+- `CareerFactory` добавляет в сезон `played_round`, `last_result`, `form`, `promotion_places`,
+  `relegation_places`; гербы таблицы/фикстуры — карьерные эмблемы (`_club_logo`).
+- `CareerHubModel` — чистый read-model хаба; `check_career_hub` сверяет его с golden
+  `tests/fixtures/career_hub_golden.json` и проверяет навигацию, overlay, сохранение и выход.
+  PASS — `check_career_hub`, `check_career_ui`, `check_career_creation`, `check_career_save_store`,
+  `check_career_delete`, `check_main_menu_ui`, `check_main_menu_layout`.
+
+## [2026-11-10] tweak | Хаб карьеры: табы по ширине, без клубной плашки, overlay без затемнения
+- `UiTabBar.fit_width()` — полоса табов сжимается до суммы вкладок (как `flex: 0 1 auto` в
+  прототипе); в хабе вызывается вместо растягивания на всю панель.
+- Убрана правая плашка клуба из шапки хаба (клуб и сезон остаются в нижнем статусе).
+- Overlay турнира: без scrim-затемнения, скроллбар скрыт (`SCROLL_MODE_SHOW_NEVER`), прокрутка
+  работает.
+- Контент хаба (табы + дашборд) вынесен в `Body`; overlay закрывает и табы, как прототип скрывает
+  хаб при открытии турнирного/матчевого экрана.
+- Открытие/закрытие — тот же fade+scale, что у `UiTransition`: старый контент гаснет 150 мс
+  (quad-in, scale 0.96), новый появляется 240 мс (cubic-out); ввод заблокирован на переход.
+- Проверка: `check_career_hub`, `check_career_ui`, `check_career_save_store` — PASS.
+
+## [2026-11-10] fix | Ховер Continue Career и заголовок TABLE
+- `BentoTile` всегда подключает `mouse_entered`: плитки, которые в сцене стартуют disabled и
+  включаются позже (Continue Career в главном меню), раньше не реагировали на наведение.
+- С экрана турнирной таблицы убран заголовок TABLE (лига в eyebrow, таблица и так очевидна);
+  строки подняты, влезает больше клубов.
+- Проверка: `check_career_ui` (+ проверка соединения hover), `check_career_hub`,
+  `check_main_menu_ui`, `check_main_menu_layout` — PASS.
+
+## [2026-11-10] tweak | Таблица лиги: все 20 клубов без прокрутки
+- `CareerHubOverlay` считает высоту строки от доступной высоты карточки: 20 клубов влезают
+  целиком (≈29.5 px на строку), лиги поменьше держат естественные 32 px; скролл остаётся для
+  турниров больше 20 команд.
+- Проверка: `check_career_hub` — PASS.

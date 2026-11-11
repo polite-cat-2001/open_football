@@ -83,6 +83,12 @@ var manager: CareerManager:
 	set(value):
 		data["manager"] = value.to_save()
 
+var hub_tab: String:
+	get:
+		return str(data.get("hub_tab", "centre"))
+	set(value):
+		data["hub_tab"] = value
+
 
 func touch() -> void:
 	data["updated_at"] = utc_now()
@@ -138,6 +144,7 @@ static func from_save(raw: Dictionary) -> Career:
 	if payload.has("bench") and payload["bench"] is Array:
 		payload["bench"] = _string_array(payload["bench"])
 	payload["formation"] = str(payload.get("formation", DEFAULT_FORMATION))
+	payload["hub_tab"] = str(payload.get("hub_tab", "centre"))
 
 	if payload.has("schedule") and payload["schedule"] is Array:
 		var fixtures: Array = []
