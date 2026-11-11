@@ -7,6 +7,8 @@ extends VBoxContainer
 @onready var status_label: Label = $Status
 @onready var legend: UiLegend = $Legend
 
+var _show_status := true
+
 
 func _ready() -> void:
 	add_theme_constant_override(&"separation", int(UiTokens.HINTS_STATUS_GAP))
@@ -26,10 +28,17 @@ func set_status(text: String, error := false) -> void:
 	status_label.theme_type_variation = &"SideStatusError" if error else &"SideStatus"
 
 
+func set_status_visible(value: bool) -> void:
+	_show_status = value
+	status_label.visible = value
+
+
 func status_text() -> String:
 	return status_label.text
 
 
 func height() -> float:
 	var legend_height := maxf(UiTokens.HINTS_LEGEND_H, legend.get_combined_minimum_size().y)
+	if not _show_status:
+		return legend_height
 	return UiTokens.HINTS_STATUS_H + UiTokens.HINTS_STATUS_GAP + legend_height

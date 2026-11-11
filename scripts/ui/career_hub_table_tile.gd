@@ -90,6 +90,7 @@ func _make_row() -> Dictionary:
 	crest.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	crest.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	crest.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	crest.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	var name := _label(16, UiTheme.inter(600), UiTokens.INK)
 	name.clip_text = true
 	var played := _label(16, UiTheme.inter(500), UiTokens.INK_2)
@@ -175,12 +176,15 @@ func _layout_content() -> void:
 		rail.position = Vector2.ZERO
 		rail.size = Vector2(2.0, root.size.y)
 		var box := StyleBoxFlat.new()
-		box.bg_color = Color(UiTokens.FOCUS_INK, 0.12) if has_focus() \
-			else Color(UiTokens.INK, 0.10)
+		box.bg_color = UiTokens.TABLE_ROW_OWN if bool(row["own"]) \
+			else Color(0.0, 0.0, 0.0, 0.0)
+		box.border_width_bottom = 1
+		box.border_color = UiTokens.TABLE_DIVIDER_FOCUS if has_focus() \
+			else UiTokens.TABLE_DIVIDER
 		bg.add_theme_stylebox_override(&"panel", box)
-		bg.visible = bool(row["own"]) and not bool(row["head"])
-		rail.visible = bg.visible
-		rail.color = UiTokens.FOCUS_MARK if has_focus() else Color(UiTokens.INK, 0.18)
+		bg.visible = true
+		rail.visible = bool(row["own"])
+		rail.color = UiTokens.RAIL
 		var text_x := 6.0
 		var crest_size := 20.0
 		var pos: Label = row["pos"]
@@ -251,4 +255,5 @@ func _label(size: int, font: Font, color: Color) -> Label:
 func _logo(path: String) -> Texture2D:
 	if path.is_empty():
 		return null
-	return UiAssets.usable_texture(UiAssets.load_texture(path.trim_prefix("/")))
+	return UiAssets.usable_texture(
+		UiAssets.load_texture_mipmapped(path.trim_prefix("/")))

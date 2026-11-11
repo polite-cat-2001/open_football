@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/ui/ui_menu_panel.gd" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="9"]
 [ext_resource type="Script" path="res://scripts/ui/career_hub_overlay.gd" id="10"]
+[ext_resource type="Script" path="res://scripts/ui/career_match_overlay.gd" id="11"]
 
 [node name="CareerHub" type="Control"]
 layout_mode = 3
@@ -57,6 +58,26 @@ offset_right = 735.0
 offset_bottom = 308.2
 script = ExtResource("5")
 hero = true
+
+[node name="PlayTile" type="Button" parent="Design/PanelWrap/Body/Grid"]
+visible = false
+layout_mode = 0
+offset_right = 362.5
+offset_bottom = 308.2
+script = ExtResource("7")
+title = "PLAY"
+subtitle = "Matchday"
+
+[node name="SimulationTile" type="Button" parent="Design/PanelWrap/Body/Grid"]
+visible = false
+layout_mode = 0
+offset_left = 372.5
+offset_right = 735.0
+offset_bottom = 308.2
+script = ExtResource("7")
+title = "SIMULATION"
+subtitle = "Watch the match"
+glyph_name = "monitor"
 
 [node name="TableTile" type="Button" parent="Design/PanelWrap/Body/Grid"]
 layout_mode = 0
@@ -119,3 +140,9 @@ layout_mode = 0
 offset_right = 1920.0
 offset_bottom = 1080.0
 script = ExtResource("10")
+
+[node name="MatchOverlay" type="Control" parent="Design"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+script = ExtResource("11")

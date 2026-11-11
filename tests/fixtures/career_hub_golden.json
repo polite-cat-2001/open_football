@@ -2,12 +2,13 @@
   "next": {
     "match_day": false,
     "eyebrow": "CALENDAR",
-    "title": "NEXT",
+    "title": "SIMULATE",
     "month": "JUL 2026",
     "home_name": "Athletic Bilbao",
     "away_name": "FC Barcelona",
     "home_logo": "/raster/teams_emblems/621.png",
-    "away_logo": "images_teams/laliga/fc_barcelona_logo.png",
+    "away_logo": "/raster/teams_emblems/131.png",
+    "opponent_logo": "/raster/teams_emblems/621.png",
     "meta": "2026/27 · LALIGA · ROUND 1 · AWAY",
     "form": [],
     "days": [
@@ -61,6 +62,8 @@
         "match": false
       }
     ],
+    "day_offset": 0,
+    "simulating": false,
     "season_complete": false
   },
   "table": {

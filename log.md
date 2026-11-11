@@ -2132,3 +2132,50 @@ etwork_lobby читают новую БД; eligibility и manifest —
   целиком (≈29.5 px на строку), лиги поменьше держат естественные 32 px; скролл остаётся для
   турниров больше 20 команд.
 - Проверка: `check_career_hub` — PASS.
+
+## [2026-11-11] fix | матчдэй в хабе: фокус на PLAY и стрелки между плитками
+
+- Матчдэй приходит переходом `NextTile` → PLAY/SIMULATION в `_apply_snapshot`: плитка календаря
+  скрывалась и отдавала фокус в никуда. Теперь переход отдаёт фокус `PlayTile` (deferred), не
+  оставляя его на скрытом контроле.
+- Стрелки: `_on_nav_moved` обрабатывал только Right из строки и Left из таблицы, поэтому с
+  SIMULATION влево не переключалось. Теперь Left/Right идут по видимой строке
+  `[PLAY, SIMULATION]` → `TableTile`.
+- Тест: `check_career_matchday` (приход матчдэя → PLAY в фокусе; Left с SIMULATION → PLAY).
+  PASS: `check_career_matchday`, `check_career_hub`, `check_career_advance`.
+
+## [2026-11-11] feat | Карьера: матч-день, симуляция и результат
+
+- `scripts/career/career_formations.gd` (`CareerFormations`) — 20 схем прототипа (слоты,
+  роли, x/y), `career_match.gd` получил `build_lineup`/`build_match_setup` (11 стартовых,
+  7 запасных, блокировки травм/дисквалификаций, рейтинг в ref для UI).
+- `scripts/career/career_condition.gd` (`CareerCondition`) — порт `condition.py`: состояния
+  игроков, восстановление, травмы/дисквалификации, `apply_match_outcome` (apps/starts/minutes,
+  goals/assists, cards, clean sheets, усталость). `CareerSeason.play_next_match` симулирует тур
+  и двигает дату на +1 день; `matchday_state` отдаёт результаты тура и таблицу с delta.
+- Хаб на матч-дне показывает два action-тайла PLAY/SIMULATION вместо календаря.
+  `career_match_overlay.gd` — экран симуляции (составы/скамейка/рейтинги, счёт, минута,
+  лента событий в обратном порядке, метки игроков, 1 минута в секунду, R/Y — пропуск) и
+  двухшаговый матч-день (результаты → полная таблица с delta). PLAY сразу симулирует и
+  открывает результаты; SIMULATION даёт пре-матч, live и финал. После матча сейв пишется,
+  хаб пересобирается, повторной симуляции нет.
+- `CareerFactory.standings`/`last_played_round` стали публичными. `role_share`/`expected_minutes`
+  (мораль) не портированы — контрактов ещё нет; сила своего клуба по-прежнему топ-11 overalls.
+- PLAY после симуляции всегда открывает **результаты** (1/2); подтверждение в первые 300 мс
+  после появления экрана игнорируется, чтобы удержанный/повторный Enter не перескакивал
+  сразу на таблицу.
+- Тест `check_career_matchday`: lineups/bench, счёт по seed, применение к результатам/таблице/
+  статам/усталости, matchday state, save/load, пустой состав и полный UI-поток PLAY и SIMULATION.
+  PASS — `check_career_matchday`, `check_career_advance`, `check_career_hub`, `check_career_ui`,
+  `check_career_creation`, `check_career_save_store`, `check_career_delete`.
+
+## [2026-11-11] fix | экран симуляции как в прототипе
+
+- `CareerMatchOverlay` переписан под `MatchScreen.svelte`/`match.css`: вместо одной тёмной
+  карточки — тёмная полоса-скорборд, две светлые карточки составов и правая светлая панель с
+  тёмным клоком и `MATCH FEED`; фон оверлея прозрачный (плитки поверх стадиона).
+- Строки игроков заполняют высоту карточки, метки событий — иконки (`EventMark`, как
+  `EventGlyph`), цвета иконок по прототипу (`--mark-win/loss/warn`); в setup видны значения
+  `BEFORE THE MATCH`, клок в setup белый, в live/final — кисло-зелёный.
+- Проверено скриншотами setup/live/final (`.scratch/ui_shots/career_sim_*.png`) против прототипа.
+  PASS: `check_career_matchday`, `check_career_hub`, `check_career_advance`, `check_career_ui`.

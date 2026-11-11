@@ -15,10 +15,11 @@ const MONTHS := ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
 	"JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
 
 
-static func next_tile(snapshot: Dictionary) -> Dictionary:
+static func next_tile(snapshot: Dictionary, display_date := "", track_start := "") -> Dictionary:
 	var club: Dictionary = snapshot.get("club", {})
 	var season: Dictionary = snapshot.get("season", {})
-	var today := str(snapshot.get("date", ""))
+	var today := display_date if not display_date.is_empty() else str(snapshot.get("date", ""))
+	var simulating := not track_start.is_empty()
 	var next = season.get("next")
 	if not (next is Dictionary):
 		var own := own_row(snapshot)
@@ -34,10 +35,12 @@ static func next_tile(snapshot: Dictionary) -> Dictionary:
 			"title": "SEASON COMPLETE",
 			"month": month_label(today),
 			"home_name": "", "away_name": "",
-			"home_logo": "", "away_logo": "",
+			"home_logo": "", "away_logo": "", "opponent_logo": "",
 			"meta": meta,
 			"form": season.get("form", []),
 			"days": [],
+			"day_offset": 0,
+			"simulating": false,
 			"season_complete": true,
 		}
 
@@ -46,21 +49,31 @@ static func next_tile(snapshot: Dictionary) -> Dictionary:
 	var opponent: Dictionary = next.get("opponent", {})
 	var club_name := str(club.get("name", ""))
 	var opponent_name := str(opponent.get("name", ""))
+	var days: Array
+	var day_offset := 0
+	if simulating:
+		days = week_strip(track_start, match_date, 14, today)
+		day_offset = days_between(track_start, today)
+	else:
+		days = week_strip(today, match_date, 7, today)
 	return {
 		"match_day": today >= match_date,
-		"eyebrow": "MATCH" if today >= match_date else "CALENDAR",
-		"title": "MATCH DAY" if today >= match_date else "NEXT",
-		"month": month_label(match_date),
+		"eyebrow": "SIMULATING" if simulating else ("MATCH" if today >= match_date else "CALENDAR"),
+		"title": "STOP" if simulating else ("MATCH DAY" if today >= match_date else "SIMULATE"),
+		"month": month_label(today),
 		"home_name": club_name if home else opponent_name,
 		"away_name": opponent_name if home else club_name,
-		"home_logo": str(club.get("logo", "")) if home else str(opponent.get("logo", "")),
-		"away_logo": str(opponent.get("logo", "")) if home else str(club.get("logo", "")),
+		"home_logo": _club_logo(club) if home else _club_logo(opponent),
+		"away_logo": _club_logo(opponent) if home else _club_logo(club),
+		"opponent_logo": _club_logo(opponent),
 		"meta": "%s · %s · ROUND %d · %s" % [
 			season_label(today), str(club.get("league_name", "")).to_upper(),
 			int(next.get("round", 0)), "HOME" if home else "AWAY",
 		],
 		"form": season.get("form", []),
-		"days": week_strip(today, match_date),
+		"days": days,
+		"day_offset": day_offset,
+		"simulating": simulating,
 		"season_complete": false,
 	}
 
@@ -125,11 +138,13 @@ static func table_window(rows: Array, club_id: String, size := TABLE_WINDOW) -> 
 	return rows.slice(start, start + size).duplicate(true)
 
 
-static func week_strip(today: String, match_date: String, count := 7) -> Array:
+static func week_strip(start_date: String, match_date: String, count := 7,
+		today_date := "") -> Array:
 	var days: Array = []
-	if today.length() < 10:
+	if start_date.length() < 10:
 		return days
-	var unix := Time.get_unix_time_from_datetime_string(today + "T00:00:00")
+	var mark := today_date if not today_date.is_empty() else start_date
+	var unix := Time.get_unix_time_from_datetime_string(start_date + "T00:00:00")
 	for index in range(count):
 		var key := Time.get_datetime_string_from_unix_time(
 			int(unix) + index * 86400, false).substr(0, 10)
@@ -137,10 +152,18 @@ static func week_strip(today: String, match_date: String, count := 7) -> Array:
 			"key": key,
 			"weekday": weekday(key),
 			"day": int(key.substr(8, 2)),
-			"today": index == 0,
+			"today": key == mark,
 			"match": key == match_date,
 		})
 	return days
+
+
+static func days_between(start_date: String, end_date: String) -> int:
+	if start_date.length() < 10 or end_date.length() < 10:
+		return 0
+	var start := Time.get_unix_time_from_datetime_string(start_date + "T00:00:00")
+	var end := Time.get_unix_time_from_datetime_string(end_date + "T00:00:00")
+	return maxi(0, int(round((end - start) / 86400.0)))
 
 
 static func season_label(date: String) -> String:
@@ -174,6 +197,11 @@ static func weekday(date: String) -> String:
 
 static func _int(value, fallback: int) -> int:
 	return fallback if value == null else int(value)
+
+
+static func _club_logo(club: Dictionary) -> String:
+	var career_logo := str(club.get("career_logo", ""))
+	return career_logo if not career_logo.is_empty() else str(club.get("logo", ""))
 
 
 static func _ordinal(value: int) -> String:

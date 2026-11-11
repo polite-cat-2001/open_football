@@ -73,6 +73,36 @@ var results: Dictionary:
 	get:
 		return data.get("results", {})
 
+var lineup: Array:
+	get:
+		return data.get("lineup", [])
+	set(value):
+		data["lineup"] = value
+
+var bench_order: Array:
+	get:
+		return data.get("bench", [])
+	set(value):
+		data["bench"] = value
+
+var formation: String:
+	get:
+		return str(data.get("formation", DEFAULT_FORMATION))
+	set(value):
+		data["formation"] = value
+
+var player_state: Dictionary:
+	get:
+		return data.get("player_state", {})
+	set(value):
+		data["player_state"] = value
+
+var condition_date:
+	get:
+		return data.get("condition_date")
+	set(value):
+		data["condition_date"] = value
+
 var journal: Array:
 	get:
 		return data.get("journal", [])

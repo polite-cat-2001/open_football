@@ -155,6 +155,7 @@ func _make_row(head: bool) -> Dictionary:
 			crest.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			crest.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			crest.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			crest.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 			root.add_child(crest)
 			cells["crest"] = crest
 			continue
@@ -190,13 +191,15 @@ func _layout_row(row: Dictionary) -> void:
 	bg.position = Vector2.ZERO
 	bg.size = root.size
 	var box := StyleBoxFlat.new()
-	box.bg_color = Color(UiTokens.INK, 0.10)
+	box.bg_color = UiTokens.TABLE_ROW_OWN if own else Color(0.0, 0.0, 0.0, 0.0)
+	box.border_width_bottom = 1
+	box.border_color = UiTokens.TABLE_DIVIDER
 	bg.add_theme_stylebox_override(&"panel", box)
-	bg.visible = own
+	bg.visible = true
 	var rail: ColorRect = row["rail"]
 	rail.position = Vector2.ZERO
 	rail.size = Vector2(2.0, root.size.y)
-	rail.color = Color(UiTokens.INK, 0.18)
+	rail.color = UiTokens.RAIL
 	rail.visible = own
 
 	var x := 6.0
@@ -229,4 +232,5 @@ func _label(size: int, font: Font, color: Color) -> Label:
 func _logo(path: String) -> Texture2D:
 	if path.is_empty():
 		return null
-	return UiAssets.usable_texture(UiAssets.load_texture(path.trim_prefix("/")))
+	return UiAssets.usable_texture(
+		UiAssets.load_texture_mipmapped(path.trim_prefix("/")))

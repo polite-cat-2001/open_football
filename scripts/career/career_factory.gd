@@ -382,13 +382,13 @@ static func _season_state(career: Career, clubs: Dictionary) -> Dictionary:
 	return {
 		"season_start": career.season_start,
 		"round": int(next_fixture.get("round", rounds_total)) if not next_fixture.is_empty() else rounds_total,
-		"played_round": _played_round(career),
+		"played_round": last_played_round(career),
 		"rounds_total": rounds_total,
 		"complete": next_fixture.is_empty() and rounds_total > 0,
 		"next": next_match,
 		"last_result": _last_result(career, clubs),
 		"form": _recent_form(career, clubs),
-		"standings": _standings(career, clubs),
+		"standings": standings(career, clubs),
 		"promotion_places": PROMOTION_PLACES,
 		"relegation_places": RELEGATION_PLACES,
 	}
@@ -454,12 +454,12 @@ static func _recent_form(career: Career, clubs: Dictionary, limit := 5) -> Array
 	return form
 
 
-static func _played_round(career: Career):
+static func last_played_round(career: Career):
 	var played := _played_fixtures(career)
 	return int(played[-1].get("round", 0)) if not played.is_empty() else null
 
 
-static func _standings(career: Career, clubs: Dictionary) -> Array:
+static func standings(career: Career, clubs: Dictionary, exclude_round := -1) -> Array:
 	var table := {}
 	for club_id in clubs:
 		var club: Dictionary = clubs[club_id]
@@ -471,6 +471,8 @@ static func _standings(career: Career, clubs: Dictionary) -> Array:
 			"goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0,
 		}
 	for fixture in career.schedule:
+		if exclude_round >= 0 and int(fixture.get("round", 0)) == exclude_round:
+			continue
 		var score = career.results.get(str(fixture.get("id", "")))
 		if not (score is Dictionary):
 			continue
