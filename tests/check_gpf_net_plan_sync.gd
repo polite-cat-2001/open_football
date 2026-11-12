@@ -70,6 +70,37 @@ func _run() -> void:
 	_check(after[1] == before[2] and after[2] == before[1],
 		"the pre-match swap reaches the shared MatchData")
 
+	# The shell builds the network package from this plan, so it must expose the
+	# applied order, formation and roles.
+	var plan: Dictionary = runtime.debug_get_plan(0)
+	var plan_order: PackedInt32Array = plan.get("order", PackedInt32Array())
+	_check(plan_order.size() == after.size() and plan_order[1] == after[1],
+		"debug_get_plan follows the applied lineup")
+	_check((plan.get("formation", []) as Array).size() == 11,
+		"debug_get_plan carries the formation")
+	_check((plan.get("roles", PackedInt32Array()) as PackedInt32Array).size() == 6,
+		"debug_get_plan carries the designated roles")
+
+	# The network hub mirrors this plan into the local MatchLineup before it
+	# builds the package; that split is what the peers actually field.
+	var catalog := TeamCatalog.new()
+	_check(catalog.load_data_root(DATA_ROOT), "the catalog loads for the hub mirror")
+	var lineup := MatchLineup.from_squad(catalog.load_squad(4))
+	lineup.apply_plan(plan)
+	var plan_roles: PackedInt32Array = plan.get("roles", PackedInt32Array())
+	_check(lineup.lineup.size() == MatchLineup.SLOT_COUNT,
+		"the hub mirror keeps eleven starters")
+	_check(lineup.lineup[1] == plan_order[1] and lineup.lineup[2] == plan_order[2],
+		"the hub mirror follows the applied order")
+	_check(lineup.bench.size() == mini(MatchLineup.BENCH_SIZE,
+		plan_order.size() - MatchLineup.SLOT_COUNT),
+		"the hub mirror splits the bench at seven")
+	_check(lineup.formation.size() == MatchLineup.SLOT_COUNT,
+		"the hub mirror carries the formation")
+	_check(int(lineup.roles.get(0, -1)) == int(plan_roles[0]),
+		"the hub mirror carries the designated roles")
+	_check(lineup.error == "", "the hub mirror leaves the lineup valid")
+
 	# Starting the match must reuse that MatchData, not rebuild from the package.
 	_check(bool(runtime.start_match()), "the match starts from the edited MatchData")
 	var squad: Dictionary = runtime.get_squad(0)

@@ -1,10 +1,8 @@
 class_name GpfShootoutView
 extends Node
-# Presentation of the penalty shootout series: the two circle rows, outcome banners,
-# the reposition fade and the end-of-match menu. The series itself lives in C++.
-
-signal main_menu_requested
-signal restart_requested
+# Presentation of the penalty shootout series: the two circle rows, outcome
+# banners and the reposition fade. The series and its result screen live
+# elsewhere (C++ owns the series, GpfMatchOver owns the end screen).
 
 # Mirrors e_ShootoutPhase / e_ShootoutOutcome in the C++ runtime.
 const PHASE_NONE := 0
@@ -35,29 +33,16 @@ var shootout_fade_tween: Tween
 var shootout_outcome_counter := 0
 var shootout_last_phase := -1
 var shootout_banner_left := 0.0
-var shootout_end_layer: CanvasLayer
-var shootout_end_score: Label
-var shootout_end_buttons: Array[Button] = []
-var shootout_end_index := 0
-var shootout_end_open := false
 
 
 func setup() -> void:
 	_build_ui()
-	_build_end_menu()
-
-
-func is_end_menu_open() -> bool:
-	return shootout_end_open
 
 
 func reset() -> void:
-	shootout_end_open = false
 	shootout_outcome_counter = 0
 	shootout_last_phase = -1
 	shootout_banner_left = 0.0
-	if shootout_end_layer != null:
-		shootout_end_layer.visible = false
 	if shootout_layer != null:
 		shootout_layer.visible = false
 	if shootout_banner != null:
@@ -66,22 +51,6 @@ func reset() -> void:
 		shootout_fade_tween.kill()
 	if shootout_fade != null:
 		shootout_fade.color.a = 0.0
-
-
-func handle_end_menu_key(event: InputEventKey) -> void:
-	if not event.pressed:
-		return
-	match event.keycode:
-		KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_ESCAPE:
-			_continue()
-		KEY_R:
-			_restart()
-		KEY_UP, KEY_LEFT:
-			shootout_end_index = (shootout_end_index + shootout_end_buttons.size() - 1) % shootout_end_buttons.size()
-			shootout_end_buttons[shootout_end_index].grab_focus()
-		KEY_DOWN, KEY_RIGHT:
-			shootout_end_index = (shootout_end_index + 1) % shootout_end_buttons.size()
-			shootout_end_buttons[shootout_end_index].grab_focus()
 
 
 func update(snap: Dictionary, delta: float) -> void:
@@ -127,30 +96,10 @@ func update(snap: Dictionary, delta: float) -> void:
 			_fade_to(0.0)
 		shootout_last_phase = phase
 
-	if phase == PHASE_FINISHED and not shootout_end_open:
-		# The decisive celebration has finished and the C++ frame is paused: show the end menu.
+	if phase == PHASE_FINISHED:
+		# The decisive celebration has finished and the C++ frame is paused: fade
+		# the circles out; GpfSlice opens the result screen from the snapshot.
 		_fade_to(0.0, 0.4)
-		_open_end_menu(snap)
-
-
-func _open_end_menu(snap: Dictionary) -> void:
-	shootout_end_open = true
-	shootout_end_index = 0
-	var score0 := int(snap.get("shootout_score0", 0))
-	var score1 := int(snap.get("shootout_score1", 0))
-	shootout_end_score.text = "Победа: %d:%d" % [maxi(score0, score1), mini(score0, score1)]
-	shootout_end_layer.visible = true
-	shootout_banner.visible = false
-	shootout_end_buttons[shootout_end_index].grab_focus()
-
-
-func _continue() -> void:
-	main_menu_requested.emit()
-
-
-func _restart() -> void:
-	# The C++ runtime supports a fresh match in the same process, so restart in place.
-	restart_requested.emit()
 
 
 func _ensure_circles(team: int, count: int) -> void:
@@ -222,80 +171,3 @@ func _build_ui() -> void:
 	shootout_banner.add_theme_constant_override("outline_size", 8)
 	shootout_banner.visible = false
 	shootout_layer.add_child(shootout_banner)
-
-
-func _build_end_menu() -> void:
-	shootout_end_layer = CanvasLayer.new()
-	shootout_end_layer.layer = 5
-	shootout_end_layer.visible = false
-	add_child(shootout_end_layer)
-
-	var backdrop := ColorRect.new()
-	backdrop.color = Color(0.02, 0.03, 0.06, 0.72)
-	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
-	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	shootout_end_layer.add_child(backdrop)
-
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	shootout_end_layer.add_child(center)
-
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(520, 0)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.06, 0.10, 0.97)
-	style.set_corner_radius_all(8)
-	style.set_border_width_all(2)
-	style.border_color = Color(1.0, 0.85, 0.25, 0.9)
-	panel.add_theme_stylebox_override("panel", style)
-	center.add_child(panel)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 28)
-	margin.add_theme_constant_override("margin_right", 28)
-	margin.add_theme_constant_override("margin_top", 22)
-	margin.add_theme_constant_override("margin_bottom", 22)
-	panel.add_child(margin)
-
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 12)
-	margin.add_child(box)
-
-	var title := Label.new()
-	title.text = "КОНЕЦ МАТЧА"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 32)
-	title.add_theme_color_override("font_color", Color(1.0, 0.86, 0.2))
-	box.add_child(title)
-
-	shootout_end_score = Label.new()
-	shootout_end_score.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	shootout_end_score.add_theme_font_size_override("font_size", 28)
-	shootout_end_score.add_theme_color_override("font_color", Color(0.97, 0.97, 0.97))
-	box.add_child(shootout_end_score)
-
-	var buttons := HBoxContainer.new()
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 16)
-	box.add_child(buttons)
-
-	var continue_button := Button.new()
-	continue_button.text = "В главное меню"
-	continue_button.custom_minimum_size = Vector2(180, 42)
-	continue_button.pressed.connect(_continue)
-	buttons.add_child(continue_button)
-	shootout_end_buttons.append(continue_button)
-
-	var restart_button := Button.new()
-	restart_button.text = "Начать заново"
-	restart_button.custom_minimum_size = Vector2(180, 42)
-	restart_button.pressed.connect(_restart)
-	buttons.add_child(restart_button)
-	shootout_end_buttons.append(restart_button)
-
-	var hint := Label.new()
-	hint.text = "Enter — в главное меню    R — начать заново"
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 14)
-	hint.add_theme_color_override("font_color", Color(0.75, 0.78, 0.85))
-	box.add_child(hint)

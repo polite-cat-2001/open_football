@@ -118,20 +118,19 @@ func _run() -> void:
 	var baseline_labels := (first_actors.get("player_labels") as Dictionary).size()
 	_check(baseline_labels > 0, "first match builds nameplates")
 
-	# Final whistle: the result menu replaces the old "quit the app" button with
-	# a return to the main menu.
+	# Final whistle: the result screen returns to the main menu from ADVANCE.
 	runtime.debug_force_game_over()
 	await _frames(10)
-	var first_hud := first.get_node("Hud")
-	_check(bool(first_hud.get("phase_menu_open")), "final whistle opens the result menu")
-	var menu_button := first_hud.get("phase_menu_quit") as Button
-	_check(menu_button != null and menu_button.text == "Main menu",
-		"result menu offers a return to the main menu")
+	var first_over = first.get("match_over")
+	_check(first_over != null and first_over.is_open()
+		and not first_over.is_choice(), "final whistle opens the result screen")
+	_check(first_over.result.tiles()[0].title == "ADVANCE",
+		"the result screen offers a return to the main menu")
 	first.call("_input", _key(KEY_ENTER))
 	await _frames(4)
 
 	menu = current_scene
-	_check(menu != null and menu.name == "MainMenu", "the result menu returns to the main menu")
+	_check(menu != null and menu.name == "MainMenu", "the result screen returns to the main menu")
 	_check(runtime.get_snapshot().is_empty(), "the finished match is stopped")
 	_check(not runtime.get_snapshot().get("game_over", false), "no finished match is left behind")
 	_check(get_nodes_in_group(RUNTIME_GROUP).size() == 1,
@@ -164,8 +163,9 @@ func _run() -> void:
 		"the second match presents exactly one set of actors")
 	_check((second_actors.get("player_labels") as Dictionary).size() == baseline_labels,
 		"nameplates are rebuilt, not duplicated")
-	var second_hud := second.get_node("Hud")
-	_check(not bool(second_hud.get("phase_menu_open")), "the result menu is not left over")
+	var second_over = second.get("match_over")
+	_check(second_over != null and not second_over.is_open(),
+		"the result screen is not left over")
 	var second_replay := second.get_node("ReplayView")
 	_check(not bool(second_replay.call("is_active")), "the replay is not left over")
 	var nets: Array = second.get_node("GoalNets").get("goal_net_meshes")
@@ -205,13 +205,16 @@ func _run() -> void:
 	_check(int(second_actors.call("count")) == baseline_players,
 		"F4 rebuilds exactly one set of actors")
 
-	# The shootout end menu has its own return-to-menu path.
-	var shootout := second.get_node("ShootoutView")
-	shootout.set("shootout_end_open", true)
-	second.call("_input", _key(KEY_ESCAPE))
+	# The end-of-match result screen is the one way out now: its focused ADVANCE
+	# tile returns to the main menu.
+	runtime.debug_force_game_over()
+	await _frames(4)
+	var over = second.get("match_over")
+	_check(over != null and over.is_open(), "the result screen opens on game over")
+	second.call("_input", _key(KEY_ENTER))
 	await _frames(4)
 	_check(current_scene != null and current_scene.name == "MainMenu",
-		"the shootout end menu returns to the main menu")
+		"the result screen returns to the main menu")
 	_check(runtime.get_snapshot().is_empty(), "the second match is stopped on the way out")
 	_finish()
 

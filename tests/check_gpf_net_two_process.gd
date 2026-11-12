@@ -195,6 +195,33 @@ func _write_marker(path: String, text: String) -> void:
 	file.close()
 
 
+func _read_text(path: String) -> String:
+	if not FileAccess.file_exists(path):
+		return ""
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return ""
+	var text := file.get_as_text()
+	file.close()
+	return text
+
+
+func _poll_commit_applied(info: Dictionary) -> bool:
+	runtime.step_fixed(10)
+	var squad: Dictionary = runtime.get_squad(1)
+	var expected_a := Vector2(float(info.get("bx", 0.0)), float(info.get("by", 0.0)))
+	var expected_b := Vector2(float(info.get("ax", 0.0)), float(info.get("ay", 0.0)))
+	var a_done := false
+	var b_done := false
+	for player in squad.get("players", []):
+		var position: Vector2 = player.get("position", Vector2.ZERO)
+		if int(player.get("database_id", -1)) == int(info.get("a", -1)):
+			a_done = position.is_equal_approx(expected_a)
+		elif int(player.get("database_id", -1)) == int(info.get("b", -1)):
+			b_done = position.is_equal_approx(expected_b)
+	return a_done and b_done
+
+
 func _all_players_ready() -> bool:
 	var players: Array = _lobby().get("players", [])
 	if players.is_empty():
@@ -288,6 +315,69 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		return
 	_check(true, "the host took the net kickoff")
 
+	# In-match plan commit (host path): one ordered message applies a position
+	# swap on the live formation.
+	var home_before: Dictionary = runtime.get_squad(0)
+	var swap_a := -1
+	var swap_b := -1
+	var pos_a := Vector2.ZERO
+	var pos_b := Vector2.ZERO
+	for player in home_before.get("players", []):
+		if not bool(player.get("active", false)):
+			continue
+		if str(player.get("role", "")) == "GK":
+			continue
+		if swap_a < 0:
+			swap_a = int(player.get("database_id", -1))
+			pos_a = player.get("position", Vector2.ZERO)
+		elif swap_b < 0:
+			swap_b = int(player.get("database_id", -1))
+			pos_b = player.get("position", Vector2.ZERO)
+			break
+	_check(swap_a > 0 and swap_b > 0, "the host squad has two starters to swap")
+	if swap_a > 0 and swap_b > 0:
+		_check(runtime.net_commit_plan(0, PackedInt32Array([0, swap_a, swap_b])),
+			"the host commits a plan edit")
+		var home_after: Dictionary = runtime.get_squad(0)
+		var after_a := Vector2.ZERO
+		var after_b := Vector2.ZERO
+		for player in home_after.get("players", []):
+			if int(player.get("database_id", -1)) == swap_a:
+				after_a = player.get("position", Vector2.ZERO)
+			elif int(player.get("database_id", -1)) == swap_b:
+				after_b = player.get("position", Vector2.ZERO)
+		_check(after_a == pos_b and after_b == pos_a,
+			"the commit swapped the two formation entries")
+
+	# Chained substitution commit: A->B then B->C must normalize to A->C.
+	var chain_squad: Dictionary = runtime.get_squad(0)
+	var chain_out_slot := -1
+	var chain_in_slot := -1
+	var chain_final_slot := -1
+	for player in chain_squad.get("players", []):
+		if bool(player.get("active", false)):
+			if chain_out_slot < 0 and int(player.get("id", -1)) != host_human \
+					and str(player.get("role", "")) != "GK":
+				chain_out_slot = int(player.get("slot", -1))
+		elif not bool(player.get("left_pitch", false)):
+			if chain_in_slot < 0:
+				chain_in_slot = int(player.get("slot", -1))
+			elif chain_final_slot < 0:
+				chain_final_slot = int(player.get("slot", -1))
+	_check(chain_out_slot >= 0 and chain_in_slot >= 0 and chain_final_slot >= 0,
+		"the host squad has a chain to test")
+	if chain_out_slot >= 0 and chain_in_slot >= 0 and chain_final_slot >= 0:
+		_check(runtime.net_commit_plan(0, PackedInt32Array([
+			3, chain_out_slot, chain_in_slot,
+			3, chain_in_slot, chain_final_slot])),
+			"the host commits a chained substitution")
+		var chain_pending: Array = runtime.get_pending_substitutions()
+		_check(chain_pending.size() == 1
+			and int(chain_pending[0]["out_slot"]) == chain_out_slot
+			and int(chain_pending[0]["in_slot"]) == chain_final_slot,
+			"the chain normalized to the first out and the last in")
+		runtime.net_commit_plan(0, PackedInt32Array([4, chain_out_slot, 0]))
+
 	# Wait until the client is actually rendering live snapshots before pausing.
 	if not _wait_until(_poll_file_exists.bind(running_path), 15000):
 		_check(false, "the client never reported a running match")
@@ -350,6 +440,25 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		return
 	_check(true, "the client saw the resumed match after the side-select commit")
 
+	# The client sent its plan commit right before the side-done marker; wait for
+	# the host to consume it and verify the away formation swap.
+	var commit_info: Dictionary = {}
+	for attempt in 40:
+		var marker_text := _read_text(side_done_path)
+		if not marker_text.is_empty():
+			var parsed = JSON.parse_string(marker_text)
+			if typeof(parsed) == TYPE_DICTIONARY:
+				commit_info = parsed
+				break
+		runtime.step_fixed(5)
+		OS.delay_msec(20)
+	var commit_a := int(commit_info.get("a", -1))
+	var commit_b := int(commit_info.get("b", -1))
+	_check(commit_a > 0 and commit_b > 0, "the client reported its plan commit")
+	if commit_a > 0 and commit_b > 0:
+		_check(_wait_until(_poll_commit_applied.bind(commit_info), 5000),
+			"the host applied the client's plan commit")
+
 	# Queue an away substitution for the restart the penalty forces: the thin
 	# client must apply the notice and the new active roster from the snapshot
 	# (it used to miss both, leaving an invisible player on the pitch).
@@ -378,6 +487,13 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 			sub_in = player_id
 	_check(sub_out > 0 and sub_in > 0,
 		"the away squad has an active player and a bench replacement")
+	var sub_out_slot := -1
+	var sub_in_slot := -1
+	for player in away_squad.get("players", []):
+		if int(player.get("id", -1)) == sub_out:
+			sub_out_slot = int(player.get("slot", -1))
+		elif int(player.get("id", -1)) == sub_in:
+			sub_in_slot = int(player.get("slot", -1))
 	if sub_out > 0 and sub_in > 0:
 		_check(runtime.queue_substitution(1, sub_out, sub_in),
 			"the host queues an away substitution")
@@ -398,6 +514,14 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 			snap.get("tick"), int(_lobby().get("players", []).size())])
 		return
 	_check(true, "the client reported a result")
+	_check(bool(client_result.get("pending_seen", false)),
+		"the client saw the queued substitution in the snapshot")
+	_check(int(client_result.get("pending_out_slot", -2)) == sub_out_slot
+		and int(client_result.get("pending_in_slot", -2)) == sub_in_slot,
+		"the client's pending pair matches the host's substitution slots")
+
+	_check(bool(client_result.get("commit_ok", false)),
+		"the client committed its game plan")
 
 	_check(String(client_result.get("status", "")) == "ok",
 		"client status is ok: " + str(client_result.get("failures", [])))

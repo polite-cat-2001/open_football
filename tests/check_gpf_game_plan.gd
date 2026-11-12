@@ -1,4 +1,4 @@
-extends SceneTree
+﻿extends SceneTree
 # Headless behaviour check for the ported Game Plan screen: tabs, bench/reserve
 # swaps, ready matrix, details, and the in-match bridge.
 
@@ -27,10 +27,15 @@ class FakeRuntime:
 	var role_sets: Array = []
 	var swaps: Array = []
 	var net_actions: Array = []
+	var committed: Array = []
 
 	func net_action(action_type, side: int = 0, value: int = 0, value2: int = 0) -> bool:
 		net_actions.append({"action": str(action_type), "side": side,
 			"value": value, "value2": value2})
+		return true
+
+	func net_commit_plan(team_id: int, ops: PackedInt32Array) -> bool:
+		committed.append({"team": team_id, "ops": ops.duplicate()})
 		return true
 
 	func get_squad(team_id: int) -> Dictionary:
@@ -80,6 +85,11 @@ class FakeRuntime:
 
 	func set_team_role(team_id: int, role: int, slot: int) -> bool:
 		role_sets.append({"team": team_id, "role": role, "slot": slot})
+		return true
+
+
+class ClientFake extends FakeRuntime:
+	func is_net_client() -> bool:
 		return true
 
 
@@ -210,6 +220,15 @@ func _run() -> void:
 	await _check_ready_matrix()
 	await _check_network_prematch()
 	await _check_match()
+	await _check_network_match()
+	await _check_network_chain()
+	await _check_bench_place()
+	await _check_second_scheme_place()
+	await _check_client_sync()
+	await _check_swap_then_sub()
+	await _check_network_limit()
+	await _check_mouse_click()
+	await _check_retired_player_visible()
 	print("== check_gpf_game_plan: ", "PASS" if failures.is_empty() else "FAIL", " ==")
 	quit(0 if failures.is_empty() else 1)
 
@@ -268,10 +287,14 @@ func _check_prematch() -> void:
 	# Starter -> bench, starter -> reserve.
 	var starter_id := int(home.lineup[1])
 	var bench_id := int(home.bench[0])
-	plan._press_entry(0, _find_entry(home_panel, starter_id))
-	plan._press_entry(0, _find_entry(home_panel, bench_id))
+	plan._on_entry_pressed(0, _find_entry(home_panel, starter_id))
+	plan._on_entry_pressed(0, _find_entry(home_panel, bench_id))
 	_check(home.lineup.has(bench_id) and home.bench.has(starter_id),
 		"a starter and a bench player exchange places")
+	var cursor_index := int(home_panel["cursor"])
+	_check(cursor_index >= 0
+		and int((home_panel["entries"] as Array)[cursor_index].get("id", -1)) == starter_id,
+		"the cursor stays on the player that was pressed first")
 	var reserve_id := int(home.reserve[0])
 	var current_starter := int(home.lineup[2])
 	plan._press_entry(0, _find_entry(home_panel, current_starter))
@@ -553,15 +576,21 @@ func _check_match() -> void:
 	_check((panel["drawer"] as Control).size.y <= closed_drawer_h + 2.0,
 		"the bench drawer animates closed")
 
-	# Two starters swap (free, no substitution).
-	var first := _find_entry(panel, 2)
-	var second := _find_entry(panel, 3)
-	panel["cursor"] = first
+	# Two starters swap their positions locally; nothing reaches the bridge
+	# before READY.
+	var first_pos: Vector2 = (panel["entries"] as Array)[_find_entry(panel, 2)] \
+		.get("position", Vector2.ZERO)
+	var second_pos: Vector2 = (panel["entries"] as Array)[_find_entry(panel, 3)] \
+		.get("position", Vector2.ZERO)
+	panel["cursor"] = _find_entry(panel, 2)
 	plan.handle_key(_key(KEY_ENTER))
-	panel["cursor"] = second
+	panel["cursor"] = _find_entry(panel, 3)
 	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.swaps.size() == 1 and int(fake.swaps[0]["first"]) == 2
-		and int(fake.swaps[0]["second"]) == 3, "two starters swap positions through the bridge")
+	_check((panel["entries"] as Array)[_find_entry(panel, 2)].get("position", Vector2.ZERO)
+		== second_pos
+		and (panel["entries"] as Array)[_find_entry(panel, 3)].get("position", Vector2.ZERO)
+		== first_pos, "two starters swap positions in the plan")
+	_check(fake.committed.is_empty(), "nothing is committed before READY")
 
 	# Two bench players swap order locally.
 	panel["cursor"] = _find_entry(panel, 20)
@@ -572,45 +601,605 @@ func _check_match() -> void:
 		and (panel["bench_order"] as Array).find(21) == 0,
 		"two bench players swap their drawer order")
 
-	# Starter + substitute queues a substitution; the same pair cancels it.
+	# Starter + substitute: the bench player takes the pitch at once; the same
+	# pair (now an off player + an on player) puts the starter back.
 	var out_id := 6
 	var in_id := 20
+	var out_position: Vector2 = (panel["entries"] as Array)[_find_entry(panel, out_id)] \
+		.get("position", Vector2.ZERO)
 	panel["cursor"] = _find_entry(panel, out_id)
 	plan.handle_key(_key(KEY_ENTER))
 	panel["cursor"] = _find_entry(panel, in_id)
 	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.queued.size() == 1, "pitch + bench queues a substitution")
+	_check(_group(panel, out_id) == "bench" and _group(panel, in_id) == "pitch",
+		"pitch + bench shows the substitution immediately")
+	var sub_entry: Dictionary = (panel["entries"] as Array)[_find_entry(panel, in_id)]
+	_check(sub_entry.get("position", Vector2.ZERO) == out_position,
+		"the substitute keeps the outgoing player's position")
+	_check(int((panel["entries"] as Array)[int(panel["cursor"])].get("id", -1)) == out_id,
+		"the cursor stays on the player that was pressed first")
 	panel["cursor"] = _find_entry(panel, out_id)
 	plan.handle_key(_key(KEY_ENTER))
 	panel["cursor"] = _find_entry(panel, in_id)
 	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.cancelled.size() == 1, "the same pair cancels the queued substitution")
+	_check(_group(panel, out_id) == "pitch" and _group(panel, in_id) == "bench",
+		"the reverse pair restores the starting eleven")
 
-	# Chain: a queued-in bench player can be chained out for another bench
-	# player (C++ collapses A->B, B->C into A->C).
+	# A shown substitute can be chained out for another bench player.
 	panel["cursor"] = _find_entry(panel, out_id)
 	plan.handle_key(_key(KEY_ENTER))
 	panel["cursor"] = _find_entry(panel, in_id)
 	plan.handle_key(_key(KEY_ENTER))
-	var queued_before_chain := fake.queued.size()
 	panel["cursor"] = _find_entry(panel, in_id)
 	plan.handle_key(_key(KEY_ENTER))
 	panel["cursor"] = _find_entry(panel, 21)
 	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.queued.size() == queued_before_chain + 1
-		and int(fake.queued[-1]["out"]) == in_id and int(fake.queued[-1]["in"]) == 21,
-		"a queued-in bench player can be chained out")
+	_check(_group(panel, out_id) == "bench" and _group(panel, in_id) == "bench"
+		and _group(panel, 21) == "pitch",
+		"a shown substitute can be chained out for another bench player")
 
-	# Tactics and roles still drive the bridge.
+	# Scheme and roles are buffered too.
 	plan.handle_key(_key(KEY_E))
 	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.schemes.size() == 1, "in-match FORMATIONS applies a scheme")
+	var scheme_index := int(panel["scheme_cursor"])
+	_check(fake.committed.is_empty(), "the scheme waits for READY")
 	plan.handle_key(_key(KEY_E))
 	plan.handle_key(_key(KEY_ENTER))
-	panel["cursor"] = 5
+	panel["cursor"] = _find_entry(panel, 2)
 	plan.handle_key(_key(KEY_ENTER))
-	_check(fake.role_sets.size() == 1 and int(fake.role_sets[0]["role"]) == 0,
-		"in-match ROLES assigns a role")
+	_check(fake.committed.is_empty(), "the role waits for READY")
+
+	# READY commits the net plan once.
+	plan.handle_key(_key(KEY_ESCAPE))
+	_check(fake.committed.size() == 1, "READY sends one plan commit")
+	if fake.committed.size() == 1:
+		var ops: PackedInt32Array = fake.committed[0]["ops"]
+		var has_scheme := false
+		var has_role := false
+		var has_sub := false
+		var has_swap := false
+		var out_slot := int((panel["entries"] as Array)[_find_entry(panel, out_id)] \
+			.get("slot", -1))
+		var chain_slot := int((panel["entries"] as Array)[_find_entry(panel, 21)] \
+			.get("slot", -1))
+		for index in range(0, ops.size(), 3):
+			var op_type := int(ops[index])
+			if op_type == 1 and int(ops[index + 1]) == scheme_index:
+				has_scheme = true
+			elif op_type == 2 and int(ops[index + 1]) == 0:
+				has_role = true
+			elif op_type == 3 and int(ops[index + 1]) == out_slot \
+					and int(ops[index + 2]) == chain_slot:
+				has_sub = true
+			elif op_type == 0 and ((int(ops[index + 1]) == 2 and int(ops[index + 2]) == 3) \
+					or (int(ops[index + 1]) == 3 and int(ops[index + 2]) == 2)):
+				has_swap = true
+		_check(has_scheme, "the commit carries the scheme")
+		_check(has_role, "the commit carries the role")
+		_check(has_sub, "the commit carries the net substitution")
+		_check(has_swap, "the commit carries the position swap")
+
+	plan.queue_free()
+	await _frames(1)
+
+
+func _group(panel: Dictionary, player_id: int) -> String:
+	var index := _find_entry(panel, player_id)
+	if index < 0:
+		return ""
+	return str((panel["entries"] as Array)[index].get("entry_group", ""))
+
+
+func _check_network_match() -> void:
+	print("-- network in-match plan commit")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var fake := FakeRuntime.new()
+	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var plan := _make_plan()
+	plan.setup_match(fake, [0], {"network": true})
+	plan.open_plan()
+	await _frames(2)
+	var panel := _panel(plan, 0)
+	var out_id := 6
+	var in_id := 20
+
+	# A substitution applies locally; nothing is sent until READY.
+	panel["cursor"] = _find_entry(panel, out_id)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, in_id)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(fake.net_actions.is_empty() and fake.committed.is_empty(),
+		"the network plan sends nothing before READY")
+	_check(_group(panel, out_id) == "bench" and _group(panel, in_id) == "pitch",
+		"the network plan swaps the pair immediately")
+
+	# Cancelling the local pair restores the XI and logs a cancel op.
+	panel["cursor"] = _find_entry(panel, out_id)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, in_id)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(_group(panel, out_id) == "pitch" and _group(panel, in_id) == "bench",
+		"cancelling the local pair restores the XI immediately")
+
+	# Queue it again, then swap two starters: both stay local.
+	panel["cursor"] = _find_entry(panel, out_id)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, in_id)
+	plan.handle_key(_key(KEY_ENTER))
+	var first_position: Vector2 = (panel["entries"] as Array)[_find_entry(panel, 2)] \
+		.get("position", Vector2.ZERO)
+	var second_position: Vector2 = (panel["entries"] as Array)[_find_entry(panel, 3)] \
+		.get("position", Vector2.ZERO)
+	panel["cursor"] = _find_entry(panel, 2)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 3)
+	plan.handle_key(_key(KEY_ENTER))
+	_check((panel["entries"] as Array)[_find_entry(panel, 2)].get("position", Vector2.ZERO)
+		== second_position
+		and (panel["entries"] as Array)[_find_entry(panel, 3)].get("position", Vector2.ZERO)
+		== first_position, "the network plan swaps positions immediately")
+
+	# A scheme is applied to the local view as well.
+	plan.handle_key(_key(KEY_E))
+	plan.handle_key(_key(KEY_ENTER))
+	var scheme_index := int(panel["scheme_cursor"])
+	_check(fake.net_actions.is_empty() and fake.committed.is_empty(),
+		"the scheme is buffered locally too")
+
+	# READY sends the net result: scheme, the sub, and the position swap.
+	plan.handle_key(_key(KEY_ESCAPE))
+	_check(fake.committed.size() == 1, "READY sends one plan commit")
+	if fake.committed.size() == 1:
+		var ops: PackedInt32Array = fake.committed[0]["ops"]
+		_check(int(fake.committed[0]["team"]) == 0, "the commit names the team")
+		var out_slot := int((panel["entries"] as Array)[_find_entry(panel, out_id)] \
+			.get("slot", -1))
+		var in_slot := int((panel["entries"] as Array)[_find_entry(panel, in_id)] \
+			.get("slot", -1))
+		var has_scheme := false
+		var has_sub := false
+		var has_swap := false
+		for index in range(0, ops.size(), 3):
+			var op_type := int(ops[index])
+			if op_type == 1 and int(ops[index + 1]) == scheme_index:
+				has_scheme = true
+			elif op_type == 3 and int(ops[index + 1]) == out_slot \
+					and int(ops[index + 2]) == in_slot:
+				has_sub = true
+			elif op_type == 0:
+				has_swap = (int(ops[index + 1]) == 2 and int(ops[index + 2]) == 3) \
+					or (int(ops[index + 1]) == 3 and int(ops[index + 2]) == 2)
+		_check(has_scheme, "the commit carries the scheme")
+		_check(has_sub, "the commit carries the net substitution")
+		_check(has_swap, "the commit carries the position swap")
+		_check(ops.size() == 9, "the cancelled pair leaves no ops behind")
+
+	# The pause preview reads this committed XI without waiting for the host.
+	var planned: Array = plan.planned_lineup(0)
+	var incoming_name := str((panel["entries"] as Array)[_find_entry(panel, in_id)] \
+		.get("name", ""))
+	var planned_has_incoming := false
+	for entry in planned:
+		if str(entry.get("name", "")) == incoming_name:
+			planned_has_incoming = true
+	_check(planned.size() == Formation.SLOT_COUNT and planned_has_incoming,
+		"the plan exposes the committed XI for the pause preview")
+
+	plan.queue_free()
+	await _frames(1)
+
+
+func _check_network_chain() -> void:
+	print("-- network in-match chained substitution")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var fake := FakeRuntime.new()
+	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var plan := _make_plan()
+	plan.setup_match(fake, [0], {"network": true})
+	plan.open_plan()
+	await _frames(2)
+	var panel := _panel(plan, 0)
+	var out_id := 6
+	var in_id := 20
+	var chain_id := 21
+
+	# A (field) for B (bench), then B (now shown on the pitch) for C (bench):
+	# the local view must end up as A off, C on, B back on the bench.
+	panel["cursor"] = _find_entry(panel, out_id)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, in_id)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(_group(panel, out_id) == "bench" and _group(panel, in_id) == "pitch",
+		"the first substitution swaps the pair")
+	panel["cursor"] = _find_entry(panel, in_id)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, chain_id)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(_group(panel, out_id) == "bench"
+		and _group(panel, in_id) == "bench"
+		and _group(panel, chain_id) == "pitch",
+		"a chained substitution is normalized to A->C locally")
+
+	# Retargeting: the incoming shown on the pitch goes off for another sub;
+	# the outgoing player stays off, so the net sub keeps the same outgoing.
+	var retarget_out := 7
+	var retarget_first := 22
+	var retarget_second := 23
+	panel["cursor"] = _find_entry(panel, retarget_out)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, retarget_first)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(_group(panel, retarget_out) == "bench"
+		and _group(panel, retarget_first) == "pitch",
+		"the retarget starts with A->B")
+	panel["cursor"] = _find_entry(panel, retarget_first)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, retarget_second)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(_group(panel, retarget_out) == "bench"
+		and _group(panel, retarget_first) == "bench"
+		and _group(panel, retarget_second) == "pitch",
+		"replacing the incoming keeps the outgoing off")
+
+	plan.handle_key(_key(KEY_ESCAPE))
+	_check(fake.committed.size() == 1, "the plan commits once")
+	if fake.committed.size() == 1:
+		var ops: PackedInt32Array = fake.committed[0]["ops"]
+		var out_slot := int((panel["entries"] as Array)[_find_entry(panel, out_id)] \
+			.get("slot", -1))
+		var chain_slot := int((panel["entries"] as Array)[_find_entry(panel, chain_id)] \
+			.get("slot", -1))
+		var retarget_slot := int((panel["entries"] as Array)[_find_entry(panel, retarget_out)] \
+			.get("slot", -1))
+		var second_slot := int((panel["entries"] as Array)[_find_entry(panel, retarget_second)] \
+			.get("slot", -1))
+		_check(ops.size() == 6 and int(ops[0]) == 3 and int(ops[1]) == out_slot
+			and int(ops[2]) == chain_slot and int(ops[3]) == 3
+			and int(ops[4]) == retarget_slot and int(ops[5]) == second_slot,
+			"the commit carries one sub per outgoing, with the last incoming")
+
+	plan.queue_free()
+	await _frames(1)
+
+
+func _check_swap_then_sub() -> void:
+	print("-- cyclic plan A->B, B<->C, C->A")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var fake := FakeRuntime.new()
+	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var plan := _make_plan()
+	plan.setup_match(fake, [0], {"network": true})
+	plan.open_plan()
+	await _frames(2)
+	var panel := _panel(plan, 0)
+	var first_pos: Vector2 = (panel["entries"] as Array)[_find_entry(panel, 2)] \
+		.get("position", Vector2.ZERO)
+	var second_pos: Vector2 = (panel["entries"] as Array)[_find_entry(panel, 3)] \
+		.get("position", Vector2.ZERO)
+
+	# A -> B: the bench player takes A's spot.
+	panel["cursor"] = _find_entry(panel, 2)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 20)
+	plan.handle_key(_key(KEY_ENTER))
+	# B <-> C: both on, positions swap.
+	panel["cursor"] = _find_entry(panel, 20)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 3)
+	plan.handle_key(_key(KEY_ENTER))
+	# C -> A: the benched A comes back on for C.
+	panel["cursor"] = _find_entry(panel, 3)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 2)
+	plan.handle_key(_key(KEY_ENTER))
+
+	_check(_group(panel, 2) == "pitch" and _group(panel, 20) == "pitch"
+		and _group(panel, 3) == "bench",
+		"the cycle ends with A and B on, C off")
+	var final_first: Vector2 = (panel["entries"] as Array)[_find_entry(panel, 2)] \
+		.get("position", Vector2.ZERO)
+	var final_second: Vector2 = (panel["entries"] as Array)[_find_entry(panel, 20)] \
+		.get("position", Vector2.ZERO)
+	_check(final_first == first_pos and final_second == second_pos,
+		"the cycle keeps A and B in their intended spots")
+	var positions := {}
+	for index in panel["pitch_entries"]:
+		positions[str((panel["entries"] as Array)[int(index)].get("position", Vector2.ZERO))] = true
+	_check(positions.size() == 11, "all eleven pitch positions stay distinct")
+
+	# The whole cycle collapses to one net sub: C -> B.
+	plan.handle_key(_key(KEY_ESCAPE))
+	_check(fake.committed.size() == 1, "READY sends one plan commit")
+	if fake.committed.size() == 1:
+		var ops: PackedInt32Array = fake.committed[0]["ops"]
+		var out_slot := int((panel["entries"] as Array)[_find_entry(panel, 3)] \
+			.get("slot", -1))
+		var in_slot := int((panel["entries"] as Array)[_find_entry(panel, 20)] \
+			.get("slot", -1))
+		_check(ops.size() == 3 and int(ops[0]) == 3 and int(ops[1]) == out_slot
+			and int(ops[2]) == in_slot,
+			"the commit is the single net substitution C -> B")
+
+	plan.queue_free()
+	await _frames(1)
+
+
+func _check_mouse_click() -> void:
+	print("-- bench card click wiring")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var fake := FakeRuntime.new()
+	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var plan := _make_plan()
+	plan.setup_match(fake, [0], {"network": true})
+	plan.open_plan()
+	await _frames(2)
+	var panel := _panel(plan, 0)
+	var index := _find_entry(panel, 20)
+	var card: Control = (panel["bench_cards"] as Dictionary).get(index, null)
+	_check(card != null, "the bench card exists")
+	if card != null:
+		card.activated.emit()
+		await _frames(1)
+		_check(int(panel["held"]) == index, "the bench card click selects the player")
+		card = (panel["bench_cards"] as Dictionary).get(index, null)
+		if card != null:
+			card.activated.emit()
+			await _frames(1)
+			_check(int(panel["held"]) == -1, "a second click clears the selection")
+
+	plan.queue_free()
+	await _frames(1)
+
+
+func _check_retired_player_visible() -> void:
+	print("-- substituted-out player stays in the plan")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var fake := FakeRuntime.new()
+	var home := _team_data(0, "HOME")
+	(home["players"] as Array)[5]["left_pitch"] = true
+	fake.squads = {0: home, 1: _team_data(1, "AWAY")}
+	var plan := _make_plan()
+	plan.setup_match(fake, [0], {"network": true})
+	plan.open_plan()
+	await _frames(2)
+	var panel := _panel(plan, 0)
+	var index := _find_entry(panel, 6)
+	_check(index >= 0 and _group(panel, 6) == "bench",
+		"the substituted-out player is still listed on the bench")
+	_check(index >= 0
+		and not bool((panel["entries"] as Array)[index].get("selectable", true)),
+		"the substituted-out player is not selectable")
+	# Open the drawer (any selectable bench card) so the disabled card is built.
+	panel["cursor"] = _find_entry(panel, 20)
+	plan.call("_refresh_panel", panel)
+	await _frames(1)
+	var card: Control = (panel["bench_cards"] as Dictionary).get(index, null)
+	_check(card != null and not bool(card.get("editable"))
+		and card.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+		"the substituted-out card ignores the mouse and is not editable")
+	plan.call("_press_entry", 0, index)
+	await _frames(1)
+	_check(int(panel["held"]) == -1 && _group(panel, 6) == "bench",
+		"the substituted-out player cannot be selected")
+
+	plan.queue_free()
+	await _frames(1)
+
+func _check_bench_place() -> void:
+	print("-- substituted player keeps the incoming bench row")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var fake := FakeRuntime.new()
+	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var plan := _make_plan()
+	plan.setup_match(fake, [0], {"network": true})
+	plan.open_plan()
+	await _frames(2)
+	var panel := _panel(plan, 0)
+
+	# 6 -> 20 puts the outgoing on 20's row (the first one).
+	panel["cursor"] = _find_entry(panel, 6)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 20)
+	plan.handle_key(_key(KEY_ENTER))
+	var row := (panel["bench_order"] as Array).find(22)
+	_check(row > 0, "the next incoming has a non-first bench row")
+	# 7 -> 22 must reuse 22's row instead of jumping to the top.
+	panel["cursor"] = _find_entry(panel, 7)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 22)
+	plan.handle_key(_key(KEY_ENTER))
+	_check((panel["bench_order"] as Array).find(7) == row,
+		"the outgoing takes the incoming player's bench row")
+	var shown: Array = []
+	for index in panel["bench_entries"]:
+		shown.append(int((panel["entries"] as Array)[int(index)].get("id", -1)))
+	_check(shown.find(7) == row, "the bench list shows it in that row")
+
+	plan.queue_free()
+	await _frames(1)
+
+
+func _check_second_scheme_place() -> void:
+	print("-- second scheme keeps the substitute on its place")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var fake := FakeRuntime.new()
+	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var plan := _make_plan()
+	plan.setup_match(fake, [0], {"network": true})
+	plan.open_plan()
+	await _frames(2)
+	var panel := _panel(plan, 0)
+
+	panel["cursor"] = _find_entry(panel, 6)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 20)
+	plan.handle_key(_key(KEY_ENTER))
+	plan.call("_plan_apply_scheme", panel, 0)
+	plan.call("_plan_apply_scheme", panel, 1)
+
+	var places: Dictionary = (plan.get("_plan_place") as Dictionary).get(0, {})
+	_check(int(places.get(20, -1)) == 6, "the substitute keeps the outgoing place")
+	var by_base: Dictionary = plan.call("_plan_scheme_entries", 0, 1)
+	var expected: Dictionary = by_base.get(6, {})
+	var actual: Dictionary = ((plan.get("_plan_positions") as Dictionary).get(0, {}) as Dictionary) \
+		.get(20, {})
+	_check(not expected.is_empty()
+		and actual.get("position", Vector2.ZERO) == expected.get("position", Vector2.ONE)
+		and str(actual.get("role", "")) == str(expected.get("role", "")),
+		"the substitute gets the second scheme's entry")
+
+	plan.handle_key(_key(KEY_ESCAPE))
+	_check(fake.committed.size() == 1, "READY commits the last scheme")
+	if fake.committed.size() == 1:
+		var ops: PackedInt32Array = fake.committed[0]["ops"]
+		var second_scheme := false
+		for index in range(0, ops.size(), 3):
+			if int(ops[index]) == 1 and int(ops[index + 1]) == 1:
+				second_scheme = true
+		_check(second_scheme, "the commit carries the second scheme")
+
+	plan.queue_free()
+	await _frames(1)
+
+
+func _check_client_sync() -> void:
+	print("-- client plan waits for a stable host state")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var fake := ClientFake.new()
+	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var plan := _make_plan()
+	plan.setup_match(fake, [0], {"network": true})
+	plan.open_plan()
+	await _frames(2)
+	_check(not bool(plan.get("_plan_synced")), "the client plan starts unsynced")
+	var panel := _panel(plan, 0)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(int(panel["held"]) == -1, "the plan ignores input while syncing")
+	await create_timer(0.35).timeout
+	_check(bool(plan.get("_plan_synced")), "the plan syncs after two stable polls")
+	_check(not (plan.get("_plan_on") as Dictionary).is_empty(),
+		"the plan builds the desired lineup after the sync")
+
+	plan.queue_free()
+	await _frames(1)
+
+
+func _check_network_limit() -> void:
+	print("-- network plan substitution limit")
+	ShellState.clear()
+	ShellState.set_teams(
+		{"id": 1, "name": "Home FC", "color1": "0.2,0.3,0.9"},
+		{"id": 2, "name": "Away FC", "color1": "0.9,0.2,0.2"})
+	ShellState.set_controllers([
+		{"side": "home", "kind": "keyboard", "device": 0, "name": "Keyboard"},
+	])
+	var fake := FakeRuntime.new()
+	fake.squads = {0: _team_data(0, "HOME"), 1: _team_data(1, "AWAY")}
+	var plan := _make_plan()
+	plan.setup_match(fake, [0], {"network": true})
+	plan.open_plan()
+	await _frames(2)
+	var panel := _panel(plan, 0)
+
+	# Five subs exhaust the limit; the sixth is blocked as it is clicked.
+	for index in 5:
+		panel["cursor"] = _find_entry(panel, index + 1)
+		plan.handle_key(_key(KEY_ENTER))
+		panel["cursor"] = _find_entry(panel, 20 + index)
+		plan.handle_key(_key(KEY_ENTER))
+	_check((panel["pending"] as Array).size() == 5, "five departures are planned")
+	panel["cursor"] = _find_entry(panel, 6)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 25)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(_group(panel, 6) == "pitch" and _group(panel, 25) == "bench",
+		"the sixth substitution is blocked when clicked")
+	_check(str((plan.get("_status") as Label).text).find("limit") >= 0,
+		"the plan reports the substitution limit")
+	_check(fake.committed.is_empty(), "nothing is committed before READY")
+
+	# A chain (bench for a shown substitute) changes no departure count.
+	panel["cursor"] = _find_entry(panel, 20)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 25)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(_group(panel, 20) == "bench" and _group(panel, 25) == "pitch"
+		and (panel["pending"] as Array).size() == 5,
+		"a chain is allowed at the limit and keeps five departures")
+
+	# Bringing a starter back frees a slot for another new departure.
+	panel["cursor"] = _find_entry(panel, 25)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 1)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(_group(panel, 1) == "pitch" and _group(panel, 25) == "bench"
+		and (panel["pending"] as Array).size() == 4,
+		"a returning starter lowers the planned departures")
+	panel["cursor"] = _find_entry(panel, 6)
+	plan.handle_key(_key(KEY_ENTER))
+	panel["cursor"] = _find_entry(panel, 25)
+	plan.handle_key(_key(KEY_ENTER))
+	_check(_group(panel, 6) == "bench" and _group(panel, 25) == "pitch"
+		and (panel["pending"] as Array).size() == 5,
+		"the freed slot allows one more departure")
+
+	plan.handle_key(_key(KEY_ESCAPE))
+	_check(fake.committed.size() == 1, "five substitutions commit")
+	if fake.committed.size() == 1:
+		var ops: PackedInt32Array = fake.committed[0]["ops"]
+		var subs := 0
+		for index in range(0, ops.size(), 3):
+			if int(ops[index]) == 3:
+				subs += 1
+		_check(subs == 5, "the commit carries five substitutions")
 
 	plan.queue_free()
 	await _frames(1)

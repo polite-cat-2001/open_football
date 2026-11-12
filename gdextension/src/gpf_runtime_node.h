@@ -157,6 +157,9 @@ public:
     Dictionary net_lobby();
     // An e_NetLobbyAction type (int) or its name ("set_side", "set_ready", ...).
     bool net_action(const Variant &action_type, int side, int value, int value2);
+    // In-match game-plan commit: a flat list of op triples [type, a, b]
+    // (e_NetPlanOpType). A client sends it to the host; the host applies its own.
+    bool net_commit_plan(int team_id, const PackedInt32Array &ops);
     // Host only: broadcast the lobby's teams, then build and start the match.
     bool net_start();
     // Client only: consume the host's NetMatchSetup; {} when none is pending.
@@ -185,6 +188,9 @@ public:
     Dictionary get_player_pose(int player_id) const;
     Array get_player_ids() const;
     Array debug_get_formation(int team_id) const;
+    // Pre-match plan (menu MatchData) for the shell: {order, formation, roles}.
+    // Used by the network hub to build the package from the applied plan.
+    Dictionary debug_get_plan(int team_id) const;
     int get_human_player_id() const;
     Array get_human_player_ids() const;
     int get_human_team_id() const;
@@ -246,8 +252,13 @@ public:
     void debug_force_set_piece(int set_piece_type, int team_id);
     // F3: start the penalty shootout series from a clean play state.
     void debug_force_shootout();
+    // Shell: start the series from the end-of-90 break screen (stopped play).
+    bool start_shootout();
     void debug_force_phase_break(int next_phase);
     void debug_force_game_over();
+    // F5: push the clock to the end of the current period so the referee's own
+    // whistle ends it (the break latch then opens the period break).
+    bool debug_skip_to_period_end();
 };
 
 } // namespace godot

@@ -127,6 +127,9 @@ var _pending_entries: Array = []
 var _pending_kit: Dictionary = {}
 
 var _runtime: Node = null
+var _plan_lineups: Dictionary = {}
+var _lineup_key := ""
+var _lineup_poll_ms := 0
 var _local_side_select: SettingsSideSelect = null
 var _local_side_layer: CanvasLayer = null
 var _local_side_opening := false
@@ -262,6 +265,12 @@ func _install_lineup() -> void:
 func set_match(runtime_node: Node, package: Dictionary) -> void:
 	_runtime = runtime_node
 	_package = package
+
+
+func set_plan_lineups(lineups: Dictionary) -> void:
+	_plan_lineups = lineups
+	if visible:
+		_refresh_data()
 
 
 func set_team(team_id: int) -> void:
@@ -564,6 +573,27 @@ func _settings_context() -> Dictionary:
 	}
 
 
+func _process(_delta: float) -> void:
+	# The pause owns a frozen match, but a network peer's plan commit/substitute
+	# lands a tick or two later. Poll the live squad so the card follows it
+	# without rebuilding every frame.
+	if not visible or _runtime == null or not is_instance_valid(_runtime):
+		return
+	var now := Time.get_ticks_msec()
+	if now - _lineup_poll_ms < 200:
+		return
+	_lineup_poll_ms = now
+	var key := _squad_key()
+	if key.is_empty() or key == _lineup_key:
+		return
+	_lineup_key = key
+	_refresh_data()
+
+
+func _squad_key() -> String:
+	return GpfSquadKey.build(_runtime, [_team_id], true)
+
+
 func _refresh_data() -> void:
 	var snapshot: Dictionary = {}
 	if _runtime != null and is_instance_valid(_runtime):
@@ -578,7 +608,10 @@ func _refresh_data() -> void:
 		"resume", "")
 
 	var team: Dictionary = home if _team_id == 0 else away
-	var entries := _squad_entries(team)
+	# The package is the pre-match snapshot; the live match can have plan swaps
+	# and queued/applied substitutions. Read the runtime squad and fold its
+	# pending pair into the shown XI, so the pause card follows the plan.
+	var entries := _effective_entries(team, _team_id)
 	var formation := _formation_label(entries)
 	var team_name := str(team.get("name", "")).to_upper()
 	if team_name.is_empty():
@@ -590,11 +623,86 @@ func _refresh_data() -> void:
 		_install_lineup()
 	if lineup != null:
 		lineup.setup(_pending_entries, _pending_kit)
+	_lineup_key = _squad_key()
+
+
+func _effective_entries(team: Dictionary, team_id: int) -> Array:
+	# A just-committed plan is the truth on this peer even if the host's live
+	# relay has not reached its paused match yet.
+	var planned: Array = _plan_lineups.get(team_id, [])
+	if planned.size() == Formation.SLOT_COUNT:
+		return (planned as Array).duplicate(true)
+	if _runtime == null or not is_instance_valid(_runtime) \
+			or not _runtime.has_method("get_squad"):
+		return _squad_entries(team)
+	var squad: Dictionary = _runtime.get_squad(team_id)
+	var players: Array = squad.get("players", [])
+	if players.size() < Formation.SLOT_COUNT:
+		return _squad_entries(team)
+	var by_id: Dictionary = {}
+	for player in players:
+		by_id[int(player.get("id", -1))] = player
+	var package_by_db: Dictionary = {}
+	for player in team.get("players", []):
+		if typeof(player) == TYPE_DICTIONARY:
+			package_by_db[int(player.get("database_id", -1))] = player
+	var out_to_in: Dictionary = {}
+	if _runtime.has_method("get_pending_substitutions"):
+		for pair in _runtime.get_pending_substitutions():
+			if typeof(pair) == TYPE_DICTIONARY \
+					and int(pair.get("team", -1)) == team_id:
+				out_to_in[int(pair.get("out_id", -1))] = int(pair.get("in_id", -1))
+	var entries: Array = []
+	var seen: Dictionary = {}
+	for player in players:
+		if not bool(player.get("active", false)):
+			continue
+		var out_id := int(player.get("id", -1))
+		var shown: Dictionary = player
+		if out_to_in.has(out_id):
+			var incoming: Dictionary = by_id.get(int(out_to_in[out_id]), {})
+			if not incoming.is_empty():
+				shown = incoming
+		var shown_id := int(shown.get("id", -1))
+		if seen.has(shown_id):
+			continue
+		seen[shown_id] = true
+		# Role/position stay on the outgoing's formation slot; the incoming
+		# supplies the name and rating.
+		entries.append(_pause_entry(player, shown, package_by_db))
+	if entries.size() != Formation.SLOT_COUNT:
+		return _squad_entries(team)
+	return entries
+
+
+func _pause_entry(template: Dictionary, player: Dictionary,
+		package_by_db: Dictionary) -> Dictionary:
+	var package_player: Dictionary = package_by_db.get(
+		int(player.get("database_id", -1)), {})
+	var rating := int(round(float(package_player.get("base_stat", 0.0)) * 100.0))
+	if rating <= 0:
+		var stats: Dictionary = package_player.get("stats", {})
+		if not stats.is_empty():
+			rating = int(round(PlayerStats.average(stats) * 100.0))
+	if rating <= 0:
+		rating = int(player.get("rating", -1))
+	var name := str(player.get("name", "")).strip_edges()
+	if name.is_empty():
+		name = str(package_player.get("last_name", "")).strip_edges()
+	if name.is_empty():
+		name = str(package_player.get("first_name", "")).strip_edges()
+	return {
+		"name": name,
+		"role": str(template.get("role", "CM")),
+		"position": template.get("position",
+			template.get("database_position", Vector2.ZERO)),
+		"rating": rating,
+	}
 
 
 func _squad_entries(team: Dictionary) -> Array:
-	# Same source as the prematch hub's plan: the package starters carry the
-	# MatchLineup formation positions and the squad base_stat ratings.
+	# Fallback for a package-only screen (no live runtime): the package
+	# starters carry the MatchLineup formation positions and base_stat ratings.
 	var entries: Array = []
 	var formation: Array = team.get("formation", [])
 	var players: Array = team.get("players", [])

@@ -23,6 +23,7 @@ var runtime: Node
 @onready var replay: GpfReplay = $ReplayView
 @onready var shootout: GpfShootoutView = $ShootoutView
 @onready var pause_menu: GpfPauseMenu = $PauseMenu
+@onready var match_over: GpfMatchOver = $MatchOver
 var game_plan: GpfGamePlan
 var _game_plan_layer: CanvasLayer
 var _roster_ids: Array = []
@@ -84,11 +85,13 @@ func _ready() -> void:
 	pause_menu.setup()
 	pause_menu.set_match(runtime, ShellState.match_package)
 	pause_menu.set_team(_pause_team(-1))
+	match_over.setup()
+	match_over.set_match(runtime, ShellState.match_package)
 	_build_game_plan()
 
-	hud.main_menu_requested.connect(_return_to_main_menu)
-	shootout.main_menu_requested.connect(_return_to_main_menu)
-	shootout.restart_requested.connect(_start_fresh_match)
+	match_over.advance_requested.connect(_return_to_main_menu)
+	match_over.restart_requested.connect(_start_fresh_match)
+	match_over.choice_made.connect(_on_end_choice)
 	pause_menu.resume_requested.connect(_on_pause_resume)
 	pause_menu.forfeit_requested.connect(_return_to_main_menu)
 	pause_menu.replay_requested.connect(_on_pause_replay)
@@ -220,6 +223,13 @@ func _on_game_plan_closed() -> void:
 		game_plan.close_plan()
 	hud.set_visible(true)
 	if pause_menu != null:
+		var lineups: Dictionary = {}
+		if game_plan != null:
+			for team_id in [0, 1]:
+				var line: Array = game_plan.planned_lineup(team_id)
+				if not line.is_empty():
+					lineups[team_id] = line
+		pause_menu.set_plan_lineups(lineups)
 		var snap: Dictionary = runtime.get_snapshot()
 		if bool(snap.get("phase_break_pending", false)) \
 				or bool(snap.get("phase_break", false)):
@@ -345,6 +355,7 @@ func _process(delta: float) -> void:
 			_net_break_seen = false
 	shootout.update(snap, delta)
 	_sync_phase_break(snap)
+	_sync_match_over(snap)
 	# A substitution applied at the C++ restart changes the active roster: add
 	# the new bodies and drop the players who left the pitch. The thin client
 	# derives its own banner from the delta (the original client applies the
@@ -426,8 +437,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _other_menu_open() -> bool:
-	return replay.is_active() or shootout.is_end_menu_open() \
-		or hud.is_phase_menu_open() or hud.is_taker_menu_open() \
+	return replay.is_active() or match_over.is_open() \
+		or hud.is_taker_menu_open() \
 		or side_select_overlay != null \
 		or (game_plan != null and game_plan.is_open())
 
@@ -465,6 +476,12 @@ func _sync_phase_break(snap: Dictionary) -> void:
 		if pause_menu.is_break():
 			pause_menu.dismiss()
 		return
+	if _choice_needed(snap):
+		# A level score at 90:00 is the choice screen's latch, not the period
+		# break: the choice overlay pauses the match itself (see _sync_match_over).
+		if pause_menu.is_break():
+			pause_menu.dismiss()
+		return
 	if pause_menu.is_break():
 		return
 	# A local submenu owns the frozen match: open the break screen when it closes.
@@ -484,6 +501,53 @@ func _show_break_overlay(snap: Dictionary) -> void:
 	pause_menu.open_break(next_phase, _pause_team(-1))
 	_release_sticks()
 	_release_buttons()
+
+
+# End of match and the 90:00 draw: one overlay, two screens. The result screen
+# also owns the finished shootout (the C++ GameOver follows its celebration).
+func _sync_match_over(snap: Dictionary) -> void:
+	if bool(snap.get("game_over", false)):
+		var caption := ""
+		if bool(snap.get("shootout_active", false)):
+			caption = "PENALTIES %d – %d" % [
+				int(snap.get("shootout_score0", 0)),
+				int(snap.get("shootout_score1", 0)),
+			]
+		if not match_over.is_open() or match_over.is_choice():
+			match_over.open_result(caption)
+		return
+	if _choice_needed(snap):
+		if not match_over.is_choice():
+			if not bool(runtime.is_net_client()):
+				runtime.begin_phase_break()
+			match_over.open_choice()
+			_release_sticks()
+			_release_buttons()
+		return
+	if match_over.is_open():
+		match_over.dismiss()
+
+
+# A level score at the end of regulation: the C++ referee latched the extra-time
+# phase break and the choice screen takes over from the period break.
+func _choice_needed(snap: Dictionary) -> bool:
+	var breaking := bool(snap.get("phase_break_pending", false)) \
+		or bool(snap.get("phase_break", false))
+	return breaking \
+		and int(snap.get("phase_break_next_phase", 0)) == 3 \
+		and int(snap.get("score0", 0)) == int(snap.get("score1", 0)) \
+		and not bool(snap.get("game_over", false)) \
+		and not bool(snap.get("shootout_active", false))
+
+
+func _on_end_choice(id: String) -> void:
+	match id:
+		"classic":
+			runtime.continue_after_phase_break()
+		"penalties":
+			runtime.start_shootout()
+		"draw":
+			runtime.debug_force_game_over()
 
 
 # Function states are edge-tracked too: a direction held when the pause opens
@@ -544,6 +608,22 @@ func _pause_team(device: int) -> int:
 		if device < 0 or int(controller.get("device", -1)) == device:
 			return 1 if str(controller.get("side", "home")) == "away" else 0
 	return int(_human_teams()[0])
+
+
+# The 90:00 choice belongs to the host / P1. A network client waits for the
+# host; locally the first configured controller owns it (keyboard events arrive
+# with device -1 because Godot reports 0 for both a keyboard and the first pad).
+func _over_owner_ok(device: int) -> bool:
+	if runtime != null and is_instance_valid(runtime) \
+			and runtime.has_method("is_net_client") and bool(runtime.is_net_client()):
+		return false
+	for controller in ShellState.controllers:
+		if not (controller is Dictionary):
+			continue
+		if str(controller.get("kind", "keyboard")) == "keyboard":
+			return device < 0
+		return device == int(controller.get("device", -1))
+	return device < 0
 
 
 func _on_pause_resume() -> void:
@@ -783,6 +863,10 @@ func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 	var device := int(event.device)
 	var button := int(event.button_index)
 	var pressed := bool(event.pressed)
+	if match_over.is_open():
+		if pressed and (not match_over.is_choice() or _over_owner_ok(device)):
+			match_over.handle_joy(event)
+		return
 	# Start is the pause key and works from any pad, even one that is not
 	# assigned to a side in this match.
 	if pressed and button == JOY_BUTTON_START:
@@ -850,6 +934,8 @@ func _handle_gamepad_button(event: InputEventJoypadButton) -> void:
 
 func _handle_gamepad_motion(event: InputEventJoypadMotion) -> void:
 	var device := int(event.device)
+	if match_over.is_open():
+		return
 	if game_plan != null and game_plan.is_open():
 		game_plan.handle_joy_motion(event)
 		return
@@ -910,6 +996,19 @@ func _handle_key(key_event: InputEventKey) -> void:
 		if key_event.pressed:
 			_start_fresh_match()
 		return
+	if key_event.keycode == KEY_F5:
+		# Skip to the next break: the host (or a local match) pushes the clock to
+		# the period end; the referee's own whistle opens the break.
+		if key_event.pressed and not _menu_open() \
+				and not (bool(runtime.is_net_active()) and bool(runtime.is_net_client())):
+			runtime.debug_skip_to_period_end()
+		return
+	if match_over.is_open():
+		# The end-of-match overlay is modal: the 90:00 choice is owned by P1
+		# locally, the result screen takes any local device.
+		if not match_over.is_choice() or _over_owner_ok(-1):
+			match_over.handle_key(key_event)
+		return
 	if game_plan != null and game_plan.is_open():
 		game_plan.handle_key(key_event)
 		return
@@ -922,12 +1021,6 @@ func _handle_key(key_event: InputEventKey) -> void:
 	if replay.is_active():
 		if key_event.pressed and key_event.keycode in [KEY_SPACE, KEY_ESCAPE, KEY_ENTER]:
 			replay.finish()
-		return
-	if shootout.is_end_menu_open():
-		shootout.handle_end_menu_key(key_event)
-		return
-	if hud.is_phase_menu_open():
-		hud.handle_phase_menu_key(key_event)
 		return
 	if key_event.keycode == KEY_V:
 		if key_event.pressed:
@@ -1005,6 +1098,10 @@ func _start_fresh_match() -> void:
 	replay.reset()
 	hud.reset()
 	shootout.reset()
+	match_over.hide_now()
+	# The previous match's committed plan must not leak into the new one.
+	if pause_menu != null:
+		pause_menu.set_plan_lineups({})
 	actors.reset()
 	_roster_ids = []
 	_roster_names = {}

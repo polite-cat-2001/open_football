@@ -29,3 +29,8 @@ bin/
 # Player face cutouts (Transfermarkt-derived, external bundle)
 assets/faces/*
 !assets/faces/.gdignore
+
+# Local scratch screenshots and probes (not part of the game)
+.scratch/
+scratch_*.png
+scratch_*.png.import

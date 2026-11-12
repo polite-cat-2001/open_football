@@ -56,6 +56,7 @@ func _init() -> void:
 		var expected_kit: Dictionary = home_kit if side == "home" else away_kit
 		_check(str(team.get("name", "")) == str(squad["team"].get("name", "")),
 			"%s name matches the catalog" % side)
+		_check(str(team.get("league", "")) != "", "%s carries the competition name" % side)
 		_check(str(team.get("logo_url", "")).begins_with("databases/default/"),
 			"%s logo path matches the C++ loader" % side)
 		_check(str(team.get("kit_url", "")).begins_with("databases/default/"),

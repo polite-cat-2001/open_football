@@ -109,12 +109,13 @@ func _ensure_network_package() -> void:
 	var ids: Array = _lobby.get("team_ids", [])
 	if ids.size() != 2:
 		return
+	_sync_plan_lineups(runtime)
 	var builder := MatchPackage.new()
 	if not catalog.load_data_root(data_root):
 		_status = catalog.error
 		return
 	var package := builder.build(catalog, ShellState.home_team, ShellState.away_team,
-		_lobby_options(), {},
+		_lobby_options(), {"home": home_lineup, "away": away_lineup},
 		{"home": ShellState.kit_home, "away": ShellState.kit_away})
 	if package.is_empty():
 		_status = builder.error
@@ -122,6 +123,21 @@ func _ensure_network_package() -> void:
 	ShellState.set_match_package(package)
 	if not bool(runtime.set_match_package(package)):
 		_status = runtime.get_last_error()
+
+
+func _sync_plan_lineups(runtime) -> void:
+	# The opponent's edits reach the runtime's shared pre-match MatchData via
+	# PlanSwap/Scheme/Role. Mirror them into the local lineup model so the
+	# package carries the same opponent. The local side keeps its own model:
+	# writing the runtime plan back here would clobber a just-made edit before
+	# the host's broadcast arrives.
+	if runtime == null or not runtime.has_method("debug_get_plan"):
+		return
+	var local_team := _local_team()
+	if local_team != 0:
+		home_lineup.apply_plan(runtime.debug_get_plan(0))
+	if local_team != 1:
+		away_lineup.apply_plan(runtime.debug_get_plan(1))
 
 
 func _populate_teams_from_lobby() -> bool:
@@ -360,6 +376,8 @@ func _start_client(setup: Dictionary) -> void:
 	if _match_started:
 		return
 	var runtime := NET_SHELL.active_runtime(get_tree())
+	# Rebuild from the host-applied plan so this peer fields the same lineup.
+	_ensure_network_package()
 	if runtime == null or not ShellState.has_package():
 		var package := NETWORK_MATCH.apply_setup(get_tree(), runtime, setup, _lobby_options(),
 			data_root)

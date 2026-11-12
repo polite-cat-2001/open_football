@@ -1,4 +1,4 @@
-class_name GpfGamePlan
+﻿class_name GpfGamePlan
 extends Control
 # Game plan screen shared by the pre-match hub and the in-match pause menu.
 # Layout follows the career prototype / FIFA reference: one half per team, a
@@ -166,6 +166,13 @@ static func _draw_fatigue_bar(canvas: CanvasItem, rect: Rect2, percent: int) -> 
 	canvas.draw_polyline(outline, Color(0.0, 0.0, 0.0, 1.0), 1.0)
 
 
+static func _pending_suffix(entry: Dictionary) -> String:
+	if bool(entry.get("pending_out", false)):
+		return " -"
+	if bool(entry.get("pending_in", false)):
+		return " +"
+	return ""
+
 
 class GamePlanPitch extends Control:
 	signal card_clicked(panel_index: int, entry_index: int)
@@ -234,7 +241,8 @@ class GamePlanPitch extends Control:
 					role_rect.position.y + role_rect.size.y * 0.80), str(rating),
 					HORIZONTAL_ALIGNMENT_RIGHT, role_rect.size.x * 0.38, rating_size, rating_color)
 
-			var name := _short_name(str(entry.get("name", "")))
+			var name := _short_name(str(entry.get("name", ""))) \
+				+ GpfGamePlan._pending_suffix(entry)
 			var name_size := maxi(14, int(photo.size.y * 0.40))
 			var name_color := C_MARK if focused else C_FOCUS_INK
 			draw_string(FONT_HEAD, Vector2(name_rect.position.x + 1.0,
@@ -248,10 +256,6 @@ class GamePlanPitch extends Control:
 			var fatigue := clampi(int(entry.get("fatigue", 100)), 0, 100)
 			GpfGamePlan._draw_fatigue_bar(self, bar_rect, fatigue)
 
-			if bool(entry.get("pending_out", false)):
-				draw_rect(rect.grow(1.0), Color(0.88, 0.25, 0.22, 0.95), false, 2.0)
-			elif bool(entry.get("pending_in", false)):
-				draw_rect(rect.grow(1.0), Color(0.28, 0.80, 0.40, 0.95), false, 2.0)
 			if anchored:
 				var icon_radius := clampf(rect.size.x * 0.105, 6.5, 9.0)
 				GpfGamePlan._draw_refresh_icon(self,
@@ -683,7 +687,9 @@ class GamePlanDetails extends Control:
 
 
 class BenchCard extends Control:
-	signal activated(entry_index: int)
+	# No payload: the connection binds (team_id, entry_index). A signal argument
+	# here would be prepended to the bound ones and hit the wrong handler args.
+	signal activated()
 
 	var entry: Dictionary = {}
 	var entry_index := 0
@@ -695,7 +701,7 @@ class BenchCard extends Control:
 		entry = data
 		entry_index = index
 		editable = can_edit
-		mouse_filter = Control.MOUSE_FILTER_STOP
+		mouse_filter = Control.MOUSE_FILTER_STOP if can_edit else Control.MOUSE_FILTER_IGNORE
 		clip_contents = true
 		size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		size_flags_vertical = Control.SIZE_SHRINK_BEGIN
@@ -710,28 +716,26 @@ class BenchCard extends Control:
 		var area := get_size()
 		if area.x <= 2.0 or area.y <= 2.0:
 			return
-		var unavailable := bool(entry.get("left_pitch", false))
-		var fill := Color(1.0, 1.0, 1.0, 0.58)
-		if focused:
+		var unavailable := bool(entry.get("left_pitch", false)) \
+			or not bool(entry.get("selectable", true))
+		var fill := Color(1.0, 1.0, 1.0, 0.32 if unavailable else 0.58)
+		if focused and not unavailable:
 			fill = C_FOCUS_FILL
 		draw_rect(Rect2(Vector2.ZERO, area), fill, true)
-		if bool(entry.get("pending_out", false)):
-			draw_rect(Rect2(Vector2.ZERO, area), Color(0.88, 0.25, 0.22, 0.95), false, 2.0)
-		elif bool(entry.get("pending_in", false)):
-			draw_rect(Rect2(Vector2.ZERO, area), Color(0.28, 0.80, 0.40, 0.95), false, 2.0)
 		if anchor:
 			GpfGamePlan._draw_refresh_icon(self, Vector2(area.x - 10.0, 11.0),
 				6.0, C_RAIL)
 
 		var ink := C_INK
 		var ink2 := C_INK2
-		var mark := C_MARK if focused else C_INK
-		if focused:
+		var mark := C_MARK if focused and not unavailable else C_INK
+		if focused and not unavailable:
 			ink = C_FOCUS_INK
 			ink2 = C_FOCUS_INK2
 		if unavailable:
-			ink = Color(ink, 0.55)
-			ink2 = Color(ink2, 0.55)
+			ink = Color(ink, 0.45)
+			ink2 = Color(ink2, 0.45)
+			mark = Color(mark, 0.45)
 
 		var pad_l := clampf(area.x * 0.045, 8.0, 14.0)
 		var pad_r := clampf(area.x * 0.035, 6.0, 11.0)
@@ -772,8 +776,12 @@ class BenchCard extends Control:
 		GpfGamePlan._draw_fatigue_bar(self, bar, fatigue)
 
 		draw_string(FONT_HEAD, Vector2(pad_l, name_baseline),
-			_short_name(str(entry.get("name", ""))), HORIZONTAL_ALIGNMENT_CENTER,
-			area.x - pad_l - pad_r, name_size, mark)
+			_short_name(str(entry.get("name", ""))) + GpfGamePlan._pending_suffix(entry),
+			HORIZONTAL_ALIGNMENT_CENTER, area.x - pad_l - pad_r, name_size, mark)
+		if unavailable:
+			# Already off in the match: keep the row for reference, dim it, and
+			# leave it out of navigation/selection.
+			draw_rect(Rect2(Vector2.ZERO, area), Color(0.05, 0.05, 0.05, 0.30), true)
 
 	func _draw_silhouette(photo: Rect2, color: Color) -> void:
 		var center := photo.get_center()
@@ -789,7 +797,7 @@ class BenchCard extends Control:
 		if event is InputEventMouseButton:
 			var mouse := event as InputEventMouseButton
 			if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.pressed:
-				activated.emit(entry_index)
+				activated.emit()
 				accept_event()
 
 	static func _short_name(value: String) -> String:
@@ -1065,7 +1073,26 @@ var _status: Label
 var _status_until_ms := 0
 var _move_ms := 0
 var _close_at_ms := 0
-var _net_refresh_ms := 0
+var _net_view_key := ""
+var _net_view_ms := 0
+# Mouse position at the last panel rebuild: a card re-created under a stationary
+# mouse must not steal the cursor, but a genuine move to another card still may.
+var _hover_guard_pos := Vector2(-100000.0, -100000.0)
+# Network in-match plan: the plan is a desired lineup, not an op log. `_plan_on`
+# is who should be on the pitch; the host gets the net swaps/subs on READY, so
+# cycles (A->B, B<->C, C->A) collapse to their net result.
+var _plan_on: Dictionary = {}         # team -> {player_id: true} (11 entries)
+var _plan_base: Dictionary = {}       # team -> {player_id: {role, position, slot, db}}
+var _plan_positions: Dictionary = {}  # team -> {player_id: {role, position}}
+var _plan_roles: Dictionary = {}      # team -> {e_TeamRole: player_id}
+var _plan_scheme: Dictionary = {}     # team -> scheme index applied this pause
+var _plan_place: Dictionary = {}      # team -> {player_id: base slot id}
+# Network client only: wait for two identical get_squad polls before editing,
+# so a just-committed pending/formation is not missed by the plan.
+var _plan_synced := true
+var _plan_sync_key := ""
+var _plan_sync_stable := 0
+var _plan_dirty := false
 
 var _match_bench_ids: Dictionary = {}
 var _match_reserve_ids: Dictionary = {}
@@ -1085,6 +1112,10 @@ func setup_prematch(home_lineup: MatchLineup, away_lineup: MatchLineup,
 	network_mode = bool(options.get("network", false))
 	local_two_player = bool(options.get("local_two_player", false))
 	_lineups = {0: home_lineup, 1: away_lineup}
+	_plan_synced = true
+	_plan_dirty = false
+	_net_view_key = ""
+	_net_view_ms = 0
 	_human_teams = _unique_teams(human_teams)
 	_resolve_teams()
 	_rebuild()
@@ -1095,6 +1126,18 @@ func setup_match(runtime_node, human_teams: Array = [0], options: Dictionary = {
 	runtime = runtime_node
 	network_mode = bool(options.get("network", false))
 	local_two_player = bool(options.get("local_two_player", false))
+	_plan_on.clear()
+	_plan_base.clear()
+	_plan_positions.clear()
+	_plan_roles.clear()
+	_plan_scheme.clear()
+	_plan_place.clear()
+	_plan_synced = not _plan_net_client()
+	_plan_sync_key = ""
+	_plan_sync_stable = 0
+	_plan_dirty = false
+	_net_view_key = ""
+	_net_view_ms = 0
 	_human_teams = _unique_teams(human_teams)
 	_resolve_teams()
 	_build_match_roster()
@@ -1108,6 +1151,8 @@ func setup_demo(home: Dictionary, away: Dictionary, human_teams: Array = [0],
 	network_mode = bool(options.get("network", false))
 	local_two_player = bool(options.get("local_two_player", false))
 	_demo_teams = {0: home, 1: away}
+	_plan_synced = true
+	_plan_dirty = false
 	_human_teams = _unique_teams(human_teams)
 	_resolve_teams()
 	_rebuild()
@@ -1128,6 +1173,12 @@ func open_plan() -> void:
 	visible = true
 	move_to_front()
 	_close_at_ms = 0
+	if mode == "match" and _plan_net_client():
+		_plan_synced = false
+		_plan_sync_key = ""
+		_plan_sync_stable = 0
+		_plan_dirty = false
+		set_status("Syncing plan...", 2000)
 	for panel in _panels:
 		panel["ready"] = false
 		panel["held"] = -1
@@ -1304,12 +1355,51 @@ func _process(_delta: float) -> void:
 		_close_at_ms = 0
 		close_requested.emit()
 	if network_mode and mode == "match" and is_open():
+		# Poll the host's squad data (applied subs/roles land there) instead of
+		# rebuilding every frame; a timed unconditional rebuild made the bench
+		# cards visibly blink. The local plan itself is already on screen.
 		var now := Time.get_ticks_msec()
-		if now - _net_refresh_ms >= 250:
-			_net_refresh_ms = now
-			for panel in _panels:
-				_refresh_panel(panel, false)
-			_layout()
+		if now - _net_view_ms >= 100:
+			_net_view_ms = now
+			var view_key := _squad_key()
+			if _plan_net_client() and not _plan_synced:
+				# Wait for two identical polls: the host may still be relaying a
+				# just-committed pending/formation to this client.
+				# shortcut: a stable two-poll gate, not a host revision/ack; on a
+				# link slower than ~200 ms the first edits can still start stale.
+				if view_key != "" and view_key == _plan_sync_key:
+					_plan_sync_stable += 1
+					if _plan_sync_stable >= 1:
+						_plan_synced = true
+						_net_view_key = view_key
+						for panel in _panels:
+							_refresh_panel(panel, false)
+						_layout()
+						set_status("Plan ready", 1200)
+				else:
+					_plan_sync_key = view_key
+					_plan_sync_stable = 0
+			elif view_key != _net_view_key:
+				_net_view_key = view_key
+				if _plan_net_client() and not _plan_dirty:
+					# A late host state (a prior commit arriving after the sync):
+					# re-seed while the user has not touched the plan yet.
+					_plan_on.clear()
+					_plan_base.clear()
+					_plan_positions.clear()
+					_plan_place.clear()
+				for panel in _panels:
+					_refresh_panel(panel, false)
+				_layout()
+
+
+func _squad_key() -> String:
+	# Position swaps/roles/queues land on the host and come back through
+	# get_squad; refresh only when that data actually changes.
+	var team_ids: Array = []
+	for panel in _panels:
+		team_ids.append(int(panel["team_id"]))
+	return GpfSquadKey.build(runtime, team_ids)
 
 
 # ---------------------------------------------------------------------------
@@ -1941,6 +2031,9 @@ func _match_entries(team_id: int, team_data: Dictionary) -> Array:
 		if typeof(raw) != TYPE_DICTIONARY:
 			continue
 		var entry: Dictionary = (raw as Dictionary).duplicate(true)
+		# True before any pending-substitution regrouping: in-match plan gates
+		# must mirror the host's active/pending checks, not the optimistic view.
+		entry["base_active"] = bool(entry.get("active", false))
 		var db := int(entry.get("database_id", -1))
 		var package_player: Dictionary = _match_players_by_db.get(db, {})
 		if not package_player.is_empty():
@@ -1957,11 +2050,16 @@ func _match_entries(team_id: int, team_data: Dictionary) -> Array:
 				entry["rating"] = rating
 		if str(entry.get("name", "")).strip_edges().is_empty():
 			entry["name"] = str(entry.get("first_name", "?"))
+		if bool(entry.get("left_pitch", false)):
+			# The original keeps a substituted-out player in the bench list,
+			# disabled, instead of dropping them from the plan.
+			entry["entry_group"] = "bench"
+			entry["selectable"] = false
+			result.append(entry)
+			continue
 		if bool(entry.get("active", false)):
 			entry["entry_group"] = "pitch"
 			result.append(entry)
-			continue
-		if bool(entry.get("left_pitch", false)):
 			continue
 		if not reserve_ids.is_empty() or not bench_ids.is_empty():
 			if reserve_ids.has(db):
@@ -1975,7 +2073,84 @@ func _match_entries(team_id: int, team_data: Dictionary) -> Array:
 			fallback_bench += 1
 			entry["entry_group"] = "bench"
 		result.append(entry)
+	# The plan decides who is on; the match gets the net result on READY, so
+	# cycles never need an ordered pair history (local and network alike).
+	# A network client first waits for two identical polls so the plan cannot
+	# start from a just-committed state it has not received yet.
+	if _plan_net_client() and not _plan_synced:
+		return result
+	_ensure_plan_on(team_id, result)
+	_apply_plan_positions(team_id, result)
+	_apply_plan_on(team_id, result)
 	return result
+
+
+func _ensure_plan_on(team_id: int, entries: Array) -> void:
+	if _plan_on.has(team_id):
+		return
+	var on: Dictionary = {}
+	var base: Dictionary = {}
+	var places: Dictionary = {}
+	var by_id: Dictionary = {}
+	for entry in entries:
+		var id := int(entry.get("id", -1))
+		by_id[id] = entry
+		if bool(entry.get("left_pitch", false)):
+			continue
+		if bool(entry.get("base_active", false)):
+			on[id] = true
+			places[id] = id
+			base[id] = {
+				"role": str(entry.get("role", "CM")),
+				"position": entry.get("position", Vector2.ZERO),
+				"slot": int(entry.get("slot", -1)),
+				"db": int(entry.get("database_id", -1)),
+			}
+	var overrides: Dictionary = (_plan_positions.get(team_id, {}) as Dictionary).duplicate()
+	for pair in _authoritative_pending(team_id):
+		var out_id := int(pair.get("out_id", -1))
+		var in_id := int(pair.get("in_id", -1))
+		on.erase(out_id)
+		on[in_id] = true
+		places[in_id] = int(places.get(out_id, out_id))
+		places.erase(out_id)
+		if not overrides.has(in_id) and by_id.has(out_id):
+			var out_entry: Dictionary = by_id[out_id]
+			overrides[in_id] = {
+				"role": str(out_entry.get("role", "CM")),
+				"position": out_entry.get("position", Vector2.ZERO),
+			}
+	_plan_on[team_id] = on
+	_plan_base[team_id] = base
+	_plan_place[team_id] = places
+	if not overrides.is_empty():
+		_plan_positions[team_id] = overrides
+
+
+func _apply_plan_on(team_id: int, entries: Array) -> void:
+	var on: Dictionary = _plan_on.get(team_id, {})
+	for entry in entries:
+		var id := int(entry.get("id", -1))
+		var left := bool(entry.get("left_pitch", false))
+		var is_on := on.has(id) and not left
+		entry["active"] = is_on
+		entry["pending_in"] = is_on and not bool(entry.get("base_active", false))
+		entry["pending_out"] = not is_on and bool(entry.get("base_active", false)) and not left
+		entry["entry_group"] = "pitch" if is_on else "bench"
+		if left:
+			entry["selectable"] = false
+
+
+func _apply_plan_positions(team_id: int, entries: Array) -> void:
+	var overrides: Dictionary = _plan_positions.get(team_id, {})
+	if overrides.is_empty():
+		return
+	for entry in entries:
+		var values: Dictionary = overrides.get(int(entry.get("id", -1)), {})
+		if values.is_empty():
+			continue
+		entry["role"] = str(values.get("role", entry.get("role", "CM")))
+		entry["position"] = values.get("position", entry.get("position", Vector2.ZERO))
 
 
 func _entry_from_player(player_id: int, slot: int, player: Dictionary, role: String,
@@ -2027,9 +2202,9 @@ func _refresh_panel(panel: Dictionary, update_hints: bool = true) -> void:
 	var team_data := _team_data(team_id)
 	panel["team_data"] = team_data
 	panel["team_name"] = str(team_data.get("name", _team_names.get(team_id, "")))
-	panel["pending"] = _pending_for_team(team_id)
 	var entries := _entries_for(team_id, team_data)
 	panel["entries"] = entries
+	panel["pending"] = _plan_departures(panel)
 
 	var pitch_entries: Array = []
 	var bench_entries: Array = []
@@ -2056,10 +2231,25 @@ func _refresh_panel(panel: Dictionary, update_hints: bool = true) -> void:
 	panel["bench_entries"] = bench_entries
 	panel["reserve_entries"] = reserve_entries
 
+	# An action asked to keep the pointer on a player by id (the pair's first
+	# pick) after the rebuilt list; resolve it before the drawer decision so the
+	# drawer animates once instead of closing then reopening.
+	var cursor_id := int(panel.get("cursor_id", -1))
+	panel["cursor_id"] = -1
+	if cursor_id >= 0:
+		var cursor_index := _find_entry_by_id(panel, cursor_id)
+		if cursor_index >= 0:
+			panel["cursor"] = cursor_index
+
 	if int(panel["cursor"]) < 0 or int(panel["cursor"]) >= entries.size():
 		panel["cursor"] = int(pitch_entries[0]) if not pitch_entries.is_empty() else -1
 		if panel["cursor"] < 0 and not bench_entries.is_empty():
 			panel["cursor"] = int(bench_entries[0])
+	if int(panel["cursor"]) >= 0 and int(panel["cursor"]) < entries.size() \
+			and not _entry_selectable(entries[int(panel["cursor"])]):
+		panel["cursor"] = _first_selectable_entry(panel)
+		if int(panel["cursor"]) < 0 and not pitch_entries.is_empty():
+			panel["cursor"] = int(pitch_entries[0])
 	var was_drawer_open := bool(panel["drawer_open"])
 	if int(panel["cursor"]) >= 0:
 		panel["drawer_open"] = not bool(entries[int(panel["cursor"])].get("active", false))
@@ -2088,6 +2278,7 @@ func _refresh_panel(panel: Dictionary, update_hints: bool = true) -> void:
 	_refresh_ready(panel)
 	if update_hints:
 		_refresh_hints(panel)
+	_hover_guard_pos = get_global_mouse_position()
 	var cursor := int(panel["cursor"])
 	if cursor >= 0 and cursor < entries.size() \
 			and not bool(entries[cursor].get("active", false)):
@@ -2365,10 +2556,10 @@ func _rebuild_bench(panel: Dictionary) -> void:
 		var entry: Dictionary = entries[index]
 		var card := BenchCard.new()
 		card.custom_minimum_size = Vector2(40, card_h)
-		card.setup(entry, index, bool(panel["editable"]))
+		card.setup(entry, index, bool(panel["editable"]) and _entry_selectable(entry))
 		card.set_state(cursor == index, held == index)
 		card.activated.connect(_on_entry_pressed.bind(team_id, index))
-		card.mouse_entered.connect(_on_entry_hovered.bind(team_id, index))
+		card.mouse_entered.connect(_on_entry_mouse_entered.bind(team_id, index))
 		bench_grid.add_child(card)
 		(panel["bench_cards"] as Dictionary)[index] = card
 		var col := row % 4
@@ -2382,10 +2573,10 @@ func _rebuild_bench(panel: Dictionary) -> void:
 			var entry: Dictionary = entries[index]
 			var card := BenchCard.new()
 			card.custom_minimum_size = Vector2(40, card_h)
-			card.setup(entry, index, bool(panel["editable"]))
+			card.setup(entry, index, bool(panel["editable"]) and _entry_selectable(entry))
 			card.set_state(cursor == index, held == index)
 			card.activated.connect(_on_entry_pressed.bind(team_id, index))
-			card.mouse_entered.connect(_on_entry_hovered.bind(team_id, index))
+			card.mouse_entered.connect(_on_entry_mouse_entered.bind(team_id, index))
 			reserve_grid.add_child(card)
 			(panel["bench_cards"] as Dictionary)[index] = card
 			var col := row % 4
@@ -2454,6 +2645,11 @@ func _role_player_name(panel: Dictionary, role: int) -> String:
 	var team_id := int(panel["team_id"])
 	var team_data: Dictionary = panel.get("team_data", {})
 	if mode == "match":
+		var local_roles: Dictionary = _plan_roles.get(team_id, {})
+		if local_roles.has(role):
+			var local_index := _find_entry_by_id(panel, int(local_roles[role]))
+			if local_index >= 0:
+				return str((panel["entries"] as Array)[local_index].get("name", ""))
 		for entry in team_data.get("roles", []):
 			if int(entry.get("role", -1)) == role:
 				var name := str(entry.get("name", ""))
@@ -2476,7 +2672,7 @@ func _role_player_name(panel: Dictionary, role: int) -> String:
 	return "вЂ”"
 
 
-func _pending_for_team(team_id: int) -> Array:
+func _authoritative_pending(team_id: int) -> Array:
 	var result: Array = []
 	if mode != "match" or runtime == null:
 		return result
@@ -2596,6 +2792,8 @@ func _side_team(controller: Dictionary) -> int:
 
 
 func _handle_panel(panel_index: int, direction: Vector2i, accept: bool, back: bool) -> bool:
+	if not _plan_synced:
+		return false
 	if panel_index < 0 or panel_index >= _panels.size():
 		return false
 	var panel: Dictionary = _panels[panel_index]
@@ -2812,11 +3010,25 @@ func _on_entry_hovered(team_id: int, entry_index: int) -> void:
 	_hover_entry(_panel_index_for_team(team_id), entry_index)
 
 
+func _on_entry_mouse_entered(team_id: int, entry_index: int) -> void:
+	# A rebuilt card re-emits mouse_entered under a stationary mouse; ignore that
+	# but keep hover working once the pointer actually moved to another card.
+	if get_global_mouse_position() == _hover_guard_pos:
+		return
+	_on_entry_hovered(team_id, entry_index)
+
+
 func _hover_entry(panel_index: int, entry_index: int) -> void:
+	if not _plan_synced:
+		return
 	if panel_index < 0 or panel_index >= _panels.size():
 		return
 	var panel: Dictionary = _panels[panel_index]
 	if not bool(panel["editable"]) or bool(panel["ready"]) or bool(panel["details_open"]):
+		return
+	var entries: Array = panel["entries"]
+	if entry_index < 0 or entry_index >= entries.size() \
+			or not _entry_selectable(entries[entry_index]):
 		return
 	var tab := int(panel["tab"])
 	if tab != TAB_SQUAD and not (tab == TAB_ROLES and bool(panel["role_picking"])):
@@ -2856,6 +3068,8 @@ func _on_role_hovered(team_id: int, row_index: int) -> void:
 
 
 func _press_entry(panel_index: int, entry_index: int) -> void:
+	if not _plan_synced:
+		return
 	var panel: Dictionary = _panels[panel_index]
 	if not bool(panel["editable"]) or bool(panel["ready"]):
 		return
@@ -2863,8 +3077,11 @@ func _press_entry(panel_index: int, entry_index: int) -> void:
 	if entry_index < 0 or entry_index >= entries.size():
 		return
 	var entry: Dictionary = entries[entry_index]
-	if bool(entry.get("left_pitch", false)):
-		set_status("%s has already left the pitch" % str(entry.get("name", "")))
+	if not _entry_selectable(entry):
+		if bool(entry.get("left_pitch", false)):
+			set_status("%s has already left the pitch" % str(entry.get("name", "")))
+		else:
+			set_status("This player is unavailable")
 		return
 	if int(panel["held"]) == -1:
 		panel["held"] = entry_index
@@ -2880,47 +3097,372 @@ func _press_entry(panel_index: int, entry_index: int) -> void:
 	var first_index := int(panel["held"])
 	var first: Dictionary = entries[first_index]
 	panel["held"] = -1
+	# After the pair action the pointer must stay on the player picked first.
+	panel["cursor_id"] = int(first.get("id", -1))
 	if mode == "match":
-		var first_group := str(first.get("entry_group", "pitch"))
-		var second_group := str(entry.get("entry_group", "pitch"))
-		if first_group == "pitch" and second_group == "pitch":
-			_match_position_swap(panel, first, entry)
-		elif first_group == "bench" and second_group == "bench":
-			# A player already queued to come on can be chained out for another
-			# bench player: C++ normalises A->B, B->C into A->C (one sub).
-			if bool(first.get("pending_in", false)) and not bool(entry.get("pending_in", false)):
-				_match_substitution(panel, first, entry)
-			elif bool(entry.get("pending_in", false)) and not bool(first.get("pending_in", false)):
-				_match_substitution(panel, entry, first)
-			else:
-				_swap_bench_order(panel, first, entry)
-		elif first_group == "pitch" and second_group == "bench":
-			_match_substitution(panel, first, entry)
-		elif first_group == "bench" and second_group == "pitch":
-			_match_substitution(panel, entry, first)
-		else:
-			set_status("Those players cannot be exchanged")
+		_match_pair(panel, first, entry)
 	else:
 		_lineup_swap(panel, first, entry)
+	# The action branches refresh the panel; only a refused/no-op path leaves the
+	# pending cursor id for us to apply here.
+	if int(panel.get("cursor_id", -1)) >= 0:
+		_refresh_panel(panel)
 
 
-func _match_position_swap(panel: Dictionary, first: Dictionary, second: Dictionary) -> void:
-	if runtime == null:
+func _plan_net_client() -> bool:
+	return mode == "match" and runtime != null \
+		and runtime.has_method("is_net_client") and bool(runtime.is_net_client())
+
+
+func _plan_mark_edited() -> void:
+	_plan_dirty = true
+
+
+func _match_pair(panel: Dictionary, first: Dictionary, second: Dictionary) -> void:
+	if not _plan_synced:
 		return
 	var team_id := int(panel["team_id"])
-	var first_db := int(first.get("database_id", -1))
-	var second_db := int(second.get("database_id", -1))
-	var ok := false
-	if network_mode and runtime.has_method("net_action"):
-		ok = bool(runtime.net_action("planswap", team_id, first_db, second_db))
-	elif runtime.has_method("swap_squad_players"):
-		ok = bool(runtime.swap_squad_players(team_id, int(first.get("id", -1)), int(second.get("id", -1))))
-	if ok:
-		set_status("Swapped positions: %s <-> %s" % [
-			str(first.get("name", "")), str(second.get("name", ""))], 4000)
-	else:
-		set_status("Could not swap those players")
+	var on: Dictionary = _plan_on.get(team_id, {})
+	var first_on := on.has(int(first.get("id", -1))) \
+		and not bool(first.get("left_pitch", false))
+	var second_on := on.has(int(second.get("id", -1))) \
+		and not bool(second.get("left_pitch", false))
+	if first_on and second_on:
+		_plan_swap_entries(panel, first, second)
+		return
+	if first_on != second_on:
+		_plan_substitute_entry(panel, first if first_on else second,
+			second if first_on else first)
+		return
+	_swap_bench_order(panel, first, second)
+
+
+func _plan_swap_entries(panel: Dictionary, first: Dictionary, second: Dictionary) -> void:
+	var team_id := int(panel["team_id"])
+	var overrides: Dictionary = (_plan_positions.get(team_id, {}) as Dictionary).duplicate()
+	overrides[int(second.get("id", -1))] = {
+		"role": str(first.get("role", "CM")),
+		"position": first.get("position", Vector2.ZERO),
+	}
+	overrides[int(first.get("id", -1))] = {
+		"role": str(second.get("role", "CM")),
+		"position": second.get("position", Vector2.ZERO),
+	}
+	_plan_positions[team_id] = overrides
+	var places: Dictionary = (_plan_place.get(team_id, {}) as Dictionary).duplicate()
+	var first_id := int(first.get("id", -1))
+	var second_id := int(second.get("id", -1))
+	var first_place := int(places.get(first_id, first_id))
+	places[first_id] = int(places.get(second_id, second_id))
+	places[second_id] = first_place
+	_plan_place[team_id] = places
+	_plan_mark_edited()
+	set_status("Swapped positions: %s <-> %s" % [
+		str(first.get("name", "")), str(second.get("name", ""))], 4000)
 	_refresh_panel(panel)
+
+
+func _plan_departures(panel: Dictionary) -> Array:
+	var result: Array = []
+	if not _plan_on.has(int(panel["team_id"])):
+		return result
+	var on: Dictionary = _plan_on[int(panel["team_id"])]
+	for entry in panel["entries"]:
+		if bool(entry.get("left_pitch", false)):
+			continue
+		if bool(entry.get("base_active", false)) \
+				and not on.has(int(entry.get("id", -1))):
+			result.append(entry)
+	return result
+
+
+func _plan_arrivals(panel: Dictionary) -> Array:
+	var result: Array = []
+	if not _plan_on.has(int(panel["team_id"])):
+		return result
+	var on: Dictionary = _plan_on[int(panel["team_id"])]
+	for entry in panel["entries"]:
+		if bool(entry.get("left_pitch", false)):
+			continue
+		if not bool(entry.get("base_active", false)) \
+				and on.has(int(entry.get("id", -1))):
+			result.append(entry)
+	return result
+
+
+func _plan_sub_would_exceed(panel: Dictionary, out: Dictionary,
+		incoming: Dictionary) -> bool:
+	# How many players are expected to leave the pitch after this click:
+	# a starter going off adds one, a starter coming back removes one. A chain
+	# (another bench player for a shown substitute) changes neither, so it is
+	# allowed at the limit; the limit only blocks a new departing player.
+	var team_data: Dictionary = panel.get("team_data", {})
+	var applied := int(team_data.get("substitutions", 0))
+	var limit := int(team_data.get("max_substitutions", 5))
+	var planned := _plan_departures(panel).size()
+	var delta := 0
+	if bool(out.get("base_active", false)):
+		delta += 1
+	if bool(incoming.get("base_active", false)):
+		delta -= 1
+	return applied + planned + delta > limit
+
+
+func _plan_substitute_entry(panel: Dictionary, out: Dictionary, incoming: Dictionary) -> void:
+	if bool(incoming.get("left_pitch", false)):
+		set_status("%s has already left the pitch" % str(incoming.get("name", "")))
+		_refresh_panel(panel)
+		return
+	if _plan_sub_would_exceed(panel, out, incoming):
+		var team_data: Dictionary = panel.get("team_data", {})
+		set_status("Substitution limit reached: %d/%d" % [
+			int(team_data.get("substitutions", 0))
+				+ (panel.get("pending", []) as Array).size(),
+			int(team_data.get("max_substitutions", 5))])
+		_refresh_panel(panel)
+		return
+	var team_id := int(panel["team_id"])
+	var overrides: Dictionary = (_plan_positions.get(team_id, {}) as Dictionary).duplicate()
+	overrides[int(incoming.get("id", -1))] = {
+		"role": str(out.get("role", "CM")),
+		"position": out.get("position", Vector2.ZERO),
+	}
+	_plan_positions[team_id] = overrides
+	var on: Dictionary = (_plan_on.get(team_id, {}) as Dictionary).duplicate()
+	on.erase(int(out.get("id", -1)))
+	on[int(incoming.get("id", -1))] = true
+	_plan_on[team_id] = on
+	var places: Dictionary = (_plan_place.get(team_id, {}) as Dictionary).duplicate()
+	var out_id := int(out.get("id", -1))
+	var in_id := int(incoming.get("id", -1))
+	places[in_id] = int(places.get(out_id, out_id))
+	places.erase(out_id)
+	_plan_place[team_id] = places
+	_plan_mark_edited()
+	# The player going off takes the bench row the incoming player just left,
+	# not the top of the drawer (its TeamData index would put it first).
+	_plan_bench_place(panel, incoming, out)
+	set_status("PLAN: %s off, %s on" % [
+		str(out.get("name", "")), str(incoming.get("name", ""))], 4000)
+	_refresh_panel(panel)
+
+
+func _plan_bench_place(panel: Dictionary, incoming: Dictionary,
+		outgoing: Dictionary) -> void:
+	var entries: Array = panel["entries"]
+	var order: Array = panel["bench_order"]
+	var incoming_id := int(incoming.get("id", -1))
+	var outgoing_id := int(outgoing.get("id", -1))
+	var position := order.find(incoming_id) if not order.is_empty() else -1
+	if position < 0:
+		order = []
+		for index in panel["bench_entries"]:
+			order.append(int(entries[int(index)].get("id", -1)))
+		position = order.find(incoming_id)
+	var stale := order.find(outgoing_id)
+	if stale >= 0 and stale != position:
+		order.remove_at(stale)
+		if stale < position:
+			position -= 1
+	if position >= 0:
+		order[position] = outgoing_id
+	else:
+		order.append(outgoing_id)
+	panel["bench_order"] = order
+
+
+func _plan_scheme_entries(team_id: int, scheme: int) -> Dictionary:
+	var base: Dictionary = _plan_base.get(team_id, {})
+	var candidates: Array = []
+	for id in base:
+		candidates.append({
+			"slot": int(base[id].get("slot", -1)),
+			"role": str(base[id].get("role", "CM")),
+			"position": base[id].get("position", Vector2.ZERO),
+		})
+	var assignment := TacticalSchemes.assign(candidates, scheme)
+	var result: Dictionary = {}
+	var index := 0
+	for id in base:
+		if index < assignment.size():
+			result[int(id)] = {
+				"role": str(assignment[index].get("role", "CM")),
+				"position": assignment[index].get("database_position", Vector2.ZERO),
+			}
+		index += 1
+	return result
+
+
+func _plan_apply_scheme(panel: Dictionary, scheme_index: int) -> void:
+	var team_id := int(panel["team_id"])
+	var by_base := _plan_scheme_entries(team_id, scheme_index)
+	if by_base.is_empty():
+		return
+	var overrides: Dictionary = (_plan_positions.get(team_id, {}) as Dictionary).duplicate()
+	var on: Dictionary = _plan_on.get(team_id, {})
+	var places: Dictionary = _plan_place.get(team_id, {})
+	for id in on:
+		var place := int(places.get(int(id), int(id)))
+		var values: Dictionary = by_base.get(place, {})
+		if values.is_empty() and by_base.has(int(id)):
+			values = by_base[int(id)]
+		if values.is_empty():
+			continue
+		overrides[int(id)] = {
+			"role": str(values.get("role", "CM")),
+			"position": values.get("position", Vector2.ZERO),
+		}
+	_plan_positions[team_id] = overrides
+	_plan_scheme[team_id] = scheme_index
+	_plan_mark_edited()
+	set_status("Scheme applied")
+	_refresh_panel(panel)
+
+
+func _plan_assign_role(panel: Dictionary, role: int, player_id: int) -> void:
+	var team_id := int(panel["team_id"])
+	var roles: Dictionary = (_plan_roles.get(team_id, {}) as Dictionary).duplicate()
+	roles[role] = player_id
+	_plan_roles[team_id] = roles
+	_plan_mark_edited()
+	set_status("Role assigned")
+	_refresh_panel(panel)
+
+
+func _plan_ops_append(ops: PackedInt32Array, type: int, a: int, b: int) -> void:
+	ops.append(type)
+	ops.append(a)
+	ops.append(b)
+
+
+func _plan_player_at(pos: Dictionary, position: Vector2) -> int:
+	for id in pos:
+		if pos[id].get("position", Vector2.ZERO) == position:
+			return int(id)
+	return -1
+
+
+func _flush_plan_commit(team_id: int) -> bool:
+	if runtime == null or not runtime.has_method("net_commit_plan"):
+		set_status("Could not commit the plan")
+		return false
+	var panel: Dictionary = {}
+	for candidate in _panels:
+		if int(candidate["team_id"]) == team_id:
+			panel = candidate
+			break
+	if panel.is_empty():
+		return false
+	var entries: Array = panel["entries"]
+	var by_id: Dictionary = {}
+	for entry in entries:
+		by_id[int(entry.get("id", -1))] = entry
+	var on: Dictionary = _plan_on.get(team_id, {})
+	var leaving: Array = _plan_departures(panel)
+	var arriving: Array = _plan_arrivals(panel)
+	if leaving.size() != arriving.size():
+		set_status("Could not commit the plan")
+		return false
+	var team_data: Dictionary = panel.get("team_data", {})
+	var applied := int(team_data.get("substitutions", 0))
+	var limit := int(team_data.get("max_substitutions", 5))
+	if applied + leaving.size() > limit:
+		set_status("Too many substitutions: %d/%d" % [applied + leaving.size(), limit])
+		return false
+	var ops: PackedInt32Array = PackedInt32Array()
+	# Cancel the host's queued subs; the net result is queued again below.
+	for pair in _authoritative_pending(team_id):
+		var out_slot := int(pair.get("out_slot", -1))
+		if out_slot >= 0:
+			_plan_ops_append(ops, 4, out_slot, 0)
+	# The host formation after this commit's scheme (or its current one).
+	var base: Dictionary = _plan_base.get(team_id, {})
+	var pos: Dictionary = {}
+	var scheme := int(_plan_scheme.get(team_id, -1))
+	if scheme >= 0 and not base.is_empty():
+		var by_base := _plan_scheme_entries(team_id, scheme)
+		for id in by_base:
+			pos[int(id)] = by_base[id]
+		_plan_ops_append(ops, 1, scheme, 0)
+	else:
+		for id in base:
+			pos[int(id)] = {
+				"role": str(base[id].get("role", "CM")),
+				"position": base[id].get("position", Vector2.ZERO),
+			}
+	for role in _plan_roles.get(team_id, {}):
+		var player_id := int((_plan_roles[team_id] as Dictionary)[role])
+		if by_id.has(player_id):
+			_plan_ops_append(ops, 2, int(role), int(by_id[player_id].get("slot", -1)))
+	var overrides: Dictionary = _plan_positions.get(team_id, {})
+	var desired: Dictionary = {}
+	for entry in entries:
+		var id := int(entry.get("id", -1))
+		if not on.has(id) or bool(entry.get("left_pitch", false)):
+			continue
+		if overrides.has(id):
+			desired[id] = {
+				"role": str(overrides[id].get("role", "CM")),
+				"position": overrides[id].get("position", Vector2.ZERO),
+			}
+		elif pos.has(id):
+			desired[id] = pos[id]
+		else:
+			desired[id] = {
+				"role": str(entry.get("role", "CM")),
+				"position": entry.get("position", Vector2.ZERO),
+			}
+	# A sub copies the outgoing's formation at the restart, so move the outgoing
+	# to the incoming's desired spot first, then queue the sub.
+	for index in arriving.size():
+		var incoming: Dictionary = arriving[index]
+		var outgoing: Dictionary = leaving[index]
+		var in_id := int(incoming.get("id", -1))
+		var out_id := int(outgoing.get("id", -1))
+		if not pos.has(out_id):
+			continue
+		var target: Dictionary = desired[in_id]
+		var target_position: Vector2 = target.get("position", Vector2.ZERO)
+		if pos[out_id].get("position", Vector2.ZERO) != target_position:
+			var holder := _plan_player_at(pos, target_position)
+			if holder >= 0 and holder != out_id and by_id.has(holder):
+				_plan_ops_append(ops, 0, int(outgoing.get("database_id", -1)),
+					int(by_id[holder].get("database_id", -1)))
+				var held: Dictionary = pos[holder]
+				pos[holder] = pos[out_id]
+				pos[out_id] = held
+		_plan_ops_append(ops, 3, int(outgoing.get("slot", -1)),
+			int(incoming.get("slot", -1)))
+		pos[in_id] = desired[in_id]
+		pos.erase(out_id)
+	# Finally permute the staying starters into their desired spots.
+	for entry in entries:
+		var id := int(entry.get("id", -1))
+		if not on.has(id) or bool(entry.get("left_pitch", false)):
+			continue
+		if not pos.has(id):
+			continue
+		var target: Dictionary = desired.get(id, pos[id])
+		var target_position: Vector2 = target.get("position", Vector2.ZERO)
+		if pos[id].get("position", Vector2.ZERO) == target_position:
+			continue
+		var holder := _plan_player_at(pos, target_position)
+		if holder < 0 or holder == id or not by_id.has(holder):
+			continue
+		_plan_ops_append(ops, 0, int(entry.get("database_id", -1)),
+			int(by_id[holder].get("database_id", -1)))
+		var held: Dictionary = pos[holder]
+		pos[holder] = pos[id]
+		pos[id] = held
+	if ops.is_empty():
+		return true
+	if ops.size() / 3 > 256:
+		set_status("Plan is too large; simplify the changes")
+		return false
+	if not bool(runtime.net_commit_plan(team_id, ops)):
+		set_status("Could not commit the plan")
+		return false
+	return true
 
 
 func _swap_bench_order(panel: Dictionary, first: Dictionary, second: Dictionary) -> void:
@@ -2937,40 +3479,9 @@ func _swap_bench_order(panel: Dictionary, first: Dictionary, second: Dictionary)
 	order[first_position] = order[second_position]
 	order[second_position] = swap
 	panel["bench_order"] = order
+	_plan_mark_edited()
 	set_status("Bench order: %s <-> %s" % [
 		str(first.get("name", "")), str(second.get("name", ""))], 4000)
-	_refresh_panel(panel)
-
-
-func _match_substitution(panel: Dictionary, out: Dictionary, incoming: Dictionary) -> void:
-	if runtime == null:
-		return
-	var team_id := int(panel["team_id"])
-	var out_slot := int(out.get("slot", -1))
-	var in_slot := int(incoming.get("slot", -1))
-	if _is_pending_pair(panel, out, incoming):
-		var cancelled := false
-		if network_mode and runtime.has_method("net_action"):
-			cancelled = bool(runtime.net_action("cancelsubstitution", team_id, out_slot, 0))
-		elif runtime.has_method("cancel_substitution"):
-			cancelled = bool(runtime.cancel_substitution(team_id, out_slot))
-		if cancelled:
-			set_status("Substitution cancelled: %s stays" % str(out.get("name", "")))
-		else:
-			set_status("Could not cancel the substitution")
-		_refresh_panel(panel)
-		return
-	var queued := false
-	if network_mode and runtime.has_method("net_action"):
-		queued = bool(runtime.net_action("requestsubstitution", team_id, out_slot, in_slot))
-	elif runtime.has_method("queue_substitution"):
-		queued = bool(runtime.queue_substitution(team_id,
-			int(out.get("id", -1)), int(incoming.get("id", -1))))
-	if queued:
-		set_status("QUEUED: %s off, %s on - next restart" % [
-			str(out.get("name", "")), str(incoming.get("name", ""))], 60000)
-	else:
-		set_status("Substitution refused: limit reached or player unavailable")
 	_refresh_panel(panel)
 
 
@@ -2982,7 +3493,6 @@ func _lineup_swap(panel: Dictionary, first: Dictionary, second: Dictionary) -> v
 	var first_id := int(first.get("id", -1))
 	var second_id := int(second.get("id", -1))
 	if lineup.swap_players(first_id, second_id):
-		panel["cursor"] = _find_entry_by_id(panel, second_id)
 		if network_mode:
 			var net = _network_runtime()
 			if net != null:
@@ -2995,15 +3505,9 @@ func _lineup_swap(panel: Dictionary, first: Dictionary, second: Dictionary) -> v
 		_refresh_panel(panel)
 
 
-func _is_pending_pair(panel: Dictionary, out: Dictionary, incoming: Dictionary) -> bool:
-	for candidate in panel["pending"]:
-		if int(candidate.get("out_id", -2)) == int(out.get("id", -1)) \
-				and int(candidate.get("in_id", -2)) == int(incoming.get("id", -1)):
-			return true
-	return false
-
-
 func _commit_scheme(panel: Dictionary) -> void:
+	if not _plan_synced:
+		return
 	var team_id := int(panel["team_id"])
 	var scheme_index := int(panel["scheme_cursor"])
 	if scheme_index < 0 or scheme_index >= TacticalSchemes.count():
@@ -3021,10 +3525,7 @@ func _commit_scheme(panel: Dictionary) -> void:
 	elif mode == "match":
 		if runtime == null:
 			return
-		if network_mode and runtime.has_method("net_action"):
-			runtime.net_action("planscheme", team_id, scheme_index, 0)
-		else:
-			runtime.apply_tactical_scheme(team_id, scheme_index)
+		_plan_apply_scheme(panel, scheme_index)
 	else:
 		_apply_demo_scheme(team_id, scheme_index)
 	panel["committed_scheme"] = scheme_index
@@ -3104,6 +3605,8 @@ func _start_role_picking(panel: Dictionary) -> void:
 
 
 func _confirm_role_pick(panel: Dictionary) -> void:
+	if not _plan_synced:
+		return
 	if not bool(panel["role_picking"]):
 		return
 	var entries: Array = panel["entries"]
@@ -3130,12 +3633,7 @@ func _confirm_role_pick(panel: Dictionary) -> void:
 	elif mode == "match":
 		if runtime == null:
 			return
-		var slot := int(entry.get("slot", -1))
-		if network_mode and runtime.has_method("net_action"):
-			runtime.net_action("planrole", team_id, role, slot)
-		elif not runtime.set_team_role(team_id, role, slot):
-			set_status("Could not assign the role")
-			return
+		_plan_assign_role(panel, role, int(entry.get("id", -1)))
 	else:
 		var team_data: Dictionary = _demo_teams.get(team_id, {})
 		var roles: Array = team_data.get("roles", [])
@@ -3151,6 +3649,9 @@ func _role_player_id(panel: Dictionary, role: int) -> int:
 	var team_id := int(panel["team_id"])
 	var team_data: Dictionary = panel.get("team_data", {})
 	if mode == "match":
+		var local_roles: Dictionary = _plan_roles.get(team_id, {})
+		if local_roles.has(role):
+			return int(local_roles[role])
 		for entry in team_data.get("roles", []):
 			if int(entry.get("role", -1)) == role:
 				return int(entry.get("player_id", -1))
@@ -3175,8 +3676,16 @@ func _role_player_id(panel: Dictionary, role: int) -> int:
 # ---------------------------------------------------------------------------
 
 func _ready_panel(panel: Dictionary) -> void:
+	if not _plan_synced:
+		set_status("Syncing plan...")
+		return
 	if not bool(panel["editable"]) or bool(panel["ready"]):
 		return
+	if mode == "match":
+		# READY is the commit point: validate the desired lineup and send its
+		# net swaps/subs. A failed check leaves the plan open for editing.
+		if not _flush_plan_commit(int(panel["team_id"])):
+			return
 	panel["ready"] = true
 	panel["details_open"] = false
 	panel["held"] = -1
@@ -3188,6 +3697,29 @@ func _ready_panel(panel: Dictionary) -> void:
 			_schedule_close()
 	else:
 		_schedule_close()
+
+
+func planned_lineup(team_id: int) -> Array:
+	# After READY the pause preview shows this local XI immediately, without
+	# waiting for the host's relays (the client's own match can lag a frame or
+	# two while paused). Empty means "not committed": use the live squad.
+	for panel in _panels:
+		if int(panel.get("team_id", -1)) != team_id:
+			continue
+		if not bool(panel.get("ready", false)):
+			return []
+		var entries: Array = panel.get("entries", [])
+		var result: Array = []
+		for index in panel.get("pitch_entries", []):
+			var entry: Dictionary = entries[int(index)]
+			result.append({
+				"name": str(entry.get("name", "")),
+				"role": str(entry.get("role", "CM")),
+				"position": entry.get("position", Vector2.ZERO),
+				"rating": int(entry.get("rating", -1)),
+			})
+		return result
+	return []
 
 
 func _unready_panel(panel: Dictionary) -> void:
@@ -3214,7 +3746,42 @@ func _schedule_close() -> void:
 # Navigation helpers
 # ---------------------------------------------------------------------------
 
+func _entry_selectable(entry: Dictionary) -> bool:
+	return bool(entry.get("selectable", true)) and not bool(entry.get("left_pitch", false))
+
+
+func _first_selectable_entry(panel: Dictionary) -> int:
+	var entries: Array = panel["entries"]
+	for index in panel["pitch_entries"]:
+		if _entry_selectable(entries[int(index)]):
+			return int(index)
+	for index in panel["bench_entries"]:
+		if _entry_selectable(entries[int(index)]):
+			return int(index)
+	return -1
+
+
 func _navigate_entry(panel: Dictionary, direction: Vector2i) -> int:
+	# Disabled bench rows (players who already left) are kept visible but the
+	# cursor must step over them.
+	var entries: Array = panel["entries"]
+	var next := _navigate_entry_raw(panel, direction)
+	var guard := 0
+	while next >= 0 and guard < entries.size() and not _entry_selectable(entries[next]):
+		var previous := int(panel["cursor"])
+		panel["cursor"] = next
+		var further := _navigate_entry_raw(panel, direction)
+		panel["cursor"] = previous
+		if further == next:
+			break
+		next = further
+		guard += 1
+	if next >= 0 and next < entries.size() and not _entry_selectable(entries[next]):
+		return -1
+	return next
+
+
+func _navigate_entry_raw(panel: Dictionary, direction: Vector2i) -> int:
 	var entries: Array = panel["entries"]
 	var cursor := int(panel["cursor"])
 	if cursor < 0 or cursor >= entries.size():

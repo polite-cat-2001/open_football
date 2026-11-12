@@ -466,6 +466,28 @@ Back-цепочка в сети: `network_sides → network_menu`, `network_lobb
   ожидание), `check_gpf_slice_ui` (Esc → пауза → lineup → game plan → возврат),
   `check_gpf_net_ui` (голосование и side selection).
 
+## Конец матча (MatchOverScreen)
+
+Общая база `scripts/ui/match_over_screen.gd` (`MatchOverScreen`) — скорборд `PauseScoreboard`,
+мелкая строка турнира (`package.home.league`), блок «2×2 плитки + правая панель», `UiHintsBar`
+и те же 150/240 мс fade+scale. Носитель — `GpfMatchOver` (`scripts/match/gpf_match_over.gd`,
+CanvasLayer 7) поверх замороженного матча; открытие и выбор экрана — по снапшоту в `gpf_slice`
+(`game_over` → результат; брейк `phase_break_next_phase == 3` при равном счёте → выбор ничьей).
+Ввод модальный; выбор ничьей принадлежит хосту / P1 (в сети клиент видит `WAITING FOR HOST`).
+
+- Результат — `scenes/match/match_result.tscn` (`MatchResultScreen`): `ADVANCE` (главное меню),
+  `RESTART MATCH` (тот же пакет; в сети disabled с чипом `ONLINE LOBBY`), `MATCH HIGHLIGHTS` и
+  `PERFORMANCE` — `SOON`; справа SOON-панель `PLAYER PERFORMANCE`. Хедер: часы заменены на
+  `FULL TIME`, у финала серии — подпись `PENALTIES x – y`.
+- Выбор ничьей — `scenes/match/match_choice.tscn` (`MatchChoiceScreen`): `CLASSIC` (доп. время +
+  пенальти), `GOLDEN GOAL` (SOON), `PENALTIES` (серия сразу), `DRAW` (сразу результат). Правая
+  панель — `MATCH INFO` (SOON). Открывается вместо брейк-экрана паузы на 90:00 при равном счёте;
+  `classic` → `continue_after_phase_break()`, `penalties` → `start_shootout()`,
+  `draw` → `debug_force_game_over()`.
+- Старые «чёрные окна» (`GpfHud` phase menu, `GpfShootoutView` КОНЕЦ МАТЧА) удалены.
+- Проверки: `check_match_result_ui`, `check_match_choice_ui`, `check_gpf_result_flow`,
+  `check_gpf_slice_ui`, `check_gpf_game_shell`; стенд — состояния `RESULT`, `DECISION` в `ui_lab`.
+
 ## Подсказки (UiHintsBar)
 
 **Правило:** нижний блок статуса и подсказок управления на любом shell-экране — только

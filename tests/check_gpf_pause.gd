@@ -101,6 +101,48 @@ func _run(package: Dictionary) -> void:
 	_check(not menu.screen.lineup_tile.title.is_empty()
 		and menu.screen.lineup_tile.subtitle.contains("-"),
 		"the lineup card carries the team name and formation")
+
+	# A just-committed plan is shown immediately, even before the live match
+	# catches up (the client's relay can lag while paused).
+	var plan_entries: Array = []
+	for index in 11:
+		plan_entries.append({
+			"name": "PLAN%d" % index,
+			"role": "CM",
+			"position": Vector2(-0.8 + 0.16 * index, 0.0),
+			"rating": 70,
+		})
+	menu.set_plan_lineups({0: plan_entries})
+	menu.open()
+	var planned_entries: Array = menu.screen.get("_pending_entries")
+	_check(planned_entries.size() == 11
+		and str((planned_entries[0] as Dictionary).get("name", "")) == "PLAN0",
+		"the pause lineup uses the just-committed plan XI")
+	menu.set_plan_lineups({})
+
+	# The package is the pre-match XI; the pause card must follow the live
+	# squad and show a queued substitute in the outgoing player's spot.
+	var squad: Dictionary = runtime.get_squad(0)
+	var out_player: Dictionary = {}
+	var in_player: Dictionary = {}
+	for player in squad.get("players", []):
+		if bool(player.get("active", false)) and out_player.is_empty() \
+				and str(player.get("role", "")) != "GK":
+			out_player = player
+		elif not bool(player.get("active", false)) and in_player.is_empty():
+			in_player = player
+	if not out_player.is_empty() and not in_player.is_empty():
+		_check(runtime.queue_substitution(0, int(out_player.get("id", -1)),
+			int(in_player.get("id", -1))), "the pause test queues a substitution")
+		menu.open()
+		var entries: Array = menu.screen.get("_pending_entries")
+		var shown := false
+		for entry in entries:
+			if str(entry.get("name", "")) == str(in_player.get("name", "")):
+				shown = entry.get("position", Vector2.ZERO) \
+					== out_player.get("position", Vector2.ZERO)
+		_check(shown, "the pause lineup shows the queued substitute in the outgoing's spot")
+
 	menu.set_waiting("WAITING FOR RIVAL 1/2")
 	_check(menu.screen.continue_tile.meta.contains("WAITING FOR RIVAL"),
 		"the continue tile carries the waiting-for-rival note")

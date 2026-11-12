@@ -289,13 +289,30 @@ func _run() -> void:
 	_check(not pause_menu.is_open(), "Enter continues after the phase break")
 	_check(not bool(runtime.get_snapshot().get("paused", false)), "continue unpauses the match")
 
-	runtime.debug_force_game_over()
+	# A level score at 90:00 is the draw choice, not the period break.
+	var snap90: Dictionary = runtime.get_snapshot()
+	runtime.debug_force_phase_break(3)
 	for i in 10:
 		await process_frame
-	_check(bool(hud.get("phase_menu_open")), "game over opens the result menu")
-	var phase_title := hud.get("phase_menu_title") as Label
-	_check(phase_title != null and phase_title.text in ["FULL TIME", "AFTER EXTRA TIME"], "full-time title is shown")
-	_check(hud.get("phase_menu_quit") != null, "result menu has the main-menu button")
+	var over = scene.get("match_over")
+	_check(int(snap90.get("score0", -1)) == int(snap90.get("score1", 0)),
+		"the 90:00 choice is tested on a level score")
+	_check(over != null and over.is_choice(), "a level 90:00 opens the choice screen")
+	_check(bool(runtime.get_snapshot().get("paused", false)),
+		"the choice screen pauses the match")
+	# DRAW accepts the draw and lands on the result screen.
+	scene.call("_input", _key(KEY_DOWN))
+	scene.call("_input", _key(KEY_RIGHT))
+	scene.call("_input", _key(KEY_ENTER))
+	for i in 10:
+		await process_frame
+	_check(over != null and over.is_open() and not over.is_choice(),
+		"draw shows the result screen")
+	_check(str(over.result.scoreboard.get("_clock")) == "FULL TIME",
+		"the result header reads FULL TIME")
+	_check(over.result.tiles().size() == 4
+		and over.result.tiles()[0].title == "ADVANCE",
+		"the result screen has the ADVANCE tile")
 	_finish()
 
 func _wait_for_set_piece(type: int) -> Dictionary:

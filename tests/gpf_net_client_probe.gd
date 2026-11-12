@@ -23,6 +23,9 @@ var match_setup: Dictionary = {}
 var last_snapshot: Dictionary = {}
 var hud: GpfHud
 var probe_human_id := -1
+var pending_seen := false
+var pending_out_slot := -1
+var pending_in_slot := -1
 
 
 func _init() -> void:
@@ -160,6 +163,16 @@ func _poll_resumed() -> bool:
 func _poll_penalty() -> bool:
 	runtime.step_fixed(10)
 	last_snapshot = runtime.get_snapshot()
+	# The host queues its substitution right before forcing this penalty; the
+	# snapshot must relay that pending pair to the client's game plan.
+	var pending: Array = runtime.get_pending_substitutions()
+	for pair in pending:
+		if int(pair.get("team", -1)) != 1:
+			continue
+		pending_seen = true
+		pending_out_slot = int(pair.get("out_slot", -1))
+		pending_in_slot = int(pair.get("in_slot", -1))
+		break
 	return int(last_snapshot.get("presentation_type", 0)) == 6
 
 
@@ -409,13 +422,47 @@ func _run(address: String, port: int, running_marker: String = "",
 		# Snapshot the away XI before the host reacts to the marker below: it
 		# queues the substitution and forces the restart.
 		var before_sub_ids := _active_ids(1)
-		_write_marker(side_done_marker, "done")
+
+		# In-match game-plan commit from the client: swap two away starters and
+		# report the expected formation so the host can verify the relay.
+		var plan_squad: Dictionary = runtime.get_squad(1)
+		var commit_a := -1
+		var commit_b := -1
+		var commit_pos_a := Vector2.ZERO
+		var commit_pos_b := Vector2.ZERO
+		for player in plan_squad.get("players", []):
+			if not bool(player.get("active", false)):
+				continue
+			if str(player.get("role", "")) == "GK":
+				continue
+			if commit_a < 0:
+				commit_a = int(player.get("database_id", -1))
+				commit_pos_a = player.get("position", Vector2.ZERO)
+			elif commit_b < 0:
+				commit_b = int(player.get("database_id", -1))
+				commit_pos_b = player.get("position", Vector2.ZERO)
+				break
+		probe_result["commit_a"] = commit_a
+		probe_result["commit_b"] = commit_b
+		probe_result["commit_pos_a"] = [commit_pos_a.x, commit_pos_a.y]
+		probe_result["commit_pos_b"] = [commit_pos_b.x, commit_pos_b.y]
+		probe_result["commit_ok"] = runtime.net_commit_plan(1,
+			PackedInt32Array([0, commit_a, commit_b]))
+
+		_write_marker(side_done_marker, JSON.stringify({
+			"a": commit_a, "b": commit_b,
+			"ax": commit_pos_a.x, "ay": commit_pos_a.y,
+			"bx": commit_pos_b.x, "by": commit_pos_b.y,
+		}))
 
 		# The host forces a penalty for this client's team; the client must get
 		# the kicker role and the yellow aim reticle from the same snapshot data.
 		probe_result["stage"] = "penalty"
 		var penalty_seen := _wait_until(_poll_penalty, 20000)
 		var penalty_snap := last_snapshot
+		probe_result["pending_seen"] = pending_seen
+		probe_result["pending_out_slot"] = pending_out_slot
+		probe_result["pending_in_slot"] = pending_in_slot
 		var after_sub_ids := _active_ids(1)
 		var new_sub_ids: Array = []
 		for id in after_sub_ids:

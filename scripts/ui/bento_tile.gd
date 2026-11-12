@@ -104,6 +104,7 @@ func set_base_rect(rect: Rect2, push: Vector2) -> void:
 
 func set_page(page_title: String, glyph: String, new_chip := "") -> void:
 	title = page_title
+	chip = new_chip
 	if not is_node_ready():
 		return
 	_chip_label.text = new_chip

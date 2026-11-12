@@ -61,6 +61,45 @@ static func from_squad(squad: Dictionary) -> MatchLineup:
 	return result
 
 
+func apply_plan(plan: Dictionary) -> void:
+	# The shell's pre-match plan ({order, formation, roles}) is the applied
+	# state of the shared MatchData; mirror it into this lineup before the
+	# network package is built.
+	if plan.is_empty():
+		return
+	var order: PackedInt32Array = plan.get("order", PackedInt32Array())
+	var starters: Array[int] = []
+	var subs: Array[int] = []
+	var reserves: Array[int] = []
+	for index in order.size():
+		var player_id := int(order[index])
+		if player_by_id(player_id).is_empty():
+			continue
+		if starters.size() < SLOT_COUNT:
+			starters.append(player_id)
+		elif subs.size() < BENCH_SIZE:
+			subs.append(player_id)
+		else:
+			reserves.append(player_id)
+	if starters.size() == SLOT_COUNT:
+		lineup = starters
+		bench = subs
+		reserve = reserves
+	var formation_rows: Array = plan.get("formation", [])
+	if formation_rows.size() == SLOT_COUNT:
+		formation = []
+		for row in formation_rows:
+			if typeof(row) == TYPE_DICTIONARY:
+				formation.append((row as Dictionary).duplicate(true))
+	var roles_slots: PackedInt32Array = plan.get("roles", PackedInt32Array())
+	roles = {}
+	for role in mini(roles_slots.size(), TEAM_ROLE_COUNT):
+		var slot := int(roles_slots[role])
+		if slot >= 0:
+			roles[role] = slot
+	error = ""
+
+
 func player_by_id(player_id: int) -> Dictionary:
 	return _players_by_id.get(player_id, {})
 

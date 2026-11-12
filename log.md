@@ -2210,3 +2210,23 @@ TIME`; в сети это тот же resume-vote. Финал остаётся �
 как раньше. Табло хаба и HUD-легенда считают минуты тем же хелпером
 `MatchPackage.minutes_from_duration`. Тесты: `check_prematch_ui`,
 `check_match_package`, `check_gpf_slice_ui`, `check_gpf_net_ui`.
+
+## [2026-11-11] feat | экран конца матча и выбор исхода ничьей
+
+Два «чёрных окна» конца матча заменены дизайн-системными экранами: RESULT
+(`scenes/match/match_result.tscn`) и DECISION (`scenes/match/match_choice.tscn`) на общей базе
+`MatchOverScreen` (`scripts/ui/match_over_screen.gd`) — скорборд `PauseScoreboard`,
+строка турнира (новый ключ `league` пакета), 2×2 плиток + правая SOON-панель, `UiHintsBar`.
+Носитель — `GpfMatchOver` (`scripts/match/gpf_match_over.gd`, CanvasLayer над замороженным
+матчем); маршрутизация в `gpf_slice` по снапшоту: `game_over` → RESULT, брейк
+`phase_break_next_phase == 3` при равном счёте → DECISION вместо брейк-экрана паузы. RESULT:
+живые `ADVANCE` (главное меню) и `RESTART MATCH` (тот же пакет; в сети disabled, чип
+`ONLINE LOBBY`), `MATCH HIGHLIGHTS`/`PERFORMANCE` и правая `PLAYER PERFORMANCE` — SOON;
+часы заменены на `FULL TIME`, у финала серии подпись `PENALTIES x – y`. DECISION: `CLASSIC`
+→ `continue_after_phase_break()`, `PENALTIES` → новый мост `start_shootout()`
+(`StartShootout(true)`), `DRAW` → `debug_force_game_over()`, `GOLDEN GOAL` — SOON; решает
+хост/P1, в сети клиент видит `WAITING FOR HOST`. Удалены `GpfHud` phase menu и
+`GpfShootoutView` КОНЕЦ МАТЧА. Тесты — `check_match_result_ui`, `check_match_choice_ui`,
+`check_gpf_result_flow`, `check_gpf_slice_ui`, `check_gpf_game_shell`; стенд — состояния
+`RESULT`/`DECISION` в `ui_lab`. Спека/план:
+`docs/superpowers/{specs,plans}/2026-11-11-match-result-screen.md`.

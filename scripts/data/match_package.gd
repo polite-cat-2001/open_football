@@ -63,10 +63,12 @@ func build(catalog: TeamCatalog, home_team: Dictionary, away_team: Dictionary,
 
 	var home_kit := _kit_for_side(kits, "home", home_team, 0, {})
 	var away_kit := _kit_for_side(kits, "away", away_team, 1, home_kit)
-	var home := _team_package(home_squad, lineups.get("home"), "Home", home_kit)
+	var home_league := _league_name(catalog, home_team)
+	var away_league := _league_name(catalog, away_team)
+	var home := _team_package(home_squad, lineups.get("home"), "Home", home_kit, home_league)
 	if not error.is_empty():
 		return {}
-	var away := _team_package(away_squad, lineups.get("away"), "Away", away_kit)
+	var away := _team_package(away_squad, lineups.get("away"), "Away", away_kit, away_league)
 	if not error.is_empty():
 		return {}
 
@@ -103,8 +105,13 @@ func _kit_for_side(kits: Dictionary, side: String, team: Dictionary, index: int,
 	return kit_catalog.default_kit(team, index)
 
 
+func _league_name(catalog: TeamCatalog, team: Dictionary) -> String:
+	var league := catalog.league_by_id(int(team.get("league_id", 0)))
+	return str(league.get("name", ""))
+
+
 func _team_package(squad: Dictionary, lineup: MatchLineup, side: String,
-		kit: Dictionary) -> Dictionary:
+		kit: Dictionary, league_name: String) -> Dictionary:
 	var team: Dictionary = squad.get("team", {})
 	var formation: Array = squad.get("formation", [])
 	var players: Array = squad.get("players", [])
@@ -168,6 +175,7 @@ func _team_package(squad: Dictionary, lineup: MatchLineup, side: String,
 		"database_id": team_id,
 		"name": str(team.get("name", "")),
 		"short_name": str(team.get("shortname", "")),
+		"league": league_name,
 		"logo_url": _asset_url(team.get("logo_url", "")),
 		"kit_url": _asset_url(team.get("kit_url", "")),
 		"kit": kit,

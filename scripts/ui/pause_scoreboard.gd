@@ -6,6 +6,7 @@ extends Control
 
 const PAD := 36.0
 const CREST := 104.0
+const SCORE_SIZE := 64
 
 var _home: Dictionary = {}
 var _away: Dictionary = {}
@@ -53,13 +54,13 @@ func _draw() -> void:
 		draw_string(_name_font, Vector2(center - 240.0, 36.0), _caption,
 			HORIZONTAL_ALIGNMENT_CENTER, 480.0, 22, UiTokens.FOCUS_MARK)
 
-	var score_y := 96.0
+	var score_y := _score_baseline()
 	draw_string(_score_font, Vector2(center - 74.0, score_y), str(_score0),
-		HORIZONTAL_ALIGNMENT_CENTER, 52.0, 64, UiTokens.FOCUS_INK)
+		HORIZONTAL_ALIGNMENT_CENTER, 52.0, SCORE_SIZE, UiTokens.FOCUS_INK)
 	draw_string(_score_font, Vector2(center - 8.0, score_y), "-",
 		HORIZONTAL_ALIGNMENT_CENTER, 16.0, 40, UiTokens.FOCUS_INK_2)
 	draw_string(_score_font, Vector2(center + 22.0, score_y), str(_score1),
-		HORIZONTAL_ALIGNMENT_CENTER, 52.0, 64, UiTokens.FOCUS_INK)
+		HORIZONTAL_ALIGNMENT_CENTER, 52.0, SCORE_SIZE, UiTokens.FOCUS_INK)
 
 	var side_left := PAD + CREST + 28.0
 	var side_right := size.x - PAD - CREST - 28.0
@@ -74,6 +75,17 @@ func _draw() -> void:
 
 func _team_name(team: Dictionary) -> String:
 	return str(team.get("name", "")).to_upper()
+
+
+# draw_string places the baseline, so centre the digits' actual ink (not the
+# line box, which reserves descender space) on the widget's middle.
+func _score_baseline() -> float:
+	var interface := TextServerManager.get_primary_interface()
+	var rid: RID = _score_font.get_rids()[0]
+	var glyph := interface.font_get_glyph_index(rid, SCORE_SIZE, "0".unicode_at(0), 0)
+	var ink := interface.font_get_glyph_size(rid, Vector2i(SCORE_SIZE, 0), glyph)
+	var bearing := interface.font_get_glyph_offset(rid, Vector2i(SCORE_SIZE, 0), glyph)
+	return size.y * 0.5 - (bearing.y + ink.y * 0.5)
 
 
 func _draw_crest(team: Dictionary, rect: Rect2) -> void:

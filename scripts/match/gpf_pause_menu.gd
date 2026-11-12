@@ -22,6 +22,7 @@ var _runtime: Node = null
 var _package: Dictionary = {}
 var _team_id := 0
 var _break := false
+var _plan_lineups: Dictionary = {}
 
 
 func setup() -> void:
@@ -47,6 +48,7 @@ func setup() -> void:
 		(buttons[i] as Control).focus_entered.connect(_on_tile_focused.bind(i))
 	screen.set_match(_runtime, _package)
 	screen.set_team(_team_id)
+	screen.set_plan_lineups(_plan_lineups)
 
 
 func set_match(runtime_node: Node, package: Dictionary) -> void:
@@ -54,6 +56,12 @@ func set_match(runtime_node: Node, package: Dictionary) -> void:
 	_package = package
 	if screen != null:
 		screen.set_match(runtime_node, package)
+
+
+func set_plan_lineups(lineups: Dictionary) -> void:
+	_plan_lineups = lineups
+	if screen != null:
+		screen.set_plan_lineups(lineups)
 
 
 func set_team(team_id: int) -> void:
@@ -112,9 +120,9 @@ func _phase_break_continue(next_phase: int) -> String:
 		2:
 			return "BEGIN SECOND HALF"
 		3:
-			return "BEGIN EXTRA TIME"
+			return "BEGIN 1ST EXTRA TIME"
 		4:
-			return "BEGIN SECOND EXTRA TIME"
+			return "BEGIN 2ND EXTRA TIME"
 	return "BEGIN NEXT PERIOD"
 
 

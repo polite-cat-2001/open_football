@@ -269,6 +269,8 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("net_lobby"), &GpfRuntimeNode::net_lobby);
     ClassDB::bind_method(D_METHOD("net_action", "action_type", "side", "value", "value2"),
                          &GpfRuntimeNode::net_action);
+    ClassDB::bind_method(D_METHOD("net_commit_plan", "team_id", "ops"),
+                         &GpfRuntimeNode::net_commit_plan);
     ClassDB::bind_method(D_METHOD("net_start"), &GpfRuntimeNode::net_start);
     ClassDB::bind_method(D_METHOD("net_take_match_setup"), &GpfRuntimeNode::net_take_match_setup);
     ClassDB::bind_method(D_METHOD("net_side_select_open"), &GpfRuntimeNode::net_side_select_open);
@@ -283,6 +285,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("step_fixed", "ticks"), &GpfRuntimeNode::step_fixed);
     ClassDB::bind_method(D_METHOD("get_snapshot"), &GpfRuntimeNode::get_snapshot);
     ClassDB::bind_method(D_METHOD("debug_get_plan_order", "team_id"), &GpfRuntimeNode::debug_get_plan_order);
+    ClassDB::bind_method(D_METHOD("debug_get_plan", "team_id"), &GpfRuntimeNode::debug_get_plan);
     ClassDB::bind_method(D_METHOD("get_goal_net_positions", "goal"), &GpfRuntimeNode::get_goal_net_positions);
     ClassDB::bind_method(D_METHOD("get_goal_net_edges"), &GpfRuntimeNode::get_goal_net_edges);
     ClassDB::bind_method(D_METHOD("generate_pitch_texture", "width", "height"), &GpfRuntimeNode::generate_pitch_texture);
@@ -333,8 +336,10 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("debug_spam_message", "text", "time_ms"), &GpfRuntimeNode::debug_spam_message);
     ClassDB::bind_method(D_METHOD("debug_force_set_piece", "set_piece_type", "team_id"), &GpfRuntimeNode::debug_force_set_piece);
     ClassDB::bind_method(D_METHOD("debug_force_shootout"), &GpfRuntimeNode::debug_force_shootout);
+    ClassDB::bind_method(D_METHOD("start_shootout"), &GpfRuntimeNode::start_shootout);
     ClassDB::bind_method(D_METHOD("debug_force_phase_break", "next_phase"), &GpfRuntimeNode::debug_force_phase_break);
     ClassDB::bind_method(D_METHOD("debug_force_game_over"), &GpfRuntimeNode::debug_force_game_over);
+    ClassDB::bind_method(D_METHOD("debug_skip_to_period_end"), &GpfRuntimeNode::debug_skip_to_period_end);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "data_root"), "set_data_root", "get_data_root");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "seed"), "set_seed", "get_seed");
@@ -765,6 +770,40 @@ bool GpfRuntimeNode::net_action(const Variant &action_type, int side, int value,
     }
     last_error = "no network session";
     return false;
+}
+
+bool GpfRuntimeNode::net_commit_plan(int team_id, const PackedInt32Array &ops) {
+    if (!runtime_ready || !menuTask || team_id < 0 || team_id > 1) {
+        return false;
+    }
+    if (ops.size() % 3 != 0) {
+        last_error = "net_commit_plan expects [type, a, b] triples";
+        UtilityFunctions::printerr(last_error);
+        return false;
+    }
+    NetPlanCommit commit;
+    commit.side = team_id;
+    for (int i = 0; i < ops.size(); i += 3) {
+        NetPlanOp op;
+        op.type = ops[i];
+        op.a = ops[i + 1];
+        op.b = ops[i + 2];
+        commit.ops.push_back(op);
+    }
+    if (commit.ops.empty()) {
+        return true;
+    }
+    if (net_client) {
+        net_client->SendPlanCommit(commit);
+        return true;
+    }
+    if (net_server) {
+        menuTask->CommitPlanFromHost(team_id, commit.ops);
+        return true;
+    }
+    // Offline match: the same net plan, applied locally (no peers to relay).
+    menuTask->CommitPlanLocal(team_id, commit.ops);
+    return true;
 }
 
 bool GpfRuntimeNode::net_start() {
@@ -1310,6 +1349,9 @@ void GpfRuntimeNode::step_one_tick() {
     // shell re-applies its own setup before every processed tick.
     apply_controller_setup();
     gameTask->ProcessPhase();
+    // The menu task is not ticking during a match, so drain queued in-match
+    // plan commits/broadcasts on the game thread here.
+    if (menuTask) menuTask->ProcessNetworkPlanEditsNow();
     // F2 debug, matching Match::Process: keep the non-human outfield team
     // parked off the pitch for every processed tick while the toggle is on.
     if (park_opponents && !match->GetPause()) {
@@ -1690,6 +1732,47 @@ Array GpfRuntimeNode::debug_get_formation(int team_id) const {
         item["position"] = to_godot(entry.position);
         result.append(item);
     }
+    return result;
+}
+
+Dictionary GpfRuntimeNode::debug_get_plan(int team_id) const {
+    Dictionary result;
+    if (!menuTask || team_id < 0 || team_id > 1) {
+        return result;
+    }
+    MatchData *data = menuTask->GetMatchData();
+    if (!data) {
+        return result;
+    }
+    TeamData *team_data = data->GetTeamData(team_id);
+    if (!team_data) {
+        return result;
+    }
+    PackedInt32Array order;
+    for (int i = 0; i < team_data->GetPlayerNum(); ++i) {
+        PlayerData *player = team_data->GetPlayerData(i);
+        if (player) order.append(player->GetDatabaseID());
+    }
+    Array formation;
+    int count = team_data->GetPlayerNum();
+    if (count > 11) count = 11;
+    for (int slot = 0; slot < count; ++slot) {
+        const FormationEntry entry = team_data->GetFormationEntry(slot);
+        const Vector2 position(entry.databasePosition.coords[0], entry.databasePosition.coords[1]);
+        Dictionary item;
+        item["slot"] = slot;
+        item["role"] = String(GetRoleName(entry.role).c_str());
+        item["database_position"] = position;
+        item["position"] = position;
+        formation.append(item);
+    }
+    PackedInt32Array roles;
+    for (int role = 0; role < e_TeamRole_SIZE; ++role) {
+        roles.append(data->GetRolePlayer(team_id, (e_TeamRole)role));
+    }
+    result["order"] = order;
+    result["formation"] = formation;
+    result["roles"] = roles;
     return result;
 }
 
@@ -2527,6 +2610,21 @@ void GpfRuntimeNode::debug_force_shootout() {
     match->StartShootout(false);
 }
 
+bool GpfRuntimeNode::start_shootout() {
+    if (!runtime_ready || !match || game_over_seen) {
+        return false;
+    }
+    // Chosen from the end-of-90 break: the original whistle has already stopped
+    // play, so the series must be allowed from stopped play and the break latch
+    // (and its pause) released first.
+    phase_break_pending = false;
+    phase_break_next_phase = 0;
+    match->SetPhaseBreak(false);
+    match->Pause(false);
+    match->StartShootout(true);
+    return match->IsShootoutActive();
+}
+
 void GpfRuntimeNode::debug_force_phase_break(int next_phase) {
     if (!runtime_ready || !match || game_over_seen) {
         return;
@@ -2542,4 +2640,33 @@ void GpfRuntimeNode::debug_force_game_over() {
     game_over_seen = true;
     match->GameOver();
     match->Pause(true);
+}
+
+bool GpfRuntimeNode::debug_skip_to_period_end() {
+    if (!runtime_ready || !match || game_over_seen || replay_active) {
+        return false;
+    }
+    if (match->GetPause() || match->IsShootoutActive() || match->IsInSetPiece() ||
+        match->IsGoalScored() || !match->IsInPlay()) {
+        return false;
+    }
+    unsigned long target = 0;
+    switch (match->GetMatchPhase()) {
+    case e_MatchPhase_1stHalf: target = 2700000; break;
+    case e_MatchPhase_2ndHalf: target = 5400000; break;
+    case e_MatchPhase_1stExtraTime: target = 6300000; break;
+    case e_MatchPhase_2ndExtraTime: target = 7200000; break;
+    default: return false;
+    }
+    if (match->GetMatchTime_ms() <= target) {
+        match->SetMatchTime_ms(target + 1);
+    }
+    // The referee only ends a period while the ball is near the middle line, so
+    // put it on the centre spot: the whistle then fires on the next tick (and
+    // its own kickoff buffer resets the ball anyway).
+    match->SetBallRetainer(nullptr);
+    match->GetBall()->SetPosition(blunted::Vector3(0.0f, 0.0f, 0.0f));
+    match->GetBall()->SetMomentum(blunted::Vector3(0.0f, 0.0f, 0.0f));
+    match->UpdateLatestMentalImageBallPredictions();
+    return true;
 }

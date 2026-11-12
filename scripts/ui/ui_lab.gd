@@ -8,6 +8,8 @@ var hud: GpfHud
 var shootout: GpfShootoutView
 var pause_menu: GpfPauseMenu
 var game_plan: GpfGamePlan
+var match_result: MatchResultScreen
+var match_choice: MatchChoiceScreen
 var caption: Label
 var state_index := 0
 var _states: Array = []
@@ -50,6 +52,16 @@ func _ready() -> void:
 	game_plan.name = "GamePlan"
 	game_plan.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	plan_layer.add_child(game_plan)
+
+	var over_layer := CanvasLayer.new()
+	over_layer.layer = 7
+	add_child(over_layer)
+	match_result = preload("res://scenes/match/match_result.tscn").instantiate() as MatchResultScreen
+	match_result.name = "MatchResult"
+	over_layer.add_child(match_result)
+	match_choice = preload("res://scenes/match/match_choice.tscn").instantiate() as MatchChoiceScreen
+	match_choice.name = "MatchChoice"
+	over_layer.add_child(match_choice)
 
 	_states = _build_states()
 	set_state(0)
@@ -199,6 +211,19 @@ func _build_states() -> Array:
 		"spam_message_counter": 1,
 	}))
 
+	var result := _base_state("RESULT")
+	states.append(_with(result, {
+		"score0": 3, "score1": 0, "match_time_ms": 5400000, "match_phase": 2,
+		"game_over": true,
+	}))
+
+	var decision := _base_state("DECISION")
+	states.append(_with(decision, {
+		"score0": 1, "score1": 1, "match_time_ms": 5400000, "match_phase": 2,
+		"phase_break_pending": true, "phase_break": true,
+		"phase_break_next_phase": 3,
+	}))
+
 	var taker := _base_state("SET-PIECE TAKER")
 	states.append(_with(taker, {
 		"score0": 2, "score1": 1, "match_time_ms": 2730000,
@@ -274,6 +299,19 @@ func _demo_team(name: String, color: Color, pending: bool = false) -> Dictionary
 	}
 
 
+func _demo_over_data() -> Dictionary:
+	return {
+		"home": {"name": "ALASHKERT", "database_id": 4,
+			"color1": Vector3(0.2, 0.4, 0.9)},
+		"away": {"name": "AFGHANISTAN", "database_id": 5,
+			"color1": Vector3(0.9, 0.2, 0.2)},
+		"score0": 3,
+		"score1": 0,
+		"caption": "",
+		"meta": "International Cup",
+	}
+
+
 func set_state(index: int) -> void:
 	if _states.is_empty():
 		return
@@ -283,6 +321,8 @@ func set_state(index: int) -> void:
 		pause_menu.close()
 	if game_plan.is_open():
 		game_plan.close_plan()
+	match_result.hide_now()
+	match_choice.hide_now()
 	hud.reset()
 	shootout.reset()
 	var snap: Dictionary = _current["snap"]
@@ -300,6 +340,12 @@ func set_state(index: int) -> void:
 	shootout.update(snap, 0.0)
 	if state_name == "PAUSE":
 		pause_menu.open()
+	elif state_name == "RESULT":
+		match_result.set_match_data(_demo_over_data())
+		match_result.open()
+	elif state_name == "DECISION":
+		match_choice.set_match_data(_demo_over_data())
+		match_choice.open()
 	elif state_name == "GAME PLAN":
 		game_plan.setup_demo(_demo_team("ALASHKERT", Color(0.2, 0.4, 0.9)),
 			_demo_team("AFGHANISTAN", Color(0.9, 0.2, 0.2)), [0])
