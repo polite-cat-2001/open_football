@@ -134,7 +134,7 @@ team_2-вратаря, для +Z — team_1-вратаря.
 - **Существующие `check_keeper_logic.gd`/`check_keeper_clear.gd`/`check_penalty_*`/`check_goal_kick_*`
   остаются валидны** — ИИ вратаря сторона-агностичен, сет-пис флоу-тесты зовут контроллеры напрямую.
   Прогнать после рефактора, диффать по категориям.
-- **Baseline-валидация сцены** — обе headless-команды из CLAUDE.md (menu-load + `match.tscn`), дифф
+- **Baseline-валидация сцены** — обе headless-команды из AGENTS.md (menu-load + `match.tscn`), дифф
   по категориям ошибок (`!is_inside_tree()`, `states.has(p_name)`, transition-duplicate,
   `WorldEnvironment3D`), не по числу.
 - **Фил** (team_1-вратарь реально тащит атаки team_2, корректно ловит/выбивает у своих ворот, не
@@ -145,5 +145,5 @@ team_2-вратаря, для +Z — team_1-вратаря.
 - Роадмап: `docs/superpowers/specs/2026-07-22-match-orchestration-roadmap-design.md` (пункт #6,
   «второй вратарь отложен» — эта задача снимает отложку как предшественник).
 - Спек вратаря: `docs/superpowers/specs/2026-07-13-goalkeeper-design.md`.
-- CLAUDE.md — as-built: вратарь-сплит `_keeper`/`_keeper_brain`, `Team.keeper()`/`role_gk`,
+- AGENTS.md — as-built: вратарь-сплит `_keeper`/`_keeper_brain`, `Team.keeper()`/`role_gk`,
   сторона-агностичность `keeper_ai`.

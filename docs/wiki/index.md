@@ -64,5 +64,5 @@ append-only `log.md` в корне репозитория.
 
 - `docs/superpowers/specs/`, `docs/superpowers/plans/` — датированные спеки и планы отдельных задач.
 - `docs/football_reference.md` — полный свод правил FIFA + гейм-дизайн-справочник.
-- `CLAUDE.md` / `AGENTS.md` / `OPENCODE.md` — короткие гайды агента (трип-вайры + указатель сюда).
+- `AGENTS.md` / `OPENCODE.md` — короткие гайды агента (трип-вайры + указатель сюда).
 - `ASSET_CREDITS.md` — провенанс/лицензии ассетов.

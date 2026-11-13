@@ -30,7 +30,7 @@
 - `tests/check_penalty_logic.gd` — тест чистых функций.
 - `scripts/match/penalty_shootout_controller.gd` — **Фаза C, не пишем сейчас** (описан в разделе Фаза C).
 
-**Правки существующих файлов:** `match_manager.gd` (флаг `_penalty_active` + `is_penalty_active()` + делегация + триггер по кнопке P), `keeper_ai.gd` (`set_penalty_mode()` / `begin_penalty_dive(zone)`), `match_camera.gd` (`set_penalty_view()`), `player_visual.gd` (root motion для `penalty_kick_l/_r` + выбор ноги), `tools/merge_mixamo.py` (не морозить эти два клипа), `football_constants.gd` (секция `PENALTY`), плюс CLAUDE.md / AGENTS.md.
+**Правки существующих файлов:** `match_manager.gd` (флаг `_penalty_active` + `is_penalty_active()` + делегация + триггер по кнопке P), `keeper_ai.gd` (`set_penalty_mode()` / `begin_penalty_dive(zone)`), `match_camera.gd` (`set_penalty_view()`), `player_visual.gd` (root motion для `penalty_kick_l/_r` + выбор ноги), `tools/merge_mixamo.py` (не морозить эти два клипа), `football_constants.gd` (секция `PENALTY`), плюс AGENTS.md / AGENTS.md.
 
 **Глушение обычных систем.** Пока `match_manager._penalty_active == true`:
 - `_handle_player_input` не трогает бьющего (ввод обрабатывает контроллер);
@@ -92,13 +92,13 @@ FIFA-подобный **свободный маркер на плоскости 
 
 Клипы удара — **с разбегом** (root motion), в отличие от всех прочих клипов, замороженных «на месте» через `IN_PLACE_CLIPS`. Два клипа: левая нога (`penalty_kick_l`) и правая (`penalty_kick_r`), переиспользуются позже для штрафных ударов.
 
-**Почему root motion, а не кодовое движение тела (как везде в проекте).** Клип содержит реальные шаги подхода (разгон → постановка опорной → удар). Если снять root motion и гнать тело кодовой скоростью (клип «на месте», как через `IN_PLACE_CLIPS`), ноги переступают на месте, пока тело едет → foot-slide («лунная походка» к мячу). Проектный анти-слайд `run_timescale = speed/top × fudge` спасает только зациклённый бег с **постоянной** кодовой скоростью; у разбега-с-ударом скорость непостоянна, и подогнать её под переменный шаг клипа нереально. Root motion решает это бесплатно: позиция тела следует за стопами точно так, как задумал аниматор (постановка опорной и контакт с мячом синхронны с перемещением) — это каноничное применение root motion. Цена — одна: эмпирически выверить ось/масштаб извлечения (грабль Mixamo из CLAUDE.md), что попутно делает скрипт замера `PEN_RUNUP_DIST`. Это **второе намеренное исключение** из кодового движения (первое — `move_and_collide` в подкате) и так же well-contained: один one-shot клип, ось выверена один раз. (Если бы клип был «плант + удар» почти без перемещения — наоборот, root motion не нужен: предрасставить у мяча и играть на месте. Но здесь полноценный разбег.)
+**Почему root motion, а не кодовое движение тела (как везде в проекте).** Клип содержит реальные шаги подхода (разгон → постановка опорной → удар). Если снять root motion и гнать тело кодовой скоростью (клип «на месте», как через `IN_PLACE_CLIPS`), ноги переступают на месте, пока тело едет → foot-slide («лунная походка» к мячу). Проектный анти-слайд `run_timescale = speed/top × fudge` спасает только зациклённый бег с **постоянной** кодовой скоростью; у разбега-с-ударом скорость непостоянна, и подогнать её под переменный шаг клипа нереально. Root motion решает это бесплатно: позиция тела следует за стопами точно так, как задумал аниматор (постановка опорной и контакт с мячом синхронны с перемещением) — это каноничное применение root motion. Цена — одна: эмпирически выверить ось/масштаб извлечения (грабль Mixamo из AGENTS.md), что попутно делает скрипт замера `PEN_RUNUP_DIST`. Это **второе намеренное исключение** из кодового движения (первое — `move_and_collide` в подкате) и так же well-contained: один one-shot клип, ось выверена один раз. (Если бы клип был «плант + удар» почти без перемещения — наоборот, root motion не нужен: предрасставить у мяча и играть на месте. Но здесь полноценный разбег.)
 
 **Модель A1 — root motion применяется к телу:**
 
 1. **Не добавляем** `penalty_kick_l/_r` в `IN_PLACE_CLIPS` в `tools/merge_mixamo.py` — сохраняем их поступательное перемещение в собранном `.glb`.
 2. В `PlayerVisual` для этих клипов включаем `root_motion_track` (корневая кость); каждый кадр отдаём извлечённый сдвиг наружу (новый API, напр. `consume_root_motion() -> Vector3`); во время STRIKE его применяет контроллер/мотор к `CharacterBody3D` (по образцу «мотор залочен, движением владеет другой код», как `move_and_collide` в подкате). Тело и модель едут вместе, стопа приходит к мячу на кадре контакта, **после удара модель не «прыгает» назад** к телу.
-3. **Пред-расстановка** бьющего = `точка_удара − facing × PEN_RUNUP_DIST`. `PEN_RUNUP_DIST` (суммарный горизонтальный сдвиг корня за клип) и кадр контакта **замеряем эмпирически** одноразовым headless-скриптом по факту собранного glb (сэмплируем `Position3D`-трек корневой кости) — ровно как советует CLAUDE.md про `IN_PLACE_CLIPS` (ось/масштаб Mixamo легко угадать неверно). Результат кладём в константы / `ACTION_TIMING`.
+3. **Пред-расстановка** бьющего = `точка_удара − facing × PEN_RUNUP_DIST`. `PEN_RUNUP_DIST` (суммарный горизонтальный сдвиг корня за клип) и кадр контакта **замеряем эмпирически** одноразовым headless-скриптом по факту собранного glb (сэмплируем `Position3D`-трек корневой кости) — ровно как советует AGENTS.md про `IN_PLACE_CLIPS` (ось/масштаб Mixamo легко угадать неверно). Результат кладём в константы / `ACTION_TIMING`.
 
 **Выбор ноги** — параметр удара (по умолчанию правая, `penalty_kick_r`); прокидывается как аргумент в `trigger`/strike, чтобы штрафные потом выбирали ногу. Оба клипа регистрируем в `ACTION_CLIPS` с их индивидуальным `ACTION_TIMING`.
 
@@ -199,14 +199,14 @@ FIFA-подобный **свободный маркер на плоскости 
 
 - `tests/check_penalty_logic.gd` (headless) — чистые функции: `spread_radius` монотонна по силе; `sample_in_disc` внутри радиуса и равномерна (через `sqrt(u)`); `move_reticle` кламп+овершут; `random_dive_zone` покрывает 5 зон; `zone_target` в рамке; `power_speed` монотонна.
 - Одноразовый headless-скрипт замера `PEN_RUNUP_DIST` и кадра контакта из `.glb` (по образцу проверки `IN_PLACE`), результат → в константы / `ACTION_TIMING`.
-- Обе headless-валидации сцены (baseline по категориям ошибок из CLAUDE.md — новый контроллер добавит парсинг, диффим по тексту, не по числу).
+- Обе headless-валидации сцены (baseline по категориям ошибок из AGENTS.md — новый контроллер добавит парсинг, диффим по тексту, не по числу).
 - Ручная проверка «фила» — по кнопке P в реальном запуске (интерактив headless не покроет): прицел, рост круга с силой, промахи, слепой нырок, гол → центр поля, сейв/промах → мяч в игре.
 
 ## Затрагиваемые файлы
 
 **Новые:** `scripts/match/penalty_controller.gd`, `scripts/match/penalty_logic.gd`, `tests/check_penalty_logic.gd`. (Фаза C: `scripts/match/penalty_shootout_controller.gd` — позже.)
 
-**Правки:** `scripts/match/match_manager.gd` (`_penalty_active` + `is_penalty_active()` + делегация + P-триггер + расстановка), `scripts/ai/keeper_ai.gd` (`set_penalty_mode` / `begin_penalty_dive`), `scripts/camera/match_camera.gd` (`set_penalty_view`), `scripts/player/player_visual.gd` (root motion для `penalty_kick_l/_r` + выбор ноги), `tools/merge_mixamo.py` (не морозить эти клипы), `scripts/data/football_constants.gd` (секция `PENALTY`), `CLAUDE.md` / `AGENTS.md`.
+**Правки:** `scripts/match/match_manager.gd` (`_penalty_active` + `is_penalty_active()` + делегация + P-триггер + расстановка), `scripts/ai/keeper_ai.gd` (`set_penalty_mode` / `begin_penalty_dive`), `scripts/camera/match_camera.gd` (`set_penalty_view`), `scripts/player/player_visual.gd` (root motion для `penalty_kick_l/_r` + выбор ноги), `tools/merge_mixamo.py` (не морозить эти клипы), `scripts/data/football_constants.gd` (секция `PENALTY`), `AGENTS.md`.
 
 ## Явно вне рамок Фазы A
 

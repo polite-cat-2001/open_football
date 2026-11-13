@@ -190,7 +190,7 @@ func _team_arrays(group: StringName, except_node: Node) -> Dictionary:
 
 ## Геометрия решает «можно ли перехватить»; шанс решает, среагирует ли соперник (не читерски-
 ## идеально). Если да — соперник бежит к точке пересечения (визуальный, честный перехват).
-## NOTE: FootballConstants.AI_SPEED (5.0) is legacy/unused elsewhere (see CLAUDE.md's own
+## NOTE: FootballConstants.AI_SPEED (5.0) is legacy/unused elsewhere (see AGENTS.md's own
 ## caveat on it) — the opponent's REAL speed is the `speed` export on simple_ai.gd (8.0 by
 ## default). Read it off the node via get(), not the stale constant, or every interception
 ## feasibility check will be computed against a speed the opponent doesn't actually have.
