@@ -785,7 +785,6 @@ func _process(delta: float) -> void:
 		or (_is_queued() and _queue_player == controlled_player)
 
 
-
 func _physics_process(delta: float) -> void:
 	# Пенальти-режим: всё ведёт контроллер, обычные системы заглушены.
 	if _penalty_active:
@@ -869,7 +868,6 @@ func _setup_controlled_indicator() -> void:
 	_controlled_marker = marker
 
 
-
 func _sync_ai_controllers() -> void:
 	if player_home:
 		player_home.controlled_player = controlled_player
@@ -900,7 +898,7 @@ func _setup_tackle_area() -> void:
 ## Статический пол на y=0: опора для локомоции и приземления ragdoll.
 ## ПРИМЕЧАНИЕ (отклонение от брифа): бриф просил collision_layer=1 («питч+мяч»), но
 ## поле-игроков collision_mask = PLAYER_COLLISION_MASK | BOUNDARY_COLLISION_LAYER
-## намеренно НЕ включает слой 1 (чтобы капсула не толкала мяч физически — см. CLAUDE.md
+## намеренно НЕ включает слой 1 (чтобы капсула не толкала мяч физически — см. AGENTS.md
 ## и хотфикс 78990c8). Проверено эмпирически: пол на слое 1 → игрок проваливается
 ## насквозь (is_on_floor() всегда false). Кладём пол на BOUNDARY_COLLISION_LAYER —
 ## его уже видят и игроки (маска 2|4), и мяч (маска 1|4) — без правки чужих масок.
@@ -1421,7 +1419,7 @@ func _team_arrays(group: StringName, except_node: Node) -> Dictionary:
 
 ## Геометрия решает «можно ли перехватить»; шанс решает, среагирует ли соперник (не читерски-
 ## идеально). Если да — соперник бежит к точке пересечения (визуальный, честный перехват).
-## NOTE: FootballConstants.AI_SPEED (5.0) is legacy/unused elsewhere (see CLAUDE.md's own
+## NOTE: FootballConstants.AI_SPEED (5.0) is legacy/unused elsewhere (see AGENTS.md's own
 ## caveat on it) — the opponent's REAL speed is the `speed` export on simple_ai.gd (8.0 by
 ## default). Read it off the node via get(), not the stale constant, or every interception
 ## feasibility check will be computed against a speed the opponent doesn't actually have.
@@ -1704,7 +1702,6 @@ func _can_tackle(tackler: Node3D) -> bool:
 			return true
 
 	return false
-
 
 
 func _try_tackle(player: CharacterBody3D) -> bool:
