@@ -61,7 +61,7 @@ foreach ($t in @(
 - **Modify** `scripts/match/penalty_controller.gd` — `_keeper_brain` for keeper API.
 - **Create** `tests/check_player_brain.gd` — asserts the `Player`/`Brain` seam.
 - **Modify** `tests/check_keeper_clear.gd` — read keeper state via `keeper.brain()`.
-- **Modify** `CLAUDE.md`, `AGENTS.md` — document the component-brain architecture.
+- **Modify** `AGENTS.md` — document the component-brain architecture.
 
 ---
 
@@ -356,7 +356,6 @@ extends CharacterBody3D, so the factory takes the legacy set_script path and
 _ai_of() resolves to the body. Manager AI call-sites rerouted through _ai_of so
 per-AI conversion is independent from here on.
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 '@
 ```
 
@@ -456,7 +455,6 @@ extends CharacterBody3D -> extends Brain; self->_body; motor calls -> _drive/_st
 Factory auto-attaches it as a child; free-kick wall bodies convert via add_child
 instead of set_script. teammate_ai/keeper_ai remain legacy (bridged by _ai_of).
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 '@
 ```
 
@@ -551,7 +549,6 @@ refactor(phase2): convert teammate_ai to a Brain component
 extends Brain; self->_body; controlled_player==self -> ==_body; motor -> _drive/_stop;
 group calls via _body. Free-kick mate bodies convert via add_child. Keeper still legacy.
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 '@
 ```
 
@@ -710,7 +707,6 @@ on_ball_contact, set_penalty_mode, begin_penalty_dive, set_freekick_anchor). Con
 route keeper API through _keeper_brain; body exclusions unchanged. check_keeper_clear reads
 _state via _keeper_brain, dribbler-held guard compares the keeper body.
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 '@
 ```
 
@@ -722,7 +718,7 @@ Remove the now-dead legacy `set_script` branch in the factory (no AI is `extends
 
 **Files:**
 - Modify: `scripts/match/player_factory.gd` (drop the legacy branch — optional but DRY/YAGNI)
-- Modify: `CLAUDE.md`, `AGENTS.md`
+- Modify: `AGENTS.md`
 
 - [ ] **Step 1: Simplify the factory brain block (legacy branch now dead)**
 
@@ -748,7 +744,7 @@ All three AIs are Brains, so `inst is Brain` is always true. Replace the Task-1 
 
 All green (this is a no-op behaviorally — every AI already took the component path).
 
-- [ ] **Step 3: Update `CLAUDE.md`**
+- [ ] **Step 3: Update `AGENTS.md`**
 
 Under *Presentation layer & asset pipeline* / *Player spawn factory & roster*, revise the "Scripts attached at runtime" and factory description to state: AI is now a **child `Brain` component** (`scripts/ai/brain.gd`, `class_name Brain extends Node`) on a stable `Player` root (`scripts/player/player.gd`, `class_name Player extends CharacterBody3D`), attached by `PlayerFactory` via `add_child` (no more `set_script` on the body). Note: `MatchManager._ai_of(body)` resolves a body to its brain (or itself); `_keeper` is the keeper **body**, `_keeper_brain` its Brain (API/state). Field brains push intent via `Brain._drive()`; per-frame drive still lives inside each brain (the `movement_intent()`/`speed_scale()` getters are the Phase-3 seam, not yet the drive path). Add `check_player_brain.gd` to the headless-check list. Mark Phase 2 done; Phase 3 (HumanBrain + ActionExecutor) still gated.
 
@@ -759,11 +755,10 @@ Mirror the one-paragraph summary: component brains, `Player` root, `_ai_of`/`_ke
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add scripts/match/player_factory.gd CLAUDE.md AGENTS.md
+git add scripts/match/player_factory.gd AGENTS.md
 git commit -m @'
 refactor(phase2): drop dead legacy set_script branch; document component brains
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 '@
 ```
 

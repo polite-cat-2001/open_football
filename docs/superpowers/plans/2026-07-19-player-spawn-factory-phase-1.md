@@ -15,16 +15,15 @@
 - **Запуск headless-теста (PowerShell):**
   `& "<exe>" --path "<repo>" --headless -s "res://tests/<name>.gd"`
   (в Git Bash — тот же вызов без `&`).
-- **Регрессионная сетка** (после КАЖДОЙ задачи, меняющей рантайм-код — команды ниже все должны печатать `CHECK PASS` / завершаться без НОВЫХ ошибок относительно baseline из CLAUDE.md):
+- **Регрессионная сетка** (после КАЖДОЙ задачи, меняющей рантайм-код — команды ниже все должны печатать `CHECK PASS` / завершаться без НОВЫХ ошибок относительно baseline из AGENTS.md):
   1. `& "<exe>" --path "<repo>" --headless --quit` (парс всех `class_name`/autoload)
-  2. `& "<exe>" --path "<repo>" --headless --quit-after 2 res://scenes/match.tscn` (грузит match.tscn — единственный, кто парсит match-only скрипты; сверять по КАТЕГОРИИ ошибки, не по счётчику — см. CLAUDE.md *Commands*)
+  2. `& "<exe>" --path "<repo>" --headless --quit-after 2 res://scenes/match.tscn` (грузит match.tscn — единственный, кто парсит match-only скрипты; сверять по КАТЕГОРИИ ошибки, не по счётчику — см. AGENTS.md *Commands*)
   3. `& "<exe>" --path "<repo>" --headless -s "res://tests/check_free_kick_flow.gd"` → `CHECK PASS`
   4. `& "<exe>" --path "<repo>" --headless -s "res://tests/check_penalty_flow.gd"` → `CHECK PASS`
   5. `& "<exe>" --path "<repo>" --headless -s "res://tests/check_keeper_clear.gd"` → `CHECK PASS`
 - **Регистрация нового `class_name`:** после создания файла с `class_name` прогнать один раз
   `& "<exe>" --path "<repo>" --headless --editor --quit` (иначе класс не попадёт в `global_script_class_cache.cfg` и другие скрипты его не увидят).
-- **Стиль коммитов:** `feat(...)`/`refactor(...)`/`test(...)`/`docs(...)`, тело осмысленное, в конце
-  `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
+- **Стиль коммитов:** `feat(...)`/`refactor(...)`/`test(...)`/`docs(...)`, тело осмысленное.
 - **Ветка:** `feat/corner` (текущая). НЕ мержить в master в рамках плана.
 - **Поведение не меняется.** Это чистый рефактор: каждая задача оставляет игру запускаемой и регрессионную сетку зелёной. `.uid`-файлы Godot генерирует сам — не коммитить их (следуя текущей конвенции репо).
 
@@ -41,7 +40,7 @@
 - `scripts/match/match_manager.gd` — строит два `Team`-узла; спавны через фабрику; чтения по имени → запросы; удаление именованных переменных и `@onready $PlayerHome`.
 - `scripts/match/free_kick_controller.gd` — `_make_wall_body`/`_make_mate_body` через фабрику.
 - `scenes/match.tscn` — удаление узла `PlayerHome` (+ его `Mesh`/`CollisionShape`).
-- `CLAUDE.md`, `AGENTS.md` — секция про фабрику/ростер.
+- `AGENTS.md` — секция про фабрику/ростер.
 
 ---
 
@@ -136,8 +135,7 @@ Expected: `CHECK PASS`
 ```bash
 git add scripts/match/player_config.gd tests/check_player_config.gd
 git commit -m "feat(refactor): add PlayerConfig data holder for spawn factory
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -285,8 +283,7 @@ Expected: `CHECK PASS`
 ```bash
 git add scripts/match/team.gd tests/check_team_roster.gd
 git commit -m "feat(refactor): add Team roster node (players as children, group + role index)
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -344,8 +341,7 @@ Expected: без НОВЫХ ошибок парса (сцена валидна; 
 ```bash
 git add scenes/player.tscn
 git commit -m "feat(refactor): add player.tscn (body + visual/motor/collision, fixed child order)
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -491,8 +487,7 @@ Expected: `CHECK PASS`
 ```bash
 git add scripts/match/player_factory.gd tests/check_player_factory.gd
 git commit -m "feat(refactor): add PlayerFactory.spawn — single player construction seam
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -578,8 +573,7 @@ Expected: команды 3–5 → `CHECK PASS`; команды 1–2 без Н�
 ```bash
 git add scripts/match/match_manager.gd
 git commit -m "refactor(spawn): build Team nodes; spawn away player via PlayerFactory
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -668,8 +662,7 @@ Expected: команды 3–5 → `CHECK PASS`; 1–2 без новых кат�
 ```bash
 git add scripts/match/match_manager.gd scenes/match.tscn
 git commit -m "refactor(spawn): spawn human player via factory; drop \$PlayerHome scene node
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -787,8 +780,7 @@ Expected: 3–5 → `CHECK PASS` (особенно `check_keeper_clear` — ве
 ```bash
 git add scripts/match/match_manager.gd
 git commit -m "refactor(spawn): route teammate, keeper, dummies through PlayerFactory
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -872,8 +864,7 @@ Expected: все `CHECK PASS`; 1–2 без новых категорий.
 ```bash
 git add scripts/match/free_kick_controller.gd
 git commit -m "refactor(spawn): route free-kick wall/mate bodies through PlayerFactory
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -968,8 +959,7 @@ Expected: все `CHECK PASS`; 1–2 без новых категорий.
 ```bash
 git add scripts/match/match_manager.gd
 git commit -m "refactor(roster): convert target_node / sync / reset_ball to Team+group queries
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -1061,20 +1051,19 @@ Expected: все `CHECK PASS`; 1–2 без новых категорий.
 ```bash
 git add scripts/match/match_manager.gd
 git commit -m "refactor(roster): drop named player singletons (home/teammate/away)
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
 
-### Task 11: Документация (CLAUDE.md + AGENTS.md)
+### Task 11: Документация (AGENTS.md + AGENTS.md)
 
 **Files:**
-- Modify: `CLAUDE.md`, `AGENTS.md`
+- Modify: `AGENTS.md`
 
 **Interfaces:** нет (документация).
 
-- [ ] **Step 1: Add a "Player spawn factory & roster" section to CLAUDE.md**
+- [ ] **Step 1: Add a "Player spawn factory & roster" section to AGENTS.md**
 
 Вставить новую секцию (рядом с *Presentation layer & asset pipeline*), кратко фиксирующую как-построено:
 
@@ -1115,10 +1104,9 @@ see `docs/superpowers/specs/2026-07-19-player-spawn-factory-design.md`.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add CLAUDE.md AGENTS.md
+git add AGENTS.md
 git commit -m "docs(refactor): document player spawn factory + roster (Phase 1)
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -1135,11 +1123,11 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 - Удаление именованных переменных → Task 10. ✓
 - DEBUG-флаги работают → сохранены в Task 5/7. ✓
 - Тесты Фазы 1 (`check_player_factory`, `check_team_roster`) → Task 1/2/4. ✓
-- Обновление CLAUDE.md/AGENTS.md → Task 11. ✓
+- Обновление AGENTS.md/AGENTS.md → Task 11. ✓
 
 **Placeholder scan:** без TBD/«add error handling»/«similar to Task N» — код приведён полностью в каждом шаге. ✓
 
-**Type consistency:** `PlayerFactory.spawn(config, team)`, `PlayerFactory.find_visual(body)`, `PlayerMotor.find_on(p)` (существующий статик, см. CLAUDE.md *Locomotion*), `Team.add_player/players/by_role/keeper/outfield`, `PlayerConfig.role_group`, `PlayerConfig.Role.*`/`Control.*`, поля `extra_fields`/`connect_action_signals`/`locomotion_style`/`spawn_pos` — согласованы между Task 1/2/4 и потребителями 5–10. ✓
+**Type consistency:** `PlayerFactory.spawn(config, team)`, `PlayerFactory.find_visual(body)`, `PlayerMotor.find_on(p)` (существующий статик, см. AGENTS.md *Locomotion*), `Team.add_player/players/by_role/keeper/outfield`, `PlayerConfig.role_group`, `PlayerConfig.Role.*`/`Control.*`, поля `extra_fields`/`connect_action_signals`/`locomotion_style`/`spawn_pos` — согласованы между Task 1/2/4 и потребителями 5–10. ✓
 
 **Открытые допущения, проверяемые на исполнении (не блокеры):**
 - `player.tscn`: базовый тип узла `PlayerMotor` — сверить первую строку `player_motor.gd` (`extends ...`) и при расхождении с `type="Node"` поправить (Task 3, Step 1 note).

@@ -28,7 +28,6 @@ C++-оригинал: `C:\Users\User\Desktop\projects\FootballCPP` (номера
 - **Check-скрипты** — конвенции репо: `extends SceneTree`, `_initialize()`, аккумулятор `ok`, построчные `print("CHECK FAIL: ...")`, финал `print("CHECK PASS" if ok else "CHECK FAIL")` + `quit(0 if ok else 1)`. `.uid`-файлы тестов коммитятся вместе со скриптом (генерятся `--headless --import`, см. задачу 8).
 - **Коммиты** — Conventional Commits, описания по-русски.
 - **Вики не трогать до задачи 8** (там всё разом: страница, index, hooks, log.md).
-- **Модель по таблице CLAUDE.md:** задачи 2–4 и 6 — порт критичной математики (Fable 5/Opus 5); задачи 1, 7 — механика/сцена (Opus 5/Sonnet 5).
 - **Godot 4.7.1 API:** `Skeleton3D.SetBonePoseRotation/SetBonePosePosition/GetBoneGlobalPose/ResetBonePose`, `ImmediateMesh`, `FileAccess`/`DirAccess` — всё существует в 4.7; ничего из 4.8+ не использовать.
 
 ---
@@ -1242,7 +1241,7 @@ dotnet build "C:\Users\User\Desktop\projects\OpenFootball\OpenFootball.sln"
 ```
 Expected: строка `[LAB] clips: 293`, ноль строк `ERROR`/`SCRIPT ERROR` (сцена новая — baseline у неё пустой).
 
-- [ ] **Шаг 5: перегнать обе стандартные валидации** (меню-загрузка и матч-сцена, команды из CLAUDE.md) — baseline матча не изменился по категориям.
+- [ ] **Шаг 5: перегнать обе стандартные валидации** (меню-загрузка и матч-сцена, команды из AGENTS.md) — baseline матча не изменился по категориям.
 
 - [ ] **Шаг 6: коммит**
 
@@ -1260,7 +1259,6 @@ git commit -m "feat(lab): лаб-сцена anim_lab — палочник, пл�
 - Modify: `docs/wiki/index.md` (строка каталога)
 - Modify: `docs/wiki/архитектура.md` (ссылка на новую страницу)
 - Modify: `docs/wiki/открытые-вопросы.md` (пункт про фикс-тик)
-- Modify: `.claude/hooks/wiki-hint.py` (маппинги новых файлов)
 - Modify: `log.md` (веха, только в конец)
 - Add: `tests/check_gpf_*.gd.uid`, `scenes/lab/anim_lab.tscn` (uid, если Godot перезаписал)
 
@@ -1299,7 +1297,6 @@ git commit -m "feat(lab): лаб-сцена anim_lab — палочник, пл�
 переписать пункт про фикс-тик: лаба живёт на 100 Гц (`Engine.PhysicsTicksPerSecond` в
 `LabMain._Ready`), перевод матча на 100 Гц — решение фазы 4 (физика мяча).
 
-- [ ] **Шаг 4: `.claude/hooks/wiki-hint.py`** — в словарь `PAGES` добавить:
 
 ```python
     # --- порт GameplayFootball (C#) ---
@@ -1328,7 +1325,7 @@ Run:
 - [ ] **Шаг 7: коммит**
 
 ```bash
-git add docs/wiki tests/*.uid scenes/lab .claude/hooks/wiki-hint.py log.md
+git add docs/wiki tests/*.uid scenes/lab log.md
 git commit -m "docs(wiki): страница порт-gameplayfootball + веха фазы 1"
 ```
 

@@ -63,9 +63,6 @@ C++-оригинал: `C:\Users\User\Desktop\projects\FootballCPP` (read-only; �
   не по счётчику.
 - **Коммиты** — Conventional Commits, описания по-русски.
 - **Вики не трогать до задачи 6** (там всё разом).
-- **Модель по таблице CLAUDE.md:** задачи 3–4 — критичная математика варпинга (**Fable 5**);
-  задачи 1–2 — механический перенос хелперов (**Opus 5**); задача 5 — сцена/механика (**Opus 5**);
-  задача 6 — доки (**Sonnet 5**).
 - **Скорости** (`gamedefines.hpp:18-27`): idle 0 / dribble 3.5 / walk 5.0 / sprint 8.0 +
   `animSprintVelocity` **7.0** (`:23`); переключатели 1.8 / 4.2 / 6.0. Корзины дескрипторов клипа
   (`Animation.BucketVelocity`): верх **7.0**, не 8.0. Это ДВЕ разные семёрки: `animSprintVelocity` —
@@ -1859,7 +1856,6 @@ git commit -m "feat(lab): walk_lab на варпнутых траектория�
 - Modify: `docs/wiki/порт-gameplayfootball.md`
 - Modify: `docs/wiki/открытые-вопросы.md`
 - Modify: `log.md` (append-only)
-- Modify: `.claude/hooks/wiki-hint.py`
 
 **Interfaces:** consumes — итог задач 1–5; produces — актуальная вики.
 
@@ -1890,6 +1886,6 @@ git commit -m "feat(lab): walk_lab на варпнутых траектория�
 - [ ] **Шаг 6: коммит**
 
 ```powershell
-git add docs/wiki/порт-gameplayfootball.md docs/wiki/открытые-вопросы.md log.md .claude/hooks/wiki-hint.py
+git add docs/wiki/порт-gameplayfootball.md docs/wiki/открытые-вопросы.md log.md
 git commit -m "docs(wiki): фаза 3 порта GPF — варпинг CalculatePhysicsVector"
 ```

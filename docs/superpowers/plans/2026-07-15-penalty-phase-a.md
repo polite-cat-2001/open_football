@@ -37,7 +37,7 @@
 - `scripts/player/player_visual.gd` — регистрация `penalty_l`/`penalty_r`, root-motion трек + `consume_root_motion()`.
 - `scripts/ai/keeper_ai.gd` — `set_penalty_mode()`, `begin_penalty_dive(zone)`, пенальти-ветка в `_position`.
 - `scripts/match/match_manager.gd` — `_penalty_active` + `is_penalty_active()`, action `penalty_debug` (P), гейты ввода/ИИ/камеры, инстанс контроллера, старт по P.
-- `CLAUDE.md`, `AGENTS.md` — раздел про пенальти.
+- `AGENTS.md` — раздел про пенальти.
 
 ---
 
@@ -624,7 +624,7 @@ func _penalty_hold(delta: float, m: PlayerMotor) -> void:
 - [ ] **Step 3: Валидация match-сцены (headless) — нет новых ошибок парсинга/рантайма**
 
 Run: `& "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit-after 2 res://scenes/match.tscn`
-Expected: набор ошибок совпадает по КАТЕГОРИЯМ с baseline из CLAUDE.md (дубль-регистрация ACTION_CLIPS, `!is_inside_tree()`, `WorldEnvironment3D`) — без новых по `keeper_ai`/`PenaltyLogic`.
+Expected: набор ошибок совпадает по КАТЕГОРИЯМ с baseline из AGENTS.md (дубль-регистрация ACTION_CLIPS, `!is_inside_tree()`, `WorldEnvironment3D`) — без новых по `keeper_ai`/`PenaltyLogic`.
 
 - [ ] **Step 4: Коммит**
 
@@ -1007,7 +1007,7 @@ Run (оба):
 & "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit
 & "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit-after 2 res://scenes/match.tscn
 ```
-Expected: обе грузятся; ошибки только baseline-категорий из CLAUDE.md, без новых по `penalty_controller`.
+Expected: обе грузятся; ошибки только baseline-категорий из AGENTS.md, без новых по `penalty_controller`.
 
 - [ ] **Step 3: Коммит**
 
@@ -1062,12 +1062,12 @@ git commit -m "tune(penalty): run-up/contact/spread/camera after playtest"
 
 ---
 
-## Task 10: Документация (CLAUDE.md / AGENTS.md)
+## Task 10: Документация (AGENTS.md / AGENTS.md)
 
 **Files:**
-- Modify: `CLAUDE.md`, `AGENTS.md`
+- Modify: `AGENTS.md`
 
-- [ ] **Step 1: Добавить раздел «Penalty (Phase A)» в CLAUDE.md**
+- [ ] **Step 1: Добавить раздел «Penalty (Phase A)» в AGENTS.md**
 
 Кратко описать: `PenaltyController` (базовый, один пенальти, `struck`/`release_after_strike`), `PenaltyLogic` (чистая математика), пенальти-режим вратаря (`set_penalty_mode`/`begin_penalty_dive`, CENTER = рефлекс по высоте), root-motion разбег (`penalty_kick_l/_r` не в `IN_PLACE_CLIPS`, `consume_root_motion`), фикс-камера в `match_manager` (`_penalty_active`), кнопка P (`penalty_debug`), новые `PEN_*` константы, тест `check_penalty_logic.gd`. Отметить Фазы B/C как будущие (шов `release_after_strike`, `_reticle_visible`).
 
@@ -1076,8 +1076,8 @@ git commit -m "tune(penalty): run-up/contact/spread/camera after playtest"
 - [ ] **Step 3: Коммит**
 
 ```bash
-git add CLAUDE.md AGENTS.md
-git commit -m "docs(penalty): document Phase A penalty in CLAUDE.md/AGENTS.md"
+git add AGENTS.md
+git commit -m "docs(penalty): document Phase A penalty in AGENTS.md/AGENTS.md"
 ```
 
 ---
