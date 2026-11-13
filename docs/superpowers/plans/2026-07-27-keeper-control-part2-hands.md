@@ -17,8 +17,8 @@
 - **Чистые `*_logic.gd` НИКОГДА не читают `FootballConstants`** — тюнинг параметрами (`KeeperPlayLogic`/`PassSystem`/`KeeperLogic` уже такие).
 - **Тип-геттер-гоча:** `var x := node.method()` на статически-типизированной переменной, где метода нет в статическом типе (`_manager: Node`, `_body: CharacterBody3D` без `brain()` в статическом типе), НЕ компилится («cannot infer the type»). Объявлять явным типом: `var x: PlayerVisual = _manager._player_visual(...)`. В `keeper_ai` тело — `_body` (тип `CharacterBody3D` по `Brain._body`); менеджер — `manager` (тип `Node`), все `manager.foo()` динамические (Variant) — это ок.
 - **`keeper_ai` тело читается через `_body`** (кэш `Brain._body := get_parent()`), НИКОГДА через `self`/`global_position` (это укажет на `Brain`-узел, не тело). Движение — через `_motor()` (`PlayerMotor.find_on(_body)`).
-- **Флейки headless** (см. CLAUDE.md): launch-зависимые flow-тесты (ждут `action_contact` фиксированный бюджет кадров) intermittently дают `launched=false`. Гонять 2–3×; регрессию подтверждать диффом против baseline (откатить правку, прогнать заново), а не одним фейлом.
-- Отвечать/комментировать по-русски. Коммиты подписывать `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
+- **Флейки headless** (см. AGENTS.md): launch-зависимые flow-тесты (ждут `action_contact` фиксированный бюджет кадров) intermittently дают `launched=false`. Гонять 2–3×; регрессию подтверждать диффом против baseline (откатить правку, прогнать заново), а не одним фейлом.
+- Отвечать/комментировать по-русски.
 
 ## As-built (проверено разведкой перед планом — на что опираемся)
 
@@ -1295,7 +1295,7 @@ git commit -m "feat(keeper): консьюмер бэк-паса — намере
 **4. Риски исполнения (не блокеры, отмечены в шагах):**
 - Launch-зависимые flow-тесты флейки (ждут `action_contact`) — гнать 2–3×, сверять с baseline (Global Constraints).
 - `_body.get_tree()` доступен (тело в дереве); `_hands_intent_override` — тест-хук (в проде null → диспетч). Оба намеренны.
-- Клип `keeper_drop_kick`/`keeper_pass`/`keeper_overhand_throw` существуют в glb (см. CLAUDE.md список). Тайминги `action_contact` — из существующего `ACTION_TIMING`; при отсутствии контакта — фолбэк по `_state_timer` (как у авто-раздачи).
+- Клип `keeper_drop_kick`/`keeper_pass`/`keeper_overhand_throw` существуют в glb (см. AGENTS.md список). Тайминги `action_contact` — из существующего `ACTION_TIMING`; при отсутствии контакта — фолбэк по `_state_timer` (как у авто-раздачи).
 
 ## После Плана 2
 

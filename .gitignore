@@ -7,4 +7,3 @@ user.cfg
 assets/models/mixamo_src/
 
 # Python bytecode from .claude hooks
-.claude/hooks/__pycache__/
