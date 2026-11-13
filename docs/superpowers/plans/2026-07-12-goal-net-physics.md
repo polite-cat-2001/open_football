@@ -14,8 +14,8 @@
 - **Ответ всегда на русском** (пользовательское правило); код/идентификаторы — без изменений.
 - **`NetSim` — чистые статические функции, НЕ читает `FootballConstants`** (вся тюнинговка приходит параметрами), иначе headless-тест сломается. Аналог `PassSystem`.
 - **InputMap правится только в `_setup_inputs()`** — эта фича его не трогает.
-- **Координаты (см. CLAUDE.md):** Z — длина (105 м), X — ширина (68 м), ворота на Z = ±52.5. Home (Z=−52.5) → сетка уходит в −Z; Away (Z=+52.5) → в +Z. Граничная стена на |Z|=56.5 (места под 1.5 м глубины хватает).
-- **Валидация headless — ДВЕ команды** (ловят разное; см. CLAUDE.md):
+- **Координаты (см. AGENTS.md):** Z — длина (105 м), X — ширина (68 м), ворота на Z = ±52.5. Home (Z=−52.5) → сетка уходит в −Z; Away (Z=+52.5) → в +Z. Граничная стена на |Z|=56.5 (места под 1.5 м глубины хватает).
+- **Валидация headless — ДВЕ команды** (ловят разное; см. AGENTS.md):
   - menu-load: `& "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit`
   - match-scene: `& "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit-after 2 res://scenes/match.tscn`
   - **Известный baseline второй команды** (не ждать нуля ошибок, диффать против него): ~33× `Condition "!is_inside_tree()" is true`, ~6× transition-duplicate, ~3× `states.has(p_name)` (дубликат kick/pass в `PlayerVisual`), ~1× `Cannot get class 'WorldEnvironment3D'`.

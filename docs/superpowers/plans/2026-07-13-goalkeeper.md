@@ -18,7 +18,7 @@
 - **InputMap не трогаем** (вратарь — AI, без ввода).
 - **Команды вратаря:** группа `team_2` (соперник для человека).
 - **Ворота человека атакует:** Away (`+field_length`, Z ≈ +52.5). Вратарь defends именно их. (Home на `-Z` атакует AI-соперник — код: `simple_ai.home_goal = GoalHome`.)
-- **Headless-валидация после match-задач** (diff против baseline из CLAUDE.md — 4 категории ошибок, НЕ ждать zero):
+- **Headless-валидация после match-задач** (diff против baseline из AGENTS.md — 4 категории ошибок, НЕ ждать zero):
   `& "<exe>" --path "<repo>" --headless --quit-after 2 res://scenes/match.tscn`
 - **Headless-тест:** `& "<exe>" --path "<repo>" --headless -s "res://tests/<name>.gd"` → печатает `CHECK PASS`/`CHECK FAIL`, exit 0/1.
 - **Стиль комментариев/языка** — русский, как в существующих файлах.
@@ -613,7 +613,7 @@ const ACTION_TIMING := {
 - [ ] **Step 4: Запустить — убедиться, что проходит**
 
 Run: `& "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless -s "res://tests/check_player_visual_fall.gd"`
-Expected: `CHECK PASS`. (Плюс существующие `ACTION_CLIPS`-дубликаты — известный безвредный шум движка, см. CLAUDE.md.)
+Expected: `CHECK PASS`. (Плюс существующие `ACTION_CLIPS`-дубликаты — известный безвредный шум движка, см. AGENTS.md.)
 
 - [ ] **Step 5: Commit**
 
@@ -894,7 +894,7 @@ func _setup_keeper() -> void:
 - [ ] **Step 3: Проверить match-сцену (headless, diff против baseline)**
 
 Run: `& "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit-after 2 res://scenes/match.tscn`
-Expected: те же 4 категории ошибок из baseline (CLAUDE.md), без НОВЫХ. Вратарь инстанцируется без ошибок.
+Expected: те же 4 категории ошибок из baseline (AGENTS.md), без НОВЫХ. Вратарь инстанцируется без ошибок.
 
 - [ ] **Step 4: Ручная проверка в игре**
 
@@ -999,7 +999,7 @@ func _position(_delta: float) -> void:
 - [ ] **Step 3: Проверить match-сцену (headless)**
 
 Run: `& "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit-after 2 res://scenes/match.tscn`
-Expected: без новых ошибок против baseline; `keeper_ai.gd` парсится (он грузится через match.tscn — см. CLAUDE.md про `--quit-after`).
+Expected: без новых ошибок против baseline; `keeper_ai.gd` парсится (он грузится через match.tscn — см. AGENTS.md про `--quit-after`).
 
 - [ ] **Step 4: Ручная проверка**
 
