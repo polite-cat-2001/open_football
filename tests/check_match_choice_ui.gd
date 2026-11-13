@@ -52,13 +52,17 @@ func _run() -> void:
 	screen.handle_key(_key(KEY_ENTER))
 	_check(chosen[0] == "classic", "Enter on CLASSIC reports the choice")
 
-	# Network: the host decides, the client only watches.
+	# Network: the host decides, so every choice is dead locally; the hint sits on
+	# the tiles instead of the status line.
 	chosen[0] = ""
 	screen.set_online(true)
 	_check(tiles[0].disabled and tiles[2].disabled and tiles[3].disabled,
 		"every choice is disabled for the network client")
-	_check(screen.hints.status_text() == "WAITING FOR HOST",
-		"the client shows the waiting status")
+	_check(tiles[0].chip == "HOST CHOOSING" and tiles[1].chip == "HOST CHOOSING"
+		and tiles[2].chip == "HOST CHOOSING" and tiles[3].chip == "HOST CHOOSING",
+		"the client writes the host-choosing text on each tile")
+	_check(screen.hints.status_text() == "",
+		"the host-choosing text does not use the status line")
 	screen.handle_key(_key(KEY_ENTER))
 	_check(chosen[0] == "", "a network client never reports a choice")
 

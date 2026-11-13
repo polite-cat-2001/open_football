@@ -8,6 +8,9 @@ extends Node
 signal advance_requested
 signal restart_requested
 signal choice_made(id: String)
+# Forwarded from whichever screen finished its close animation, so the
+# orchestrator can swap the scene after the fade instead of cutting it.
+signal closed
 
 const RESULT_SCENE := preload("res://scenes/match/match_result.tscn")
 const CHOICE_SCENE := preload("res://scenes/match/match_choice.tscn")
@@ -18,6 +21,9 @@ var choice: MatchChoiceScreen
 
 var _runtime: Node = null
 var _package: Dictionary = {}
+# The screen the routing wants (not the one merely still fading out): the two
+# screens cross-fade, so visibility alone cannot tell a swap from a repeat.
+var _want_choice := false
 
 
 func setup() -> void:
@@ -36,6 +42,8 @@ func setup() -> void:
 	choice.name = "Choice"
 	layer.add_child(choice)
 	choice.option_chosen.connect(func(id: String): choice_made.emit(id))
+	result.closed.connect(func(): closed.emit())
+	choice.closed.connect(func(): closed.emit())
 
 
 func set_match(runtime_node: Node, package: Dictionary) -> void:
@@ -48,15 +56,21 @@ func set_match(runtime_node: Node, package: Dictionary) -> void:
 
 
 func open_result(series_caption := "") -> void:
+	if not _want_choice and result.is_open():
+		return
+	_want_choice = false
 	if choice.is_open():
-		choice.hide_now()
+		choice.close()
 	result.set_match_data(_data(series_caption))
 	result.open()
 
 
 func open_choice() -> void:
+	if _want_choice and choice.is_open():
+		return
+	_want_choice = true
 	if result.is_open():
-		result.hide_now()
+		result.close()
 	choice.set_match_data(_data(""))
 	choice.open()
 
@@ -66,10 +80,10 @@ func is_open() -> bool:
 
 
 func is_choice() -> bool:
-	return choice.is_open()
-
+	return _want_choice
 
 func dismiss() -> void:
+	_want_choice = false
 	if result.is_open():
 		result.close()
 	if choice.is_open():
@@ -77,6 +91,7 @@ func dismiss() -> void:
 
 
 func hide_now() -> void:
+	_want_choice = false
 	result.hide_now()
 	choice.hide_now()
 

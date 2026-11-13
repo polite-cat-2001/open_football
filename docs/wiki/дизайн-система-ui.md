@@ -477,8 +477,13 @@ Back-цепочка в сети: `network_sides → network_menu`, `network_lobb
 мелкая строка турнира (`package.home.league`), блок «2×2 плитки + правая панель», `UiHintsBar`
 и те же 150/240 мс fade+scale. Носитель — `GpfMatchOver` (`scripts/match/gpf_match_over.gd`,
 CanvasLayer 7) поверх замороженного матча; открытие и выбор экрана — по снапшоту в `gpf_slice`
-(`game_over` → результат; брейк `phase_break_next_phase == 3` при равном счёте → выбор ничьей).
-Ввод модальный; выбор ничьей принадлежит хосту / P1 (в сети клиент видит `WAITING FOR HOST`).
+(`game_over` → результат; брейк `phase_break_next_phase == 3` при равном счёте → выбор ничьей;
+у тонкого клиента латча нет — тот же период берётся из `match_phase`, поэтому экран у клиента
+такой же, только read-only).
+Ввод модальный; выбор ничьей принадлежит хосту / P1 (в сети у клиента все плитки заблокированы,
+и на каждой в слоте чипа (где у GOLDEN GOAL стоит `SOON`) написано `HOST CHOOSING`; выбранный
+хостом вариант доходит снапшотом и закрывает экран).
+Конец матча приезжает снапшотом (`game_over`), поэтому после серии пенальти клиент видит тот же RESULT.
 
 - Результат — `scenes/match/match_result.tscn` (`MatchResultScreen`): `ADVANCE` (главное меню),
   `RESTART MATCH` (тот же пакет; в сети disabled с чипом `ONLINE LOBBY`), `MATCH HIGHLIGHTS` и

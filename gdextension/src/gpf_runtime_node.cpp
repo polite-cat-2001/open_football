@@ -340,6 +340,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("debug_force_phase_break", "next_phase"), &GpfRuntimeNode::debug_force_phase_break);
     ClassDB::bind_method(D_METHOD("debug_force_game_over"), &GpfRuntimeNode::debug_force_game_over);
     ClassDB::bind_method(D_METHOD("debug_skip_to_period_end"), &GpfRuntimeNode::debug_skip_to_period_end);
+    ClassDB::bind_method(D_METHOD("debug_get_iterations"), &GpfRuntimeNode::debug_get_iterations);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "data_root"), "set_data_root", "get_data_root");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "seed"), "set_seed", "get_seed");
@@ -356,10 +357,16 @@ void GpfRuntimeNode::_ready() {
 }
 
 void GpfRuntimeNode::_process(double delta) {
-    if (!runtime_ready || manual_step || game_over_seen || !match) {
+    if (!runtime_ready || manual_step || !match) {
         return;
     }
     const bool network_match = is_net_active();
+    // A finished network match keeps ticking: the peers only learn the result and
+    // the host's end-of-match UI from the snapshots, and the match is paused, so
+    // nothing simulates. A local match just stops.
+    if (game_over_seen && !network_match) {
+        return;
+    }
     if (match->GetPause() && !network_match) {
         accumulator_ms = 0.0;
         return;
@@ -377,8 +384,11 @@ void GpfRuntimeNode::_process(double delta) {
     }
 
     if (match->GetPause()) {
-        accumulator_ms = 0.0;
-        // Keep the paused network frame rendered while the session ticks.
+        // Keep the paused network frame rendered while the session ticks. The
+        // accumulator keeps its remainder (< TICK_MS): zeroing it here meant a
+        // fast frame rate (delta < TICK_MS, e.g. 144 Hz) never accumulated a
+        // single tick while paused, so the client stopped applying snapshots —
+        // its end-of-match screen then only appeared when the match resumed.
         if (network_match) {
             put_frame(sim_time_ms);
         }
@@ -1229,7 +1239,10 @@ bool GpfRuntimeNode::start_match() {
     });
     match->sig_OnGameOver.connect([this](Match *m) {
         game_over_seen = true;
-        if (m) m->Pause(true);
+        // The signal fires on every processed tick once the match is over: only
+        // the first call may pause, or the peers are flooded with PauseState
+        // messages (one per tick) and the snapshots queue behind them.
+        if (m && !m->GetPause()) m->Pause(true);
     });
     // The original UI opens its phase menu from sig_OnMatchPhaseChange. The
     // runtime only records the request here: the Godot presentation decides
@@ -1332,10 +1345,15 @@ void GpfRuntimeNode::apply_controller_setup() {
 }
 
 void GpfRuntimeNode::step_one_tick() {
-    if (!runtime_ready || !match || game_over_seen) {
+    if (!runtime_ready || !match) {
         return;
     }
     const bool network_match = is_net_active();
+    // A finished network match still ticks for its paused frame and snapshots
+    // (see _process); a local one is done.
+    if (game_over_seen && !network_match) {
+        return;
+    }
     // A paused network match still needs its tick: pause/resume votes, roster
     // changes and snapshots are processed by NetMatchSession inside GameTask.
     if (!network_match && match->GetPause()) {
@@ -2001,7 +2019,10 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["phase_break"] = match->IsPhaseBreak();
     result["phase_break_next_phase"] = phase_break_next_phase;
     result["debug_park_opponents"] = park_opponents;
-    result["game_over"] = game_over_seen;
+    // A thin client never runs the referee that ends the match, so its own latch
+    // stays cold; the relayed Match state is what tells every peer it is over.
+    result["game_over"] = game_over_seen || match->IsGameOver();
+
     result["goal_scored"] = match->IsGoalScored();
     result["ball_in_goal"] = match->IsBallInGoal();
     result["last_goal_team"] = match->GetLastGoalTeamID();
@@ -2640,6 +2661,10 @@ void GpfRuntimeNode::debug_force_game_over() {
     game_over_seen = true;
     match->GameOver();
     match->Pause(true);
+}
+
+int GpfRuntimeNode::debug_get_iterations() {
+    return match ? (int)match->GetIterations() : 0;
 }
 
 bool GpfRuntimeNode::debug_skip_to_period_end() {

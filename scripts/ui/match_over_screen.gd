@@ -9,6 +9,10 @@ extends Control
 # handle_key/handle_joy path stays for headless tests, which run without
 # autoloads. Layout follows PauseScreen: one 1920x1080 design canvas.
 
+# Emitted once the close animation finished (the screen is hidden), so the caller
+# can swap the scene after the fade instead of cutting it.
+signal closed
+
 const PANEL_W := 1480.0
 const HEADER_H := 156.0
 const META_H := 22.0
@@ -212,12 +216,15 @@ func hide_now() -> void:
 	var viewport := get_viewport()
 	if viewport != null:
 		var focus := viewport.gui_get_focus_owner()
-		if focus != null:
+		# Only drop our own focus: during a cross-fade the incoming screen in this
+		# same overlay may already own it.
+		if focus != null and is_ancestor_of(focus):
 			focus.release_focus()
 
 
 func _finish_close() -> void:
 	hide_now()
+	closed.emit()
 
 
 func _animate_open() -> void:

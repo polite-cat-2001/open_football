@@ -7,6 +7,7 @@ extends SceneTree
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
+const GpfSliceScript := preload("res://scripts/match/gpf_slice.gd")
 
 var scene: Node
 var runtime: Node
@@ -18,6 +19,7 @@ func _init() -> void:
 
 
 func _run() -> void:
+	_check_routing()
 	var package := MatchPackageFixture.build(DATA_ROOT, 4, 5)
 	if package.is_empty():
 		_check(false, "match package could not be built")
@@ -102,12 +104,52 @@ func _run() -> void:
 	_check((pause.get("_plan_lineups") as Dictionary).is_empty(),
 		"restart clears the previous plan XI")
 
+	# ADVANCE closes the result screen and leaves for the main menu (the close is
+	# animated in the app; headless swaps instantly).
+	runtime.debug_force_game_over()
+	await _frames(10)
+	_check(over.is_open() and not over.is_choice(), "the result screen reopens after a game over")
+	over.result.call("_on_tile_pressed", "advance")
+	await _frames(20)
+	# The overlay itself is hidden by the animated close (not asserted headless:
+	# this harness keeps the scene mounted); the swap proves the close completed.
+	_check(current_scene != null and current_scene.name == "MainMenu",
+		"advance returns to the main menu")
+
 	_finish()
 
 
 func _frames(count: int) -> void:
 	for i in count:
 		await process_frame
+
+
+# Routing predicate only: the host latches the next period, a thin client has
+# the host's match phase instead (3 = extra time).
+func _check_routing() -> void:
+	var host := {"phase_break_pending": true, "phase_break_next_phase": 3,
+		"match_phase": 3, "score0": 1, "score1": 1}
+	_check(GpfSliceScript.choice_needed(host), "a latched level 90:00 wants the choice")
+	_check(not GpfSliceScript.choice_needed({
+		"phase_break_pending": true, "phase_break_next_phase": 2,
+		"match_phase": 2, "score0": 1, "score1": 1}),
+		"a latched level half-time does not")
+	var client := {"phase_break": true, "phase_break_next_phase": 0,
+		"match_phase": 3, "score0": 1, "score1": 1}
+	_check(GpfSliceScript.choice_needed(client),
+		"a thin client with no latch routes by its match phase")
+	_check(not GpfSliceScript.choice_needed({
+		"phase_break": true, "phase_break_next_phase": 0,
+		"match_phase": 2, "score0": 0, "score1": 0}),
+		"a thin client at a level half-time stays on the break screen")
+	_check(not GpfSliceScript.choice_needed({
+		"phase_break": true, "phase_break_next_phase": 0,
+		"match_phase": 3, "score0": 2, "score1": 1}),
+		"a thin client with a winner goes to extra time")
+	_check(not GpfSliceScript.choice_needed({
+		"phase_break": true, "phase_break_next_phase": 0,
+		"match_phase": 3, "score0": 1, "score1": 1, "game_over": true}),
+		"a finished match never wants the choice")
 
 
 func _key(code: int) -> InputEventKey:

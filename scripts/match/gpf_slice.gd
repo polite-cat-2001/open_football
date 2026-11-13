@@ -60,6 +60,7 @@ var _pause_stick_ms := 0
 var _net_break_seen := false
 var _resume_fade_at_ms := 0
 var _resume_sequence := false
+var _leaving := false
 
 
 func _ready() -> void:
@@ -484,7 +485,7 @@ func _sync_phase_break(snap: Dictionary) -> void:
 		if pause_menu.is_break():
 			pause_menu.dismiss()
 		return
-	if _choice_needed(snap):
+	if choice_needed(snap):
 		# A level score at 90:00 is the choice screen's latch, not the period
 		# break: the choice overlay pauses the match itself (see _sync_match_over).
 		if pause_menu.is_break():
@@ -524,7 +525,7 @@ func _sync_match_over(snap: Dictionary) -> void:
 		if not match_over.is_open() or match_over.is_choice():
 			match_over.open_result(caption)
 		return
-	if _choice_needed(snap):
+	if choice_needed(snap):
 		if not match_over.is_choice():
 			if not bool(runtime.is_net_client()):
 				runtime.begin_phase_break()
@@ -537,12 +538,18 @@ func _sync_match_over(snap: Dictionary) -> void:
 
 
 # A level score at the end of regulation: the C++ referee latched the extra-time
-# phase break and the choice screen takes over from the period break.
-func _choice_needed(snap: Dictionary) -> bool:
+# phase break and the choice screen takes over from the period break. Static so
+# the routing is testable without a live match.
+static func choice_needed(snap: Dictionary) -> bool:
 	var breaking := bool(snap.get("phase_break_pending", false)) \
 		or bool(snap.get("phase_break", false))
+	# The host's latch names the period being started; a thin client never runs
+	# that latch, but its match phase already names the same period.
+	var next_phase := int(snap.get("phase_break_next_phase", 0))
+	if next_phase <= 0:
+		next_phase = int(snap.get("match_phase", 0))
 	return breaking \
-		and int(snap.get("phase_break_next_phase", 0)) == 3 \
+		and next_phase == 3 \
 		and int(snap.get("score0", 0)) == int(snap.get("score1", 0)) \
 		and not bool(snap.get("game_over", false)) \
 		and not bool(snap.get("shootout_active", false))
@@ -878,6 +885,12 @@ func _net_connection_lost(snap: Dictionary) -> bool:
 func _show_host_disconnected() -> void:
 	_close_side_select_overlay(false)
 	pause_menu.dismiss()
+	# The match is already over and the host left the lobby: there is nothing left
+	# to show here, so leave with him instead of a dead-end "host disconnected"
+	# note over the result screen (whose buttons the note also blocks).
+	if match_over.is_open():
+		_return_to_main_menu()
+		return
 	if _net_status_layer == null:
 		_net_status_layer = CanvasLayer.new()
 		_net_status_layer.name = "NetStatus"
@@ -1161,12 +1174,28 @@ func _start_fresh_match() -> void:
 
 
 func _return_to_main_menu() -> void:
+	if _leaving:
+		return
+	_leaving = true
 	if replay.is_active():
 		replay.finish()
+	# Fade the end-of-match overlay out before the scene swap; an instant cut made
+	# ADVANCE look like the screen just vanished.
+	if match_over.is_open():
+		match_over.dismiss()
+		if match_over.is_open():
+			await match_over.closed
+	# UiTransition ignores a scene change that arrives while its own hide is still
+	# running (its busy flag clears after the close callback), so yield a frame.
+	await get_tree().process_frame
 	# Leaving a LAN match tears the session down before the menu appears.
 	if runtime != null and is_instance_valid(runtime) and bool(runtime.is_net_active()):
 		runtime.net_leave()
-	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
+	var transition := get_node_or_null("/root/UiTransition")
+	if transition != null:
+		transition.change_scene(MAIN_MENU_SCENE)
+	else:
+		get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
 
 func _return_to_team_select() -> void:

@@ -29,8 +29,12 @@ func _on_tile_pressed(id: String) -> void:
 	option_chosen.emit(id)
 
 
-# Thin client: the host decides; the client only watches.
+# Thin client: the host decides, so every tile is dimmed and dead locally and
+# carries the host-choosing chip (the slot the SOON placeholders use).
 func _apply_online() -> void:
 	for index in _tiles.size():
-		_tiles[index].set_tile_disabled(_online or index == 1)
-	hints.set_status("WAITING FOR HOST" if _online else "")
+		var tile := _tiles[index]
+		tile.set_tile_disabled(_online or index == 1)
+		if _online:
+			tile.set_page(tile.title, tile.glyph_name, "HOST CHOOSING")
+	hints.set_status("")

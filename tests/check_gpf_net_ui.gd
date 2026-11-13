@@ -411,6 +411,15 @@ func _run() -> void:
 			_check(not break_menu.is_open(), "the break overlay closes after the resume")
 
 	if current_scene != null and current_scene.has_method("_return_to_main_menu"):
+		# A finished network match must keep ticking: the peers only learn the
+		# result (and the host's end-of-match UI) from the snapshots, and the host
+		# used to stop stepping the moment its own game-over latch was set.
+		if runtime != null:
+			runtime.debug_force_game_over()
+			var iterations_before := int(runtime.debug_get_iterations())
+			runtime.step_fixed(10)
+			_check(int(runtime.debug_get_iterations()) > iterations_before,
+				"a finished network match keeps ticking for the peers")
 		current_scene.call("_return_to_main_menu")
 		await _frames(8)
 	_check(not NET_SHELL.is_active(self), "returning to the menu leaves the LAN session")

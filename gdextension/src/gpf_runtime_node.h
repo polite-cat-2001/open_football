@@ -256,6 +256,9 @@ public:
     bool start_shootout();
     void debug_force_phase_break(int next_phase);
     void debug_force_game_over();
+    // Processed-tick counter: a finished network match must keep ticking so the
+    // peers receive the result (see _process/step_one_tick).
+    int debug_get_iterations();
     // F5: push the clock to the end of the current period so the referee's own
     // whistle ends it (the break latch then opens the period break).
     bool debug_skip_to_period_end();
