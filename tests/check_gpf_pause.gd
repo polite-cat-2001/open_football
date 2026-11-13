@@ -224,18 +224,34 @@ func _run(package: Dictionary) -> void:
 	menu.handle_joy(_joy(JOY_BUTTON_B))
 	_check(not menu.is_open(), "gamepad B closes the menu")
 
-	# A network pause is a vote: the menu must stay up (no close/reopen blink),
-	# only the Continue note changes.
+	# A network pause is a vote: Continue swaps the menu for the READY view,
+	# and Esc/B backs out to the menu and withdraws the vote.
 	_check(bool(runtime.net_host(28637, "Pause Test")), "the pause test binds a LAN session")
 	menu.open()
+	var cancelled := [false]
+	menu.ready_cancelled.connect(func(): cancelled[0] = true)
 	resumed[0] = false
 	_check(menu.handle_key(_key(KEY_ENTER)), "the network menu handles Continue")
-	_check(resumed[0] and menu.is_open(), "a network vote keeps the pause menu open")
-	_check(menu.screen.continue_tile.meta.contains("WAITING FOR RIVAL"),
-		"the continue note shows the waiting state")
+	_check(resumed[0], "a network vote sends Continue")
+	_check(menu.screen.is_ready(), "the vote replaces the pause with the READY view")
+	_check(menu.is_open(), "the READY view keeps the pause carrier open")
 	resumed[0] = false
+	_check(menu.handle_key(_key(KEY_ESCAPE)), "Esc is handled by the READY view")
+	_check(cancelled[0] and not menu.screen.is_ready(),
+		"Esc returns to the pause menu")
+	_check(not resumed[0], "Esc backs out instead of voting again")
+	menu.handle_key(_key(KEY_ENTER))
+	_check(menu.screen.is_ready(), "Continue re-opens the READY view")
+	_check(menu.screen.ready_view.visible
+		and menu.screen.ready_hints.get_node("Legend").get_child_count() > 0,
+		"the READY view carries the back hint")
 	menu.handle_joy(_joy(JOY_BUTTON_B))
-	_check(resumed[0] and menu.is_open(), "gamepad B votes without closing the menu")
+	_check(not menu.screen.is_ready(), "gamepad B returns to the pause menu")
+	menu.handle_key(_key(KEY_ENTER))
+	resumed[0] = false
+	menu.screen.dismiss_ready()
+	_check(not menu.is_open() and not resumed[0],
+		"the all-ready dismissal drops the overlay without voting")
 	runtime.net_leave()
 
 	print("== check_gpf_pause: ", "PASS" if failures.is_empty() else "FAIL", " ==")

@@ -99,6 +99,24 @@ func _run() -> void:
 		_check(player_name.error_text().contains("name"), "an empty name is reported")
 		_check(join_status.text.contains("highlighted"), "the form asks for the fields")
 
+	# A joining client lands on the guest (away) side without extra input.
+	var guest_probe = load(SIDES_SCENE).instantiate()
+	guest_probe.participants = [{"id": 7, "side": 0, "is_local": true, "name": "Guest"}]
+	guest_probe.call("_assign_guest_side", {"is_client": true})
+	_check(bool(guest_probe.get("_guest_assigned")),
+		"a joining client auto-takes the away side")
+	guest_probe.set("_guest_assigned", false)
+	guest_probe.participants = [{"id": 7, "side": -1, "is_local": true, "name": "Guest"}]
+	guest_probe.call("_assign_guest_side", {"is_client": true})
+	_check(not bool(guest_probe.get("_guest_assigned")),
+		"a client already on a side is not moved")
+	guest_probe.set("_guest_assigned", false)
+	guest_probe.participants = [{"id": 7, "side": 0, "is_local": true, "name": "Host"}]
+	guest_probe.call("_assign_guest_side", {"is_client": false})
+	_check(not bool(guest_probe.get("_guest_assigned")),
+		"the host is not auto-moved off its side")
+	guest_probe.free()
+
 	# Host screen: bind a free port through the real UI entry point.
 	change_scene_to_file(NETWORK_HOST)
 	await _frames(5)

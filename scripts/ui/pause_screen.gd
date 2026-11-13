@@ -14,8 +14,10 @@ signal forfeit_requested
 signal replay_requested
 signal game_plan_requested
 signal side_select_requested
+signal ready_cancelled
 
 const SIDE_SELECT_SCENE := preload("res://scenes/ui/settings_side_select.tscn")
+const HINTS_SCENE := preload("res://scenes/ui/ui_hints_bar.tscn")
 const HEADER_H := 156.0
 const PAUSE_W := 1700.0
 const LINEUP_W := 840.0
@@ -143,6 +145,12 @@ var _menu_tiles: Array[BentoTile] = []
 # the continue tile starts the next period (original MatchPhasePage wording).
 var _break_caption := ""
 var _break_continue := ""
+# Network pause vote: the menu is replaced by the crest + READY view until the
+# rival readies too, or the player backs out to the menu.
+var ready_view: GpfGamePlan.ReadyOverlay
+var ready_hints: UiHintsBar
+var _showing_ready := false
+var _ready_seq := 0
 
 
 func _ready() -> void:
@@ -193,6 +201,19 @@ func _build_once() -> void:
 	design.move_child(content, 0)
 	for node in [scoreboard, breadcrumb, panel_wrap]:
 		node.reparent(content)
+
+	ready_view = GpfGamePlan.ReadyOverlay.new()
+	ready_view.name = "ReadyView"
+	ready_view.visible = false
+	ready_view.dim = false
+	ready_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ready_view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	design.add_child(ready_view)
+
+	ready_hints = HINTS_SCENE.instantiate() as UiHintsBar
+	ready_hints.name = "ReadyHints"
+	ready_view.add_child(ready_hints)
+	(ready_hints.get_node("Legend") as HBoxContainer).alignment = BoxContainer.ALIGNMENT_CENTER
 
 	_pager = PagePager.new()
 	_pager.visible = false
@@ -339,6 +360,85 @@ func close() -> void:
 	transition.hide_target(content, _finish_close)
 
 
+# Network pause vote: fade the menu out and the crest + READY view in.
+func show_ready() -> void:
+	_build_once()
+	if _showing_ready:
+		return
+	_showing_ready = true
+	_ready_seq += 1
+	var seq := _ready_seq
+	var team: Dictionary = _package.get("home" if _team_id == 0 else "away", {})
+	ready_view.crest = UiAssets.usable_texture(UiAssets.team_logo({
+		"id": int(team.get("database_id", 0)),
+		"logo_url": str(team.get("logo_url", "")),
+	}))
+	ready_view.team_name = str(team.get("name", "")).to_upper()
+	ready_view.ready_text = "READY!"
+	ready_view.queue_redraw()
+	_apply_hints()
+	ready_view.visible = true
+	ready_view.modulate.a = 0.0
+	ready_view.scale = Vector2.ONE * SCREEN_SCALE
+	if _animations_instant():
+		content.visible = false
+		ready_view.modulate.a = 1.0
+		ready_view.scale = Vector2.ONE
+		return
+	await _animate_screen(content, false)
+	if seq != _ready_seq or not _showing_ready:
+		return
+	content.visible = false
+	_animate_screen(ready_view, true)
+
+
+# Back out of the ready vote: the pause menu fades back in.
+func hide_ready() -> void:
+	_build_once()
+	if not _showing_ready:
+		return
+	_showing_ready = false
+	_ready_seq += 1
+	var seq := _ready_seq
+	if _animations_instant():
+		ready_view.visible = false
+		content.visible = true
+		content.modulate.a = 1.0
+		content.scale = Vector2.ONE
+		_focus_initial()
+		return
+	await _animate_screen(ready_view, false)
+	if seq != _ready_seq or _showing_ready:
+		return
+	ready_view.visible = false
+	content.visible = true
+	_animate_screen(content, true)
+	_focus_initial()
+
+
+func is_ready() -> bool:
+	return _showing_ready
+
+
+# Every peer voted to continue: fade the READY view out and drop the overlay
+# without bringing the pause menu back; the match resumes right after.
+func dismiss_ready() -> void:
+	_build_once()
+	if not _showing_ready:
+		hide_now()
+		return
+	_showing_ready = false
+	_ready_seq += 1
+	var seq := _ready_seq
+	if _animations_instant():
+		hide_now()
+		return
+	await _animate_screen(ready_view, false)
+	if seq != _ready_seq:
+		return
+	hide_now()
+
+
 func _finish_close() -> void:
 	_closing = false
 	hide_now()
@@ -358,8 +458,15 @@ func hide_now() -> void:
 	visible = false
 	_closing = false
 	_switching = false
+	_showing_ready = false
+	_ready_seq += 1
 	_local_side_clear()
+	if ready_view != null:
+		ready_view.visible = false
+		ready_view.modulate.a = 1.0
+		ready_view.scale = Vector2.ONE
 	if content != null:
+		content.visible = true
 		content.modulate.a = 1.0
 		content.scale = Vector2.ONE
 	if not _built:
@@ -404,6 +511,11 @@ func set_waiting(text: String) -> void:
 func handle_key(event: InputEventKey) -> bool:
 	if not visible or not event.pressed:
 		return false
+	if _showing_ready:
+		_set_gamepad(false)
+		if event.keycode == KEY_ESCAPE:
+			_cancel_ready()
+		return true
 	if has_local_side_select():
 		return true
 	_set_gamepad(false)
@@ -466,6 +578,11 @@ func _set_gamepad(value: bool) -> void:
 func handle_joy(event: InputEventJoypadButton) -> bool:
 	if not visible or not event.pressed:
 		return false
+	if _showing_ready:
+		_set_gamepad(true)
+		if int(event.button_index) == JOY_BUTTON_B:
+			_cancel_ready()
+		return true
 	if has_local_side_select():
 		return true
 	_set_gamepad(true)
@@ -525,6 +642,10 @@ func _layout() -> void:
 
 	hints.position = Vector2(0.0, UiTokens.GRID_H + UiTokens.HINTS_GAP)
 	hints.size = Vector2(PAUSE_W, hints_height)
+
+	if ready_hints != null:
+		ready_hints.position = Vector2(0.0, UiTokens.DESIGN_SIZE.y * 0.74)
+		ready_hints.size = Vector2(UiTokens.DESIGN_SIZE.x, hints_height)
 
 	lineup.position = Vector2(24.0, 104.0)
 	lineup.size = Vector2(LINEUP_W - 48.0, UiTokens.GRID_H - 128.0)
@@ -981,13 +1102,21 @@ func _on_cancelled() -> void:
 
 
 func _request_resume() -> void:
-	# A network pause is a vote, not an exit: keep the menu up so voting does not
-	# blink the overlay (close then reopen); the caller only edits the Continue note.
+	# A network pause is a vote, not an exit: show the READY view while waiting
+	# for the rival instead of leaving the menu up with a note.
 	if _runtime != null and is_instance_valid(_runtime) \
 			and _runtime.has_method("is_net_active") and bool(_runtime.is_net_active()):
 		resume_requested.emit()
+		show_ready()
 		return
 	close()
+
+
+func _cancel_ready() -> void:
+	if not _showing_ready:
+		return
+	ready_cancelled.emit()
+	hide_ready()
 
 
 func _open_confirm() -> void:
@@ -1015,6 +1144,10 @@ func _on_device_changed(_gamepad: bool) -> void:
 
 func _apply_hints() -> void:
 	var gamepad := _gamepad or (_nav != null and bool(_nav.using_gamepad()))
+	if ready_hints != null:
+		ready_hints.setup([
+			{"keys": ["B"] if gamepad else ["ESC"], "label": "back"},
+		])
 	if _page == Page.SETTINGS:
 		hints.setup([
 			{"keys": ["D-PAD"] if gamepad else ["в†ђ", "в†‘", "в†“", "в†’"], "label": "move"},

@@ -26,6 +26,7 @@ var back_vote: NetworkBackVote
 
 var _player_ids: Array = []
 var _last_device := -1
+var _guest_assigned := false
 var _leaving := false
 var _entering_match := false
 var _saw_side_select := false
@@ -110,6 +111,7 @@ func _poll_lobby() -> void:
 
 	var lobby: Dictionary = info.get("lobby", {})
 	_refresh_players(info, lobby)
+	_assign_guest_side(info)
 
 	if int(lobby.get("phase", -1)) == 1:
 		UiTransition.change_scene(LOBBY_SCENE)
@@ -269,6 +271,18 @@ func _local_participant() -> Dictionary:
 		if bool(participant.get("is_local", false)):
 			return participant
 	return {}
+
+
+# A joining client takes the guest (away) side with its own input by default;
+# either player can still move sides on this screen afterwards.
+func _assign_guest_side(info: Dictionary) -> void:
+	if _guest_assigned or not bool(info.get("is_client", false)):
+		return
+	var local := _local_participant()
+	if local.is_empty() or int(local.get("side", 0)) != 0:
+		return
+	_guest_assigned = true
+	NET_SHELL.action(get_tree(), "set_side", 1, 0, 0)
 
 
 func _on_row_move(_row_id: String, delta: int, input: Dictionary) -> void:

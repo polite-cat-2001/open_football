@@ -12,6 +12,9 @@ const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 const TEAM_SELECT_SCENE := "res://scenes/team_select.tscn"
 const NETWORK_SIDES_SCENE := preload("res://scenes/network_sides.tscn")
 const SUBSTITUTION_NOTICES := preload("res://scripts/match/substitution_notices.gd")
+# Hold the READY view long enough to finish its entry animation before the
+# last vote fades it out.
+const RESUME_READY_DWELL_MS := 650
 
 var runtime: Node
 @onready var camera := $Camera3D
@@ -55,6 +58,8 @@ var demo := OS.get_environment("GPF_DEMO") != ""
 var input_slots: Dictionary = {}
 var _pause_stick_ms := 0
 var _net_break_seen := false
+var _resume_fade_at_ms := 0
+var _resume_sequence := false
 
 
 func _ready() -> void:
@@ -97,6 +102,7 @@ func _ready() -> void:
 	pause_menu.replay_requested.connect(_on_pause_replay)
 	pause_menu.game_plan_requested.connect(_open_game_plan)
 	pause_menu.side_select_requested.connect(_open_side_select)
+	pause_menu.ready_cancelled.connect(_on_ready_cancelled)
 
 	# Every local scene load is a new match: stop and restart so the previous
 	# match's clock, score and objects cannot leak into this one. A LAN host has
@@ -456,6 +462,8 @@ func _can_pause() -> bool:
 
 
 func _open_pause(device := -1) -> void:
+	_resume_fade_at_ms = 0
+	_resume_sequence = false
 	pause_menu.set_team(_pause_team(device))
 	pause_menu.set_waiting("")
 	pause_menu.open()
@@ -640,6 +648,16 @@ func _on_pause_resume() -> void:
 	runtime.resume_match()
 
 
+# Back out of the READY view: withdraw the pause vote so the match cannot
+# resume behind the pause menu.
+func _on_ready_cancelled() -> void:
+	_resume_fade_at_ms = 0
+	if bool(runtime.is_net_active()):
+		runtime.net_action("set_resume_ready", 0, 0, 0)
+	pause_menu.set_waiting("")
+	pause_menu.set_hint("")
+
+
 func _update_network_pause(snap: Dictionary) -> void:
 	var paused := bool(snap.get("paused", false))
 	var blocked := bool(snap.get("game_over", false)) \
@@ -653,7 +671,11 @@ func _update_network_pause(snap: Dictionary) -> void:
 	# only refresh the vote counts.
 	if pause_menu.is_break():
 		if not paused:
+			_resume_sequence = false
+			_resume_fade_at_ms = 0
 			pause_menu.dismiss()
+			return
+		if _resume_sequence:
 			return
 		_show_resume_votes(lobby)
 		return
@@ -666,11 +688,17 @@ func _update_network_pause(snap: Dictionary) -> void:
 		_net_last_player_ids = _lobby_player_ids(lobby)
 
 	if not paused:
+		_resume_sequence = false
+		_resume_fade_at_ms = 0
 		if game_plan != null and game_plan.is_open():
 			game_plan.close_plan()
 			hud.set_visible(true)
 		if pause_menu.is_open():
 			pause_menu.dismiss()
+		return
+	if _resume_sequence:
+		# Both votes are in: the READY view already faded out and the host
+		# unpauses shortly. Keep the pause menu from reopening in between.
 		return
 	if blocked:
 		if game_plan != null and game_plan.is_open():
@@ -701,6 +729,19 @@ func _show_resume_votes(lobby: Dictionary) -> void:
 	for player in players:
 		if bool(player.get("resume_ready", false)):
 			ready += 1
+	if pause_menu.is_ready() and not players.is_empty() and ready >= players.size():
+		# Everyone voted: let the READY view finish its entry animation, then
+		# fade it out on both peers ahead of the host's delayed unpause.
+		var now := Time.get_ticks_msec()
+		if _resume_fade_at_ms == 0:
+			_resume_fade_at_ms = now + RESUME_READY_DWELL_MS
+		elif now >= _resume_fade_at_ms:
+			_resume_fade_at_ms = 0
+			_resume_sequence = true
+			pause_menu.dismiss_ready()
+			return
+	else:
+		_resume_fade_at_ms = 0
 	pause_menu.set_waiting("WAITING FOR RIVAL %d/%d" % [ready, players.size()])
 	pause_menu.set_hint("resume ready %d/%d    Enter/Esc: vote" % [ready, players.size()])
 

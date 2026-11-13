@@ -9,6 +9,7 @@ signal forfeit_requested
 signal game_plan_requested
 signal replay_requested
 signal side_select_requested
+signal ready_cancelled
 
 const SCREEN_SCENE := preload("res://scenes/match/pause_screen.tscn")
 
@@ -41,6 +42,7 @@ func setup() -> void:
 	screen.game_plan_requested.connect(func(): game_plan_requested.emit())
 	screen.replay_requested.connect(func(): replay_requested.emit())
 	screen.side_select_requested.connect(func(): side_select_requested.emit())
+	screen.ready_cancelled.connect(func(): ready_cancelled.emit())
 
 	buttons = screen.tiles()
 	hint_label = screen.hints.status_label
@@ -76,6 +78,16 @@ func is_open() -> bool:
 
 func is_break() -> bool:
 	return _break
+
+
+func is_ready() -> bool:
+	return screen != null and screen.is_ready()
+
+
+# All peers voted: fade the READY view out and drop the overlay (no menu).
+func dismiss_ready() -> void:
+	if screen != null:
+		screen.dismiss_ready()
 
 
 func open(team_id := -1) -> void:
