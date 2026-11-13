@@ -25,7 +25,8 @@
 - **Сетевые меню** — `network_menu`, `network_host`, `network_join` на `UiScreen`/`UiStage`:
   две wide-плитки Host/Join без Back, отдельные формы с общим `UiOnScreenKeyboard` и
   `UiFormRow`, inline-ошибки и `Connecting...`. Back-цепочка `sides → teams → kit` идёт через
-  общий `NetworkBackVote` (диалог у второго пира), Back из хаба остаётся локальным.
+  общий `NetworkBackVote` (диалог у второго пира) для навигации, кроме `sides`: выход оттуда —
+  локальный (пир просто уходит, переподключается заново при желании). Back из хаба локальный.
 - Остальной шелл (`squad`) и in-match UI пока живут по-старому.
 - **Тема не глобальная**: `ui_theme.tres` назначается на корень экрана, а не через
   `gui/theme/custom`. Поэтому HUD, пауза и серия пенальти не меняются, пока их не переведут отдельно.
@@ -191,7 +192,8 @@ ready или назад. `UiNav.last_device_id()`/`last_input_gamepad()` раз�
   side/ready. Порядок строк сверху вниз — порядок подключения (клавиатура первая, новые
   геймпады добавляются в конец).
 - `scripts/ui/network_sides.gd` — снапшот лобби (имена, YOU, ready, device), `resume_mode`
-  (не выходит из сессии), host-authoritative commit, resume-голосование, disconnect/join
+  (не выходит из сессии), Back = локальный выход из сессии (без голосования),
+  host-authoritative commit, resume-голосование, disconnect/join
   статусы. Оверлей в матче — тот же view с `overlay=true`; `gpf_slice` анимирует
   только `Design/PanelWrap`, а stage/scrim появляется сразу — иначе на 150/240 мс
   просвечивает ярко-зелёный газон матча (моргание при открытии).
@@ -405,6 +407,12 @@ Join показывает `CONNECTING TO ...`, причину отказа и о
 Значения читаются/пишутся `NetworkSettings` (`user://network.cfg`, секции `[host]`/`[join]`)
 после успешного `net_host`/`net_join`.
 
+Сам вход в сессию прикрывает занавес `UiConnecting` (autoload, слой 11): чёрный экран со
+спиннером и `CONNECTING`, ESC/B — отмена (локальная, без голоса). Внутри него и подложка, и текст
+живут в одном `content`, поэтому гаснет **вся** занавеска целиком (0.24 с), а не только надпись;
+`close()` держит её минимум 0.4 с (`MIN_VISIBLE`), чтобы быстрый LAN-коннект не проскакивал
+вспышкой, и закрывает только после полного fade-in. Матч закрывает занавес сам в `gpf_slice._ready`.
+
 `UiOnScreenKeyboard` (`scenes/ui/ui_on_screen_keyboard.tscn`) — модальный оверлей 880 px:
 scrim, дисплей, ряды `QWERTYUIOP / ASDFGHJKL / ZXCVBNM` + служебный `1234567890.-_`,
 колонка `SPACE/DEL/CLEAR/APPLY`. Открывается по `A/Enter` на поле, первый фокус — первый
@@ -414,12 +422,13 @@ port — только цифры (5), address — `A-Za-z0-9.-` (64), name — �
 `UiNav` считает OSK/диалог модальными: экран под ними не обрабатывает тот же Enter/Esc
 (`event_was_modal()`), поэтому закрытие OSK не срабатывает как Back.
 
-Back-цепочка в сети: `network_sides → network_menu`, `network_lobby → sides`,
-`network_kit_select → teams` требуют согласия обоих пиров, `network_match_hub → kit` —
-индивидуально. `NetworkBackVote` шлёт `hubvote` (значения синхронизированы с `e_NetHubVote`),
-второй пир видит модальный диалог `LEAVE TOO / STAY`; при согласии сервер меняет фазу
-(`BackToSides`/`BackToTeams`) или оба уходят в меню (`LeaveSession`). В C++ голосование
-разрешено в Sides/Teams/Options; `BackToTeams` из китов по-прежнему применяет `MenuTask`.
+Back-цепочка в сети: `network_sides → network_menu` — локальный выход (пир уходит один, второй
+остаётся в лобби и может быть переподключён); `network_lobby → sides`, `network_kit_select → teams`
+требуют согласия обоих пиров, `network_match_hub → kit` — индивидуально. `NetworkBackVote` шлёт
+`hubvote` (значения синхронизированы с `e_NetHubVote`), второй пир видит модальный диалог
+`LEAVE TOO / STAY`; при согласии сервер меняет фазу (`BackToSides`/`BackToTeams`). В C++
+голосование разрешено в Sides/Teams/Options; `BackToTeams` из китов по-прежнему применяет
+`MenuTask`.
 
 ## Пауза матча (PauseScreen)
 
@@ -652,7 +661,8 @@ godot --headless --path . -s res://tests/check_gpf_pause.gd
 - `check_network_back_vote` — локальный голос, зеркальный echo, согласие, входящий диалог,
   `LEAVE TOO`/`STAY`, `LeaveSession`, `clear_server_vote`.
 - `check_gpf_net_back_vote_live` — два процесса: реальный Host-экран + реальный Join-экран
-  (child), ready → Teams → BackToSides → Sides → LeaveSession → меню.
+  (child), ready → Teams → BackToSides → Sides; клиент уходит из сессии сам (без диалога),
+  хост остаётся в лобби, затем его Back сразу ведёт в сетевой меню.
 - Скриншоты главного меню: `.scratch/ui_shots/main_menu_{play,panel,gamepad}_1920x1080.png`
   (генерируются временным скриптом; в `capture_ui_shots.gd` состояния меню ещё не добавлены).
 - Скриншоты выбора сторон: `.scratch/ui_shots/side_select_{1p,2p,ready,network,network_resume}_{1920x1080,1280x720}.png`

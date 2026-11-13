@@ -1,8 +1,8 @@
 extends SceneTree
 # Live two-process UI check for the LAN Back chain: the host runs the real Host
 # screen, the child runs the real Join screen. They ready into Teams, the host
-# asks to go back to Sides (both sides confirm), then asks to leave the session
-# (both sides confirm) and both return to the network menu.
+# asks to go back to Sides (both sides confirm), then the client leaves the
+# session from the side screen on its own while the host keeps the lobby.
 #
 # Run:  godot --headless --path . -s res://tests/check_gpf_net_back_vote_live.gd
 
@@ -129,14 +129,21 @@ func _run() -> void:
 		return
 
 	var sides_screen := current_scene
-	var sides_vote: NetworkBackVote = sides_screen.get("back_vote")
-	if not _check(sides_vote != null, "the side screen mounts the Back vote"):
+	if not _check(not sides_screen.has_method("_setup_back_vote"),
+			"the side screen mounts no Back vote"):
 		_cleanup(pid, result_path, ready_path)
 		_finish()
 		return
-	sides_vote.request()
+	if not _check(await _wait_until(func(): return _lobby().get("players", []).size() == 1,
+			20000), "the client leaves the session on its own"):
+		_cleanup(pid, result_path, ready_path)
+		_finish()
+		return
+	_check(_scene_name() == "NetworkSides" and NetShell.is_active(self),
+		"the host keeps its session and screen while the client is gone")
+	sides_screen.call("_on_back")
 	if not _check(await _wait_until(func(): return _scene_name() == "NetworkMenu", 20000),
-			"the LeaveSession vote returns the host to the network menu"):
+			"the host's own Back leaves the network menu at once"):
 		_cleanup(pid, result_path, ready_path)
 		_finish()
 		return
@@ -148,12 +155,11 @@ func _run() -> void:
 		return
 	var child := _read_result(result_path)
 	_check(String(child.get("status", "")) == "ok",
-		"the join UI accepts both dialogs: " + str(child.get("failures", [])))
+		"the join UI finishes cleanly: " + str(child.get("failures", [])))
 	var actions: Array = child.get("dialog_actions", [])
-	_check(actions.size() == 2 and int(actions[0]) == NetworkBackVote.VOTE_BACK_TO_SIDES
-		and int(actions[1]) == NetworkBackVote.VOTE_LEAVE_SESSION,
-		"the join UI saw BackToSides then LeaveSession")
-	_check(bool(child.get("left", false)), "the join UI leaves to the network menu")
+	_check(actions.size() == 1 and int(actions[0]) == NetworkBackVote.VOTE_BACK_TO_SIDES,
+		"the join UI saw only the BackToSides dialog")
+	_check(bool(child.get("left", false)), "the join UI left to the network menu by itself")
 	_cleanup(pid, result_path, ready_path)
 	_finish()
 

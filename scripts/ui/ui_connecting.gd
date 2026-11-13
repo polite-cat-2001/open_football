@@ -9,6 +9,9 @@ extends CanvasLayer
 
 const FADE_IN := 0.15
 const FADE_OUT := 0.24
+# A LAN join can complete within a frame or two; hold the curtain up long enough
+# that its fade-in is seen and the fade-out always plays from full opacity.
+const MIN_VISIBLE := 0.4
 
 var content: Control
 var title: Label
@@ -17,6 +20,7 @@ var spinner: Spinner
 
 var _cancel := Callable()
 var _open := false
+var _opened_at_ms := 0
 var _tween: Tween
 
 
@@ -52,18 +56,21 @@ func _ready() -> void:
 
 
 func _build() -> void:
+	# The backdrop lives inside `content` so the whole curtain fades as one: a
+	# fade on the text alone left the black panel up until it blinked out.
 	var backdrop := ColorRect.new()
 	backdrop.name = "Backdrop"
 	backdrop.color = Color(0.02, 0.03, 0.06)
 	backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(backdrop)
 
 	content = Control.new()
 	content.name = "Content"
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	content.modulate.a = 0.0
 	add_child(content)
+	content.add_child(backdrop)
 
 	var center := CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -107,6 +114,7 @@ func open(cancel: Callable = Callable(), text := "CONNECTING") -> void:
 	title.text = text
 	_cancel = cancel
 	hint.visible = cancel.is_valid()
+	_opened_at_ms = Time.get_ticks_msec()
 	visible = true
 	set_process(true)
 	if _open:
@@ -120,6 +128,12 @@ func close() -> void:
 		return
 	_open = false
 	_cancel = Callable()
+	var shown := float(Time.get_ticks_msec() - _opened_at_ms) / 1000.0
+	if shown < MIN_VISIBLE:
+		await get_tree().create_timer(MIN_VISIBLE - shown).timeout
+		# Reopened while the curtain was still holding: stay up.
+		if _open:
+			return
 	_animate(0.0, FADE_OUT, true)
 
 

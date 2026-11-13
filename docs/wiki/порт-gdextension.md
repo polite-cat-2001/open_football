@@ -22,11 +22,12 @@
   и Join (address/port/name), общий `UiOnScreenKeyboard` (`QWERTYUIOP/ASDFGHJKL/ZXCVBNM` + `1234567890.-_`,
   `SPACE/DEL/CLEAR/APPLY`, модальный оверлей, физическая клавиатура, мышь, возврат фокуса на поле), inline-ошибки
   IPv4/hostname/port 1..65535/имя 1..16. `NetworkSettings` (`user://network.cfg`) хранит host/join отдельно и
-  пишет после успешного `net_host`/`net_join`; `NetShell.last_*` убраны. Back на `network_sides`, `network_lobby`
+  пишет после успешного `net_host`/`net_join`; `NetShell.last_*` убраны. Back на `network_lobby`
   и `network_kit_select` — общий `NetworkBackVote`: голос через `hubvote`, у второго пира модальный диалог
-  `LEAVE TOO / STAY`; `network_match_hub` Back остаётся локальным (в kit). В C++ `e_NetHubVote` расширен
-  `BackToSides`/`LeaveSession`, голосование разрешено в Sides/Teams/Options; `BackToSides` применяет фазу сам,
-  `BackToTeams` по-прежнему через `MenuTask`, `LeaveSession` наблюдают оба peer'а. Тесты —
+  `LEAVE TOO / STAY`; `network_match_hub` Back остаётся локальным (в kit), а Back на `network_sides` —
+  локальный выход из сессии: пир уходит один, второй остаётся в лобби и может быть переподключён.
+  В C++ `e_NetHubVote` расширен `BackToSides`/`LeaveSession`, голосование разрешено в Sides/Teams/Options;
+  `BackToSides` применяет фазу сам, `BackToTeams` по-прежнему через `MenuTask`. Тесты —
   `check_network_ui`, `check_network_setup`, `check_ui_on_screen_keyboard`, `check_network_back_vote`,
   `check_gpf_net_back_vote_live` (два процесса с реальными Host/Join экранами); скриншоты —
   `tests/capture_network_shots.gd`.

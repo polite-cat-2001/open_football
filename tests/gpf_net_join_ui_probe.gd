@@ -1,7 +1,8 @@
 extends SceneTree
 # Child process for the live LAN UI check: runs the real design-system Join
-# screen, enters the lobby, readies, then accepts the host's BackToSides and
-# LeaveSession dialog requests. Reports the result as JSON.
+# screen, enters the lobby, readies, accepts the host's BackToSides dialog and
+# then leaves the session from the side screen on its own (no vote). Reports
+# the result as JSON.
 #
 # Args: ADDRESS PORT RESULT_PATH READY_MARKER
 # Run:  godot --headless --path . -s res://tests/gpf_net_join_ui_probe.gd -- ...
@@ -114,16 +115,15 @@ func _run(address: String, port: int, result_path: String, ready_marker: String)
 		_finish(result_path)
 		return
 
-	var sides_vote := await _wait_for_dialog("NetworkSides", 20000)
-	if not _check(sides_vote == NetworkBackVote.VOTE_LEAVE_SESSION,
-			"the side screen offered the LeaveSession dialog"):
+	var sides_screen := current_scene
+	if not _check(not sides_screen.has_method("_setup_back_vote"),
+			"the side screen mounts no Back vote"):
 		_finish(result_path)
 		return
-	dialog_actions.append(sides_vote)
-	result["dialog_actions"] = dialog_actions
 	result["stage"] = "leave-session"
+	sides_screen.call("_on_back")
 	if not _check(await _wait_until(func(): return _scene_name() == "NetworkMenu", 15000),
-			"the leave vote returned to the network menu"):
+			"Back on the side screen leaves the session without a vote"):
 		_finish(result_path)
 		return
 	result["left"] = true
