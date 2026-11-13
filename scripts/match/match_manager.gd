@@ -572,7 +572,7 @@ func _setup_tackle_area() -> void:
 ## Статический пол на y=0: опора для локомоции и приземления ragdoll.
 ## ПРИМЕЧАНИЕ (отклонение от брифа): бриф просил collision_layer=1 («питч+мяч»), но
 ## поле-игроков collision_mask = PLAYER_COLLISION_MASK | BOUNDARY_COLLISION_LAYER
-## намеренно НЕ включает слой 1 (чтобы капсула не толкала мяч физически — см. CLAUDE.md
+## намеренно НЕ включает слой 1 (чтобы капсула не толкала мяч физически — см. AGENTS.md
 ## и хотфикс 78990c8). Проверено эмпирически: пол на слое 1 → игрок проваливается
 ## насквозь (is_on_floor() всегда false). Кладём пол на BOUNDARY_COLLISION_LAYER —
 ## его уже видят и игроки (маска 2|4), и мяч (маска 1|4) — без правки чужих масок.
@@ -827,7 +827,6 @@ func _can_tackle(tackler: Node3D) -> bool:
 			return true
 
 	return false
-
 
 
 func _try_tackle(player: CharacterBody3D) -> bool:
