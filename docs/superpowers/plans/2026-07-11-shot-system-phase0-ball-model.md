@@ -6,7 +6,7 @@
 
 **Architecture:** `ball_controller.gd` получает `enum BallState { OPEN, TRAPPED, FLIGHT, CAUGHT }` и поле `_curl`. Публичный API владения (`set_dribbler`/`release_dribble`/`dribbler`) сохраняется как тонкие обёртки над стейт-машиной, чтобы `match_manager`/AI почти не менялись. Дриблинг остаётся самоуправляемым в `_integrate_forces` (мяч сам тянется за владельцем), но математика меняется с жёсткого присваивания скорости на импульсное подталкивание. Столкновение мяча с игроками включается **постоянно** через маску мяча (асимметрично: игрок ходит свободно). Magnus и хук блока живут в `_integrate_forces`/`_on_ball_collision`.
 
-**Tech Stack:** Godot 4.7, GDScript. Тесты — headless `SceneTree`-скрипты в `tests/` (паттерн `check_*.gd`), плюс две команды валидации из CLAUDE.md.
+**Tech Stack:** Godot 4.7, GDScript. Тесты — headless `SceneTree`-скрипты в `tests/` (паттерн `check_*.gd`), плюс две команды валидации из AGENTS.md.
 
 ## Global Constraints
 

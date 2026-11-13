@@ -24,7 +24,7 @@
 & "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit
 & "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit-after 2 res://scenes/match.tscn
 ```
-Второй прогон имеет известный baseline ошибок (см. CLAUDE.md «Commands») — сравнивай по *категориям/тексту*, а не по числу.
+Второй прогон имеет известный baseline ошибок (см. AGENTS.md «Commands») — сравнивай по *категориям/тексту*, а не по числу.
 
 ---
 
@@ -1012,7 +1012,7 @@ Run:
 ```
 & "C:\Users\User\AppData\Local\Godot\Godot_v4.7-stable_win64_console.exe" --path "C:\Users\User\Desktop\projects\OpenFootball" --headless --quit-after 2 res://scenes/match.tscn
 ```
-Expected: ошибки только из известного baseline (см. CLAUDE.md) — новых категорий нет.
+Expected: ошибки только из известного baseline (см. AGENTS.md) — новых категорий нет.
 
 - [ ] **Step 10: Commit**
 
