@@ -194,7 +194,7 @@ LIFT` + добор зарядом (B).
   не ловля.
 - **Кламп** — HANDS в штрафной; AI-вратарь не рвётся за бокс (расширение `check_two_keepers` или новый).
 - **Фил** (бленд, бег в штрафной, чувство раздачи по заряду, 6с) — только человек за игрой; headless
-  не драйвит ввод/рендер. **Многие launch-зависимые тесты timing-флейки** (см. CLAUDE.md) — гонять 2-3×.
+  не драйвит ввод/рендер. **Многие launch-зависимые тесты timing-флейки** (см. AGENTS.md) — гонять 2-3×.
 
 ## Ссылки
 
@@ -203,5 +203,5 @@ LIFT` + добор зарядом (B).
 - Спек вратаря (сейв-петля): `docs/superpowers/specs/2026-07-13-goalkeeper-design.md`.
 - Второй вратарь: `docs/superpowers/specs/2026-07-26-second-keeper-design.md`.
 - `docs/football_reference.md` — правила FIFA (обновлён правилами вратаря).
-- CLAUDE.md — as-built: `keeper_ai` сторона-агностичен, `BallState.CAUGHT`, `PassSystem`/`KeeperLogic`,
+- AGENTS.md — as-built: `keeper_ai` сторона-агностичен, `BallState.CAUGHT`, `PassSystem`/`KeeperLogic`,
   intent-швы (`HumanKeeperIntent`/`AIKeeperIntent` пенальти), `ActionExecutor.fire_pass`.

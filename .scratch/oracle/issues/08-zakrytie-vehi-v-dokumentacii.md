@@ -76,7 +76,6 @@ Type: task
       требует этот тикет. `index.md` править не потребовалось; проверено скриптом: 25 страниц, битых
       `[[ссылок]]` ноль, сирот ноль, в `index.md` перечислены все
 - [x] `log.md`: строка вехи дописана в конец
-- [x] `.claude/hooks/wiki-hint.py`: добавлены `TraceWriter.cs` и `OracleScenario.cs`; GDScript-часть
       оракула (`oracle_manifest`, `oracle_trace`, `manifest_diff`, `trace_diff`, `run_scenario`)
       попала туда ещё тикетом 05
 - [x] `dotnet build` чист (0 ошибок, 0 предупреждений), обе headless-валидации без новых категорий
@@ -91,7 +90,7 @@ Type: task
 ## Заодно проверено (wiki-lint)
 
 Механика: 25 страниц, ноль битых `[[ссылок]]`, ноль сирот, все перечислены в `index.md`; страницы,
-на которые ссылается маппинг `wiki-hint.py`, существуют; ссылки на `docs/` из `CLAUDE.md` ведут в
+на которые ссылается маппинг `wiki-hint.py`, существуют; ссылки на `docs/` из `AGENTS.md` ведут в
 существующие файлы. Константы оракула сверены с кодом построчно: `CONTEXT = 5`,
 `SAFE_BALL_DISTANCE = 10.0`, допуски `1e-3/1e-3/1e-3/1e-4`, `DEFAULT_WINDOW = 10`
 (`tools/oracle_trace.gd`), `AnalogStickDeadzone = 0.75`, `MaxWaitTicks = 3000`

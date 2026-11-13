@@ -15,7 +15,7 @@
 - **Baseline-категории ошибок сцены** (НЕ регрессии, дифф по категории): `!is_inside_tree()`, `states.has(p_name)`, transition-duplicate, `Cannot get class 'WorldEnvironment3D'`.
 - **Чистые `*_logic.gd` НИКОГДА не читают `FootballConstants`** — тюнинг параметрами (как `PassSystem`/`KeeperLogic`/`PenaltyLogic`).
 - **Тип-геттер-гочи:** `var x := node.method()` на статически-типизированной переменной, где метода нет в базовом типе, не компилится; в тестах `_mm` типа `Node` — все `_mm.foo()` уже динамические (Variant), это ок.
-- Отвечать/комментировать по-русски. Коммиты подписывать `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
+- Отвечать/комментировать по-русски.
 
 ## Файловая структура
 

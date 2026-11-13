@@ -17,7 +17,7 @@
 - **Baseline-категории ошибок сцены (НЕ регрессии), диффать по КАТЕГОРИИ, не по числу:** `ERROR: Condition "!is_inside_tree()" is true.`, `states.has(p_name)`, transition-duplicate, `ERROR: Cannot get class 'WorldEnvironment3D'.`.
 - **Новых `class_name`-файлов НЕ создаётся** (только новые тест-скрипты без `class_name` и правки контроллеров) — отдельный `--headless --import` перед `-s` НЕ нужен.
 - **`match_manager.gd` НЕ меняется.** Его гейтинг маркера/камеры завязан на флаги `is_*_active()`, а не на роль презентации; для этих 4 контроллеров он не вызывает `kicker_is_local_human()`. Поэтому такой метод в этой фазе НЕ добавляется.
-- **Отвечать пользователю по-русски.** Коммиты подписывать `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
+- **Отвечать пользователю по-русски.**
 
 ## Эталон шва (образец, уже в репозитории)
 
@@ -296,8 +296,7 @@ Expected: только baseline-категории из Global Constraints; ни
 ```bash
 git add scripts/match/throw_in_controller.gd tests/check_throw_in_intent.gd
 git commit -m "refactor(throw-in): consume KickerIntent/SetPiecePresentation seam
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -599,8 +598,7 @@ Expected: только baseline-категории.
 ```bash
 git add scripts/match/goal_kick_controller.gd tests/check_goal_kick_intent.gd
 git commit -m "refactor(goal-kick): consume KickerIntent/SetPiecePresentation seam
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -927,8 +925,7 @@ Expected: только baseline-категории.
 ```bash
 git add scripts/match/corner_controller.gd tests/check_corner_intent.gd
 git commit -m "refactor(corner): consume KickerIntent/SetPiecePresentation seam
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -1255,8 +1252,7 @@ Expected: только baseline-категории.
 ```bash
 git add scripts/match/free_kick_controller.gd tests/check_free_kick_intent.gd
 git commit -m "refactor(free-kick): consume KickerIntent/SetPiecePresentation seam
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+"
 ```
 
 ---
@@ -1269,7 +1265,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 grep -n "Input\." scripts/match/throw_in_controller.gd scripts/match/goal_kick_controller.gd scripts/match/corner_controller.gd scripts/match/free_kick_controller.gd
 ```
 Expected: пусто (ни одного вхождения `Input.` в этих 4 файлах).
-- [ ] **Обновить `CLAUDE.md`** (раздел про контроллеры/пенальти-шов): отметить, что все 6 контроллеров стандартов (penalty + эти 4 + будущий kickoff) теперь читают ввод через `KickerIntent`/`SetPiecePresentation`, а не `Input.*`. Закоммитить отдельным `docs:`-коммитом.
+- [ ] **Обновить `AGENTS.md`** (раздел про контроллеры/пенальти-шов): отметить, что все 6 контроллеров стандартов (penalty + эти 4 + будущий kickoff) теперь читают ввод через `KickerIntent`/`SetPiecePresentation`, а не `Input.*`. Закоммитить отдельным `docs:`-коммитом.
 - [ ] **Ручная проверка в игре (человек, не headless):** запустить игру, по очереди T/G/C/F — прицел стиком, заряд/варианты, смена ноги, у углового corner_call, у штрафного/углового закрутка — всё как раньше; камера/power_bar на месте. Headless фил не покрывает.
 
 ## Self-Review (сверка с рамкой роадмапа)

@@ -46,8 +46,6 @@ C++-оригинал: `C:\Users\User\Desktop\projects\FootballCPP` (все но�
   `& "<godot exe>" --path "<repo>" --headless --import` и закоммитить `.uid` вместе со скриптом.
 - **Коммиты** — Conventional Commits, описания по-русски.
 - **Вики не трогать до задачи 11** (там всё разом).
-- **Модель по таблице CLAUDE.md:** задачи 2–8 — критичная математика порта (Fable 5 / Opus 5);
-  задачи 1, 9, 10 — механика/сцена (Opus 5 / Sonnet 5); задача 11 — доки (Sonnet 5).
 - **Скорости оригинала** (`gamedefines.hpp:18-27`): idle 0 / dribble 3.5 / walk 5.0 / sprint 8.0;
   переключатели 1.8 / 4.2 / 6.0. Корзины квантования клипа (`animation.cpp:825-828`): `<1.8→0`,
   `[1.8,4.2)→3.5`, `[4.2,6.0)→5.0`, `≥6.0→7.0` (да, 7.0, не 8.0 — так в оригинале).
@@ -3313,7 +3311,6 @@ git commit -m "feat(lab): walk_lab — палочник бегает по ком
 - Modify: `docs/wiki/открытые-вопросы.md`
 - Modify: `docs/wiki/index.md` (только если менялись названия страниц — иначе не трогать)
 - Modify: `log.md` (append-only, в конец)
-- Modify: `.claude/hooks/wiki-hint.py` (маппинги новых файлов)
 
 **Interfaces:**
 - Consumes: фактическое состояние кода после задач 1–10 (числа, имена, поведение — сверять грепом, не по памяти).
@@ -3341,7 +3338,6 @@ git commit -m "feat(lab): walk_lab — палочник бегает по ком
   `## [YYYY-MM-DD] веха | Порт GPF фаза 2: AnimCollection` — 3–5 строк: библиотека N клипов
   (файловые ×2 + автогены ×2), CrudeSelection + stable_sort-цепочка, палочник бегает по командам в
   walk_lab; ключевые решения (bug-for-bug, lite-интеграция).
-- [ ] **Шаг 4: `.claude/hooks/wiki-hint.py`** — добавить в маппинг новые файлы `src/gpf/*.cs`
   (BluntMath, Velo, AnimCollection, CrudeSelectionQuery, AnimSelector) и `src/lab/WalkLabMain.cs` →
   страница `порт-gameplayfootball`.
 - [ ] **Шаг 5: проверка ссылок** — прогнать скилл `wiki-lint` ИЛИ вручную: все `[[ссылки]]` новых
@@ -3350,7 +3346,7 @@ git commit -m "feat(lab): walk_lab — палочник бегает по ком
 - [ ] **Шаг 6: коммит**
 
 ```bash
-git add docs/wiki/порт-gameplayfootball.md docs/wiki/открытые-вопросы.md log.md .claude/hooks/wiki-hint.py
+git add docs/wiki/порт-gameplayfootball.md docs/wiki/открытые-вопросы.md log.md
 git commit -m "docs(wiki): фаза 2 порта GPF — AnimCollection, выбор клипа, walk_lab"
 ```
 

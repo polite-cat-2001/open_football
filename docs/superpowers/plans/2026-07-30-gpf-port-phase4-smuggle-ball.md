@@ -82,9 +82,6 @@ C++-оригинал: `C:\Users\User\Desktop\projects\FootballCPP` (read-only; �
   `project.godot`; baseline ошибок матч-сцены диффать по категории/тексту, не по счётчику.
 - **Коммиты** — Conventional Commits, описания по-русски.
 - **Вики не трогать до задачи 10** (там всё разом).
-- **Модель по таблице CLAUDE.md:** задачи 2, 4, 5, 7 — критичная математика порта (**Fable 5**);
-  задачи 1, 3, 6, 8 — механический перенос/сцена (**Opus 5**); задачи 9, 10 — chore/доки (**Sonnet 5**,
-  задачу 9 можно Opus).
 - **Скорости** (`gamedefines.hpp:18-27`): idle 0 / dribble 3.5 / walk 5.0 / sprint 8.0, `AnimSprint`
   7.0; переключатели 1.8 / 4.2 / 6.0. Радиус мяча **0.11** — хардкод оригинала по всему коду (не
   константа!), переносится литералом с комментарием.
@@ -158,7 +155,7 @@ C++-оригинал: `C:\Users\User\Desktop\projects\FootballCPP` (read-only; �
 
 ---
 
-### Задача 1: фундамент — кватернионы, Line, GpfRng, константы поля (Opus 5)
+### Задача 1: фундамент — кватернионы, Line, GpfRng, константы поля
 
 **Files:**
 - Modify: `src/gpf/QuatUtil.cs` (добавить `SetAngles`, `GetRotationTo`, `GetRotationAngle`,
@@ -400,7 +397,7 @@ git commit -m "feat(gpf): кватернионные примитивы, LineClo
 
 ---
 
-### Задача 2: Gpf.Ball — физика мяча целиком (Fable 5, критичная математика)
+### Задача 2: Gpf.Ball — физика мяча целиком (критичная математика)
 
 **Files:**
 - Create: `src/gpf/Ball.cs`
@@ -746,7 +743,7 @@ git commit -m "feat(gpf): Gpf.Ball — порт физики мяча ball.cpp �
 
 ---
 
-### Задача 3: PlayerCommand + SelectAnim наследника (crude query, сорт-цепочки, NeedTouch) (Opus 5)
+### Задача 3: PlayerCommand + SelectAnim наследника (crude query, сорт-цепочки, NeedTouch)
 
 **Files:**
 - Create: `src/gpf/PlayerCommand.cs`
@@ -926,7 +923,7 @@ git commit -m "feat(gpf): PlayerCommand + SelectAnim наследника — cr
 
 ---
 
-### Задача 4: GetBodyBallDistanceAdvantage + GetBestCheatableAnimID (Fable 5, сердце фазы)
+### Задача 4: GetBodyBallDistanceAdvantage + GetBestCheatableAnimID (сердце фазы)
 
 **Files:**
 - Modify: `src/gpf/Humanoid.cs`
@@ -1438,7 +1435,7 @@ git commit -m "feat(gpf): GetBestCheatableAnimID + GetBodyBallDistanceAdvantage 
 
 ---
 
-### Задача 5: смагглы в тике — накопление, apply-буфер наследника, CalculateMovementSmuggle (Fable 5)
+### Задача 5: смагглы в тике — накопление, apply-буфер наследника, CalculateMovementSmuggle
 
 **Files:**
 - Modify: `src/gpf/Humanoid.cs` (`CalculateMovementSmuggle`, заполнение Anim при выборе)
@@ -1625,7 +1622,7 @@ git commit -m "feat(gpf): смагглы в тике — накопление, a
 
 ---
 
-### Задача 6: ReQueue — прерывание клипа и командная очередь (Opus 5)
+### Задача 6: ReQueue — прерывание клипа и командная очередь
 
 **Files:**
 - Modify: `src/gpf/HumanoidBase.cs` (контур тика: interruptAnim-машинерия, previousAnim)
@@ -1773,7 +1770,7 @@ git commit -m "feat(gpf): ReQueue — прерывание клипа и ком�
 
 ---
 
-### Задача 7: исполнение касания — touch-векторы + Touch в тике + коллизии мяч↔тело (Fable 5)
+### Задача 7: исполнение касания — touch-векторы + Touch в тике + коллизии мяч↔тело
 
 **Files:**
 - Create: `src/gpf/TouchVectors.cs` (статики humanoid_utils)
@@ -1907,7 +1904,7 @@ git commit -m "feat(gpf): touch-векторы и исполнение каса�
 
 ---
 
-### Задача 8: ball_lab — игрок + мяч, глазная приёмка (Opus 5)
+### Задача 8: ball_lab — игрок + мяч, глазная приёмка
 
 **Files:**
 - Create: `src/lab/BallLabMain.cs`
@@ -2043,7 +2040,7 @@ git commit -m "feat(lab): ball_lab — игрок и мяч на ядре пор
 
 ---
 
-### Задача 9: матч на фикс-тик 100 Гц (Opus 5 или Sonnet 5)
+### Задача 9: матч на фикс-тик 100 Гц
 
 **Files:**
 - Modify: `project.godot` (`physics/common/physics_ticks_per_second=100`)
@@ -2079,7 +2076,7 @@ git commit -m "feat(match): фикс-тик 100 Гц — мультиплеер-
 
 ---
 
-### Задача 10: документация (Sonnet 5)
+### Задача 10: документация
 
 **Files:**
 - Modify: `docs/wiki/порт-gameplayfootball.md` (статус фазы 4; секции: Ball, smuggle-контур,
@@ -2094,7 +2091,6 @@ git commit -m "feat(match): фикс-тик 100 Гц — мультиплеер-
 - Modify: `docs/wiki/index.md` (если появится страница; иначе — обновить описание строки порта)
 - Modify: `docs/wiki/конвенции.md` (только если задачи 1-8 поймали новые интероп-грабли)
 - Modify: `log.md` (веха фазы 4 — append-only)
-- Modify: `.claude/hooks/wiki-hint.py` (маппинги: `Ball.cs`, `Humanoid.cs`, `TouchVectors.cs`,
   `GpfRng.cs`, `GpfPitch.cs`, `PlayerCommand.cs`, `BallLabMain.cs` → `порт-gameplayfootball.md`)
 
 - [ ] **Шаг 1:** переписать устаревшие утверждения на затронутых страницах (не «UPDATE:»-дописки).
@@ -2106,7 +2102,7 @@ git commit -m "feat(match): фикс-тик 100 Гц — мультиплеер-
 - [ ] **Шаг 5: коммит**
 
 ```powershell
-git add docs/wiki log.md .claude/hooks/wiki-hint.py
+git add docs/wiki log.md
 git commit -m "docs(wiki): фаза 4 порта GPF — smuggle, мяч, ReQueue, ball_lab (задача 10)"
 ```
 
