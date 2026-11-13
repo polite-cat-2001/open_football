@@ -117,6 +117,11 @@ func _ready() -> void:
 			return
 	goal_nets.build_dynamic()
 	_build_presentation()
+	# A peer that joined a running match arrived behind the CONNECTING curtain: the
+	# match owns the screen now, so drop the curtain over the in-match side select.
+	var connecting := get_node_or_null("/root/UiConnecting")
+	if connecting != null:
+		connecting.close()
 
 
 func _exit_tree() -> void:

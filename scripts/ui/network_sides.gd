@@ -8,6 +8,7 @@ extends Control
 signal closed
 
 const NETWORK_MENU_SCENE := "res://scenes/network_menu.tscn"
+const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 const LOBBY_SCENE := "res://scenes/network_lobby.tscn"
 const MATCH_SCENE := "res://scenes/gpf_slice.tscn"
 const NET_SHELL := preload("res://scripts/net/net_shell.gd")
@@ -54,8 +55,44 @@ func _ready() -> void:
 	view.back_requested.connect(_on_back)
 	if not resume_mode:
 		_setup_back_vote()
+	# A client landing here waits for MatchSetup: put the curtain up at once so the
+	# pre-match side select cannot flash before the match takes over (a peer that
+	# joins a running match gets its setup within a frame or two).
+	if not resume_mode and bool(NET_SHELL.lobby(get_tree()).get("is_client", false)):
+		_show_connecting()
 	_poll_lobby()
 	set_process(true)
+
+
+func _show_connecting() -> void:
+	var connecting := get_node_or_null("/root/UiConnecting")
+	if connecting == null or bool(connecting.is_open()):
+		return
+	connecting.open(_cancel_connecting)
+
+
+func _hide_connecting() -> void:
+	var connecting := get_node_or_null("/root/UiConnecting")
+	if connecting != null and bool(connecting.is_open()):
+		connecting.close()
+
+
+# The peer never reached the match, so leaving needs no vote from the host: drop
+# the session and go back to the main menu behind the fading curtain.
+func _cancel_connecting() -> void:
+	if _leaving:
+		return
+	_leaving = true
+	if NET_SHELL.is_active(get_tree()):
+		NET_SHELL.leave(get_tree())
+	for attempt in 120:
+		if not is_inside_tree():
+			return
+		UiTransition.change_scene(MAIN_MENU_SCENE)
+		await get_tree().process_frame
+		if UiTransition.is_busy():
+			break
+	_hide_connecting()
 
 
 func _setup_back_vote() -> void:
@@ -112,8 +149,13 @@ func _poll_lobby() -> void:
 	var lobby: Dictionary = info.get("lobby", {})
 	_refresh_players(info, lobby)
 	_assign_guest_side(info)
+	# A running match keeps the curtain up until the match scene closes it; a normal
+	# pre-match lobby has nothing to wait for, so reveal this screen.
+	if not bool(lobby.get("side_select", false)):
+		_hide_connecting()
 
 	if int(lobby.get("phase", -1)) == 1:
+		_hide_connecting()
 		UiTransition.change_scene(LOBBY_SCENE)
 		return
 
@@ -246,7 +288,8 @@ func _close_resume() -> void:
 
 
 func _enter_match(setup: Dictionary, lobby: Dictionary) -> void:
-	_entering_match = true
+	if _entering_match:
+		return
 	var options := {
 		"difficulty": float(lobby.get("match_difficulty", 0.8)),
 		"duration": float(lobby.get("match_duration", 1.0)),
@@ -254,10 +297,20 @@ func _enter_match(setup: Dictionary, lobby: Dictionary) -> void:
 	var runtime := NET_SHELL.active_runtime(get_tree())
 	var package := NETWORK_MATCH.apply_setup(get_tree(), runtime, setup, options)
 	if package.is_empty():
-		_entering_match = false
 		view.set_status(NETWORK_MATCH.error, true)
 		return
-	UiTransition.change_scene(MATCH_SCENE)
+	# `UiTransition` silently drops a scene change requested while its own
+	# animation is still running — a peer that joins a running match gets
+	# MatchSetup in the middle of the screen fade. Without the retry the screen
+	# stayed here forever: the poll and the cursor were dead, the row frozen.
+	_entering_match = true
+	for attempt in 120:
+		if not is_inside_tree():
+			return
+		UiTransition.change_scene(MATCH_SCENE)
+		await get_tree().process_frame
+	_entering_match = false
+	view.set_status("could not enter the match", true)
 
 
 func _process(_delta: float) -> void:
@@ -373,6 +426,7 @@ func _leave() -> void:
 	if _leaving:
 		return
 	_leaving = true
+	_hide_connecting()
 	if back_vote != null:
 		back_vote.withdraw()
 	if NET_SHELL.is_active(get_tree()):

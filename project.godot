@@ -24,6 +24,7 @@ config/features=PackedStringArray("4.7")
 FootballConstants="*res://scripts/data/football_constants.gd"
 UiNav="*res://scripts/ui/ui_nav.gd"
 UiTransition="*res://scripts/ui/ui_transition.gd"
+UiConnecting="*res://scripts/ui/ui_connecting.gd"
 godot_mcp_runtime="*res://addons/godot-mcp/runtime_bridge.gd"
 UiHarness="*res://scripts/ui/ui_harness.gd"
 
