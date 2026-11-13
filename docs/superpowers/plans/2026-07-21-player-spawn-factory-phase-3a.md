@@ -48,7 +48,7 @@ foreach ($t in @(
 - **Create** `scripts/match/action_executor.gd` — `class_name ActionExecutor extends Node`. Owns the ball-commit state + shot/pass resolution + impulse application. One responsibility: "resolve a requested ball action into a physical impulse."
 - **Modify** `scripts/match/match_manager.gd` — add `class_name MatchManager`; create/own `_action_executor`; remove the moved functions/state + dead `_start_ball_action`; keep thin forwarders + getters; swap call-sites.
 - **Create** `tests/check_action_executor.gd` — headless: drive `fire_pass` + `on_action_contact` on a real match scene, assert impulse applied.
-- **Modify** `CLAUDE.md`, `AGENTS.md` — document `ActionExecutor` + the commit-path seam.
+- **Modify** `AGENTS.md` — document `ActionExecutor` + the commit-path seam.
 
 ### The extraction map (authoritative — used by Task 2)
 
@@ -172,7 +172,6 @@ class_name MatchManager, wired in _ready but not yet used by any path. Behaviora
 inert — the manager still runs its own commit path. Proves the mutual class_name
 reference and node creation load cleanly before the move.
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 '@
 ```
 
@@ -406,7 +405,6 @@ two getters (action_player/is_kick_action_active); _fire_charge/_try_fire_queue 
 executor; the charge-as-timer + queue system stays in the manager (moves to HumanBrain in
 3b). Dead _start_ball_action removed. Behavior 1:1 (regression grid green + playtest).
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 '@
 ```
 
@@ -415,9 +413,9 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 ## Task 3: Docs
 
 **Files:**
-- Modify: `CLAUDE.md`, `AGENTS.md`
+- Modify: `AGENTS.md`
 
-- [ ] **Step 1: Update `CLAUDE.md`**
+- [ ] **Step 1: Update `AGENTS.md`**
 
 In the *Passing* / architecture area, add that the ball-commit/resolution path now lives in `scripts/match/action_executor.gd` (`class_name ActionExecutor extends Node`): it owns the commit state + `fire_shot`/`fire_pass` + impulse application (`on_action_contact`), created/`setup`-ed by the manager in `_ready`; the manager keeps thin `_on_action_contact`/`_on_action_finished`/`_cancel_ball_action` forwarders (factory wiring untouched) and reads commit state via `_action_executor.action_player()`/`is_kick_action_active()`. Note the charge-as-timer + queue + `_aim_dir` stay in the manager (→ `HumanBrain` in Step 3b). Note `class_name MatchManager` now exists (the enum `MatchManager.ChargeAction` is referenced by the executor). Add `check_action_executor.gd` to the headless-check list. Mark Step 3a done; 3b (`HumanBrain`) still pending.
 
@@ -428,11 +426,10 @@ Mirror: `ActionExecutor` node owns the shot/pass commit path (extracted from `ma
 - [ ] **Step 3: Run the regression grid + commit**
 
 ```powershell
-git add CLAUDE.md AGENTS.md
+git add AGENTS.md
 git commit -m @'
 docs(phase3a): document ActionExecutor + the extracted commit path
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 '@
 ```
 

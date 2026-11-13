@@ -1407,7 +1407,7 @@ Add the method:
 ```gdscript
 ## Геометрия решает «можно ли перехватить»; шанс решает, среагирует ли соперник (не читерски-
 ## идеально). Если да — соперник бежит к точке пересечения (визуальный, честный перехват).
-## NOTE: FootballConstants.AI_SPEED (5.0) is legacy/unused elsewhere (see CLAUDE.md's own
+## NOTE: FootballConstants.AI_SPEED (5.0) is legacy/unused elsewhere (see AGENTS.md's own
 ## caveat on it) — the opponent's REAL speed is the `speed` export on simple_ai.gd (8.0 by
 ## default). Read it off the node via get(), not the stale constant, or every interception
 ## feasibility check will be computed against a speed the opponent doesn't actually have.
@@ -1521,7 +1521,7 @@ git commit -m "feat(pass): telegraph auto-target with a marker during charge"
 ### Task 19: Full-run verification pass + docs
 
 **Files:**
-- Modify: `CLAUDE.md`, `AGENTS.md` (document the pass system, controls, `PassSystem`, new constants)
+- Modify: `AGENTS.md` (document the pass system, controls, `PassSystem`, new constants)
 
 **Interfaces:** none (documentation + final verification).
 
@@ -1536,12 +1536,12 @@ Run the game and confirm, ticking each: short pass, through pass (leads runner),
 
 - [ ] **Step 3: Update docs**
 
-In `CLAUDE.md` add a "Passing" section: control table, `PassSystem` (pure static, headless-tested via `check_pass_system_math.gd`), `PassParams`, `ChargeAction`, `ball.launch()`, receive-assist, give-and-go (`giving_run` group, the one AI-sprint exception), honest interception, `PASS_*`/`AI_INTERCEPT_*` constants, and the input remap (arrows/stick move, context-sensitive Q/LB). Mirror the essentials in `AGENTS.md`.
+In `AGENTS.md` add a "Passing" section: control table, `PassSystem` (pure static, headless-tested via `check_pass_system_math.gd`), `PassParams`, `ChargeAction`, `ball.launch()`, receive-assist, give-and-go (`giving_run` group, the one AI-sprint exception), honest interception, `PASS_*`/`AI_INTERCEPT_*` constants, and the input remap (arrows/stick move, context-sensitive Q/LB). Mirror the essentials in `AGENTS.md`.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add CLAUDE.md AGENTS.md
+git add AGENTS.md
 git commit -m "docs: document the pass system, controls, and PassSystem"
 ```
 
