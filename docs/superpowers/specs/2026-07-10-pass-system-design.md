@@ -65,7 +65,7 @@
 
 **Правила ввода:**
 - Весь ввод строится в коде в [`_setup_inputs()`](../../../scripts/match/match_manager.gd) —
-  `project.godot` мёртв (см. CLAUDE.md). Буквы `KEY_A/W/S/D` **вырезаются** из `move_*`.
+  `project.godot` мёртв (см. AGENTS.md). Буквы `KEY_A/W/S/D` **вырезаются** из `move_*`.
 - Джойстик: `InputEventJoypadButton` (кнопки) и `InputEventJoypadMotion` (оси стика ±1 на
   `move_*`, RT-триггер на `sprint`). Направление движения читается через
   `Input.get_vector(...)` с deadzone — даёт аналог от стика и бинарь от стрелок одним вызовом.
@@ -261,7 +261,7 @@ AI_INTERCEPT_REACT, AI_INTERCEPT_CHANCE
 PASS_CHARGE_MAX_TIME   # если отличается от KICK
 ```
 
-При случае — консолидировать локальные хардкоды kick-power из `match_manager` сюда же (CLAUDE.md
+При случае — консолидировать локальные хардкоды kick-power из `match_manager` сюда же (AGENTS.md
 отмечает это как caveat), чтобы не плодить второй источник истины.
 
 ## Тестирование
