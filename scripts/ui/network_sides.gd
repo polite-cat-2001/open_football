@@ -289,7 +289,7 @@ func _enter_match(setup: Dictionary, lobby: Dictionary) -> void:
 	for attempt in 120:
 		if not is_inside_tree():
 			return
-		UiTransition.change_scene(MATCH_SCENE)
+		UiTransition.change_scene_loading(MATCH_SCENE, "LOADING MATCH")
 		await get_tree().process_frame
 	_entering_match = false
 	view.set_status("could not enter the match", true)

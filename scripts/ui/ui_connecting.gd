@@ -110,17 +110,19 @@ func is_open() -> bool:
 
 
 # `cancel` runs on ESC / pad B; an invalid callable means "not cancellable".
-func open(cancel: Callable = Callable(), text := "CONNECTING") -> void:
+# `instant` skips the fade-in for callers that block the thread right after (a
+# tween cannot animate while they run, so a fade would leave the old screen up).
+func open(cancel: Callable = Callable(), text := "CONNECTING", instant := false) -> void:
 	title.text = text
 	_cancel = cancel
 	hint.visible = cancel.is_valid()
-	_opened_at_ms = Time.get_ticks_msec()
 	visible = true
 	set_process(true)
 	if _open:
 		return
 	_open = true
-	_animate(1.0, FADE_IN)
+	_opened_at_ms = Time.get_ticks_msec()
+	_animate(1.0, 0.0 if instant else FADE_IN)
 
 
 func close() -> void:

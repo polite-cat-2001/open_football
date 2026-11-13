@@ -27,6 +27,16 @@ func change_scene(path: String) -> void:
 	_run_change(path, null)
 
 
+# Swap into a scene whose own start-up blocks the main thread (a match builds the
+# runtime for ~2 s): raise the black loader curtain first, so the player sees a
+# loader instead of a frozen screen. The incoming scene closes the curtain itself.
+func change_scene_loading(path: String, text := "LOADING") -> void:
+	var connecting := get_tree().root.get_node_or_null("UiConnecting")
+	if connecting != null:
+		connecting.call("open", Callable(), text)
+	change_scene(path)
+
+
 func change_scene_packed(packed: PackedScene) -> void:
 	_run_change("", packed)
 

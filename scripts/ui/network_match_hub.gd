@@ -364,8 +364,12 @@ func _start_host() -> void:
 	# plan swaps have been applied to it. Do not rebuild it here or the edits
 	# would be lost.
 	_ensure_network_package()
+	# net_start() builds the authoritative match on this thread (~2 s): raise the
+	# loader before it, not only around the scene swap.
+	await _raise_match_loader()
 	if not bool(runtime.net_start()):
 		_status = runtime.get_last_error()
+		_drop_match_loader()
 		_refresh_state()
 		return
 	_match_started = true
@@ -378,15 +382,36 @@ func _start_client(setup: Dictionary) -> void:
 	var runtime := NET_SHELL.active_runtime(get_tree())
 	# Rebuild from the host-applied plan so this peer fields the same lineup.
 	_ensure_network_package()
+	await _raise_match_loader()
 	if runtime == null or not ShellState.has_package():
 		var package := NETWORK_MATCH.apply_setup(get_tree(), runtime, setup, _lobby_options(),
 			data_root)
 		if package.is_empty():
 			_status = NETWORK_MATCH.error
 			_refresh_state()
+			_drop_match_loader()
 			return
 	_match_started = true
 	UiTransition.change_scene(MATCH_SCENE)
+
+
+func _raise_match_loader() -> void:
+	var connecting := get_node_or_null("/root/UiConnecting")
+	if connecting == null:
+		return
+	connecting.call("open", Callable(), "LOADING MATCH")
+	# net_start()/apply_setup() below hold the main thread, and a tween cannot
+	# advance while they run: let the curtain reach full opacity first (matches
+	# UiConnecting.FADE_IN). Headless draws no fade, so there is nothing to wait.
+	if DisplayServer.get_name() == "headless":
+		return
+	await get_tree().create_timer(0.16).timeout
+
+
+func _drop_match_loader() -> void:
+	var connecting := get_node_or_null("/root/UiConnecting")
+	if connecting != null:
+		connecting.close()
 
 
 func _on_back_requested(_input: Dictionary) -> void:

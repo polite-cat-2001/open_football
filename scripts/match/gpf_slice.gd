@@ -68,6 +68,7 @@ func _ready() -> void:
 	# package. There is no built-in team pair to fall back to.
 	if not ShellState.has_package():
 		push_error("GpfSlice: no match package; choose teams in the shell first")
+		_drop_loader_after_draw()
 		_return_to_team_select.call_deferred()
 		return
 	runtime = _acquire_runtime(ShellState.match_package)
@@ -114,14 +115,23 @@ func _ready() -> void:
 	if not live_net_match:
 		if not runtime.restart_match():
 			push_error("GpfRuntime failed: " + str(runtime.get_last_error()))
+			_drop_loader_after_draw()
 			return
 	goal_nets.build_dynamic()
 	_build_presentation()
-	# A peer that joined a running match arrived behind the CONNECTING curtain: the
-	# match owns the screen now, so drop the curtain over the in-match side select.
+	# The loader curtain (join / match start) is dropped over a built match.
+	await _drop_loader_after_draw()
+
+
+# Every match build (runtime start + match) blocks the main thread for seconds,
+# so the shell raises the loader curtain before it. Drop it one drawn frame late:
+# its fade-out then plays over a live picture instead of the shader warm-up.
+func _drop_loader_after_draw() -> void:
 	var connecting := get_node_or_null("/root/UiConnecting")
-	if connecting != null:
-		connecting.close()
+	if connecting == null or not bool(connecting.is_open()):
+		return
+	await get_tree().process_frame
+	connecting.call("close")
 
 
 func _exit_tree() -> void:
@@ -1152,6 +1162,11 @@ func _start_fresh_match() -> void:
 		return
 	# Tear down the presentation, ask C++ for a fresh match and rebuild the actors
 	# from the new match's player list (F4 debug key and the end-of-match menu).
+	# The rebuild blocks the thread for ~2 s: cover it, and raise the curtain
+	# without a fade-in (there is no frame to animate it in).
+	var connecting := get_node_or_null("/root/UiConnecting")
+	if connecting != null:
+		connecting.call("open", Callable(), "LOADING MATCH", true)
 	if replay.is_active():
 		replay.finish()
 	replay.reset()
@@ -1171,9 +1186,11 @@ func _start_fresh_match() -> void:
 	SettingsStore.apply_to_runtime(runtime)
 	if not runtime.restart_match():
 		push_error("GpfRuntime restart failed: " + str(runtime.get_last_error()))
+		_drop_loader_after_draw()
 		return
 	goal_nets.update()
 	_build_presentation()
+	_drop_loader_after_draw()
 	print("new match: ids=", runtime.get_player_ids().size(),
 		" tick=", runtime.get_tick())
 

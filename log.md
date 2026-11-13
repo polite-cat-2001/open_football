@@ -2250,3 +2250,27 @@ TIME`; в сети это тот же resume-vote. Финал остаётся �
 было видно вовсе; `close()` держит занавес минимум 0.4 с (и снимается после полного fade-in),
 повторный `open()` во время выдержки оставляет его открытым. Проверки — `check_gpf_net_end_flow`
 (вход клиента в идущий матч) и `check_gpf_net_back_vote_live`.
+
+## [2026-11-13] feat | занавес загрузки на старт матча
+
+Старт матча блокирует главный поток: замер (`Time.get_ticks_msec`) — `load` сцены 0.45 с, `_ready`
+4.2 с на первый матч (из них ~2.5 с одноразовая инициализация runtime), ~2.1 с на повторный
+(`restart_match` = 1.87 с, presentation всего 4 мс). Без индикации это читалось как зависание.
+
+Теперь `UiConnecting` поднимается на **любой** вход в матч: `UiTransition.change_scene_loading(path,
+text)` (локальный хаб → `LOADING MATCH`), `network_match_hub._start_host`/`_start_client` до
+`net_start()`/`apply_setup()` (с выдержкой 0.16 с на fade-in — твин не двигается, пока поток занят),
+`network_sides._enter_match`; рестарт из экрана результата и `F4` (`_start_fresh_match`) поднимают
+занавес мгновенно (`open(..., instant)`), потому что перестройка начинается в том же кадре. Снимает
+занавес `gpf_slice`: после `_build_presentation`, кадром позже первого отрисованного кадра
+(`_drop_loader_after_draw`). Тест — `check_prematch_vote` (занавес поднят после Start и снят в матче);
+`check_gpf_result_flow`, `check_gpf_game_shell`, `check_gpf_slice_ui`, `check_gpf_pause`,
+`check_gpf_net_end_flow` — без регрессий.
+
+Решено **оставить как есть** (2026-11-13): остаток — один вызов `Match::Match`, который в порте
+тратит время на графику старого рендерера (`Generating pitch` 2048×1024 + specular/normal, sun-объект,
+adboards, crowd-звуки — их рисует/играет Godot, а не C++). Готовый фикс — флаг конфига, чтобы порт
+пропускал эту легаси-графику (правки в `GameplayFootball-of_port` + пересборка `of_port` и расширения).
+Переписывание на GDScript не рассматриваем: в `of_port` 64k строк (ядро матча 20k, сеть 4k),
+209 mutex / 12 потоков / boost::asio и свой рендерер/GUI, тестов в C++-репозитории нет; легаси-порт на
+GDScript (`scripts/{match,ai,ball,player}`, 16.6k строк) уже был и уступает оригиналу по геймплею.

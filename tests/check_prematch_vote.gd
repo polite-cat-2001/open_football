@@ -53,9 +53,14 @@ func _run() -> void:
 	_check(view.command_cell(0).label_text() == "START MATCH",
 		"local 2P shows a plain Start command")
 	view.start_requested.emit({"kind": "keyboard", "device": 0})
+	var connecting := root.get_node_or_null("UiConnecting")
+	_check(connecting != null and bool(connecting.call("is_open")),
+		"the match start raises the loader curtain")
 	await _frames(12)
 	_check(current_scene != null and current_scene.name == "GpfSlice",
 		"a single Start press begins the match")
+	_check(connecting != null and not bool(connecting.call("is_open")),
+		"the match drops the loader curtain")
 	_check(ShellState.has_package(), "the hub stored the package")
 
 	ShellState.clear()
