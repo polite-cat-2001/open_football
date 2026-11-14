@@ -1,0 +1,185 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# PreToolUse (Edit|Write): по пути правимого файла подсказывает страницу(ы) вики.
+# Ввод: JSON на stdin ({tool_input:{file_path}}). Вывод: JSON hookSpecificOutput.additionalContext.
+# Если добавляешь подсистему — впиши сюда маппинг basename → страница вики.
+import sys, os, io, json
+from pathlib import Path
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+
+# basename исходника → страницы вики (через пробел)
+PAGES = {
+    # --- ядро / оркестрация ---
+    "match_manager.gd":       "архитектура подкат-и-падение конвенции",
+    "match_referee.gd":       "архитектура стандарты-и-intent-seam",
+    "referee_logic.gd":       "архитектура стандарты-и-intent-seam",
+    "boundary_logic.gd":      "вбрасывание архитектура",
+    # --- локомоция / мяч ---
+    "player_motor.gd":        "локомоция",
+    "ball_controller.gd":     "мяч-и-дриблинг",
+    # --- пас / удар ---
+    "pass_system.gd":         "пас",
+    "pass_params.gd":         "пас",
+    "action_executor.gd":     "пас удар",
+    "shot_system.gd":         "удар",
+    # --- сетка ---
+    "goal_net.gd":            "сетка-ворот",
+    "net_sim.gd":             "сетка-ворот",
+    # --- вратарь ---
+    "keeper_ai.gd":               "вратарь",
+    "keeper_logic.gd":            "вратарь пенальти",
+    "keeper_play_logic.gd":       "вратарь",
+    "keeper_intent.gd":           "вратарь пенальти стандарты-и-intent-seam",
+    "human_keeper_intent.gd":     "вратарь пенальти",
+    "ai_keeper_intent.gd":        "вратарь пенальти",
+    "keeper_hands_intent.gd":     "вратарь",
+    "human_keeper_hands_intent.gd": "вратарь",
+    "ai_keeper_hands_intent.gd":  "вратарь",
+    # --- стандарты ---
+    "penalty_controller.gd":  "пенальти",
+    "penalty_logic.gd":       "пенальти",
+    "free_kick_controller.gd":"штрафной стандарты-и-intent-seam",
+    "free_kick_logic.gd":     "штрафной угловой вбрасывание начальный-удар",
+    "corner_controller.gd":   "угловой",
+    "corner_logic.gd":        "угловой",
+    "corner_plan.gd":         "угловой",
+    "ai_corner_intent.gd":    "угловой",
+    "goal_kick_controller.gd":"ввод-от-ворот",
+    "goal_kick_logic.gd":     "ввод-от-ворот",
+    "goal_kick_plan.gd":      "ввод-от-ворот",
+    "ai_goal_kick_intent.gd": "ввод-от-ворот",
+    "throw_in_controller.gd": "вбрасывание",
+    "throw_in_logic.gd":      "вбрасывание",
+    "throw_in_plan.gd":       "вбрасывание",
+    "ai_throw_in_intent.gd":  "вбрасывание",
+    "kickoff_controller.gd":  "начальный-удар",
+    "kickoff_logic.gd":       "начальный-удар",
+    # --- intent-шов ---
+    "kicker_intent.gd":         "стандарты-и-intent-seam",
+    "human_kicker_intent.gd":   "стандарты-и-intent-seam",
+    "ai_kicker_intent.gd":      "стандарты-и-intent-seam",
+    "ai_kickoff_intent.gd":     "начальный-удар стандарты-и-intent-seam",
+    "set_piece_presentation.gd":"стандарты-и-intent-seam",
+    # --- презентация / ассеты ---
+    "player_visual.gd":       "презентация-и-ассеты",
+    "merge_mixamo.py":        "презентация-и-ассеты подкат-и-падение",
+    "build_gpf_blockout.py":  "презентация-и-ассеты",
+    "build_gpf_makehuman.py": "презентация-и-ассеты",
+    "build_gpf_hunyuan.py":   "презентация-и-ассеты",
+    "gpf_fit_model.py":       "презентация-и-ассеты",
+    "build_gpf_fullbody.py":  "презентация-и-ассеты порт-gameplayfootball",
+    "build_gpf_rig.py":       "презентация-и-ассеты порт-gameplayfootball",
+    "gpf_anim.py":            "презентация-и-ассеты порт-gameplayfootball",
+    "gpf_style.py":           "презентация-и-ассеты",
+    "gpf_fit.py":             "презентация-и-ассеты",
+    "gpf_silhouette.py":      "презентация-и-ассеты",
+    "gpf_contact_sheet.py":   "презентация-и-ассеты",
+    "gpf_organic.py":         "презентация-и-ассеты",
+    "import_gpf_fullbody.py": "презентация-и-ассеты порт-gameplayfootball",
+    # --- фабрика / ростер / мозги ---
+    "player_factory.gd":      "фабрика-игроков",
+    "team.gd":                "фабрика-игроков",
+    "player_config.gd":       "фабрика-игроков",
+    "brain.gd":               "фабрика-игроков архитектура",
+    "player.gd":              "фабрика-игроков",
+    "simple_ai.gd":           "фабрика-игроков подкат-и-падение",
+    "teammate_ai.gd":         "фабрика-игроков пас",
+    "ragdoll_skeleton.gd":    "подкат-и-падение",
+    # --- камера / константы ---
+    "match_camera.gd":        "поле-и-камера",
+    "football_constants.gd":  "константы",
+    "tick_scale.gd":          "константы конвенции",
+    # --- порт GameplayFootball (C#) ---
+    "Animation.cs":         "порт-gameplayfootball",
+    "QuatUtil.cs":          "порт-gameplayfootball",
+    "SkeletonBuilder.cs":   "порт-gameplayfootball",
+    "AnimationApplier.cs":  "порт-gameplayfootball",
+    "LabMain.cs":           "порт-gameplayfootball",
+    "LabBody.cs":           "порт-gameplayfootball презентация-и-ассеты",
+    "StickmanRenderer.cs":  "порт-gameplayfootball",
+    "BluntMath.cs":            "порт-gameplayfootball",
+    "Velo.cs":                 "порт-gameplayfootball",
+    "AnimCollection.cs":       "порт-gameplayfootball",
+    "CrudeSelectionQuery.cs":  "порт-gameplayfootball",
+    "AnimSelector.cs":         "порт-gameplayfootball",
+    "WalkLabMain.cs":          "порт-gameplayfootball",
+    "SpatialState.cs":         "порт-gameplayfootball",
+    "PhysicsVector.cs":        "порт-gameplayfootball",
+    "HumanoidBase.cs":         "порт-gameplayfootball",
+    "Humanoid.cs":             "порт-gameplayfootball",
+    "PlayerCommand.cs":        "порт-gameplayfootball",
+    "TouchVectors.cs":         "порт-gameplayfootball",
+    "Ball.cs":                 "порт-gameplayfootball",
+    "GpfPitch.cs":             "порт-gameplayfootball",
+    "AiFunctions.cs":          "порт-gameplayfootball",
+    "GpfRng.cs":               "порт-gameplayfootball",
+    "BallLabMain.cs":          "порт-gameplayfootball",
+    # --- фаза 7: стадион, газон, сетка, камера, звук ---
+    "StadiumLabMain.cs":       "порт-gameplayfootball презентация-и-ассеты",
+    "AseMaterials.cs":         "порт-gameplayfootball презентация-и-ассеты",
+    "ProceduralPitch.cs":      "порт-gameplayfootball поле-и-камера",
+    "Perlin.cs":               "порт-gameplayfootball",
+    "MatchPresentation.cs":    "порт-gameplayfootball",
+    "GoalNetting.cs":          "порт-gameplayfootball сетка-ворот",
+    "IngameCamera.cs":         "порт-gameplayfootball поле-и-камера",
+    "MatchAudio.cs":           "порт-gameplayfootball",
+    "build_gpf_stadium.py":    "порт-gameplayfootball презентация-и-ассеты",
+    # --- оракул: писатель трассы, сценарий, манифесты, дифф ---
+    "TraceWriter.cs":          "порт-gameplayfootball",
+    "OracleScenario.cs":       "порт-gameplayfootball",
+    "oracle_manifest.gd":      "порт-gameplayfootball расхождения-с-оригиналом",
+    "oracle_trace.gd":         "порт-gameplayfootball расхождения-с-оригиналом",
+    "manifest_diff.gd":        "порт-gameplayfootball",
+    "trace_diff.gd":           "порт-gameplayfootball",
+    "run_scenario.gd":         "порт-gameplayfootball",
+}
+
+def main():
+    try:
+        data = json.loads(sys.stdin.read() or "{}")
+    except Exception:
+        return
+    f = (data.get("tool_input") or {}).get("file_path") or ""
+    if not f:
+        return
+    base = os.path.basename(f.replace("\\", "/"))
+
+    # CONTEXT.md в корне — только указатель; словарь живёт страницей вики.
+    if base == "CONTEXT.md":
+        print(json.dumps({
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "additionalContext": (
+                    "CONTEXT.md — указатель, терминов в нём нет. Глоссарий проекта — "
+                    "docs/wiki/глоссарий.md: читай и дописывай новые термины туда "
+                    "(формат `**Термин**:` + определение + `_Avoid_:`), иначе словарь "
+                    "расщепится надвое."
+                ),
+            },
+        }, ensure_ascii=False))
+        return
+
+    pages = PAGES.get(base)
+    if not pages:
+        return
+
+    root = Path(__file__).resolve().parents[2]
+    lines = [f"Правится {base}. Актуальное описание этой подсистемы — в вики "
+             "(читай ПЕРЕД правкой, если ещё не читал):"]
+    for p in pages.split():
+        if (root / "docs" / "wiki" / f"{p}.md").is_file():
+            lines.append(f"  - docs/wiki/{p}.md")
+    lines.append("Пороги и константы не выводи из прозы — они в docs/wiki/константы.md.")
+    lines.append("После правки обнови затронутые страницы вики (правило в CLAUDE.md).")
+
+    print(json.dumps({
+        "hookSpecificOutput": {"hookEventName": "PreToolUse", "additionalContext": "\n".join(lines)},
+    }, ensure_ascii=False))
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception:
+        pass
+    sys.exit(0)
