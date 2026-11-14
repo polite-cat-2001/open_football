@@ -2314,3 +2314,10 @@ etwork_lobby читают новую БД; eligibility и manifest —
 `check_gpf_game_plan`, `check_ui_hints_bar` — PASS; `--headless --quit` чистый.
 Замеры прототипа и отчёты остались в `.scratch/career-mode/parity/` — как справка на будущее.
 
+## [2026-11-14] feat | анимации перехода матчдэя: финал → результаты → таблица
+
+`career_hub.gd:_show_matchday` теперь гасит и возвращает карточку `CareerMatchOverlay` общим
+fade+scale 150/240 мс (`_fade_out`/`_fade_in` хаба) вокруг смены фазы; `_match_action` и
+`_match_back` не срабатывают повторно во время перехода (`_busy`). В headless переход
+мгновенный, тесты не менялись. Проверено: `check_career_matchday`, `check_career_hub` — PASS.
+

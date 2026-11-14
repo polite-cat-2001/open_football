@@ -741,6 +741,8 @@ func _render_match_overlay() -> void:
 
 
 func _match_action() -> void:
+	if _busy:
+		return
 	match _match_phase:
 		"setup":
 			_begin_simulation()
@@ -755,6 +757,8 @@ func _match_action() -> void:
 
 
 func _match_back() -> void:
+	if _busy:
+		return
 	match _match_phase:
 		"setup", "matchday_results":
 			_close_match_overlay()
@@ -787,10 +791,16 @@ func _finish_simulation() -> void:
 
 
 func _show_matchday(step: String) -> void:
+	if _busy:
+		return
 	if _matchday.is_empty():
 		_matchday = _matchday_data()
+	_busy = true
+	await _fade_out(_match_overlay.card())
 	_match_phase = "matchday_results" if step == "results" else "matchday_table"
 	_render_match_overlay()
+	await _fade_in(_match_overlay.card())
+	_busy = false
 
 
 func _run_match_clock(token: int) -> void:
