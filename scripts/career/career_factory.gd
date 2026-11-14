@@ -6,11 +6,6 @@ extends RefCounted
 const SCHEDULE_VERSION := 2
 const PROMOTION_PLACES := 3
 const RELEGATION_PLACES := 3
-const ROLE_ORDER := {
-	"GK": 0, "CB": 1, "LB": 2, "RB": 3, "DM": 4, "CM": 5,
-	"LM": 6, "RM": 7, "AM": 8, "CF": 9,
-}
-
 static var last_error := ""
 
 
@@ -76,6 +71,7 @@ static func create(
 		"schedule_version": SCHEDULE_VERSION,
 		"incoming_market_date": Career.START_DATE,
 	})
+	CareerSquad.ensure_finances(career, squad)
 	return career
 
 
@@ -173,10 +169,7 @@ static func snapshot(catalog: TeamCatalog, career: Career) -> Dictionary:
 	if career.league_club_ids.is_empty():
 		career.data["league_club_ids"] = league_ids.duplicate()
 	ensure_schedule(career, league_ids)
-	var squad := catalog.career_squad(int(career.club_id))
-	var sorted_squad := _sort_players(squad)
-	var summary := _summary(sorted_squad)
-	var groups := _groups(sorted_squad)
+	var squad_view := CareerSquad.snapshot(catalog, career)
 	var clubs := _clubs_for_schedule(catalog, career)
 	return {
 		"version": career.version,
@@ -187,13 +180,7 @@ static func snapshot(catalog: TeamCatalog, career: Career) -> Dictionary:
 		"updated_at": career.updated_at,
 		"manager": career.manager.to_save(),
 		"club": club,
-		"squad": {
-			"summary": summary,
-			"groups": groups,
-			"players": sorted_squad,
-			"lineup": sorted_squad.slice(0, mini(11, sorted_squad.size())),
-			"bench": sorted_squad.slice(mini(11, sorted_squad.size())),
-		},
+		"squad": squad_view,
 		"season": _season_state(career, clubs),
 	}
 
@@ -281,55 +268,6 @@ static func _raw_entry(entry: Dictionary, catalog: TeamCatalog, problem: String,
 		"compatible": false,
 		"problem": problem,
 	}
-
-
-static func _summary(players: Array) -> Dictionary:
-	var total_value := 0
-	var overalls: Array = []
-	var ages: Array = []
-	for player in players:
-		total_value += int(player.get("market_value", 0))
-		overalls.append(float(player.get("overall", 0.0)))
-		var age := int(player.get("age", 0))
-		if age > 0:
-			ages.append(age)
-	return {
-		"squad_size": players.size(),
-		"average_overall": _round1(_array_sum(overalls) / overalls.size()) if not overalls.is_empty() else 0.0,
-		"average_age": _round1(float(_array_sum(ages)) / ages.size()) if not ages.is_empty() else null,
-		"total_market_value": total_value,
-	}
-
-
-static func _groups(players: Array) -> Array:
-	var grouped := {}
-	for player in players:
-		var role := str(player.get("role", ""))
-		if not grouped.has(role):
-			grouped[role] = []
-		grouped[role].append(player)
-	var ordered: Array = []
-	for role in ROLE_ORDER:
-		if grouped.has(role):
-			ordered.append({"role": role, "players": grouped[role]})
-	for role in grouped:
-		if not ROLE_ORDER.has(role):
-			ordered.append({"role": role, "players": grouped[role]})
-	return ordered
-
-
-static func _sort_players(players: Array) -> Array:
-	var copy := players.duplicate()
-	copy.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		var role_a := int(ROLE_ORDER.get(str(a.get("role", "")), 99))
-		var role_b := int(ROLE_ORDER.get(str(b.get("role", "")), 99))
-		if role_a != role_b:
-			return role_a < role_b
-		if not is_equal_approx(float(a.get("overall", 0.0)),
-				float(b.get("overall", 0.0))):
-			return float(a.get("overall", 0.0)) > float(b.get("overall", 0.0))
-		return str(a.get("name", "")) < str(b.get("name", "")))
-	return copy
 
 
 static func _club_logo(club: Dictionary) -> String:
@@ -522,14 +460,4 @@ static func _add_days(iso_date: String, days: int) -> String:
 	var unix := Time.get_unix_time_from_datetime_string(iso_date + "T00:00:00")
 	return Time.get_datetime_string_from_unix_time(int(unix) + days * 86400, false).substr(0, 10)
 
-
-static func _round1(value: float) -> float:
-	return round(value * 10.0) / 10.0
-
-
-static func _array_sum(values: Array) -> float:
-	var total := 0.0
-	for value in values:
-		total += float(value)
-	return total
 

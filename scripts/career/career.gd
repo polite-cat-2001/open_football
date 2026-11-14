@@ -91,6 +91,61 @@ var formation: String:
 	set(value):
 		data["formation"] = value
 
+var role_assignments: Dictionary:
+	get:
+		var value = data.get("role_assignments", {})
+		return value if value is Dictionary else {}
+	set(value):
+		data["role_assignments"] = value
+
+
+var player_contracts: Dictionary:
+	get:
+		var value = data.get("player_contracts", {})
+		return value if value is Dictionary else {}
+	set(value):
+		data["player_contracts"] = value
+
+
+var player_values: Dictionary:
+	get:
+		var value = data.get("player_values", {})
+		return value if value is Dictionary else {}
+	set(value):
+		data["player_values"] = value
+
+
+var player_ages: Dictionary:
+	get:
+		var value = data.get("player_ages", {})
+		return value if value is Dictionary else {}
+	set(value):
+		data["player_ages"] = value
+
+
+var shirt_numbers: Dictionary:
+	get:
+		var value = data.get("shirt_numbers", {})
+		return value if value is Dictionary else {}
+	set(value):
+		data["shirt_numbers"] = value
+
+
+var player_transfers: Dictionary:
+	get:
+		var value = data.get("player_transfers", {})
+		return value if value is Dictionary else {}
+	set(value):
+		data["player_transfers"] = value
+
+
+var balance:
+	get:
+		return data.get("balance")
+	set(value):
+		data["balance"] = value
+
+
 var player_state: Dictionary:
 	get:
 		return data.get("player_state", {})
@@ -175,6 +230,37 @@ static func from_save(raw: Dictionary) -> Career:
 		payload["bench"] = _string_array(payload["bench"])
 	payload["formation"] = str(payload.get("formation", DEFAULT_FORMATION))
 	payload["hub_tab"] = str(payload.get("hub_tab", "centre"))
+	if payload.has("role_assignments") and payload["role_assignments"] is Dictionary:
+		var roles := {}
+		for role in payload["role_assignments"]:
+			roles[str(role)] = str(payload["role_assignments"][role])
+		payload["role_assignments"] = roles
+	if payload.has("player_contracts") and payload["player_contracts"] is Dictionary:
+		var contracts := {}
+		for player_id in payload["player_contracts"]:
+			var contract_raw = payload["player_contracts"][player_id]
+			if not (contract_raw is Dictionary):
+				continue
+			contracts[str(player_id)] = {
+				"years": _as_int(contract_raw.get("years"), 1),
+				"weekly_wage": _as_int(contract_raw.get("weekly_wage"), 0),
+				"squad_role": str(contract_raw.get("squad_role", "rotation")),
+				"release_clause": _as_int(contract_raw.get("release_clause"), 0),
+			}
+		payload["player_contracts"] = contracts
+	for field in ["player_values", "player_ages", "shirt_numbers"]:
+		if payload.has(field) and payload[field] is Dictionary:
+			var values := {}
+			for player_id in payload[field]:
+				values[str(player_id)] = _as_int(payload[field][player_id], 0)
+			payload[field] = values
+	if payload.has("player_transfers") and payload["player_transfers"] is Dictionary:
+		var transfers := {}
+		for player_id in payload["player_transfers"]:
+			transfers[str(player_id)] = str(payload["player_transfers"][player_id])
+		payload["player_transfers"] = transfers
+	if payload.has("balance") and payload["balance"] != null:
+		payload["balance"] = _as_int(payload["balance"], 0)
 
 	if payload.has("schedule") and payload["schedule"] is Array:
 		var fixtures: Array = []

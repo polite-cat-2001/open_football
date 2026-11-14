@@ -6,6 +6,17 @@ extends RefCounted
 
 const DEFAULT := "4-3-3"
 
+const ORDER := [
+	"4-3-3", "4-5-1", "4-4-2", "4-4-2-diamond", "4-2-3-1",
+	"3-4-3", "3-5-2", "2-3-5", "4-2-4", "3-6-1",
+	"2-4-3-1", "4-1-4-1", "4-3-2-1", "3-2-4-1", "4-2-2-2",
+	"4-4-1-1", "3-1-3-3", "3-1-4-2", "5-4-1", "4-1-3-2",
+]
+
+const LABELS := {
+	"4-4-2-diamond": "4-4-2 DIAMOND",
+}
+
 const FORMATIONS := {
 	"4-3-3": [
 		{"position": "GK", "role": "GK", "x": 50, "y": 92, "roles": ["GK"]},
@@ -279,4 +290,20 @@ static func slots(formation: String) -> Array:
 
 
 static func label(formation: String) -> String:
-	return normalize(formation)
+	var normalized := normalize(formation)
+	return str(LABELS.get(normalized, normalized))
+
+
+static func catalog() -> Array:
+	var items: Array = []
+	for formation in ORDER:
+		items.append({
+			"id": formation,
+			"label": label(formation),
+			"slots": FORMATIONS[formation].duplicate(true),
+		})
+	return items
+
+
+static func formation_index(formation: String) -> int:
+	return maxi(0, ORDER.find(normalize(formation)))

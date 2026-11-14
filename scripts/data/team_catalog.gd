@@ -32,8 +32,8 @@ const TEAM_COLUMNS := [
 ]
 const CAREER_PLAYER_COLUMNS := [
 	"id", "team_id", "name", "firstname", "lastname", "birth_date", "age", "role",
-	"career_role", "position", "position_other", "height", "height_cm", "foot", "weak_foot",
-	"skill_moves", "citizenship", "shirt_number", "market_value", "overall", "pot",
+	"career_role", "position", "position_other", "height", "height_cm", "weight", "foot",
+	"weak_foot", "skill_moves", "citizenship", "shirt_number", "market_value", "overall", "pot",
 ]
 const CAREER_ROLE_ORDER := {
 	"GK": 0, "CB": 1, "LB": 2, "RB": 3, "DM": 4, "CM": 5,
@@ -242,17 +242,20 @@ func all_teams_for_league(league_id: String) -> Array:
 	return result
 
 
-func career_squad(team_id: int) -> Array:
+func career_squad(team_id: int, with_stats := false) -> Array:
 	var reader := _require_reader("players")
 	if reader == null:
 		return []
+	var columns := CAREER_PLAYER_COLUMNS.duplicate()
+	if with_stats:
+		columns.append("stats")
 	var rows := reader.select_indexed("players", "team_id", team_id,
-		PackedStringArray(CAREER_PLAYER_COLUMNS))
+		PackedStringArray(columns))
 	if not _query_ok("players"):
 		return []
 	var players: Array = []
 	for row in rows:
-		players.append(_career_player_from_row(row))
+		players.append(_career_player_from_row(row, with_stats))
 	players.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var role_a := int(CAREER_ROLE_ORDER.get(str(a.get("role", "")), 99))
 		var role_b := int(CAREER_ROLE_ORDER.get(str(b.get("role", "")), 99))
@@ -516,10 +519,10 @@ func _player_from_row(row: Dictionary, order_column: String) -> Dictionary:
 	}
 
 
-func _career_player_from_row(row: Dictionary) -> Dictionary:
+func _career_player_from_row(row: Dictionary, with_stats := false) -> Dictionary:
 	var first_name := _text(row.get("firstname"))
 	var last_name := _text(row.get("lastname"))
-	return {
+	var player := {
 		"id": str(_int(row.get("id"))),
 		"team_id": str(_int(row.get("team_id"))),
 		"firstname": first_name,
@@ -533,6 +536,7 @@ func _career_player_from_row(row: Dictionary) -> Dictionary:
 		"position_other": _json_array(row.get("position_other")),
 		"height": _int(row.get("height_cm")) if _int(row.get("height_cm")) > 0 \
 			else int(round(_float(row.get("height"), 1.8) * 100.0)),
+		"weight": _int(row.get("weight")),
 		"foot": _text(row.get("foot")),
 		"weak_foot": _int(row.get("weak_foot")),
 		"skill_moves": _int(row.get("skill_moves")),
@@ -542,6 +546,9 @@ func _career_player_from_row(row: Dictionary) -> Dictionary:
 		"overall": _float(row.get("overall")),
 		"pot": _float(row.get("pot")),
 	}
+	if with_stats:
+		player["stats"] = _json_dict(row.get("stats"))
+	return player
 
 
 func _league_from_row(row: Dictionary) -> Dictionary:
@@ -637,6 +644,15 @@ func _json_array(value) -> Array:
 		return []
 	var parsed = JSON.parse_string(value)
 	return parsed if parsed is Array else []
+
+
+func _json_dict(value) -> Dictionary:
+	if value is Dictionary:
+		return value
+	if not (value is String) or String(value).is_empty():
+		return {}
+	var parsed = JSON.parse_string(value)
+	return parsed if parsed is Dictionary else {}
 
 
 func _load_eligibility(root: String) -> void:
