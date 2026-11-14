@@ -1,0 +1,149 @@
+{
+  "club_id": "131",
+  "formation": "4-3-3",
+  "formation_label": "4-3-3",
+  "slots": [
+    {
+      "position": "GK",
+      "role": "GK",
+      "player_id": "561613",
+      "name": "Joan García",
+      "overall": 80.9,
+      "effective_overall": 80.9
+    },
+    {
+      "position": "LB",
+      "role": "LB",
+      "player_id": "636688",
+      "name": "Alejandro Balde",
+      "overall": 77.9,
+      "effective_overall": 77.9
+    },
+    {
+      "position": "CB",
+      "role": "CB",
+      "player_id": "962110",
+      "name": "Pau Cubarsí",
+      "overall": 83.4,
+      "effective_overall": 83.4
+    },
+    {
+      "position": "CB",
+      "role": "CB",
+      "player_id": "466794",
+      "name": "Eric García",
+      "overall": 82.2,
+      "effective_overall": 82.2
+    },
+    {
+      "position": "RB",
+      "role": "RB",
+      "player_id": "411975",
+      "name": "Jules Koundé",
+      "overall": 87.6,
+      "effective_overall": 87.6
+    },
+    {
+      "position": "DM",
+      "role": "DM",
+      "player_id": "357565",
+      "name": "Rodri",
+      "overall": 88.7,
+      "effective_overall": 88.7
+    },
+    {
+      "position": "CM",
+      "role": "CM",
+      "player_id": "326330",
+      "name": "Frenkie de Jong",
+      "overall": 86.0,
+      "effective_overall": 86.0
+    },
+    {
+      "position": "CM",
+      "role": "CM",
+      "player_id": "683840",
+      "name": "Pedri",
+      "overall": 85.9,
+      "effective_overall": 85.9
+    },
+    {
+      "position": "LW",
+      "role": "LM",
+      "player_id": "411295",
+      "name": "Raphinha",
+      "overall": 89.7,
+      "effective_overall": 89.7
+    },
+    {
+      "position": "ST",
+      "role": "CF",
+      "player_id": "1259085",
+      "name": "Hamza Abdelkarim",
+      "overall": 67.7,
+      "effective_overall": 67.7
+    },
+    {
+      "position": "RW",
+      "role": "RM",
+      "player_id": "937958",
+      "name": "Lamine Yamal",
+      "overall": 86.1,
+      "effective_overall": 86.1
+    }
+  ],
+  "bench": [
+    "293385",
+    "503733",
+    "636703",
+    "182712",
+    "196948",
+    "496094",
+    "205927"
+  ],
+  "reserve": [
+    "44058",
+    "705395",
+    "646740",
+    "1018920",
+    "636695",
+    "792331",
+    "1018912",
+    "924610",
+    "1066206",
+    "1050120",
+    "938154",
+    "1105549"
+  ],
+  "roles": {
+    "captain": "357565",
+    "free_kick_left": "411295",
+    "free_kick_right": "411295",
+    "free_kick_long": "411295",
+    "penalties": "411295",
+    "corner_left": "357565",
+    "corner_right": "357565"
+  },
+  "formations": [
+    "4-3-3",
+    "4-5-1",
+    "4-4-2",
+    "4-4-2-diamond",
+    "4-2-3-1",
+    "3-4-3",
+    "3-5-2",
+    "2-3-5",
+    "4-2-4",
+    "3-6-1",
+    "2-4-3-1",
+    "4-1-4-1",
+    "4-3-2-1",
+    "3-2-4-1",
+    "4-2-2-2",
+    "4-4-1-1",
+    "3-1-3-3",
+    "3-1-4-2",
+    "5-4-1",
+    "4-1-3-2"
+  ]
+}

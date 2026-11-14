@@ -251,6 +251,8 @@ class GamePlanPitch extends Control:
 				draw_rect(rect.grow(1.0), Color(0.88, 0.25, 0.22, 0.95), false, 2.0)
 			elif bool(entry.get("pending_in", false)):
 				draw_rect(rect.grow(1.0), Color(0.28, 0.80, 0.40, 0.95), false, 2.0)
+			if not bool(entry.get("available", true)):
+				draw_rect(rect.grow(1.0), Color(0.88, 0.25, 0.22, 0.90), false, 1.5)
 			if anchored:
 				var icon_radius := clampf(rect.size.x * 0.105, 6.5, 9.0)
 				GpfGamePlan._draw_refresh_icon(self,
@@ -602,12 +604,18 @@ class GamePlanHeader extends Control:
 
 
 class GamePlanDetails extends Control:
+	const PAGES := ["ATTRIBUTES", "STATUS", "STATISTICS", "FINANCE"]
 	var entry: Dictionary = {}
 	var team_color := Color(0.2, 0.4, 0.9)
+	var page := 0
 
 	func set_player(data: Dictionary, color: Color) -> void:
 		entry = data
 		team_color = color
+		queue_redraw()
+
+	func set_page(value: int) -> void:
+		page = posmod(value, PAGES.size())
 		queue_redraw()
 
 	func _draw() -> void:
@@ -618,7 +626,8 @@ class GamePlanDetails extends Control:
 		draw_rect(Rect2(Vector2.ZERO, area), Color(C_TILE.r, C_TILE.g, C_TILE.b, 1.0), true)
 		var pad := maxf(12.0, area.y * 0.035)
 		var title_h := maxf(24.0, area.y * 0.040)
-		draw_string(FONT_HEAD, Vector2(pad, pad + title_h * 0.78), "ATTRIBUTES",
+		draw_string(FONT_HEAD, Vector2(pad, pad + title_h * 0.78),
+			"%s  ·  %d/%d" % [PAGES[page], page + 1, PAGES.size()],
 			HORIZONTAL_ALIGNMENT_LEFT, area.x - pad * 2.0,
 			maxi(16, int(title_h * 0.78)), C_INK)
 		var content_top := pad + title_h + 4.0
@@ -642,8 +651,25 @@ class GamePlanDetails extends Control:
 			str(entry.get("name", "")).to_upper(), HORIZONTAL_ALIGNMENT_LEFT,
 			area.x - x - photo_w * 0.55 - pad, maxi(18, int(photo_h * 0.30)), C_INK)
 
+		var content_y := photo.end.y + pad
+		match page:
+			0:
+				_draw_attributes(area, pad, content_y)
+			1:
+				_draw_status(area, pad, content_y)
+			2:
+				_draw_statistics(area, pad, content_y)
+			_:
+				_draw_finance(area, pad, content_y)
+		var dots_w := PAGES.size() * 14.0
+		var dots_x := area.x * 0.5 - dots_w * 0.5
+		for dot in PAGES.size():
+			var dot_rect := Rect2(Vector2(dots_x + dot * 14.0, area.y - 14.0),
+				Vector2(8, 8))
+			draw_rect(dot_rect, C_INK if dot == page else Color(C_INK, 0.20), true)
+
+	func _draw_attributes(area: Vector2, pad: float, top: float) -> void:
 		var stats: Dictionary = entry.get("stats", {})
-		var stats_top := photo.end.y + pad
 		var columns := [
 			[
 				{"label": "PHYSICAL", "keys": ["physical_balance", "physical_reaction",
@@ -661,9 +687,9 @@ class GamePlanDetails extends Control:
 			],
 		]
 		var col_w := (area.x - pad * 2.0) * 0.5
-		var row_h := maxf(12.0, (area.y - stats_top - pad) / 18.0)
+		var row_h := maxf(12.0, (area.y - top - pad) / 18.0)
 		for column in columns.size():
-			var y := stats_top
+			var y := top
 			for group in columns[column]:
 				var label := str(group["label"])
 				draw_string(FONT_BODY, Vector2(pad + col_w * column, y + row_h * 0.8),
@@ -674,21 +700,80 @@ class GamePlanDetails extends Control:
 					Color(C_INK2, 0.18), 1.0)
 				y += row_h * 1.2
 				for key in group["keys"]:
-					var value := int(round(float(stats.get(str(key), 0.0)) * 100.0))
+					var value := _stat_value(stats.get(str(key), 0.0))
 					draw_rect(Rect2(Vector2(pad + col_w * column, y + 1.0),
 						Vector2(34.0, row_h * 0.86)), C_TILE_ALT, true)
 					draw_string(FONT_HEAD, Vector2(pad + col_w * column, y + row_h * 0.72),
-						str(value), HORIZONTAL_ALIGNMENT_CENTER, 34.0,
+						str(value) if value >= 0 else "—", HORIZONTAL_ALIGNMENT_CENTER, 34.0,
 						maxi(8, int(row_h * 0.55)), C_INK)
 					draw_string(FONT_BODY, Vector2(pad + col_w * column + 42.0, y + row_h * 0.72),
 						str(STAT_LABELS.get(str(key), key)), HORIZONTAL_ALIGNMENT_LEFT,
 						col_w - 60.0, maxi(8, int(row_h * 0.50)), C_INK2)
 					y += row_h
 				y += row_h * 0.4
-		for dot in 3:
-			var dot_rect := Rect2(Vector2(area.x * 0.5 - 18.0 + dot * 14.0,
-				area.y - 14.0), Vector2(8, 8))
-			draw_rect(dot_rect, C_INK if dot == 0 else Color(C_INK, 0.20), true)
+
+	func _draw_status(area: Vector2, pad: float, top: float) -> void:
+		var rows: Array = []
+		if entry.get("injury") != null:
+			var injury: Dictionary = entry.get("injury", {})
+			rows.append(["INJURY", str(injury.get("type", "—"))])
+			rows.append(["RETURN", str(injury.get("until", "—"))])
+		elif entry.get("suspension") != null:
+			var suspension: Dictionary = entry.get("suspension", {})
+			rows.append(["SUSPENSION", "%d MATCHES" % int(suspension.get("matches", 0))])
+		else:
+			rows.append(["STATUS", "READY TO PLAY"])
+		rows.append(["CONDITION", "%d%%" % int(entry.get("fatigue", 100))])
+		rows.append(["MORALE", "%d%%" % int(entry.get("morale", 100))])
+		rows.append(["SQUAD ROLE", str(entry.get("squad_role", ""))])
+		_draw_rows(area, pad, top, rows)
+
+	func _draw_statistics(area: Vector2, pad: float, top: float) -> void:
+		var season: Dictionary = entry.get("season_stats", {})
+		_draw_rows(area, pad, top, [
+			["APPS", str(int(season.get("apps", 0)))],
+			["STARTS", str(int(season.get("starts", 0)))],
+			["MINUTES", str(int(season.get("minutes", 0)))],
+			["GOALS", str(int(season.get("goals", 0)))],
+			["ASSISTS", str(int(season.get("assists", 0)))],
+			["YELLOW", str(int(season.get("yellow", 0)))],
+			["RED", str(int(season.get("red", 0)))],
+		])
+
+	func _draw_finance(area: Vector2, pad: float, top: float) -> void:
+		var contract: Dictionary = entry.get("contract", {})
+		var value := int(entry.get("market_value", 0))
+		_draw_rows(area, pad, top, [
+			["MARKET VALUE", _money(value) if value > 0 else "—"],
+			["WAGE", _money(int(contract.get("weekly_wage", 0))) + " / WEEK"],
+			["RELEASE CLAUSE", _money(int(contract.get("release_clause", 0)))],
+			["CONTRACT", "%d Y" % int(contract.get("years", 1))],
+		])
+
+	func _draw_rows(area: Vector2, pad: float, top: float, rows: Array) -> void:
+		var row_h := maxf(20.0, (area.y - top - pad) / 10.0)
+		var width := area.x - pad * 2.0
+		var y := top
+		for row in rows:
+			draw_string(FONT_BODY, Vector2(pad, y + row_h * 0.72), str(row[0]),
+				HORIZONTAL_ALIGNMENT_LEFT, width * 0.55,
+				maxi(10, int(row_h * 0.50)), C_INK2)
+			draw_string(FONT_HEAD, Vector2(pad + width * 0.55, y + row_h * 0.72),
+				str(row[1]), HORIZONTAL_ALIGNMENT_RIGHT, width * 0.45,
+				maxi(11, int(row_h * 0.55)), C_INK)
+			y += row_h
+
+	# Career stats are 0..100 already; the game's are 0..1.
+	static func _stat_value(value) -> int:
+		var raw := float(value)
+		return int(round(raw * 100.0)) if raw <= 1.0 else int(round(raw))
+
+	static func _money(value: int) -> String:
+		if value >= 1000000:
+			return "€%.1fM" % (float(value) / 1000000.0)
+		if value >= 1000:
+			return "€%dK" % int(round(float(value) / 1000.0))
+		return "€%d" % value
 
 	func _draw_silhouette(photo: Rect2) -> void:
 		var center := photo.get_center()
@@ -699,7 +784,9 @@ class GamePlanDetails extends Control:
 
 
 class BenchCard extends Control:
-	signal activated(entry_index: int)
+	# No payload: the connection binds (team_id, entry_index), so a signal
+	# argument would shift those bound values.
+	signal activated
 
 	var entry: Dictionary = {}
 	var entry_index := 0
@@ -726,7 +813,8 @@ class BenchCard extends Control:
 		var area := get_size()
 		if area.x <= 2.0 or area.y <= 2.0:
 			return
-		var unavailable := bool(entry.get("left_pitch", false))
+		var unavailable := bool(entry.get("left_pitch", false)) \
+			or not bool(entry.get("available", true))
 		var fill := Color(1.0, 1.0, 1.0, 0.58)
 		if focused:
 			fill = C_FOCUS_FILL
@@ -805,7 +893,7 @@ class BenchCard extends Control:
 		if event is InputEventMouseButton:
 			var mouse := event as InputEventMouseButton
 			if mouse.button_index == MOUSE_BUTTON_LEFT and mouse.pressed:
-				activated.emit(entry_index)
+				activated.emit()
 				accept_event()
 
 	static func _short_name(value: String) -> String:
@@ -852,10 +940,14 @@ class SchemeCard extends Control:
 	var selected := false
 	var focused := false
 	var scheme_name := ""
+	var entries: Array = []
 
-	func setup(scheme_index: int, name_text: String) -> void:
+	func setup(scheme_index: int, name_text: String,
+			entries_override: Array = []) -> void:
 		index = scheme_index
 		scheme_name = name_text
+		entries = entries_override if not entries_override.is_empty() \
+			else TacticalSchemes.SCHEMES[scheme_index]["entries"]
 		mouse_filter = Control.MOUSE_FILTER_STOP
 
 	func _draw() -> void:
@@ -917,7 +1009,7 @@ class SchemeCard extends Control:
 				_pitch_point(pitch, 0.40, goal_far_v),
 				_pitch_point(pitch, 0.40, goal_v),
 			]), line, 0.8)
-		var entries: Array = TacticalSchemes.SCHEMES[index]["entries"]
+		var entries: Array = self.entries
 		for entry in entries:
 			var pos: Vector2 = entry["position"]
 			var role := str(entry["role"])
@@ -1064,6 +1156,10 @@ var mode := "prematch" # "prematch" | "match" | "demo"
 var runtime = null
 var network_mode := false
 var local_two_player := false
+# Career mode: the FORMATIONS drawer lists the career's own formations instead
+# of the game's six tactical schemes. Each item is {id, label, entries}.
+var formation_source: Array = []
+var formation_id := ""
 
 var _lineups: Dictionary = {}
 var _demo_teams: Dictionary = {}
@@ -1132,9 +1228,19 @@ func is_open() -> bool:
 	return _built and visible
 
 
+# The edited prematch model for one side; the career reads it back on close.
+func lineup_model(team_id: int) -> MatchLineup:
+	return _lineups.get(team_id)
+
+
 func open_plan() -> void:
 	if not _built:
 		_build_chrome()
+	# Chrome is built in _ready, before the caller knows the mode: pick the
+	# background for this open. Career shows the stage with no dim.
+	if _background != null:
+		_background.color = Color(0, 0, 0, 0) if not formation_source.is_empty() \
+			else Color(0.015, 0.035, 0.078, 0.18)
 	visible = true
 	move_to_front()
 	_close_at_ms = 0
@@ -1344,8 +1450,12 @@ func _resolve_teams() -> void:
 				_team_colors[team_id] = color
 	else:
 		for team_id in [0, 1]:
+			var lineup: MatchLineup = _lineups.get(team_id)
 			var team: Dictionary = ShellState.home_team if team_id == 0 else ShellState.away_team
-			_team_names[team_id] = str(team.get("name", "HOME" if team_id == 0 else "AWAY"))
+			var name := str(team.get("name", "HOME" if team_id == 0 else "AWAY"))
+			if lineup != null and not lineup.team_name.is_empty():
+				name = lineup.team_name
+			_team_names[team_id] = name
 	_display_teams = [0, 1]
 
 
@@ -1355,6 +1465,23 @@ func _shell_color(team_id: int) -> Color:
 	if raw.is_empty():
 		return DEFAULT_COLORS.get(team_id, Color(0.4, 0.4, 0.4))
 	return Color.from_string(raw, DEFAULT_COLORS.get(team_id, Color(0.4, 0.4, 0.4)))
+
+
+func _formation_count() -> int:
+	return formation_source.size() if not formation_source.is_empty() \
+		else TacticalSchemes.count()
+
+
+func _formation_label(index: int) -> String:
+	if not formation_source.is_empty():
+		return str((formation_source[index] as Dictionary).get("label", ""))
+	return TacticalSchemes.scheme_name(index)
+
+
+func _formation_entries(index: int) -> Array:
+	if not formation_source.is_empty():
+		return (formation_source[index] as Dictionary).get("entries", [])
+	return TacticalSchemes.SCHEMES[index]["entries"]
 
 
 func _unique_teams(values: Array) -> Array:
@@ -1448,6 +1575,7 @@ func _make_panel(team_id: int) -> Dictionary:
 		"strength_initial": -1,
 		"ready": false,
 		"details_open": false,
+		"details_page": 0,
 		"pitch_rect": Rect2(),
 		"drawer_rect": Rect2(),
 	}
@@ -1527,10 +1655,12 @@ func _make_panel(team_id: int) -> Dictionary:
 	scheme_grid.add_theme_constant_override("v_separation", 8)
 	drawer.add_child(scheme_grid)
 	var scheme_cards: Array = panel["scheme_cards"]
-	for scheme_index in TacticalSchemes.count():
+	for scheme_index in _formation_count():
 		var card := SchemeCard.new()
-		card.setup(scheme_index, TacticalSchemes.scheme_name(scheme_index))
+		card.setup(scheme_index, _formation_label(scheme_index),
+			_formation_entries(scheme_index))
 		card.gui_input.connect(_on_scheme_clicked.bind(team_id, scheme_index))
+		card.gui_input.connect(_on_scheme_wheel.bind(team_id, scheme_index))
 		card.mouse_entered.connect(_on_scheme_hovered.bind(team_id, scheme_index))
 		scheme_grid.add_child(card)
 		scheme_cards.append(card)
@@ -1569,7 +1699,7 @@ func _make_panel(team_id: int) -> Dictionary:
 	var crest_overlay: ReadyOverlay = panel["crest_overlay"]
 	crest_overlay.visible = false
 	crest_overlay.dim = true
-	crest_overlay.watermark = false
+	crest_overlay.watermark = not formation_source.is_empty()
 	crest_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	control.add_child(crest_overlay)
 
@@ -1745,7 +1875,7 @@ func _layout_panel(panel: Dictionary, panel_size: Vector2, u: float) -> void:
 	crest_overlay.team_name = str(_team_names.get(team_id, ""))
 	crest_overlay.ready_text = "READY!"
 	crest_overlay.dim = true
-	crest_overlay.watermark = false
+	crest_overlay.watermark = not formation_source.is_empty()
 	crest_overlay.queue_redraw()
 
 	if bool(panel["ready"]):
@@ -1955,12 +2085,22 @@ func _entry_from_player(player_id: int, slot: int, player: Dictionary, role: Str
 		"pending_out": false,
 		"pending_in": false,
 		"rating": rating,
-		"fatigue": 100,
+		"fatigue": int(player.get("fatigue", 100)),
+		"available": bool(player.get("available", true)),
+		"injury": player.get("injury", null),
+		"suspension": player.get("suspension", null),
+		"season_stats": (player.get("season_stats", {}) as Dictionary).duplicate(true),
+		"contract": (player.get("contract", {}) as Dictionary).duplicate(true),
+		"market_value": int(player.get("market_value", 0)),
+		"morale": int(player.get("morale", 100)),
 		"stats": (player.get("stats", {}) as Dictionary).duplicate(true),
 	}
 
 
 func _rating_for_player(player: Dictionary) -> int:
+	var overall := float(player.get("overall", 0.0))
+	if overall > 0.0:
+		return int(round(overall))
 	var base_stat := float(player.get("base_stat", 0.0))
 	if base_stat > 0.0:
 		return int(round(base_stat * 100.0))
@@ -2151,6 +2291,7 @@ func _refresh_header(panel: Dictionary) -> void:
 	header.set_players(primary, secondary, _team_colors.get(int(panel["team_id"]), Color(0.3, 0.4, 0.8)))
 	var details: GamePlanDetails = panel["details"]
 	details.set_player(primary, _team_colors.get(int(panel["team_id"]), Color(0.3, 0.4, 0.8)))
+	details.set_page(int(panel.get("details_page", 0)))
 	details.queue_redraw()
 
 
@@ -2217,6 +2358,20 @@ func _scheme_preview(panel: Dictionary) -> Dictionary:
 		return {}
 	var entries: Array = panel["entries"]
 	var scheme_cursor := int(panel["scheme_cursor"])
+	if not formation_source.is_empty():
+		var source: Dictionary = formation_source[clampi(scheme_cursor, 0,
+			formation_source.size() - 1)]
+		var layout: Array = source.get("entries", [])
+		var career_preview: Dictionary = {}
+		for offset in mini(layout.size(), pitch_entries.size()):
+			var position: Vector2 = (layout[offset] as Dictionary).get("position",
+				Vector2.ZERO)
+			career_preview[int(pitch_entries[offset])] = {
+				"role": str((layout[offset] as Dictionary).get("role", "CM")),
+				"position": position,
+				"database_position": position,
+			}
+		return career_preview
 	var candidates: Array = []
 	for index in pitch_entries:
 		var entry: Dictionary = entries[index]
@@ -2363,14 +2518,14 @@ func _refresh_scheme_cards(panel: Dictionary) -> void:
 	var cursor := int(panel["scheme_cursor"])
 	var page := cursor / 3
 	panel["scheme_page"] = page
-	var page_count := int(ceil(float(TacticalSchemes.count()) / 3.0))
+	var page_count := maxi(1, int(ceil(float(_formation_count()) / 3.0)))
 	var rail: SchemeRail = panel["scheme_rail"]
 	rail.page = page
 	rail.page_count = page_count
 	rail.queue_redraw()
 	var scheme_label := "CUSTOM"
 	if committed >= 0:
-		scheme_label = TacticalSchemes.scheme_name(committed)
+		scheme_label = _formation_label(committed)
 	(panel["scheme_header"] as Label).text = "FORMATION · %s · %d/%d" \
 		% [scheme_label, page + 1, page_count]
 	for index in (panel["scheme_cards"] as Array).size():
@@ -2382,6 +2537,11 @@ func _refresh_scheme_cards(panel: Dictionary) -> void:
 
 
 func _detect_committed_scheme(panel: Dictionary) -> int:
+	if not formation_source.is_empty():
+		for index in formation_source.size():
+			if str((formation_source[index] as Dictionary).get("id", "")) == formation_id:
+				return index
+		return -1
 	var entries: Array = panel["entries"]
 	var formation: Array = []
 	for entry in entries:
@@ -2430,8 +2590,11 @@ func _role_player_name(panel: Dictionary, role: int) -> String:
 			if slot >= 0 and slot < lineup.lineup.size():
 				var player := lineup.player_by_id(lineup.lineup[slot])
 				if not player.is_empty():
-					return str(player.get("lastname", player.get("name", "—")))
-	return "—"
+					var last := str(player.get("lastname", "")).strip_edges()
+					if last.is_empty():
+						last = str(player.get("name", "-"))
+					return last
+	return "-"
 
 
 func _pending_for_team(team_id: int) -> Array:
@@ -2469,26 +2632,45 @@ func _refresh_hints(panel: Dictionary) -> void:
 
 func _hints_for(panel: Dictionary) -> Array:
 	var tab := int(panel["tab"])
+	var gamepad := _gamepad_hints_active()
+	var back_label := "close" if not formation_source.is_empty() else "ready"
+	var tabs: Array = ["LB", "RB"] if gamepad else ["Q", "E"]
+	var accept: Array = ["A"] if gamepad else ["ENTER"]
+	var details: Array = ["Y"] if gamepad else ["R"]
+	var back: Array = ["B"] if gamepad else ["ESC"]
 	if bool(panel["details_open"]):
-		return [{"keys": ["B"], "label": "back"}]
+		return [
+			{"keys": tabs, "label": "page"},
+			{"keys": back, "label": "back"},
+		]
 	if tab == TAB_FORMATIONS:
 		return [
-			{"keys": ["Q/E"], "label": "tabs"},
-			{"keys": ["A"], "label": "apply"},
-			{"keys": ["B"], "label": "ready"},
+			{"keys": tabs, "label": "tabs"},
+			{"keys": accept, "label": "apply"},
+			{"keys": back, "label": back_label},
 		]
 	if tab == TAB_ROLES:
 		return [
-			{"keys": ["Q/E"], "label": "tabs"},
-			{"keys": ["A"], "label": "pick"},
-			{"keys": ["B"], "label": "ready"},
+			{"keys": tabs, "label": "tabs"},
+			{"keys": accept, "label": "pick"},
+			{"keys": back, "label": back_label},
 		]
 	return [
-		{"keys": ["Q/E"], "label": "tabs"},
-		{"keys": ["A"], "label": "select"},
-		{"keys": ["Y"], "label": "details"},
-		{"keys": ["B"], "label": "ready"},
+		{"keys": tabs, "label": "tabs"},
+		{"keys": accept, "label": "select"},
+		{"keys": details, "label": "details"},
+		{"keys": back, "label": back_label},
 	]
+
+
+func _gamepad_hints_active() -> bool:
+	var nav := get_node_or_null("/root/UiNav")
+	return nav != null and bool(nav.using_gamepad())
+
+
+func refresh_hints() -> void:
+	for panel in _panels:
+		_refresh_hints(panel)
 
 
 func _refresh_ready(panel: Dictionary) -> void:
@@ -2561,19 +2743,21 @@ func _handle_panel(panel_index: int, direction: Vector2i, accept: bool, back: bo
 		return true
 	if bool(panel["details_open"]):
 		if back or accept:
-			panel["details_open"] = false
-			_refresh_panel(panel)
-			_layout()
+			_toggle_details(panel_index)
 			return true
 		return true
 
 	var tab := int(panel["tab"])
+	var career := not formation_source.is_empty()
 	if tab == TAB_SQUAD:
 		if back:
 			if int(panel["held"]) != -1:
 				panel["held"] = -1
 				_refresh_panel(panel)
 				set_status("Selection cleared", 1500)
+				return true
+			if career:
+				close_requested.emit()
 				return true
 			_ready_panel(panel)
 			return true
@@ -2592,6 +2776,9 @@ func _handle_panel(panel_index: int, direction: Vector2i, accept: bool, back: bo
 
 	if tab == TAB_FORMATIONS:
 		if back:
+			if career:
+				close_requested.emit()
+				return true
 			_ready_panel(panel)
 			return true
 		if accept:
@@ -2619,6 +2806,9 @@ func _handle_panel(panel_index: int, direction: Vector2i, accept: bool, back: bo
 				return true
 			return true
 		if back:
+			if career:
+				close_requested.emit()
+				return true
 			_ready_panel(panel)
 			return true
 		if accept:
@@ -2652,8 +2842,13 @@ func _switch_tab(panel_index: int, delta: int) -> bool:
 	if panel_index < 0 or panel_index >= _panels.size():
 		return false
 	var panel: Dictionary = _panels[panel_index]
-	if not bool(panel["editable"]) or bool(panel["ready"]) or bool(panel["details_open"]):
+	if not bool(panel["editable"]) or bool(panel["ready"]):
 		return false
+	if bool(panel["details_open"]):
+		panel["details_page"] = posmod(int(panel.get("details_page", 0)) + delta,
+			GamePlanDetails.PAGES.size())
+		_refresh_panel(panel)
+		return true
 	var next := wrapi(int(panel["tab"]) + delta, 0, TAB_NAMES.size())
 	panel["tab"] = next
 	panel["held"] = -1
@@ -2678,10 +2873,53 @@ func _toggle_details(panel_index: int) -> bool:
 		return false
 	if int(panel["tab"]) != TAB_SQUAD and not bool(panel["details_open"]):
 		return false
-	panel["details_open"] = not bool(panel["details_open"])
-	_refresh_panel(panel)
-	_layout()
+	var details: GamePlanDetails = panel["details"]
+	if bool(panel["details_open"]):
+		panel["details_open"] = false
+		_refresh_panel(panel)
+		_layout()
+		details.visible = true
+		_animate_details(details, false)
+	else:
+		panel["details_page"] = 0
+		panel["details_open"] = true
+		_refresh_panel(panel)
+		_layout()
+		_animate_details(details, true)
 	return true
+
+
+func _animate_details(details: GamePlanDetails, opening: bool) -> void:
+	details.pivot_offset = details.size * 0.5
+	var transition := get_node_or_null("/root/UiTransition")
+	if transition == null or bool(transition.get("instant")):
+		details.modulate.a = 1.0
+		details.scale = Vector2.ONE
+		details.visible = opening
+		return
+	if opening:
+		details.modulate.a = 0.0
+		details.scale = Vector2.ONE * 0.97
+		var tween := create_tween().set_parallel(true)
+		tween.tween_property(details, "modulate:a", 1.0, 0.18)
+		tween.tween_property(details, "scale", Vector2.ONE, 0.18) \
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		return
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(details, "modulate:a", 0.0, 0.14)
+	tween.tween_property(details, "scale", Vector2.ONE * 0.97, 0.14)
+	await tween.finished
+	if is_inside_tree() and not _details_open_for(details):
+		details.visible = false
+	details.modulate.a = 1.0
+	details.scale = Vector2.ONE
+
+
+func _details_open_for(details: Control) -> bool:
+	for panel in _panels:
+		if panel["details"] == details:
+			return bool(panel["details_open"])
+	return false
 
 
 func _on_tab_pressed(team_id: int, tab: int) -> void:
@@ -2707,8 +2945,15 @@ func _on_card_clicked(panel_index: int, entry_index: int) -> void:
 	if panel_index < 0 or panel_index >= _panels.size():
 		return
 	var panel: Dictionary = _panels[panel_index]
-	if not bool(panel["editable"]) or bool(panel["ready"]) \
-			or int(panel["tab"]) != TAB_SQUAD:
+	if not bool(panel["editable"]) or bool(panel["ready"]):
+		return
+	if int(panel["tab"]) == TAB_ROLES:
+		if not bool(panel["role_picking"]):
+			return
+		panel["cursor"] = entry_index
+		_confirm_role_pick(panel)
+		return
+	if int(panel["tab"]) != TAB_SQUAD:
 		return
 	panel["cursor"] = entry_index
 	_press_entry(panel_index, entry_index)
@@ -2739,6 +2984,31 @@ func _on_scheme_clicked(event: InputEvent, team_id: int, scheme_index: int) -> v
 		return
 	panel["scheme_cursor"] = scheme_index
 	_commit_scheme(panel)
+
+
+# Wheel over the formation cards pages them like the rail does.
+func _on_scheme_wheel(event: InputEvent, team_id: int, scheme_index: int) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse := event as InputEventMouseButton
+	if not mouse.pressed:
+		return
+	var delta := 0
+	if mouse.button_index == MOUSE_BUTTON_WHEEL_UP:
+		delta = -3
+	elif mouse.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		delta = 3
+	if delta == 0:
+		return
+	var panel_index := _panel_index_for_team(team_id)
+	if panel_index < 0:
+		return
+	var panel: Dictionary = _panels[panel_index]
+	if not bool(panel["editable"]) or bool(panel["ready"]):
+		return
+	panel["scheme_cursor"] = clampi(scheme_index + delta, 0, _formation_count() - 1)
+	_refresh_panel(panel)
+	mouse.accept_event()
 
 
 func _on_role_clicked(event: InputEvent, team_id: int, row_index: int) -> void:
@@ -2801,10 +3071,17 @@ func _on_role_hovered(team_id: int, row_index: int) -> void:
 	var panel: Dictionary = _panels[panel_index]
 	if not bool(panel["editable"]) or bool(panel["ready"]) or bool(panel["details_open"]):
 		return
-	if int(panel["tab"]) != TAB_ROLES or bool(panel["role_picking"]) \
-			or int(panel["role_cursor"]) == row_index:
+	if int(panel["tab"]) != TAB_ROLES or bool(panel["role_picking"]):
 		return
 	panel["role_cursor"] = row_index
+	var role := int(TEAM_ROLE_ROWS[row_index]["role"])
+	var lineup: MatchLineup = _lineups.get(team_id)
+	if lineup != null:
+		var slot := lineup.role_slot(role)
+		if slot >= 0 and slot < lineup.lineup.size():
+			var index := _find_entry_by_id(panel, int(lineup.lineup[slot]))
+			if index >= 0:
+				panel["cursor"] = index
 	_refresh_panel(panel)
 
 
@@ -2818,6 +3095,9 @@ func _press_entry(panel_index: int, entry_index: int) -> void:
 	var entry: Dictionary = entries[entry_index]
 	if bool(entry.get("left_pitch", false)):
 		set_status("%s has already left the pitch" % str(entry.get("name", "")))
+		return
+	if not bool(entry.get("available", true)):
+		set_status("%s is unavailable" % str(entry.get("name", "")), 3000)
 		return
 	if int(panel["held"]) == -1:
 		panel["held"] = entry_index
@@ -2959,7 +3239,24 @@ func _is_pending_pair(panel: Dictionary, out: Dictionary, incoming: Dictionary) 
 func _commit_scheme(panel: Dictionary) -> void:
 	var team_id := int(panel["team_id"])
 	var scheme_index := int(panel["scheme_cursor"])
-	if scheme_index < 0 or scheme_index >= TacticalSchemes.count():
+	if scheme_index < 0 or scheme_index >= _formation_count():
+		return
+	if not formation_source.is_empty():
+		var lineup: MatchLineup = _lineups.get(team_id)
+		var item: Dictionary = formation_source[scheme_index]
+		if lineup == null:
+			return
+		var entries: Array = item.get("entries", [])
+		for slot in mini(entries.size(), lineup.formation.size()):
+			var source: Dictionary = entries[slot]
+			lineup.formation[slot]["role"] = str(source.get("role", "CM"))
+			lineup.formation[slot]["position"] = source.get("position", Vector2.ZERO)
+			lineup.formation[slot]["database_position"] = source.get("position", Vector2.ZERO)
+		formation_id = str(item.get("id", ""))
+		panel["committed_scheme"] = scheme_index
+		lineup_changed.emit()
+		set_status("%s applied" % _formation_label(scheme_index), 3000)
+		_refresh_panel(panel)
 		return
 	if mode == "prematch":
 		var lineup: MatchLineup = _lineups.get(team_id)
@@ -3007,7 +3304,7 @@ func _apply_demo_scheme(team_id: int, scheme_index: int) -> void:
 
 
 func _move_scheme_cursor(panel: Dictionary, direction: Vector2i) -> void:
-	var count := TacticalSchemes.count()
+	var count := _formation_count()
 	if count <= 0:
 		return
 	var cursor := int(panel["scheme_cursor"])

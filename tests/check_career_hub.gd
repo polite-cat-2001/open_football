@@ -111,12 +111,26 @@ func _run() -> void:
 	_check(not overlay.is_open(), "Back closes the overlay")
 	_check(table_tile.has_focus(), "focus returns to the overview tile")
 
+	# A sideways push from the edge tile pages to the next section.
+	nav.moved.emit(Vector2i.RIGHT)
+	await _frames(3)
+	_check(tab_bar.get_active_tab() == 1, "Right from the last tile opens the next section")
+	nav.cancelled.emit()
+	await _frames(3)
+	_check(tab_bar.get_active_tab() == 0, "Back returns to Centre")
+
 	nav.tab_next.emit()
 	await _frames(4)
 	_check(tab_bar.get_active_tab() == 1, "R1 switches to the next tab")
 	_check(not grid.visible, "the centre dashboard hides on another tab")
-	_check(placeholder.visible, "the other tab shows the shared placeholder")
+	var squad_view = hub.get_node("Design/PanelWrap/Body/SquadView")
+	_check(squad_view.visible, "the Squad tab shows the squad view")
+	_check(not placeholder.visible, "the built Squad tab no longer shows the placeholder")
 	_check(career.hub_tab == "squad", "the active tab is stored on the career")
+	nav.moved.emit(Vector2i.UP)
+	await _frames(3)
+	_check(tab_bar.get_tab_button(1).has_focus(),
+		"Up from the squad grid reaches the active tab")
 	nav.cancelled.emit()
 	await _frames(4)
 	_check(tab_bar.get_active_tab() == 0, "Back from another tab returns to Centre")

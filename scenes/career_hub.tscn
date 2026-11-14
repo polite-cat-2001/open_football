@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/career_hub.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_stage.tscn" id="2"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="9"]
 [ext_resource type="Script" path="res://scripts/ui/career_hub_overlay.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/ui/career_match_overlay.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/ui/career_squad_view.gd" id="12"]
 
 [node name="CareerHub" type="Control"]
 layout_mode = 3
@@ -121,6 +122,14 @@ subtitle = "Up to five sessions a week: attributes and cost."
 glyph_name = "tactics"
 chip = "SOON"
 
+[node name="SquadView" type="Control" parent="Design/PanelWrap/Body"]
+visible = false
+layout_mode = 0
+offset_top = 62.0
+offset_right = 1480.0
+offset_bottom = 688.4
+script = ExtResource("12")
+
 [node name="Placeholder" type="Control" parent="Design/PanelWrap/Body"]
 visible = false
 layout_mode = 0
@@ -146,3 +155,9 @@ layout_mode = 0
 offset_right = 1920.0
 offset_bottom = 1080.0
 script = ExtResource("11")
+
+[node name="PlanHost" type="Control" parent="Design"]
+visible = false
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
