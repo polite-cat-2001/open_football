@@ -2179,3 +2179,138 @@ etwork_lobby читают новую БД; eligibility и manifest —
   `BEFORE THE MATCH`, клок в setup белый, в live/final — кисло-зелёный.
 - Проверено скриншотами setup/live/final (`.scratch/ui_shots/career_sim_*.png`) против прототипа.
   PASS: `check_career_matchday`, `check_career_hub`, `check_career_advance`, `check_career_ui`.
+
+## [2026-11-11] feat | Карьера: состав — обзор и план (05)
+
+- `CareerSquad` — порт `server/career/{snapshot,squad}.py`: снимок состава (старт XI,
+  скамейка 7, резерв, группы, рейтинги, кондиции, финансы и контракты), `lineup_for`,
+  `preview_lineup`, `arrange_lineup`, свапы старт↔старт/старт↔скамейка/скамейка↔скамейка,
+  смена схемы и назначение ролей с ошибками прототипа. Начальные контракты, номера и
+  баланс создаются при `CareerFactory.create`; сейв читает/пишет их без конвертации.
+- `CareerRoles` — порт `roles.py`: капитан/стандарты по взвешенным статам, фолбэк на
+  лучшего стартера, `role_assignments` в сейве.
+- `CareerFormations` — 20 схем прототипа с порядком, подписями и каталогом.
+- `CareerSquadView` — таб SQUAD на `UiNav`/`UiHintsBar`: SquadOverview, PlanView
+  (SQUAD/SCHEMES/ROLES + Details), поле/скамейка/резерв, сравнение и дельта силы,
+  20 схем с превью, роли, детали игрока; Squad Centre (STATUS/STATISTICS/ATTRIBUTES/
+  FINANCE) с ростером, радаром и финансовой таблицей. Выбранный XI, очередь замен,
+  схема и роли сразу пишутся в `Career` и сохраняются хабом.
+- Golden `tests/fixtures/career_squad_golden.json`; тест `tests/check_career_squad.gd`
+  (golden, формации, свапы, роли, травмы, save/load, UI-поток). PASS —
+  `check_career_squad`, `check_career_hub`, `check_career_matchday`, `check_career_advance`,
+  `check_career_creation`, `check_career_save_store`, `check_career_ui`, `check_career_delete`.
+
+## [2026-11-13] feat | Карьера: навигация как в главном меню и экраны плана/центра
+
+- Разделы хаба листаются слайдом: плитки Centre въезжают (`BentoGrid.play_entrance`), Squad и
+  заглушки — контрол-слайд. `Left/Right` с крайней плитки раздела открывает соседний раздел,
+  `Up` с сетки/обзора уводит фокус на активный главный таб.
+- План игры и Squad Centre стали оверлеями на весь Body: главные табы прячутся, экран
+  открывается и закрывается слайдом; назад — в обзор с возвратом табов.
+- Внутри плана/центра табы листаются анимированной маркер-плашкой, контент — слайдом;
+  TASKS/TACTICS убраны, вкладка FORMATIONS, карточки поля — силуэты майки KitArt цветом формы
+  клуба (`KitCatalog`), как в паузе матча.
+- Детали игрока: ATTRIBUTES (радар + общие данные + группы статов), STATUS, STATISTICS,
+  FINANCE; R/Y — открыть, Q/E — страницы, Back — закрыть.
+- Тесты: `check_career_hub` (крайняя плитка и Up на таб), `check_career_squad` (табы скрыты под
+  планом/центром). Скриншоты: `tests/capture_career_shots.gd` → `.scratch/ui_shots/career_*.png`.
+- Долг: экран плана карьеры и игровой `GpfGamePlan` — две реализации; унификация —
+  `.scratch/career-mode/issues/11-unifikaciya-plana-igry.md`.
+
+## [2026-11-13] feat | Карьера: план игры — общий экран с прематчем и паузой, превью из паузы
+
+- Поправка к записи выше: карьера больше не рисует свой план. Хаб открывает `GpfGamePlan`
+  полноэкранным оверлеем (`Design/PlanHost`) в режиме prematch — тот же экран, что в прематче
+  и паузе матча (табы `UiTabBar`, карточки с лицами, выезжающая скамейка, magenta-иконка
+  выбора, READY/закрытие по B).
+- `CareerPlan` (`scripts/career/career_plan.gd`) — адаптер: собирает `MatchLineup` из
+  `CareerSquad.snapshot` и при закрытии пишет `lineup`/`bench_order`/`formation`/
+  `role_assignments` обратно в `Career` и сохраняет. Роли — шесть игровых, `free_kick_long`
+  остаётся в сейве без UI.
+- `GpfGamePlan`: источник формаций `formation_source` (20 карьерных формаций в FORMATIONS),
+  `formation_id`, доступность игроков (`available`/травма/дисквалификация: блок выбора и
+  красная рамка), одна панель (свой клуб) центрируется, подсказки «close» вместо «ready»,
+  название команды берётся из `MatchLineup.team_name`.
+- Обзор состава: превью поля — `PauseLineup` (перспективное поле и майки из паузы матча).
+- Тест `check_career_squad` переписан на общий экран (открытие/свап/формация/сохранение);
+  PASS также `check_career_hub`, `check_career_ui`, `check_gpf_game_plan`, `check_prematch_ui`.
+- Остаток долга — чистка мёртвого плана в `CareerSquadView`: issue 11.
+
+## [2026-11-13] fix | Карьера: план игры — правки после плейтеста
+
+- План открывается поверх фона стадиона без затемняющего scrim: хаб скрывается, панель
+  своего клуба слева, герб соперника (watermark) справа — как в прематче.
+- `GpfGamePlan`: клик по карточке в ROLES подтверждает игрока; колесо над формациями листает
+  карточки; превью поля меняется при наведении на формацию (20 карьерных раскладок);
+  клик по скамейке/резерву выбирает игрока (сигнал `activated` без аргументов);
+  детали открываются/закрываются fade+scale, листаются влево/вправо (4 страницы:
+  ATTRIBUTES/STATUS/STATISTICS/FINANCE), значения статов больше не умножаются на 100,
+  подсказки идут от последнего устройства ввода.
+- Центр составов: Q/E переключают табы (Q/E теперь понимает и хаб), вбок больше не листает
+  страницы атрибутов — для этого на панели есть кликабельные ◀/▶; клик мышью по табу
+  выбирает игрока так же, как клавиатура.
+- Тесты: `check_career_squad` (клик по скамейке, превью формации, детали и страницы),
+  PASS также `check_gpf_game_plan`, `check_prematch_ui`, `check_career_hub`, `check_career_ui`.
+
+## [2026-11-13] fix | Карьера: план игры без затемнения, как в веб-прототипе
+
+- Сравнил с `gf-career-prototype` (Squad → состав клуба): в прототипе план лежит на фоне стадиона
+  без всякой подложки. В карьере у плана убрано затемнение (`_background` прозрачный) — фон
+  стадиона виден как есть; режимы прематча и паузы не тронуты.
+- Закрытие плана анимируется (fade+scale до `close_plan`), страницы деталей листаются на Q/E,
+  ховер роли подсвечивает её игрока на поле, в центре составов скролл не сбрасывается при смене таба.
+
+## [2026-11-13] feat | карьера: канва прототипа и паритет Centre/Squad Centre
+
+- Введена отдельная **канва карьеры** (`UiTokens.CAREER_*`): панель 1664×680.4 в (128, 210.6),
+  шапка 38px/кегль 20, тело 596.4, зазор подсказок 12. Раньше карьера стояла на канве главного
+  меню (1480/52), из-за чего все внутренние размеры были ~11% меньше прототипа.
+  `UiTabBar`/`UiBreadcrumb` получили поля метрик (дефолты не изменились), start/load/new
+  переведены на ту же канву.
+- Подэкраны хаба показывают **крошки** `CAREER > SQUAD > SQUAD CENTRE|GAME PLAN` вместо
+  главных табов (как `Breadcrumb` в прототипе). Регресс — `tests/check_career_canvas.gd`.
+- **Centre-плитки** переписаны на CSS-модель прототипа: hero (padding 20/18, полоса дней
+  7×112.43/ячейка 106.4, строка матча 42px слева, пилюли 30×30), таблица (padding 18,
+  шапка 18, строки 24.4/зазор 1, своя строка `INK` 10% + рейл 2px), турнирный оверлей
+  (колонки `# 52 / CLUB 34% / 7 равных / PTS 58`, шапка 28, строки 25, шаг скролла 48).
+- **Squad Centre**: плашки всех вкладок (неактивные 72% `TILE`), STATUS с лицом настроения,
+  `Actual N · Planned N min` и бейджем травмы, STATISTICS с `SEASON TOTAL` и карточками
+  турниров из нового `CareerSquad.competition_stats` (в сейв пишется `league_name`),
+  ATTRIBUTES с радаром для вратарей, звёздами и пейджером `‹ R ›`, FINANCE с шапкой 36px и
+  строками 50/53. Строки списка — мягкая тень `StyleBoxFlat` вместо нарощенных полос.
+- `BentoTile` параметризован под career-плитки (`content_pad`, `title_size`, `eyebrow`,
+  `chip_plain`, `art_size`, `rail_width`, `rail_on_idle`); главное меню не меняется.
+- Проверено: `check_career_canvas`, `check_career_hub_centre`, `check_career_squad_centre`,
+  `check_career_hub`, `check_career_squad`, `check_career_ui`, `check_career_creation`,
+  `check_career_advance`, `check_career_matchday`, `check_gpf_game_plan`, `check_main_menu_ui`,
+  `check_prematch_ui`, `check_ui_hints_bar` — PASS; `--headless --quit` без новых ошибок.
+- Скриншоты: `.scratch/ui_shots/proto/*_1920x1080.png` (прототип через Playwright) против
+  `.scratch/ui_shots/career_*_1920x1080.png` (Godot SubViewport); отчёты —
+  `.scratch/career-mode/parity/{hub-centre,squad-centre}.md`.
+
+
+## [2026-11-14] decision | откат визуального паритета карьеры
+
+Попытка перевести карьеру на канву прототипа `gf-career-prototype` (1664×680.4, шапка 38,
+крошки в подэкранах, плашки всех вкладок, пересчёт STATUS/STATISTICS/ATTRIBUTES/FINANCE и
+плиток хаба) **отменена по решению пользователя**: результат «не похож на оригинал».
+
+Что откатано:
+- `UiTokens.CAREER_*` удалены; `career_hub.tscn`/`career_hub.gd`, `career_start.gd`,
+  `career_load.gd`, `career_new.gd` вернулись на канву 1480/52; крошки из подэкранов убраны.
+- `UiTabBar`/`UiBreadcrumb` — поля метрик убраны, дефолты прежние.
+- `BentoTile` — параметризация career-плиток убрана, штриховка hero 48/52, чип на прежнем месте.
+- `career_hub_next_tile/table_tile/overlay` — восстановлены из HEAD (byte-identical).
+- `career_squad_view.gd` (в git не отслеживается) — восстановлен по исходному тексту:
+  `DETAIL_PAGES`, старый `hints()`, только активная плашка вкладки, имя 24, строки 44/46,
+  стрелки ATTRIBUTES справа сверху, `GOALKEEPER PROFILE` вместо радара у вратаря,
+  старые `_draw_*`-блоки.
+- `career_squad.gd`/`career_factory.gd` — `competition_stats` и `league_name` убраны.
+- Удалены новые тесты паритета (`check_career_canvas`, `check_career_hub_centre`,
+  `check_career_squad_centre`) и капчи; вики вернулась к прежним формулировкам.
+
+Бэкап состояния «до отката» — `.scratch/rollback_backup_20261114_000023/`.
+Проверено: `check_career_*` (8 файлов), `check_main_menu_ui`, `check_main_menu_layout`,
+`check_gpf_game_plan`, `check_ui_hints_bar` — PASS; `--headless --quit` чистый.
+Замеры прототипа и отчёты остались в `.scratch/career-mode/parity/` — как справка на будущее.
+
