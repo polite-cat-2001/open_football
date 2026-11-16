@@ -114,6 +114,7 @@ func _ready() -> void:
 	squad_view.setup(_career, CareerSession.catalog)
 	squad_view.changed.connect(_on_squad_changed)
 	squad_view.state_changed.connect(_on_squad_state_changed)
+	squad_view.pointer_focused.connect(_on_squad_pointer_focused)
 	squad_view.view_changed.connect(_on_squad_view_changed)
 	squad_view.plan_requested.connect(_open_plan_overlay)
 	squad_view.player_action_requested.connect(_open_squad_screen)
@@ -749,6 +750,11 @@ func _on_nav_tab_next(suppress_landing := true) -> void:
 
 
 func _on_squad_state_changed() -> void:
+	_update_hints()
+
+
+func _on_squad_pointer_focused() -> void:
+	_zone = Zone.GRID
 	_update_hints()
 
 

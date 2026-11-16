@@ -233,6 +233,15 @@ func _run() -> void:
 	nav.moved.emit(Vector2i.DOWN)
 	await _frames(3)
 	_check(view.focused_id() == "team", "Down gives the club tile the first focus")
+	tab_bar.focus_tab(1)
+	await _frames(2)
+	var motion := InputEventMouseMotion.new()
+	motion.position = Vector2(50.0, 50.0)
+	view.call("_gui_input", motion)
+	await _frames(3)
+	_check(not tab_bar.get_tab_button(1).has_focus() and not tab_bar.is_focused(),
+		"mouse into the squad page drops the tab focus")
+	_check(int(hub.get("_zone")) == 1, "the pointer puts the hub in the page zone")
 	view.handle_moved(Vector2i.RIGHT)
 	await _frames(2)
 	_check(view.focused_id() == "tile:centre", "Right reaches the Squad Centre tile")
@@ -240,9 +249,33 @@ func _run() -> void:
 	await _frames(2)
 	_check(view.current_view() == "centre", "the Squad Centre opens")
 	_check(not tab_bar.visible, "the Squad Centre hides the main tabs")
+	var centre_tabs: UiTabBar = view.get_node("CentreTabs")
+	view.call("_set_focus", "centre-tab:0")
+	await _frames(2)
+	view.handle_moved(Vector2i.RIGHT)
+	await _frames(2)
+	_check(int(view.get("centre_tab")) == 1
+		and str(view.focused_id()) == "centre-tab:1"
+		and centre_tabs.get_active_tab() == 1,
+		"Left/Right on the focused centre strip switches its tabs")
+	view.handle_moved(Vector2i.LEFT)
+	await _frames(2)
+	_check(int(view.get("centre_tab")) == 0
+		and str(view.focused_id()) == "centre-tab:0"
+		and centre_tabs.get_active_tab() == 0,
+		"the centre strip pages back")
 	view.handle_tab(1)
 	await _frames(2)
 	_check(int(view.get("centre_tab")) == 1, "tabs switch the Squad Centre pane")
+	centre_tabs.get_tab_button(2).mouse_entered.emit()
+	await _frames(2)
+	_check(str(view.focused_id()) == "centre-tab:2" and centre_tabs.is_focused(),
+		"hovering a centre tab focuses the strip")
+	centre_tabs.get_tab_button(2).pressed.emit()
+	await _frames(2)
+	_check(int(view.get("centre_tab")) == 2 and str(view.focused_id()) == "centre-tab:2"
+		and centre_tabs.is_focused(),
+		"a click selects the tab and keeps the strip focused")
 	view.handle_cancelled()
 	await _frames(2)
 	_check(view.current_view() == "overview", "Back returns to the squad overview")

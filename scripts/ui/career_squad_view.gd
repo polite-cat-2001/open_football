@@ -13,6 +13,9 @@ signal plan_requested
 # to the full body, so it animates the change.
 signal view_changed(direction: int)
 signal player_action_requested(action: String, player_id: String)
+# The pointer moved into the custom-drawn page: the shell's tab strip must drop
+# its viewport focus, like the real tiles do in Centre/Transfers.
+signal pointer_focused
 
 const GAP := 10.0
 const FocusGrid := preload("res://scripts/ui/ui_focus_grid.gd")
@@ -128,17 +131,36 @@ func _build_centre_tabs() -> void:
 	for label in CENTRE_TABS:
 		labels.append(label)
 	_centre_tabs_bar.setup(labels)
-	_centre_tabs_bar.tab_selected.connect(_set_centre_tab)
+	_centre_tabs_bar.fit_width()
+	_centre_tabs_bar.tab_selected.connect(_on_centre_tab_selected)
+	for index in range(CENTRE_TABS.size()):
+		var button := _centre_tabs_bar.get_tab_button(index)
+		if button != null:
+			button.mouse_entered.connect(_on_centre_tab_hover.bind(index))
 	_centre_tabs_bar.visible = false
 	add_child(_centre_tabs_bar)
+
+
+# Hover focuses the virtual strip without switching; the click then selects the
+# tab and keeps the strip focused, like the main career tabs.
+func _on_centre_tab_hover(index: int) -> void:
+	if view != View.CENTRE:
+		return
+	_set_focus("centre-tab:%d" % index)
+
+
+func _on_centre_tab_selected(index: int) -> void:
+	_set_centre_tab(index, true)
 
 
 func _sync_centre_tabs() -> void:
 	if _centre_tabs_bar == null:
 		return
 	_centre_tabs_bar.position = Vector2.ZERO
-	_centre_tabs_bar.fit_width()
-	_centre_tabs_bar.select_tab(centre_tab, false)
+	# Only re-select when the active tab differs: a mouse click already started
+	# the marker tween through the button, and selecting again snapped it.
+	if _centre_tabs_bar.get_active_tab() != centre_tab:
+		_centre_tabs_bar.select_tab(centre_tab, false)
 	_centre_tabs_bar.set_focused(
 		view == View.CENTRE and str(_focused_element().get("kind", "")) == "centre-tab")
 
@@ -429,8 +451,6 @@ func blur() -> void:
 func handle_moved(direction: Vector2i) -> bool:
 	if _actions_row != null:
 		return _actions_row.handle_moved(direction)
-	# The overview has no row above its top tiles: Up hands focus back to the
-	# hub, which puts it on the active main tab.
 	# The overview has no row above its top tiles: the geometric helper treats
 	# a tile at the top edge as the top row (whatever its height) and reports
 	# no neighbour, so Up hands focus back to the hub's active main tab.
@@ -438,12 +458,20 @@ func handle_moved(direction: Vector2i) -> bool:
 		return _move_focus(direction, 1.0)
 	if view == View.DETAILS:
 		return true
-	if view == View.CENTRE and direction == Vector2i.UP \
-			and str(_focused_element().get("kind", "")) == "centre-tab":
-		# Up from the centre's own tab strip leaves the roster for the squad
-		# overview, and Up there hands focus to the main tabs.
-		_open_overview()
-		return true
+	if view == View.CENTRE:
+		if str(_focused_element().get("kind", "")) == "centre-tab":
+			if direction == Vector2i.LEFT or direction == Vector2i.RIGHT:
+				# The strip follows the main hub: sideways pages its tabs and
+				# keeps the focus on the strip. It never leaves the screen.
+				_set_centre_tab(posmod(centre_tab
+					+ (1 if direction == Vector2i.RIGHT else -1),
+					CENTRE_TABS.size()), true)
+				return true
+			if direction == Vector2i.UP:
+				# Up from the centre's own tab strip leaves the roster for the
+				# squad overview (and Up there hands focus to the main tabs).
+				_open_overview()
+				return true
 	if view == View.PLAN and plan_tab == "schemes":
 		return _step_schemes(direction)
 	return _move_focus(direction)
@@ -586,17 +614,27 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		var hit := _element_at(event.position)
 		if not hit.is_empty() and hit.get("disabled", false) == false:
+			_take_pointer_focus()
 			_set_focus(str(hit.get("id", "")))
 	elif event is InputEventMouseButton:
 		var button := event as InputEventMouseButton
 		if button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
 			var hit := _element_at(button.position)
 			if not hit.is_empty() and hit.get("disabled", false) == false:
+				_take_pointer_focus()
 				if str(hit.get("kind", "")) == "centre-tab":
 					_set_centre_tab(int(hit.get("data", {}).get("index", 0)))
 					return
 				_set_focus(str(hit.get("id", "")))
 				handle_confirmed()
+
+
+func _take_pointer_focus() -> void:
+	var owner := get_viewport().gui_get_focus_owner()
+	if owner == null or is_ancestor_of(owner):
+		return
+	owner.release_focus()
+	pointer_focused.emit()
 
 
 func _on_resized() -> void:
@@ -756,13 +794,17 @@ func _draw_overview() -> void:
 		_draw_squad_tile(tile_rects[index], OVERVIEW_TILES[index])
 
 
-func _set_centre_tab(index: int) -> void:
+func _set_centre_tab(index: int, keep_tab_focus := false) -> void:
 	_close_actions()
 	var direction := signi(clampi(index, 0, CENTRE_TABS.size() - 1) - centre_tab)
 	centre_tab = clampi(index, 0, CENTRE_TABS.size() - 1)
 	centre_attribute_page = 0
-	var player := _centre_current()
-	_focus_id = "centre-row:%s" % str(player.get("id", ""))
+	if keep_tab_focus:
+		# Arrow paging leaves the focus on the strip, like the main hub tabs.
+		_focus_id = "centre-tab:%d" % centre_tab
+	else:
+		var player := _centre_current()
+		_focus_id = "centre-row:%s" % str(player.get("id", ""))
 	_rebuild_elements()
 	_ensure_centre_visible(centre_player)
 	_animate_switch(direction)
@@ -813,11 +855,11 @@ func _centre_metrics() -> Dictionary:
 
 func _centre_tab_rects(stage_w: float) -> Array:
 	# The strip itself is the hub's TabBar (see _sync_centre_tabs); this maps its
-	# rects onto the view's own focus model.
+	# rects onto the view's own focus model. No sync here: it would restart the
+	# marker tween on every redraw, so the marker never slides.
 	var items: Array = []
 	if _centre_tabs_bar == null:
 		return items
-	_sync_centre_tabs()
 	for index in range(CENTRE_TABS.size()):
 		items.append({
 			"index": index, "label": CENTRE_TABS[index],
@@ -918,7 +960,8 @@ func _draw_finance_summary(rect: Rect2) -> void:
 
 func _draw_finance_table(rect: Rect2) -> void:
 	var header := Rect2(rect.position.x, rect.position.y, rect.size.x, 28.0)
-	draw_rect(header, Color(UiTokens.INK, 0.06), true)
+	# Opaque like the prototype's `.finance-head` plate (var(--tile) at full alpha).
+	draw_rect(header, Color(UiTokens.TILE, 1.0), true)
 	var columns := _finance_columns(header)
 	var photo_col: Rect2 = columns["photo"]
 	var player_col: Rect2 = columns["player"]
@@ -2692,6 +2735,7 @@ func _open_centre() -> void:
 	if _lineup_preview != null:
 		_lineup_preview.visible = false
 	_sync_tab_marker(false)
+	_sync_centre_tabs()
 	view_changed.emit(1)
 	state_changed.emit()
 	queue_redraw()
