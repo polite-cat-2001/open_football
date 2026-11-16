@@ -132,6 +132,22 @@ func _run() -> void:
 	await _frames(3)
 	_check(tab_bar.get_active_tab() == 0, "Back returns to Centre")
 
+	# Section entrances fade the tiles in. A focus move during that fade must
+	# not freeze a tile half-transparent (the selection tween owns it then).
+	var centre_tiles: Array = []
+	for child in grid.get_children():
+		if child is BentoTile:
+			centre_tiles.append(child)
+	grid.play_entrance(1)
+	await _frames(1)
+	nav.moved.emit(Vector2i.DOWN)
+	await _frames(1)
+	await create_timer(0.7).timeout
+	var opaque := true
+	for tile in centre_tiles:
+		opaque = opaque and (tile as BentoTile).modulate.a > 0.99
+	_check(opaque, "a focus move during the entrance leaves every tile opaque")
+
 	nav.tab_next.emit()
 	await _frames(4)
 	_check(tab_bar.get_active_tab() == 1, "R1 switches to the next tab")

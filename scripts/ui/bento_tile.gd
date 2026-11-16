@@ -366,7 +366,8 @@ func _animate_selection(animate: bool) -> void:
 		position = target_position
 		scale = target_scale
 		return
-	if _entrance_tween != null and _entrance_tween.is_valid():
+	var fading := _entrance_tween != null and _entrance_tween.is_valid()
+	if fading:
 		_entrance_tween.kill()
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
@@ -375,3 +376,7 @@ func _animate_selection(animate: bool) -> void:
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_tween.tween_property(self, "scale", target_scale, UiTokens.TILE_MOVE) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if fading:
+		# The entrance tween owned the fade-in; killing it mid-flight would
+		# leave the tile stuck half-transparent, so finish the fade here.
+		_tween.tween_property(self, "modulate:a", 1.0, 0.12)
