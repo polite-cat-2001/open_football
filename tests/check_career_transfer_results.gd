@@ -100,6 +100,8 @@ func _run() -> void:
 	})
 	await _wait(screen)
 	var nav := root.get_node("UiNav")
+	var cards: Array = screen.get("_cards")
+	_check(cards[0].has_focus(), "the first player takes focus when the list appears")
 	_check(screen.item_count() == 40, "the first page holds forty players")
 	_check(screen.total() > 40, "the header counts every match")
 	_check((screen.get("_cards") as Array).size() == 40, "one card per player")
@@ -110,7 +112,6 @@ func _run() -> void:
 	_check(screen.filters()["league"] == "ES1", "the screen reports its filters")
 	_check(screen.hints().size() == 3, "the results hint three controls")
 
-	var cards: Array = screen.get("_cards")
 	_check(absf(cards[0].size.x - cards[1].size.x) < 2.0, "the grid splits into two columns")
 	_check(cards[0].size.x > cards[0].size.y, "a card is wider than tall")
 	_check(cards[2].position.y > cards[0].position.y, "the third card starts the second row")

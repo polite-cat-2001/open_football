@@ -84,6 +84,9 @@ func setup(next_career: Career, next_catalog: TeamCatalog, payload := {}) -> voi
 		_scouts = _flagged_scouts(CareerScouting.assignable_scouts(career))
 	if not is_node_ready():
 		return
+	# The list must take the keyboard as soon as it appears: the host shows this
+	# screen without calling focus_initial().
+	_focus_pending = true
 	_reset()
 	_start_search()
 
