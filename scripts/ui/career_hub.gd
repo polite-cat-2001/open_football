@@ -51,6 +51,9 @@ const SQUAD_CRUMBS := {
 var _snapshot: Dictionary = {}
 var _career: Career
 var _transfers_entry := "hub"
+var _tabs_shown := true
+var _path_shown := false
+var _tabs_tween: Tween
 var _zone := Zone.GRID
 var _tab := 0
 var _busy := false
@@ -83,6 +86,8 @@ func _ready() -> void:
 	# Reading the 120k-row players table takes seconds; do it on a worker thread
 	# while the user reads the dashboard instead of on the first search.
 	CareerSession.catalog.warm_search_rows()
+	# Same for the teams table behind the search screen's club picker.
+	CareerSession.catalog.warm_clubs()
 	var loaded_tick := CareerAdvance.tick(_career, CareerSession.catalog)
 	_snapshot = CareerFactory.snapshot(CareerSession.catalog, _career)
 	if _snapshot.is_empty():
@@ -121,6 +126,7 @@ func _ready() -> void:
 	squad_view.player_action_requested.connect(_open_squad_screen)
 	transfers_view.changed.connect(_on_transfers_changed)
 	transfers_view.view_changed.connect(_on_transfers_view_changed)
+	transfers_view.view_opening.connect(_on_transfers_opening)
 	transfers_view.exit_requested.connect(_on_transfers_exit)
 	transfers_view.tab_requested.connect(_on_transfers_tab)
 	transfers_view.edge_requested.connect(_on_grid_edge)
@@ -279,9 +285,11 @@ func _apply_tab() -> void:
 # The plan/centre/details screens and the transfers subviews replace the whole
 # body: the main tab strip hides and the view grows over the space the tabs used.
 func _apply_tab_layout() -> void:
+	# Only the transfers subviews (player search first) crossfade the row for
+	# now; the rest of the hub still swaps it instantly.
+	var animate := _tab == 2 and transfers_view.visible
 	if _squad_screen != null:
-		tab_bar.visible = false
-		breadcrumb.visible = true
+		_set_tabs_row(false, true, false)
 		return
 	var view: Control = null
 	if _tab == 1 and squad_view.visible:
@@ -289,26 +297,73 @@ func _apply_tab_layout() -> void:
 	elif _tab == 2 and transfers_view.visible:
 		view = transfers_view
 	if view == null:
-		tab_bar.visible = true
-		breadcrumb.visible = false
+		_set_tabs_row(true, false, animate)
 		return
 	var overlay := transfers_view.is_overlay() if view == transfers_view \
 		else squad_view.current_view() != "overview"
-	tab_bar.visible = not overlay
+	# The squad centre has its own tabs and no breadcrumb, so the row can be
+	# empty; the transfers subviews swap the strip for the path.
+	if view == transfers_view:
+		_set_tabs_row(not overlay, overlay, animate)
+	else:
+		_set_tabs_row(not overlay, false, animate)
 	if view == transfers_view and overlay:
-		breadcrumb.visible = true
 		breadcrumb.set_items(transfers_view.breadcrumb())
 		breadcrumb.position = Vector2.ZERO
 		view.position = Vector2(0.0, UiTokens.TAB_H + UiTokens.GAP)
 		view.size = Vector2(UiTokens.PANEL_W, body.size.y - UiTokens.TAB_H - UiTokens.GAP)
 		return
-	breadcrumb.visible = false
 	if overlay:
 		view.position = Vector2.ZERO
 		view.size = Vector2(UiTokens.PANEL_W, body.size.y)
 	else:
 		view.position = grid.position
 		view.size = grid.size
+
+
+# Swapping the tab strip for the path (and back) crossfades, so entering and
+# leaving a subview does not pop. `_tabs_shown`/`_path_shown` are the logical
+# state; the visibility flags lag by the tween.
+func _set_tabs_row(show_tabs: bool, show_path: bool, animate := true) -> void:
+	if _tabs_shown == show_tabs and _path_shown == show_path:
+		return
+	var leaving: Control = null
+	if _tabs_shown and not show_tabs:
+		leaving = tab_bar
+	elif _path_shown and not show_path:
+		leaving = breadcrumb
+	var arriving: Control = null
+	if show_tabs and not _tabs_shown:
+		arriving = tab_bar
+	elif show_path and not _path_shown:
+		arriving = breadcrumb
+	_tabs_shown = show_tabs
+	_path_shown = show_path
+	if _tabs_tween != null and _tabs_tween.is_valid():
+		_tabs_tween.kill()
+	if not animate or UiTransition.instant or not is_inside_tree() \
+			or (leaving == null and arriving == null):
+		tab_bar.visible = show_tabs
+		breadcrumb.visible = show_path
+		tab_bar.modulate.a = 1.0
+		breadcrumb.modulate.a = 1.0
+		return
+	if arriving != null:
+		arriving.visible = true
+		arriving.modulate.a = 0.0
+	_tabs_tween = create_tween().set_parallel(true)
+	if leaving != null:
+		# Same clock as the view swap (CareerTransfersView._show): the old row
+		# fades out while the old screen does, the new row fades in together
+		# with the new screen, so nothing arrives early or late.
+		_tabs_tween.tween_property(leaving, "modulate:a", 0.0, UiTransition.OUT_TIME)
+	if arriving != null:
+		_tabs_tween.tween_property(arriving, "modulate:a", 1.0, UiTransition.IN_TIME) \
+			.set_delay(UiTransition.OUT_TIME)
+	_tabs_tween.chain().tween_callback(func() -> void:
+		if leaving != null:
+			leaving.visible = false
+			leaving.modulate.a = 1.0)
 
 
 func _on_squad_view_changed(direction: int) -> void:
@@ -470,11 +525,10 @@ func _open_squad_screen(action: String, player_id: String) -> void:
 		screen.connect("changed", _on_squad_screen_changed)
 	screen.call("open", _career, CareerSession.catalog, {"player_id": player_id})
 	screen.visible = true
-	tab_bar.visible = false
-	breadcrumb.visible = true
 	breadcrumb.set_items(["CAREER", "SQUAD",
 		str(SQUAD_CRUMBS.get(action, action.to_upper()))])
 	breadcrumb.position = Vector2.ZERO
+	_set_tabs_row(false, true, false)
 	await _fade_in(screen)
 	if screen.has_method("focus_initial"):
 		screen.focus_initial()
@@ -491,7 +545,6 @@ func _close_squad_screen() -> void:
 		screen.close()
 	await _fade_out(screen)
 	screen.queue_free()
-	breadcrumb.visible = false
 	squad_view.visible = _tab == 1
 	_apply_tab_layout()
 	_update_hints()
@@ -530,7 +583,7 @@ func _open_plan_overlay() -> void:
 	plan_host.pivot_offset = plan_host.size * 0.5
 	_plan.open_plan()
 	hints.visible = false
-	tab_bar.visible = false
+	_set_tabs_row(false, false, false)
 	await _fade_in(plan_host)
 	_plan_transition = false
 
@@ -773,6 +826,17 @@ func _on_squad_changed() -> void:
 func _on_transfers_view_changed() -> void:
 	_apply_tab_layout()
 	_update_hints()
+
+
+# The row fades together with the view fade, so entering/leaving the search
+# does not look delayed.
+func _on_transfers_opening(view: String) -> void:
+	if view == "hub":
+		_set_tabs_row(true, false)
+		return
+	breadcrumb.set_items(transfers_view.breadcrumb(view))
+	breadcrumb.position = Vector2.ZERO
+	_set_tabs_row(false, true)
 
 
 func _on_transfers_changed() -> void:

@@ -68,6 +68,9 @@ var _career_search_loaded := false
 var _career_search_job: CareerJob
 var _career_leagues: Array = []
 var _career_leagues_loaded := false
+var _career_clubs: Array = []
+var _career_clubs_loaded := false
+var _career_clubs_job: CareerJob
 
 
 func load_data_root(root: String = "") -> bool:
@@ -115,6 +118,9 @@ func close() -> void:
 	if _career_search_job != null:
 		_career_search_job.take()
 		_career_search_job = null
+	if _career_clubs_job != null:
+		_career_clubs_job.take()
+		_career_clubs_job = null
 	if _reader != null:
 		_reader.close()
 		_reader = null
@@ -386,15 +392,49 @@ func career_leagues() -> Array:
 
 func career_clubs() -> Array:
 	# Every club for the transfer filter pickers, sorted by name. The synthetic
-	# national-team competition is not a club league.
+	# national-team competition is not a club league. Cached for the lifetime of
+	# the loaded catalog: a full teams walk costs ~0.25 s and used to run on
+	# every open of the search screen.
+	if _career_clubs_loaded:
+		return _career_clubs
+	if _career_clubs_job != null:
+		var warmed = _career_clubs_job.take()
+		_career_clubs_job = null
+		if warmed is Array and not (warmed as Array).is_empty():
+			_career_clubs = warmed
+			_career_clubs_loaded = true
+			return _career_clubs
 	var reader := _require_reader("clubs")
 	if reader == null:
 		return []
-	var national := national_league_id()
 	var rows := reader.select_all("teams",
 		PackedStringArray(["id", "name", "league_id", "career_logo"]))
 	if not _query_ok("teams"):
 		return []
+	_career_clubs = _clubs_from_rows(rows, national_league_id())
+	_career_clubs_loaded = true
+	return _career_clubs
+
+
+func warm_clubs() -> void:
+	# The search screen's club picker needs the whole teams table; read and map
+	# it on a worker while the player is still on the dashboard.
+	if _career_clubs_loaded or _career_clubs_job != null or not _loaded:
+		return
+	var database := database_path()
+	var national := national_league_id()
+	var columns := PackedStringArray(["id", "name", "league_id", "career_logo"])
+	_career_clubs_job = CareerJob.new()
+	_career_clubs_job.start(func() -> Array:
+		var reader := SqliteReader.new()
+		if not reader.open(database):
+			return []
+		var teams := reader.select_all("teams", columns)
+		reader.close()
+		return _clubs_from_rows(teams, national))
+
+
+func _clubs_from_rows(rows: Array, national: String) -> Array:
 	var clubs: Array = []
 	for row in rows:
 		var league_id := str(row.get("league_id", ""))
@@ -862,3 +902,5 @@ func _reset() -> void:
 	_career_search_loaded = false
 	_career_leagues.clear()
 	_career_leagues_loaded = false
+	_career_clubs.clear()
+	_career_clubs_loaded = false

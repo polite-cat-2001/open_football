@@ -7,6 +7,8 @@ extends Control
 
 signal changed
 signal view_changed
+# Emitted when a view swap starts (before its fade), for the shell's row swap.
+signal view_opening(view: String)
 signal exit_requested
 signal tab_requested(delta: int)
 # The transfer hub's card grid was pushed at its edge: the career hub switches
@@ -104,10 +106,10 @@ func hints() -> Array:
 	return []
 
 
-func breadcrumb() -> Array[String]:
-	if _current == "hub":
+func breadcrumb(view := _current) -> Array[String]:
+	if view == "hub":
 		return []
-	return ["CAREER", "TRANSFERS", str(CRUMBS.get(_current, _current.to_upper()))]
+	return ["CAREER", "TRANSFERS", str(CRUMBS.get(view, str(view).to_upper()))]
 
 
 func status() -> String:
@@ -193,6 +195,9 @@ func _show(view: String, payload: Dictionary) -> void:
 		return
 	var previous := _current_screen()
 	_busy = true
+	# Announced before the fade: the shell starts the tab strip/path swap with
+	# the view, not after it.
+	view_opening.emit(view)
 	var swap := func() -> void:
 		if previous != null:
 			previous.visible = false
@@ -213,15 +218,15 @@ func _show(view: String, payload: Dictionary) -> void:
 	pivot_offset = size * 0.5
 	screen.pivot_offset = size * 0.5
 	var out := create_tween().set_parallel(true)
-	out.tween_property(previous, "modulate:a", 0.0, 0.15)
-	out.tween_property(previous, "scale", Vector2(0.96, 0.96), 0.15)
+	out.tween_property(previous, "modulate:a", 0.0, UiTransition.OUT_TIME)
+	out.tween_property(previous, "scale", Vector2(0.96, 0.96), UiTransition.OUT_TIME)
 	out.finished.connect(func() -> void:
 		swap.call()
 		screen.modulate.a = 0.0
 		screen.scale = Vector2(0.96, 0.96)
 		var enter := create_tween().set_parallel(true)
-		enter.tween_property(screen, "modulate:a", 1.0, 0.24)
-		enter.tween_property(screen, "scale", Vector2.ONE, 0.24)
+		enter.tween_property(screen, "modulate:a", 1.0, UiTransition.IN_TIME)
+		enter.tween_property(screen, "scale", Vector2.ONE, UiTransition.IN_TIME)
 		enter.finished.connect(func() -> void:
 			_busy = false
 			view_changed.emit()))

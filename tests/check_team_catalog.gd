@@ -111,6 +111,7 @@ func _run() -> void:
 	_check_missing_database()
 	_check_corrupt_database()
 	await _check_warm_search_rows(catalog)
+	_check_warm_clubs(catalog)
 	_finish()
 
 
@@ -128,6 +129,20 @@ func _check_warm_search_rows(catalog: TeamCatalog) -> void:
 	var first: Dictionary = rows[0]
 	_check(first.has("id") and first.has("team_id") and first.has("birth_date"),
 		"a warmed row carries the search columns")
+
+
+func _check_warm_clubs(catalog: TeamCatalog) -> void:
+	# The search screen's club picker used to re-read the whole teams table on
+	# every open (~0.25 s); the list is warmed on a worker and cached.
+	catalog.warm_clubs()
+	var clubs := catalog.career_clubs()
+	_check(clubs.size() > 1000, "the club list covers the database (%d)" % clubs.size())
+	_check(is_same(clubs, catalog.career_clubs()), "the club list is cached")
+	var national := catalog.national_league_id()
+	var clean := true
+	for club in clubs:
+		clean = clean and str((club as Dictionary).get("league_id", "")) != national
+	_check(clean, "the club list skips the national-team competition")
 
 
 func _check_rating_math() -> void:

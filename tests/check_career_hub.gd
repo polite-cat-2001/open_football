@@ -82,6 +82,7 @@ func _run() -> void:
 		_finish()
 		return
 	var tab_bar: UiTabBar = hub.get_node("Design/PanelWrap/Body/TabBar")
+	var breadcrumb: UiBreadcrumb = hub.get_node("Design/PanelWrap/Body/Breadcrumb")
 	var grid: BentoGrid = hub.get_node("Design/PanelWrap/Body/Grid")
 	var placeholder: UiMenuPanel = hub.get_node("Design/PanelWrap/Body/Placeholder")
 	var next_tile = hub.get_node("Design/PanelWrap/Body/Grid/NextTile")
@@ -346,6 +347,53 @@ func _run() -> void:
 	nav.cancelled.emit()
 	await _frames(4)
 	_check(tab_bar.get_active_tab() == 0, "Back from Transfer Centre returns to Centre")
+
+	# Leaving the tabs for a path fades instead of popping. Headless runs the
+	# swap instantly, so this check flips the transition off for one pass and
+	# watches the frames a tween needs.
+	var transition := root.get_node("UiTransition")
+	transition.set("instant", false)
+	hub.call("_set_section", 2, 1)
+	await create_timer(0.5).timeout
+	transfer_hub.emit_signal("navigate", "filters", {})
+	var faded := false
+	for step in 150:
+		await process_frame
+		if tab_bar.visible and tab_bar.modulate.a < 0.99:
+			faded = true
+			break
+	_check(faded, "leaving the tabs for the search screen fades the strip out")
+	var arrived := false
+	for step in 150:
+		await process_frame
+		if not tab_bar.visible and breadcrumb.visible:
+			arrived = true
+			break
+	_check(arrived, "the breadcrumb path arrives after the fade")
+	for step in 150:
+		if not bool(transfers_view.get("_busy")):
+			break
+		await process_frame
+	nav.cancelled.emit()
+	var closed := false
+	for step in 150:
+		await process_frame
+		if breadcrumb.visible and breadcrumb.modulate.a < 0.99:
+			closed = true
+			break
+	_check(closed, "closing the search fades the path out")
+	var returned := false
+	for step in 150:
+		await process_frame
+		if tab_bar.visible and not breadcrumb.visible:
+			returned = true
+			break
+	_check(returned, "the strip is back after the fade")
+	transition.set("instant", true)
+	hub.call("_set_section", 0, -1)
+	await _frames(4)
+	_check(tab_bar.visible and not breadcrumb.visible,
+		"the strip comes back with the section")
 
 	nav.tab_next.emit()
 	await _frames(3)
