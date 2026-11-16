@@ -70,6 +70,7 @@ static func create(
 		"schedule": build_schedule(league_ids, Career.START_DATE),
 		"schedule_version": SCHEDULE_VERSION,
 		"incoming_market_date": Career.START_DATE,
+		"last_tick_date": Career.START_DATE,
 	})
 	CareerSquad.ensure_finances(career, squad)
 	return career

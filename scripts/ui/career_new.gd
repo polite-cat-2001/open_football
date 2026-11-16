@@ -60,10 +60,12 @@ func _ready() -> void:
 	add_to_group(&"ui_shell")
 	panel_wrap.add_to_group(&"ui_transition_target")
 	theme = UiTheme.load_or_build()
+	CareerWarmup.start(self, CareerWarmup.ENTRY + CareerWarmup.TRANSFERS)
 	_catalog = CareerSession.catalog if CareerSession.catalog != null else TeamCatalog.new()
 	if not _catalog.is_loaded():
 		_catalog.load_data_root()
 	_store = CareerSession.store if CareerSession.store != null else CareerSaveStore.new()
+	_catalog.warm_search_rows()
 	_build_header()
 	_build_club_step()
 	_build_manager_step()

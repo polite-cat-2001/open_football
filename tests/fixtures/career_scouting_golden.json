@@ -1,0 +1,1312 @@
+{
+ "initial": {
+  "career": {
+   "club_id": "131",
+   "seed": 42,
+   "date": "2026-07-01",
+   "created_at": "2026-07-01T00:00:00.000000Z",
+   "manager_name": "Golden Manager",
+   "manager_nationality_id": "189",
+   "balance": 318400000
+  },
+  "pool": [
+   {
+    "id": "scout-1",
+    "name": "Brian Smith",
+    "nationality": "Canada",
+    "experience": 2,
+    "judgement": 1,
+    "price": 270000
+   },
+   {
+    "id": "scout-2",
+    "name": "Daniel Perez",
+    "nationality": "Spain",
+    "experience": 4,
+    "judgement": 1,
+    "price": 520000
+   },
+   {
+    "id": "scout-3",
+    "name": "Donald Wood",
+    "nationality": "United States",
+    "experience": 4,
+    "judgement": 1,
+    "price": 520000
+   },
+   {
+    "id": "scout-4",
+    "name": "Frank Cooper",
+    "nationality": "Canada",
+    "experience": 5,
+    "judgement": 3,
+    "price": 1035000
+   },
+   {
+    "id": "scout-5",
+    "name": "Yago Acuña",
+    "nationality": "Mexico",
+    "experience": 5,
+    "judgement": 2,
+    "price": 935000
+   },
+   {
+    "id": "scout-6",
+    "name": "Juan Guerra",
+    "nationality": "Spain",
+    "experience": 4,
+    "judgement": 4,
+    "price": 1025000
+   },
+   {
+    "id": "scout-7",
+    "name": "Telmo Jurado",
+    "nationality": "Spain",
+    "experience": 5,
+    "judgement": 1,
+    "price": 840000
+   },
+   {
+    "id": "scout-8",
+    "name": "Antonio Rizzo",
+    "nationality": "Italy",
+    "experience": 4,
+    "judgement": 2,
+    "price": 620000
+   },
+   {
+    "id": "scout-9",
+    "name": "Andre Domingues",
+    "nationality": "Portugal",
+    "experience": 4,
+    "judgement": 4,
+    "price": 1075000
+   },
+   {
+    "id": "scout-10",
+    "name": "Celik Asker",
+    "nationality": "Türkiye",
+    "experience": 1,
+    "judgement": 1,
+    "price": 175000
+   },
+   {
+    "id": "scout-11",
+    "name": "Marek Nowak",
+    "nationality": "Poland",
+    "experience": 5,
+    "judgement": 5,
+    "price": 1535000
+   },
+   {
+    "id": "scout-12",
+    "name": "Lukas Berg",
+    "nationality": "Sweden",
+    "experience": 4,
+    "judgement": 1,
+    "price": 510000
+   }
+  ],
+  "initial": {
+   "scouts": [
+    {
+     "id": "scout-1",
+     "name": "Brian Smith",
+     "nationality": "Canada",
+     "nationality_id": "80",
+     "experience": 2,
+     "judgement": 1,
+     "price": 270000,
+     "task": null,
+     "report": null
+    },
+    {
+     "id": "scout-2",
+     "name": "Daniel Perez",
+     "nationality": "Spain",
+     "nationality_id": "157",
+     "experience": 4,
+     "judgement": 1,
+     "price": 520000,
+     "task": null,
+     "report": null
+    }
+   ],
+   "candidates": [
+    {
+     "id": "scout-3",
+     "name": "Donald Wood",
+     "nationality": "United States",
+     "nationality_id": "184",
+     "experience": 4,
+     "judgement": 1,
+     "price": 520000,
+     "affordable": true
+    },
+    {
+     "id": "scout-4",
+     "name": "Frank Cooper",
+     "nationality": "Canada",
+     "nationality_id": "80",
+     "experience": 5,
+     "judgement": 3,
+     "price": 1035000,
+     "affordable": true
+    },
+    {
+     "id": "scout-5",
+     "name": "Yago Acuña",
+     "nationality": "Mexico",
+     "nationality_id": "110",
+     "experience": 5,
+     "judgement": 2,
+     "price": 935000,
+     "affordable": true
+    },
+    {
+     "id": "scout-6",
+     "name": "Juan Guerra",
+     "nationality": "Spain",
+     "nationality_id": "157",
+     "experience": 4,
+     "judgement": 4,
+     "price": 1025000,
+     "affordable": true
+    },
+    {
+     "id": "scout-7",
+     "name": "Telmo Jurado",
+     "nationality": "Spain",
+     "nationality_id": "157",
+     "experience": 5,
+     "judgement": 1,
+     "price": 840000,
+     "affordable": true
+    }
+   ],
+   "counts": {
+    "new": 0,
+    "updates": 0,
+    "total": 0
+   },
+   "max_scouts": 6,
+   "age_min": 16,
+   "age_max": 35,
+   "contract_min": 0,
+   "contract_max": 5,
+   "hired_at": [
+    "2026-07-01",
+    "2026-07-01"
+   ]
+  },
+  "regions": [
+   {
+    "id": "british-isles",
+    "name": "Британские острова",
+    "x": 45.0,
+    "y": 25.0,
+    "countries": [
+     "England",
+     "Scotland",
+     "Wales",
+     "Northern Ireland",
+     "Ireland"
+    ]
+   },
+   {
+    "id": "north-europe",
+    "name": "Северная Европа",
+    "x": 53.0,
+    "y": 18.0,
+    "countries": [
+     "Norway",
+     "Sweden",
+     "Denmark",
+     "Finland",
+     "Iceland",
+     "Faroe Islands"
+    ]
+   },
+   {
+    "id": "west-europe",
+    "name": "Западная Европа",
+    "x": 48.0,
+    "y": 34.0,
+    "countries": [
+     "France",
+     "Germany",
+     "Netherlands",
+     "Belgium",
+     "Austria",
+     "Switzerland",
+     "Luxembourg"
+    ]
+   },
+   {
+    "id": "south-europe",
+    "name": "Южная Европа",
+    "x": 53.0,
+    "y": 42.0,
+    "countries": [
+     "Spain",
+     "Italy",
+     "Portugal",
+     "Türkiye",
+     "Greece",
+     "Croatia",
+     "Serbia",
+     "Albania",
+     "North Macedonia",
+     "Montenegro",
+     "Kosovo",
+     "Slovenia",
+     "Malta",
+     "Cyprus",
+     "San Marino",
+     "Andorra",
+     "Gibraltar"
+    ]
+   },
+   {
+    "id": "east-europe",
+    "name": "Восточная Европа",
+    "x": 62.0,
+    "y": 29.0,
+    "countries": [
+     "Russia",
+     "Ukraine",
+     "Belarus",
+     "Poland",
+     "Czech Republic",
+     "Slovakia",
+     "Hungary",
+     "Romania",
+     "Bulgaria",
+     "Moldova",
+     "Estonia",
+     "Latvia",
+     "Lithuania",
+     "Armenia",
+     "Azerbaijan",
+     "Georgia",
+     "Kazakhstan"
+    ]
+   },
+   {
+    "id": "north-america",
+    "name": "Северная Америка",
+    "x": 19.0,
+    "y": 33.0,
+    "countries": [
+     "United States",
+     "Canada",
+     "Costa Rica",
+     "Panama",
+     "Nicaragua",
+     "Puerto Rico",
+     "Jamaica"
+    ]
+   },
+   {
+    "id": "latin-america",
+    "name": "Латинская Америка",
+    "x": 27.0,
+    "y": 66.0,
+    "countries": [
+     "Brazil",
+     "Argentina",
+     "Uruguay",
+     "Chile",
+     "Colombia",
+     "Peru",
+     "Ecuador",
+     "Paraguay",
+     "Bolivia",
+     "Venezuela",
+     "Mexico"
+    ]
+   },
+   {
+    "id": "africa",
+    "name": "Африка",
+    "x": 52.0,
+    "y": 62.0,
+    "countries": [
+     "Egypt",
+     "Algeria",
+     "Morocco",
+     "Tunisia",
+     "Senegal",
+     "Nigeria",
+     "Ghana",
+     "South Africa",
+     "Ethiopia",
+     "Libya",
+     "Uganda"
+    ]
+   },
+   {
+    "id": "asia-pacific",
+    "name": "Азия и Океания",
+    "x": 78.0,
+    "y": 47.0,
+    "countries": [
+     "Japan",
+     "China",
+     "Chinese Taipei",
+     "Hongkong",
+     "India",
+     "Indonesia",
+     "Iran",
+     "Iraq",
+     "Israel",
+     "Jordan",
+     "Lebanon",
+     "Malaysia",
+     "Myanmar",
+     "Oman",
+     "Philippines",
+     "Qatar",
+     "Saudi Arabia",
+     "Singapore",
+     "Thailand",
+     "United Arab Emirates",
+     "Uzbekistan",
+     "Vietnam",
+     "Australia",
+     "New Zealand",
+     "Cambodia"
+    ]
+   }
+  ]
+ },
+ "hire": {
+  "career": {
+   "club_id": "131",
+   "seed": 42,
+   "date": "2026-07-01",
+   "created_at": "2026-07-01T00:00:00.000000Z",
+   "manager_name": "Golden Manager",
+   "manager_nationality_id": "189",
+   "balance": 314885000
+  },
+  "hire": {
+   "candidate_id": "scout-3",
+   "price": 520000,
+   "balance_before": 318400000,
+   "balance_after": 317880000,
+   "scouts": [
+    {
+     "id": "scout-1",
+     "name": "Brian Smith",
+     "nationality": "Canada",
+     "nationality_id": "80",
+     "experience": 2,
+     "judgement": 1,
+     "price": 270000,
+     "task": null,
+     "report": null
+    },
+    {
+     "id": "scout-2",
+     "name": "Daniel Perez",
+     "nationality": "Spain",
+     "nationality_id": "157",
+     "experience": 4,
+     "judgement": 1,
+     "price": 520000,
+     "task": null,
+     "report": null
+    },
+    {
+     "id": "scout-3",
+     "name": "Donald Wood",
+     "nationality": "United States",
+     "nationality_id": "184",
+     "experience": 4,
+     "judgement": 1,
+     "price": 520000,
+     "task": null,
+     "report": null
+    }
+   ],
+   "candidate_ids": [
+    "scout-4",
+    "scout-5",
+    "scout-6",
+    "scout-7",
+    "scout-8"
+   ],
+   "journal_last": "scouting.hired"
+  },
+  "hire_twice": {
+   "status": 422,
+   "error": "scout is already hired"
+  },
+  "hire_cap": {
+   "status": 422,
+   "error": "all scout slots are occupied",
+   "scout_ids": [
+    "scout-1",
+    "scout-2",
+    "scout-3",
+    "scout-4",
+    "scout-5",
+    "scout-6"
+   ]
+  },
+  "dismiss": {
+   "scout_id": "scout-3",
+   "scout_ids": [
+    "scout-1",
+    "scout-2",
+    "scout-4",
+    "scout-5",
+    "scout-6"
+   ],
+   "candidate_ids": [
+    "scout-3",
+    "scout-7",
+    "scout-8",
+    "scout-9",
+    "scout-10"
+   ],
+   "journal_last": "scouting.dismissed"
+  },
+  "dismiss_unknown": {
+   "status": 422,
+   "error": "scout not found"
+  }
+ },
+ "report": {
+  "career": {
+   "club_id": "131",
+   "seed": 42,
+   "date": "2026-07-05",
+   "created_at": "2026-07-01T00:00:00.000000Z",
+   "manager_name": "Golden Manager",
+   "manager_nationality_id": "189",
+   "balance": 318400000
+  },
+  "report": {
+   "scout_id": "scout-1",
+   "player_id": "342229",
+   "scouted_before": false,
+   "started": {
+    "player_id": "342229",
+    "player_name": "Kylian Mbappé",
+    "player_photo": "/raster/players_faces_cutout/342229.png",
+    "started_at": "2026-07-01",
+    "due_at": "2026-07-05",
+    "days_total": 4,
+    "days_left": 4,
+    "days_worked": 0,
+    "progress": 0.0
+   },
+   "progress": {
+    "player_id": "342229",
+    "player_name": "Kylian Mbappé",
+    "player_photo": "/raster/players_faces_cutout/342229.png",
+    "started_at": "2026-07-01",
+    "due_at": "2026-07-05",
+    "days_total": 4,
+    "days_left": 3,
+    "days_worked": 1,
+    "progress": 0.25
+   },
+   "scout_after": {
+    "id": "scout-1",
+    "name": "Brian Smith",
+    "nationality": "Canada",
+    "nationality_id": "80",
+    "experience": 2,
+    "judgement": 1,
+    "price": 270000,
+    "task": null,
+    "report": null
+   },
+   "entries": [
+    {
+     "kind": "report",
+     "scout_id": "scout-1",
+     "scout_name": "Brian Smith",
+     "date": "2026-07-05",
+     "acknowledged": false,
+     "player_id": "342229",
+     "player": {
+      "player_id": "342229",
+      "name": "Kylian Mbappé",
+      "age": 27,
+      "position": "Centre-Forward",
+      "position_group": "FWD",
+      "club_id": "418",
+      "club_name": "Real Madrid",
+      "club_logo": "/raster/teams_emblems/418.png",
+      "league_id": "ES1",
+      "league_name": "LaLiga",
+      "country_id": "157",
+      "country_name": "Spain",
+      "citizenship": [
+       "France",
+       "Cameroon"
+      ],
+      "status": "contracted",
+      "release_clause": 284700000,
+      "contract_expires": "2030-06-01",
+      "scouted": true,
+      "overall": 91.0,
+      "pot": 91,
+      "market_value": 200000000,
+      "weekly_wage": 489000,
+      "foot": "right",
+      "height": 180,
+      "stats": {
+       "mental_calmness": 89.0,
+       "mental_defensivepositioning": 43.0,
+       "mental_offensivepositioning": 94.0,
+       "mental_resilience": 85.6,
+       "mental_vision": 85.0,
+       "mental_workrate": 83.0,
+       "physical_acceleration": 82.0,
+       "physical_agility": 77.0,
+       "physical_balance": 76.0,
+       "physical_reaction": 91.0,
+       "physical_shotpower": 93.0,
+       "physical_stamina": 84.0,
+       "physical_velocity": 80.0,
+       "technical_ballcontrol": 91.0,
+       "technical_dribble": 91.0,
+       "technical_header": 88.3,
+       "technical_highpass": 73.0,
+       "technical_shortpass": 87.0,
+       "technical_shot": 86.7,
+       "technical_slidingtackle": 37.0,
+       "technical_standingtackle": 46.0,
+       "technical_volley": 87.9
+      },
+      "photo": 342229,
+      "shortlisted": false,
+      "listed_for_transfer": false,
+      "first_name": "Kylian",
+      "last_name": "Mbappé",
+      "birth_date": "1998-12-20",
+      "role": "CF",
+      "weight": 76,
+      "shirt_number": 10,
+      "weak_foot": 3,
+      "skill_moves": 5
+     }
+    }
+   ],
+   "counts": {
+    "new": 1,
+    "updates": 0,
+    "total": 1
+   },
+   "card": {
+    "player_id": "342229",
+    "name": "Kylian Mbappé",
+    "age": 27,
+    "position": "Centre-Forward",
+    "position_group": "FWD",
+    "club_id": "418",
+    "club_name": "Real Madrid",
+    "club_logo": "/raster/teams_emblems/418.png",
+    "league_id": "ES1",
+    "league_name": "LaLiga",
+    "country_id": "157",
+    "country_name": "Spain",
+    "citizenship": [
+     "France",
+     "Cameroon"
+    ],
+    "status": "contracted",
+    "release_clause": 284700000,
+    "contract_expires": "2030-06-01",
+    "scouted": true,
+    "overall": 91.0,
+    "pot": 91,
+    "market_value": 200000000,
+    "weekly_wage": 489000,
+    "foot": "right",
+    "height": 180,
+    "stats": {
+     "mental_calmness": 89.0,
+     "mental_defensivepositioning": 43.0,
+     "mental_offensivepositioning": 94.0,
+     "mental_resilience": 85.6,
+     "mental_vision": 85.0,
+     "mental_workrate": 83.0,
+     "physical_acceleration": 82.0,
+     "physical_agility": 77.0,
+     "physical_balance": 76.0,
+     "physical_reaction": 91.0,
+     "physical_shotpower": 93.0,
+     "physical_stamina": 84.0,
+     "physical_velocity": 80.0,
+     "technical_ballcontrol": 91.0,
+     "technical_dribble": 91.0,
+     "technical_header": 88.3,
+     "technical_highpass": 73.0,
+     "technical_shortpass": 87.0,
+     "technical_shot": 86.7,
+     "technical_slidingtackle": 37.0,
+     "technical_standingtackle": 46.0,
+     "technical_volley": 87.9
+    },
+    "photo": 342229,
+    "shortlisted": false,
+    "listed_for_transfer": false,
+    "first_name": "Kylian",
+    "last_name": "Mbappé",
+    "birth_date": "1998-12-20",
+    "role": "CF",
+    "weight": 76,
+    "shirt_number": 10,
+    "weak_foot": 3,
+    "skill_moves": 5
+   },
+   "scouted_after": true,
+   "journal": [
+    "scouting.report_started",
+    "scouting.report_ready"
+   ]
+  },
+  "assign_busy": {
+   "status": 422,
+   "error": "this scout is already studying a player"
+  },
+  "assign_shared": {
+   "status": 422,
+   "error": "this player is already being studied"
+  },
+  "assign_own": {
+   "status": 422,
+   "error": "you cannot scout your own player"
+  },
+  "assign_unknown": {
+   "status": 422,
+   "error": "player not found"
+  }
+ },
+ "network": {
+  "career": {
+   "club_id": "131",
+   "seed": 42,
+   "date": "2026-07-01",
+   "created_at": "2026-07-01T00:00:00.000000Z",
+   "manager_name": "Golden Manager",
+   "manager_nationality_id": "189",
+   "balance": 318400000
+  },
+  "network": {
+   "scout_id": "scout-2",
+   "country_id": "157",
+   "region_id": "south-europe",
+   "task_start": {
+    "kind": "network",
+    "region_id": "south-europe",
+    "region_name": "Южная Европа",
+    "country_id": "157",
+    "country_name": "Spain",
+    "criteria": {
+     "role": "",
+     "age_min": null,
+     "age_max": null,
+     "contract_min": null,
+     "contract_max": null
+    },
+    "started_at": "2026-07-01",
+    "days_worked": 0,
+    "found_count": 0
+   },
+   "network": {
+    "region_id": "south-europe",
+    "region_name": "Южная Европа",
+    "country_id": "157",
+    "country_name": "Spain",
+    "created_at": "2026-07-01",
+    "scout_id": "scout-2"
+   },
+   "after_one": {
+    "task": {
+     "kind": "network",
+     "region_id": "south-europe",
+     "region_name": "Южная Европа",
+     "country_id": "157",
+     "country_name": "Spain",
+     "criteria": {
+      "role": "",
+      "age_min": null,
+      "age_max": null,
+      "contract_min": null,
+      "contract_max": null
+     },
+     "started_at": "2026-07-01",
+     "days_worked": 1,
+     "found_count": 1
+    },
+    "found": [
+     "724520"
+    ],
+    "entries": [
+     {
+      "kind": "recommendation",
+      "scout_id": "scout-2",
+      "scout_name": "Daniel Perez",
+      "date": "2026-07-02",
+      "acknowledged": false,
+      "player_id": "724520",
+      "player": {
+       "player_id": "724520",
+       "name": "Abde Ezzalzouli",
+       "age": 24,
+       "position": "Left Winger",
+       "position_group": "MID",
+       "club_id": "150",
+       "club_name": "Real Betis Balompié",
+       "club_logo": "/raster/teams_emblems/150.png",
+       "league_id": "ES1",
+       "league_name": "LaLiga",
+       "country_id": "157",
+       "country_name": "Spain",
+       "citizenship": [
+        "Morocco",
+        "Spain"
+       ],
+       "status": "contracted",
+       "release_clause": 56400000,
+       "contract_expires": "2028-03-01",
+       "scouted": true,
+       "overall": 80.2,
+       "pot": 85,
+       "market_value": 40000000,
+       "weekly_wage": 89900,
+       "foot": "right",
+       "height": 177,
+       "stats": {
+        "mental_calmness": 76.0,
+        "mental_defensivepositioning": 44.0,
+        "mental_offensivepositioning": 79.0,
+        "mental_resilience": 66.2,
+        "mental_vision": 78.0,
+        "mental_workrate": 68.0,
+        "physical_acceleration": 83.0,
+        "physical_agility": 82.0,
+        "physical_balance": 82.0,
+        "physical_reaction": 79.0,
+        "physical_shotpower": 79.0,
+        "physical_stamina": 77.0,
+        "physical_velocity": 81.0,
+        "technical_ballcontrol": 83.0,
+        "technical_dribble": 80.0,
+        "technical_header": 58.0,
+        "technical_highpass": 71.0,
+        "technical_shortpass": 74.0,
+        "technical_shot": 74.9,
+        "technical_slidingtackle": 44.0,
+        "technical_standingtackle": 44.0,
+        "technical_volley": 71.9
+       },
+       "photo": 724520,
+       "shortlisted": false,
+       "listed_for_transfer": false,
+       "first_name": "Abde",
+       "last_name": "Ezzalzouli",
+       "birth_date": "2001-12-17",
+       "role": "LM",
+       "weight": 71,
+       "shirt_number": -1,
+       "weak_foot": 3,
+       "skill_moves": 4
+      }
+     }
+    ],
+    "counts": {
+     "new": 1,
+     "updates": 0,
+     "total": 1
+    }
+   },
+   "task_edit": {
+    "kind": "network",
+    "region_id": "south-europe",
+    "region_name": "Южная Европа",
+    "country_id": "157",
+    "country_name": "Spain",
+    "criteria": {
+     "role": "GK",
+     "age_min": 20,
+     "age_max": 30,
+     "contract_min": null,
+     "contract_max": null
+    },
+    "started_at": "2026-07-01",
+    "days_worked": 1,
+    "found_count": 1
+   },
+   "task_reset": {
+    "kind": "network",
+    "region_id": "south-europe",
+    "region_name": "Южная Европа",
+    "country_id": "157",
+    "country_name": "Spain",
+    "criteria": {
+     "role": "",
+     "age_min": null,
+     "age_max": null,
+     "contract_min": null,
+     "contract_max": null
+    },
+    "started_at": "2026-07-01",
+    "days_worked": 1,
+    "found_count": 1
+   },
+   "after_more": {
+    "task": {
+     "kind": "network",
+     "region_id": "south-europe",
+     "region_name": "Южная Европа",
+     "country_id": "157",
+     "country_name": "Spain",
+     "criteria": {
+      "role": "",
+      "age_min": null,
+      "age_max": null,
+      "contract_min": null,
+      "contract_max": null
+     },
+     "started_at": "2026-07-01",
+     "days_worked": 4,
+     "found_count": 4
+    },
+    "found": [
+     "724520",
+     "128969",
+     "74294",
+     "449796"
+    ],
+    "counts": {
+     "new": 4,
+     "updates": 0,
+     "total": 4
+    }
+   }
+  },
+  "bad_region": {
+   "status": 422,
+   "error": "region not found"
+  },
+  "bad_country": {
+   "status": 422,
+   "error": "country is not in this region"
+  },
+  "coexist": {
+   "player_id": "418560",
+   "report": {
+    "player_id": "418560",
+    "player_name": "Erling Haaland",
+    "player_photo": "/raster/players_faces_cutout/418560.png",
+    "started_at": "2026-07-05",
+    "due_at": "2026-07-07",
+    "days_total": 2,
+    "days_left": 2,
+    "days_worked": 0,
+    "progress": 0.0
+   },
+   "task_present": true
+  },
+  "ack": {
+   "status": 200,
+   "counts": {
+    "new": 0,
+    "updates": 4,
+    "total": 4
+   },
+   "entries": [
+    {
+     "kind": "recommendation",
+     "scout_id": "scout-2",
+     "scout_name": "Daniel Perez",
+     "date": "2026-07-05",
+     "acknowledged": true,
+     "player_id": "449796",
+     "player": {
+      "player_id": "449796",
+      "name": "Alejandro Catena",
+      "age": 31,
+      "position": "Centre-Back",
+      "position_group": "DEF",
+      "club_id": "331",
+      "club_name": "CA Osasuna",
+      "club_logo": "/raster/teams_emblems/331.png",
+      "league_id": "ES1",
+      "league_name": "LaLiga",
+      "country_id": "157",
+      "country_name": "Spain",
+      "citizenship": [
+       "Spain"
+      ],
+      "status": "contracted",
+      "release_clause": 4100000,
+      "contract_expires": "2026-09-01",
+      "scouted": true,
+      "overall": 75.5,
+      "pot": 76,
+      "market_value": 2600000,
+      "weekly_wage": 5100,
+      "foot": "right",
+      "height": 194,
+      "stats": {
+       "mental_calmness": 68.0,
+       "mental_defensivepositioning": 73.0,
+       "mental_offensivepositioning": 45.0,
+       "mental_resilience": 74.9,
+       "mental_vision": 56.0,
+       "mental_workrate": 74.5,
+       "physical_acceleration": 65.0,
+       "physical_agility": 54.0,
+       "physical_balance": 54.0,
+       "physical_reaction": 71.0,
+       "physical_shotpower": 58.0,
+       "physical_stamina": 72.0,
+       "physical_velocity": 68.0,
+       "technical_ballcontrol": 66.0,
+       "technical_dribble": 58.0,
+       "technical_header": 75.0,
+       "technical_highpass": 60.1,
+       "technical_shortpass": 69.0,
+       "technical_shot": 38.1,
+       "technical_slidingtackle": 73.0,
+       "technical_standingtackle": 78.0,
+       "technical_volley": 36.7
+      },
+      "photo": 449796,
+      "shortlisted": false,
+      "listed_for_transfer": false,
+      "first_name": "Alejandro",
+      "last_name": "Catena",
+      "birth_date": "1994-10-28",
+      "role": "CB",
+      "weight": 85,
+      "shirt_number": -1,
+      "weak_foot": 3,
+      "skill_moves": 2
+     }
+    },
+    {
+     "kind": "recommendation",
+     "scout_id": "scout-2",
+     "scout_name": "Daniel Perez",
+     "date": "2026-07-04",
+     "acknowledged": true,
+     "player_id": "74294",
+     "player": {
+      "player_id": "74294",
+      "name": "Nemanja Gudelj",
+      "age": 34,
+      "position": "Defensive Midfield",
+      "position_group": "MID",
+      "club_id": "3709",
+      "club_name": "Getafe CF",
+      "club_logo": "/raster/teams_emblems/3709.png",
+      "league_id": "ES1",
+      "league_name": "LaLiga",
+      "country_id": "157",
+      "country_name": "Spain",
+      "citizenship": [
+       "Serbia",
+       "Netherlands"
+      ],
+      "status": "contracted",
+      "release_clause": 2600000,
+      "contract_expires": "2030-04-01",
+      "scouted": true,
+      "overall": 76.4,
+      "pot": 76,
+      "market_value": 2000000,
+      "weekly_wage": 3800,
+      "foot": "right",
+      "height": 187,
+      "stats": {
+       "mental_calmness": 77.0,
+       "mental_defensivepositioning": 74.0,
+       "mental_offensivepositioning": 64.0,
+       "mental_resilience": 74.7,
+       "mental_vision": 72.0,
+       "mental_workrate": 77.0,
+       "physical_acceleration": 64.0,
+       "physical_agility": 68.0,
+       "physical_balance": 72.0,
+       "physical_reaction": 75.0,
+       "physical_shotpower": 68.0,
+       "physical_stamina": 79.0,
+       "physical_velocity": 67.0,
+       "technical_ballcontrol": 78.0,
+       "technical_dribble": 72.0,
+       "technical_header": 64.9,
+       "technical_highpass": 71.6,
+       "technical_shortpass": 80.0,
+       "technical_shot": 59.4,
+       "technical_slidingtackle": 70.0,
+       "technical_standingtackle": 73.0,
+       "technical_volley": 58.7
+      },
+      "photo": 74294,
+      "shortlisted": false,
+      "listed_for_transfer": false,
+      "first_name": "Nemanja",
+      "last_name": "Gudelj",
+      "birth_date": "1991-11-16",
+      "role": "DM",
+      "weight": 79,
+      "shirt_number": -1,
+      "weak_foot": 3,
+      "skill_moves": 3
+     }
+    },
+    {
+     "kind": "recommendation",
+     "scout_id": "scout-2",
+     "scout_name": "Daniel Perez",
+     "date": "2026-07-03",
+     "acknowledged": true,
+     "player_id": "128969",
+     "player": {
+      "player_id": "128969",
+      "name": "Mathew Ryan",
+      "age": 33,
+      "position": "Goalkeeper",
+      "position_group": "GK",
+      "club_id": "3368",
+      "club_name": "Levante UD",
+      "club_logo": "/raster/teams_emblems/3368.png",
+      "league_id": "ES1",
+      "league_name": "LaLiga",
+      "country_id": "157",
+      "country_name": "Spain",
+      "citizenship": [
+       "Australia",
+       "Scotland"
+      ],
+      "status": "contracted",
+      "release_clause": 3100000,
+      "contract_expires": "2027-12-01",
+      "scouted": true,
+      "overall": 79.6,
+      "pot": 80,
+      "market_value": 1800000,
+      "weekly_wage": 3100,
+      "foot": "right",
+      "height": 184,
+      "stats": {
+       "mental_calmness": 52.0,
+       "mental_defensivepositioning": 47.0,
+       "mental_offensivepositioning": 15.0,
+       "mental_resilience": 48.8,
+       "mental_vision": 53.0,
+       "mental_workrate": 32.5,
+       "physical_acceleration": 42.0,
+       "physical_agility": 48.0,
+       "physical_balance": 62.0,
+       "physical_reaction": 80.0,
+       "physical_shotpower": 58.0,
+       "physical_stamina": 36.0,
+       "physical_velocity": 45.0,
+       "technical_ballcontrol": 27.0,
+       "technical_dribble": 19.0,
+       "technical_header": 30.6,
+       "technical_highpass": 56.0,
+       "technical_shortpass": 57.0,
+       "technical_shot": 16.2,
+       "technical_slidingtackle": 15.0,
+       "technical_standingtackle": 16.0,
+       "technical_volley": 15.3
+      },
+      "photo": 128969,
+      "shortlisted": false,
+      "listed_for_transfer": false,
+      "first_name": "Mathew",
+      "last_name": "Ryan",
+      "birth_date": "1992-08-04",
+      "role": "GK",
+      "weight": 78,
+      "shirt_number": 1,
+      "weak_foot": 3,
+      "skill_moves": 1
+     }
+    },
+    {
+     "kind": "recommendation",
+     "scout_id": "scout-2",
+     "scout_name": "Daniel Perez",
+     "date": "2026-07-02",
+     "acknowledged": true,
+     "player_id": "724520",
+     "player": {
+      "player_id": "724520",
+      "name": "Abde Ezzalzouli",
+      "age": 24,
+      "position": "Left Winger",
+      "position_group": "MID",
+      "club_id": "150",
+      "club_name": "Real Betis Balompié",
+      "club_logo": "/raster/teams_emblems/150.png",
+      "league_id": "ES1",
+      "league_name": "LaLiga",
+      "country_id": "157",
+      "country_name": "Spain",
+      "citizenship": [
+       "Morocco",
+       "Spain"
+      ],
+      "status": "contracted",
+      "release_clause": 56400000,
+      "contract_expires": "2028-03-01",
+      "scouted": true,
+      "overall": 80.2,
+      "pot": 85,
+      "market_value": 40000000,
+      "weekly_wage": 89900,
+      "foot": "right",
+      "height": 177,
+      "stats": {
+       "mental_calmness": 76.0,
+       "mental_defensivepositioning": 44.0,
+       "mental_offensivepositioning": 79.0,
+       "mental_resilience": 66.2,
+       "mental_vision": 78.0,
+       "mental_workrate": 68.0,
+       "physical_acceleration": 83.0,
+       "physical_agility": 82.0,
+       "physical_balance": 82.0,
+       "physical_reaction": 79.0,
+       "physical_shotpower": 79.0,
+       "physical_stamina": 77.0,
+       "physical_velocity": 81.0,
+       "technical_ballcontrol": 83.0,
+       "technical_dribble": 80.0,
+       "technical_header": 58.0,
+       "technical_highpass": 71.0,
+       "technical_shortpass": 74.0,
+       "technical_shot": 74.9,
+       "technical_slidingtackle": 44.0,
+       "technical_standingtackle": 44.0,
+       "technical_volley": 71.9
+      },
+      "photo": 724520,
+      "shortlisted": false,
+      "listed_for_transfer": false,
+      "first_name": "Abde",
+      "last_name": "Ezzalzouli",
+      "birth_date": "2001-12-17",
+      "role": "LM",
+      "weight": 71,
+      "shirt_number": -1,
+      "weak_foot": 3,
+      "skill_moves": 4
+     }
+    }
+   ]
+  },
+  "remove": {
+   "status": 200,
+   "player_id": "724520",
+   "candidate_ids": [
+    "449796",
+    "74294",
+    "128969"
+   ],
+   "task": {
+    "kind": "network",
+    "region_id": "south-europe",
+    "region_name": "Южная Европа",
+    "country_id": "157",
+    "country_name": "Spain",
+    "criteria": {
+     "role": "",
+     "age_min": null,
+     "age_max": null,
+     "contract_min": null,
+     "contract_max": null
+    },
+    "started_at": "2026-07-01",
+    "days_worked": 4,
+    "found_count": 3
+   },
+   "counts": {
+    "new": 0,
+    "updates": 3,
+    "total": 3
+   },
+   "journal_last": "scouting.removed",
+   "scouted": false
+  },
+  "remove_again": {
+   "status": 422,
+   "error": "player is not in any report"
+  },
+  "remove_studying": {
+   "status": 422,
+   "error": "report is still in progress"
+  },
+  "recall": {
+   "status": 200,
+   "task": null,
+   "report": null,
+   "journal_last": "scouting.recalled"
+  },
+  "recall_again": {
+   "status": 422,
+   "error": "this scout has no active task"
+  }
+ },
+ "old_save": {
+  "career": {
+   "club_id": "131",
+   "seed": 42,
+   "date": "2026-07-01",
+   "created_at": "2026-07-01T00:00:00.000000Z",
+   "manager_name": "Golden Manager",
+   "manager_nationality_id": "189",
+   "balance": 318400000
+  },
+  "old_save": {
+   "scouts": [
+    {
+     "id": "scout-1",
+     "name": "Brian Smith",
+     "nationality": "Canada",
+     "nationality_id": "80",
+     "experience": 2,
+     "judgement": 1,
+     "price": 270000,
+     "task": null,
+     "report": null
+    },
+    {
+     "id": "scout-2",
+     "name": "Daniel Perez",
+     "nationality": "Spain",
+     "nationality_id": "157",
+     "experience": 4,
+     "judgement": 1,
+     "price": 520000,
+     "task": null,
+     "report": null
+    }
+   ],
+   "hired_at": [
+    "2026-07-01",
+    "2026-07-01"
+   ],
+   "candidate_ids": [
+    "scout-3",
+    "scout-4",
+    "scout-5",
+    "scout-6",
+    "scout-7"
+   ]
+  }
+ }
+}

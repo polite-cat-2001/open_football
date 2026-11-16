@@ -34,3 +34,6 @@ assets/faces/*
 # GameplayFootball data tree). Rebuild the career DB with
 # tools/build_open_football_db.py.
 data/
+
+# Generated screenshot book (tests/capture_*_shots.gd)
+.scratch/ui_shots/

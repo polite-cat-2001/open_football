@@ -12,6 +12,8 @@
 [ext_resource type="Script" path="res://scripts/ui/career_hub_overlay.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/ui/career_match_overlay.gd" id="11"]
 [ext_resource type="Script" path="res://scripts/ui/career_squad_view.gd" id="12"]
+[ext_resource type="Script" path="res://scripts/ui/career_transfers_view.gd" id="13"]
+[ext_resource type="Script" path="res://scripts/ui/ui_breadcrumb.gd" id="14"]
 
 [node name="CareerHub" type="Control"]
 layout_mode = 3
@@ -39,6 +41,13 @@ offset_bottom = 764.0
 layout_mode = 0
 offset_right = 1480.0
 offset_bottom = 688.4
+
+[node name="Breadcrumb" type="Control" parent="Design/PanelWrap/Body"]
+visible = false
+layout_mode = 0
+offset_right = 1480.0
+offset_bottom = 52.0
+script = ExtResource("14")
 
 [node name="TabBar" type="Control" parent="Design/PanelWrap/Body"]
 layout_mode = 0
@@ -94,9 +103,8 @@ offset_right = 362.5
 offset_bottom = 626.4
 script = ExtResource("7")
 title = "TRANSFER CENTRE"
-subtitle = "Offers, talks and signings — soon."
+subtitle = "Offers, talks and signings."
 glyph_name = "shirt"
-chip = "SOON"
 
 [node name="NewsTile" type="Button" parent="Design/PanelWrap/Body/Grid"]
 layout_mode = 0
@@ -129,6 +137,14 @@ offset_top = 62.0
 offset_right = 1480.0
 offset_bottom = 688.4
 script = ExtResource("12")
+
+[node name="TransfersView" type="Control" parent="Design/PanelWrap/Body"]
+visible = false
+layout_mode = 0
+offset_top = 62.0
+offset_right = 1480.0
+offset_bottom = 688.4
+script = ExtResource("13")
 
 [node name="Placeholder" type="Control" parent="Design/PanelWrap/Body"]
 visible = false

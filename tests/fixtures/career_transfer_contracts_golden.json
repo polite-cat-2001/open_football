@@ -1,0 +1,559 @@
+{
+ "career": {
+  "club_id": "131",
+  "seed": 42,
+  "date": "2026-07-01",
+  "created_at": "2026-07-01T00:00:00.000000Z",
+  "manager_name": "Golden Manager",
+  "manager_nationality_id": "189"
+ },
+ "players": {
+  "target": "342229",
+  "pending": "1003622",
+  "loan": "1001305",
+  "free_agent": "703304"
+ },
+ "steps": {
+  "transfer": {
+   "demand": {
+    "value": 200000000,
+    "fee": 173132829
+   },
+   "offer_id": "9dc8f540136fa0a0",
+   "accepted_offer": {
+    "offer_id": "9dc8f540136fa0a0",
+    "player_id": "342229",
+    "kind": "transfer",
+    "amount": 173132829,
+    "loan_fee": 0,
+    "wage_share": 0,
+    "buyout": false,
+    "status": "accepted",
+    "due": "2026-07-05",
+    "created_at": "2026-07-01",
+    "responded_at": "2026-07-05",
+    "counter_offers": 0,
+    "counter": null,
+    "retry_after": null,
+    "message": "The club accepted the offer.",
+    "can_offer_again": false,
+    "can_accept_counter": false,
+    "can_withdraw": true,
+    "affordable": true,
+    "signed": false,
+    "signed_at": null,
+    "execute_on": null,
+    "contract_status": null,
+    "can_negotiate": true
+   },
+   "contract_defaults": {
+    "years": 4,
+    "weekly_wage": 489000,
+    "squad_role": "key",
+    "release_clause": 240000000
+   },
+   "contract_pending": {
+    "player_id": "342229",
+    "offer_id": "9dc8f540136fa0a0",
+    "kind": "transfer",
+    "fee": 173132829,
+    "loan_fee": 0,
+    "wage_share": 100,
+    "status": "pending",
+    "offer": {
+     "years": 4,
+     "weekly_wage": 489000,
+     "squad_role": "key",
+     "release_clause": 240000000
+    },
+    "counter": null,
+    "agreed": null,
+    "terms": {
+     "years": 4,
+     "weekly_wage": 489000,
+     "squad_role": "key",
+     "release_clause": 240000000
+    },
+    "due": "2026-07-09",
+    "counter_offers": 0,
+    "message": "The player is thinking about the contract.",
+    "affordable": true,
+    "balance_after": 145267171,
+    "can_sign": false
+   },
+   "contract_response": {
+    "player_id": "342229",
+    "offer_id": "9dc8f540136fa0a0",
+    "kind": "transfer",
+    "fee": 173132829,
+    "loan_fee": 0,
+    "wage_share": 100,
+    "status": "counter",
+    "offer": {
+     "years": 4,
+     "weekly_wage": 489000,
+     "squad_role": "key",
+     "release_clause": 240000000
+    },
+    "counter": {
+     "years": 4,
+     "weekly_wage": 639500,
+     "squad_role": "key",
+     "release_clause": 240000000
+    },
+    "agreed": null,
+    "terms": {
+     "years": 4,
+     "weekly_wage": 489000,
+     "squad_role": "key",
+     "release_clause": 240000000
+    },
+    "due": "2026-07-09",
+    "counter_offers": 1,
+    "message": "The player asks for a higher wage.",
+    "affordable": true,
+    "balance_after": 145267171,
+    "can_sign": false
+   },
+   "contract_accepted": {
+    "player_id": "342229",
+    "offer_id": "9dc8f540136fa0a0",
+    "kind": "transfer",
+    "fee": 173132829,
+    "loan_fee": 0,
+    "wage_share": 100,
+    "status": "accepted",
+    "offer": {
+     "years": 4,
+     "weekly_wage": 489000,
+     "squad_role": "key",
+     "release_clause": 240000000
+    },
+    "counter": null,
+    "agreed": {
+     "years": 4,
+     "weekly_wage": 639500,
+     "squad_role": "key",
+     "release_clause": 240000000
+    },
+    "terms": {
+     "years": 4,
+     "weekly_wage": 639500,
+     "squad_role": "key",
+     "release_clause": 240000000
+    },
+    "due": "2026-07-09",
+    "counter_offers": 1,
+    "message": "The player agrees. Confirm the signing.",
+    "affordable": true,
+    "balance_after": 145267171,
+    "can_sign": true
+   },
+   "digest": {
+    "balance": 145267171,
+    "squad_size": 31,
+    "joined": true,
+    "contract": {
+     "years": 4,
+     "weekly_wage": 639500,
+     "squad_role": "key",
+     "release_clause": 240000000
+    },
+    "history_last": {
+     "player_id": "342229",
+     "overall": 91.0,
+     "from_club_id": "418",
+     "to_club_id": "131",
+     "fee": 173132829,
+     "kind": "transfer",
+     "offer_id": "9dc8f540136fa0a0",
+     "date": "2026-07-09",
+     "status": "completed"
+    },
+    "pending": [],
+    "offers": [],
+    "journal_last": "transfer.signed",
+    "journal_payload": {
+     "player_id": "342229",
+     "offer_id": "9dc8f540136fa0a0",
+     "fee": 173132829,
+     "contract": {
+      "years": 4,
+      "weekly_wage": 639500,
+      "squad_role": "key",
+      "release_clause": 240000000
+     },
+     "execute_on": "2026-07-09"
+    }
+   }
+  },
+  "free_agent": {
+   "contract_defaults": {
+    "years": 3,
+    "weekly_wage": 1000,
+    "squad_role": "prospect",
+    "release_clause": 192000
+   },
+   "contract_pending": {
+    "player_id": "703304",
+    "offer_id": null,
+    "kind": "free",
+    "fee": 0,
+    "loan_fee": 0,
+    "wage_share": 100,
+    "status": "pending",
+    "offer": {
+     "years": 3,
+     "weekly_wage": 1000,
+     "squad_role": "prospect",
+     "release_clause": 192000
+    },
+    "counter": null,
+    "agreed": null,
+    "terms": {
+     "years": 3,
+     "weekly_wage": 1000,
+     "squad_role": "prospect",
+     "release_clause": 192000
+    },
+    "due": "2026-08-04",
+    "counter_offers": 0,
+    "message": "The player is thinking about the contract.",
+    "affordable": true,
+    "balance_after": 145267171,
+    "can_sign": false
+   },
+   "contract_response": {
+    "player_id": "703304",
+    "offer_id": null,
+    "kind": "free",
+    "fee": 0,
+    "loan_fee": 0,
+    "wage_share": 100,
+    "status": "accepted",
+    "offer": {
+     "years": 3,
+     "weekly_wage": 1000,
+     "squad_role": "prospect",
+     "release_clause": 192000
+    },
+    "counter": null,
+    "agreed": {
+     "years": 3,
+     "weekly_wage": 1000,
+     "squad_role": "prospect",
+     "release_clause": 192000
+    },
+    "terms": {
+     "years": 3,
+     "weekly_wage": 1000,
+     "squad_role": "prospect",
+     "release_clause": 192000
+    },
+    "due": "2026-08-04",
+    "counter_offers": 0,
+    "message": "The player agrees. Confirm the signing.",
+    "affordable": true,
+    "balance_after": 145267171,
+    "can_sign": true
+   },
+   "contract_accepted": {
+    "player_id": "703304",
+    "offer_id": null,
+    "kind": "free",
+    "fee": 0,
+    "loan_fee": 0,
+    "wage_share": 100,
+    "status": "accepted",
+    "offer": {
+     "years": 3,
+     "weekly_wage": 1000,
+     "squad_role": "prospect",
+     "release_clause": 192000
+    },
+    "counter": null,
+    "agreed": {
+     "years": 3,
+     "weekly_wage": 1000,
+     "squad_role": "prospect",
+     "release_clause": 192000
+    },
+    "terms": {
+     "years": 3,
+     "weekly_wage": 1000,
+     "squad_role": "prospect",
+     "release_clause": 192000
+    },
+    "due": "2026-08-04",
+    "counter_offers": 0,
+    "message": "The player agrees. Confirm the signing.",
+    "affordable": true,
+    "balance_after": 145267171,
+    "can_sign": true
+   },
+   "digest": {
+    "balance": 145267171,
+    "squad_size": 32,
+    "joined": true,
+    "contract": {
+     "years": 3,
+     "weekly_wage": 1000,
+     "squad_role": "prospect",
+     "release_clause": 192000
+    },
+    "history_last": {
+     "player_id": "703304",
+     "overall": 67.7,
+     "from_club_id": null,
+     "to_club_id": "131",
+     "fee": 0,
+     "kind": "free",
+     "offer_id": null,
+     "date": "2026-08-04",
+     "status": "completed"
+    },
+    "pending": [],
+    "offers": [],
+    "journal_last": "transfer.signed",
+    "journal_payload": {
+     "player_id": "703304",
+     "offer_id": null,
+     "fee": 0,
+     "contract": {
+      "years": 3,
+      "weekly_wage": 1000,
+      "squad_role": "prospect",
+      "release_clause": 192000
+     },
+     "execute_on": "2026-08-04"
+    }
+   }
+  },
+  "pending": {
+   "demand": {
+    "value": 6000000,
+    "fee": 5415626
+   },
+   "offer_id": "cb162c4c54088e10",
+   "accepted_offer": {
+    "offer_id": "cb162c4c54088e10",
+    "player_id": "1003622",
+    "kind": "transfer",
+    "amount": 5415626,
+    "loan_fee": 0,
+    "wage_share": 0,
+    "buyout": false,
+    "status": "accepted",
+    "due": "2026-09-19",
+    "created_at": "2026-09-15",
+    "responded_at": "2026-09-19",
+    "counter_offers": 0,
+    "counter": null,
+    "retry_after": null,
+    "message": "The club accepted the offer.",
+    "can_offer_again": false,
+    "can_accept_counter": false,
+    "can_withdraw": true,
+    "affordable": true,
+    "signed": false,
+    "signed_at": null,
+    "execute_on": null,
+    "contract_status": null,
+    "can_negotiate": true
+   },
+   "contract_defaults": {
+    "years": 1,
+    "weekly_wage": 12600,
+    "squad_role": "squad",
+    "release_clause": 7200000
+   },
+   "contract_pending": {
+    "player_id": "1003622",
+    "offer_id": "cb162c4c54088e10",
+    "kind": "transfer",
+    "fee": 5415626,
+    "loan_fee": 0,
+    "wage_share": 100,
+    "status": "pending",
+    "offer": {
+     "years": 1,
+     "weekly_wage": 12600,
+     "squad_role": "squad",
+     "release_clause": 7200000
+    },
+    "counter": null,
+    "agreed": null,
+    "terms": {
+     "years": 1,
+     "weekly_wage": 12600,
+     "squad_role": "squad",
+     "release_clause": 7200000
+    },
+    "due": "2026-09-21",
+    "counter_offers": 0,
+    "message": "The player is thinking about the contract.",
+    "affordable": true,
+    "balance_after": 139851545,
+    "can_sign": false
+   },
+   "contract_response": {
+    "player_id": "1003622",
+    "offer_id": "cb162c4c54088e10",
+    "kind": "transfer",
+    "fee": 5415626,
+    "loan_fee": 0,
+    "wage_share": 100,
+    "status": "counter",
+    "offer": {
+     "years": 1,
+     "weekly_wage": 12600,
+     "squad_role": "squad",
+     "release_clause": 7200000
+    },
+    "counter": {
+     "years": 4,
+     "weekly_wage": 12600,
+     "squad_role": "squad",
+     "release_clause": 7200000
+    },
+    "agreed": null,
+    "terms": {
+     "years": 1,
+     "weekly_wage": 12600,
+     "squad_role": "squad",
+     "release_clause": 7200000
+    },
+    "due": "2026-09-21",
+    "counter_offers": 1,
+    "message": "The player insists on a longer contract.",
+    "affordable": true,
+    "balance_after": 139851545,
+    "can_sign": false
+   },
+   "contract_accepted": {
+    "player_id": "1003622",
+    "offer_id": "cb162c4c54088e10",
+    "kind": "transfer",
+    "fee": 5415626,
+    "loan_fee": 0,
+    "wage_share": 100,
+    "status": "accepted",
+    "offer": {
+     "years": 1,
+     "weekly_wage": 12600,
+     "squad_role": "squad",
+     "release_clause": 7200000
+    },
+    "counter": null,
+    "agreed": {
+     "years": 4,
+     "weekly_wage": 12600,
+     "squad_role": "squad",
+     "release_clause": 7200000
+    },
+    "terms": {
+     "years": 4,
+     "weekly_wage": 12600,
+     "squad_role": "squad",
+     "release_clause": 7200000
+    },
+    "due": "2026-09-21",
+    "counter_offers": 1,
+    "message": "The player agrees. Confirm the signing.",
+    "affordable": true,
+    "balance_after": 139851545,
+    "can_sign": true
+   },
+   "date": "2026-09-21",
+   "digest": {
+    "balance": 139851545,
+    "squad_size": 32,
+    "joined": false,
+    "contract": null,
+    "history_last": {
+     "player_id": "1003622",
+     "overall": 72.3,
+     "from_club_id": "413",
+     "to_club_id": "131",
+     "fee": 5415626,
+     "kind": "transfer",
+     "offer_id": "cb162c4c54088e10",
+     "date": "2026-09-21",
+     "status": "signed"
+    },
+    "pending": [
+     {
+      "player_id": "1003622",
+      "from_club_id": "413",
+      "offer_id": "cb162c4c54088e10",
+      "kind": "transfer",
+      "fee": 5415626,
+      "loan_fee": 0,
+      "wage_share": 100,
+      "terms": {
+       "years": 4,
+       "weekly_wage": 12600,
+       "squad_role": "squad",
+       "release_clause": 7200000
+      },
+      "market_value": 6000000,
+      "age": 24,
+      "agreed_at": "2026-09-21",
+      "execute_on": "2027-01-01"
+     }
+    ],
+    "offers": [
+     {
+      "offer_id": "cb162c4c54088e10",
+      "status": "accepted",
+      "signed": true,
+      "execute_on": "2027-01-01",
+      "contract_status": "signed"
+     }
+    ],
+    "journal_last": "transfer.signed",
+    "journal_payload": {
+     "player_id": "1003622",
+     "offer_id": "cb162c4c54088e10",
+     "fee": 5415626,
+     "contract": {
+      "years": 4,
+      "weekly_wage": 12600,
+      "squad_role": "squad",
+      "release_clause": 7200000
+     },
+     "execute_on": "2027-01-01"
+    }
+   }
+  },
+  "executed": {
+   "balance": 139851545,
+   "squad_size": 33,
+   "joined": true,
+   "contract": {
+    "years": 4,
+    "weekly_wage": 12600,
+    "squad_role": "squad",
+    "release_clause": 7200000
+   },
+   "history_last": {
+    "player_id": "1003622",
+    "overall": 72.3,
+    "from_club_id": "413",
+    "to_club_id": "131",
+    "fee": 5415626,
+    "kind": "transfer",
+    "offer_id": "cb162c4c54088e10",
+    "date": "2026-09-21",
+    "status": "signed"
+   },
+   "pending": [],
+   "offers": [],
+   "journal_last": "transfer.completed",
+   "journal_payload": {
+    "player_id": "1003622",
+    "offer_id": "cb162c4c54088e10"
+   }
+  }
+ }
+}

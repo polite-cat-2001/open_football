@@ -90,6 +90,19 @@ func _run() -> void:
 
 	_key(KEY_DELETE)
 	await _frames(3)
+	_check(modal.is_open(), "Del reopens the delete modal")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = Vector2(6.0, 6.0)
+	click.global_position = click.position
+	root.push_input(click)
+	await _frames(3)
+	_check(not modal.is_open(), "a click on the backdrop closes the modal")
+	_check(store.load_career(career.id) != null, "the backdrop click keeps the save")
+
+	_key(KEY_DELETE)
+	await _frames(3)
 	_check(modal.is_open(), "Del opens the delete modal again")
 	var nav := root.get_node("UiNav")
 	nav.confirmed.emit()

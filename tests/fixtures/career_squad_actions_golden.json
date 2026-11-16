@@ -1,0 +1,160 @@
+{
+ "career": {
+  "club_id": "131",
+  "seed": 42,
+  "date": "2026-07-01",
+  "created_at": "2026-07-01T00:00:00.000000Z",
+  "manager_name": "Golden Manager",
+  "manager_nationality_id": "189"
+ },
+ "player_id": "561613",
+ "player_name": "Joan García",
+ "contract": {
+  "squad_role": "rotation",
+  "years": 4,
+  "weekly_wage": 96000,
+  "release_clause": 63900000
+ },
+ "demand": {
+  "years": 3,
+  "weekly_wage": 102700,
+  "squad_role": "rotation",
+  "release_clause": 54000000
+ },
+ "balance": 318400000,
+ "start": {
+  "status": "pending",
+  "due": "2026-07-05",
+  "acknowledged": true,
+  "message": "The player is thinking about the offer.",
+  "offer": {
+   "years": 1,
+   "weekly_wage": 1000,
+   "squad_role": "rotation",
+   "release_clause": 0
+  },
+  "rounds": 1
+ },
+ "rounds": [
+  {
+   "status": "counter",
+   "counter_offers": 1,
+   "counter": {
+    "years": 3,
+    "weekly_wage": 102700,
+    "squad_role": "rotation",
+    "release_clause": 54000000
+   },
+   "message": "The player asks for a higher wage. The player insists on a longer contract. The player wants a higher release clause.",
+   "acknowledged": false
+  },
+  {
+   "status": "counter",
+   "counter_offers": 2,
+   "counter": {
+    "years": 3,
+    "weekly_wage": 102700,
+    "squad_role": "rotation",
+    "release_clause": 54000000
+   },
+   "message": "The player asks for a higher wage. The player insists on a longer contract. The player wants a higher release clause.",
+   "acknowledged": false
+  },
+  {
+   "status": "refused",
+   "counter_offers": 2,
+   "counter": null,
+   "message": "The player walked away from the talks.",
+   "acknowledged": false
+  }
+ ],
+ "demand_start": {
+  "status": "pending",
+  "due": "2026-07-24"
+ },
+ "demand_answer": {
+  "status": "accepted",
+  "message": "The player agrees. Confirm the signing.",
+  "acknowledged": false,
+  "offer": {
+   "years": 3,
+   "weekly_wage": 102700,
+   "squad_role": "rotation",
+   "release_clause": 54000000
+  }
+ },
+ "signed": {
+  "contract": {
+   "squad_role": "rotation",
+   "years": 3,
+   "weekly_wage": 102700,
+   "release_clause": 54000000
+  },
+  "negotiations_left": 0,
+  "journal_last": "contract.signed"
+ },
+ "counter_accepted": {
+  "status": "counter",
+  "counter": {
+   "years": 2,
+   "weekly_wage": 8300,
+   "squad_role": "rotation",
+   "release_clause": 4800000
+  },
+  "message": "The player asks for a higher wage. The player insists on a longer contract. The player wants a higher release clause.",
+  "contract": {
+   "squad_role": "rotation",
+   "years": 2,
+   "weekly_wage": 8300,
+   "release_clause": 4800000
+  },
+  "negotiations_left": 0,
+  "journal_last": "contract.signed"
+ },
+ "counter_accepted_player_id": "205927",
+ "saved_contract": {
+  "squad_role": "rotation",
+  "years": 3,
+  "weekly_wage": 102700,
+  "release_clause": 54000000
+ },
+ "shirt": {
+  "free": 31,
+  "taken": 13,
+  "owner_id": "561613",
+  "other_id": "205927",
+  "numbers": {
+   "561613": 13,
+   "205927": 1,
+   "44058": 14,
+   "962110": 22,
+   "466794": 4
+  }
+ },
+ "release": {
+  "squad_size": 30,
+  "small_squad": 11
+ },
+ "affordable": {
+  "demand_weekly": 102700,
+  "affordable": true,
+  "balance": 318400000,
+  "wage_bill": 2994200,
+  "current_weekly": 96000,
+  "broke": {
+   "balance": 0,
+   "affordable": false,
+   "counter": {
+    "years": 3,
+    "weekly_wage": 102700,
+    "squad_role": "rotation",
+    "release_clause": 54000000
+   }
+  },
+  "covered": {
+   "balance": 410800,
+   "affordable": false,
+   "weekly_times_four": 410800
+  }
+ }
+}

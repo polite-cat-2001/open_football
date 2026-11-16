@@ -197,10 +197,16 @@ func _check_hub_flow(catalog: TeamCatalog, league_clubs: Array,
 	var next_tile = hub.get_node("Design/PanelWrap/Body/Grid/NextTile")
 	var play_tile = hub.get_node("Design/PanelWrap/Body/Grid/PlayTile")
 	var simulation_tile = hub.get_node("Design/PanelWrap/Body/Grid/SimulationTile")
+	var tab_bar = hub.get_node("Design/PanelWrap/Body/TabBar")
 	_check(bool(hub.get("_match_day")), "the hub knows it is match day")
 	_check(not next_tile.visible and play_tile.visible and simulation_tile.visible,
 		"the calendar is replaced by PLAY and SIMULATION")
-	_check(play_tile.has_focus(), "PLAY owns focus on match day")
+	_check(tab_bar.get_tab_button(0).has_focus(),
+		"the active tab owns focus when the hub opens")
+	nav.moved.emit(Vector2i.DOWN)
+	for _index in range(3):
+		await process_frame
+	_check(play_tile.has_focus(), "Down reaches PLAY on match day")
 
 	nav.confirmed.emit()
 	for _index in range(8):
@@ -277,6 +283,9 @@ func _check_hub_flow(catalog: TeamCatalog, league_clubs: Array,
 		simulation_tile = hub.get_node("Design/PanelWrap/Body/Grid/SimulationTile")
 		_check(not bool(hub.get("_match_day")),
 			"a fresh career opens before the match day")
+		nav.moved.emit(Vector2i.DOWN)
+		for _index in range(3):
+			await process_frame
 		nav.confirmed.emit()
 		for _index in range(14):
 			await process_frame

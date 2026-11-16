@@ -1,0 +1,310 @@
+class_name CareerTransfersView
+extends Control
+# Transfers tab host. The prototype's TransfersTab switches between the hub,
+# filters, results, centre, offer, contract, history and the scouting network;
+# each of those is a self-contained Control that reads UiNav itself. This node
+# only owns the view switch, the payloads and the fade+scale transition.
+
+signal changed
+signal view_changed
+signal exit_requested
+signal tab_requested(delta: int)
+# The transfer hub's card grid was pushed at its edge: the career hub switches
+# section or hands focus back to the main tab strip.
+signal edge_requested(direction: Vector2i)
+
+const SCREENS := {
+	"hub": "res://scripts/ui/career_transfer_hub.gd",
+	"filters": "res://scripts/ui/career_transfer_filters.gd",
+	"results": "res://scripts/ui/career_transfer_results.gd",
+	"centre": "res://scripts/ui/career_transfer_centre.gd",
+	"offer": "res://scripts/ui/career_transfer_offer.gd",
+	"contract": "res://scripts/ui/career_transfer_contract.gd",
+	"history": "res://scripts/ui/career_transfer_history.gd",
+	"network": "res://scripts/ui/career_scouting_view.gd",
+}
+const PARENT := {
+	"filters": "hub", "results": "filters", "centre": "hub",
+	"history": "hub", "network": "hub",
+	"offer": "results", "contract": "centre",
+}
+const CRUMBS := {
+	"filters": "SEARCH",
+	"results": "SEARCH RESULTS",
+	"centre": "TRANSFER CENTRE",
+	"offer": "TRANSFER OFFER",
+	"contract": "CONTRACT TALKS",
+	"history": "TRANSFER HISTORY",
+	"network": "WORLD NETWORK",
+}
+
+var _career: Career
+var _catalog: TeamCatalog
+var _filters: Dictionary = {}
+var _screens: Dictionary = {}
+var _current := "hub"
+var _busy := false
+var _open := false
+var _shell_focused := false
+
+
+func open(career: Career, catalog: TeamCatalog) -> void:
+	_career = career
+	_catalog = catalog
+	if _filters.is_empty():
+		_filters = CareerSearch.filters_default()
+	_open = true
+	visible = true
+	_show("hub", {})
+
+
+func close() -> void:
+	_open = false
+	visible = false
+	var screen := _screens.get(_current) as Control
+	if screen != null and screen.has_method("close"):
+		screen.close()
+
+
+func current_view() -> String:
+	return _current
+
+
+func is_overlay() -> bool:
+	return _current != "hub"
+
+
+func focus_initial() -> void:
+	var screen := _current_screen()
+	if screen != null and screen.has_method("focus_initial"):
+		screen.focus_initial()
+
+
+# The shell's tab strip owns input: the landing screens must ignore moves
+# (they read UiNav themselves) until Down hands the focus to the page.
+func set_shell_focused(value: bool) -> void:
+	_shell_focused = value
+	var screen := _current_screen()
+	if screen != null and screen.has_method("set_shell_focused"):
+		screen.set_shell_focused(value)
+
+
+# Drop the move/tab event that enters the landing; the hub calls it only for
+# wiring-driven entries, never for a click or a Q/E that the landing won't see.
+func suppress_event() -> void:
+	var screen := _current_screen()
+	if screen != null and screen.has_method("suppress_event"):
+		screen.suppress_event()
+
+
+func hints() -> Array:
+	var screen := _current_screen()
+	if screen != null and screen.has_method("hints"):
+		return screen.hints()
+	return []
+
+
+func breadcrumb() -> Array[String]:
+	if _current == "hub":
+		return []
+	return ["CAREER", "TRANSFERS", str(CRUMBS.get(_current, _current.to_upper()))]
+
+
+func status() -> String:
+	var screen := _current_screen()
+	if screen != null and screen.has_method("status"):
+		return str(screen.status())
+	return ""
+
+
+func status_error() -> bool:
+	var screen := _current_screen()
+	if screen != null and screen.has_method("status_error"):
+		return bool(screen.status_error())
+	return false
+
+
+func refresh() -> void:
+	var screen := _current_screen()
+	if screen != null and screen.has_method("open"):
+		_configure(screen, _current, {})
+
+
+func _current_screen() -> Control:
+	return _screens.get(_current) as Control
+
+
+# Autoloads are looked up by path: the screen is also instantiated by headless
+# tests directly, where bare UiTransition identifiers do not resolve.
+func _instant() -> bool:
+	var transition := get_node_or_null("/root/UiTransition")
+	return transition != null and bool(transition.get("instant"))
+
+
+func _ensure(view: String) -> Control:
+	if _screens.has(view):
+		return _screens[view] as Control
+	var path := str(SCREENS.get(view, ""))
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return null
+	var script := load(path) as Script
+	if script == null:
+		return null
+	var screen := script.new() as Control
+	if screen == null:
+		return null
+	screen.name = view.capitalize()
+	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	screen.visible = false
+	screen.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(screen)
+	_screens[view] = screen
+	if screen.has_signal("navigate"):
+		screen.connect("navigate", _on_navigate)
+	if screen.has_signal("closed"):
+		screen.connect("closed", _on_closed)
+	if screen.has_signal("changed"):
+		screen.connect("changed", _on_changed)
+	if screen.has_signal("tab_requested"):
+		screen.connect("tab_requested", func(delta: int) -> void: tab_requested.emit(delta))
+	if screen.has_signal("edge_requested"):
+		screen.connect("edge_requested", func(direction: Vector2i) -> void:
+			edge_requested.emit(direction))
+	if screen.has_signal("scout_requested"):
+		screen.connect("scout_requested", _on_scout_requested)
+	if screen.has_signal("applied"):
+		screen.connect("applied", _on_filters_applied)
+	if screen.has_signal("state_changed"):
+		screen.connect("state_changed", func() -> void: view_changed.emit())
+	return screen
+
+
+func _show(view: String, payload: Dictionary) -> void:
+	if not _open:
+		return
+	var screen := _ensure(view)
+	if screen == null:
+		return
+	if _busy:
+		return
+	if _current == view and screen.visible:
+		_configure(screen, view, payload)
+		view_changed.emit()
+		return
+	var previous := _current_screen()
+	_busy = true
+	var swap := func() -> void:
+		if previous != null:
+			previous.visible = false
+			if previous.has_method("close"):
+				previous.close()
+		_current = view
+		_configure(screen, view, payload)
+		if screen.has_method("set_shell_focused"):
+			screen.set_shell_focused(_shell_focused)
+		screen.visible = true
+		screen.modulate.a = 1.0
+		screen.scale = Vector2.ONE
+	if _instant() or previous == null or not is_inside_tree():
+		swap.call()
+		_busy = false
+		view_changed.emit()
+		return
+	pivot_offset = size * 0.5
+	screen.pivot_offset = size * 0.5
+	var out := create_tween().set_parallel(true)
+	out.tween_property(previous, "modulate:a", 0.0, 0.15)
+	out.tween_property(previous, "scale", Vector2(0.96, 0.96), 0.15)
+	out.finished.connect(func() -> void:
+		swap.call()
+		screen.modulate.a = 0.0
+		screen.scale = Vector2(0.96, 0.96)
+		var enter := create_tween().set_parallel(true)
+		enter.tween_property(screen, "modulate:a", 1.0, 0.24)
+		enter.tween_property(screen, "scale", Vector2.ONE, 0.24)
+		enter.finished.connect(func() -> void:
+			_busy = false
+			view_changed.emit()))
+
+
+func _configure(screen: Control, view: String, payload: Dictionary) -> void:
+	if _career == null or _catalog == null:
+		return
+	match view:
+		"filters":
+			screen.setup(_filters, _reference())
+		"results":
+			screen.setup(_career, _catalog, {"filters": _filters})
+		_:
+			if screen.has_method("open"):
+				screen.open(_career, _catalog, payload)
+			elif screen.has_method("setup"):
+				screen.setup(_career, _catalog, payload)
+
+
+func _reference() -> Dictionary:
+	var reference := CareerSearch.filter_reference(_catalog)
+	reference["clubs"] = _catalog.career_clubs() \
+		if _catalog.has_method("career_clubs") else []
+	return reference
+
+
+func _on_navigate(view: String, payload: Dictionary) -> void:
+	if _busy:
+		return
+	match view:
+		"filters":
+			_show("filters", {})
+		"results":
+			_show("results", payload)
+		"centre":
+			_show("centre", payload)
+		"history":
+			_show("history", {})
+		"network":
+			_show("network", payload)
+		"offer":
+			payload["back_view"] = _current
+			_show("offer", payload)
+		"contract":
+			payload["back_view"] = _current
+			_show("contract", payload)
+		"exit":
+			exit_requested.emit()
+		_:
+			_show(view, payload)
+
+
+func _on_closed() -> void:
+	if _busy:
+		return
+	if _current == "hub":
+		exit_requested.emit()
+		return
+	_show(str(PARENT.get(_current, "hub")), {})
+
+
+func _on_changed() -> void:
+	if _career == null:
+		return
+	_career.touch()
+	var store := CareerSession.store if CareerSession.store != null else CareerSaveStore.new()
+	if store.save(_career):
+		CareerSession.store = store
+	changed.emit()
+
+
+func _on_scout_requested(_player_id: String, _scout_id: String) -> void:
+	# Scouting is wired by the hub once the scouting screen lands; the action
+	# itself lives in CareerScouting and needs only ids.
+	var script := load("res://scripts/career/career_scouting.gd")
+	if script == null or _career == null or _catalog == null:
+		return
+	script.call("assign", _career, _catalog, _scout_id, _player_id)
+	_on_changed()
+
+
+func _on_filters_applied(filters: Dictionary) -> void:
+	_filters = filters
+	if _current == "filters":
+		_show("results", {"filters": _filters})

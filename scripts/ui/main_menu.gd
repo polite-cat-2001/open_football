@@ -10,6 +10,7 @@ const CAREER_HUB_SCENE := "res://scenes/career_hub.tscn"
 
 const PLAY_TAB := 0
 const SETTINGS_TAB := 1
+const FocusGrid := preload("res://scripts/ui/ui_focus_grid.gd")
 
 const SETTINGS_NOTES := {
 	"GAMEPLAY": "Difficulty, assists and match length.",
@@ -97,6 +98,9 @@ func _layout() -> void:
 	if layout_canvas() <= 0.0:
 		return
 	_apply_view_state()
+	# Only a real layout change re-measures the tabs; doing it on every tab
+	# switch snapped the sliding marker instead of animating it.
+	tab_bar.refresh_layout()
 	_position_brand()
 
 
@@ -133,7 +137,6 @@ func _apply_view_state() -> void:
 		)
 
 		hints.size = Vector2(UiTokens.PANEL_W, hints_height)
-		_update_focus_chain()
 		return
 
 	var total_height := UiTokens.TAB_H + UiTokens.GAP + UiTokens.GRID_H + UiTokens.HINTS_GAP + hints_height
@@ -143,7 +146,6 @@ func _apply_view_state() -> void:
 
 	tab_bar.position = Vector2.ZERO
 	tab_bar.size = Vector2(UiTokens.PANEL_W, UiTokens.TAB_H)
-	tab_bar.refresh_layout()
 
 	var grid_position := Vector2(0.0, UiTokens.TAB_H + UiTokens.GAP)
 	var grid_size := Vector2(UiTokens.PANEL_W, UiTokens.GRID_H)
@@ -158,7 +160,6 @@ func _apply_view_state() -> void:
 
 	hints.position = Vector2(0.0, grid_position.y + UiTokens.GRID_H + UiTokens.HINTS_GAP)
 	hints.size = Vector2(UiTokens.PANEL_W, hints_height)
-	_update_focus_chain()
 
 
 func _position_brand() -> void:
@@ -174,59 +175,6 @@ func _focus_initial() -> void:
 	_apply_view_state()
 	quick_tile.grab_focus()
 	_zone = Zone.GRID
-
-
-func _update_focus_chain() -> void:
-	var tab_play := tab_bar.get_tab_button(PLAY_TAB)
-	var tab_settings := tab_bar.get_tab_button(SETTINGS_TAB)
-	if tab_play == null or tab_settings == null:
-		return
-
-	tab_play.focus_next = tab_play.get_path_to(tab_settings)
-	tab_play.focus_neighbor_right = tab_play.get_path_to(tab_settings)
-	tab_settings.focus_neighbor_left = tab_settings.get_path_to(tab_play)
-
-	if tab_bar.get_active_tab() == PLAY_TAB:
-		var after_quick := career_tile if continue_tile.disabled else continue_tile
-		var after_career := continue_tile if not continue_tile.disabled else quick_tile
-		tab_settings.focus_next = tab_settings.get_path_to(quick_tile)
-		tab_play.focus_neighbor_bottom = tab_play.get_path_to(quick_tile)
-		tab_settings.focus_neighbor_bottom = tab_settings.get_path_to(quick_tile)
-		quick_tile.focus_next = quick_tile.get_path_to(after_quick)
-		quick_tile.focus_neighbor_right = quick_tile.get_path_to(after_quick)
-		quick_tile.focus_neighbor_bottom = quick_tile.get_path_to(after_quick)
-		quick_tile.focus_neighbor_top = quick_tile.get_path_to(tab_play)
-		continue_tile.focus_next = continue_tile.get_path_to(career_tile)
-		continue_tile.focus_neighbor_left = continue_tile.get_path_to(quick_tile)
-		continue_tile.focus_neighbor_bottom = continue_tile.get_path_to(career_tile)
-		continue_tile.focus_neighbor_top = continue_tile.get_path_to(tab_play)
-		career_tile.focus_next = career_tile.get_path_to(network_tile)
-		career_tile.focus_neighbor_left = career_tile.get_path_to(quick_tile)
-		career_tile.focus_neighbor_right = career_tile.get_path_to(network_tile)
-		career_tile.focus_neighbor_top = career_tile.get_path_to(after_career)
-		network_tile.focus_next = network_tile.get_path_to(tab_play)
-		network_tile.focus_neighbor_left = network_tile.get_path_to(career_tile)
-		network_tile.focus_neighbor_top = network_tile.get_path_to(after_career)
-	else:
-		tab_settings.focus_next = tab_settings.get_path_to(gameplay_tile)
-		tab_play.focus_neighbor_bottom = tab_play.get_path_to(gameplay_tile)
-		tab_settings.focus_neighbor_bottom = tab_settings.get_path_to(gameplay_tile)
-		gameplay_tile.focus_next = gameplay_tile.get_path_to(controls_tile)
-		controls_tile.focus_next = controls_tile.get_path_to(graphics_tile)
-		graphics_tile.focus_next = graphics_tile.get_path_to(audio_tile)
-		audio_tile.focus_next = audio_tile.get_path_to(tab_play)
-		gameplay_tile.focus_neighbor_right = gameplay_tile.get_path_to(controls_tile)
-		controls_tile.focus_neighbor_left = controls_tile.get_path_to(gameplay_tile)
-		graphics_tile.focus_neighbor_right = graphics_tile.get_path_to(audio_tile)
-		audio_tile.focus_neighbor_left = audio_tile.get_path_to(graphics_tile)
-		gameplay_tile.focus_neighbor_bottom = gameplay_tile.get_path_to(graphics_tile)
-		graphics_tile.focus_neighbor_top = graphics_tile.get_path_to(gameplay_tile)
-		controls_tile.focus_neighbor_bottom = controls_tile.get_path_to(audio_tile)
-		audio_tile.focus_neighbor_top = audio_tile.get_path_to(controls_tile)
-		gameplay_tile.focus_neighbor_top = gameplay_tile.get_path_to(tab_settings)
-		controls_tile.focus_neighbor_top = controls_tile.get_path_to(tab_settings)
-		graphics_tile.focus_neighbor_top = graphics_tile.get_path_to(gameplay_tile)
-		audio_tile.focus_neighbor_top = audio_tile.get_path_to(controls_tile)
 
 
 func _on_nav_moved(direction: Vector2i) -> void:
@@ -252,56 +200,37 @@ func _focus_active_tab() -> void:
 
 
 func _move_in_grid(direction: Vector2i) -> void:
-	var focus := get_viewport().gui_get_focus_owner()
-	if tab_bar.get_active_tab() == PLAY_TAB:
-		var after_quick := career_tile if continue_tile.disabled else continue_tile
-		var after_career := continue_tile if not continue_tile.disabled else quick_tile
-		if focus == quick_tile:
-			if direction == Vector2i.UP:
-				_focus_active_tab()
-			elif direction == Vector2i.RIGHT or direction == Vector2i.DOWN:
-				after_quick.grab_focus()
-		elif focus == continue_tile:
-			if direction == Vector2i.LEFT:
-				quick_tile.grab_focus()
-			elif direction == Vector2i.DOWN:
-				career_tile.grab_focus()
-			elif direction == Vector2i.UP:
-				_focus_active_tab()
-		elif focus == career_tile:
-			if direction == Vector2i.LEFT:
-				quick_tile.grab_focus()
-			elif direction == Vector2i.RIGHT:
-				network_tile.grab_focus()
-			elif direction == Vector2i.UP:
-				after_career.grab_focus()
-		elif focus == network_tile:
-			if direction == Vector2i.LEFT:
-				career_tile.grab_focus()
-			elif direction == Vector2i.UP:
-				after_career.grab_focus()
-		else:
-			quick_tile.grab_focus()
-	else:
-		var order := [gameplay_tile, controls_tile, graphics_tile, audio_tile]
-		var index := order.find(focus)
-		if index == -1:
-			order[0].grab_focus()
-			return
-		var target := index
-		if direction == Vector2i.LEFT and index in [1, 3]:
-			target = index - 1
-		elif direction == Vector2i.RIGHT and index in [0, 2]:
-			target = index + 1
-		elif direction == Vector2i.UP and index in [2, 3]:
-			target = index - 2
-		elif direction == Vector2i.UP:
-			_focus_active_tab()
-			return
-		elif direction == Vector2i.DOWN and index in [0, 1]:
-			target = index + 2
-		if target != index:
-			order[target].grab_focus()
+	var neighbour := _focus_grid_neighbour(direction)
+	if neighbour != null:
+		neighbour.grab_focus()
+		return
+	if direction == Vector2i.UP:
+		_focus_active_tab()
+	elif direction == Vector2i.LEFT or direction == Vector2i.RIGHT:
+		# Focus was on a tile, so the new page opens on its top-left tile.
+		_switch_tab(-1 if direction == Vector2i.LEFT else 1)
+
+
+# Nearest focusable tile in the pushed direction, measured on the real rects:
+# the hero spans two rows, so a row/column map would send Down to the wrong
+# neighbour (e.g. Quick Match -> Continue Career instead of Career).
+func _focus_grid_neighbour(direction: Vector2i) -> Control:
+	var current := get_viewport().gui_get_focus_owner() as Control
+	var grid := play_grid if tab_bar.get_active_tab() == PLAY_TAB else settings_grid
+	if current == null or not grid.is_ancestor_of(current):
+		return null
+	var tiles: Array[Control] = []
+	var rects: Array[Rect2] = []
+	for child in grid.get_children():
+		var tile := child as Control
+		if tile == null or not tile.is_visible_in_tree() \
+				or tile.focus_mode == Control.FOCUS_NONE:
+			continue
+		tiles.append(tile)
+		rects.append(tile.get_global_rect())
+	var index := FocusGrid.neighbour(rects, current.get_global_rect(), direction,
+		UiTokens.SELECTED_PUSH * 2.0)
+	return tiles[index] if index >= 0 else null
 
 
 func _on_nav_confirmed() -> void:
@@ -467,6 +396,25 @@ func _apply_close_panel() -> void:
 func _on_device_changed(gamepad: bool) -> void:
 	hints.setup(_gamepad_hints() if gamepad else _keyboard_hints())
 	_apply_view_state()
+
+
+func _input(event: InputEvent) -> void:
+	if _panel_open:
+		return
+	if _is_key(event, KEY_Q):
+		get_viewport().set_input_as_handled()
+		_on_nav_tab_previous()
+	elif _is_key(event, KEY_E):
+		get_viewport().set_input_as_handled()
+		_on_nav_tab_next()
+
+
+func _is_key(event: InputEvent, code: Key) -> bool:
+	if not (event is InputEventKey):
+		return false
+	var key := event as InputEventKey
+	return key.pressed and not key.echo \
+		and (key.keycode == code or key.physical_keycode == code)
 
 
 func _keyboard_hints() -> Array:

@@ -25,6 +25,7 @@ func _ready() -> void:
 	add_to_group(&"ui_shell")
 	panel_wrap.add_to_group(&"ui_transition_target")
 	theme = UiTheme.load_or_build()
+	CareerWarmup.start(self, CareerWarmup.ENTRY + CareerWarmup.TRANSFERS)
 	breadcrumb.set_items(["CAREER", "LOAD"])
 	var box := StyleBoxFlat.new()
 	box.bg_color = UiTokens.TILE

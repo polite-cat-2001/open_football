@@ -179,8 +179,69 @@ func _check_navigation() -> void:
 	await _frames(4)
 	_check(tab.get_active_tab() == 0, "LB switches back to Play")
 
+	# The hero spans two rows: Down follows the layout (Career), not the old
+	# hand-written neighbour (Continue Career). An edge push pages the tab.
+	var quick := screen.get_node("Design/PanelWrap/PlayGrid/QuickMatchTile") as BentoTile
+	var career := screen.get_node("Design/PanelWrap/PlayGrid/CareerTile") as BentoTile
+	var network := screen.get_node("Design/PanelWrap/PlayGrid/NetworkTile") as BentoTile
+	_check(quick.has_focus(), "Play opens on the Quick Match hero")
+	ui_nav.moved.emit(Vector2i.DOWN)
+	await _frames(2)
+	_check(viewport.gui_get_focus_owner() == career,
+		"DOWN from the hero reaches Career, not Continue Career")
+	ui_nav.moved.emit(Vector2i.RIGHT)
+	await _frames(2)
+	_check(viewport.gui_get_focus_owner() == network, "RIGHT from Career reaches Network")
+	ui_nav.moved.emit(Vector2i.RIGHT)
+	await _frames(3)
+	_check(tab.get_active_tab() == 1 and viewport.gui_get_focus_owner() == gameplay,
+		"RIGHT at the Play edge opens Settings on its top-left tile")
+	ui_nav.moved.emit(Vector2i.LEFT)
+	await _frames(3)
+	_check(tab.get_active_tab() == 0 and viewport.gui_get_focus_owner() == quick,
+		"LEFT at the Settings edge opens Play on the hero")
+
+	# Q/E page the tabs here too (they were keyboard-dead in this screen).
+	# From the strip the strip keeps focus; from a tile the page's first tile
+	# takes it.
+	ui_nav.moved.emit(Vector2i.UP)
+	await _frames(2)
+	_nav_key(screen, KEY_E)
+	await _frames(3)
+	_check(tab.get_active_tab() == 1
+		and viewport.gui_get_focus_owner() == tab.get_tab_button(1),
+		"E on the strip pages to Settings")
+	_nav_key(screen, KEY_Q)
+	await _frames(3)
+	_check(tab.get_active_tab() == 0
+		and viewport.gui_get_focus_owner() == tab.get_tab_button(0),
+		"Q on the strip pages back to Play")
+	ui_nav.moved.emit(Vector2i.DOWN)
+	await _frames(2)
+	_nav_key(screen, KEY_E)
+	await _frames(3)
+	_check(tab.get_active_tab() == 1 and viewport.gui_get_focus_owner() == gameplay,
+		"E from a tile lands on the first tile of the new page")
+
+	# The marker must slide, not snap: re-measuring the bar on every switch
+	# used to kill its tween.
+	var marker: Control = tab.get("_marker")
+	_nav_key(screen, KEY_Q)
+	await _frames(1)
+	_check(marker.position.x > 1.0, "the tab marker starts travelling")
+	await create_timer(0.35).timeout
+	_check(absf(marker.position.x) < 0.5, "the tab marker reaches the Play tab")
+
 	viewport.queue_free()
 	await _frames(1)
+
+
+func _nav_key(screen: Node, code: Key) -> void:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.physical_keycode = code
+	event.pressed = true
+	screen.call("_input", event)
 
 
 func _joy(button: int) -> void:

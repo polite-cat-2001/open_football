@@ -110,7 +110,24 @@ func _run() -> void:
 
 	_check_missing_database()
 	_check_corrupt_database()
+	await _check_warm_search_rows(catalog)
 	_finish()
+
+
+func _check_warm_search_rows(catalog: TeamCatalog) -> void:
+	# The career screens warm the 120k-row player walk on a worker thread; the
+	# first search must then come from that result instead of walking again.
+	catalog.warm_search_rows()
+	for step in 20000:
+		if catalog.search_rows_ready():
+			break
+		await process_frame
+	_check(catalog.search_rows_ready(), "the warm-up walk finishes on its worker")
+	var rows := catalog.career_search_rows()
+	_check(rows.size() > 100000, "the warm-up walk reads the whole players table (%d)" % rows.size())
+	var first: Dictionary = rows[0]
+	_check(first.has("id") and first.has("team_id") and first.has("birth_date"),
+		"a warmed row carries the search columns")
 
 
 func _check_rating_math() -> void:

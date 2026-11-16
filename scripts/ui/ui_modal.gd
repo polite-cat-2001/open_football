@@ -134,6 +134,7 @@ func _build() -> void:
 	_scrim = ColorRect.new()
 	_scrim.color = SCRIM
 	_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_scrim.gui_input.connect(_on_scrim_input)
 	add_child(_scrim)
 
 	_panel = PanelContainer.new()
@@ -260,6 +261,15 @@ func activate_focused() -> void:
 
 func _on_row_pressed(id: String) -> void:
 	action_chosen.emit(id)
+
+
+# A click on the dark backdrop cancels; the plate itself stops the mouse.
+func _on_scrim_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse := event as InputEventMouseButton
+	if mouse.pressed and mouse.button_index == MOUSE_BUTTON_LEFT:
+		close()
 
 
 func _layout() -> void:

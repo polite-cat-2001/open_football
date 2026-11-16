@@ -1,0 +1,65 @@
+{
+ "career": {
+  "club_id": "131",
+  "seed": 42,
+  "date": "2026-07-09",
+  "created_at": "2026-07-01T00:00:00.000000Z",
+  "manager_name": "Golden Manager",
+  "manager_nationality_id": "189"
+ },
+ "tick_date": "2026-07-09",
+ "events": [
+  "incoming"
+ ],
+ "incoming_market_date": "2026-07-09",
+ "world_market_date": "2026-07-09",
+ "offers": [
+  {
+   "offer_id": "5397a046c8ee8f54",
+   "player_id": "561613",
+   "player_name": "Joan García",
+   "overall": 80.9,
+   "club_id": "989",
+   "club_name": "AFC Bournemouth",
+   "club_logo": "/raster/teams_emblems/989.png",
+   "club_country_id": "189",
+   "club_country_name": "England",
+   "club_league_name": "Premier League",
+   "kind": "loan",
+   "amount": 3480000,
+   "loan_fee": 3480000,
+   "wage_share": 50,
+   "demand": {
+    "amount": 3480000,
+    "loan_fee": 3480000,
+    "wage_share": 50
+   },
+   "status": "pending",
+   "created_at": "2026-07-03",
+   "expires_at": "2026-08-02",
+   "due": null,
+   "counter": null,
+   "unread": true,
+   "message": "The club is waiting for your answer.",
+   "can_accept": true,
+   "can_refuse": true,
+   "can_counter": true,
+   "execute_on": null
+  }
+ ],
+ "world_transfers": 0,
+ "repeat": {
+  "events": [],
+  "offers": 1,
+  "world_transfers": 0
+ },
+ "next_window": {
+  "events": [
+   "incoming",
+   "world"
+  ],
+  "offers": 5,
+  "world_transfers": 140,
+  "world_market_date": "2026-08-01"
+ }
+}

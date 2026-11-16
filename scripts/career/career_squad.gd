@@ -192,6 +192,11 @@ static func _ensure_contracts(career: Career, players: Array) -> void:
 	career.player_contracts = contracts
 
 
+static func ensure_shirt_numbers(career: Career, players: Array) -> void:
+	# Used after a signing: the new player has to get a free number immediately.
+	_ensure_shirt_numbers(career, players)
+
+
 static func _ensure_shirt_numbers(career: Career, players: Array) -> void:
 	var ordered: Array = players.duplicate()
 	ordered.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
@@ -238,10 +243,8 @@ static func _player_age(player: Dictionary) -> int:
 	return int(age) if age != null else 25
 
 
-static func _rng(career: Career, player_id: String, salt: String) -> RandomNumberGenerator:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = ("%d:contract:%s:%s" % [career.seed, player_id, salt]).hash()
-	return rng
+static func _rng(career: Career, player_id: String, salt: String) -> CareerRng:
+	return CareerRng.seeded("%d:contract:%s:%s" % [career.seed, player_id, salt])
 
 
 static func _contract_years(career: Career, player: Dictionary, player_id: String) -> int:
@@ -258,7 +261,7 @@ static func _contract_years(career: Career, player: Dictionary, player_id: Strin
 	else:
 		options = [1, 2]
 	var rng := _rng(career, player_id, "years")
-	return int(options[rng.randi_range(0, options.size() - 1)])
+	return int(rng.choice(options))
 
 
 static func _weekly_wage(career: Career, player: Dictionary, player_id: String) -> int:
@@ -272,15 +275,15 @@ static func _weekly_wage(career: Career, player: Dictionary, player_id: String) 
 	elif age > 23:
 		age_factor = 1.0
 	var rng := _rng(career, player_id, "wage")
-	var jitter := rng.randf_range(0.9, 1.1)
+	var jitter := rng.uniform(0.9, 1.1)
 	var weekly := float(value) * 0.12 * age_factor * jitter / 52.0
-	return maxi(MIN_WEEKLY_WAGE, int(round(weekly / 100.0) * 100.0))
+	return maxi(MIN_WEEKLY_WAGE, CareerRng.python_round(weekly / 100.0) * 100)
 
 
 static func _release_clause(career: Career, player: Dictionary, player_id: String) -> int:
 	var value := maxi(MIN_MARKET_VALUE, int(player.get("market_value", 0)))
 	var rng := _rng(career, player_id, "clause")
-	var multiplier := rng.randf_range(1.2, 2.0)
+	var multiplier := rng.uniform(1.2, 2.0)
 	var rounded := _round_money(float(value) * multiplier)
 	return maxi(int(float(value) * 1.2), mini(int(float(value) * 2.0), rounded))
 
@@ -293,7 +296,7 @@ static func _round_money(value: float) -> int:
 		step = 10000
 	elif value >= 10000.0:
 		step = 1000
-	return maxi(step, int(round(value / float(step)) * step))
+	return maxi(step, CareerRng.python_round(value / float(step)) * step)
 
 
 static func enrich_players(career: Career, players: Array) -> Array:

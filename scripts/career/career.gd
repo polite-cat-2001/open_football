@@ -139,6 +139,111 @@ var player_transfers: Dictionary:
 		data["player_transfers"] = value
 
 
+var negotiations: Dictionary:
+	# Contract-renewal talks with own players (server/career/squad.py).
+	get:
+		if not (data.get("negotiations") is Dictionary):
+			data["negotiations"] = {}
+		return data["negotiations"]
+	set(value):
+		data["negotiations"] = value
+
+
+var transfer_offers: Array:
+	get:
+		if not (data.get("transfer_offers") is Array):
+			data["transfer_offers"] = []
+		return data["transfer_offers"]
+	set(value):
+		data["transfer_offers"] = value
+
+
+var transfer_contracts: Dictionary:
+	get:
+		if not (data.get("transfer_contracts") is Dictionary):
+			data["transfer_contracts"] = {}
+		return data["transfer_contracts"]
+	set(value):
+		data["transfer_contracts"] = value
+
+
+var pending_transfers: Array:
+	get:
+		if not (data.get("pending_transfers") is Array):
+			data["pending_transfers"] = []
+		return data["pending_transfers"]
+	set(value):
+		data["pending_transfers"] = value
+
+
+var transfer_history: Array:
+	get:
+		if not (data.get("transfer_history") is Array):
+			data["transfer_history"] = []
+		return data["transfer_history"]
+	set(value):
+		data["transfer_history"] = value
+
+
+var shortlist: Array:
+	get:
+		if not (data.get("shortlist") is Array):
+			data["shortlist"] = []
+		return data["shortlist"]
+	set(value):
+		data["shortlist"] = value
+
+
+var pending_departures: Array:
+	get:
+		if not (data.get("pending_departures") is Array):
+			data["pending_departures"] = []
+		return data["pending_departures"]
+	set(value):
+		data["pending_departures"] = value
+
+
+var incoming_offers: Array:
+	get:
+		if not (data.get("incoming_offers") is Array):
+			data["incoming_offers"] = []
+		return data["incoming_offers"]
+	set(value):
+		data["incoming_offers"] = value
+
+
+var world_transfers: Array:
+	get:
+		if not (data.get("world_transfers") is Array):
+			data["world_transfers"] = []
+		return data["world_transfers"]
+	set(value):
+		data["world_transfers"] = value
+
+
+var club_deltas: Dictionary:
+	get:
+		if not (data.get("club_deltas") is Dictionary):
+			data["club_deltas"] = {}
+		return data["club_deltas"]
+	set(value):
+		data["club_deltas"] = value
+
+
+var incoming_market_date: String:
+	get:
+		return str(data.get("incoming_market_date", ""))
+	set(value):
+		data["incoming_market_date"] = value
+
+
+var world_market_date: String:
+	get:
+		return str(data.get("world_market_date", ""))
+	set(value):
+		data["world_market_date"] = value
+
+
 var balance:
 	get:
 		return data.get("balance")
@@ -219,6 +324,9 @@ static func from_save(raw: Dictionary) -> Career:
 	payload["club_id"] = str(payload["club_id"])
 	payload["player_ids"] = _string_array(payload["player_ids"])
 	payload["journal"] = payload.get("journal", []) if payload.get("journal") is Array else []
+	for entry in payload["journal"]:
+		if entry is Dictionary and entry.get("seq") != null:
+			entry["seq"] = _as_int(entry["seq"], 0)
 
 	if payload.has("league_id") and payload["league_id"] != null:
 		payload["league_id"] = str(payload["league_id"])
@@ -259,6 +367,32 @@ static func from_save(raw: Dictionary) -> Career:
 		for player_id in payload["player_transfers"]:
 			transfers[str(player_id)] = str(payload["player_transfers"][player_id])
 		payload["player_transfers"] = transfers
+	# Transfer state: the prototype's from_save drops every offer but the last
+	# one per player and keeps the nested term dictionaries as dictionaries.
+	# Keys an old save does not carry stay absent: the getters create them on
+	# first write, so loading and re-saving such a career does not change it.
+	for key in ["transfer_offers", "incoming_offers"]:
+		if payload.has(key):
+			payload[key] = _offer_list(payload[key])
+	if payload.has("pending_departures"):
+		payload["pending_departures"] = _dict_list(payload["pending_departures"])
+	if payload.has("world_transfers"):
+		payload["world_transfers"] = _dict_list(payload["world_transfers"])
+	if payload.has("transfer_history"):
+		payload["transfer_history"] = _history_list(payload["transfer_history"])
+	if payload.has("pending_transfers"):
+		payload["pending_transfers"] = _pending_list(payload["pending_transfers"])
+	if payload.has("transfer_contracts"):
+		payload["transfer_contracts"] = _contract_map(payload["transfer_contracts"])
+	if payload.has("negotiations"):
+		payload["negotiations"] = _negotiation_map(payload["negotiations"])
+	if payload.has("shortlist"):
+		payload["shortlist"] = _string_array(payload["shortlist"])
+	if payload.has("club_deltas"):
+		payload["club_deltas"] = _delta_map(payload["club_deltas"])
+	for key in ["incoming_market_date", "world_market_date"]:
+		if payload.has(key):
+			payload[key] = "" if payload[key] == null else str(payload[key])
 	if payload.has("balance") and payload["balance"] != null:
 		payload["balance"] = _as_int(payload["balance"], 0)
 
@@ -320,6 +454,133 @@ static func _string_array(value) -> Array:
 		for item in value:
 			out.append(str(item))
 	return out
+
+
+static func _dict_list(value) -> Array:
+	var out: Array = []
+	if value is Array:
+		for item in value:
+			if item is Dictionary:
+				out.append(item.duplicate(true))
+	return out
+
+
+static func _offer_list(value) -> Array:
+	# Python's from_save walks the offers backwards and keeps the first offer it
+	# meets per player, so a save with several offers for one player keeps the
+	# newest one and the original order of the rest.
+	var kept: Array = []
+	var seen := {}
+	if value is Array:
+		for index in range((value as Array).size() - 1, -1, -1):
+			var item = value[index]
+			if not (item is Dictionary):
+				continue
+			var player_id := str(item.get("player_id", ""))
+			if seen.has(player_id):
+				continue
+			seen[player_id] = true
+			var offer: Dictionary = item.duplicate(true)
+			offer["counter"] = _term_dict(offer.get("counter"))
+			offer["demand"] = _term_dict(offer.get("demand"))
+			_int_fields(offer, ["amount", "loan_fee", "wage_share", "counter_offers"])
+			kept.push_front(offer)
+	return kept
+
+
+static func _pending_list(value) -> Array:
+	var out: Array = []
+	if value is Array:
+		for item in value:
+			if not (item is Dictionary):
+				continue
+			var copy: Dictionary = item.duplicate(true)
+			copy["terms"] = _term_dict(copy.get("terms"))
+			_int_fields(copy, ["fee", "loan_fee", "wage_share", "market_value", "age"])
+			out.append(copy)
+	return out
+
+
+static func _contract_map(value) -> Dictionary:
+	var out := {}
+	if value is Dictionary:
+		for player_id in value:
+			var state = value[player_id]
+			if not (state is Dictionary):
+				continue
+			var copy: Dictionary = state.duplicate(true)
+			for key in ["demand", "offer", "counter", "agreed"]:
+				copy[key] = _term_dict(copy.get(key))
+			_int_fields(copy, ["fee", "loan_fee", "wage_share", "counter_offers",
+				"rounds", "value"])
+			out[str(player_id)] = copy
+	return out
+
+
+static func _negotiation_map(value) -> Dictionary:
+	# Renewal talks keep only the keys the prototype writes; terms come back
+	# from JSON as floats and are cast back to the prototype's integers.
+	var out := {}
+	if value is Dictionary:
+		for player_id in value:
+			var state = value[player_id]
+			if not (state is Dictionary):
+				continue
+			var copy: Dictionary = state.duplicate(true)
+			for key in ["demand", "offer", "counter"]:
+				if copy.has(key):
+					copy[key] = _term_dict(copy.get(key))
+			_int_fields(copy, ["counter_offers", "rounds"])
+			out[str(player_id)] = copy
+	return out
+
+
+static func _delta_map(value) -> Dictionary:
+	var out := {}
+	if value is Dictionary:
+		for club_id in value:
+			var delta = value[club_id]
+			if not (delta is Dictionary):
+				continue
+			out[str(club_id)] = {
+				"in": _string_array(delta.get("in")),
+				"out": _string_array(delta.get("out")),
+			}
+	return out
+
+
+static func _history_list(value) -> Array:
+	var out := _dict_list(value)
+	for record in out:
+		_int_fields(record, ["fee"])
+		if record.get("overall") != null:
+			record["overall"] = float(record["overall"])
+	return out
+
+
+static func _int_fields(target: Dictionary, keys: Array) -> void:
+	for key in keys:
+		var value = target.get(key)
+		if value == null:
+			continue
+		target[key] = _as_int(value, 0)
+
+
+static func _term_dict(value):
+	# Contract/offer terms are integers in the prototype; JSON hands them back
+	# as floats, so a re-save would otherwise change every amount's type.
+	if not (value is Dictionary):
+		return null
+	var copy: Dictionary = value.duplicate(true)
+	for key in copy:
+		if copy[key] is float and is_equal_approx(float(copy[key]),
+				roundf(float(copy[key]))):
+			copy[key] = int(copy[key])
+	return copy
+
+
+static func _dict_or_null(value):
+	return value.duplicate(true) if value is Dictionary else null
 
 
 static func _as_int(value, fallback: int) -> int:

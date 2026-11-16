@@ -263,13 +263,27 @@ func play_advance_in() -> void:
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
+func _init_boxes() -> void:
+	# The calendar hero is the dark card of the prototype in every state; focus
+	# only deepens the shadow and adds the lime rule, so the widget never turns
+	# into a translucent white plate when another element owns focus.
+	_normal_box = _make_box(UiTokens.FOCUS_FILL, UiTokens.SHADOW, 22, Vector2(0.0, 18.0))
+	_selected_box = _make_box(UiTokens.FOCUS_FILL, UiTokens.SHADOW_SELECTED, 32,
+		Vector2(0.0, 28.0))
+	_selected_box.border_color = UiTokens.FOCUS_MARK
+	_selected_box.border_width_bottom = 4
+	_disabled_box = _make_box(UiTokens.FOCUS_FILL, UiTokens.SHADOW_DISABLED, 10,
+		Vector2(0.0, 10.0))
+
+
 func _apply_state(animate: bool) -> void:
 	super._apply_state(animate)
 	if _eyebrow == null:
 		return
-	var focused := has_focus() and not disabled
-	var ink := UiTokens.FOCUS_INK if focused else UiTokens.INK
-	var ink_2 := UiTokens.FOCUS_INK_2 if focused else UiTokens.INK_2
+	# Light-on-dark in both states: the plate under it is always navy.
+	_rail.visible = false
+	var ink := UiTokens.FOCUS_INK
+	var ink_2 := UiTokens.FOCUS_INK_2
 	for label in [_eyebrow, _month, _vs, _meta]:
 		label.add_theme_color_override(&"font_color", ink_2)
 	for label in [_headline, _home_name, _away_name]:
@@ -278,12 +292,11 @@ func _apply_state(animate: bool) -> void:
 		(cell["week"] as Label).add_theme_color_override(&"font_color", ink_2)
 		(cell["number"] as Label).add_theme_color_override(&"font_color", ink)
 		(cell["panel"] as Panel).add_theme_stylebox_override(
-			&"panel", _day_box(bool(cell["today"]), bool(cell["match"]), focused))
+			&"panel", _day_box(bool(cell["today"]), bool(cell["match"]), true))
 	for pill in _pills:
 		(pill["label"] as Label).add_theme_color_override(&"font_color", ink)
 		var box := StyleBoxFlat.new()
-		box.bg_color = Color(UiTokens.FOCUS_INK, 0.14) if focused \
-			else Color(UiTokens.INK, 0.12)
+		box.bg_color = Color(UiTokens.FOCUS_INK, 0.14)
 		(pill["panel"] as Panel).add_theme_stylebox_override(&"panel", box)
 
 

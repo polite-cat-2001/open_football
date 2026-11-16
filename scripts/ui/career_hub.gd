@@ -7,12 +7,14 @@ extends UiScreen
 const START_SCENE := "res://scenes/career_start.tscn"
 const MAIN_MENU_SCENE := "res://scenes/main_menu.tscn"
 const ADVANCE_TICK := 1.0
+const FocusGrid := preload("res://scripts/ui/ui_focus_grid.gd")
 
 enum Zone { TABS, GRID }
 
 @onready var panel_wrap: Control = $Design/PanelWrap
 @onready var body: Control = $Design/PanelWrap/Body
 @onready var tab_bar: UiTabBar = $Design/PanelWrap/Body/TabBar
+@onready var breadcrumb: UiBreadcrumb = $Design/PanelWrap/Body/Breadcrumb
 @onready var grid: BentoGrid = $Design/PanelWrap/Body/Grid
 @onready var next_tile: CareerHubNextTile = $Design/PanelWrap/Body/Grid/NextTile
 @onready var play_tile: BentoTile = $Design/PanelWrap/Body/Grid/PlayTile
@@ -23,6 +25,7 @@ enum Zone { TABS, GRID }
 @onready var training_tile: BentoTile = $Design/PanelWrap/Body/Grid/TrainingTile
 @onready var placeholder: UiMenuPanel = $Design/PanelWrap/Body/Placeholder
 @onready var squad_view: CareerSquadView = $Design/PanelWrap/Body/SquadView
+@onready var transfers_view: CareerTransfersView = $Design/PanelWrap/Body/TransfersView
 @onready var hints: UiHintsBar = $Design/PanelWrap/Hints
 @onready var overlay: CareerHubOverlay = $Design/Overlay
 @onready var _match_overlay: CareerMatchOverlay = $Design/MatchOverlay
@@ -31,6 +34,19 @@ enum Zone { TABS, GRID }
 var _plan: GpfGamePlan
 var _plan_open := false
 var _plan_transition := false
+var _squad_screen: Control
+var _squad_screen_kind := ""
+
+const SQUAD_SCREENS := {
+	"renew": "res://scripts/ui/career_negotiation.gd",
+	"number": "res://scripts/ui/career_shirt_number.gd",
+	"release": "res://scripts/ui/career_release.gd",
+}
+const SQUAD_CRUMBS := {
+	"renew": "CONTRACT TALKS",
+	"number": "SHIRT NUMBER",
+	"release": "RELEASE PLAYER",
+}
 
 var _snapshot: Dictionary = {}
 var _career: Career
@@ -59,10 +75,21 @@ func _ready() -> void:
 	if _career == null or CareerSession.catalog == null:
 		call_deferred("_leave", START_SCENE)
 		return
+	# Compiling the career screens is the slow part of the first entry; do it
+	# while the dashboard is up instead of on the next click.
+	CareerWarmup.start(self, CareerWarmup.TRANSFERS)
+	CareerScouting.forget_own_players(_career)
+	# Reading the 120k-row players table takes seconds; do it on a worker thread
+	# while the user reads the dashboard instead of on the first search.
+	CareerSession.catalog.warm_search_rows()
+	var loaded_tick := CareerAdvance.tick(_career, CareerSession.catalog)
 	_snapshot = CareerFactory.snapshot(CareerSession.catalog, _career)
 	if _snapshot.is_empty():
 		call_deferred("_leave", START_SCENE)
 		return
+	if bool(loaded_tick.get("changed", false)):
+		_save()
+		_show_tick_event(loaded_tick.get("events", []))
 
 	overlay.z_index = 10
 	_match_overlay.z_index = 10
@@ -80,13 +107,21 @@ func _ready() -> void:
 	grid.add_cell(transfer_tile, 1, 2)
 	grid.add_cell(news_tile, 2, 2, 2, 1)
 	grid.add_cell(training_tile, 4, 2)
-	for tile in [transfer_tile, news_tile, training_tile]:
+	for tile in [news_tile, training_tile]:
 		tile.focus_mode = Control.FOCUS_NONE
+	transfer_tile.pressed.connect(_open_transfers_tab)
+	transfer_tile.focus_entered.connect(_on_tile_focused)
 	squad_view.setup(_career, CareerSession.catalog)
 	squad_view.changed.connect(_on_squad_changed)
 	squad_view.state_changed.connect(_on_squad_state_changed)
 	squad_view.view_changed.connect(_on_squad_view_changed)
 	squad_view.plan_requested.connect(_open_plan_overlay)
+	squad_view.player_action_requested.connect(_open_squad_screen)
+	transfers_view.changed.connect(_on_transfers_changed)
+	transfers_view.view_changed.connect(_on_transfers_view_changed)
+	transfers_view.exit_requested.connect(_on_transfers_exit)
+	transfers_view.tab_requested.connect(_on_transfers_tab)
+	transfers_view.edge_requested.connect(_on_grid_edge)
 	_plan = GpfGamePlan.new()
 	_plan.name = "GamePlan"
 	_plan.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -117,6 +152,20 @@ func _ready() -> void:
 	theme_changed.connect(_layout)
 	resized.connect(_layout)
 	call_deferred("_focus_initial")
+	call_deferred("_reclaim_focus")
+
+
+# The scene transition swaps scenes under us, so the grab scheduled from _ready
+# can land before the old screen releases the viewport; take it again once the
+# viewport has no owner, but never steal focus from the player.
+func _reclaim_focus() -> void:
+	for step in 8:
+		await get_tree().process_frame
+		if not is_inside_tree():
+			return
+		if get_viewport().gui_get_focus_owner() != null:
+			return
+		_focus_initial()
 
 
 func _apply_snapshot() -> void:
@@ -134,6 +183,9 @@ func _apply_snapshot() -> void:
 		if not was_match_day and not _match_overlay.is_open():
 			call_deferred("_focus_matchday_tile")
 	table_tile.setup(CareerHubModel.table_tile(_snapshot))
+	var unread := CareerIncomingOffers.unread_count(_career)
+	transfer_tile.set_copy("TRANSFER CENTRE", "Offers, talks and signings.", "",
+		"" if unread == 0 else "%d NEW" % unread)
 
 
 func _focus_matchday_tile() -> void:
@@ -149,7 +201,7 @@ func _setup_match_actions(model: Dictionary) -> void:
 	if not (next is Dictionary):
 		return
 	var opponent: Dictionary = next.get("opponent", {})
-	var meta := "ROUND %d · %s · %s" % [
+	var meta := "ROUND %d В· %s В· %s" % [
 		int(next.get("round", 0)),
 		CareerHubModel.short_date(str(next.get("date", ""))),
 		"HOME" if bool(next.get("home", true)) else "AWAY",
@@ -174,13 +226,16 @@ func _layout() -> void:
 	var content_top := UiTokens.TAB_H + UiTokens.GAP
 	body.position = Vector2.ZERO
 	body.size = Vector2(UiTokens.PANEL_W, content_top + UiTokens.GRID_H)
+	if _squad_screen != null:
+		_squad_screen.position = Vector2(0.0, content_top)
+		_squad_screen.size = Vector2(UiTokens.PANEL_W, body.size.y - content_top)
 	tab_bar.position = Vector2.ZERO
 	tab_bar.fit_width()
 	grid.position = Vector2(0.0, content_top)
 	grid.size = Vector2(UiTokens.PANEL_W, UiTokens.GRID_H)
 	placeholder.position = grid.position
 	placeholder.size = grid.size
-	_apply_squad_layout()
+	_apply_tab_layout()
 	hints.position = Vector2(0.0, content_top + UiTokens.GRID_H + UiTokens.HINTS_GAP)
 	hints.size = Vector2(UiTokens.PANEL_W, hints_height)
 	# The overlay is a full shell replacement: it covers the tabs too, like the
@@ -190,54 +245,72 @@ func _layout() -> void:
 
 
 func _focus_initial() -> void:
-	if _tab == 0:
-		if _match_day:
-			play_tile.grab_focus()
-		else:
-			next_tile.grab_focus()
-		_zone = Zone.GRID
-	elif _tab == 1:
-		squad_view.focus_initial()
-		_zone = Zone.GRID
-	else:
-		tab_bar.focus_tab(_tab)
-		_zone = Zone.TABS
+	_focus_tabs()
 
 
 func _apply_tab() -> void:
 	var centre := _tab == 0
 	var squad_tab := _tab == 1
+	var transfers_tab := _tab == 2
 	grid.visible = centre
 	squad_view.visible = squad_tab
-	placeholder.visible = not centre and not squad_tab
+	transfers_view.visible = transfers_tab
+	placeholder.visible = not (centre or squad_tab or transfers_tab)
 	if centre:
 		squad_view.close()
+		transfers_view.close()
 	elif squad_tab:
 		squad_view.open()
+		transfers_view.close()
+	elif transfers_tab:
+		squad_view.close()
+		transfers_view.open(_career, CareerSession.catalog)
 	else:
-		placeholder.setup("%s arrives in a later build." % CareerHubModel.TABS[_tab], [])
-	_apply_squad_layout()
+		# ACADEMY / OFFICE: placeholders until their tickets land.
+		squad_view.close()
+		transfers_view.close()
+		placeholder.setup("", [])
+	_apply_tab_layout()
 	_update_hints()
 
 
-# The plan/centre/details screens replace the whole body: the main tab strip
-# hides and the squad view grows over the space the tabs used.
-func _apply_squad_layout() -> void:
-	if not (_tab == 1 and squad_view.visible):
-		tab_bar.visible = true
+# The plan/centre/details screens and the transfers subviews replace the whole
+# body: the main tab strip hides and the view grows over the space the tabs used.
+func _apply_tab_layout() -> void:
+	if _squad_screen != null:
+		tab_bar.visible = false
+		breadcrumb.visible = true
 		return
-	var overlay := squad_view.current_view() != "overview"
+	var view: Control = null
+	if _tab == 1 and squad_view.visible:
+		view = squad_view
+	elif _tab == 2 and transfers_view.visible:
+		view = transfers_view
+	if view == null:
+		tab_bar.visible = true
+		breadcrumb.visible = false
+		return
+	var overlay := transfers_view.is_overlay() if view == transfers_view \
+		else squad_view.current_view() != "overview"
 	tab_bar.visible = not overlay
+	if view == transfers_view and overlay:
+		breadcrumb.visible = true
+		breadcrumb.set_items(transfers_view.breadcrumb())
+		breadcrumb.position = Vector2.ZERO
+		view.position = Vector2(0.0, UiTokens.TAB_H + UiTokens.GAP)
+		view.size = Vector2(UiTokens.PANEL_W, body.size.y - UiTokens.TAB_H - UiTokens.GAP)
+		return
+	breadcrumb.visible = false
 	if overlay:
-		squad_view.position = Vector2.ZERO
-		squad_view.size = Vector2(UiTokens.PANEL_W, body.size.y)
+		view.position = Vector2.ZERO
+		view.size = Vector2(UiTokens.PANEL_W, body.size.y)
 	else:
-		squad_view.position = grid.position
-		squad_view.size = grid.size
+		view.position = grid.position
+		view.size = grid.size
 
 
 func _on_squad_view_changed(direction: int) -> void:
-	_apply_squad_layout()
+	_apply_tab_layout()
 	_slide_in(squad_view, direction)
 	_update_hints()
 
@@ -246,8 +319,13 @@ func _on_tab_selected(index: int) -> void:
 	_set_section(index, signi(index - _tab))
 
 
-func _switch_section(delta: int) -> void:
-	_set_section(posmod(_tab + delta, CareerHubModel.TABS.size()), delta)
+func _switch_section(delta: int, suppress_landing := false) -> void:
+	var target := posmod(_tab + delta, CareerHubModel.TABS.size())
+	if suppress_landing and target == 2:
+		# The landing reads UiNav itself: drop the same move/tab event that
+		# brings it on screen, or it also walks/activates a card.
+		transfers_view.suppress_event()
+	_set_section(target, delta)
 
 
 func _set_section(index: int, direction: int) -> void:
@@ -256,10 +334,12 @@ func _set_section(index: int, direction: int) -> void:
 		_career.hub_tab = CareerHubModel.TAB_IDS[index]
 	tab_bar.select_tab(index, false)
 	_apply_tab()
-	if _zone == Zone.GRID:
-		_focus_first_tile()
+	# Keep the strip focused only if it already had the focus; coming from a
+	# tile lands on the new page's top-left tile.
+	if _zone == Zone.TABS:
+		_focus_tabs()
 	else:
-		tab_bar.focus_tab(index)
+		_focus_first_tile()
 	_play_section_entrance(direction)
 
 
@@ -270,6 +350,8 @@ func _play_section_entrance(direction: int) -> void:
 		grid.play_entrance(direction)
 	elif _tab == 1:
 		_slide_in(squad_view, direction)
+	elif _tab == 2:
+		_slide_in(transfers_view, direction)
 	else:
 		_slide_in(placeholder, direction)
 
@@ -286,9 +368,24 @@ func _slide_in(node: Control, direction: int) -> void:
 	tween.tween_property(node, "modulate:a", 1.0, 0.16)
 
 
+# A push at the edge of a section's own card grid: Up leaves for the main tab
+# strip, Left/Right page through the sections, like the Centre dashboard.
+func _on_grid_edge(direction: Vector2i) -> void:
+	if _busy or _advancing:
+		return
+	if direction == Vector2i.UP:
+		_focus_active_tab()
+	elif direction == Vector2i.LEFT:
+		_switch_section(-1)
+	elif direction == Vector2i.RIGHT:
+		_switch_section(1)
+
+
 func _on_bar_focused() -> void:
 	_zone = Zone.TABS
-
+	if _tab == 1 and squad_view.visible:
+		squad_view.blur()
+	_update_hints()
 
 func _on_tile_focused() -> void:
 	_zone = Zone.GRID
@@ -303,20 +400,106 @@ func _focus_first_tile() -> void:
 		_zone = Zone.GRID
 	elif _tab == 1:
 		squad_view.focus_initial()
+		# The squad overview is custom-drawn and never takes viewport focus, so
+		# leaving the strip for it would keep the tab button focused and the
+		# strip would stay in its focused look. Drop focus like Centre does.
+		get_viewport().gui_release_focus()
+		_zone = Zone.GRID
+	elif _tab == 2:
+		transfers_view.set_shell_focused(false)
+		transfers_view.focus_initial()
 		_zone = Zone.GRID
 	else:
 		tab_bar.focus_tab(_tab)
 		_zone = Zone.TABS
+	_update_hints()
 
 
 func _focus_active_tab() -> void:
+	_focus_tabs()
+
+
+func _focus_tabs() -> void:
+	if _tab == 1 and squad_view.visible:
+		squad_view.blur()
+	transfers_view.set_shell_focused(true)
 	tab_bar.focus_tab(_tab)
 	_zone = Zone.TABS
+	_update_hints()
+
+
+func _open_transfers_tab() -> void:
+	_set_section(2, 1)
 
 
 # The shared Game Plan screen (same as the prematch hub / match pause) opened
 # full-screen over the hub. It edits MatchLineup models; the career reads them
 # back when the plan closes.
+# Ticket 06 screens (contract talks, shirt number, release) replace the body
+# under a breadcrumb, like the squad plan does.
+func _open_squad_screen(action: String, player_id: String) -> void:
+	if _squad_screen != null or _plan_open or _busy:
+		return
+	var path := str(SQUAD_SCREENS.get(action, ""))
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return
+	var script := load(path) as Script
+	if script == null:
+		return
+	var screen := script.new() as Control
+	if screen == null:
+		return
+	screen.name = "SquadAction"
+	screen.position = Vector2(0.0, UiTokens.TAB_H + UiTokens.GAP)
+	screen.size = Vector2(UiTokens.PANEL_W,
+		body.size.y - UiTokens.TAB_H - UiTokens.GAP)
+	screen.visible = false
+	body.add_child(screen)
+	_squad_screen = screen
+	_squad_screen_kind = action
+	squad_view.visible = false
+	if screen.has_signal("closed"):
+		screen.connect("closed", _close_squad_screen)
+	if screen.has_signal("changed"):
+		screen.connect("changed", _on_squad_screen_changed)
+	screen.call("open", _career, CareerSession.catalog, {"player_id": player_id})
+	screen.visible = true
+	tab_bar.visible = false
+	breadcrumb.visible = true
+	breadcrumb.set_items(["CAREER", "SQUAD",
+		str(SQUAD_CRUMBS.get(action, action.to_upper()))])
+	breadcrumb.position = Vector2.ZERO
+	await _fade_in(screen)
+	if screen.has_method("focus_initial"):
+		screen.focus_initial()
+	_update_hints()
+
+
+func _close_squad_screen() -> void:
+	if _squad_screen == null:
+		return
+	var screen := _squad_screen
+	_squad_screen = null
+	_squad_screen_kind = ""
+	if screen.has_method("close"):
+		screen.close()
+	await _fade_out(screen)
+	screen.queue_free()
+	breadcrumb.visible = false
+	squad_view.visible = _tab == 1
+	_apply_tab_layout()
+	_update_hints()
+	squad_view.focus_initial()
+
+
+func _on_squad_screen_changed() -> void:
+	_snapshot = CareerFactory.snapshot(CareerSession.catalog, _career)
+	_apply_snapshot()
+	squad_view.refresh()
+	_save()
+	_update_hints()
+
+
 func _open_plan_overlay() -> void:
 	if _plan_open or _plan_transition or _busy or _advancing:
 		return
@@ -366,7 +549,7 @@ func _close_plan_overlay() -> void:
 	_apply_snapshot()
 	squad_view.refresh()
 	_save()
-	_apply_squad_layout()
+	_apply_tab_layout()
 	_update_hints()
 	_focus_first_tile()
 
@@ -400,9 +583,38 @@ func _on_nav_moved(direction: Vector2i) -> void:
 		return
 	if _busy or _advancing:
 		return
+	if _squad_screen != null:
+		_update_hints()
+		return
 	if overlay.is_open():
 		if direction == Vector2i.UP or direction == Vector2i.DOWN:
 			overlay.scroll_step(-1 if direction == Vector2i.UP else 1)
+		return
+	# The strip comes first: a custom-drawn section (squad, transfers) also
+	# reads UiNav, so its move handler would eat Left/Right while the tabs have
+	# focus and the sections would never page.
+	if _zone == Zone.TABS:
+		if direction == Vector2i.LEFT:
+			_switch_section(-1)
+		elif direction == Vector2i.RIGHT:
+			_switch_section(1)
+		elif direction == Vector2i.DOWN:
+			_focus_first_tile()
+		return
+	if _tab == 0:
+		# The Centre dashboard follows the tiles' real positions: the next-match
+		# tile spans the top-left, the table the top-right, Transfer Centre sits
+		# under the next-match tile. Edge pushes page sections / reach the tabs.
+		var neighbour := _focus_grid_neighbour(direction)
+		if neighbour != null:
+			neighbour.grab_focus()
+			return
+		if direction == Vector2i.UP:
+			_focus_active_tab()
+		elif direction == Vector2i.LEFT:
+			_switch_section(-1, true)
+		elif direction == Vector2i.RIGHT:
+			_switch_section(1, true)
 		return
 	if _tab == 1 and squad_view.visible:
 		if squad_view.handle_moved(direction):
@@ -412,38 +624,38 @@ func _on_nav_moved(direction: Vector2i) -> void:
 		if direction == Vector2i.UP:
 			_focus_active_tab()
 		elif direction == Vector2i.LEFT:
-			_switch_section(-1)
+			_switch_section(-1, true)
 		elif direction == Vector2i.RIGHT:
-			_switch_section(1)
+			_switch_section(1, true)
 		return
-	if _zone == Zone.TABS:
-		if direction == Vector2i.LEFT:
-			_switch_section(-1)
-		elif direction == Vector2i.RIGHT:
-			_switch_section(1)
-		elif direction == Vector2i.DOWN:
-			_focus_first_tile()
+	if _tab == 2 and transfers_view.visible:
+		# The transfers screens read UiNav themselves; the hub only keeps the
+		# hint bar in sync with their internal mode.
+		_update_hints()
 		return
-	var focus := get_viewport().gui_get_focus_owner()
-	var row: Array = [play_tile, simulation_tile] if _match_day else [next_tile]
-	var index := row.find(focus)
-	if direction == Vector2i.UP:
-		_focus_active_tab()
-	elif direction == Vector2i.LEFT:
-		if focus == table_tile:
-			(row[-1] as Control).grab_focus()
-		elif index > 0:
-			(row[index - 1] as Control).grab_focus()
-		elif index == 0:
-			_switch_section(-1)
-	elif direction == Vector2i.RIGHT:
-		if focus == table_tile:
-			_switch_section(1)
-		elif index >= 0:
-			if index + 1 < row.size():
-				(row[index + 1] as Control).grab_focus()
-			else:
-				table_tile.grab_focus()
+
+
+# Nearest focusable tile in the pushed direction, measured on the real rects:
+# the dashboard's cells have different spans, so a hardcoded row/column map
+# drifts away from what the player sees.
+func _focus_grid_neighbour(direction: Vector2i) -> Control:
+	var current := get_viewport().gui_get_focus_owner() as Control
+	if current == null or not grid.is_ancestor_of(current):
+		return null
+	var tiles: Array[Control] = []
+	var rects: Array[Rect2] = []
+	for child in grid.get_children():
+		var tile := child as Control
+		if tile == null or not tile.is_visible_in_tree() \
+				or tile.focus_mode == Control.FOCUS_NONE:
+			continue
+		tiles.append(tile)
+		rects.append(tile.get_global_rect())
+	# The focused tile is pushed/scaled by a few px; the tolerance keeps a tall
+	# top-row tile recognised as the top row.
+	var index := FocusGrid.neighbour(rects, current.get_global_rect(), direction,
+		UiTokens.SELECTED_PUSH * 2.0)
+	return tiles[index] if index >= 0 else null
 
 
 func _on_nav_confirmed() -> void:
@@ -460,11 +672,17 @@ func _on_nav_confirmed() -> void:
 		return
 	if _busy or overlay.is_open():
 		return
-	if _tab == 1 and squad_view.visible:
-		squad_view.handle_confirmed()
+	if _squad_screen != null:
+		_update_hints()
 		return
 	if _zone == Zone.TABS:
 		_focus_first_tile()
+		return
+	if _tab == 1 and squad_view.visible:
+		squad_view.handle_confirmed()
+		return
+	if _tab == 2 and transfers_view.visible:
+		_update_hints()
 		return
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus is BaseButton and not (focus as BaseButton).disabled:
@@ -481,6 +699,9 @@ func _on_nav_cancelled() -> void:
 		return
 	if _busy or _advancing:
 		return
+	if _squad_screen != null:
+		_update_hints()
+		return
 	if overlay.is_open():
 		_close_overlay()
 		return
@@ -488,32 +709,43 @@ func _on_nav_cancelled() -> void:
 		return
 	if _tab == 1 and squad_view.visible and squad_view.handle_cancelled():
 		return
+	if _tab == 2 and transfers_view.visible:
+		_update_hints()
+		return
 	if _tab != 0:
 		_set_section(0, -1)
 		return
 	_exit()
 
 
-func _on_nav_tab_previous() -> void:
+func _on_nav_tab_previous(suppress_landing := true) -> void:
 	if _plan_open:
 		_plan_action("tab_prev")
 		return
-	if _busy or _advancing or overlay.is_open() or _match_overlay.is_open():
+	if _busy or _advancing or overlay.is_open() or _match_overlay.is_open() \
+			or _squad_screen != null:
 		return
 	if _tab == 1 and squad_view.visible and squad_view.handle_tab(-1):
 		return
-	_switch_section(-1)
+	if _tab == 2 and transfers_view.visible and transfers_view.is_overlay():
+		# A transfers sub-screen (search, centre, offer…) owns the tab keys
+		# itself; on the landing the strip still pages through the sections.
+		return
+	_switch_section(-1, suppress_landing)
 
 
-func _on_nav_tab_next() -> void:
+func _on_nav_tab_next(suppress_landing := true) -> void:
 	if _plan_open:
 		_plan_action("tab_next")
 		return
-	if _busy or _advancing or overlay.is_open() or _match_overlay.is_open():
+	if _busy or _advancing or overlay.is_open() or _match_overlay.is_open() \
+			or _squad_screen != null:
 		return
 	if _tab == 1 and squad_view.visible and squad_view.handle_tab(1):
 		return
-	_switch_section(1)
+	if _tab == 2 and transfers_view.visible and transfers_view.is_overlay():
+		return
+	_switch_section(1, suppress_landing)
 
 
 func _on_squad_state_changed() -> void:
@@ -525,6 +757,35 @@ func _on_squad_changed() -> void:
 	_apply_snapshot()
 	_save()
 	_update_hints()
+
+
+func _on_transfers_view_changed() -> void:
+	_apply_tab_layout()
+	_update_hints()
+
+
+func _on_transfers_changed() -> void:
+	_snapshot = CareerFactory.snapshot(CareerSession.catalog, _career)
+	_apply_snapshot()
+	squad_view.refresh()
+	_save()
+	_update_hints()
+
+
+func _on_transfers_exit() -> void:
+	_set_section(0, -1)
+
+
+func _on_transfers_tab(delta: int) -> void:
+	_switch_section(delta)
+
+
+func _show_tick_event(events: Array) -> void:
+	if events.is_empty():
+		return
+	var last = events[-1]
+	if last is Dictionary:
+		hints.set_status(str(last.get("message", "")))
 
 
 func _on_device_changed(_gamepad: bool) -> void:
@@ -561,14 +822,17 @@ func _input(event: InputEvent) -> void:
 		return
 	if _busy or _advancing or overlay.is_open() or UiNav.is_modal():
 		return
-	if _is_key(event, KEY_Q):
-		get_viewport().set_input_as_handled()
-		_on_nav_tab_previous()
-		return
-	if _is_key(event, KEY_E):
-		get_viewport().set_input_as_handled()
-		_on_nav_tab_next()
-		return
+	if _squad_screen == null and (_tab != 2 or _zone == Zone.TABS):
+		# On the Transfers landing the transfer screen reads Q/E itself, but
+		# while the main strip is focused the hub must page the sections.
+		if _is_key(event, KEY_Q):
+			get_viewport().set_input_as_handled()
+			_on_nav_tab_previous(false)
+			return
+		if _is_key(event, KEY_E):
+			get_viewport().set_input_as_handled()
+			_on_nav_tab_next(false)
+			return
 	if _tab == 1 and squad_view.visible and _is_details_event(event):
 		get_viewport().set_input_as_handled()
 		squad_view.handle_details()
@@ -598,7 +862,7 @@ func _on_next_pressed() -> void:
 		return
 	var match_date := str(next.get("date", ""))
 	if _career.date >= match_date:
-		hints.set_status("Match day · the match screen arrives in the next build.")
+		hints.set_status("Match day В· the match screen arrives in the next build.")
 		return
 	_sim_start = _career.date
 	_sim_date = _career.date
@@ -649,14 +913,16 @@ func _commit_advance(target: String) -> void:
 		hints.set_status(CareerSeason.last_error, true)
 		_apply_snapshot()
 		return
+	var tick := CareerAdvance.tick(_career, CareerSession.catalog)
 	_snapshot = CareerFactory.snapshot(CareerSession.catalog, _career)
 	_apply_snapshot()
 	next_tile.play_advance_in()
 	if not _save():
 		return
+	_show_tick_event(tick.get("events", []))
 	var next = _snapshot.get("season", {}).get("next")
 	var round_no := int(next.get("round", 0)) if next is Dictionary else 0
-	hints.set_status("Advanced to %s · round %d" % [
+	hints.set_status("Advanced to %s В· round %d" % [
 		CareerHubModel.short_date(target), round_no,
 	])
 
@@ -839,6 +1105,9 @@ func _play_current_match() -> bool:
 		_career.seed, fixture, _match_setup, score)
 	CareerCondition.apply_match_outcome(
 		_career, fixture, _match_setup, _match_result, _career.league_id)
+	var tick := CareerAdvance.tick(_career, CareerSession.catalog)
+	if bool(tick.get("changed", false)):
+		_show_tick_event(tick.get("events", []))
 	return _save()
 
 
@@ -922,9 +1191,9 @@ func _league_name() -> String:
 func _match_note() -> String:
 	match _match_phase:
 		"setup":
-			return "Simulation · lineups"
+			return "Simulation В· lineups"
 		"live":
-			return "Simulation · 1 minute per second"
+			return "Simulation В· 1 minute per second"
 		"done":
 			return "Match finished"
 		"matchday_results":
@@ -953,7 +1222,7 @@ func _match_hints() -> Array:
 			]
 		"matchday_table":
 			return [
-				{"keys": ["L-STICK"] if gamepad else ["↑", "↓"], "label": "scroll"},
+				{"keys": ["L-STICK"] if gamepad else ["в†‘", "в†“"], "label": "scroll"},
 				{"keys": ["A"] if gamepad else ["ENTER"], "label": "hub"},
 				{"keys": ["B"] if gamepad else ["ESC"], "label": "results"},
 			]
@@ -1056,7 +1325,7 @@ func _save() -> bool:
 		hints.set_status(store.last_error, true)
 		return false
 	CareerSession.store = store
-	hints.set_status("Career saved · %s" % _timestamp(_career.updated_at))
+	hints.set_status("Career saved В· %s" % _timestamp(_career.updated_at))
 	return true
 
 
@@ -1072,12 +1341,25 @@ func _leave(path: String) -> void:
 
 
 func _update_hints() -> void:
+	if _squad_screen != null:
+		hints.setup(_squad_screen.hints() if _squad_screen.has_method("hints") else [])
+		if _squad_screen.has_method("status"):
+			hints.set_status(str(_squad_screen.status()),
+				bool(_squad_screen.status_error()) if _squad_screen.has_method("status_error") else false)
+		return
 	if _match_overlay.is_open():
 		hints.setup(_match_hints())
+		return
+	if _zone == Zone.TABS:
+		hints.setup(_gamepad_hints() if UiNav.using_gamepad() else _keyboard_hints())
 		return
 	if _tab == 1 and squad_view.visible:
 		hints.setup(squad_view.hints())
 		hints.set_status(squad_view.status(), squad_view.status_error())
+		return
+	if _tab == 2 and transfers_view.visible:
+		hints.setup(transfers_view.hints())
+		hints.set_status(transfers_view.status(), transfers_view.status_error())
 		return
 	hints.setup(_gamepad_hints() if UiNav.using_gamepad() else _keyboard_hints())
 
@@ -1107,7 +1389,7 @@ func _overlay_hints() -> Array:
 			{"keys": ["B"], "label": "back"},
 		]
 	return [
-		{"keys": ["↑", "↓"], "label": "scroll"},
+		{"keys": ["в†‘", "в†“"], "label": "scroll"},
 		{"keys": ["ESC"], "label": "back"},
 	]
 

@@ -23,6 +23,7 @@ func _ready() -> void:
 	add_to_group(&"ui_shell")
 	panel_wrap.add_to_group(&"ui_transition_target")
 	theme = UiTheme.load_or_build()
+	CareerWarmup.start(self, CareerWarmup.ENTRY + CareerWarmup.TRANSFERS)
 	breadcrumb.set_items(["GAMEPLAYFOOTBALL", "CAREER"])
 	grid.add_cell(continue_tile, 1, 1, 2, 2)
 	grid.add_cell(new_tile, 3, 1, 2, 1)

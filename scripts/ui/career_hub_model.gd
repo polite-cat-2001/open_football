@@ -4,8 +4,10 @@ extends RefCounted
 # (centre tiles, overview window, tournament overlay). Pure: takes the career
 # snapshot and returns plain dictionaries, so headless tests can snapshot it.
 
-const TABS: Array[String] = ["CENTRE", "SQUAD", "TRANSFERS", "SCOUTING"]
-const TAB_IDS: Array[String] = ["centre", "squad", "transfers", "scouting"]
+const TABS: Array[String] = ["CENTRE", "SQUAD", "TRANSFERS", "ACADEMY", "OFFICE"]
+const TAB_IDS: Array[String] = ["centre", "squad", "transfers", "academy", "office"]
+# Tabs whose section is not built yet: the hub shows the shared placeholder.
+const PLACEHOLDER_TABS: Array[String] = ["academy", "office"]
 const OVERVIEW_SECTIONS: Array[String] = [
 	"TABLE", "SCORERS", "FIXTURES", "TOP TRANSFERS", "NEW TRANSFERS",
 ]

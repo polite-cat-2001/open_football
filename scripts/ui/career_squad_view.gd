@@ -12,9 +12,11 @@ signal plan_requested
 # Overview <-> centre/details: the hub hides the main tabs and expands this view
 # to the full body, so it animates the change.
 signal view_changed(direction: int)
+signal player_action_requested(action: String, player_id: String)
 
 const GAP := 10.0
-const TAB_H := 38.0
+const FocusGrid := preload("res://scripts/ui/ui_focus_grid.gd")
+const TAB_H := 52.0
 const HEAD_H := 112.0
 const BENCH_CLOSED := 112.0
 const BENCH_OPEN := 460.0
@@ -88,11 +90,15 @@ var centre_tab := 0
 var centre_player := 0
 var centre_scroll := 0.0
 var centre_attribute_page := 0
+var _actions_row: CareerSquadActionsRow
+var _actions_bg: Panel
+var _actions_player_id := ""
 
 var _elements: Array = []
 var _focus_id := ""
 var _last_player_id := ""
 var _tab_items: Array = []
+var _centre_tabs_bar: UiTabBar
 var _status := ""
 var _status_error := false
 var _club_logo: Texture2D
@@ -109,9 +115,38 @@ var _marker_ready := false
 var _marker_tween: Tween
 
 
+# The centre's tabs are the hub's TabBar component: same strip, plate and
+# pacing as the main tabs. The view keeps its own focus model, so the bar runs
+# in external-focus mode and only draws/labels.
+func _build_centre_tabs() -> void:
+	if _centre_tabs_bar != null:
+		return
+	_centre_tabs_bar = UiTabBar.new()
+	_centre_tabs_bar.name = "CentreTabs"
+	_centre_tabs_bar.external_focus = true
+	var labels: Array[String] = []
+	for label in CENTRE_TABS:
+		labels.append(label)
+	_centre_tabs_bar.setup(labels)
+	_centre_tabs_bar.tab_selected.connect(_set_centre_tab)
+	_centre_tabs_bar.visible = false
+	add_child(_centre_tabs_bar)
+
+
+func _sync_centre_tabs() -> void:
+	if _centre_tabs_bar == null:
+		return
+	_centre_tabs_bar.position = Vector2.ZERO
+	_centre_tabs_bar.fit_width()
+	_centre_tabs_bar.select_tab(centre_tab, false)
+	_centre_tabs_bar.set_focused(
+		view == View.CENTRE and str(_focused_element().get("kind", "")) == "centre-tab")
+
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = true
+	_build_centre_tabs()
 	_lineup_preview = PauseLineup.new()
 	_lineup_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_lineup_preview)
@@ -178,6 +213,92 @@ func open() -> void:
 
 func close() -> void:
 	bench_open = false
+	_close_actions()
+
+
+# Player actions accordion (ticket 06): the prototype grows the selected row and
+# pushes the rest of the list down; here the row opens in a gap the list leaves
+# under it, so it never covers a player.
+func _open_actions(player: Dictionary) -> void:
+	if player.is_empty() or career == null:
+		return
+	if _actions_row == null:
+		_actions_row = CareerSquadActionsRow.new()
+		add_child(_actions_row)
+		_actions_row.action_requested.connect(_on_actions_requested)
+		_actions_row.changed.connect(_on_actions_changed)
+		_actions_row.fold_changed.connect(_on_actions_fold)
+	_actions_player_id = str(player.get("id", ""))
+	var players := _centre_players()
+	for index in range(players.size()):
+		if str(players[index].get("id", "")) == _actions_player_id:
+			centre_player = index
+			break
+	var m := _centre_metrics()
+	var column: Rect2 = m["table"] if centre_tab == 3 else m["list"]
+	var row_h := _centre_row_height()
+	var height := _actions_row.height_hint()
+	var top := column.position.y + 2.0 \
+		+ (centre_player + 1) * row_h - centre_scroll
+	var clamped := clampf(top, column.position.y, column.end.y - height)
+	_actions_row.position = Vector2(column.position.x, clamped)
+	_actions_row.size = Vector2(column.size.x, height)
+	_actions_row.setup(career, catalog, player)
+	_actions_row.set_notice(bool(CareerSquadActions.negotiation_state(
+		career, catalog, _actions_player_id).get("unread", false)))
+	_actions_row.focus_initial()
+	_actions_row.play_open()
+	state_changed.emit()
+	queue_redraw()
+
+
+func _on_actions_fold() -> void:
+	# The plate grows and shrinks frame by frame: the rows under it have to
+	# follow, otherwise the closing reads as a jump.
+	queue_redraw()
+
+
+# The row folds away instead of vanishing: it stays the host's row (and keeps
+# ignoring input) until its close animation ends, then it is freed.
+func _close_actions() -> void:
+	if _actions_row == null:
+		return
+	var row := _actions_row
+	var player_id := _actions_player_id
+	row.play_close()
+	state_changed.emit()
+	queue_redraw()
+	if not row.is_closed():
+		await row.closed
+	_actions_row = null
+	_actions_player_id = ""
+	if not player_id.is_empty() and view == View.CENTRE:
+		_focus_id = "centre-row:%s" % player_id
+		_rebuild_elements()
+	row.queue_free()
+	state_changed.emit()
+	queue_redraw()
+
+
+# The row plays its close before it reports, so the action never opens a screen
+# on top of a panel that is still on screen.
+func _on_actions_requested(action: String, player_id: String) -> void:
+	_close_actions()
+	if action == "plan":
+		plan_requested.emit()
+		return
+	player_action_requested.emit(action, player_id)
+
+
+func _on_actions_changed() -> void:
+	var player_id := _actions_player_id
+	refresh()
+	if _actions_row != null:
+		for row in _centre_players():
+			if str(row.get("id", "")) == player_id:
+				_actions_row.setup(career, catalog, row)
+				break
+	changed.emit()
 
 
 func focus_initial() -> void:
@@ -186,6 +307,8 @@ func focus_initial() -> void:
 			_focus_id = "team"
 		View.DETAILS:
 			_focus_id = "details"
+		View.CENTRE:
+			_focus_id = "centre-row:%s" % str(_centre_current().get("id", ""))
 		View.PLAN:
 			match plan_tab:
 				"schemes":
@@ -237,6 +360,8 @@ func status_error() -> bool:
 
 
 func hints() -> Array:
+	if _actions_row != null:
+		return _actions_row.hints()
 	var gamepad := UiNav.using_gamepad()
 	var tabs: Array = ["LB", "RB"] if gamepad else ["Q", "E"]
 	var accept: Array = ["A"] if gamepad else ["ENTER"]
@@ -292,12 +417,32 @@ func hints() -> Array:
 	]
 
 
+# The main tab strip owns the focus: the overview must not keep drawing its own
+# focused tile under a focused tab bar.
+func blur() -> void:
+	if view != View.OVERVIEW:
+		return
+	_focus_id = ""
+	queue_redraw()
+
+
 func handle_moved(direction: Vector2i) -> bool:
-	# The overview has no row above it: Up hands focus back to the hub, which
-	# puts it on the active main tab.
-	if view == View.OVERVIEW and direction == Vector2i.UP:
-		return false
+	if _actions_row != null:
+		return _actions_row.handle_moved(direction)
+	# The overview has no row above its top tiles: Up hands focus back to the
+	# hub, which puts it on the active main tab.
+	# The overview has no row above its top tiles: the geometric helper treats
+	# a tile at the top edge as the top row (whatever its height) and reports
+	# no neighbour, so Up hands focus back to the hub's active main tab.
+	if view == View.OVERVIEW:
+		return _move_focus(direction, 1.0)
 	if view == View.DETAILS:
+		return true
+	if view == View.CENTRE and direction == Vector2i.UP \
+			and str(_focused_element().get("kind", "")) == "centre-tab":
+		# Up from the centre's own tab strip leaves the roster for the squad
+		# overview, and Up there hands focus to the main tabs.
+		_open_overview()
 		return true
 	if view == View.PLAN and plan_tab == "schemes":
 		return _step_schemes(direction)
@@ -305,6 +450,8 @@ func handle_moved(direction: Vector2i) -> bool:
 
 
 func handle_confirmed() -> bool:
+	if _actions_row != null:
+		return _actions_row.handle_confirmed()
 	var element := _focused_element()
 	if element.is_empty():
 		return false
@@ -344,11 +491,15 @@ func handle_confirmed() -> bool:
 			queue_redraw()
 			return true
 		"centre-row":
+			_open_actions(element.get("player", {}))
 			return true
 	return false
 
 
 func handle_cancelled() -> bool:
+	if _actions_row != null:
+		_close_actions()
+		return true
 	if view == View.DETAILS:
 		view = View.PLAN
 		_focus_id = "card:%s" % _focused_player_id()
@@ -451,6 +602,7 @@ func _gui_input(event: InputEvent) -> void:
 func _on_resized() -> void:
 	_rebuild_elements()
 	_sync_tab_marker(false)
+	_sync_centre_tabs()
 	_place_lineup_preview()
 	queue_redraw()
 
@@ -516,18 +668,15 @@ func _set_slide(value: float) -> void:
 
 # The active tab is one marker plate that slides between tabs; the labels stay
 # put, so a tab change reads as a swipe like the main menu grid.
+# The plan view still draws its own tab strip; the centre one is the hub's
+# TabBar component (see _sync_centre_tabs).
 func _sync_tab_marker(animate: bool) -> void:
 	var items := _active_tab_items()
 	var target := Rect2()
-	if not items.is_empty():
-		for item in items:
-			if view == View.CENTRE:
-				if int(item.get("index", -1)) == centre_tab:
-					target = item["rect"]
-					break
-			elif str(item.get("id", "")) == plan_tab:
-				target = item["rect"]
-				break
+	for item in items:
+		if str(item.get("id", "")) == plan_tab:
+			target = item["rect"]
+			break
 	if target.size.x <= 0.0:
 		_marker_ready = false
 		return
@@ -541,7 +690,7 @@ func _sync_tab_marker(animate: bool) -> void:
 	if _marker_tween != null and _marker_tween.is_valid():
 		_marker_tween.kill()
 	_marker_tween = create_tween()
-	_marker_tween.tween_method(_set_marker_progress, 0.0, 1.0, 0.18) \
+	_marker_tween.tween_method(_set_marker_progress, 0.0, 1.0, 0.28) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
@@ -555,17 +704,29 @@ func _set_marker_progress(t: float) -> void:
 func _active_tab_items() -> Array:
 	if view == View.PLAN or view == View.DETAILS:
 		return _plan_tab_rects((size.x - GAP) * 0.5)
-	if view == View.CENTRE:
-		return _centre_tab_rects(size.x)
 	return []
 
 
 func _draw_tab_marker() -> void:
+	# Same shape as the hub's TabBar: a translucent strip behind the row and a
+	# white plate with the rail rule under the active tab; the plate goes navy
+	# and the rule lime while the row owns focus.
 	if not _marker_ready:
 		return
-	draw_rect(_tab_marker, UiTokens.TILE, true)
+	var items := _active_tab_items()
+	if not items.is_empty():
+		var last: Rect2 = items[-1]["rect"]
+		draw_rect(Rect2(0.0, 0.0, last.end.x, TAB_H),
+			Color(UiTokens.TILE, 0.72), true)
+	var focused := _tab_row_focused()
+	draw_rect(_tab_marker, UiTokens.FOCUS_FILL if focused else UiTokens.TILE, true)
 	draw_rect(Rect2(_tab_marker.position.x, _tab_marker.end.y - 4.0,
-		_tab_marker.size.x, 4.0), UiTokens.RAIL, true)
+		_tab_marker.size.x, 4.0), UiTokens.FOCUS_MARK if focused else UiTokens.RAIL, true)
+
+
+func _tab_row_focused() -> bool:
+	var kind := str(_focused_element().get("kind", ""))
+	return kind == "tab"
 
 
 # Drawing ------------------------------------------------------------------
@@ -573,6 +734,11 @@ func _draw_tab_marker() -> void:
 func _draw() -> void:
 	if squad.is_empty():
 		return
+	if _centre_tabs_bar != null:
+		_centre_tabs_bar.visible = view == View.CENTRE
+		if view == View.CENTRE:
+			_centre_tabs_bar.set_focused(
+				str(_focused_element().get("kind", "")) == "centre-tab")
 	match view:
 		View.OVERVIEW:
 			_draw_overview()
@@ -591,6 +757,7 @@ func _draw_overview() -> void:
 
 
 func _set_centre_tab(index: int) -> void:
+	_close_actions()
 	var direction := signi(clampi(index, 0, CENTRE_TABS.size() - 1) - centre_tab)
 	centre_tab = clampi(index, 0, CENTRE_TABS.size() - 1)
 	centre_attribute_page = 0
@@ -599,14 +766,13 @@ func _set_centre_tab(index: int) -> void:
 	_rebuild_elements()
 	_ensure_centre_visible(centre_player)
 	_animate_switch(direction)
-	_sync_tab_marker(true)
+	_sync_centre_tabs()
 	state_changed.emit()
 	queue_redraw()
 
 
 func _draw_centre() -> void:
 	var m := _centre_metrics()
-	_draw_tab_marker()
 	for item in (m["tabs"] as Array):
 		_draw_centre_tab(item)
 	draw_set_transform(Vector2(_slide, 0.0))
@@ -646,32 +812,24 @@ func _centre_metrics() -> Dictionary:
 
 
 func _centre_tab_rects(stage_w: float) -> Array:
+	# The strip itself is the hub's TabBar (see _sync_centre_tabs); this maps its
+	# rects onto the view's own focus model.
 	var items: Array = []
-	var x := 0.0
+	if _centre_tabs_bar == null:
+		return items
+	_sync_centre_tabs()
 	for index in range(CENTRE_TABS.size()):
-		var width := _text_width(str(CENTRE_TABS[index]), UiTheme.barlow(700), 20) + 40.0
 		items.append({
 			"index": index, "label": CENTRE_TABS[index],
-			"rect": Rect2(x, 0.0, width, TAB_H),
+			"rect": _centre_tabs_bar.tab_rect(index),
 		})
-		x += width + 6.0
 	return items
 
 
 func _draw_centre_tab(item: Dictionary) -> void:
-	var rect: Rect2 = item["rect"]
-	var index := int(item["index"])
-	var active := index == centre_tab
-	var focused := _focus_id == "centre-tab:%d" % index
-	if focused:
-		draw_rect(rect, UiTokens.FOCUS_FILL, true)
-		draw_rect(Rect2(rect.position.x, rect.end.y - 4.0, rect.size.x, 4.0),
-			UiTokens.FOCUS_MARK, true)
-	var color := UiTokens.FOCUS_INK if focused else UiTokens.INK_2
-	if active and not focused:
-		color = UiTokens.INK
-	_draw_text(rect, str(item["label"]), UiTheme.barlow(700), 20, color,
-		HORIZONTAL_ALIGNMENT_CENTER)
+	# Drawn by the shared TabBar; kept so the metrics stay one list.
+	if item.is_empty():
+		return
 
 
 func _draw_centre_roster(rect: Rect2) -> void:
@@ -679,7 +837,7 @@ func _draw_centre_roster(rect: Rect2) -> void:
 	for index in range(players.size()):
 		var player: Dictionary = players[index]
 		var row := Rect2(rect.position.x, rect.position.y + 2.0
-			+ index * 53.0 - centre_scroll, rect.size.x, 50.0)
+			+ _centre_row_offset(index) - centre_scroll, rect.size.x, 50.0)
 		if not _rect_intersects(row, rect):
 			continue
 		var focused := _focus_id == "centre-row:%s" % str(player.get("id", ""))
@@ -762,15 +920,15 @@ func _draw_finance_table(rect: Rect2) -> void:
 	var header := Rect2(rect.position.x, rect.position.y, rect.size.x, 28.0)
 	draw_rect(header, Color(UiTokens.INK, 0.06), true)
 	var columns := _finance_columns(header)
-	var pos_col: Rect2 = columns["pos"]
+	var photo_col: Rect2 = columns["photo"]
 	var player_col: Rect2 = columns["player"]
 	var age_col: Rect2 = columns["age"]
 	var value_col: Rect2 = columns["value"]
 	var wage_col: Rect2 = columns["wage"]
 	var years_col: Rect2 = columns["years"]
-	_draw_text(pos_col, "POS", UiTheme.inter(600), 13, UiTokens.INK_2,
-		HORIZONTAL_ALIGNMENT_CENTER)
-	_draw_text(player_col, "PLAYER", UiTheme.inter(600), 13, UiTokens.INK_2)
+	_draw_text(Rect2(photo_col.position.x, player_col.position.y,
+		player_col.end.x - photo_col.position.x, player_col.size.y),
+		"PLAYER", UiTheme.inter(600), 13, UiTokens.INK_2)
 	_draw_text(age_col, "AGE", UiTheme.inter(600), 13, UiTokens.INK_2,
 		HORIZONTAL_ALIGNMENT_CENTER)
 	_draw_text(value_col, "VALUE", UiTheme.inter(600), 13, UiTokens.INK_2,
@@ -784,19 +942,21 @@ func _draw_finance_table(rect: Rect2) -> void:
 	var players := _centre_players()
 	for index in range(players.size()):
 		var player: Dictionary = players[index]
-		var row := Rect2(list.position.x, list.position.y + 2.0 + index * 46.0
-			- centre_scroll, list.size.x, 44.0)
+		var row := Rect2(list.position.x, list.position.y + 2.0
+			+ _centre_row_offset(index) - centre_scroll, list.size.x, 44.0)
 		if not _rect_intersects(row, list):
 			continue
 		var focused := _focus_id == "centre-row:%s" % str(player.get("id", ""))
 		_draw_tile(row, focused)
 		var cols := _finance_columns(row)
 		var row_pos: Rect2 = cols["pos"]
+		var row_photo: Rect2 = cols["photo"]
 		var row_player: Rect2 = cols["player"]
 		var row_age: Rect2 = cols["age"]
 		var row_value: Rect2 = cols["value"]
 		var row_wage: Rect2 = cols["wage"]
 		var row_years: Rect2 = cols["years"]
+		_draw_player_photo(row_photo, player)
 		_draw_text(row_pos, str(player.get("role", "")), UiTheme.inter(600), 14,
 			UiTokens.FOCUS_INK_2 if focused else _role_color(str(player.get("role", ""))),
 			HORIZONTAL_ALIGNMENT_CENTER)
@@ -828,11 +988,13 @@ func _finance_columns(rect: Rect2) -> Dictionary:
 	var wage := Rect2(years.position.x - 8.0 - 100.0, y, 100.0, h)
 	var value := Rect2(wage.position.x - 8.0 - 100.0, y, 100.0, h)
 	var age := Rect2(value.position.x - 8.0 - 42.0, y, 42.0, h)
-	var player := Rect2(rect.position.x + 66.0, y, age.position.x - 8.0
-		- rect.position.x - 66.0, h)
-	var pos := Rect2(rect.position.x + 12.0, y, 48.0, h)
+	var photo := Rect2(rect.position.x + 12.0, y + maxf(0.0, (h - 30.0) * 0.5),
+		24.0, minf(30.0, h))
+	var pos := Rect2(photo.end.x + 8.0, y, 40.0, h)
+	var player := Rect2(pos.end.x + 8.0, y, age.position.x - 8.0
+		- pos.end.x - 8.0, h)
 	return {"pos": pos, "player": player, "age": age, "value": value,
-		"wage": wage, "years": years}
+		"wage": wage, "years": years, "photo": photo}
 
 
 func _draw_centre_pane(rect: Rect2) -> void:
@@ -2136,7 +2298,8 @@ func _rebuild_elements() -> void:
 						"id": "centre-row:%s" % str(player.get("id", "")),
 						"kind": "centre-row",
 						"rect": Rect2(list.position.x, list.position.y + 2.0
-							+ index * 46.0 - centre_scroll, list.size.x, 44.0),
+							+ _centre_row_offset(index) - centre_scroll,
+							list.size.x, 44.0),
 						"player_id": str(player.get("id", "")), "player": player,
 					})
 			else:
@@ -2147,7 +2310,8 @@ func _rebuild_elements() -> void:
 						"id": "centre-row:%s" % str(player.get("id", "")),
 						"kind": "centre-row",
 						"rect": Rect2(list.position.x, list.position.y + 2.0
-							+ index * 53.0 - centre_scroll, list.size.x, 50.0),
+							+ _centre_row_offset(index) - centre_scroll,
+							list.size.x, 50.0),
 						"player_id": str(player.get("id", "")), "player": player,
 					})
 		View.PLAN, View.DETAILS:
@@ -2257,7 +2421,7 @@ func _add_role_elements(m: Dictionary) -> void:
 		})
 
 
-func _move_focus(direction: Vector2i) -> bool:
+func _move_focus(direction: Vector2i, top_px := -1.0) -> bool:
 	_rebuild_elements()
 	if _elements.is_empty():
 		return false
@@ -2266,12 +2430,9 @@ func _move_focus(direction: Vector2i) -> bool:
 		_set_focus(str(_elements[0].get("id", "")))
 		return true
 	var rect: Rect2 = current.get("rect", Rect2())
-	var center := rect.get_center()
-	var best: Dictionary = {}
-	var best_score := INF
 	var current_kind := str(current.get("kind", ""))
 	if current_kind == "card" and direction == Vector2i.DOWN:
-		var special := _card_down_target(center)
+		var special := _card_down_target(rect.get_center())
 		if not special.is_empty():
 			_set_focus(str(special.get("id", "")))
 			return true
@@ -2280,38 +2441,13 @@ func _move_focus(direction: Vector2i) -> bool:
 		if not bench.is_empty():
 			_set_focus(str(bench.get("id", "")))
 			return true
+	var rects: Array[Rect2] = []
 	for element in _elements:
-		if str(element.get("id", "")) == str(current.get("id", "")):
-			continue
-		var other: Rect2 = element.get("rect", Rect2())
-		var other_center := other.get_center()
-		var dx := other_center.x - center.x
-		var dy := other_center.y - center.y
-		var forward := 0.0
-		var sideways := 0.0
-		match direction:
-			Vector2i.RIGHT:
-				forward = dx
-				sideways = absf(dy)
-			Vector2i.LEFT:
-				forward = -dx
-				sideways = absf(dy)
-			Vector2i.DOWN:
-				forward = dy
-				sideways = absf(dx)
-			_:
-				forward = -dy
-				sideways = absf(dx)
-		if forward <= 8.0:
-			continue
-		var weight := 4.0 if direction in [Vector2i.LEFT, Vector2i.RIGHT] else 1.8
-		var score := forward + sideways * weight
-		if score < best_score:
-			best_score = score
-			best = element
-	if best.is_empty():
+		rects.append(element.get("rect", Rect2()))
+	var index := FocusGrid.neighbour(rects, rect, direction, top_px)
+	if index < 0:
 		return false
-	_set_focus(str(best.get("id", "")))
+	_set_focus(str(_elements[index].get("id", "")))
 	return true
 
 
@@ -2438,23 +2574,55 @@ func _ensure_bench_visible(element: Dictionary) -> void:
 func _ensure_centre_visible(index: int) -> void:
 	var m := _centre_metrics()
 	var inner_h := 0.0
-	var stride := 53.0
+	var stride := _centre_row_height()
 	var row_h := 50.0
 	if centre_tab == 3:
 		var table: Rect2 = m["table"]
 		inner_h = table.size.y - 28.0
-		stride = 46.0
 		row_h = 44.0
 	else:
 		var list: Rect2 = m["list"]
 		inner_h = list.size.y
-	var row_top := 2.0 + index * stride
+	var row_top := 2.0 + _centre_row_offset(index)
 	if row_top + row_h > centre_scroll + inner_h:
 		centre_scroll = row_top + row_h - inner_h
 	if row_top < centre_scroll:
 		centre_scroll = row_top
-	var content_h := 2.0 + _centre_players().size() * stride
+	var content_h := 2.0 + _centre_row_offset(_centre_players().size() - 1) + row_h
 	centre_scroll = clampf(centre_scroll, 0.0, maxf(0.0, content_h - inner_h))
+
+
+# The accordion pushes the rows under it down instead of covering them: every
+# index after the open one carries the panel's height as extra offset.
+func _centre_row_height() -> float:
+	return 46.0 if centre_tab == 3 else 53.0
+
+
+func _actions_index() -> int:
+	if _actions_row == null or _actions_player_id.is_empty():
+		return -1
+	return _actions_index_of(_actions_player_id)
+
+
+func _actions_index_of(player_id: String) -> int:
+	if player_id.is_empty():
+		return -1
+	var players := _centre_players()
+	for index in range(players.size()):
+		if str(players[index].get("id", "")) == player_id:
+			return index
+	return -1
+
+
+func _centre_row_offset(index: int) -> float:
+	var offset := index * _centre_row_height()
+	if _actions_row == null:
+		return offset
+	var open := _actions_index()
+	var gap := _actions_row.size.y + 2.0
+	if open >= 0 and index > open:
+		return offset + gap
+	return offset
 
 
 func _step_schemes(direction: Vector2i) -> bool:
@@ -2497,6 +2665,7 @@ func _open_plan() -> void:
 
 
 func _open_overview() -> void:
+	_close_actions()
 	view = View.OVERVIEW
 	plan_tab = "squad"
 	anchor_id = ""
