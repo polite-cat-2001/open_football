@@ -121,7 +121,7 @@ func refresh_layout() -> void:
 	_update_marker(false)
 
 
-func fit_width() -> void:
+func fit_width(animate := false) -> void:
 	# The bar is only as wide as its tabs, like the prototype's flex: 0 1 auto.
 	if _strip == null:
 		return
@@ -131,7 +131,7 @@ func fit_width() -> void:
 		width = _buttons[-1].position.x + _buttons[-1].size.x
 	size = Vector2(width, UiTokens.TAB_H)
 	_layout_tabs()
-	_update_marker(false)
+	_update_marker(animate)
 
 
 func focus_tab(index: int) -> void:

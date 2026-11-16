@@ -99,6 +99,21 @@ func _run() -> void:
 	_check(screen.zone() == "tabs" and screen.focused_tab() == 0,
 		"open focuses the active tab")
 
+	# Tab switches slide the shared marker; the badge re-fit must not snap it.
+	var bar: UiTabBar = screen.get("_tab_bar")
+	var marker: Control = bar.get("_marker")
+	bar.get_tab_button(1).pressed.emit()
+	var target := bar.get_tab_button(1).position.x
+	await _frames(2)
+	_check(marker.position.x > 0.5 and marker.position.x < target - 0.5,
+		"the centre marker travels instead of snapping")
+	await create_timer(0.35).timeout
+	_check(absf(marker.position.x - target) < 0.5,
+		"the centre marker reaches the tab")
+	bar.get_tab_button(0).pressed.emit()
+	await _frames(2)
+	_check(screen.tab() == "shortlist", "the click returns to the shortlist")
+
 	var hints: Array = screen.hints()
 	_check(hints.size() == 4, "the shortlist lists four hints")
 	_check(hints[0]["keys"] == ["↑", "↓", "←", "→"] and str(hints[0]["label"]) == "players",

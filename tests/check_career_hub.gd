@@ -327,6 +327,26 @@ func _run() -> void:
 	await _frames(4)
 	_check(tab_bar.get_active_tab() == 0, "Back to Centre after the edge entry")
 
+	# The tile's badge counts unread offers: pressing it lands on them directly
+	# instead of the transfers landing.
+	career.incoming_offers.append({
+		"id": "test-offer",
+		"player_id": str((catalog.career_squad(131)[0] as Dictionary).get("id", "")),
+		"club_id": "11", "status": "pending", "acknowledged": false,
+	})
+	hub.call("_apply_snapshot")
+	transfer_tile.pressed.emit()
+	await _frames(4)
+	_check(tab_bar.get_active_tab() == 2 and transfers_view.current_view() == "centre",
+		"pressing the tile with unread news opens Transfer Centre")
+	career.incoming_offers.clear()
+	hub.call("_apply_snapshot")
+	nav.cancelled.emit()
+	await _frames(4)
+	nav.cancelled.emit()
+	await _frames(4)
+	_check(tab_bar.get_active_tab() == 0, "Back from Transfer Centre returns to Centre")
+
 	nav.tab_next.emit()
 	await _frames(3)
 	var save_key := InputEventKey.new()

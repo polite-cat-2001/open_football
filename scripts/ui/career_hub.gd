@@ -50,6 +50,7 @@ const SQUAD_CRUMBS := {
 
 var _snapshot: Dictionary = {}
 var _career: Career
+var _transfers_entry := "hub"
 var _zone := Zone.GRID
 var _tab := 0
 var _busy := false
@@ -265,7 +266,7 @@ func _apply_tab() -> void:
 		transfers_view.close()
 	elif transfers_tab:
 		squad_view.close()
-		transfers_view.open(_career, CareerSession.catalog)
+		transfers_view.open(_career, CareerSession.catalog, _transfers_entry)
 	else:
 		# ACADEMY / OFFICE: placeholders until their tickets land.
 		squad_view.close()
@@ -430,7 +431,11 @@ func _focus_tabs() -> void:
 
 
 func _open_transfers_tab() -> void:
+	# The tile's badge counts unread offers, so it lands straight on them.
+	_transfers_entry = "centre" \
+		if CareerIncomingOffers.unread_count(_career) > 0 else "hub"
 	_set_section(2, 1)
+	_transfers_entry = "hub"
 
 
 # The shared Game Plan screen (same as the prematch hub / match pause) opened

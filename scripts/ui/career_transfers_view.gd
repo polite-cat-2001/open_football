@@ -48,14 +48,14 @@ var _open := false
 var _shell_focused := false
 
 
-func open(career: Career, catalog: TeamCatalog) -> void:
+func open(career: Career, catalog: TeamCatalog, start := "hub") -> void:
 	_career = career
 	_catalog = catalog
 	if _filters.is_empty():
 		_filters = CareerSearch.filters_default()
 	_open = true
 	visible = true
-	_show("hub", {})
+	_show(start, {})
 
 
 func close() -> void:

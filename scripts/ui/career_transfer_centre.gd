@@ -1199,7 +1199,9 @@ func _layout_tabs() -> void:
 		return
 	_tab_bar.position = Vector2.ZERO
 	_tab_bar.size = Vector2(size.x, TABS_H)
-	_tab_bar.fit_width()
+	# The badge changes the strip width, so re-fit; animate the marker so a tab
+	# switch is not snapped into place by the refresh that follows it.
+	_tab_bar.fit_width(true)
 
 func _layout_offer_head() -> void:
 	var width := _offers_main.size.x
@@ -1268,7 +1270,9 @@ func _refresh() -> void:
 func _refresh_tabs() -> void:
 	if _tab_bar == null:
 		return
-	_tab_bar.select_tab(_tab_index(_tab), false)
+	var index := _tab_index(_tab)
+	if _tab_bar.get_active_tab() != index:
+		_tab_bar.select_tab(index, false)
 	_tab_bar.set_badge(_tab_index("received"), _unread)
 	_layout_tabs()
 
