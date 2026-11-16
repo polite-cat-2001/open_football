@@ -158,6 +158,21 @@ func _run() -> void:
 	await _frames(1)
 	_check(screen.filter_id() == "all", "E cycles the filter forwards")
 
+	# The strip's marker travels between tabs: the filter rebuild must not
+	# re-fit the strip and snap the marker into place.
+	var bar: UiTabBar = screen.get("_tab_bar")
+	_check(bar != null and bar.tab_count() == 3, "the history has a tab strip")
+	bar.get_tab_button(2).pressed.emit()
+	await _frames(1)
+	var marker: Control = bar.get("_marker")
+	_check(marker.position.x > 1.0, "the history marker starts travelling")
+	await create_timer(0.35).timeout
+	_check(absf(marker.position.x - bar.get_tab_button(2).position.x) < 0.5,
+		"the history marker reaches the tab")
+	bar.get_tab_button(0).pressed.emit()
+	await _frames(1)
+	_check(screen.filter_id() == "all", "the click switches back for the rest of the pass")
+
 	# Rows are mostly informational; confirm must not leave the screen.
 	var closes := [0]
 	screen.closed.connect(func() -> void: closes[0] += 1)

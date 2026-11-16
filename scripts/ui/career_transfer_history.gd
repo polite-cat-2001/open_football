@@ -388,6 +388,7 @@ func _build() -> void:
 	for data in TABS:
 		labels.append(str(data["label"]))
 	_tab_bar.setup(labels)
+	_tab_bar.fit_width()
 	_tab_bar.tab_selected.connect(_on_tab_selected)
 
 	_head = Panel.new()
@@ -482,12 +483,10 @@ func _layout_tabs() -> void:
 	if _tab_bar == null:
 		return
 	_tab_bar.position = Vector2.ZERO
-	_tab_bar.size = Vector2(size.x, TABS_H)
-	_tab_bar.fit_width()
 
 
 func _refresh_tabs() -> void:
-	if _tab_bar == null:
+	if _tab_bar == null or _tab_bar.get_active_tab() == _filter_index:
 		return
 	_tab_bar.select_tab(_filter_index, false)
 
