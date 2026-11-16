@@ -106,6 +106,14 @@ func _run() -> void:
 	await _frames(3)
 	_check(transfer_tile.has_focus(),
 		"Down from the next-match tile reaches Transfer Centre")
+	transfer_tile.set_badge("2 NEW")
+	var badge: Control = transfer_tile.get("_badge")
+	var tile_rect: Rect2 = transfer_tile.get_global_rect()
+	var badge_rect: Rect2 = badge.get_global_rect()
+	_check(badge.visible and badge_rect.get_center().x < tile_rect.get_center().x
+		and badge_rect.get_center().y > tile_rect.get_center().y,
+		"the update badge sits in the bottom-left corner")
+	transfer_tile.set_badge("")
 	nav.moved.emit(Vector2i.UP)
 	await _frames(3)
 	_check(next_tile.has_focus(),

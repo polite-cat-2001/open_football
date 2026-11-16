@@ -27,6 +27,8 @@ var _glyph_rect: TextureRect
 var _art_rect: TextureRect
 var _chip: PanelContainer
 var _chip_label: Label
+var _badge: PanelContainer
+var _badge_label: Label
 
 var _normal_box: StyleBoxFlat
 var _selected_box: StyleBoxFlat
@@ -157,6 +159,28 @@ func _build_nodes() -> void:
 	_chip.add_child(_chip_label)
 	add_child(_chip)
 
+	# Bright pill in the bottom-left corner: "3 NEW" style update counters.
+	_badge = PanelContainer.new()
+	_badge.name = "Badge"
+	_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var badge_box := StyleBoxFlat.new()
+	badge_box.bg_color = UiTokens.FOCUS_MARK
+	badge_box.set_corner_radius_all(4)
+	badge_box.content_margin_left = 9.0
+	badge_box.content_margin_right = 9.0
+	badge_box.content_margin_top = 3.0
+	badge_box.content_margin_bottom = 3.0
+	_badge.add_theme_stylebox_override(&"panel", badge_box)
+	_badge_label = Label.new()
+	_badge_label.name = "BadgeLabel"
+	_badge_label.add_theme_font_override(&"font", UiTheme.inter(800))
+	_badge_label.add_theme_font_size_override(&"font_size", 12)
+	_badge_label.add_theme_color_override(&"font_color", UiTokens.INK)
+	_badge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_badge.add_child(_badge_label)
+	_badge.visible = false
+	add_child(_badge)
+
 	var title_variation := &"TileTitle"
 	if hero:
 		title_variation = &"HeroTitle"
@@ -216,6 +240,14 @@ func set_enabled(enabled: bool) -> void:
 		release_focus()
 	if _bg != null:
 		_apply_state(false)
+
+
+func set_badge(text: String) -> void:
+	if _badge == null:
+		return
+	_badge_label.text = text
+	_badge.visible = not text.is_empty()
+	_layout_content()
 
 
 func set_art(texture: Texture2D) -> void:
@@ -287,6 +319,10 @@ func _layout_content() -> void:
 		_chip.position = Vector2(pad_left, 0.0)
 		_chip.size = _chip.get_combined_minimum_size()
 		_chip.position = Vector2(pad_left, size.y - pad_bottom - _chip.size.y)
+
+	if _badge.visible:
+		_badge.size = _badge.get_combined_minimum_size()
+		_badge.position = Vector2(pad_left, size.y - pad_bottom - _badge.size.y)
 
 
 func _on_mouse_entered() -> void:

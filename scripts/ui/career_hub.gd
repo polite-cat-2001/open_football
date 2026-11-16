@@ -185,8 +185,8 @@ func _apply_snapshot() -> void:
 			call_deferred("_focus_matchday_tile")
 	table_tile.setup(CareerHubModel.table_tile(_snapshot))
 	var unread := CareerIncomingOffers.unread_count(_career)
-	transfer_tile.set_copy("TRANSFER CENTRE", "Offers, talks and signings.", "",
-		"" if unread == 0 else "%d NEW" % unread)
+	transfer_tile.set_copy("TRANSFER CENTRE", "Offers, talks and signings.", "")
+	transfer_tile.set_badge("" if unread == 0 else "%d NEW" % unread)
 
 
 func _focus_matchday_tile() -> void:
