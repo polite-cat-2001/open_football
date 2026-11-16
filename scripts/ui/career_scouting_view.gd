@@ -235,6 +235,7 @@ func _build() -> void:
 	for tab in NETWORK_TABS:
 		labels.append(str(tab))
 	_tabs.setup(labels)
+	_tabs.fit_width()
 	_tabs.tab_selected.connect(_on_network_tab_selected)
 
 	_headline = Panel.new()
@@ -366,8 +367,6 @@ func _layout() -> void:
 	if _tabs == null or size.x <= 0.0:
 		return
 	_tabs.position = Vector2.ZERO
-	_tabs.size = Vector2(size.x, UiTokens.TAB_H)
-	_tabs.fit_width()
 	_headline.position = Vector2.ZERO
 	_headline.size = Vector2(size.x, HEAD_H)
 	_head_title.position = Vector2(20.0, 0.0)
@@ -488,7 +487,9 @@ func _show_header() -> void:
 	_tabs.visible = network
 	_headline.visible = not network and view != "reports"
 	if network:
-		_tabs.select_tab(maxi(0, NETWORK_IDS.find(network_tab)), false)
+		var index := maxi(0, NETWORK_IDS.find(network_tab))
+		if _tabs.get_active_tab() != index:
+			_tabs.select_tab(index, false)
 	if _headline.visible:
 		match view:
 			"region":
@@ -942,11 +943,30 @@ func _on_nav_moved(direction: Vector2i) -> void:
 		return
 	if not _is_active():
 		return
+	var owner := _focus_owner()
+	if owner != null and _tabs.visible and _tabs.is_ancestor_of(owner):
+		# The network strip is part of the navigation: sideways pages its tabs,
+		# Down drops into the content. It never leaves the screen.
+		if direction == Vector2i.LEFT or direction == Vector2i.RIGHT:
+			_handle_tabs(-1 if direction == Vector2i.LEFT else 1)
+		elif direction == Vector2i.DOWN:
+			focus_initial()
+		return
 	match view:
 		"scouts":
-			_focus_grid_item(_scout_cards + _scout_tiles, direction)
+			var items: Array = _scout_cards + _scout_tiles
+			var index := items.find(owner)
+			if direction == Vector2i.UP and index >= 0 and index < COLUMNS:
+				_focus_active_tab()
+			else:
+				_focus_grid_item(items, direction)
 		"tasks":
-			_move_tasks(direction)
+			var task_items: Array = _task_cards + _task_tiles
+			var task_index := task_items.find(owner)
+			if direction == Vector2i.UP and task_index >= 0 and task_index < COLUMNS:
+				_focus_active_tab()
+			else:
+				_move_tasks(direction)
 		"region", "country":
 			_focus_linear(_focusables(), direction)
 		"task":
@@ -1043,6 +1063,10 @@ func _on_nav_confirmed() -> void:
 		return
 	if not _is_active():
 		return
+	var owner := _focus_owner()
+	if owner != null and _tabs.visible and _tabs.is_ancestor_of(owner):
+		focus_initial()
+		return
 	var focus := _focus_owner()
 	if focus == null or not _focusables().has(focus):
 		_restore_focus()
@@ -1113,6 +1137,14 @@ func _input(event: InputEvent) -> void:
 	if nav != null and nav.is_modal() \
 			and not (_report_modal.is_open() and nav.modal_owner() == _report_modal):
 		return
+	if _is_key(event, KEY_Q):
+		get_viewport().set_input_as_handled()
+		_handle_tabs(-1)
+		return
+	if _is_key(event, KEY_E):
+		get_viewport().set_input_as_handled()
+		_handle_tabs(1)
+		return
 	if _is_key(event, KEY_X) or _is_button(event, JOY_BUTTON_X):
 		get_viewport().set_input_as_handled()
 		if view == "reports" and _report_modal.is_open():
@@ -1175,8 +1207,12 @@ func _handle_tabs(delta: int) -> void:
 	if not _is_active():
 		return
 	if view == "scouts" or view == "tasks":
+		var owner := _focus_owner()
+		var was_tab := owner != null and _tabs.visible and _tabs.is_ancestor_of(owner)
 		network_tab = "tasks" if network_tab == "scouts" else "scouts"
 		_go(network_tab)
+		if was_tab:
+			_focus_active_tab()
 	elif view == "reports":
 		var index := 0
 		for cursor in REPORT_TABS.size():
@@ -1186,11 +1222,17 @@ func _handle_tabs(delta: int) -> void:
 		_on_report_filter(str((REPORT_TABS[index] as Dictionary).get("id", "all")))
 
 
+func _focus_active_tab() -> void:
+	_tabs.focus_tab(maxi(0, NETWORK_IDS.find(network_tab)))
+
+
 func _on_network_tab_selected(index: int) -> void:
 	if index == NETWORK_IDS.find(network_tab):
 		return
 	network_tab = NETWORK_IDS[clampi(index, 0, NETWORK_IDS.size() - 1)]
 	_go(network_tab)
+	# A click from the strip keeps the strip focused, like the main hub tabs.
+	_tabs.focus_tab(clampi(index, 0, NETWORK_IDS.size() - 1))
 
 
 # Scout actions --------------------------------------------------------------

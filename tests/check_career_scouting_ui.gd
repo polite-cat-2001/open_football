@@ -108,6 +108,51 @@ func _run() -> void:
 	_nav.tab_previous.emit()
 	await _frames(2)
 	_check(_screen.view == "scouts", "Tab switches back to the scouts")
+	# Q/E page the network tabs, like the hub/centre.
+	var e_key := InputEventKey.new()
+	e_key.keycode = KEY_E
+	e_key.physical_keycode = KEY_E
+	e_key.pressed = true
+	_screen.call("_input", e_key)
+	await _frames(2)
+	_check(_screen.view == "tasks", "E switches the network tab")
+	var q_key := InputEventKey.new()
+	q_key.keycode = KEY_Q
+	q_key.physical_keycode = KEY_Q
+	q_key.pressed = true
+	_screen.call("_input", q_key)
+	await _frames(2)
+	_check(_screen.view == "scouts", "Q switches back")
+	# The strip is part of the navigation: sideways pages it, Up leaves the
+	# content for it, Down drops back into the content.
+	var tabs: UiTabBar = _screen.get("_tabs")
+	tabs.focus_tab(0)
+	await _frames(2)
+	_nav.moved.emit(Vector2i.RIGHT)
+	await _frames(2)
+	_check(_screen.view == "tasks" and tabs.get_tab_button(1).has_focus(),
+		"Right on the network strip pages the tabs and keeps the strip")
+	_nav.moved.emit(Vector2i.LEFT)
+	await _frames(2)
+	_check(_screen.view == "scouts" and tabs.get_tab_button(0).has_focus(),
+		"Left pages back")
+	_nav.moved.emit(Vector2i.DOWN)
+	await _frames(2)
+	_check(cards[0].has_focus(), "Down from the strip enters the content")
+	_nav.moved.emit(Vector2i.UP)
+	await _frames(2)
+	_check(tabs.get_tab_button(0).has_focus(), "Up from the top row reaches the strip")
+	# The marker travels on a click (no layout re-fit snaps it).
+	var marker: Control = tabs.get("_marker")
+	tabs.get_tab_button(1).pressed.emit()
+	await _frames(1)
+	_check(marker.position.x > 1.0, "the network marker starts travelling")
+	await create_timer(0.35).timeout
+	_check(absf(marker.position.x - tabs.get_tab_button(1).position.x) < 0.5,
+		"the network marker reaches the tab")
+	tabs.get_tab_button(0).pressed.emit()
+	await _frames(2)
+	_check(_screen.view == "scouts", "the click switches back for the rest of the pass")
 
 	# Hire --------------------------------------------------------------------
 	var before: int = int(career.balance)
