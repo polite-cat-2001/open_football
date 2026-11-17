@@ -241,7 +241,8 @@ func close() -> void:
 
 # Player actions accordion (ticket 06): the prototype grows the selected row and
 # pushes the rest of the list down; here the row opens in a gap the list leaves
-# under it, so it never covers a player.
+# under it, so it never covers a player. The list then scrolls to show the row
+# and the plate together instead of lifting the plate off its row.
 func _open_actions(player: Dictionary) -> void:
 	if player.is_empty() or career == null:
 		return
@@ -259,18 +260,15 @@ func _open_actions(player: Dictionary) -> void:
 			break
 	var m := _centre_metrics()
 	var column: Rect2 = m["table"] if centre_tab == 3 else m["list"]
-	var row_h := _centre_row_height()
-	var height := _actions_row.height_hint()
-	var top := column.position.y + 2.0 \
-		+ (centre_player + 1) * row_h - centre_scroll
-	var clamped := clampf(top, column.position.y, column.end.y - height)
-	_actions_row.position = Vector2(column.position.x, clamped)
-	_actions_row.size = Vector2(column.size.x, height)
+	_actions_row.size = Vector2(column.size.x, _actions_row.height_hint())
+	_ensure_centre_visible(centre_player)
+	_place_actions()
 	_actions_row.setup(career, catalog, player)
 	_actions_row.set_notice(bool(CareerSquadActions.negotiation_state(
 		career, catalog, _actions_player_id).get("unread", false)))
 	_actions_row.focus_initial()
 	_actions_row.play_open()
+	_rebuild_elements()
 	state_changed.emit()
 	queue_redraw()
 
@@ -278,7 +276,24 @@ func _open_actions(player: Dictionary) -> void:
 func _on_actions_fold() -> void:
 	# The plate grows and shrinks frame by frame: the rows under it have to
 	# follow, otherwise the closing reads as a jump.
+	var open := _actions_index()
+	if open < 0:
+		return
+	_ensure_centre_visible(open)
+	_place_actions()
 	queue_redraw()
+
+
+# The plate hangs right under its row, wherever the list is scrolled.
+func _place_actions() -> void:
+	var open := _actions_index()
+	if open < 0:
+		return
+	var m := _centre_metrics()
+	var column: Rect2 = m["table"] if centre_tab == 3 else m["list"]
+	_actions_row.position = Vector2(column.position.x,
+		column.position.y + 2.0 + _centre_row_offset(open)
+		+ _centre_row_height() - centre_scroll)
 
 
 # The row folds away instead of vanishing: it stays the host's row (and keeps
@@ -297,6 +312,9 @@ func _close_actions() -> void:
 	_actions_player_id = ""
 	if not player_id.is_empty() and view == View.CENTRE:
 		_focus_id = "centre-row:%s" % player_id
+		var index := _actions_index_of(player_id)
+		if index >= 0:
+			_ensure_centre_visible(index)
 		_rebuild_elements()
 	row.queue_free()
 	state_changed.emit()
@@ -626,8 +644,22 @@ func _gui_input(event: InputEvent) -> void:
 				if str(hit.get("kind", "")) == "centre-tab":
 					_set_centre_tab(int(hit.get("data", {}).get("index", 0)))
 					return
+				if str(hit.get("kind", "")) == "centre-row":
+					_click_centre_row(hit)
+					return
 				_set_focus(str(hit.get("id", "")))
 				handle_confirmed()
+
+
+# A click on a player row opens or folds its plate — it never goes through
+# handle_confirmed, which would press the action the plate has in focus.
+func _click_centre_row(element: Dictionary) -> void:
+	var player_id := str(element.get("player_id", ""))
+	if _actions_row != null and _actions_player_id == player_id:
+		_close_actions()
+		return
+	_set_focus(str(element.get("id", "")))
+	_open_actions(element.get("player", {}))
 
 
 func _take_pointer_focus() -> void:
@@ -2616,24 +2648,43 @@ func _ensure_bench_visible(element: Dictionary) -> void:
 
 
 func _ensure_centre_visible(index: int) -> void:
-	var m := _centre_metrics()
-	var inner_h := 0.0
-	var stride := _centre_row_height()
-	var row_h := 50.0
-	if centre_tab == 3:
-		var table: Rect2 = m["table"]
-		inner_h = table.size.y - 28.0
-		row_h = 44.0
-	else:
-		var list: Rect2 = m["list"]
-		inner_h = list.size.y
+	var g := _centre_list_metrics()
+	var row_h: float = g["row_h"]
+	var inner_h: float = g["inner_h"]
 	var row_top := 2.0 + _centre_row_offset(index)
-	if row_top + row_h > centre_scroll + inner_h:
-		centre_scroll = row_top + row_h - inner_h
+	# The open plate travels with its row: both have to end up on screen.
+	var bottom := row_top + row_h
+	if _actions_row != null and _actions_index() == index:
+		bottom = row_top + _centre_row_height() + _actions_row.size.y + 2.0
+	if bottom > centre_scroll + inner_h:
+		centre_scroll = bottom - inner_h
 	if row_top < centre_scroll:
 		centre_scroll = row_top
-	var content_h := 2.0 + _centre_row_offset(_centre_players().size() - 1) + row_h
-	centre_scroll = clampf(centre_scroll, 0.0, maxf(0.0, content_h - inner_h))
+	centre_scroll = clampf(centre_scroll, 0.0, maxf(0.0,
+		_centre_content_height(row_h) - inner_h))
+
+
+# Visible height of the centre list and the height of one of its rows.
+func _centre_list_metrics() -> Dictionary:
+	if centre_tab == 3:
+		var table: Rect2 = _centre_metrics()["table"]
+		return {"inner_h": table.size.y - 28.0, "row_h": 44.0}
+	var list: Rect2 = _centre_metrics()["list"]
+	return {"inner_h": list.size.y, "row_h": 50.0}
+
+
+# Rows under the open plate carry its height, so the list grows by that much
+# even when the plate hangs under the last row.
+func _centre_content_height(row_h: float) -> float:
+	var players := _centre_players()
+	if players.is_empty():
+		return 0.0
+	var content := 2.0 + _centre_row_offset(players.size() - 1) + row_h
+	var open := _actions_index()
+	if _actions_row != null and open >= 0:
+		content = maxf(content, 2.0 + _centre_row_offset(open) + _centre_row_height()
+			+ _actions_row.size.y + 2.0)
+	return content
 
 
 # The accordion pushes the rows under it down instead of covering them: every

@@ -223,6 +223,8 @@ func _run() -> void:
 	view.set("catalog", catalog)
 	view.size = Vector2(1480.0, 626.0)
 	_host.add_child(view)
+	view.call("refresh")
+	view.call("_open_centre")
 	view.call("_open_actions", player)
 	var actions := view.get("_actions_row") as CareerSquadActionsRow
 	_check(actions != null, "the host opens the actions row")
@@ -239,6 +241,60 @@ func _run() -> void:
 	actions.finish_animation()
 	_check(asked == ["renew"], "the host action fires after the close animation")
 	_check(view.get("_actions_row") == null, "the close animation releases the row")
+
+	# A player at the end of the list: the plate opens under its row and the list
+	# scrolls to keep both of them on screen (it never lifts off the row).
+	var rows: Array = view.call("_centre_players")
+	var last_player: Dictionary = rows[-1]
+	view.call("_open_actions", last_player)
+	var last_row := view.get("_actions_row") as CareerSquadActionsRow
+	_check(last_row != null, "the last player of the list opens the actions row")
+	if last_row != null:
+		last_row.finish_animation()
+		await _frames(1)
+		var m: Dictionary = view.call("_centre_metrics")
+		var list_rect: Rect2 = m["list"]
+		var scroll := float(view.get("centre_scroll"))
+		var row_top := list_rect.position.y + 2.0 \
+			+ float(view.call("_centre_row_offset", rows.size() - 1)) - scroll
+		_check(row_top >= list_rect.position.y - 0.5
+			and row_top + 50.0 <= list_rect.end.y + 0.5,
+			"the list scrolls the last row into view")
+		_check(last_row.position.y >= row_top + 50.0 - 0.5,
+			"the plate opens under its row instead of covering it")
+		_check(last_row.position.y + last_row.size.y <= list_rect.end.y + 0.5,
+			"the plate fits inside the list after the scroll")
+		view.call("_close_actions")
+		last_row.finish_animation()
+		await _frames(2)
+		var content_h := float(view.call("_centre_content_height", 50.0))
+		_check(float(view.get("centre_scroll"))
+			<= maxf(0.0, content_h - list_rect.size.y) + 0.5,
+			"closing the plate keeps the scroll inside the list")
+
+	# A second click on the open row folds the plate instead of pressing the
+	# action that happens to own the focus.
+	var click_player: Dictionary = rows[1]
+	view.call("_open_actions", click_player)
+	var click_row := view.get("_actions_row") as CareerSquadActionsRow
+	click_row.finish_animation()
+	await _frames(1)
+	var click_id := str(click_player.get("id", ""))
+	var row_rect := Rect2()
+	for element in (view.get("_elements") as Array):
+		if str(element.get("id", "")) == "centre-row:%s" % click_id:
+			row_rect = element["rect"]
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = row_rect.get_center()
+	view.call("_gui_input", click)
+	_check(click_row.is_closing(), "a second click on the row folds the plate")
+	_check(str(career.player_transfers.get(click_id, "")) == "",
+		"the click does not press the action in focus")
+	click_row.finish_animation()
+	await _frames(2)
+	_check(view.get("_actions_row") == null, "the folded plate is released")
 	view.free()
 
 	# --- contract talks ------------------------------------------------------
