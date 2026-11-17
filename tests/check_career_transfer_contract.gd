@@ -171,11 +171,7 @@ func _run() -> void:
 	_nav.confirmed.emit()
 	await _frames(1)
 	_check(_changed == 2, "signing reports the change")
-	_check(_navigate.size() == 1 and str(_navigate[0]["view"]) == "centre",
-		"signing routes to the transfer centre")
-	if _navigate.size() == 1:
-		_check(str((_navigate[0]["payload"] as Dictionary).get("tab", "")) == "sent",
-			"the centre opens on SENT")
+	_check(_closed == 2, "signing closes the contract screen")
 	_check(career.player_ids.has(FREE_AGENT), "the free agent joins the squad")
 
 	# A club offer that the club accepted: the fee comes from the offer, the
@@ -241,8 +237,7 @@ func _run() -> void:
 	_nav.confirmed.emit()
 	await _frames(1)
 	_check(_changed == 5, "signing the transfer reports the change")
-	_check(_navigate.size() == 1 and str(_navigate[0]["view"]) == "centre",
-		"the signed transfer routes to the centre")
+	_check(_closed == 3, "the signed transfer closes the contract screen")
 	_check(other.player_ids.has(TARGET), "the player joins the squad")
 	var history: Array = other.transfer_history
 	_check(not history.is_empty() and str((history[-1] as Dictionary).get("status", ""))

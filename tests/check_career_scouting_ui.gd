@@ -335,69 +335,83 @@ func _run() -> void:
 	_check(not (report_card as Dictionary).is_empty(), "the report player is in the feed")
 	_screen.call("_focus_reports_initial")
 	var report_cards: Array = reports.entry_cards()
+	# The feed is a two-column grid: Down moves to the card right below, not
+	# three cells away (that was the diagonal jump).
+	if report_cards.size() >= 3:
+		_screen.call("_focus", report_cards[0])
+		_nav.moved.emit(Vector2i.DOWN)
+		await _frames(1)
+		_check(report_cards[2].has_focus(), "Down lands on the card below, not diagonally")
 	var target := -1
 	for index in report_cards.size():
 		if (report_cards[index] as CareerScoutReportCard).player_id() == player_id:
 			target = index
 	_check(target >= 0, "the report player has a card")
 	if target >= 0:
-		# Mouse = keyboard: a click on the card opens the modal, and a click on
-		# the dark backdrop closes it again.
+		# Mouse = keyboard: a click on the card opens the same player-actions card
+		# the transfer search uses, and a click on the backdrop closes it.
 		_click(viewport, report_cards[target].get_global_rect().get_center())
 		await _frames(2)
-		var modal: CareerScoutingModal = _screen.get("_report_modal")
-		_check(modal.is_open(), "a click on the report card opens the player modal")
+		var modal: CareerPlayerActions = _screen.get("_report_actions")
+		_check(modal.is_open(), "a click on the report card opens the player card")
 		_check(modal.get_parent() == host and modal.size == host.size,
-			"the report modal covers the whole screen")
+			"the player card covers the whole screen")
 		_check(modal.get_node("Scrim").size == modal.size,
 			"the scrim darkens the whole screen")
-		var modal_card: Control = modal.get_node("Card")
-		_check(modal_card.size.y <= modal.size.y * 0.92 + 0.5,
-			"the report card stays within 92% of the height")
-		_check(modal_card.position.y >= 23.5 and modal_card.position.y
-			+ modal_card.size.y <= modal.size.y - 23.5,
-			"the report card keeps its margin on both sides")
+		_check(modal.get_node("Card").size.y <= modal.size.y * 0.92 + 0.5,
+			"the player card stays within 92% of the height")
 		_click(viewport, Vector2(6.0, 6.0))
 		await _frames(2)
-		_check(not modal.is_open(), "a click on the backdrop closes the player modal")
+		_check(not modal.is_open(), "a click on the backdrop closes the player card")
 
 		_screen.call("_focus", report_cards[target])
 		_nav.confirmed.emit()
 		await _frames(2)
-		_check(modal.is_open(), "confirm opens the player report modal")
-		_check(_nav.is_modal(), "the report modal owns input")
-		_check(_screen.hints().size() == 4, "the report modal hints remove and back")
-		var pane := modal.content() as CareerPlayerPane
-		_check(pane != null, "the report modal embeds the player pane")
-		if pane != null:
-			_check(pane.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED
-				and not pane.get_v_scroll_bar().visible,
-				"the report card shows everything without a scrollbar")
-			_check((pane.get_child(0) as Control).size.y <= pane.size.y + 0.5,
-				"the whole player pane fits the card")
-			var buttons := pane.action_buttons()
-			_check(buttons.size() == 5, "a club player gets five actions")
-			_check(pane.player_id() == player_id, "the pane shows the report player")
-			buttons[0].pressed.emit()
-			await _frames(2)
-			_check(_routes.size() == 1 and _routes[0]["view"] == "offer",
-				"the transfer action routes to the offer screen")
-			_check(str(_routes[0]["payload"].get("kind", "")) == "transfer",
-				"the transfer route carries the kind")
-			_check(str(_routes[0]["payload"].get("player_id", "")) == player_id,
-				"the transfer route carries the player")
-			_check((_routes[0]["payload"].get("preset", {}) as Dictionary).has("fee"),
-				"the offer gets the proposal preset")
-			_nav.confirmed.emit()
-			await _frames(2)
-			_screen.call("_focus", report_cards[target])
-			_nav.confirmed.emit()
-			await _frames(2)
-			buttons = (modal.content() as CareerPlayerPane).action_buttons()
-			buttons[1].pressed.emit()
-			await _frames(2)
-			_check(_routes.size() == 2 and _routes[1]["payload"]["kind"] == "loan",
-				"the loan action routes with the loan kind")
+		_check(modal.is_open(), "confirm opens the player card from the report")
+		_check(_nav.is_modal(), "the player card owns input")
+		_check(_screen.hints().size() == 4, "the report card hints remove and back")
+		var pane := modal.get("_pane") as CareerPlayerPane
+		_check(pane != null and pane.player_id() == player_id,
+			"the card shows the report player")
+		_check(modal.row_ids().has("remove") and modal.row_ids().has("close"),
+			"the report card adds its own rows")
+		_check(not modal.row_ids().has("scout") and not modal.row_ids().has("shortlist"),
+			"the report card hides the scout and shortlist rows")
+
+		# The report card keeps the transfer rules (a pending offer blocks).
+		career.transfer_offers.append({"id": "report-offer", "player_id": player_id,
+			"kind": "transfer", "status": "pending", "amount": 1})
+		modal.close()
+		await _frames(2)
+		_screen.call("_open_report_modal", player_id)
+		await _frames(2)
+		_check(not modal.row_ids().has("offer_transfer")
+			and not modal.row_ids().has("offer_loan")
+			and modal.row_ids().has("offer_blocked"),
+			"a pending offer blocks the report card's send rows")
+		career.transfer_offers.pop_back()
+
+		modal.close()
+		await _frames(2)
+		_screen.call("_open_report_modal", player_id)
+		await _frames(2)
+		(modal.get("_by_id")["offer_transfer"] as Button).pressed.emit()
+		await _frames(2)
+		_check(_routes.size() == 1 and _routes[0]["view"] == "offer",
+			"the transfer action routes to the offer screen")
+		_check(str(_routes[0]["payload"].get("kind", "")) == "transfer",
+			"the transfer route carries the kind")
+		_check(str(_routes[0]["payload"].get("player_id", "")) == player_id,
+			"the transfer route carries the player")
+		_check((_routes[0]["payload"].get("preset", {}) as Dictionary).has("fee"),
+			"the offer gets the proposal preset")
+		_screen.call("_focus", report_cards[target])
+		_nav.confirmed.emit()
+		await _frames(2)
+		(modal.get("_by_id")["offer_loan"] as Button).pressed.emit()
+		await _frames(2)
+		_check(_routes.size() == 2 and _routes[1]["payload"]["kind"] == "loan",
+			"the loan action routes with the loan kind")
 
 	# Remove an entry with X --------------------------------------------------
 	_screen.call("_focus", _report_card_for(reports, player_id))

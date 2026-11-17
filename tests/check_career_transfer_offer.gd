@@ -11,7 +11,6 @@ const TARGET := "342229"
 const LOAN := "1001305"
 
 var failures: Array[String] = []
-var _navigate: Array = []
 var _changed := 0
 var _closed := 0
 
@@ -66,8 +65,6 @@ func _run() -> void:
 	screen.position = Vector2(220.0, 210.0)
 	screen.size = Vector2(1480.0, 626.0)
 	host.add_child(screen)
-	screen.navigate.connect(func(view: String, payload: Dictionary) -> void:
-		_navigate.append({"view": view, "payload": payload}))
 	screen.changed.connect(func() -> void: _changed += 1)
 	screen.closed.connect(func() -> void: _closed += 1)
 	var nav := root.get_node("UiNav")
@@ -120,7 +117,7 @@ func _run() -> void:
 	_check(screen.status() == "offer amount is above the club balance",
 		"an unaffordable offer reports the English error")
 	_check(screen.status_error(), "the error is flagged to the host")
-	_check(_changed == 0 and _navigate.is_empty(), "a failed submit navigates nowhere")
+	_check(_changed == 0 and _closed == 0, "a failed submit changes nothing")
 
 	# The buyout switch: confirm and arrows toggle it.
 	nav.moved.emit(Vector2i.UP)
@@ -136,25 +133,21 @@ func _run() -> void:
 	await _frames(1)
 	_check(bool(screen.offer()["buyout"]), "left toggles the buyout on")
 
-	# Submit a buyout: accepted, the career changes and the centre SENT tab opens.
+	# Submit a buyout: accepted, the career changes and the offer screen stands
+	# down to the search results (the centre is not forced on the manager).
 	nav.moved.emit(Vector2i.DOWN)
 	await _frames(1)
 	nav.confirmed.emit()
 	await _frames(1)
 	_check(screen.status() == "", "the buyout submit succeeds")
 	_check(_changed == 1, "a successful submit reports the career change")
-	_check(_navigate.size() == 1 and str(_navigate[0]["view"]) == "centre",
-		"the submit routes to the transfer centre")
-	if _navigate.size() == 1:
-		_check(str((_navigate[0]["payload"] as Dictionary).get("tab", "")) == "sent",
-			"the centre opens the SENT tab")
+	_check(_closed == 1, "a successful submit closes the offer screen")
 	var stored: Dictionary = career.transfer_offers[0] if not career.transfer_offers.is_empty() \
 		else {}
 	_check(bool(stored.get("buyout", false)), "the stored offer is a buyout")
 	_check(int(stored.get("amount", 0)) == clause, "the buyout stores the release clause")
 
 	# Loan fields: loan fee plus wage share, 5% steps on the share.
-	_navigate.clear()
 	screen.open(career, catalog, {"player_id": LOAN, "kind": "loan"})
 	await _frames(2)
 	var loan_proposal := CareerTransferOffers.proposal(career, catalog, LOAN, "loan")
@@ -180,7 +173,8 @@ func _run() -> void:
 	_check(screen.focused_id() == "submit", "the loan submit is the third row")
 	nav.confirmed.emit()
 	await _frames(1)
-	_check(_changed == 2 and _navigate.size() == 1, "the loan offer is sent")
+	_check(_changed == 2 and _closed == 2,
+		"the loan offer is sent and the screen stands down")
 	var loan_offer: Dictionary = {}
 	for item in career.transfer_offers:
 		if str(item.get("player_id", "")) == LOAN:
@@ -208,12 +202,12 @@ func _run() -> void:
 	await _frames(1)
 	_check(screen.status() == "you cannot make an offer for your own player",
 		"the own-player refusal is shown inline")
-	_check(_changed == 2 and _navigate.size() == 1, "the refusal changes nothing")
+	_check(_changed == 2 and _closed == 2, "the refusal changes nothing")
 
 	# Back.
 	nav.cancelled.emit()
 	await _frames(1)
-	_check(_closed == 1, "back closes the screen")
+	_check(_closed == 3, "back closes the screen")
 
 	print("== check_career_transfer_offer: ", "PASS" if failures.is_empty() else "FAIL",
 		" (", failures.size(), " failures) ==")

@@ -43,6 +43,8 @@ var _focus := -1
 var _focus_pending := false
 var _loading := false
 var _error := ""
+# The card handed over to an offer / contract screen and must come back.
+var _resume_actions := false
 
 var _left: Panel
 var _title: Label
@@ -73,6 +75,11 @@ func _ready() -> void:
 func setup(next_career: Career, next_catalog: TeamCatalog, payload := {}) -> void:
 	career = next_career
 	catalog = next_catalog
+	# Back from the offer / contract screen: the list and the player card are
+	# still valid, so give the card its input back instead of re-running the
+	# search under the player's feet.
+	if bool(payload.get("resume", false)) and _actions != null and _actions.resume():
+		return
 	var filters = payload.get("filters", null)
 	_filters = (filters as Dictionary).duplicate(true) if filters is Dictionary \
 		and not (filters as Dictionary).is_empty() else CareerSearch.filters_default()
@@ -97,8 +104,15 @@ func filters() -> Dictionary:
 
 # The host closes the view: drop any modal still owning input above it.
 func close() -> void:
-	if _actions != null and _actions.is_open():
-		_actions.close()
+	if _actions == null:
+		return
+	# An offer / contract screen is coming over this one: hide the card but keep
+	# it, so the manager lands back on the player after sending the offer.
+	if _resume_actions:
+		_resume_actions = false
+		_actions.suspend()
+		return
+	_actions.close()
 
 
 func hints() -> Array:
@@ -496,22 +510,34 @@ func _open_actions() -> void:
 
 
 func _on_actions_closed() -> void:
+	_resume_actions = false
 	_focus_id(_selected_id)
 	state_changed.emit()
 
 
 func _on_actions_navigate(view: String, payload: Dictionary) -> void:
+	_resume_actions = view == "offer" or view == "contract"
 	navigate.emit(view, payload)
 
 
 func _on_actions_changed() -> void:
 	var player_id := _actions.player_id()
 	_refresh_player(player_id)
+	# Assignment / recall changes who is free.
+	_refresh_scouts()
 	changed.emit()
 
 
 func _on_scout_requested(scout_id: String) -> void:
 	scout_requested.emit(_actions.player_id(), scout_id)
+	# The host assigned inside that signal: the scout is busy now, so the next
+	# card opened must not offer him again.
+	_refresh_scouts()
+
+
+func _refresh_scouts() -> void:
+	if career != null:
+		_scouts = _flagged_scouts(CareerScouting.assignable_scouts(career))
 
 
 func _refresh_player(player_id: String) -> void:

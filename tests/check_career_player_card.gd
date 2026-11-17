@@ -180,7 +180,7 @@ func _check_pane(host: Control) -> void:
 	_check((facts.get_node("FOOT").get_child(1) as Label).text == "Right", "facts: foot")
 	_check((head.get_node("Club/ClubName") as Label).text == "Manchester City",
 		"the club name is shown")
-	_check((content.get_node("Clause/Line/ReleaseClause") as Label).text == "€90M",
+	_check(_row_value(content.get_node("Metrics/Column0/RELEASE CLAUSE")) == "€90M",
 		"the release clause band shows the money")
 	var column := content.get_node("Metrics/Column0")
 	_check(_row_value(column.get_node("OVERALL")) == "84", "metrics: overall")
@@ -211,8 +211,8 @@ func _check_pane(host: Control) -> void:
 		"an unscouted overall is hidden")
 	_check(_row_value(pane.get_node("Card/Content/Metrics/Column1").get_child(0)) == "???",
 		"unscouted attributes are hidden")
-	_check((pane.get_node("Card/Content/Clause/Line/ReleaseClause") as Label).text == "?",
-		"an unscouted release clause is hidden")
+	_check(_row_value(pane.get_node("Card/Content/Metrics/Column0/RELEASE CLAUSE")) == "€90M",
+		"an unscouted release clause stays public")
 	var chip_texts: Array[String] = []
 	for chip in pane.get_node("Card/Content/Chips").get_children():
 		chip_texts.append((chip.get_child(0) as Label).text)

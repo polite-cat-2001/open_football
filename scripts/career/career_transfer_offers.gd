@@ -75,13 +75,12 @@ static func submit(career: Career, catalog: TeamCatalog, player_id, kind := "tra
 		if offer is Dictionary and str(offer.get("player_id", "")) == key:
 			existing.append(offer)
 	var active := _active_offer(career, key)
-	var retry := _retry_offer(career, key)
-	if not active.is_empty() and str(active.get("status", "")) == "pending":
+	var blocked := block(career, key, offer_kind)
+	if str(blocked.get("status", "")) == "pending":
 		return _fail("there is already an active offer for this player")
-	if not active.is_empty() and str(active.get("kind", "")) != offer_kind:
-		return _fail("there is already an active offer for this player")
-	if not retry.is_empty() and str(retry.get("retry_after", "")) > career.date:
-		return _fail("you can make another offer after %s" % str(retry.get("retry_after", "")))
+	if str(blocked.get("status", "")) == "refused":
+		return _fail("you can make another offer after %s"
+			% str(blocked.get("retry_after", "")))
 	if active.is_empty() and not existing.is_empty():
 		var last: Dictionary = existing[-1]
 		if str(last.get("status", "")) == "accepted":
@@ -306,6 +305,28 @@ static func find_offer(career: Career, offer_id) -> Dictionary:
 static func active_for(career: Career, player_id) -> Dictionary:
 	var active := _active_offer(career, str(player_id))
 	return {} if active.is_empty() else view(career, active)
+
+
+# Why no new offer of `kind` can be sent right now ("" kind = any):
+# {"status": "pending"} while the club is thinking (or countering another kind),
+# {"status": "refused", "retry_after": date} inside the refused cooldown, {} when
+# the offer can be made. Mirrors submit()'s pre-checks, so the card cannot show
+# a row that would fail.
+static func block(career: Career, player_id, kind := "") -> Dictionary:
+	var key := str(player_id)
+	var active := _active_offer(career, key)
+	if not active.is_empty():
+		var same_kind := not str(kind).is_empty() \
+			and str(active.get("kind", "")) == str(kind)
+		if not same_kind or str(active.get("status", "")) == "pending":
+			return {"status": "pending", "retry_after": ""}
+	var retry := _retry_offer(career, key)
+	if retry.is_empty():
+		return {}
+	var until := str(retry.get("retry_after", ""))
+	if until <= career.date:
+		return {}
+	return {"status": "refused", "retry_after": until}
 
 
 static func latest(career: Career, player_id) -> Dictionary:

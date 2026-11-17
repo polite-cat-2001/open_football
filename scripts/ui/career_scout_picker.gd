@@ -159,6 +159,7 @@ class Row extends Button:
 var _scouts: Array = []
 var _player_name := ""
 var _open := false
+var _armed := false
 var _rows: Array[Row] = []
 var _scrim: ColorRect
 var _card: PanelContainer
@@ -226,11 +227,15 @@ func open() -> void:
 	# would pop an open modal off the stack.
 	CareerScoutingModal.host_overlay(self)
 	_open = true
+	_armed = false
 	visible = true
 	move_to_front()
 	var nav := _ui_nav()
 	if nav != null:
 		nav.push_modal(self)
+	# Opened from the actions card's confirm handler: stay deaf until the next
+	# frame so that press does not also pick the first scout.
+	call_deferred("_arm")
 	_layout()
 	_focus_first()
 	var card := _card
@@ -439,7 +444,12 @@ func _on_row_pressed(row: Row) -> void:
 
 func _is_modal_owner() -> bool:
 	var nav := _ui_nav()
-	return _open and nav != null and nav.modal_owner() == self
+	return _open and _armed and nav != null and nav.modal_owner() == self
+
+
+func _arm() -> void:
+	if _open:
+		_armed = true
 
 
 func _ui_nav() -> Node:

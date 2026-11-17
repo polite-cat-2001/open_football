@@ -29,10 +29,12 @@ const MARK_LOSS := Color("b23a48")
 const MARK_WARN := Color("a66a00")
 
 
-# One focusable action row (large flat row, rail on focus).
+# One focusable action row (large flat row, rail on focus). A disabled row keeps
+# focus but does nothing on confirm and prints its ticket dimmed.
 class ActionRow extends Button:
 	var id := ""
 	var key := ""
+	var enabled := true
 	var _bg: Panel
 	var _rail: ColorRect
 	var _label: Label
@@ -74,9 +76,16 @@ class ActionRow extends Button:
 	func setup(row: Dictionary) -> void:
 		id = str(row.get("id", ""))
 		key = str(row.get("key", ""))
+		enabled = bool(row.get("enabled", true))
 		_label.text = str(row.get("label", "")).to_upper()
 		_apply_state()
 		_layout_content()
+
+	func label_text() -> String:
+		return "" if _label == null else str(_label.text)
+
+	func ticket_text() -> String:
+		return key
 
 	func _layout_content() -> void:
 		if _bg == null:
@@ -84,7 +93,13 @@ class ActionRow extends Button:
 		_bg.size = size
 		_rail.position = Vector2.ZERO
 		_rail.size = Vector2(UiTokens.RAIL_W, size.y)
-		var ticket_w := 26.0 if key.is_empty() else 30.0
+		# The ticket carries a key or a reason ("TRANSFER CENTRE"), so it is as
+		# wide as its text.
+		var ticket_w := 0.0
+		if not key.is_empty():
+			ticket_w = _ticket.get_theme_font(&"font").get_string_size(key,
+				HORIZONTAL_ALIGNMENT_LEFT, -1,
+				_ticket.get_theme_font_size(&"font_size")).x + 14.0
 		_ticket.position = Vector2(size.x - 14.0 - ticket_w, (size.y - 20.0) * 0.5)
 		_ticket.size = Vector2(ticket_w, 20.0)
 		_label.position = Vector2(14.0, 0.0)
@@ -99,8 +114,9 @@ class ActionRow extends Button:
 		box.anti_aliasing = true
 		_bg.add_theme_stylebox_override(&"panel", box)
 		_rail.visible = not focused
-		_label.add_theme_color_override(&"font_color",
-			UiTokens.FOCUS_MARK if focused else UiTokens.INK)
+		var ink := UiTokens.FOCUS_MARK if focused and enabled else (
+			UiTokens.FOCUS_INK_2 if focused else (UiTokens.INK if enabled else UiTokens.INK_2))
+		_label.add_theme_color_override(&"font_color", ink)
 		_ticket.visible = not key.is_empty()
 		_ticket.text = key
 		var ticket_box := StyleBoxFlat.new()
@@ -115,6 +131,9 @@ var _player: Dictionary = {}
 var _player_id := ""
 var _options: Dictionary = {}
 var _show_actions := false
+# A host that already draws the card frame (the player-actions modal) turns the
+# pane's own tile/shadow off.
+var _card_panel: StyleBoxFlat
 
 var _content: VBoxContainer
 var _photo: CareerPlayerCard.Photo
@@ -191,6 +210,10 @@ func setup(player: Dictionary, options := {}) -> void:
 		custom_minimum_size.x = float(options["width"])
 	if _content == null:
 		return
+	if _card_panel != null:
+		var flat := bool(options.get("flat", false))
+		_card_panel.bg_color = Color(UiTokens.TILE, 0.0) if flat else UiTokens.TILE
+		_card_panel.shadow_size = 0 if flat else 32
 	_refresh()
 	if options.has("action_rows"):
 		set_action_rows(options["action_rows"])
@@ -217,7 +240,7 @@ func set_action_rows(rows: Array) -> void:
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_actions.add_child(button)
 		button.setup(row)
-		button.pressed.connect(_on_action_pressed.bind(str(row.get("id", ""))))
+		button.pressed.connect(_on_action_pressed.bind(button))
 	_actions.visible = _show_actions and not rows.is_empty()
 
 
@@ -249,6 +272,7 @@ func _build() -> void:
 	panel.content_margin_top = PAD
 	panel.content_margin_bottom = PAD
 	card.add_theme_stylebox_override(&"panel", panel)
+	_card_panel = panel
 	add_child(card)
 
 	_content = VBoxContainer.new()
@@ -427,7 +451,7 @@ func _refresh() -> void:
 	_fact_values[1].text = "%d CM" % height if height > 0 else UNKNOWN
 	_fact_values[2].text = CareerPlayerCard.position_code(
 		str(_player.get("position", "")), group)
-	_fact_values[3].text = _foot_label(str(_player.get("foot", "")))
+	_fact_values[3].text = _foot_label(str(_player.get("foot", ""))) if revealed else HIDDEN
 	var crest := CareerPlayerCard.crest_texture(_player)
 	_club_photo.show_texture(crest)
 	_club_photo.visible = crest != null
@@ -626,5 +650,6 @@ func _instant() -> bool:
 	return transition != null and bool(transition.get("instant"))
 
 
-func _on_action_pressed(id: String) -> void:
-	action_chosen.emit(id)
+func _on_action_pressed(row: ActionRow) -> void:
+	if row.enabled:
+		action_chosen.emit(row.id)

@@ -45,6 +45,7 @@ var _catalog: TeamCatalog
 var _filters: Dictionary = {}
 var _screens: Dictionary = {}
 var _current := "hub"
+var _back_view := ""
 var _busy := false
 var _open := false
 var _shell_focused := false
@@ -247,7 +248,10 @@ func _configure(screen: Control, view: String, payload: Dictionary) -> void:
 		"filters":
 			screen.setup(_filters, _reference())
 		"results":
-			screen.setup(_career, _catalog, {"filters": _filters})
+			var next := {"filters": _filters}
+			if bool(payload.get("resume", false)):
+				next["resume"] = true
+			screen.setup(_career, _catalog, next)
 		_:
 			if screen.has_method("open"):
 				screen.open(_career, _catalog, payload)
@@ -277,10 +281,10 @@ func _on_navigate(view: String, payload: Dictionary) -> void:
 		"network":
 			_show("network", payload)
 		"offer":
-			payload["back_view"] = _current
+			_back_view = _current
 			_show("offer", payload)
 		"contract":
-			payload["back_view"] = _current
+			_back_view = _current
 			_show("contract", payload)
 		"exit":
 			exit_requested.emit()
@@ -294,7 +298,15 @@ func _on_closed() -> void:
 	if _current == "hub":
 		exit_requested.emit()
 		return
-	_show(str(PARENT.get(_current, "hub")), {})
+	# The offer / contract screens return where they were opened from (the
+	# search results or the Transfer Centre); the rest keep their fixed parent.
+	var back := str(PARENT.get(_current, "hub"))
+	var resume := false
+	if _current in ["offer", "contract"] and not _back_view.is_empty():
+		back = _back_view
+		resume = true
+	_back_view = ""
+	_show(back, {"resume": true} if resume else {})
 
 
 func _on_changed() -> void:

@@ -764,6 +764,8 @@ var _tab := "shortlist"
 var _zone := "tabs"
 var _tab_focus := 0
 var _focus_row := -1
+# The card handed over to an offer / contract screen and must come back.
+var _resume_actions := false
 var _selected_id := ""
 var _open_id := ""
 var _unread := 0
@@ -832,6 +834,10 @@ func open(next_career: Career, next_catalog: TeamCatalog, payload := {}) -> void
 	career = next_career
 	catalog = next_catalog
 	_error = ""
+	# Back from the offer / contract screen: the lists and the player card are
+	# still valid, so give the card its input back instead of rebuilding.
+	if bool(payload.get("resume", false)) and _actions != null and _actions.resume():
+		return
 	var wanted := str(payload.get("tab", ""))
 	if not wanted.is_empty() and _tab_index(wanted) >= 0:
 		_tab = wanted
@@ -850,8 +856,14 @@ func close() -> void:
 			tween.kill()
 	if _amount != null and _amount.is_open():
 		_amount.close()
-	if _actions != null and _actions.is_open():
-		_actions.close()
+	if _actions != null:
+		# An offer / contract screen is coming over this one: keep the card for
+		# the return trip instead of throwing the player away.
+		if _resume_actions:
+			_resume_actions = false
+			_actions.suspend()
+		elif _actions.is_open():
+			_actions.close()
 	release_focus()
 
 
@@ -1742,6 +1754,7 @@ func _open_actions() -> void:
 
 
 func _on_actions_navigate(view: String, payload: Dictionary) -> void:
+	_resume_actions = view == "offer" or view == "contract"
 	navigate.emit(view, payload)
 
 
@@ -1755,6 +1768,7 @@ func _on_scout_requested(scout_id: String) -> void:
 
 
 func _on_actions_closed() -> void:
+	_resume_actions = false
 	var index := _shortlist_index(_short_selected)
 	if index >= 0:
 		_short_cards[index].grab_focus()

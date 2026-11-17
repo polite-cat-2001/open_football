@@ -57,7 +57,6 @@ var _task_saved := true
 
 var _error := ""
 var _club_name := ""
-var _report_can_discuss := false
 var _open := false
 var _body_tween: Tween
 var _pending: Callable
@@ -88,7 +87,7 @@ var _task_action: Button
 var _scout_actions: CareerScoutActionsModal
 var _hire_modal: CareerScoutHireModal
 var _confirm
-var _report_modal: CareerScoutingModal
+var _report_actions: CareerPlayerActions
 
 
 func _ready() -> void:
@@ -122,8 +121,8 @@ func open(next_career: Career, next_catalog: TeamCatalog, payload := {}) -> void
 func close() -> void:
 	_open = false
 	visible = false
-	if _report_modal != null:
-		_report_modal.close()
+	if _report_actions != null:
+		_report_actions.close()
 	if _scout_actions != null:
 		_scout_actions.close()
 	if _hire_modal != null:
@@ -150,7 +149,7 @@ func hints() -> Array:
 			{"keys": ["A"] if gamepad else ["ENTER"], "label": "confirm"},
 			{"keys": ["B"] if gamepad else ["ESC"], "label": "cancel"},
 		]
-	if _report_modal.is_open():
+	if _report_actions.is_open():
 		return [move, select, {"keys": ["X"], "label": "remove from report"}, back]
 	if _scout_actions.is_open() or _hire_modal.is_open():
 		return [move, select, back]
@@ -335,10 +334,14 @@ func _build() -> void:
 	_confirm.action_chosen.connect(_on_confirm_action)
 	_confirm.closed.connect(_on_confirm_closed)
 
-	_report_modal = CareerScoutingModal.new()
-	_report_modal.name = "Report"
-	add_child(_report_modal)
-	_report_modal.closed.connect(_on_modal_closed)
+	_report_actions = CareerPlayerActions.new()
+	_report_actions.name = "Report"
+	add_child(_report_actions)
+	_report_actions.navigate.connect(func(view: String, payload: Dictionary) -> void:
+		navigate.emit(view, payload))
+	_report_actions.changed.connect(func() -> void: changed.emit())
+	_report_actions.extra_action.connect(_on_report_extra)
+	_report_actions.closed.connect(_on_modal_closed)
 
 
 func _label(font: Font, font_size: int) -> Label:
@@ -1043,14 +1046,17 @@ func _move_reports(direction: Vector2i) -> void:
 	if not cards.has(focus):
 		return
 	var index := cards.find(focus)
+	# The feed is a two-column grid (CareerScoutReportsFeed.COLUMNS), not the
+	# three-column scout grid the screen uses elsewhere.
+	var columns := CareerScoutReportsFeed.COLUMNS
 	match direction:
 		Vector2i.UP:
-			if index < COLUMNS:
+			if index < columns:
 				_focus(tabs[mini(_reports.active_tab(), tabs.size() - 1)])
 			else:
-				_focus(cards[index - COLUMNS])
+				_focus(cards[index - columns])
 		Vector2i.DOWN:
-			_focus(cards[mini(index + COLUMNS, cards.size() - 1)])
+			_focus(cards[mini(index + columns, cards.size() - 1)])
 		Vector2i.LEFT:
 			_focus(cards[maxi(0, index - 1)])
 		Vector2i.RIGHT:
@@ -1135,7 +1141,7 @@ func _input(event: InputEvent) -> void:
 		return
 	var nav := _ui_nav()
 	if nav != null and nav.is_modal() \
-			and not (_report_modal.is_open() and nav.modal_owner() == _report_modal):
+			and not (_report_actions.is_open() and nav.modal_owner() == _report_actions):
 		return
 	if _is_key(event, KEY_Q):
 		get_viewport().set_input_as_handled()
@@ -1147,7 +1153,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if _is_key(event, KEY_X) or _is_button(event, JOY_BUTTON_X):
 		get_viewport().set_input_as_handled()
-		if view == "reports" and _report_modal.is_open():
+		if view == "reports" and _report_actions.is_open():
 			_remove_entry(_entry_id)
 		elif view == "task":
 			_reset_task_draft()
@@ -1607,69 +1613,38 @@ func _open_report_modal(player_id: String) -> void:
 		return
 	_entry_id = player_id
 	_reports.select(player_id)
-	var pane := CareerPlayerPane.new()
-	_report_modal.setup("SCOUT REPORT",
-		"%s · %s · %s" % [
+	# The player-actions card itself: the report only asks for its eyebrow and
+	# the two host rows (the scout / shortlist rows belong to the transfer flow).
+	_report_actions.setup(career, catalog, player, {
+		"date": career.date,
+		"eyebrow": "%s · %s · %s" % [
 			"SCOUT REPORT READY" if str(entry.get("kind", "")) == "report" \
 				else "PLAYER FOUND",
 			str(entry.get("scout_name", "")),
 			CareerScoutReportsFeed._date_label(str(entry.get("date", "")))],
-		[])
-	_report_modal.set_content(pane)
-	# The report card shows the whole player at once (the prototype's scouting
-	# modal has no scroll here): without a scrolling axis the pane reports its
-	# full height and the shell sizes the card from it.
-	pane.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	pane.setup(player, {
-		"action_rows": _report_rows(player),
-		"show_actions": true,
-		"date": career.date,
+		"show_scout": false,
+		"show_shortlist": false,
+		"extra_rows": [
+			{"id": "remove", "label": "REMOVE FROM REPORT", "key": "X"},
+			{"id": "close", "label": "CLOSE", "key": "B"},
+		],
 	})
-	pane.action_chosen.connect(_on_report_action.bind(player_id))
-	_report_modal.open()
+	_report_actions.open()
 	state_changed.emit()
 
 
-func _report_rows(player: Dictionary) -> Array:
-	var rows: Array = []
-	if not str(player.get("club_id", "")).is_empty():
-		rows.append({"id": "offer_transfer", "label": "MAKE TRANSFER OFFER"})
-		rows.append({"id": "offer_loan", "label": "MAKE LOAN OFFER"})
-	var can_discuss := career != null and catalog != null \
-		and CareerTransferContracts.can_discuss(catalog, career, player)
-	_report_can_discuss = can_discuss
-	rows.append({"id": "discuss", "label": "DISCUSS MOVE",
-		"key": "" if can_discuss else "NOT EXPIRING"})
-	rows.append({"id": "remove", "label": "REMOVE FROM REPORT"})
-	rows.append({"id": "close", "label": "CLOSE"})
-	return rows
-
-
-func _on_report_action(id: String, player_id: String) -> void:
-	_report_modal.close()
+func _on_report_extra(id: String) -> void:
 	match id:
-		"offer_transfer":
-			navigate.emit("offer", {"player_id": player_id, "kind": "transfer",
-				"preset": CareerTransferOffers.proposal(career, catalog, player_id,
-					"transfer")})
-		"offer_loan":
-			navigate.emit("offer", {"player_id": player_id, "kind": "loan",
-				"preset": CareerTransferOffers.proposal(career, catalog, player_id,
-					"loan")})
-		"discuss":
-			if _report_can_discuss:
-				navigate.emit("contract", {"player_id": player_id})
-			else:
-				_error = "contract talks are only available for free agents or expiring contracts"
-				_settle()
 		"remove":
-			_remove_entry(player_id)
+			_remove_entry(_entry_id)
+		"close":
+			_report_actions.close()
 
 
 func _remove_entry(player_id: String) -> void:
 	if player_id.is_empty():
 		return
-	_report_modal.close()
+	_report_actions.close()
 	_entry_id = ""
 	_after_action(CareerScouting.remove(career, player_id))
 

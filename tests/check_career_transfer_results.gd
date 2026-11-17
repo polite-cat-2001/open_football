@@ -196,7 +196,7 @@ func _run() -> void:
 	await _frames(2)
 	_check(actions.is_open(), "the modal opens again")
 	_check(not career.shortlist.has(player_id), "the player starts off the shortlist")
-	var shortlist_row: CareerPlayerActions.Row = actions.get("_by_id")["shortlist"]
+	var shortlist_row: CareerPlayerPane.ActionRow = actions.get("_by_id")["shortlist"]
 	shortlist_row.grab_focus()
 	nav.confirmed.emit()
 	await _frames(2)
@@ -207,11 +207,12 @@ func _run() -> void:
 	_check(actions.is_open(), "toggling keeps the modal open")
 
 	# Transfer / loan routes -------------------------------------------------
-	var transfer_row: CareerPlayerActions.Row = actions.get("_by_id")["offer_transfer"]
+	var transfer_row: CareerPlayerPane.ActionRow = actions.get("_by_id")["offer_transfer"]
 	transfer_row.grab_focus()
 	nav.confirmed.emit()
 	await _frames(2)
-	_check(not actions.is_open(), "choosing an offer closes the modal")
+	_check(not actions.is_open(), "choosing an offer hands the card over")
+	_check(not nav.is_modal(), "the offer screen takes the input")
 	_check(_routes.size() == 1 and _routes[0]["view"] == "offer",
 		"the offer route leaves the screen")
 	var payload: Dictionary = _routes[0]["payload"]
@@ -220,8 +221,15 @@ func _run() -> void:
 	_check((payload.get("preset", {}) as Dictionary).has("fee"),
 		"the offer screen gets the proposal preset")
 
-	nav.confirmed.emit()
+	# The host hides the list for the offer screen and reopens it afterwards:
+	# the card (and its player) come back without re-running the search.
+	screen.close()
+	await _frames(1)
+	screen.setup(career, catalog, {"resume": true})
 	await _frames(2)
+	_check(actions.is_open(), "the player card comes back after the offer screen")
+	_check(nav.modal_owner() == actions, "the returned card owns input again")
+	_check(screen.selected_id() == player_id, "the same player stays selected")
 	actions.get("_by_id")["offer_loan"].grab_focus()
 	nav.confirmed.emit()
 	await _frames(2)

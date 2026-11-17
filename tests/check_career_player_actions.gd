@@ -16,6 +16,7 @@ var _routes: Array[Dictionary] = []
 var _changed := 0
 var _closed := 0
 var _scouts_assigned: Array[String] = []
+var _assign_scouts := false
 
 
 func _init() -> void:
@@ -127,7 +128,10 @@ func _run() -> void:
 	modal.changed.connect(func() -> void: _changed += 1)
 	modal.closed.connect(func() -> void: _closed += 1)
 	modal.scout_requested.connect(func(scout_id: String) -> void:
-		_scouts_assigned.append(scout_id))
+		_scouts_assigned.append(scout_id)
+		# The real hosts (transfer results / centre) assign synchronously here.
+		if _assign_scouts:
+			CareerScouting.assign(career, catalog, scout_id, modal.player_id()))
 	await _frames(2)
 
 	# Unscouted club player, no free scouts ---------------------------------
@@ -146,19 +150,27 @@ func _run() -> void:
 		"club offers are available")
 	_check(not modal.row_enabled("discuss"), "an unscouted running contract cannot be discussed")
 	_check(modal.row_ticket("discuss") == "NOT EXPIRING", "the discuss row explains why")
-	var foot: Label = (modal.get("_fact_values") as Array)[3]
+	var foot: Label = ((modal.get("_pane") as CareerPlayerPane).get("_fact_values") as Array)[3]
 	_check(foot.text == "?", "an unscouted foot stays hidden")
-	var metrics: Array = modal.get("_metric_values")
+	var metrics: Array = (modal.get("_pane") as CareerPlayerPane).get("_metric_values")
 	_check((metrics[0] as Label).text == "?" and (metrics[1] as Label).text == "?"
 		and (metrics[2] as Label).text == "?", "fog hides overall, price and wage")
 	_check((metrics[3] as Label).text == CareerPlayerPane.money(
 		int(club_player.get("release_clause", 0))), "the release clause stays visible")
-	var status_box: VBoxContainer = modal.get("_status_box")
+	var status_box: VBoxContainer = (modal.get("_pane") as CareerPlayerPane).get("_status_box")
 	_check(status_box.get_child_count() >= 2, "the status and the contract line are shown")
 
 	# Focus walks the rows, Back closes -------------------------------------
-	var first_row: CareerPlayerActions.Row = modal.get("_rows")[0]
+	var first_row: CareerPlayerPane.ActionRow = modal.get("_rows")[0]
 	_check(first_row.has_focus(), "the first row takes focus, disabled or not")
+	# The pane must own a real height: a collapsed ScrollContainer showed only
+	# the first action row of the card.
+	var pane_box: Control = modal.get("_pane")
+	_check(pane_box.size.y > 300.0, "the player pane gets its full height")
+	var rows: Array = modal.get("_rows")
+	var last_row: Control = rows[rows.size() - 1]
+	_check(last_row.position.y + last_row.size.y <= modal.get_node("Card").size.y + 0.5,
+		"every action row fits inside the card")
 	nav.moved.emit(Vector2i.DOWN)
 	await _frames(1)
 	_check((modal.get("_rows") as Array)[1].has_focus(), "down walks the rows")
@@ -186,7 +198,7 @@ func _run() -> void:
 	modal.setup(career, catalog, club_player, {"scouts": []})
 	modal.open()
 	await _frames(2)
-	(modal.get("_by_id")["shortlist"] as CareerPlayerActions.Row).grab_focus()
+	(modal.get("_by_id")["shortlist"] as CareerPlayerPane.ActionRow).grab_focus()
 	nav.confirmed.emit()
 	await _frames(2)
 	_check(career.shortlist.has(player_id), "the toggle writes the shortlist")
@@ -195,7 +207,7 @@ func _run() -> void:
 	_check(modal.is_open(), "toggling keeps the modal open")
 
 	# Offer routes ----------------------------------------------------------
-	(modal.get("_by_id")["offer_transfer"] as CareerPlayerActions.Row).grab_focus()
+	(modal.get("_by_id")["offer_transfer"] as CareerPlayerPane.ActionRow).grab_focus()
 	nav.confirmed.emit()
 	await _frames(2)
 	_check(_routes.size() == 1 and _routes[0]["view"] == "offer",
@@ -206,12 +218,16 @@ func _run() -> void:
 	var preset: Dictionary = _routes[0]["payload"].get("preset", {})
 	_check(preset.has("fee") and preset.has("can_submit"),
 		"the route carries the proposal preset")
-	_check(not modal.is_open(), "the route closes the modal first")
+	_check(not modal.is_open() and not nav.is_modal(),
+		"the route hands the card over to the offer screen")
+	_check(modal.resume(), "the card comes back after the offer screen")
+	_check(modal.is_open() and nav.modal_owner() == modal,
+		"the returned card owns input again")
 
 	modal.setup(career, catalog, club_player, {"scouts": []})
 	modal.open()
 	await _frames(2)
-	(modal.get("_by_id")["offer_loan"] as CareerPlayerActions.Row).grab_focus()
+	(modal.get("_by_id")["offer_loan"] as CareerPlayerPane.ActionRow).grab_focus()
 	nav.confirmed.emit()
 	await _frames(2)
 	_check(_routes.size() == 2 and str(_routes[1]["payload"].get("kind", "")) == "loan",
@@ -223,7 +239,7 @@ func _run() -> void:
 	await _frames(2)
 	_check(modal.row_label("scout") == "ASSIGN SCOUT", "free scouts offer an assignment")
 	_check(modal.row_enabled("scout"), "the assignment row is an action")
-	(modal.get("_by_id")["scout"] as CareerPlayerActions.Row).grab_focus()
+	(modal.get("_by_id")["scout"] as CareerPlayerPane.ActionRow).grab_focus()
 	nav.confirmed.emit()
 	await _frames(2)
 	var picker: CareerScoutPicker = modal.get("_picker")
@@ -243,22 +259,56 @@ func _run() -> void:
 			"scout_name": "Nils Berg", "days_left": 3},
 	})
 	_check(modal.row_label("scout") == "NILS BERG IS WATCHING", "a running report names the scout")
-	_check(not modal.row_enabled("scout"), "a running report blocks another assignment")
+	_check(modal.row_enabled("scout"), "a running report offers a recall")
 	_check(modal.row_ticket("scout") == "3 DAYS LEFT", "the report row counts the days")
 	modal.call("_open_picker")
 	_check(not (modal.get("_picker") as CareerScoutPicker).is_open(),
 		"a player who is already watched offers no scout picker")
+
+	# A live assignment lands on the card without a reopen -------------------
+	_assign_scouts = true
+	var free_scout: Dictionary = CareerScouting.assignable_scouts(career)[0]
+	modal.setup(career, catalog, club_player, {"scouts": [free_scout], "date": career.date})
+	_check(modal.row_label("scout") == "ASSIGN SCOUT", "a free scout is offered again")
+	(modal.get("_by_id")["scout"] as CareerPlayerPane.ActionRow).grab_focus()
+	nav.confirmed.emit()
+	await _frames(2)
+	_check((modal.get("_picker") as CareerScoutPicker).is_open(),
+		"re-opened, the picker waits for its own confirm")
+	nav.confirmed.emit()
+	await _frames(2)
+	_check(modal.row_label("scout")
+		== "%s IS WATCHING" % str(free_scout.get("name", "")).to_upper(),
+		"the card switches to the scout who is now watching")
+	_check(modal.row_enabled("scout"), "the watching row is an action")
+	_assign_scouts = false
+
+	# Confirming it offers the recall card ----------------------------------
+	var before_recall := _changed
+	nav.confirmed.emit()
+	await _frames(2)
+	var recall := modal.get("_recall_modal") as CareerScoutingModal
+	_check(recall != null and recall.is_open(), "the watching row opens the recall card")
+	_check(recall.row_ids() == ["recall", "cancel"], "the recall card offers recall and cancel")
+	_check(nav.modal_owner() == recall, "the recall card owns input")
+	nav.confirmed.emit()
+	await _frames(2)
+	_check(not recall.is_open(), "recalling closes the card")
+	_check(modal.row_label("scout") == "ASSIGN SCOUT", "the recall frees the row again")
+	_check(CareerScouting.report_for(career, club_player["player_id"]).is_empty(),
+		"the recalled scout dropped the player")
+	_check(_changed == before_recall + 1, "the recall reports the change")
 
 	# A scouted player hides the scout row and reveals the numbers -----------
 	modal.setup(career, catalog, scouted, {"scouts": SCOUTS})
 	modal.open()
 	await _frames(2)
 	_check(not modal.row_ids().has("scout"), "a scouted player needs no scout row")
-	var revealed_metrics: Array = modal.get("_metric_values")
+	var revealed_metrics: Array = (modal.get("_pane") as CareerPlayerPane).get("_metric_values")
 	_check((revealed_metrics[0] as Label).text == "84", "a scouted overall is shown")
 	_check((revealed_metrics[1] as Label).text == CareerPlayerPane.money(42000000),
 		"a scouted price is shown")
-	_check((modal.get("_fact_values") as Array)[3].text == "Right", "a scouted foot is shown")
+	_check(((modal.get("_pane") as CareerPlayerPane).get("_fact_values") as Array)[3].text == "Right", "a scouted foot is shown")
 
 	# Free agent ------------------------------------------------------------
 	modal.setup(career, catalog, free_agent, {"scouts": []})
@@ -269,7 +319,7 @@ func _run() -> void:
 	_check(modal.row_ticket("discuss") == "A", "the discuss row is an action")
 	modal.open()
 	await _frames(2)
-	(modal.get("_by_id")["discuss"] as CareerPlayerActions.Row).grab_focus()
+	(modal.get("_by_id")["discuss"] as CareerPlayerPane.ActionRow).grab_focus()
 	nav.confirmed.emit()
 	await _frames(2)
 	_check(_routes.size() == 3 and _routes[2]["view"] == "contract",
@@ -284,6 +334,85 @@ func _run() -> void:
 	if not steady.is_empty():
 		modal.setup(career, catalog, steady, {"scouts": []})
 		_check(not modal.row_enabled("discuss"), "a running contract cannot be discussed")
+
+	# A pending offer removes the send rows ---------------------------------
+	var today := str(career.date)
+	var offer := {
+		"id": "test-offer", "player_id": player_id, "kind": "transfer",
+		"amount": 1, "status": "pending", "signed": false,
+	}
+	career.transfer_offers.append(offer)
+	modal.setup(career, catalog, club_player, {"scouts": []})
+	_check(modal.row_ids() == ["scout", "shortlist", "offer_blocked", "discuss"],
+		"a pending offer removes the transfer and loan rows")
+	_check(modal.row_label("offer_blocked") == "OFFER IS WITH THE CLUB",
+		"the pending row names the state")
+	_check(modal.row_ticket("offer_blocked") == "TRANSFER CENTRE",
+		"the pending row points at the centre")
+	_check(not modal.row_enabled("offer_blocked"), "the pending row is not an action")
+
+	# Refused: no offers until the retry date -------------------------------
+	offer["status"] = "refused"
+	offer["retry_after"] = CareerSearch.add_days(today, 3)
+	career.data["date"] = today
+	modal.setup(career, catalog, club_player, {"scouts": []})
+	_check(modal.row_ids() == ["scout", "shortlist", "offer_blocked", "discuss"],
+		"a refusal inside its cooldown removes the send rows")
+	_check(modal.row_label("offer_blocked") == "OFFER REFUSED", "the refusal is named")
+	_check(modal.row_ticket("offer_blocked")
+		== "RETRY " + CareerSearch.add_days(today, 3), "the refusal carries the retry date")
+	career.data["date"] = CareerSearch.add_days(today, 4)
+	modal.setup(career, catalog, club_player, {"scouts": []})
+	_check(modal.row_ids() == ["scout", "shortlist", "offer_transfer", "offer_loan",
+		"discuss"], "the retry date brings the offer rows back")
+	career.data["date"] = today
+
+	# An accepted offer turns the offer rows into contract talks ------------
+	offer["status"] = "accepted"
+	offer["retry_after"] = null
+	modal.setup(career, catalog, club_player, {"scouts": []})
+	_check(modal.row_ids() == ["scout", "shortlist", "discuss"],
+		"an accepted offer hides the transfer and loan rows")
+	_check(modal.row_label("discuss") == "CONTRACT TALKS",
+		"an accepted offer offers contract talks")
+	_check(modal.row_enabled("discuss"), "contract talks are an action")
+	modal.open()
+	await _frames(2)
+	(modal.get("_by_id")["discuss"] as CareerPlayerPane.ActionRow).grab_focus()
+	nav.confirmed.emit()
+	await _frames(2)
+	_check(_routes.size() == 4 and _routes[3]["view"] == "contract",
+		"contract talks route to the contract screen")
+	_check(str(_routes[3]["payload"].get("offer_id", "")) == "test-offer",
+		"contract talks carry the accepted offer")
+	_check(str(_routes[3]["payload"].get("kind", "")) == "transfer",
+		"contract talks carry the offer kind")
+	offer["signed"] = true
+	offer["execute_on"] = "2026-08-01"
+	modal.setup(career, catalog, club_player, {"scouts": []})
+	_check(modal.row_ids() == ["scout", "shortlist", "transfer_agreed"],
+		"a signed transfer leaves only the note")
+	_check(modal.row_label("transfer_agreed") == "TRANSFER AGREED",
+		"the note says the transfer is agreed")
+	_check(modal.row_ticket("transfer_agreed") == "JOINS 2026-08-01",
+		"the note carries the joining date")
+
+	# A counter is still a running negotiation: no new offer of either kind ---
+	offer["signed"] = false
+	offer["status"] = "counter"
+	offer["counter"] = {"amount": 1}
+	modal.setup(career, catalog, club_player, {"scouts": []})
+	_check(modal.row_ids() == ["scout", "shortlist", "offer_blocked", "discuss"],
+		"a counter hides both send rows")
+
+	# Your own squad has nothing to send ------------------------------------
+	var own := club_player.duplicate(true)
+	own["player_id"] = str(career.player_ids[0])
+	own["club_id"] = str(career.club_id)
+	modal.setup(career, catalog, own, {"scouts": []})
+	_check(not modal.row_ids().has("offer_transfer") and not modal.row_ids().has("offer_loan"),
+		"your own player offers nothing to send")
+	_check(modal.row_ids().has("shortlist"), "your own player can still be shortlisted")
 
 	# Busy scouts are listed but cannot be picked ---------------------------
 	var busy_picker := CareerScoutPicker.new()

@@ -7,10 +7,9 @@ extends Control
 # and the wage share. Left/right steps the focused field by the prototype's
 # step, confirm on a money field opens the shared CareerAmountModal prefilled,
 # confirm on an action sends the offer. The host owns routing, animation and
-# the hints bar; this screen only emits closed / navigate / changed.
+# the hints bar; this screen only emits closed / changed.
 
 signal closed
-signal navigate(view: String, payload: Dictionary)
 signal changed
 
 const GAP := 10.0
@@ -694,7 +693,9 @@ func _submit() -> void:
 		return
 	_error = ""
 	changed.emit()
-	navigate.emit("centre", {"tab": "sent"})
+	# Back to the search results, not the Transfer Centre's SENT tab: the sent
+	# offer lives there, but the manager keeps browsing.
+	closed.emit()
 
 
 # Input ----------------------------------------------------------------------

@@ -1,12 +1,14 @@
 class_name CareerPlayerActions
 extends Control
-# Prototype PlayerActionsModal.svelte: the player-actions card of the transfer
-# search (and of the scout report later). Header photo/name/facts/club, the
-# metrics row with the fog (`?` until scouted), the status lines and the action
-# rows: scout assignment, shortlist, transfer / loan offers and the personal
-# contract. Rows follow the prototype, including the disabled ones and their
-# ticket reason ("HIRE A SCOUT", "NOT EXPIRING", …); a disabled row still takes
-# focus but does nothing on confirm.
+# Prototype PlayerActionsModal.svelte: the one player-actions card of the career
+# screens (the transfer search, the transfer centre shortlist and the scout
+# report all open this class). The player himself is drawn by the shared
+# CareerPlayerPane (photo, facts, metrics, attributes, status), the action rows
+# are the pane's rows: scout assignment, shortlist, transfer / loan offers and
+# the personal contract, plus the host's `extra_rows` ("REMOVE FROM REPORT").
+# Rows follow the prototype, including the disabled ones and their ticket reason
+# ("HIRE A SCOUT", "NOT EXPIRING", …); a disabled row still takes focus but does
+# nothing on confirm.
 #
 # The card owns UiNav while open (push_modal / pop_modal), fades + scales in
 # 240 ms and out in 150 ms, and reports through signals — the host screen owns
@@ -15,124 +17,20 @@ extends Control
 signal navigate(view: String, payload: Dictionary)
 signal changed
 signal scout_requested(scout_id: String)
+# A host row (`extra_rows`): "remove", "close", …
+signal extra_action(id: String)
 signal closed
 
 const CARD_W := 860.0
 const PAD := 16.0
-const ROW_H := 44.0
-const PHOTO_W := 92.0
-const PHOTO_H := 100.0
-const CREST := 32.0
-const METRIC_H := 58.0
-const STATUS_H := 26.0
 const SCALE_FROM := 0.96
 const SCRIM := Color(0.024, 0.047, 0.102, 0.68)
-const HIDDEN := "?"
-
-
-# One action row: label on the left, the confirm key or the disabled reason on
-# the right. Focus inverts it like every other career list row.
-class Row extends Button:
-	var id := ""
-	var enabled := true
-	var _bg: Panel
-	var _label: Label
-	var _ticket: Label
-	var _normal: StyleBoxFlat
-	var _focus: StyleBoxFlat
-
-	func _ready() -> void:
-		flat = true
-		text = ""
-		focus_mode = Control.FOCUS_ALL
-		mouse_filter = Control.MOUSE_FILTER_STOP
-		for state in [&"normal", &"hover", &"pressed", &"focus", &"disabled"]:
-			add_theme_stylebox_override(state, StyleBoxEmpty.new())
-		_normal = StyleBoxFlat.new()
-		_normal.bg_color = Color(UiTokens.INK, 0.055)
-		_focus = StyleBoxFlat.new()
-		_focus.bg_color = UiTokens.FOCUS_FILL
-		_bg = Panel.new()
-		_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(_bg)
-		_label = Label.new()
-		_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_label.clip_text = true
-		_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		_label.add_theme_font_override(&"font", UiTheme.barlow(700))
-		_label.add_theme_font_size_override(&"font_size", 18)
-		add_child(_label)
-		_ticket = Label.new()
-		_ticket.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_ticket.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		_ticket.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_ticket.add_theme_font_override(&"font", UiTheme.inter(600))
-		_ticket.add_theme_font_size_override(&"font_size", 16)
-		add_child(_ticket)
-		resized.connect(_layout_content)
-		focus_entered.connect(_apply_state)
-		focus_exited.connect(_apply_state)
-		mouse_entered.connect(grab_focus)
-		_apply_state()
-
-	func setup(row: Dictionary) -> void:
-		id = str(row.get("id", ""))
-		enabled = bool(row.get("enabled", true))
-		if _label == null:
-			return
-		set_label(str(row.get("label", "")))
-		_ticket.text = str(row.get("ticket", ""))
-		_apply_state()
-		_layout_content()
-
-	func set_label(text: String) -> void:
-		_label.text = text.to_upper()
-
-	func label_text() -> String:
-		return "" if _label == null else str(_label.text)
-
-	func ticket_text() -> String:
-		return "" if _ticket == null else str(_ticket.text)
-
-	func _layout_content() -> void:
-		if _bg == null:
-			return
-		_bg.position = Vector2.ZERO
-		_bg.size = size
-		var ticket_w := 0.0
-		if not _ticket.text.is_empty():
-			var font := _ticket.get_theme_font(&"font")
-			var font_size := _ticket.get_theme_font_size(&"font_size")
-			ticket_w = font.get_string_size(_ticket.text, HORIZONTAL_ALIGNMENT_LEFT,
-				-1, font_size).x + 16.0
-		_ticket.position = Vector2(size.x - 14.0 - ticket_w, (size.y - 20.0) * 0.5)
-		_ticket.size = Vector2(ticket_w, 20.0)
-		var text_x := 14.0
-		_label.position = Vector2(text_x, 0.0)
-		_label.size = Vector2(maxf(0.0, size.x - text_x - 14.0 - ticket_w - 10.0), size.y)
-
-	func _apply_state() -> void:
-		if _bg == null:
-			return
-		var focused := has_focus()
-		_bg.add_theme_stylebox_override(&"panel", _focus if focused else _normal)
-		var ink := UiTokens.INK
-		var ticket_ink := UiTokens.INK_2
-		var ticket_fill := Color(UiTokens.INK, 0.07)
-		if focused:
-			ink = UiTokens.FOCUS_MARK if enabled else UiTokens.FOCUS_INK_2
-			ticket_ink = UiTokens.FOCUS_INK_2
-			ticket_fill = Color(UiTokens.FOCUS_INK, 0.14)
-		elif not enabled:
-			ink = UiTokens.INK_2
-		_label.add_theme_color_override(&"font_color", ink)
-		_ticket.add_theme_color_override(&"font_color", ticket_ink)
-		var box := StyleBoxFlat.new()
-		box.bg_color = ticket_fill
-		box.content_margin_left = 8.0
-		box.content_margin_right = 8.0
-		_ticket.add_theme_stylebox_override(&"normal", box)
+# The recall confirm over a running report: same rows as the prototype's scout
+# card (action first, Cancel last).
+const RECALL_ROWS := [
+	{"id": "recall", "label": "Recall scout", "ticket": "A"},
+	{"id": "cancel", "label": "Cancel", "ticket": "B"},
+]
 
 
 var career: Career
@@ -144,25 +42,27 @@ var _scouts: Array = []
 var _report: Dictionary = {}
 var _date := ""
 var _can_discuss := false
-var _contract_months := -1
+var _eyebrow := "PLAYER ACTIONS"
+var _extra_rows: Array = []
+var _show_scout := true
+var _show_shortlist := true
 var _open := false
 var _armed := false
-var _rows: Array[Row] = []
+# The host put another screen over this card (offer / contract): keep the player
+# and bring the card back with resume() instead of closing it.
+var _resume := false
+var _resume_focus := ""
+var _rows: Array = []
 var _by_id: Dictionary = {}
 var _picker: CareerScoutPicker
+var _recall_modal: CareerScoutingModal
 var _tween: Tween
 
 var _scrim: ColorRect
 var _card: PanelContainer
 var _window_scrim: ColorRect
-var _photo: CareerPlayerCard.Photo
-var _name: Label
-var _fact_values: Array[Label] = []
-var _crest: CareerPlayerCard.Photo
-var _club: Label
-var _metric_values: Array[Label] = []
-var _status_box: VBoxContainer
-var _actions_box: VBoxContainer
+var _eyebrow_label: Label
+var _pane: CareerPlayerPane
 
 
 func _ready() -> void:
@@ -176,7 +76,8 @@ func _ready() -> void:
 	call_deferred("_layout")
 
 
-# `options`: {scouts: Array, report: Dictionary, date: String}. `report` is the
+# `options`: {scouts: Array, report: Dictionary, date: String, eyebrow: String,
+# extra_rows: Array, show_scout: bool, show_shortlist: bool}. `report` is the
 # active scouting report for this player ({scout_name, days_left, …}) or {}.
 func setup(next_career: Career, next_catalog: TeamCatalog, player: Dictionary,
 		options := {}) -> void:
@@ -198,18 +99,20 @@ func setup(next_career: Career, next_catalog: TeamCatalog, player: Dictionary,
 	_date = str(options.get("date", career.date if career != null else ""))
 	_can_discuss = career != null and catalog != null \
 		and CareerTransferContracts.can_discuss(catalog, career, player)
-	var expires := str(player.get("contract_expires", ""))
-	_contract_months = CareerPlayerPane.months_until(expires, _date) \
-		if not expires.is_empty() else -1
+	_eyebrow = str(options.get("eyebrow", "PLAYER ACTIONS"))
+	_extra_rows = options.get("extra_rows", []) if options.get("extra_rows") is Array else []
+	_show_scout = bool(options.get("show_scout", true))
+	_show_shortlist = bool(options.get("show_shortlist", true))
 	if _card == null:
 		return
 	_refresh()
-	_rebuild_rows()
 
 
 func open() -> void:
 	if _open:
 		return
+	# A fresh open wins over a pending resume: this card is a new player.
+	_resume = false
 	# Before `_open`: reparenting leaves and re-enters the tree, and _exit_tree
 	# would pop an open modal off the stack.
 	CareerScoutingModal.host_overlay(self)
@@ -250,11 +153,14 @@ func open() -> void:
 
 
 func close() -> void:
+	_resume = false
 	if not _open:
 		return
 	_open = false
 	if _picker != null and _picker.is_open():
 		_picker.close()
+	if _recall_modal != null and _recall_modal.is_open():
+		_recall_modal.close()
 	var nav := _ui_nav()
 	if nav != null:
 		nav.pop_modal(self)
@@ -278,6 +184,46 @@ func close() -> void:
 	_tween.chain().tween_callback(func() -> void:
 		visible = false
 		_release_scrim())
+
+
+# Leaves the card for an offer / contract screen the host shows over this one:
+# input and the scrim go away, the player and the rows stay for resume().
+func suspend() -> void:
+	if not _open:
+		return
+	var focused := get_viewport().gui_get_focus_owner() if get_viewport() != null else null
+	_resume_focus = ""
+	if focused != null and focused is CareerPlayerPane.ActionRow and is_ancestor_of(focused):
+		_resume_focus = (focused as CareerPlayerPane.ActionRow).id
+	_resume = true
+	_open = false
+	_armed = false
+	if _picker != null and _picker.is_open():
+		_picker.close()
+	if _recall_modal != null and _recall_modal.is_open():
+		_recall_modal.close()
+	var nav := _ui_nav()
+	if nav != null:
+		nav.pop_modal(self)
+	if focused != null and is_ancestor_of(focused):
+		focused.release_focus()
+	if _tween != null:
+		_tween.kill()
+	visible = false
+	_release_scrim()
+
+
+# Puts a suspended card back, with the career state it may have missed.
+func resume() -> bool:
+	if not _resume:
+		return false
+	_resume = false
+	setup(career, catalog, _player, {"scouts": _scouts, "date": _date})
+	open()
+	var row := _row(_resume_focus)
+	if row != null:
+		row.grab_focus()
+	return true
 
 
 # The design canvas is letterboxed inside the window, so a scrim drawn inside it
@@ -322,23 +268,27 @@ func player_id() -> String:
 func row_ids() -> Array:
 	var ids: Array = []
 	for row in _rows:
-		ids.append(row.id)
+		ids.append(str(row.id))
 	return ids
 
 
 func row_label(id: String) -> String:
-	var row: Row = _by_id.get(id, null)
+	var row := _row(id)
 	return "" if row == null else row.label_text()
 
 
 func row_enabled(id: String) -> bool:
-	var row: Row = _by_id.get(id, null)
+	var row := _row(id)
 	return row != null and row.enabled
 
 
 func row_ticket(id: String) -> String:
-	var row: Row = _by_id.get(id, null)
-	return "" if row == null else row.ticket_text()
+	var row := _row(id)
+	return "" if row == null else str(row.key)
+
+
+func _row(id: String) -> CareerPlayerPane.ActionRow:
+	return _by_id.get(id, null) as CareerPlayerPane.ActionRow
 
 
 # Build ----------------------------------------------------------------------
@@ -367,291 +317,156 @@ func _build() -> void:
 	column.add_theme_constant_override(&"separation", 0)
 	_card.add_child(column)
 
-	column.add_child(_build_head())
-	var divider := ColorRect.new()
-	divider.color = Color(UiTokens.INK, 0.10)
-	divider.custom_minimum_size.y = 2.0
-	column.add_child(divider)
-	column.add_child(_build_body())
+	var head := MarginContainer.new()
+	head.name = "Head"
+	head.add_theme_constant_override(&"margin_left", int(PAD))
+	head.add_theme_constant_override(&"margin_right", int(PAD))
+	head.add_theme_constant_override(&"margin_top", 12)
+	head.add_theme_constant_override(&"margin_bottom", 4)
+	_eyebrow_label = Label.new()
+	_eyebrow_label.name = "Eyebrow"
+	_eyebrow_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_eyebrow_label.add_theme_font_override(&"font", UiTheme.inter(600))
+	_eyebrow_label.add_theme_font_size_override(&"font_size", 16)
+	_eyebrow_label.add_theme_color_override(&"font_color", UiTokens.INK_2)
+	head.add_child(_eyebrow_label)
+	column.add_child(head)
 
-
-func _build_head() -> Control:
-	var margin := MarginContainer.new()
-	margin.name = "Head"
-	margin.add_theme_constant_override(&"margin_left", int(PAD))
-	margin.add_theme_constant_override(&"margin_right", int(PAD))
-	margin.add_theme_constant_override(&"margin_top", 12)
-	margin.add_theme_constant_override(&"margin_bottom", 12)
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override(&"separation", 14)
-	margin.add_child(head)
-
-	_photo = CareerPlayerCard.Photo.new()
-	_photo.custom_minimum_size = Vector2(PHOTO_W, PHOTO_H)
-	_photo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	head.add_child(_photo)
-
-	var info := VBoxContainer.new()
-	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	info.add_theme_constant_override(&"separation", 6)
-	head.add_child(info)
-	var eyebrow := Label.new()
-	eyebrow.text = "PLAYER ACTIONS"
-	eyebrow.add_theme_font_override(&"font", UiTheme.inter(600))
-	eyebrow.add_theme_font_size_override(&"font_size", 16)
-	eyebrow.add_theme_color_override(&"font_color", UiTokens.INK_2)
-	info.add_child(eyebrow)
-	_name = Label.new()
-	_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_name.max_lines_visible = 2
-	_name.add_theme_font_override(&"font", UiTheme.barlow(700))
-	_name.add_theme_font_size_override(&"font_size", 30)
-	_name.add_theme_color_override(&"font_color", UiTokens.INK)
-	info.add_child(_name)
-	var facts := GridContainer.new()
-	facts.columns = 4
-	facts.add_theme_constant_override(&"h_separation", 12)
-	facts.add_theme_constant_override(&"v_separation", 3)
-	info.add_child(facts)
-	for key in ["AGE", "HEIGHT", "POSITION", "FOOT"]:
-		var fact := VBoxContainer.new()
-		fact.name = key
-		fact.add_theme_constant_override(&"separation", 1)
-		facts.add_child(fact)
-		var label := Label.new()
-		label.text = key
-		label.add_theme_font_override(&"font", UiTheme.inter(600))
-		label.add_theme_font_size_override(&"font_size", 14)
-		label.add_theme_color_override(&"font_color", UiTokens.INK_2)
-		fact.add_child(label)
-		var value := Label.new()
-		value.add_theme_font_override(&"font", UiTheme.inter(600))
-		value.add_theme_font_size_override(&"font_size", 18)
-		value.add_theme_color_override(&"font_color", UiTokens.INK)
-		fact.add_child(value)
-		_fact_values.append(value)
-
-	var club := VBoxContainer.new()
-	club.add_theme_constant_override(&"separation", 6)
-	club.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	head.add_child(club)
-	_crest = CareerPlayerCard.Photo.new()
-	_crest.custom_minimum_size = Vector2(CREST, CREST)
-	_crest.size_flags_horizontal = Control.SIZE_SHRINK_END
-	club.add_child(_crest)
-	_club = Label.new()
-	_club.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_club.max_lines_visible = 2
-	_club.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_club.custom_minimum_size.x = 140.0
-	_club.add_theme_font_override(&"font", UiTheme.inter(500))
-	_club.add_theme_font_size_override(&"font_size", 16)
-	_club.add_theme_color_override(&"font_color", UiTokens.INK_2)
-	club.add_child(_club)
-	return margin
-
-
-func _build_body() -> Control:
-	var margin := MarginContainer.new()
-	margin.name = "Body"
-	margin.add_theme_constant_override(&"margin_left", int(PAD))
-	margin.add_theme_constant_override(&"margin_right", int(PAD))
-	margin.add_theme_constant_override(&"margin_top", 10)
-	margin.add_theme_constant_override(&"margin_bottom", int(PAD))
-	var body := VBoxContainer.new()
-	body.add_theme_constant_override(&"separation", 6)
-	margin.add_child(body)
-
-	var metrics := HBoxContainer.new()
-	metrics.name = "Metrics"
-	metrics.add_theme_constant_override(&"separation", 8)
-	body.add_child(metrics)
-	for index in 4:
-		var block := PanelContainer.new()
-		block.custom_minimum_size.y = METRIC_H
-		block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		var box := StyleBoxFlat.new()
-		box.bg_color = Color(UiTokens.INK, 0.055)
-		box.content_margin_left = 12.0
-		box.content_margin_right = 12.0
-		box.content_margin_top = 8.0
-		box.content_margin_bottom = 8.0
-		block.add_theme_stylebox_override(&"panel", box)
-		metrics.add_child(block)
-		var column := VBoxContainer.new()
-		column.add_theme_constant_override(&"separation", 0)
-		block.add_child(column)
-		var label := Label.new()
-		label.text = ["OVERALL", "PRICE", "WAGE", "RELEASE CLAUSE"][index]
-		label.add_theme_font_override(&"font", UiTheme.inter(600))
-		label.add_theme_font_size_override(&"font_size", 14)
-		label.add_theme_color_override(&"font_color", UiTokens.INK_2)
-		column.add_child(label)
-		var value := Label.new()
-		value.add_theme_font_override(&"font", UiTheme.barlow(700))
-		value.add_theme_font_size_override(&"font_size", 22)
-		value.add_theme_color_override(&"font_color", UiTokens.INK)
-		column.add_child(value)
-		_metric_values.append(value)
-
-	_status_box = VBoxContainer.new()
-	_status_box.name = "Status"
-	_status_box.add_theme_constant_override(&"separation", 1)
-	body.add_child(_status_box)
-
-	_actions_box = VBoxContainer.new()
-	_actions_box.name = "Actions"
-	_actions_box.add_theme_constant_override(&"separation", 1)
-	body.add_child(_actions_box)
-	return margin
+	# The player body is the one shared renderer (photo, facts, metrics,
+	# attributes, status) — the same widget the report feed and the search pane
+	# draw. Its rows are the action rows of this card.
+	_pane = CareerPlayerPane.new()
+	_pane.name = "Pane"
+	_pane.action_chosen.connect(_on_row_pressed)
+	column.add_child(_pane)
 
 
 # Content --------------------------------------------------------------------
 
 func _refresh() -> void:
-	var revealed := bool(_player.get("scouted", false))
-	_photo.show_texture(CareerPlayerCard.face_texture(_player))
-	_name.text = str(_player.get("name", "")).to_upper()
-	_fact_values[0].text = str(_player.get("age", "—"))
-	var height := int(_player.get("height", 0))
-	_fact_values[1].text = "%d CM" % height if height > 0 else "—"
-	_fact_values[2].text = CareerPlayerCard.position_code(
-		str(_player.get("position", "")), str(_player.get("position_group", "")))
-	_fact_values[3].text = _foot_label(str(_player.get("foot", ""))) if revealed else HIDDEN
-	var crest := CareerPlayerCard.crest_texture(_player)
-	_crest.show_texture(crest)
-	_crest.visible = crest != null
-	var club_name := str(_player.get("club_name", ""))
-	_club.text = club_name if not club_name.is_empty() else "Free agent"
-	_refresh_metrics(revealed)
-	_refresh_status()
+	_eyebrow_label.text = _eyebrow.to_upper()
+	# The pane rebuilds the player body and the action rows from the current
+	# career state; the card only collects the rows for its own focus nav.
+	# No inner scrollbar: the card is sized from the pane's full height.
+	_pane.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_pane.setup(_player, {"date": _date, "action_rows": _action_rows(),
+		"show_actions": true, "flat": true})
+	_collect_rows()
+	call_deferred("_layout")
 
 
-func _refresh_metrics(revealed: bool) -> void:
-	var raw := [
-		int(round(float(_player.get("overall", 0)))),
-		int(_player.get("market_value", 0)),
-		int(_player.get("weekly_wage", 0)),
-		int(_player.get("release_clause", 0)),
-	]
-	for index in _metric_values.size():
-		var text := HIDDEN
-		if revealed or index == 3:
-			match index:
-				0:
-					text = str(raw[0]) if int(raw[0]) > 0 else "—"
-				2:
-					text = CareerPlayerPane.money(int(raw[2])) + " / WEEK"
-				_:
-					text = CareerPlayerPane.money(int(raw[index]))
-		_metric_values[index].text = text
-		_metric_values[index].add_theme_color_override(&"font_color",
-			UiTokens.INK if revealed or index == 3 else UiTokens.INK_2)
+# Rows changed, the player body did not (scout report / recall).
+func _set_rows() -> void:
+	_pane.set_action_rows(_action_rows())
+	_collect_rows()
 
 
-func _refresh_status() -> void:
-	for child in _status_box.get_children():
-		_status_box.remove_child(child)
-		child.queue_free()
-	var status := str(_player.get("status", ""))
-	_status_box.add_child(_status_line(CareerPlayerPane.status_line(status), false))
-	if _contract_months >= 0 and status != "free":
-		var text := "Contract expires in %d %s" % [_contract_months,
-			"month" if _contract_months == 1 else "months"]
-		if _contract_months <= 0:
-			text = "Contract expires this month"
-		_status_box.add_child(_status_line(text, _contract_months <= 6))
-
-
-func _status_line(text: String, warn: bool) -> PanelContainer:
-	var panel := PanelContainer.new()
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(UiTokens.INK, 0.055)
-	box.content_margin_left = 12.0
-	box.content_margin_right = 12.0
-	panel.add_theme_stylebox_override(&"panel", box)
-	panel.custom_minimum_size.y = STATUS_H
-	var label := Label.new()
-	label.text = text
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_override(&"font", UiTheme.inter(500))
-	label.add_theme_font_size_override(&"font_size", 15)
-	label.add_theme_color_override(&"font_color",
-		Color("a66a00") if warn else UiTokens.INK_2)
-	panel.add_child(label)
-	return panel
-
-
-static func _foot_label(foot: String) -> String:
-	match foot.to_lower():
-		"left":
-			return "Left"
-		"right":
-			return "Right"
-		"both":
-			return "Both"
-	return "—"
-
-
-func _rebuild_rows() -> void:
-	for child in _actions_box.get_children():
-		_actions_box.remove_child(child)
-		child.queue_free()
+func _collect_rows() -> void:
 	_rows.clear()
 	_by_id.clear()
-	for row in _action_rows():
-		var button := Row.new()
-		button.custom_minimum_size.y = ROW_H
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		_actions_box.add_child(button)
-		button.setup(row)
-		button.pressed.connect(_on_row_pressed.bind(str(row.get("id", ""))))
-		_rows.append(button)
-		_by_id[str(row.get("id", ""))] = button
+	for button in _pane.action_buttons():
+		var row := button as CareerPlayerPane.ActionRow
+		if row == null:
+			continue
+		_rows.append(row)
+		_by_id[row.id] = row
 
 
 func _action_rows() -> Array:
 	var rows: Array = []
 	var revealed := bool(_player.get("scouted", false))
-	if not revealed:
+	if _show_scout and not revealed:
 		if not _report.is_empty():
 			var days := int(_report.get("days_left", 0))
 			rows.append({
-				"id": "scout", "enabled": false,
+				"id": "scout",
+				# A running report opens the recall card; a finished one has
+				# nothing to recall (its player is `scouted` by then anyway).
+				"enabled": str(_report.get("kind", "")) == "studying",
 				"label": "%s IS WATCHING" % str(_report.get("scout_name", "A SCOUT")),
-				"ticket": ("%d DAYS LEFT" % days) if days > 0 else "REPORT DUE",
+				"key": ("%d DAYS LEFT" % days) if days > 0 else "REPORT DUE",
 			})
 		elif not _scouts.is_empty():
 			rows.append({"id": "scout", "enabled": true,
-				"label": "ASSIGN SCOUT", "ticket": "A"})
+				"label": "ASSIGN SCOUT", "key": "A"})
 		else:
 			rows.append({"id": "scout", "enabled": false,
-				"label": "HIRE A SCOUT", "ticket": "NETWORK"})
-	rows.append({
-		"id": "shortlist", "enabled": true,
-		"label": "REMOVE FROM SHORTLIST" if bool(_player.get("shortlisted", false)) \
-			else "ADD TO SHORTLIST",
-		"ticket": "A",
-	})
-	if not str(_player.get("club_id", "")).is_empty():
-		rows.append({"id": "offer_transfer", "enabled": true,
-			"label": "MAKE TRANSFER OFFER", "ticket": "A"})
-		rows.append({"id": "offer_loan", "enabled": true,
-			"label": "MAKE LOAN OFFER", "ticket": "A"})
-	rows.append({"id": "discuss", "enabled": _can_discuss,
-		"label": "DISCUSS MOVE", "ticket": "A" if _can_discuss else "NOT EXPIRING"})
+				"label": "HIRE A SCOUT", "key": "NETWORK"})
+	if _show_shortlist:
+		rows.append({
+			"id": "shortlist", "enabled": true,
+			"label": "REMOVE FROM SHORTLIST" if bool(_player.get("shortlisted", false)) \
+				else "ADD TO SHORTLIST",
+			"key": "A",
+		})
+	rows.append_array(_offer_rows())
+	for row in _extra_rows:
+		if row is Dictionary:
+			rows.append(row)
 	return rows
+
+
+# The offer / contract part of the rows: an accepted offer leaves CONTRACT
+# TALKS, a signed one the joining note; only a kind that can actually be sent
+# gets a row (an offer with the club, a counter of the other kind, a refusal in
+# its cooldown, or your own squad leave nothing to send).
+func _offer_rows() -> Array:
+	var rows: Array = []
+	var offer := CareerTransferOffers.latest(career, _player_id) if career != null else {}
+	if bool(offer.get("can_negotiate", false)):
+		rows.append({"id": "discuss", "enabled": true,
+			"label": "CONTRACT TALKS", "key": "A"})
+	elif bool(offer.get("signed", false)):
+		var joins := str(offer.get("execute_on", ""))
+		rows.append({"id": "transfer_agreed", "enabled": false,
+			"label": "TRANSFER AGREED",
+			"key": ("JOINS " + joins) if not joins.is_empty() else "SIGNED"})
+	else:
+		if not str(_player.get("club_id", "")).is_empty():
+			# One negotiation per player at a time — transfer or loan — so any
+			# offer in progress (or a refusal in its cooldown) hides both rows.
+			var own := career != null and career.player_ids.has(_player_id)
+			var blocked := CareerTransferOffers.block(career, _player_id) \
+				if career != null else {}
+			if not own and blocked.is_empty():
+				rows.append({"id": "offer_transfer", "enabled": true,
+					"label": "MAKE TRANSFER OFFER", "key": "A"})
+				rows.append({"id": "offer_loan", "enabled": true,
+					"label": "MAKE LOAN OFFER", "key": "A"})
+			elif not own:
+				var pending := str(blocked.get("status", "")) == "pending"
+				rows.append({"id": "offer_blocked", "enabled": false,
+					"label": "OFFER IS WITH THE CLUB" if pending else "OFFER REFUSED",
+					"key": "TRANSFER CENTRE" if pending \
+						else "RETRY " + str(blocked.get("retry_after", ""))})
+		rows.append({"id": "discuss", "enabled": _can_discuss,
+			"label": "DISCUSS MOVE", "key": "A" if _can_discuss else "NOT EXPIRING"})
+	return rows
+
+
+# The contract screen route, with the accepted offer when there is one (the
+# screen cannot send terms without its id).
+func _contract_payload() -> Dictionary:
+	var payload := {"player_id": _player_id}
+	var offer := CareerTransferOffers.latest(career, _player_id) if career != null else {}
+	if bool(offer.get("can_negotiate", false)):
+		payload["offer_id"] = str(offer.get("offer_id", ""))
+		payload["kind"] = str(offer.get("kind", "transfer"))
+	return payload
 
 
 # Actions --------------------------------------------------------------------
 
 func _on_row_pressed(id: String) -> void:
-	var row: Row = _by_id.get(id, null)
+	var row := _row(id)
 	if row == null or not row.enabled:
 		return
 	match id:
 		"scout":
-			_open_picker()
+			if _report.is_empty():
+				_open_picker()
+			else:
+				_open_recall()
 		"shortlist":
 			_toggle_shortlist()
 		"offer_transfer":
@@ -659,9 +474,11 @@ func _on_row_pressed(id: String) -> void:
 		"offer_loan":
 			_offer("loan")
 		"discuss":
-			var key := _player_id
-			close()
-			navigate.emit("contract", {"player_id": key})
+			suspend()
+			navigate.emit("contract", _contract_payload())
+		_:
+			# A host row ("REMOVE FROM REPORT", "CLOSE"): the host owns it.
+			extra_action.emit(id)
 
 
 func _toggle_shortlist() -> void:
@@ -671,17 +488,18 @@ func _toggle_shortlist() -> void:
 	if not bool(result.get("ok", false)):
 		return
 	_player["shortlisted"] = bool(result.get("shortlisted", false))
-	var row: Row = _by_id.get("shortlist", null)
+	# The chip and the row label both follow; one pane refresh keeps them in sync.
+	_refresh()
+	var row := _row("shortlist")
 	if row != null:
-		row.set_label("REMOVE FROM SHORTLIST" if bool(_player["shortlisted"]) \
-			else "ADD TO SHORTLIST")
+		row.grab_focus()
 	changed.emit()
 
 
 func _offer(kind: String) -> void:
 	var preset := CareerTransferOffers.proposal(career, catalog, _player_id, kind)
 	var key := _player_id
-	close()
+	suspend()
 	navigate.emit("offer", {"player_id": key, "kind": kind, "preset": preset})
 
 
@@ -700,6 +518,47 @@ func _open_picker() -> void:
 
 func _on_scout_assigned(scout_id: String) -> void:
 	scout_requested.emit(scout_id)
+	# The host assigns synchronously inside that signal, so the card can show the
+	# running report now instead of only after it is reopened.
+	_reload_report()
+
+
+func _open_recall() -> void:
+	var scout_name := str(_report.get("scout_name", "The scout"))
+	if _recall_modal == null:
+		_recall_modal = CareerScoutingModal.new()
+		_recall_modal.name = "RecallModal"
+		add_child(_recall_modal)
+		_recall_modal.action_chosen.connect(_on_recall_chosen)
+	_recall_modal.setup(scout_name,
+		"Call %s back? %s stays unscouted." % [scout_name,
+			str(_player.get("name", "The player"))], RECALL_ROWS)
+	_recall_modal.open()
+
+
+func _on_recall_chosen(id: String) -> void:
+	_recall_modal.close()
+	if id != "recall" or career == null:
+		return
+	var scout_id := str(_report.get("scout_id", ""))
+	if scout_id.is_empty():
+		return
+	if not bool(CareerScouting.recall(career, scout_id).get("ok", false)):
+		return
+	_reload_report()
+	changed.emit()
+
+
+func _reload_report() -> void:
+	_report = CareerScouting.report_for(career, _player_id) if career != null else {}
+	# A recalled scout is free again, also when the host sent no list (his flag
+	# comes back with the next list the host builds).
+	if career != null and _report.is_empty() and _scouts.is_empty():
+		_scouts = CareerScouting.assignable_scouts(career)
+	_set_rows()
+	var row := _row("scout")
+	if row != null:
+		row.grab_focus()
 
 
 # Layout / input -------------------------------------------------------------
@@ -744,7 +603,7 @@ func _on_nav_moved(direction: Vector2i) -> void:
 func _on_nav_confirmed() -> void:
 	if not _is_modal_owner():
 		return
-	var row := get_viewport().gui_get_focus_owner() as Row
+	var row := get_viewport().gui_get_focus_owner() as CareerPlayerPane.ActionRow
 	if row != null:
 		_on_row_pressed(row.id)
 

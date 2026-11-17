@@ -1044,7 +1044,9 @@ func _sign() -> void:
 		return
 	_error = ""
 	changed.emit()
-	navigate.emit("centre", {"tab": "sent"})
+	# Back where the talks were opened from, not the Transfer Centre: the host
+	# resumes the player card, which now shows the agreed transfer.
+	closed.emit()
 
 
 # Input ----------------------------------------------------------------------
