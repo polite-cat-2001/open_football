@@ -225,6 +225,9 @@ func _run() -> void:
 	_host.add_child(view)
 	view.call("refresh")
 	view.call("_open_centre")
+	var list_layer := view.get("_centre_list_layer") as Control
+	_check(list_layer != null and list_layer.clip_contents,
+		"the centre rows draw into a clipped layer under the tab strip")
 	view.call("_open_actions", player)
 	var actions := view.get("_actions_row") as CareerSquadActionsRow
 	_check(actions != null, "the host opens the actions row")

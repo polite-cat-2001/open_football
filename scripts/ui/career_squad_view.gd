@@ -102,6 +102,11 @@ var _focus_id := ""
 var _last_player_id := ""
 var _tab_items: Array = []
 var _centre_tabs_bar: UiTabBar
+# The scrolling centre rows draw into this clipped layer: a partly scrolled
+# row would otherwise paint up into the tab strip.
+var _centre_list_layer: Control
+# Draw target for the shared helpers: unset means self, the layer inside it.
+var _pen: CanvasItem
 var _status := ""
 var _status_error := false
 var _club_logo: Texture2D
@@ -168,6 +173,12 @@ func _sync_centre_tabs() -> void:
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = true
+	_centre_list_layer = Control.new()
+	_centre_list_layer.name = "CentreList"
+	_centre_list_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_centre_list_layer.clip_contents = true
+	_centre_list_layer.draw.connect(_draw_centre_list)
+	add_child(_centre_list_layer)
 	_build_centre_tabs()
 	_lineup_preview = PauseLineup.new()
 	_lineup_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -259,7 +270,7 @@ func _open_actions(player: Dictionary) -> void:
 			centre_player = index
 			break
 	var m := _centre_metrics()
-	var column: Rect2 = m["table"] if centre_tab == 3 else m["list"]
+	var column: Rect2 = _centre_list_rect(m)
 	_actions_row.size = Vector2(column.size.x, _actions_row.height_hint())
 	_ensure_centre_visible(centre_player)
 	_place_actions()
@@ -290,7 +301,7 @@ func _place_actions() -> void:
 	if open < 0:
 		return
 	var m := _centre_metrics()
-	var column: Rect2 = m["table"] if centre_tab == 3 else m["list"]
+	var column: Rect2 = _centre_list_rect(m)
 	_actions_row.position = Vector2(column.position.x,
 		column.position.y + 2.0 + _centre_row_offset(open)
 		+ _centre_row_height() - centre_scroll)
@@ -803,13 +814,14 @@ func _tab_row_focused() -> bool:
 # Drawing ------------------------------------------------------------------
 
 func _draw() -> void:
-	if squad.is_empty():
-		return
 	if _centre_tabs_bar != null:
 		_centre_tabs_bar.visible = view == View.CENTRE
 		if view == View.CENTRE:
 			_centre_tabs_bar.set_focused(
 				str(_focused_element().get("kind", "")) == "centre-tab")
+	_centre_list_layer.visible = view == View.CENTRE and not squad.is_empty()
+	if squad.is_empty():
+		return
 	match view:
 		View.OVERVIEW:
 			_draw_overview()
@@ -848,22 +860,46 @@ func _set_centre_tab(index: int, keep_tab_focus := false) -> void:
 
 func _draw_centre() -> void:
 	var m := _centre_metrics()
-	for item in (m["tabs"] as Array):
-		_draw_centre_tab(item)
+	_sync_centre_list_layer(m)
 	draw_set_transform(Vector2(_slide, 0.0))
 	if centre_tab == 3:
-		var summary: Rect2 = m["summary"]
-		var table: Rect2 = m["table"]
-		var panel: Rect2 = m["panel"]
-		_draw_finance_summary(summary)
-		_draw_finance_table(table)
-		_draw_centre_pane(panel)
+		_draw_finance_summary(m["summary"])
+		_draw_finance_header(m["table"])
+		_draw_centre_pane(m["panel"])
 	else:
-		var list: Rect2 = m["list"]
-		var panel: Rect2 = m["panel"]
-		_draw_centre_roster(list)
-		_draw_centre_pane(panel)
+		_draw_centre_pane(m["panel"])
 	draw_set_transform(Vector2.ZERO)
+
+
+func _sync_centre_list_layer(m: Dictionary) -> void:
+	var list := _centre_list_rect(m)
+	_centre_list_layer.position = list.position + Vector2(_slide, 0.0)
+	_centre_list_layer.size = list.size
+	_centre_list_layer.queue_redraw()
+
+
+func _centre_list_rect(m: Dictionary) -> Rect2:
+	if centre_tab != 3:
+		return m["list"]
+	var table: Rect2 = m["table"]
+	return Rect2(table.position.x, table.position.y + 28.0, table.size.x,
+		table.size.y - 28.0)
+
+
+# Clipped layer content. The rows keep their absolute coordinates; the
+# transform maps them into the layer's local space.
+func _draw_centre_list() -> void:
+	if view != View.CENTRE or squad.is_empty():
+		return
+	var m := _centre_metrics()
+	var list := _centre_list_rect(m)
+	_pen = _centre_list_layer
+	_centre_list_layer.draw_set_transform(-list.position)
+	if centre_tab == 3:
+		_draw_finance_table(list)
+	else:
+		_draw_centre_roster(list)
+	_pen = null
 
 
 func _centre_metrics() -> Dictionary:
@@ -899,12 +935,6 @@ func _centre_tab_rects(stage_w: float) -> Array:
 			"rect": _centre_tabs_bar.tab_rect(index),
 		})
 	return items
-
-
-func _draw_centre_tab(item: Dictionary) -> void:
-	# Drawn by the shared TabBar; kept so the metrics stay one list.
-	if item.is_empty():
-		return
 
 
 func _draw_centre_roster(rect: Rect2) -> void:
@@ -963,10 +993,11 @@ func _draw_morale_face(rect: Rect2, player: Dictionary) -> void:
 		color = MARK_LOSS
 	elif morale < 70:
 		color = MARK_WARN
-	draw_circle(rect.get_center(), rect.size.x * 0.42, color)
-	draw_circle(rect.get_center() + Vector2(-rect.size.x * 0.12, -rect.size.y * 0.08),
+	var pen := _pen if _pen != null else self
+	pen.draw_circle(rect.get_center(), rect.size.x * 0.42, color)
+	pen.draw_circle(rect.get_center() + Vector2(-rect.size.x * 0.12, -rect.size.y * 0.08),
 		rect.size.x * 0.06, UiTokens.FOCUS_INK)
-	draw_circle(rect.get_center() + Vector2(rect.size.x * 0.12, -rect.size.y * 0.08),
+	pen.draw_circle(rect.get_center() + Vector2(rect.size.x * 0.12, -rect.size.y * 0.08),
 		rect.size.x * 0.06, UiTokens.FOCUS_INK)
 
 
@@ -991,7 +1022,7 @@ func _draw_finance_summary(rect: Rect2) -> void:
 			UiTokens.INK)
 
 
-func _draw_finance_table(rect: Rect2) -> void:
+func _draw_finance_header(rect: Rect2) -> void:
 	var header := Rect2(rect.position.x, rect.position.y, rect.size.x, 28.0)
 	# Opaque like the prototype's `.finance-head` plate (var(--tile) at full alpha).
 	draw_rect(header, Color(UiTokens.TILE, 1.0), true)
@@ -1013,8 +1044,9 @@ func _draw_finance_table(rect: Rect2) -> void:
 		HORIZONTAL_ALIGNMENT_RIGHT)
 	_draw_text(years_col, "CONTRACT", UiTheme.inter(600), 13, UiTokens.INK_2,
 		HORIZONTAL_ALIGNMENT_RIGHT)
-	var list := Rect2(rect.position.x, rect.position.y + 28.0, rect.size.x,
-		rect.size.y - 28.0)
+
+
+func _draw_finance_table(list: Rect2) -> void:
 	var players := _centre_players()
 	for index in range(players.size()):
 		var player: Dictionary = players[index]
@@ -2285,18 +2317,19 @@ func _parse_kit_color(value, fallback: Color) -> Color:
 func _draw_player_photo(rect: Rect2, player: Dictionary, alpha := 1.0) -> void:
 	if rect.size.x <= 1.0 or rect.size.y <= 1.0:
 		return
+	var pen := _pen if _pen != null else self
 	var texture := UiAssets.player_face(int(str(player.get("id", "0"))))
 	if texture != null:
 		var fit := _fit_texture(texture, rect.size)
 		var dest := Rect2(Vector2(rect.position.x + (rect.size.x - fit.x) * 0.5,
 			rect.end.y - fit.y), fit)
-		draw_texture_rect(texture, dest, false, Color(1, 1, 1, alpha))
+		pen.draw_texture_rect(texture, dest, false, Color(1, 1, 1, alpha))
 		return
 	var c := rect.get_center()
 	var radius := minf(rect.size.x, rect.size.y) * 0.17
-	draw_circle(Vector2(c.x, rect.position.y + rect.size.y * 0.34), radius,
+	pen.draw_circle(Vector2(c.x, rect.position.y + rect.size.y * 0.34), radius,
 		Color(0.78, 0.80, 0.84, alpha))
-	draw_arc(Vector2(c.x, rect.end.y), rect.size.x * 0.30, PI, TAU, 18,
+	pen.draw_arc(Vector2(c.x, rect.end.y), rect.size.x * 0.30, PI, TAU, 18,
 		Color(0.78, 0.80, 0.84, alpha), maxf(2.0, rect.size.x * 0.12), true)
 
 
@@ -2308,12 +2341,13 @@ func _draw_fatigue(rect: Rect2, fatigue: int) -> void:
 
 
 func _draw_tile(rect: Rect2, focused: bool, alpha := 1.0) -> void:
+	var pen := _pen if _pen != null else self
 	for index in range(4):
 		var shadow := Rect2(rect.position + Vector2(0.0, 8.0 + index * 3.0),
 			rect.size + Vector2(0.0, 4.0))
-		draw_rect(shadow, Color(0.015, 0.035, 0.078, 0.06 * alpha), true)
+		pen.draw_rect(shadow, Color(0.015, 0.035, 0.078, 0.06 * alpha), true)
 	var fill := UiTokens.FOCUS_FILL if focused else Color(UiTokens.TILE, alpha)
-	draw_rect(rect, fill, true)
+	pen.draw_rect(rect, fill, true)
 
 
 func _draw_ellipse(center: Vector2, rx: float, ry: float, color: Color, width: float) -> void:
@@ -3126,7 +3160,8 @@ func _draw_text(rect: Rect2, text: String, font: Font, font_size: int, color: Co
 	var asc := font.get_ascent(font_size)
 	var desc := font.get_descent(font_size)
 	var baseline := rect.position.y + (rect.size.y - (asc + desc)) * 0.5 + asc
-	draw_string(font, Vector2(rect.position.x, baseline), value, align, rect.size.x,
+	var pen := _pen if _pen != null else self
+	pen.draw_string(font, Vector2(rect.position.x, baseline), value, align, rect.size.x,
 		font_size, color)
 
 
