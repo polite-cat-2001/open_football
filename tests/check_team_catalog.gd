@@ -110,25 +110,30 @@ func _run() -> void:
 
 	_check_missing_database()
 	_check_corrupt_database()
-	await _check_warm_search_rows(catalog)
 	_check_warm_clubs(catalog)
+	_check_sql_search(catalog)
 	_finish()
 
 
-func _check_warm_search_rows(catalog: TeamCatalog) -> void:
-	# The career screens warm the 120k-row player walk on a worker thread; the
-	# first search must then come from that result instead of walking again.
-	catalog.warm_search_rows()
-	for step in 20000:
-		if catalog.search_rows_ready():
-			break
-		await process_frame
-	_check(catalog.search_rows_ready(), "the warm-up walk finishes on its worker")
-	var rows := catalog.career_search_rows()
-	_check(rows.size() > 100000, "the warm-up walk reads the whole players table (%d)" % rows.size())
-	var first: Dictionary = rows[0]
-	_check(first.has("id") and first.has("team_id") and first.has("birth_date"),
-		"a warmed row carries the search columns")
+func _check_sql_search(catalog: TeamCatalog) -> void:
+	# The transfer search goes through native SQLite; the bridge must open the
+	# database and answer an indexed page.
+	var db := catalog.sql_query()
+	_check(db != null, "the native SQLite bridge opens the database: " + catalog.error)
+	if db == null:
+		return
+	var rows: Array = db.call("select", "SELECT COUNT(*) AS total FROM players")
+	_check(not rows.is_empty() and int((rows[0] as Dictionary).get("total", 0)) > 100000,
+		"the bridge counts the players table")
+	var page: Array = db.call("select",
+		"SELECT id, name FROM players ORDER BY id LIMIT 3")
+	_check(page.size() == 3, "the bridge returns rows")
+	var missing: Array = db.call("select", "SELECT ?", [])
+	_check(missing.is_empty() and not str(db.call("last_error_message")).is_empty(),
+		"a placeholder without a value is an error, not a NULL")
+	var extra: Array = db.call("select", "SELECT 1", [1])
+	_check(extra.is_empty() and not str(db.call("last_error_message")).is_empty(),
+		"an extra value is an error too")
 
 
 func _check_warm_clubs(catalog: TeamCatalog) -> void:

@@ -65,6 +65,10 @@ func _refresh() -> void:
 	CareerSession.clear()
 	CareerSession.store = _store
 	CareerSession.catalog = _catalog
+	if loaded:
+		# The career screens reuse this catalog; the club map takes a moment to
+		# read, so start it while the entry screen is up.
+		_catalog.warm_clubs()
 
 	if _latest != null:
 		var club := _catalog.career_club(int(_latest.club_id))

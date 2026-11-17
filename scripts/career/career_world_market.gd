@@ -7,9 +7,9 @@ extends RefCounted
 # seed reproduces the prototype's deals.
 #
 # The module also owns the world data both market modules read (club list,
-# squads, role/market aggregates and free agents). Everything is built from
-# TeamCatalog.career_search_rows() once and cached, so a tick never walks the
-# players table a second time.
+# role/market aggregates and free agents). Aggregates come from SQLite once per
+# catalog; squads are read per batch for the clubs actually trading, so the
+# whole players table never sits in memory.
 
 const SQUAD_MIN := 18
 const SQUAD_MAX := 30
@@ -29,7 +29,6 @@ const ROLE_TARGETS := {
 
 static var _catalog: TeamCatalog = null
 static var _clubs: Array = []
-static var _squads: Dictionary = {}
 static var _by_id: Dictionary = {}
 static var _role_stats: Dictionary = {}
 static var _market_stats: Dictionary = {}
@@ -159,6 +158,8 @@ static func run_batch(career: Career, catalog: TeamCatalog, batch: Dictionary,
 	for club in sample:
 		club_ids.append(str(club.get("id", "")))
 	var local_squads := _load_squads(career, catalog, club_ids)
+	if local_squads.is_empty():
+		return []
 
 	var bought := _window_counts(career, batch, true)
 	var sold := _window_counts(career, batch, false)
@@ -339,11 +340,16 @@ static func clubs(catalog: TeamCatalog) -> Array:
 	return _clubs
 
 
-static func squads(catalog: TeamCatalog) -> Dictionary:
+static func squad(catalog: TeamCatalog, club_id) -> Array:
+	# One club's players, straight from SQLite: the market only ever needs the
+	# clubs it trades with, never the whole table.
 	if catalog == null:
-		return {}
+		return []
 	_ensure_cache(catalog)
-	return _squads
+	var players: Array = []
+	for row in _rows_for_clubs(catalog, [club_id]):
+		players.append(CareerSearch.normalized_row(row))
+	return players
 
 
 static func free_agents(catalog: TeamCatalog) -> Array:
@@ -371,8 +377,22 @@ static func player_by_id(catalog: TeamCatalog, player_id) -> Dictionary:
 	if catalog == null:
 		return {}
 	_ensure_cache(catalog)
-	var row = _by_id.get(str(player_id))
-	return row if row is Dictionary else {}
+	var key := str(player_id)
+	if not key.is_valid_int():
+		return {}
+	var cached = _by_id.get(key)
+	if cached is Dictionary:
+		return cached
+	var db := catalog.sql_query()
+	if db == null:
+		return {}
+	var rows: Array = db.call("select",
+		"SELECT %s FROM players p WHERE p.id = ?" % CareerSearch.ROW_COLUMNS, [int(key)])
+	if rows.is_empty():
+		return {}
+	var row := CareerSearch.normalized_row(rows[0])
+	_by_id[key] = row
+	return row
 
 
 static func _ensure_cache(catalog: TeamCatalog) -> void:
@@ -380,45 +400,33 @@ static func _ensure_cache(catalog: TeamCatalog) -> void:
 		return
 	_catalog = catalog
 	_clubs = []
-	_squads = {}
 	_by_id = {}
 	_role_stats = {}
 	_market_stats = {}
 	_free_agents = []
-	# The team picker's per-league index drops one club in some leagues, so the
-	# market walks the (small) teams table once instead. Leagues outside
-	# career_leagues() are the synthetic national-team competition, not clubs.
+	# The club list comes from the catalog's warmed club map (all teams except
+	# the synthetic national-team competition), so the market never walks the
+	# teams table itself.
 	var leagues := {}
 	for league in catalog.career_leagues():
 		leagues[str(league.get("id", ""))] = league
-	var reader := SqliteReader.new()
-	if not reader.open(catalog.database_path()):
-		return
-	var rows: Array = []
-	var walked := reader.for_each("teams", PackedStringArray(TeamCatalog.TEAM_COLUMNS),
-		func(row: Dictionary) -> void:
-			rows.append(row))
-	reader.close()
-	if not walked:
-		return
-	for team in rows:
-		var league_id := str(team.get("league_id", ""))
+	for entry in catalog.career_clubs():
+		var club := catalog.career_club(int((entry as Dictionary).get("id", 0)))
+		if club.is_empty():
+			continue
+		var league_id := str(club.get("league_id", ""))
 		var league = leagues.get(league_id)
 		if not (league is Dictionary):
 			continue
-		var country_id := int(team.get("country_id", 0))
-		var logo := str(team.get("career_logo", ""))
-		if logo.is_empty():
-			logo = str(team.get("logo_url", ""))
 		_clubs.append({
-			"id": str(team.get("id", "")),
-			"name": str(team.get("name", "")),
+			"id": str(club.get("id", "")),
+			"name": str(club.get("name", "")),
 			"league_id": league_id,
 			"league_name": str(league.get("name", "")),
 			"tier_rank": int(league.get("tier_rank", 0)),
-			"country_id": str(country_id),
-			"country_name": str(catalog.country_by_id(country_id).get("name", "")),
-			"logo": logo,
+			"country_id": str(club.get("country_id", "")),
+			"country_name": str(club.get("country_name", "")),
+			"logo": CareerSearch.club_logo(club),
 		})
 	# canon.clubs order: country, league tier, league name, club name.
 	_clubs.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
@@ -430,51 +438,50 @@ static func _ensure_cache(catalog: TeamCatalog) -> void:
 			return str(a.get("league_name", "")) < str(b.get("league_name", ""))
 		return str(a.get("name", "")) < str(b.get("name", "")))
 
-	var free_rows: Array = []
-	for row in catalog.career_search_rows():
-		var player_id := str(row.get("id", ""))
-		_by_id[player_id] = row
-		var team_id := int(row.get("team_id", 0))
-		if team_id <= 0:
-			free_rows.append(row)
-			continue
-		var key := str(team_id)
-		if not _squads.has(key):
-			_squads[key] = []
-		(_squads[key] as Array).append(row)
-	for key in _squads:
-		var players: Array = _squads[key]
-		players.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-			var role_a := int(TeamCatalog.CAREER_ROLE_ORDER.get(str(a.get("role", "")), 99))
-			var role_b := int(TeamCatalog.CAREER_ROLE_ORDER.get(str(b.get("role", "")), 99))
-			if role_a != role_b:
-				return role_a < role_b
-			if not is_equal_approx(float(a.get("overall", 0.0)),
-					float(b.get("overall", 0.0))):
-				return float(a.get("overall", 0.0)) > float(b.get("overall", 0.0))
-			return str(a.get("name", "")) < str(b.get("name", "")))
-
-	for key in _squads:
-		var players: Array = _squads[key]
-		var total := 0
-		var best := 0.0
-		var roles := {}
-		for player in players:
-			total += int(player.get("market_value", 0))
-			best = maxf(best, float(player.get("overall", 0.0)))
-			var role := str(player.get("role", ""))
-			if not roles.has(role):
-				roles[role] = {"count": 0, "best": 0.0}
-			var stats: Dictionary = roles[role]
-			stats["count"] = int(stats["count"]) + 1
-			stats["best"] = maxf(float(stats["best"]), float(player.get("overall", 0.0)))
-		_market_stats[key] = {"count": players.size(), "value": total, "best": best}
-		_role_stats[key] = roles
-
+	var db := catalog.sql_query()
+	if db == null:
+		# Let a later call retry instead of caching the failed state, and drop the
+		# club list: with clubs but no squads the market would treat every club as
+		# empty and start buying.
+		_catalog = null
+		_clubs = []
+		return
 	# canon.free_agents: ORDER BY p.id (a TEXT column) LIMIT 2000.
-	free_rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return str(a.get("id", "")) < str(b.get("id", "")))
-	_free_agents = free_rows.slice(0, FREE_AGENT_LIMIT)
+	var free_rows: Array = db.call("select",
+		"SELECT %s FROM players p WHERE COALESCE(p.team_id, 0) = 0 "
+			% CareerSearch.ROW_COLUMNS + "ORDER BY CAST(p.id AS TEXT) LIMIT ?",
+		[FREE_AGENT_LIMIT])
+	for row in free_rows:
+		_free_agents.append(CareerSearch.normalized_row(row))
+	_load_stats(catalog)
+
+
+# Per-club numbers come from SQLite aggregates: the market never holds the
+# whole players table, only the clubs it actually trades with.
+static func _load_stats(catalog: TeamCatalog) -> void:
+	var db := catalog.sql_query()
+	if db == null:
+		return
+	var rows: Array = db.call("select",
+		"SELECT COALESCE(p.team_id, 0) AS club, %s AS role, COUNT(*) AS count, "
+			% CareerSearch.ROLE_EXPR
+		+ "SUM(COALESCE(p.market_value, 0)) AS value, MAX(p.overall) AS best "
+		+ "FROM players p WHERE COALESCE(p.team_id, 0) > 0 GROUP BY club, role")
+	for row in rows:
+		var entry: Dictionary = row
+		var club := str(int(entry.get("club", 0)))
+		var count := int(entry.get("count", 0))
+		var best_raw = entry.get("best")
+		var best := 0.0 if best_raw == null else float(best_raw)
+		var stats: Dictionary = _market_stats.get(club,
+			{"count": 0, "value": 0, "best": 0.0})
+		stats["count"] = int(stats["count"]) + count
+		stats["value"] = int(stats["value"]) + int(entry.get("value", 0))
+		stats["best"] = maxf(float(stats["best"]), best)
+		_market_stats[club] = stats
+		var roles: Dictionary = _role_stats.get(club, {})
+		roles[str(entry.get("role", ""))] = {"count": count, "best": best}
+		_role_stats[club] = roles
 
 
 static func _load_squads(career: Career, catalog: TeamCatalog, club_ids: Array) -> Dictionary:
@@ -482,15 +489,46 @@ static func _load_squads(career: Career, catalog: TeamCatalog, club_ids: Array) 
 	var lookup := func(player_ids: Array) -> Array:
 		var players: Array = []
 		for player_id in player_ids:
-			var row = _by_id.get(str(player_id))
-			if row is Dictionary:
+			var row := player_by_id(catalog, player_id)
+			if not row.is_empty():
 				players.append(row)
 		return players
 	var squads_out := {}
+	if club_ids.is_empty():
+		return squads_out
+	var by_club := {}
+	for row in _rows_for_clubs(catalog, club_ids):
+		var entry: Dictionary = row
+		var key := str(int(entry.get("team_id", 0)))
+		if not by_club.has(key):
+			by_club[key] = []
+		(by_club[key] as Array).append(CareerSearch.normalized_row(entry))
+	if by_club.is_empty():
+		# Clubs exist but no player came back: the read failed, so the batch must
+		# not run on "empty" squads.
+		return {}
 	for club_id in club_ids:
-		var base: Array = _squads.get(str(club_id), [])
+		var base: Array = by_club.get(str(club_id), [])
 		squads_out[str(club_id)] = effective_players(career, club_id, base, lookup)
 	return squads_out
+
+
+static func _rows_for_clubs(catalog: TeamCatalog, club_ids: Array) -> Array:
+	# One query for every club in the batch, already ordered like the prototype:
+	# role, then the best player first, then the name.
+	var db := catalog.sql_query()
+	if db == null or club_ids.is_empty():
+		return []
+	var ids: Array = []
+	var placeholders: Array[String] = []
+	for club_id in club_ids:
+		ids.append(int(str(club_id)))
+		placeholders.append("?")
+	return db.call("select",
+		("SELECT %s FROM players p WHERE p.team_id IN (%s) "
+			% [CareerSearch.ROW_COLUMNS, ",".join(placeholders)]
+			+ "ORDER BY p.team_id, %s, p.overall DESC, p.name")
+			% CareerSearch.role_order_expr(), ids)
 
 
 static func _window_counts(career: Career, batch: Dictionary, buyers: bool) -> Dictionary:

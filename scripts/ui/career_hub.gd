@@ -83,10 +83,8 @@ func _ready() -> void:
 	# while the dashboard is up instead of on the next click.
 	CareerWarmup.start(self, CareerWarmup.TRANSFERS)
 	CareerScouting.forget_own_players(_career)
-	# Reading the 120k-row players table takes seconds; do it on a worker thread
-	# while the user reads the dashboard instead of on the first search.
-	CareerSession.catalog.warm_search_rows()
-	# Same for the teams table behind the search screen's club picker.
+	# The club map behind the search pickers takes a moment to read; build it on
+	# a worker while the user reads the dashboard.
 	CareerSession.catalog.warm_clubs()
 	var loaded_tick := CareerAdvance.tick(_career, CareerSession.catalog)
 	_snapshot = CareerFactory.snapshot(CareerSession.catalog, _career)

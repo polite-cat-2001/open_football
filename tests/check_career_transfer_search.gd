@@ -129,6 +129,19 @@ func _run() -> void:
 			_compare("%s item %d" % [label, index], items[index], expected_items[index])
 	print("  search pass took ", Time.get_ticks_msec() - started, " ms")
 
+	# A page past the first index window must still come out ordered (the old
+	# full-list rebuild is gone; the page is a fresh ordered query).
+	var deep := CareerSearch.search(catalog, career, CareerSearch.filters_default(),
+		40, 4000)
+	var deep_items: Array = deep.get("items", [])
+	_check(deep_items.size() == 40, "a deep page still holds forty players")
+	var deep_names: Array[String] = []
+	for item in deep_items:
+		deep_names.append(str((item as Dictionary).get("name", "")).to_lower())
+	var sorted_names := deep_names.duplicate()
+	sorted_names.sort()
+	_check(deep_names == sorted_names, "a deep page keeps the sort order")
+
 	var own: Dictionary = golden["profile"]["own_player"]
 	var own_profile := CareerSearch.profile(catalog, career, str(own["player_id"]))
 	_check(bool(own_profile.get("scouted", false)), "an own player is scouted")

@@ -30,6 +30,7 @@ set(GPF_RUNTIME_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/match_node.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/gpf_runtime_node.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/procedural_pitch.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sqlite_query.cpp
     # Original runtime TUs not already inside the game static libs.
     ${GPF_REPO}/src/gametask.cpp
     ${GPF_REPO}/src/utils.cpp

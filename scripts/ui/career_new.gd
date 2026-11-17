@@ -65,7 +65,7 @@ func _ready() -> void:
 	if not _catalog.is_loaded():
 		_catalog.load_data_root()
 	_store = CareerSession.store if CareerSession.store != null else CareerSaveStore.new()
-	_catalog.warm_search_rows()
+	_catalog.warm_clubs()
 	_build_header()
 	_build_club_step()
 	_build_manager_step()

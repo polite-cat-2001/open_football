@@ -1,6 +1,7 @@
 #include "match_node.h"
 #include "gpf_runtime_node.h"
 #include "procedural_pitch.h"
+#include "sqlite_query.h"
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
@@ -16,6 +17,7 @@ void initialize_open_football_gdext(ModuleInitializationLevel p_level) {
     UtilityFunctions::print("Initializing OpenFootball GDExtension");
     GDREGISTER_CLASS(MatchNode);
     GDREGISTER_CLASS(GpfRuntimeNode);
+    GDREGISTER_CLASS(SqliteQuery);
 }
 
 void uninitialize_open_football_gdext(ModuleInitializationLevel p_level) {

@@ -43,15 +43,16 @@ const FILTER_KEYS := [
 ]
 
 static var last_error := ""
-const CACHE_ROWS := 2000
-static var _query_cache_key := ""
-static var _query_cache_entries: Array = []
-static var _query_cache_matches: Array = []
-static var _query_cache_sort := ""
-static var _query_cache_total := 0
-static var _query_cache_owner: TeamCatalog = null
-static var _query_cache_clubs: Dictionary = {}
-static var _query_cache_valid := false
+const ROLE_EXPR := "CASE WHEN p.career_role IS NOT NULL AND p.career_role <> '' " \
+	+ "THEN p.career_role ELSE p.role END"
+const AGE_EXPR := "CAST((julianday(?) - julianday(p.birth_date)) / 365.2425 AS INTEGER)"
+const HEIGHT_EXPR := "CASE WHEN p.height_cm > 0 THEN p.height_cm " \
+	+ "ELSE CAST(ROUND(COALESCE(p.height, 1.8) * 100) AS INTEGER) END"
+const ROW_COLUMNS := "p.id AS id, p.team_id AS team_id, p.name AS name, " \
+	+ "p.birth_date AS birth_date, p.role AS role, p.career_role AS career_role, " \
+	+ "p.position AS position, p.position_other AS position_other, p.height AS height, " \
+	+ "p.height_cm AS height_cm, p.foot AS foot, p.citizenship AS citizenship, " \
+	+ "p.market_value AS market_value, p.overall AS overall"
 
 
 static func filters_default() -> Dictionary:
@@ -113,32 +114,68 @@ static func filter_reference(catalog: TeamCatalog, league_id := "") -> Dictionar
 static func search(catalog: TeamCatalog, career: Career, filters: Dictionary,
 		limit := PAGE_SIZE, offset := 0) -> Dictionary:
 	last_error = ""
+	var empty := {"items": [], "total": 0, "has_more": false, "limit": limit,
+		"offset": offset}
 	if catalog == null or career == null:
 		last_error = "transfer search is unavailable"
-		return {"items": [], "total": 0, "has_more": false, "limit": limit,
-			"offset": offset}
-	var source := catalog.career_search_rows()
-	if source.is_empty() and not catalog.error.is_empty():
-		last_error = catalog.error
-		return {"items": [], "total": 0, "has_more": false, "limit": limit,
-			"offset": offset}
+		return empty
+	var db := catalog.sql_query()
+	if db == null:
+		last_error = catalog.error if not catalog.error.is_empty() \
+			else "transfer search is unavailable"
+		return empty
 	var page_size := maxi(1, int(limit))
 	var start := maxi(0, int(offset))
-	var query := _query(catalog, career, filters)
-	var entries: Array = query["entries"]
-	var total := int(query["total"])
-	var rows: Array
-	if start + page_size <= entries.size():
-		rows = _select(entries, _descending(filters), mini(total, start + page_size))
-	else:
-		# Past the cached top rows: rebuild the full list for this page only.
-		# Persistent memory stays bounded; a deep page pays one extra pass.
-		var all := _entries(query["matches"], str(query["sort"]), career)
-		rows = _select(all, _descending(filters), mini(total, start + page_size))
+	var query := _build_query(career, filters)
+	if query.is_empty():
+		return empty
+	if not _prepare_names(catalog, db):
+		return empty
+	var from := "FROM players p JOIN of_names n ON n.id = p.id"
+	if bool(query["join"]):
+		from += " LEFT JOIN teams t ON t.id = p.team_id"
+	var where := str(query["where"])
+	var where_params: Array = query["params"]
+	var counted: Array = db.call("select",
+		"SELECT COUNT(*) AS total %s WHERE %s" % [from, where], where_params)
+	var total := 0
+	if not counted.is_empty():
+		total = int((counted[0] as Dictionary).get("total", 0))
+	# Two steps: the ordered ids first (with the name sort this walks the temp
+	# index and touches no player row), then only the page's rows. Selecting the
+	# full rows inside the ordered query made the OFFSET pay a row lookup per
+	# skipped entry.
+	var order_params: Array = query["order_params"]
+	var id_params: Array = where_params.duplicate()
+	id_params.append_array(order_params)
+	id_params.append(page_size)
+	id_params.append(start)
+	var id_rows: Array = db.call("select",
+		"SELECT p.id AS id %s WHERE %s ORDER BY %s LIMIT ? OFFSET ?"
+			% [from, where, str(query["order"])], id_params)
+	var sql_error := str(db.call("last_error_message"))
+	if not sql_error.is_empty():
+		last_error = sql_error
+		return empty
+	var ids: Array = []
+	for row in id_rows:
+		ids.append(_int((row as Dictionary).get("id")))
 	var items: Array = []
-	var clubs: Dictionary = query["clubs"]
-	for index in range(start, mini(rows.size(), start + page_size)):
-		items.append(_item(catalog, career, rows[index], clubs))
+	if not ids.is_empty():
+		var rows: Array = db.call("select", "SELECT %s FROM players p WHERE p.id IN (%s)"
+			% [ROW_COLUMNS, _placeholders(ids.size())], ids)
+		var page_error := str(db.call("last_error_message"))
+		if not page_error.is_empty():
+			last_error = page_error
+			return empty
+		var by_id := {}
+		for row in rows:
+			by_id[_int((row as Dictionary).get("id"))] = row
+		var clubs: Dictionary = {}
+		for player_id in ids:
+			var row: Dictionary = by_id.get(player_id, {})
+			if not row.is_empty():
+				items.append(_item(catalog, career, normalized_row(row), clubs))
 	return {
 		"items": items,
 		"total": total,
@@ -148,109 +185,185 @@ static func search(catalog: TeamCatalog, career: Career, filters: Dictionary,
 	}
 
 
-# Filter + ordered list for one filter set, cached until the filters or the
-# career move: scrolling a result list must not re-scan the players table.
-# Only the first CACHE_ROWS sorted entries are kept; deeper pages rebuild the
-# full list once for that page, so memory does not grow with the table.
-static func _query(catalog: TeamCatalog, career: Career, filters: Dictionary) -> Dictionary:
-	if _query_cache_owner != catalog:
-		_query_cache_owner = catalog
-		_query_cache_clubs = {}
-		_query_cache_valid = false
-	var key := _query_key(career, filters)
-	if _query_cache_valid and key == _query_cache_key:
-		return {"entries": _query_cache_entries, "matches": _query_cache_matches,
-			"sort": _query_cache_sort, "total": _query_cache_total,
-			"clubs": _query_cache_clubs}
-	var matches := _filter(catalog.career_search_rows(), career, filters, catalog)
+# WHERE/ORDER for one filter set, built once for the page and its count. An
+# empty dictionary means the filters can never match (an unknown group, or a
+# status nobody in the career has).
+static func _build_query(career: Career, filters: Dictionary) -> Dictionary:
+	var clauses: Array[String] = []
+	var params: Array = []
+	var name := str(filters.get("name", "")).strip_edges().to_lower()
+	if not name.is_empty():
+		clauses.append("instr(n.low, ?) > 0")
+		params.append(name)
+	var group := str(filters.get("group", "")).strip_edges().to_upper()
+	if not group.is_empty():
+		var roles: Array = GROUP_ROLES.get(group, [])
+		if roles.is_empty():
+			return {}
+		clauses.append("(%s) IN (%s)" % [ROLE_EXPR, _placeholders(roles.size())])
+		params.append_array(roles)
+	var position := str(filters.get("position", "")).strip_edges()
+	if not position.is_empty():
+		clauses.append("(p.position = ? OR instr(p.position_other, ?) > 0)")
+		params.append(position)
+		params.append("\"%s\"" % position)
+	var citizenship := str(filters.get("citizenship", "")).strip_edges()
+	if not citizenship.is_empty():
+		clauses.append("instr(p.citizenship, ?) > 0")
+		params.append("\"%s\"" % citizenship)
+	var foot := str(filters.get("foot", "")).strip_edges()
+	if not foot.is_empty():
+		clauses.append("p.foot = ?")
+		params.append(foot)
+	var age_min := _as_int(filters.get("age_min", 0))
+	if age_min > 0:
+		clauses.append("COALESCE(%s, -1) >= ?" % AGE_EXPR)
+		params.append(career.date)
+		params.append(age_min)
+	var age_max := _as_int(filters.get("age_max", 0))
+	if age_max > 0:
+		clauses.append("COALESCE(%s, -1) <= ?" % AGE_EXPR)
+		params.append(career.date)
+		params.append(age_max)
+	var height_min := _as_int(filters.get("height_min", 0))
+	if height_min > 0:
+		clauses.append("%s >= ?" % HEIGHT_EXPR)
+		params.append(height_min)
+	var height_max := _as_int(filters.get("height_max", 0))
+	if height_max > 0:
+		clauses.append("%s <= ?" % HEIGHT_EXPR)
+		params.append(height_max)
+	var club := _as_int(_value_of(filters, "club", "club_id"))
+	if club > 0:
+		clauses.append("p.team_id = ?")
+		params.append(club)
+	var join_teams := false
+	var country := _alias(filters, "country", "country_id")
+	if not country.is_empty():
+		join_teams = true
+		clauses.append("t.country_id = ?")
+		params.append(country)
+	var league := _alias(filters, "league", "league_id")
+	if not league.is_empty():
+		join_teams = true
+		clauses.append("t.league_id = ?")
+		params.append(league)
+	var status := str(filters.get("status", "")).strip_edges()
+	if status == "free":
+		clauses.append("COALESCE(p.team_id, 0) = 0")
+	elif STATUSES.has(status):
+		var ids: Array = []
+		for player_id in career.player_transfers:
+			if str(career.player_transfers[player_id]) == status:
+				ids.append(int(str(player_id)))
+		if ids.is_empty():
+			return {}
+		clauses.append("p.id IN (%s)" % _placeholders(ids.size()))
+		params.append_array(ids)
 	var sort_key := str(filters.get("sort", "name")).strip_edges()
 	if not SORTS.has(sort_key):
 		sort_key = "name"
-	var entries := _entries(matches, sort_key, career)
-	var kept := _keep(entries, _descending(filters), mini(entries.size(), CACHE_ROWS))
-	_query_cache_key = key
-	_query_cache_entries = kept
-	_query_cache_matches = matches
-	_query_cache_sort = sort_key
-	_query_cache_total = entries.size()
-	_query_cache_valid = true
-	return {"entries": kept, "matches": matches, "sort": sort_key,
-		"total": entries.size(), "clubs": _query_cache_clubs}
+	var direction := "DESC" if _descending(filters) else "ASC"
+	if sort_key == "name":
+		# `n.low` is indexed: the default page is an index walk, no sort.
+		return {
+			"where": " AND ".join(clauses) if not clauses.is_empty() else "1",
+			"params": params,
+			"order": "n.low %s, CAST(n.id AS TEXT) ASC" % direction,
+			"order_params": [],
+			"join": join_teams,
+		}
+	var order_expr := "p.overall"
+	var order_params: Array = []
+	match sort_key:
+		"age":
+			order_expr = "CASE WHEN p.birth_date IS NULL OR p.birth_date = '' " \
+				+ "THEN NULL ELSE %s END" % AGE_EXPR
+			order_params.append(career.date)
+		"position":
+			order_expr = role_order_expr()
+		"value":
+			order_expr = "p.market_value"
+		"wage":
+			order_expr = ("CASE WHEN p.market_value IS NULL OR p.birth_date IS NULL " \
+				+ "OR p.birth_date = '' THEN NULL ELSE p.market_value * (CASE " \
+				+ "WHEN %s <= 23 THEN 1.1 WHEN %s <= 28 THEN 1.0 " \
+				+ "WHEN %s <= 31 THEN 0.9 ELSE 0.8 END) END") % [AGE_EXPR, AGE_EXPR, AGE_EXPR]
+			order_params.append_array([career.date, career.date, career.date])
+	# Nulls sort last in both directions, then the lowercased name and the id
+	# break ties (the engine compares ids as text, like the old comparator).
+	return {
+		"where": " AND ".join(clauses) if not clauses.is_empty() else "1",
+		"params": params,
+		"order": "(%s IS NULL) ASC, %s %s, n.low ASC, CAST(p.id AS TEXT) ASC"
+			% [order_expr, order_expr, direction],
+		"order_params": order_params + order_params,
+		"join": join_teams,
+	}
 
 
-static func _entries(matches: Array, sort_key: String, career: Career) -> Array:
-	var entries: Array = []
-	for row in matches:
-		entries.append([_sort_value(row, sort_key, career),
-			str(row.get("name", "")).to_lower(), str(row.get("id", "")), row])
-	return entries
+static func _placeholders(count: int) -> String:
+	var parts: Array[String] = []
+	for index in count:
+		parts.append("?")
+	return ",".join(parts)
 
 
-static func _query_key(career: Career, filters: Dictionary) -> String:
-	# The filter reads the status map and the club deltas, so their contents
-	# (not just their sizes) must invalidate the cache.
-	return "%s|%s|%s|%s|%s|%s|%s" % [str(career.id), str(career.club_id),
-		JSON.stringify(filters), career.date,
-		JSON.stringify(career.player_transfers), JSON.stringify(career.shortlist),
-		JSON.stringify(career.club_deltas)]
+static func role_order_expr() -> String:
+	# Shared by the search's position sort and the market's squad order.
+	var cases: Array[String] = []
+	for role in ROLE_ORDER:
+		cases.append("WHEN '%s' THEN %d" % [str(role), int(ROLE_ORDER[role])])
+	return "CASE (%s) %s ELSE 99 END" % [ROLE_EXPR, " ".join(cases)]
+
+
+static func _prepare_names(catalog: TeamCatalog, db: RefCounted) -> bool:
+	if catalog.prepare_sql_names():
+		return true
+	if last_error.is_empty():
+		last_error = str(db.call("last_error_message"))
+		if last_error.is_empty():
+			last_error = "the player name index is unavailable"
+	return false
 
 
 static func _descending(filters: Dictionary) -> bool:
 	return str(filters.get("direction", "asc")).strip_edges().to_lower() == "desc"
 
 
-# The first `need` rows in order, without sorting all 120k: the kept list is
-# bounded by the page the caller reads, so almost every entry is rejected by
-# one comparison against the current worst.
-static func _select(entries: Array, descending: bool, need: int) -> Array:
-	var rows: Array = []
-	for entry in _keep(entries, descending, need):
-		rows.append(entry[3])
-	return rows
+# SQL row -> the compact search row the item builder reads.
+static func normalized_row(row: Dictionary) -> Dictionary:
+	var career_role := _text(row.get("career_role"))
+	var height_cm := int(row.get("height_cm", 0) if row.get("height_cm") != null else 0)
+	var height := height_cm
+	if height <= 0:
+		height = int(round(_float(row.get("height"), 1.8) * 100.0))
+	return {
+		"id": str(_int(row.get("id"))),
+		"team_id": _int(row.get("team_id")),
+		"name": _text(row.get("name")),
+		"birth_date": _text(row.get("birth_date")),
+		"role": career_role if not career_role.is_empty() else _text(row.get("role")),
+		"position": _text(row.get("position")),
+		"position_other": _text(row.get("position_other")),
+		"foot": _text(row.get("foot")),
+		"height": height,
+		"citizenship": _text(row.get("citizenship")),
+		"market_value": _int(row.get("market_value")),
+		"overall": _float(row.get("overall"), 0.0),
+	}
 
 
-static func _keep(entries: Array, descending: bool, need: int) -> Array:
-	var kept: Array = []
-	for entry in entries:
-		if kept.size() < need:
-			_insert_entry(kept, entry, descending)
-			continue
-		if need == 0 or not _entry_before(entry, kept[-1], descending):
-			continue
-		kept[-1] = entry
-		var index := kept.size() - 1
-		while index > 0 and _entry_before(kept[index], kept[index - 1], descending):
-			var swap = kept[index - 1]
-			kept[index - 1] = kept[index]
-			kept[index] = swap
-			index -= 1
-	return kept
+static func _text(value) -> String:
+	return "" if value == null else str(value)
 
 
-static func _insert_entry(kept: Array, entry: Array, descending: bool) -> void:
-	var low := 0
-	var high := kept.size()
-	while low < high:
-		var middle := (low + high) / 2
-		if _entry_before(entry, kept[middle], descending):
-			high = middle
-		else:
-			low = middle + 1
-	kept.insert(low, entry)
+static func _int(value, fallback := 0) -> int:
+	return fallback if value == null else int(value)
 
 
-static func _entry_before(a: Array, b: Array, descending: bool) -> bool:
-	if a[0] != b[0]:
-		if a[0] == null:
-			return false
-		if b[0] == null:
-			return true
-		if descending:
-			return a[0] > b[0]
-		return a[0] < b[0]
-	if a[1] != b[1]:
-		return a[1] < b[1]
-	return a[2] < b[2]
+static func _float(value, fallback := 0.0) -> float:
+	return fallback if value == null else float(value)
 
 
 static func profile(catalog: TeamCatalog, career: Career, player_id) -> Dictionary:
@@ -506,122 +619,6 @@ static func _days_in_month(year: int, month: int) -> int:
 			var leap := year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
 			return 29 if leap else 28
 	return 30
-
-
-static func _filter_age(row: Dictionary, reference: String) -> int:
-	# canon.search_players: CAST((julianday(?) - julianday(birth_date)) / 365.2425 AS INTEGER)
-	var birth := str(row.get("birth_date", ""))
-	if birth.is_empty():
-		return -1
-	var days := date_diff_days(birth, reference)
-	return int(float(days) / 365.2425)
-
-
-static func _filter(rows: Array, career: Career, filters: Dictionary,
-		catalog: TeamCatalog) -> Array:
-	var name := str(filters.get("name", "")).strip_edges().to_lower()
-	var group := str(filters.get("group", "")).strip_edges().to_upper()
-	var group_roles: Array = GROUP_ROLES.get(group, [])
-	var position := str(filters.get("position", "")).strip_edges()
-	var position_marker := "\"%s\"" % position
-	var citizenship := str(filters.get("citizenship", "")).strip_edges()
-	var citizenship_marker := "\"%s\"" % citizenship
-	# The filter board spells the id filters `country_id`/`league_id`/`club_id`;
-	# the prototype's query parameters drop the suffix. Both are accepted.
-	var country := _alias(filters, "country", "country_id")
-	var league := _alias(filters, "league", "league_id")
-	var club := _as_int(_value_of(filters, "club", "club_id"))
-	var foot := str(filters.get("foot", "")).strip_edges()
-	var age_min := _as_int(filters.get("age_min", 0))
-	var age_max := _as_int(filters.get("age_max", 0))
-	var height_min := _as_int(filters.get("height_min", 0))
-	var height_max := _as_int(filters.get("height_max", 0))
-	var status := str(filters.get("status", "")).strip_edges()
-	var only_ids := {}
-	if STATUSES.has(status):
-		for player_id in career.player_transfers:
-			if str(career.player_transfers[player_id]) == status:
-				only_ids[str(player_id)] = true
-		if only_ids.is_empty():
-			return []
-	var free_only := status == "free"
-	var matches: Array = []
-	var clubs := {}
-	for row in rows:
-		if not name.is_empty() and not str(row.get("name", "")).to_lower().contains(name):
-			continue
-		if not group_roles.is_empty() and not group_roles.has(str(row.get("role", ""))):
-			continue
-		if not group.is_empty() and group_roles.is_empty():
-			continue
-		if not position.is_empty() and str(row.get("position", "")) != position \
-				and not str(row.get("position_other", "")).contains(position_marker):
-			continue
-		if not citizenship.is_empty() \
-				and not str(row.get("citizenship", "")).contains(citizenship_marker):
-			continue
-		if not foot.is_empty() and str(row.get("foot", "")) != foot:
-			continue
-		if age_min > 0 or age_max > 0:
-			var age := _filter_age(row, career.date)
-			if age_min > 0 and age < age_min:
-				continue
-			if age_max > 0 and age > age_max:
-				continue
-		if height_min > 0 and int(row.get("height", 0)) < height_min:
-			continue
-		if height_max > 0 and int(row.get("height", 0)) > height_max:
-			continue
-		var team_id := int(row.get("team_id", 0))
-		if club > 0 and team_id != club:
-			continue
-		if free_only and team_id > 0:
-			continue
-		if not country.is_empty() or not league.is_empty():
-			var team := club_ref(catalog, team_id, clubs)
-			if team.is_empty():
-				continue
-			if not country.is_empty() and str(team.get("country_id", "")) != country:
-				continue
-			if not league.is_empty() and str(team.get("league_id", "")) != league:
-				continue
-		if not only_ids.is_empty() and not only_ids.has(str(row.get("id", ""))):
-			continue
-		matches.append(row)
-	return matches
-
-
-static func _sort_value(row: Dictionary, sort_key: String, career: Career):
-	match sort_key:
-		"name":
-			return str(row.get("name", "")).to_lower()
-		"age":
-			var age := _filter_age(row, career.date)
-			return null if age < 0 else age
-		"overall":
-			var overall = row.get("overall")
-			return float(overall) if overall != null else null
-		"position":
-			return int(ROLE_ORDER.get(str(row.get("role", "")), 99))
-		"value":
-			var value = row.get("market_value")
-			return int(value) if value != null else null
-		"wage":
-			var market = row.get("market_value")
-			if market == null or str(row.get("birth_date", "")).is_empty():
-				return null
-			var age := _filter_age(row, career.date)
-			var factor := 1.0
-			if age <= 23:
-				factor = 1.1
-			elif age <= 28:
-				factor = 1.0
-			elif age <= 31:
-				factor = 0.9
-			else:
-				factor = 0.8
-			return float(int(market)) * factor
-	return str(row.get("name", "")).to_lower()
 
 
 static func _item(catalog: TeamCatalog, career: Career, row: Dictionary,

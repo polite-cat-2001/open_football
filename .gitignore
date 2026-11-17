@@ -37,3 +37,5 @@ data/
 
 # Generated screenshot book (tests/capture_*_shots.gd)
 .scratch/ui_shots/
+
+gdextension/build-sql/

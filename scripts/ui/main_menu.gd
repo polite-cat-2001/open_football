@@ -53,6 +53,9 @@ func _ready() -> void:
 	theme = UiTheme.load_or_build()
 
 	_refresh_career()
+	# The first career entry used to compile ~0.5 s of career screens on the
+	# Continue click; pay it here, one script per frame, while the menu is up.
+	CareerWarmup.start(self, CareerWarmup.ENTRY + CareerWarmup.TRANSFERS)
 	_setup_grids()
 	tab_bar.setup(["PLAY", "SETTINGS"])
 	tab_bar.tab_selected.connect(_on_tab_selected)
@@ -318,6 +321,8 @@ func _refresh_career() -> void:
 		continue_tile.set_art(null)
 		continue_tile.set_enabled(false)
 		return
+	# The club map behind the pickers and result cards takes a moment to read;
+	# start it while the player is still in the menu.
 	var club := {}
 	for entry in entries:
 		var career = entry.get("career")
@@ -333,6 +338,9 @@ func _refresh_career() -> void:
 		continue_tile.set_art(null)
 		continue_tile.set_enabled(false)
 		return
+	# The club map behind the pickers and result cards takes a moment to read;
+	# start it while the player is still in the menu.
+	_career_catalog.warm_clubs()
 	var team := _career_catalog.team_by_id(int(_latest_career.club_id))
 	continue_tile.set_copy(
 		"CONTINUE CAREER",

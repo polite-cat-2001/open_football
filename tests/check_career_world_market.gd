@@ -104,8 +104,8 @@ func _run() -> void:
 		"no batches outside the windows")
 
 	# Aggregate helpers.
-	var squad: Array = (CareerWorldMarket.squads(catalog) as Dictionary).get("131", [])
-	_check(not squad.is_empty(), "the club squads are grouped from one table walk")
+	var squad: Array = CareerWorldMarket.squad(catalog, "131")
+	_check(not squad.is_empty(), "the club squad comes from SQLite")
 	var value := CareerWorldMarket.club_value(squad)
 	_check(CareerWorldMarket.club_budget(squad) == int(float(value) * 0.10),
 		"the budget is ten percent of the squad value")
@@ -194,7 +194,7 @@ func _run() -> void:
 			players.append(CareerWorldMarket.player_by_id(catalog, player_id))
 		return players
 	var sample_club := str((deltas.keys() as Array)[0])
-	var base: Array = (CareerWorldMarket.squads(catalog) as Dictionary).get(sample_club, [])
+	var base: Array = CareerWorldMarket.squad(catalog, sample_club)
 	var effective := CareerWorldMarket.effective_players(career, sample_club, base, lookup)
 	var effective_ids := {}
 	for player in effective:

@@ -35,11 +35,6 @@ const CAREER_PLAYER_COLUMNS := [
 	"career_role", "position", "position_other", "height", "height_cm", "weight", "foot",
 	"weak_foot", "skill_moves", "citizenship", "shirt_number", "market_value", "overall", "pot",
 ]
-const CAREER_SEARCH_COLUMNS := [
-	"id", "team_id", "name", "birth_date", "role", "career_role", "position",
-	"position_other", "height", "height_cm", "foot", "citizenship", "market_value",
-	"overall",
-]
 const CAREER_ROLE_ORDER := {
 	"GK": 0, "CB": 1, "LB": 2, "RB": 3, "DM": 4, "CM": 5,
 	"LM": 6, "RM": 7, "AM": 8, "CF": 9,
@@ -56,6 +51,9 @@ var _leagues_by_country := {}
 var _league_rows := {}
 var _teams_by_league := {}
 var _team_rows := {}
+var _career_club_rows := {}
+var _sql: RefCounted
+var _names_ready := false
 var _national_league_id := ""
 var _national_league_loaded := false
 var _ratings := {}
@@ -63,9 +61,6 @@ var _fieldable := {}
 var _player_counts := {}
 var _eligibility := {}
 var _eligibility_loaded := false
-var _career_search_rows: Array = []
-var _career_search_loaded := false
-var _career_search_job: CareerJob
 var _career_leagues: Array = []
 var _career_leagues_loaded := false
 var _career_clubs: Array = []
@@ -115,9 +110,9 @@ func is_loaded() -> bool:
 
 
 func close() -> void:
-	if _career_search_job != null:
-		_career_search_job.take()
-		_career_search_job = null
+	if _sql != null:
+		_sql.call("close")
+		_sql = null
 	if _career_clubs_job != null:
 		_career_clubs_job.take()
 		_career_clubs_job = null
@@ -316,55 +311,47 @@ func career_players_by_ids(player_ids: Array, with_stats := true) -> Array:
 	return players
 
 
-func career_search_rows() -> Array:
-	# The transfer search needs the whole players table once; a full walk costs
-	# several seconds, so it is cached for the lifetime of the loaded catalog.
-	if _career_search_loaded:
-		return _career_search_rows
-	if _career_search_job != null:
-		var warmed = _career_search_job.take()
-		_career_search_job = null
-		if warmed is Array and not (warmed as Array).is_empty():
-			_career_search_rows = warmed
-			_career_search_loaded = true
-			return _career_search_rows
-	var reader := _require_reader("players")
-	if reader == null:
-		return []
-	var rows: Array = []
-	var walked := reader.for_each("players", PackedStringArray(CAREER_SEARCH_COLUMNS),
-		func(row: Dictionary) -> void:
-			rows.append(_career_search_row(row)))
-	if not walked or not reader.error.is_empty():
-		_query_ok("players")
-		return []
-	_career_search_rows = rows
-	_career_search_loaded = true
-	return _career_search_rows
+func sql_query() -> RefCounted:
+	# Native SQLite connection (GDExtension `SqliteQuery`) for the queries the
+	# hand-written reader is too slow for, like the transfer search.
+	if _sql != null:
+		return _sql
+	if not ClassDB.class_exists("SqliteQuery"):
+		error = "SQLite bridge is missing: rebuild the GDExtension."
+		return null
+	_sql = ClassDB.instantiate("SqliteQuery")
+	if _sql == null:
+		error = "SQLite bridge cannot be created."
+		return null
+	if not bool(_sql.call("open", database_path())):
+		error = "cannot open the database for SQL: %s" % str(_sql.call("last_error_message"))
+		_sql = null
+		return null
+	_names_ready = false
+	return _sql
 
 
-func warm_search_rows() -> void:
-	# Career screens call this as soon as they open: the walk then happens on a
-	# worker thread while the user reads the dashboard, instead of freezing the
-	# first search (or the first calendar tick) for seconds.
-	if _career_search_loaded or _career_search_job != null or not _loaded:
-		return
-	var database := database_path()
-	var columns := PackedStringArray(CAREER_SEARCH_COLUMNS)
-	_career_search_job = CareerJob.new()
-	_career_search_job.start(func() -> Array:
-		var reader := SqliteReader.new()
-		if not reader.open(database):
-			return []
-		var rows: Array = []
-		reader.for_each("players", columns, func(row: Dictionary) -> void:
-			rows.append(_career_search_row(row)))
-		reader.close()
-		return rows)
-
-
-func search_rows_ready() -> bool:
-	return _career_search_loaded or (_career_search_job != null and _career_search_job.done())
+func prepare_sql_names() -> bool:
+	# One sorted lowercase name per player, built once per connection: SQLite's
+	# own lower() is ASCII-only, and calling the Unicode one 121k times per page
+	# would cost ~0.2 s. With this index the name-sorted page is an index walk.
+	var db := sql_query()
+	if db == null:
+		return false
+	if _names_ready:
+		return true
+	if not bool(db.call("exec",
+			"CREATE TEMP TABLE IF NOT EXISTS of_names(id INTEGER PRIMARY KEY, low TEXT)")):
+		return false
+	# OR IGNORE: a retry after a partial build must not fail on duplicate ids.
+	if not bool(db.call("exec",
+			"INSERT OR IGNORE INTO of_names(id, low) SELECT id, of_lower(name) FROM players")):
+		return false
+	if not bool(db.call("exec",
+			"CREATE INDEX IF NOT EXISTS of_names_low ON of_names(low, CAST(id AS TEXT))")):
+		return false
+	_names_ready = true
+	return true
 
 
 
@@ -393,72 +380,95 @@ func career_leagues() -> Array:
 func career_clubs() -> Array:
 	# Every club for the transfer filter pickers, sorted by name. The synthetic
 	# national-team competition is not a club league. Cached for the lifetime of
-	# the loaded catalog: a full teams walk costs ~0.25 s and used to run on
-	# every open of the search screen.
+	# the loaded catalog, together with the full club dicts the result items
+	# read: a teams walk costs ~0.25 s and used to run on every search open.
 	if _career_clubs_loaded:
 		return _career_clubs
 	if _career_clubs_job != null:
 		var warmed = _career_clubs_job.take()
 		_career_clubs_job = null
-		if warmed is Array and not (warmed as Array).is_empty():
-			_career_clubs = warmed
-			_career_clubs_loaded = true
+		_take_clubs(warmed)
+		if _career_clubs_loaded:
 			return _career_clubs
 	var reader := _require_reader("clubs")
 	if reader == null:
 		return []
-	var rows := reader.select_all("teams",
-		PackedStringArray(["id", "name", "league_id", "career_logo"]))
+	var teams := reader.select_all("teams", PackedStringArray(TEAM_COLUMNS))
+	var leagues := reader.select_all("leagues", PackedStringArray(LEAGUE_COLUMNS))
+	var countries := reader.select_all("countries", PackedStringArray(COUNTRY_COLUMNS))
 	if not _query_ok("teams"):
 		return []
-	_career_clubs = _clubs_from_rows(rows, national_league_id())
-	_career_clubs_loaded = true
+	_take_clubs(_clubs_from_tables(teams, leagues, countries, national_league_id()))
 	return _career_clubs
 
 
 func warm_clubs() -> void:
-	# The search screen's club picker needs the whole teams table; read and map
-	# it on a worker while the player is still on the dashboard.
+	# The search screen needs every club both as a picker list and as the full
+	# dict each result card reads; assemble both on a worker while the player is
+	# still on the dashboard instead of one SQL read per new club per page.
 	if _career_clubs_loaded or _career_clubs_job != null or not _loaded:
 		return
 	var database := database_path()
 	var national := national_league_id()
-	var columns := PackedStringArray(["id", "name", "league_id", "career_logo"])
 	_career_clubs_job = CareerJob.new()
-	_career_clubs_job.start(func() -> Array:
+	_career_clubs_job.start(func() -> Dictionary:
 		var reader := SqliteReader.new()
 		if not reader.open(database):
-			return []
-		var teams := reader.select_all("teams", columns)
+			return {}
+		var teams := reader.select_all("teams", PackedStringArray(TEAM_COLUMNS))
+		var leagues := reader.select_all("leagues", PackedStringArray(LEAGUE_COLUMNS))
+		var countries := reader.select_all("countries", PackedStringArray(COUNTRY_COLUMNS))
 		reader.close()
-		return _clubs_from_rows(teams, national))
+		return _clubs_from_tables(teams, leagues, countries, national))
 
 
-func _clubs_from_rows(rows: Array, national: String) -> Array:
+func _take_clubs(warmed) -> void:
+	if not (warmed is Dictionary) or not (warmed as Dictionary).has("rows"):
+		return
+	if (warmed.get("clubs", []) as Array).is_empty():
+		# A failed read must not be cached as success: the pickers and the market
+		# would stay clubless for the whole session.
+		return
+	_career_club_rows = warmed["rows"]
+	_career_clubs = warmed.get("clubs", [])
+	_career_clubs_loaded = true
+
+
+# Runs on the worker too: reads only its arguments.
+func _clubs_from_tables(teams: Array, leagues: Array, countries: Array,
+		national: String) -> Dictionary:
+	var country_names := {}
+	for row in countries:
+		country_names[str(_int(row.get("id")))] = _text(row.get("name"))
+	var league_rows := {}
+	for row in leagues:
+		league_rows[str(row.get("id", ""))] = row
+	var rows := {}
 	var clubs: Array = []
-	for row in rows:
-		var league_id := str(row.get("league_id", ""))
+	for row in teams:
+		var team := _team_from_row(row)
+		var team_id := int(team.get("id", 0))
+		var league_id := str(team.get("league_id", ""))
+		var league: Dictionary = league_rows.get(league_id, {})
+		var club := _club_from_tables(team, league,
+			str(country_names.get(str(team.get("country_id", "")), "")))
+		rows[team_id] = club
 		if not national.is_empty() and league_id == national:
 			continue
-		var logo := str(row.get("career_logo", ""))
+		var logo := str(team.get("career_logo", ""))
 		clubs.append({
-			"id": str(row.get("id", "")),
-			"name": str(row.get("name", "")),
+			"id": str(team_id),
+			"name": str(team.get("name", "")),
 			"league_id": league_id,
 			"logo": logo,
 			"career_logo": logo,
 		})
 	clubs.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return str(a.get("name", "")) < str(b.get("name", "")))
-	return clubs
+	return {"rows": rows, "clubs": clubs}
 
 
-func career_club(team_id: int) -> Dictionary:
-	var team := team_by_id(team_id)
-	if team.is_empty():
-		return {}
-	var league := league_by_id(str(team.get("league_id", "")))
-	var country := country_by_id(int(team.get("country_id", 0)))
+func _club_from_tables(team: Dictionary, league: Dictionary, country_name: String) -> Dictionary:
 	return {
 		"id": str(team.get("id", "")),
 		"tm_id": str(team.get("id", "")),
@@ -471,7 +481,7 @@ func career_club(team_id: int) -> Dictionary:
 		"tier_rank": int(league.get("tier_rank", 0)),
 		"tier_name": str(league.get("tier_name", "")),
 		"country_id": str(team.get("country_id", "")),
-		"country_name": str(country.get("name", "")),
+		"country_name": country_name,
 		"logo": str(team.get("logo_url", "")),
 		"career_logo": str(team.get("career_logo", "")),
 		"colors": _json_array(team.get("colors")),
@@ -481,6 +491,24 @@ func career_club(team_id: int) -> Dictionary:
 		},
 		"founded_on": str(team.get("founded_on", "")),
 	}
+
+
+func career_club(team_id: int) -> Dictionary:
+	# The search results build one item per card, and every card asks for its
+	# club: the assembled dict is cached so a page costs lookups, not SQL.
+	if _career_clubs_job != null and _career_clubs_job.done():
+		_take_clubs(_career_clubs_job.take())
+		_career_clubs_job = null
+	if _career_club_rows.has(team_id):
+		return _career_club_rows[team_id]
+	var team := team_by_id(team_id)
+	if team.is_empty():
+		return {}
+	var league := league_by_id(str(team.get("league_id", "")))
+	var country := country_by_id(int(team.get("country_id", 0)))
+	var club := _club_from_tables(team, league, str(country.get("name", "")))
+	_career_club_rows[team_id] = club
+	return club
 
 
 func country_by_id(country_id: int) -> Dictionary:
@@ -702,26 +730,6 @@ func _player_from_row(row: Dictionary, order_column: String) -> Dictionary:
 	}
 
 
-func _career_search_row(row: Dictionary) -> Dictionary:
-	var career_role := _text(row.get("career_role"))
-	var height_cm := _int(row.get("height_cm"))
-	return {
-		"id": str(_int(row.get("id"))),
-		"team_id": _int(row.get("team_id")),
-		"name": _text(row.get("name")),
-		"birth_date": _text(row.get("birth_date")),
-		"role": career_role if not career_role.is_empty() else _text(row.get("role")),
-		"position": _text(row.get("position")),
-		"position_other": _text(row.get("position_other")),
-		"foot": _text(row.get("foot")),
-		"height": height_cm if height_cm > 0 \
-			else int(round(_float(row.get("height"), 1.8) * 100.0)),
-		"citizenship": _text(row.get("citizenship")),
-		"market_value": _int(row.get("market_value")),
-		"overall": _float(row.get("overall")),
-	}
-
-
 func _career_player_from_row(row: Dictionary, with_stats := false) -> Dictionary:
 	var first_name := _text(row.get("firstname"))
 	var last_name := _text(row.get("lastname"))
@@ -884,6 +892,10 @@ func _load_eligibility(root: String) -> void:
 
 func _reset() -> void:
 	error = ""
+	if _sql != null:
+		_sql.call("close")
+		_sql = null
+	_names_ready = false
 	_countries.clear()
 	_countries_loaded = false
 	_country_rows.clear()
@@ -898,9 +910,8 @@ func _reset() -> void:
 	_player_counts.clear()
 	_eligibility.clear()
 	_eligibility_loaded = false
-	_career_search_rows.clear()
-	_career_search_loaded = false
 	_career_leagues.clear()
 	_career_leagues_loaded = false
 	_career_clubs.clear()
 	_career_clubs_loaded = false
+	_career_club_rows.clear()

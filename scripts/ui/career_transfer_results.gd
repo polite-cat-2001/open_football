@@ -282,14 +282,13 @@ func _reset() -> void:
 
 func _start_search() -> void:
 	_loading = true
-	_set_note("SEARCHINGвЂ¦" if catalog == null or catalog.search_rows_ready() \
-		else "LOADING PLAYERSвЂ¦")
+	_set_note("SEARCHING…")
 	call_deferred("_run_search")
 
 
 func _run_search() -> void:
-	# One frame first so the note above is painted: the filter below runs on
-	# this thread.
+	# One frame first so the note above is painted: the query below runs on this
+	# thread. It goes through native SQLite and needs no preloaded player index.
 	await get_tree().process_frame
 	if not _loading or not is_inside_tree():
 		return
