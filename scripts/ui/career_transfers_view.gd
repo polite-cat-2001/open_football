@@ -48,6 +48,9 @@ var _current := "hub"
 var _busy := false
 var _open := false
 var _shell_focused := false
+# Result of the last scout assignment; the host shows it in its hints bar.
+var _notice := ""
+var _notice_error := false
 
 
 func open(career: Career, catalog: TeamCatalog, start := "hub") -> void:
@@ -113,6 +116,8 @@ func breadcrumb(view := _current) -> Array[String]:
 
 
 func status() -> String:
+	if not _notice.is_empty():
+		return _notice
 	var screen := _current_screen()
 	if screen != null and screen.has_method("status"):
 		return str(screen.status())
@@ -120,6 +125,8 @@ func status() -> String:
 
 
 func status_error() -> bool:
+	if not _notice.is_empty():
+		return _notice_error
 	var screen := _current_screen()
 	if screen != null and screen.has_method("status_error"):
 		return bool(screen.status_error())
@@ -187,6 +194,7 @@ func _show(view: String, payload: Dictionary) -> void:
 	var screen := _ensure(view)
 	if screen == null:
 		return
+	_notice = ""
 	if _busy:
 		return
 	if _current == view and screen.visible:
@@ -299,13 +307,17 @@ func _on_changed() -> void:
 	changed.emit()
 
 
-func _on_scout_requested(_player_id: String, _scout_id: String) -> void:
-	# Scouting is wired by the hub once the scouting screen lands; the action
-	# itself lives in CareerScouting and needs only ids.
-	var script := load("res://scripts/career/career_scouting.gd")
-	if script == null or _career == null or _catalog == null:
+func _on_scout_requested(player_id: String, scout_id: String) -> void:
+	if _career == null or _catalog == null:
 		return
-	script.call("assign", _career, _catalog, _scout_id, _player_id)
+	var result := CareerScouting.assign(_career, _catalog, scout_id, player_id)
+	if not bool(result.get("ok", false)):
+		_notice = str(result.get("error", "the scout could not be assigned"))
+		_notice_error = true
+		view_changed.emit()
+		return
+	_notice = ""
+	_notice_error = false
 	_on_changed()
 
 

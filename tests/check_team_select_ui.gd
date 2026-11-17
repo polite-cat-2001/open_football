@@ -6,6 +6,7 @@ extends SceneTree
 const TEAM_SELECT := "res://scenes/team_select.tscn"
 const HOME_ID := 4941
 const AWAY_ID := 4035
+const UI_ASSETS := preload("res://scripts/data/ui_assets.gd")
 
 var failures: Array[String] = []
 
@@ -70,6 +71,14 @@ func _run() -> void:
 		== ShellState.DEFAULT_AWAY_TEAM_ID,
 		"Real Madrid is the default away team")
 
+	# The picker must show the shipped emblem (`career_logo`), not the stale
+	# id-keyed copy under databases/default/images_teams.
+	var home_team: Dictionary = sides[0].get("team", {})
+	var home_emblem := UI_ASSETS.load_texture(
+		str(home_team.get("career_logo", "")).trim_prefix("/"))
+	_check(home_emblem != null and UI_ASSETS.team_logo(home_team) == home_emblem,
+		"the home club card shows its shipped emblem")
+
 	# Focus is local to the view; Up/Down clamps inside the panel.
 	_check(view.focus_for(0) == "team", "the club block is focused by default")
 	await _tap_key(KEY_UP)
@@ -94,6 +103,26 @@ func _run() -> void:
 		"the home team has a name")
 	_check(float(sides[0].get("rating", {}).get("stars", 0.0)) > 0.0,
 		"the home team shows a rating")
+
+	# National teams have no club emblem: the card must use their own logo file,
+	# and a missing file must leave no crest (never another club's).
+	var models: Array = screen.get("sides")
+	models[0]["country_index"] = 0
+	screen.call("_apply_country", models[0])
+	screen.call("_refresh")
+	await _frames(3)
+	sides = view.sides()
+	var national: Dictionary = sides[0].get("team", {})
+	_check(str(national.get("league_id", "")) == "NAT",
+		"the National Teams list is reachable")
+	var national_logo := UI_ASSETS.load_texture(
+		"databases/default/" + str(national.get("logo_url", "")))
+	var shown_national := UI_ASSETS.usable_texture(UI_ASSETS.team_logo(national))
+	_check(shown_national == national_logo,
+		"a national team shows its own logo file or none, never another club's crest")
+	screen.call("_restore_team", 0, HOME_ID)
+	screen.call("_refresh")
+	await _frames(3)
 
 	await _tap_key(KEY_ENTER)
 	await _frames(3)

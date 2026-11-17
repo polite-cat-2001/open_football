@@ -2,14 +2,9 @@ class_name CareerAdvance
 extends RefCounted
 # The single dated tick the career hub runs after it moves the calendar:
 # incoming AI offers, the AI-to-AI world market, the club's answers to our
-# offers and contracts, contract completion, renewal talks and deferred
-# departures — in that order, once per day. Every sub-step keeps its own date
+# offers and contracts, contract completion, renewal talks, deferred departures
+# and the scouts — in that order, once per day. Every sub-step keeps its own date
 # marker, so running the tick twice for the same day adds nothing.
-#
-# Scouting is ported separately; it is loaded by path so this file still parses
-# while that module is missing or being written.
-
-const SCOUTING_SCRIPT := "res://scripts/career/career_scouting.gd"
 
 
 static func tick(career: Career, catalog: TeamCatalog, today := "") -> Dictionary:
@@ -47,13 +42,8 @@ static func tick(career: Career, catalog: TeamCatalog, today := "") -> Dictionar
 	events.append_array(CareerSquadActions.process_due(career, catalog, reference))
 	events.append_array(CareerIncomingOffers.execute_pending_departures(career, catalog,
 		reference))
-
-	var scouting := load(SCOUTING_SCRIPT)
-	if scouting != null and scouting.has_method("process_days"):
-		var scouting_events = scouting.call("process_days", career, catalog,
-			previous_incoming, reference)
-		if scouting_events is Array:
-			events.append_array(scouting_events)
+	events.append_array(CareerScouting.process_days(career, catalog, previous_incoming,
+		reference))
 
 	for event in events:
 		if event is Dictionary and str(event.get("message", "")).is_empty():

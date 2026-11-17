@@ -207,7 +207,7 @@ func _setup_match_actions(model: Dictionary) -> void:
 	if not (next is Dictionary):
 		return
 	var opponent: Dictionary = next.get("opponent", {})
-	var meta := "ROUND %d В· %s В· %s" % [
+	var meta := "ROUND %d · %s · %s" % [
 		int(next.get("round", 0)),
 		CareerHubModel.short_date(str(next.get("date", ""))),
 		"HOME" if bool(next.get("home", true)) else "AWAY",
@@ -935,7 +935,7 @@ func _on_next_pressed() -> void:
 		return
 	var match_date := str(next.get("date", ""))
 	if _career.date >= match_date:
-		hints.set_status("Match day В· the match screen arrives in the next build.")
+		hints.set_status("Match day · the match screen arrives in the next build.")
 		return
 	_sim_start = _career.date
 	_sim_date = _career.date
@@ -980,8 +980,8 @@ func _commit_advance(target: String) -> void:
 	var strengths := {}
 	for club in league_clubs:
 		var club_id := str(club.get("id", ""))
-		strengths[club_id] = CareerSeason.squad_strength(
-			CareerSession.catalog.career_squad(int(club_id)))
+		strengths[club_id] = CareerSeason.squad_strength(CareerSquad.roster(
+			CareerSession.catalog, _career, int(club_id), false))
 	if not CareerSeason.advance_to(_career, target, league_clubs, strengths):
 		hints.set_status(CareerSeason.last_error, true)
 		_apply_snapshot()
@@ -995,7 +995,7 @@ func _commit_advance(target: String) -> void:
 	_show_tick_event(tick.get("events", []))
 	var next = _snapshot.get("season", {}).get("next")
 	var round_no := int(next.get("round", 0)) if next is Dictionary else 0
-	hints.set_status("Advanced to %s В· round %d" % [
+	hints.set_status("Advanced to %s · round %d" % [
 		CareerHubModel.short_date(target), round_no,
 	])
 
@@ -1196,7 +1196,7 @@ func _build_match_setup() -> Dictionary:
 	var clubs := {}
 	for club_id in [str(fixture.get("home", "")), str(fixture.get("away", ""))]:
 		clubs[club_id] = catalog.career_club(int(club_id))
-	var our_players := catalog.career_squad(int(_career.club_id))
+	var our_players := CareerSquad.roster(catalog, _career, _career.club_id, false)
 	if our_players.is_empty():
 		hints.set_status("The career squad is missing from the database.", true)
 		return {}
@@ -1208,9 +1208,9 @@ func _build_match_setup() -> Dictionary:
 	var blocked := CareerCondition.blocked_player_ids(_career)
 	var own_home := str(fixture.get("home", "")) == _career.club_id
 	var home_players := our_players if own_home \
-		else catalog.career_squad(int(fixture.get("home", "")))
+		else CareerSquad.roster(catalog, _career, int(fixture.get("home", "")), false)
 	var away_players := our_players if not own_home \
-		else catalog.career_squad(int(fixture.get("away", "")))
+		else CareerSquad.roster(catalog, _career, int(fixture.get("away", "")), false)
 	var home_lineup := CareerMatch.build_lineup(
 		home_players,
 		_career.lineup if own_home else [],
@@ -1252,8 +1252,8 @@ func _strengths(league_clubs: Array) -> Dictionary:
 	var strengths := {}
 	for club in league_clubs:
 		var club_id := str(club.get("id", ""))
-		strengths[club_id] = CareerSeason.squad_strength(
-			CareerSession.catalog.career_squad(int(club_id)))
+		strengths[club_id] = CareerSeason.squad_strength(CareerSquad.roster(
+			CareerSession.catalog, _career, int(club_id), false))
 	return strengths
 
 
@@ -1264,9 +1264,9 @@ func _league_name() -> String:
 func _match_note() -> String:
 	match _match_phase:
 		"setup":
-			return "Simulation В· lineups"
+			return "Simulation · lineups"
 		"live":
-			return "Simulation В· 1 minute per second"
+			return "Simulation · 1 minute per second"
 		"done":
 			return "Match finished"
 		"matchday_results":
@@ -1295,7 +1295,7 @@ func _match_hints() -> Array:
 			]
 		"matchday_table":
 			return [
-				{"keys": ["L-STICK"] if gamepad else ["в†‘", "в†“"], "label": "scroll"},
+				{"keys": ["L-STICK"] if gamepad else ["↑", "↓"], "label": "scroll"},
 				{"keys": ["A"] if gamepad else ["ENTER"], "label": "hub"},
 				{"keys": ["B"] if gamepad else ["ESC"], "label": "results"},
 			]
@@ -1398,7 +1398,7 @@ func _save() -> bool:
 		hints.set_status(store.last_error, true)
 		return false
 	CareerSession.store = store
-	hints.set_status("Career saved В· %s" % _timestamp(_career.updated_at))
+	hints.set_status("Career saved · %s" % _timestamp(_career.updated_at))
 	return true
 
 
@@ -1462,7 +1462,7 @@ func _overlay_hints() -> Array:
 			{"keys": ["B"], "label": "back"},
 		]
 	return [
-		{"keys": ["в†‘", "в†“"], "label": "scroll"},
+		{"keys": ["↑", "↓"], "label": "scroll"},
 		{"keys": ["ESC"], "label": "back"},
 	]
 

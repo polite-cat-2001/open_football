@@ -10,7 +10,6 @@ const MAX_COUNTER_OFFERS := 2
 const THINK_DAYS := [2, 3, 4]
 const MAX_WEEKLY_WAGE := 2000000
 const MAX_SHIRT_NUMBER := 99
-const WAGE_COVER_WEEKS := 4
 const MIN_MARKET_VALUE := 50000
 const MIN_SQUAD_SIZE := 11
 
@@ -29,8 +28,7 @@ const COUNTER_MESSAGES := {
 static func negotiation_state(career: Career, catalog: TeamCatalog,
 		player_id) -> Dictionary:
 	var key := str(player_id)
-	var squad := _squad(catalog, career)
-	var player := _find(squad, key)
+	var player := _find(_squad(catalog, career), key)
 	if player.is_empty():
 		return {"error": "player is not in this squad", "player_id": key}
 	var contract: Dictionary = career.player_contracts.get(key) \
@@ -70,20 +68,11 @@ static func negotiation_state(career: Career, catalog: TeamCatalog,
 			and not bool(negotiation.get("acknowledged", true)),
 		"demand": negotiation.get("demand") if negotiation.get("demand") is Dictionary \
 			else demand(catalog, career, player),
-		"affordable": _affordable(career, key, weekly),
+		"affordable": CareerSquad.wage_fund_ok(career, key, weekly),
 		"can_submit": status != "pending" and status != "accepted",
 		"can_accept_counter": status == "counter" and negotiation.get("counter") is Dictionary,
 		"can_sign": status == "accepted",
 	}
-
-
-static func negotiation_rows(career: Career, catalog: TeamCatalog) -> Array:
-	var rows: Array = []
-	for player_id in career.player_ids:
-		if not career.negotiations.has(str(player_id)):
-			continue
-		rows.append(negotiation_state(career, catalog, player_id))
-	return rows
 
 
 static func unread_count(career: Career) -> int:
@@ -192,7 +181,7 @@ static func accept_counter(career: Career, catalog: TeamCatalog, player_id) -> D
 	if not clean.get("ok", false):
 		return _fail(str(clean.get("error", "")))
 	var terms: Dictionary = clean["terms"]
-	if not _affordable(career, key, int(terms.get("weekly_wage", 0))):
+	if not CareerSquad.wage_fund_ok(career, key, int(terms.get("weekly_wage", 0))):
 		return _fail("not enough money to accept these terms")
 	var contract := _apply_contract(career, key, terms)
 	career.negotiations = _without_key(career.negotiations, key)
@@ -225,7 +214,7 @@ static func sign(career: Career, catalog: TeamCatalog, player_id) -> Dictionary:
 	if not clean.get("ok", false):
 		return _fail(str(clean.get("error", "")))
 	var terms: Dictionary = clean["terms"]
-	if not _affordable(career, key, int(terms.get("weekly_wage", 0))):
+	if not CareerSquad.wage_fund_ok(career, key, int(terms.get("weekly_wage", 0))):
 		return _fail("not enough money to sign this contract")
 	var contract := _apply_contract(career, key, terms)
 	career.negotiations = _without_key(career.negotiations, key)
@@ -484,22 +473,6 @@ static func _apply_contract(career: Career, player_id: String,
 	contracts[player_id] = contract
 	career.player_contracts = contracts
 	return contract
-
-
-static func _affordable(career: Career, player_id: String, weekly_wage: int) -> bool:
-	# Monthly wage fund rule: four weeks of the whole bill must fit the balance.
-	if career.balance == null:
-		return true
-	var total := 0
-	for other_id in career.player_ids:
-		var contract = career.player_contracts.get(str(other_id))
-		if contract is Dictionary:
-			total += int(contract.get("weekly_wage", 0))
-	var current = career.player_contracts.get(player_id)
-	var current_wage := int((current as Dictionary).get("weekly_wage", 0)) \
-		if current is Dictionary else 0
-	total = total - current_wage + int(weekly_wage)
-	return total * WAGE_COVER_WEEKS <= int(career.balance)
 
 
 static func _think_delay(career: Career, player_id: String, rounds: int) -> int:

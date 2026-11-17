@@ -198,7 +198,8 @@ func refresh() -> void:
 		CareerCondition.ensure_player_states(career, career.player_ids)
 		CareerCondition.recover_condition(career, career.date)
 		if career.player_contracts.is_empty():
-			CareerSquad.ensure_finances(career, catalog.career_squad(int(career.club_id)))
+			CareerSquad.ensure_finances(career,
+				CareerSquad.roster(catalog, career, career.club_id, false))
 	squad = CareerSquad.snapshot(catalog, career)
 	_club_logo = null
 	_kit = {}

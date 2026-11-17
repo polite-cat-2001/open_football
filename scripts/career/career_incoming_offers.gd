@@ -260,6 +260,8 @@ static func accept(career: Career, catalog: TeamCatalog, offer_id) -> Dictionary
 		return _fail("player is not in this squad")
 	if career.player_ids.size() <= MIN_SQUAD_SIZE:
 		return _fail("the squad cannot drop below 11 players")
+	if _departing(career, player_id):
+		return _fail("a transfer for this player is already agreed")
 	offer["acknowledged"] = true
 	_complete_accept(career, offer)
 	_journal(career, "transfer.incoming.accepted", {
@@ -358,7 +360,8 @@ static func resolve(career: Career) -> Array:
 		offer["acknowledged"] = false
 		offer["responded_at"] = career.date
 		if int(counter_terms.get("amount", 0)) <= willing \
-				and career.player_ids.size() > MIN_SQUAD_SIZE:
+				and career.player_ids.size() > MIN_SQUAD_SIZE \
+				and not _departing(career, str(offer.get("player_id", ""))):
 			offer["message"] = ACCEPTED_COUNTER_MESSAGE
 			_complete_accept(career, offer)
 		else:

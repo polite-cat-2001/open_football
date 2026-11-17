@@ -114,8 +114,10 @@ static func league_logo(league: Dictionary) -> Texture2D:
 
 
 static func team_logo(team: Dictionary) -> Texture2D:
-	# National teams have no career emblem; use their country flag.
-	if str(team.get("league_id", "")) == "NAT":
+	# National teams have no club emblem. Use the country flag when the row
+	# carries one, otherwise their own logo file from `logo_url`
+	# (databases/default/images_teams/national/<name>_logo.png).
+	if str(team.get("league_id", "")) == "NAT" and int(team.get("country_id", 0)) > 0:
 		var flag := country_flag({"tm_id": str(team.get("country_id", ""))})
 		if usable_texture(flag) != null:
 			return flag
@@ -131,11 +133,9 @@ static func team_logo(team: Dictionary) -> Texture2D:
 		var texture := load_texture("databases/default/%s" % url)
 		if texture != null:
 			return texture
-	var team_id := int(team.get("id", 0))
-	if team_id > 0:
-		var imported := load_texture("databases/default/images_teams/%d.png" % team_id)
-		if imported != null:
-			return imported
+	# No id-keyed fallback on purpose: those copies were made in several runs and
+	# can hold another club's emblem (id 131 = Barcelona had Tacoma's). A missing
+	# emblem shows the card's designed glyph instead of a wrong club.
 	return orange_fallback()
 
 

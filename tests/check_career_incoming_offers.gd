@@ -213,6 +213,22 @@ func _run() -> void:
 	_check(agreed.player_ids.has(str(outside_accept["player_id"])),
 		"the player stays until the window opens")
 	_check(agreed.pending_departures.size() == 1, "one departure is pending")
+	_check(_roster_has(agreed, catalog, int(agreed.club_id), str(outside_accept["player_id"])),
+		"the roster still lists a player whose move waits for the window")
+	# A second club cannot buy the same player: the deal is already agreed.
+	var duplicate: Dictionary = CareerIncomingOffers.find_offer(agreed, agreed_id).duplicate(true)
+	duplicate["id"] = "second-buyer"
+	duplicate["club_id"] = "999"
+	duplicate["status"] = "pending"
+	duplicate["counter"] = null
+	duplicate["execute_on"] = null
+	agreed.incoming_offers.append(duplicate)
+	var second_buyer := CareerIncomingOffers.accept(agreed, catalog, "second-buyer")
+	_check(not bool(second_buyer.get("ok", true))
+		and str(second_buyer.get("error", "")).contains("already agreed"),
+		"a second club cannot buy a player whose departure is agreed")
+	_check(agreed.pending_departures.size() == 1, "the refused accept adds no departure")
+	agreed.incoming_offers.erase(duplicate)
 	if agreed.pending_departures.size() == 1:
 		var pending: Dictionary = agreed.pending_departures[0]
 		for key in outside_accept["pending"]:
@@ -232,6 +248,11 @@ func _run() -> void:
 			"the departure is a hub notice")
 	_check(not agreed.player_ids.has(str(outside_accept["player_id"])),
 		"the player leaves on the execution day")
+	_check(not _roster_has(agreed, catalog, int(agreed.club_id),
+		str(outside_accept["player_id"])),
+		"the career roster drops a sold player the database still lists")
+	_check(_sorted_ids(agreed.player_ids) == _roster_ids(agreed, catalog),
+		"player_ids and the roster list the same squad after a sale")
 	_check(int(agreed.balance) == int(outside_accept["executed"]["balance"]),
 		"the fee is credited on execution")
 	_check(agreed.pending_departures.is_empty(), "the queue is empty after execution")
@@ -351,3 +372,27 @@ func _synthetic_career() -> Career:
 		"journal": [],
 		"balance": 0,
 	})
+
+
+func _roster_has(career: Career, catalog: TeamCatalog, club_id: int,
+		player_id: String) -> bool:
+	for player in CareerSquad.roster(catalog, career, club_id, false):
+		if str(player.get("id", "")) == player_id:
+			return true
+	return false
+
+
+func _roster_ids(career: Career, catalog: TeamCatalog) -> Array:
+	var ids: Array = []
+	for player in CareerSquad.roster(catalog, career, int(career.club_id)):
+		ids.append(str(player.get("id", "")))
+	ids.sort()
+	return ids
+
+
+func _sorted_ids(source: Array) -> Array:
+	var ids: Array = []
+	for item in source:
+		ids.append(str(item))
+	ids.sort()
+	return ids

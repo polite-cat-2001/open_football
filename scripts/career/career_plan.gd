@@ -26,7 +26,7 @@ static func build(catalog: TeamCatalog, career: Career, club_id: int,
 		opponent_id: int) -> Dictionary:
 	return {
 		"home": _own_lineup(catalog, career),
-		"away": _opponent_lineup(catalog, opponent_id),
+		"away": _opponent_lineup(catalog, career, opponent_id),
 	}
 
 
@@ -85,9 +85,9 @@ static func _own_lineup(catalog: TeamCatalog, career: Career) -> MatchLineup:
 	return result
 
 
-static func _opponent_lineup(catalog: TeamCatalog, club_id: int) -> MatchLineup:
+static func _opponent_lineup(catalog: TeamCatalog, career: Career, club_id: int) -> MatchLineup:
 	var club := catalog.career_club(club_id)
-	var players := catalog.career_squad(club_id)
+	var players := CareerSquad.roster(catalog, career, club_id, false)
 	var lineup := CareerSquad.lineup_for(players, [], [], [],
 		CareerFormations.DEFAULT, CareerSquad.MATCHDAY_BENCH)
 	var result := _make_lineup(club, players, lineup.get("slots", []),

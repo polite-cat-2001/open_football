@@ -71,10 +71,6 @@ static func set_status(career: Career, catalog: TeamCatalog, player_id, status) 
 	return {"ok": true, "error": "", "status": next}
 
 
-static func shortlist(career: Career, catalog: TeamCatalog) -> Array:
-	return shortlist_rows(career, catalog)
-
-
 static func shortlist_rows(career: Career, catalog: TeamCatalog) -> Array:
 	var rows: Array = []
 	for player_id in career.shortlist:
@@ -86,7 +82,7 @@ static func shortlist_rows(career: Career, catalog: TeamCatalog) -> Array:
 	return rows
 
 
-static func listed(career: Career, catalog: TeamCatalog) -> Array:
+static func listed_rows(career: Career, catalog: TeamCatalog) -> Array:
 	var rows: Array = []
 	for player_id in career.player_ids:
 		var status := str(career.player_transfers.get(str(player_id), ""))
@@ -99,10 +95,6 @@ static func listed(career: Career, catalog: TeamCatalog) -> Array:
 		item["listed_for_transfer"] = status in ["transfer", "loan"]
 		rows.append(item)
 	return rows
-
-
-static func listed_rows(career: Career, catalog: TeamCatalog) -> Array:
-	return listed(career, catalog)
 
 
 static func sent_offer_rows(career: Career, catalog: TeamCatalog) -> Array:

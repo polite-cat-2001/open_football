@@ -96,7 +96,7 @@ func _open_scene(path: String) -> void:
 
 func _keyboard_hints() -> Array:
 	return [
-		{"keys": ["в†ђ", "в†’"], "label": "select"},
+		{"keys": ["←", "→"], "label": "select"},
 		{"keys": ["ENTER"], "label": "open"},
 		{"keys": ["ESC"], "label": "back"},
 	]

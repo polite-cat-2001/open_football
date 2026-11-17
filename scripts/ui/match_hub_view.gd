@@ -548,13 +548,13 @@ func _keyboard_hints() -> Array:
 			]
 		"options":
 			return [
-				{"keys": ["в†‘", "в†“"], "label": "option"},
-				{"keys": ["в†ђ", "в†’"], "label": "change"},
+				{"keys": ["↑", "↓"], "label": "option"},
+				{"keys": ["←", "→"], "label": "change"},
 				{"keys": ["ESC"], "label": "close"},
 			]
 		_:
 			return [
-				{"keys": ["в†ђ", "в†’"], "label": "choose"},
+				{"keys": ["←", "→"], "label": "choose"},
 				{"keys": ["ENTER"], "label": "select"},
 				{"keys": ["ESC"], "label": _back_label},
 			]
@@ -576,7 +576,7 @@ func _gamepad_hints() -> Array:
 			]
 		_:
 			return [
-				{"keys": ["в†ђ", "в†’"], "label": "choose"},
+				{"keys": ["←", "→"], "label": "choose"},
 				{"keys": ["A"], "label": "select"},
 				{"keys": ["B"], "label": _back_label},
 			]

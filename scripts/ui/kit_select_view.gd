@@ -345,7 +345,7 @@ func _keyboard_hints() -> Array:
 			{"keys": ["ESC"], "label": _back_label},
 		]
 	var hints := [
-		{"keys": ["в†ђ", "в†’"], "label": "kit"},
+		{"keys": ["←", "→"], "label": "kit"},
 		{"keys": ["ENTER"], "label": "ready"},
 		{"keys": ["ESC"], "label": _back_label},
 	]

@@ -1,6 +1,6 @@
 extends SceneTree
 # Headless check for the scouting screen (ticket 09 UI): the scouts grid and its
-# panel, the tabs, hiring/dismissing through the action modals, the region в†’
+# panel, the tabs, hiring/dismissing through the action modals, the region →
 # country network flow, the task editor values and the reports feed with its
 # player report modal and offer/contract routes.
 #

@@ -233,7 +233,7 @@ func _set_status(text: String, error: bool) -> void:
 
 func _keyboard_hints() -> Array:
 	return [
-		{"keys": ["в†‘", "в†“"], "label": "field"},
+		{"keys": ["↑", "↓"], "label": "field"},
 		{"keys": ["ENTER"], "label": "edit / open"},
 		{"keys": ["ESC"], "label": "back"},
 	]

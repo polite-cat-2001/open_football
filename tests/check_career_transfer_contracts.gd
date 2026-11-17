@@ -171,6 +171,49 @@ func _run() -> void:
 		"a signed transfer cannot be signed twice")
 	_check(CareerTransferContracts.pending(career).is_empty(),
 		"an in-window signing joins the squad immediately")
+	var target_home := int(_player(catalog, target).get("team_id", 0))
+	_check(_roster_has(career, catalog, int(career.club_id), target),
+		"the signed player appears in the career roster")
+	_check(target_home > 0 and not _roster_has(career, catalog, target_home, target),
+		"the selling club no longer lists him")
+	# The sign() door applies the same wage fund as a renewal.
+	var wage_career := CareerFactory.create(catalog, int(header["club_id"]),
+		str(header["manager_name"]), int(header["manager_nationality_id"]),
+		int(header["seed"]))
+	wage_career.balance = 0
+	wage_career.transfer_contracts = {target: {
+		"player_id": target, "value": 1000, "status": "accepted", "fee": 0,
+		"kind": "free",
+		"agreed": {"years": 2, "weekly_wage": 2000000, "squad_role": "rotation",
+			"release_clause": 0},
+	}}
+	var wage_refused := CareerTransferContracts.sign(wage_career, catalog, target)
+	_check(str(wage_refused.get("error", ""))
+		== "not enough money to fit this wage into the wage fund",
+		"a signing whose wage overflows the fund is refused")
+	_check(_sorted_ids(career.player_ids) == _roster_ids(career, catalog),
+		"player_ids and the roster list the same squad after a signing")
+	# A loan is judged by its shared wage, not the player's full wage.
+	var loan_career := CareerFactory.create(catalog, int(header["club_id"]),
+		str(header["manager_name"]), int(header["manager_nationality_id"]),
+		int(header["seed"]))
+	var bill := 0
+	for player_id in loan_career.player_ids:
+		var contract = loan_career.player_contracts.get(str(player_id))
+		if contract is Dictionary:
+			bill += int(contract.get("weekly_wage", 0))
+	loan_career.balance = (bill + 50000) * CareerSquad.WAGE_COVER_WEEKS
+	loan_career.transfer_contracts = {target: {
+		"player_id": target, "value": 1000, "status": "accepted", "fee": 0,
+		"kind": "loan", "wage_share": 50,
+		"agreed": {"years": 2, "weekly_wage": 100000, "squad_role": "rotation",
+			"release_clause": 0},
+	}}
+	var loan_signed := CareerTransferContracts.sign(loan_career, catalog, target)
+	_check(bool(loan_signed.get("ok", false)),
+		"a loan fits when its shared wage fits: " + str(loan_signed.get("error", "")))
+	_check(int((loan_career.player_contracts.get(target) as Dictionary)
+		.get("weekly_wage", 0)) == 50000, "the loan stores the shared wage")
 
 	# A free agent is signed without a fee and without an offer.
 	var free_agent := str(players["free_agent"])
@@ -304,6 +347,30 @@ func _negotiate(career: Career, catalog: TeamCatalog, player_id: String,
 
 func _player(catalog: TeamCatalog, player_id: String) -> Dictionary:
 	return catalog.career_player(int(player_id), false)
+
+
+func _roster_has(career: Career, catalog: TeamCatalog, club_id: int,
+		player_id: String) -> bool:
+	for player in CareerSquad.roster(catalog, career, club_id, false):
+		if str(player.get("id", "")) == player_id:
+			return true
+	return false
+
+
+func _roster_ids(career: Career, catalog: TeamCatalog) -> Array:
+	var ids: Array = []
+	for player in CareerSquad.roster(catalog, career, int(career.club_id)):
+		ids.append(str(player.get("id", "")))
+	ids.sort()
+	return ids
+
+
+func _sorted_ids(source: Array) -> Array:
+	var ids: Array = []
+	for item in source:
+		ids.append(str(item))
+	ids.sort()
+	return ids
 
 
 func _non_expiring(catalog: TeamCatalog, career: Career) -> String:

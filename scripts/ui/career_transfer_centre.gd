@@ -18,6 +18,7 @@ signal navigate(view: String, payload: Dictionary)
 signal closed
 signal changed
 signal state_changed
+signal scout_requested(player_id: String, scout_id: String)
 
 const TABS := [
 	{"id": "shortlist", "label": "SHORTLIST"},
@@ -1117,6 +1118,7 @@ func _build() -> void:
 	_actions.name = "PlayerActions"
 	_actions.navigate.connect(_on_actions_navigate)
 	_actions.changed.connect(_on_actions_changed)
+	_actions.scout_requested.connect(_on_scout_requested)
 	_actions.closed.connect(_on_actions_closed)
 	add_child(_actions)
 
@@ -1729,6 +1731,10 @@ func _on_actions_navigate(view: String, payload: Dictionary) -> void:
 func _on_actions_changed() -> void:
 	changed.emit()
 	_refresh()
+
+
+func _on_scout_requested(scout_id: String) -> void:
+	scout_requested.emit(_actions.player_id(), scout_id)
 
 
 func _on_actions_closed() -> void:

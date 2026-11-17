@@ -241,6 +241,10 @@ func _run() -> void:
 	_check(transfer_hub != null and transfer_hub.visible, "the transfers hub is shown")
 	_check(transfer_hub.focused_index() == 0,
 		"a tab switch from a tile lands on the reports card")
+	# A failed scout assignment must reach the status bar, not vanish.
+	transfers_view.call("_on_scout_requested", "not-a-player", "not-a-scout")
+	_check(transfers_view.status() == "player not found" and transfers_view.status_error(),
+		"a failed scout assignment is reported in the status bar")
 	nav.moved.emit(Vector2i.UP)
 	await _frames(3)
 	_check(tab_bar.get_tab_button(2).has_focus(),

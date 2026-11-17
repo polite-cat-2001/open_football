@@ -10,7 +10,7 @@ extends Control
 # path is covered too).
 #
 # The host owns routing and animation: this screen only reports `navigate`
-# ("offer" / "contract"), `changed` (career mutated в†’ save) and
+# ("offer" / "contract"), `changed` (career mutated → save) and
 # `scout_requested`, and the host draws the hints bar from hints().
 
 signal closed
@@ -114,7 +114,7 @@ func hints() -> Array:
 			{"keys": back, "label": "back"},
 		]
 	return [
-		{"keys": ["D-PAD"] if gamepad else ["в†‘", "в†“", "в†ђ", "в†’"], "label": "players"},
+		{"keys": ["D-PAD"] if gamepad else ["↑", "↓", "←", "→"], "label": "players"},
 		{"keys": select, "label": "actions"},
 		{"keys": back, "label": "back"},
 	]
@@ -366,7 +366,7 @@ func _update_meta() -> void:
 	var parts: Array[String] = [_grouped(_total)]
 	if career != null and not career.date.is_empty():
 		parts.append(CareerHubModel.month_label(career.date))
-	_meta.text = " В· ".join(parts)
+	_meta.text = " · ".join(parts)
 
 
 func _set_note(text: String) -> void:

@@ -292,8 +292,11 @@ static func role_counts(players: Array) -> Dictionary:
 
 static func effective_players(career: Career, club_id, base_players: Array,
 		lookup := Callable()) -> Array:
-	var delta: Dictionary = career.club_deltas.get(str(club_id), {}) \
-		if career.club_deltas.get(str(club_id)) is Dictionary else {}
+	# Read the stored map, not the `club_deltas` property: its getter creates an
+	# empty key, and a read model must not change the save (a save/compare after
+	# a read then differs from one without it).
+	var deltas = career.data.get("club_deltas", {})
+	var delta: Dictionary = deltas.get(str(club_id), {}) if deltas is Dictionary else {}
 	var outgoing := {}
 	for player_id in delta.get("out", []):
 		outgoing[str(player_id)] = true

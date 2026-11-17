@@ -38,6 +38,7 @@ const ROLE_THRESHOLDS := [
 const DEFAULT_ROLE := "rotation"
 const MIN_MARKET_VALUE := 50000
 const MAX_SHIRT_NUMBER := 99
+const WAGE_COVER_WEEKS := 4
 const MIN_WEEKLY_WAGE := 1000
 const STARTING_BALANCE_MIN := 1000000
 const STARTING_BALANCE_RATIO := 0.25
@@ -106,12 +107,27 @@ const RADAR_AXES := [
 static var last_error := ""
 
 
+static func roster(catalog: TeamCatalog, career: Career, club_id, with_stats := false) -> Array:
+	# The database squad plus the career's own movements. `players.team_id` is
+	# read-only and never changes, so a signing, a sale or an AI transfer only
+	# exists in `career.club_deltas`; reading the database alone shows a squad
+	# that ignored every transfer.
+	if catalog == null or career == null:
+		return []
+	var base := catalog.career_squad(int(club_id), with_stats)
+	if base.is_empty():
+		return base
+	return CareerWorldMarket.effective_players(career, club_id, base,
+		func(ids: Array) -> Array:
+			return catalog.career_players_by_ids(ids, with_stats))
+
+
 static func snapshot(catalog: TeamCatalog, career: Career) -> Dictionary:
 	last_error = ""
 	if catalog == null or career == null:
 		last_error = "career squad data is unavailable"
 		return {}
-	var players := catalog.career_squad(int(career.club_id), true)
+	var players := roster(catalog, career, career.club_id, true)
 	if players.is_empty():
 		last_error = "the career squad is missing from the database"
 		return {}
@@ -134,6 +150,27 @@ static func snapshot(catalog: TeamCatalog, career: Career) -> Dictionary:
 		"lineup": raw,
 		"blocked": blocked,
 	}
+
+
+static func wage_fund_ok(career: Career, replace_id := "", weekly_wage := -1) -> bool:
+	# One rule for both doors: a renewal and a transfer contract must fit four
+	# weeks of the resulting bill into the balance. `replace_id`/`weekly_wage`
+	# swap one contract out for the terms being negotiated, so a renewal does not
+	# count the old wage twice; with no replace id the wage is an addition.
+	if career == null or career.balance == null:
+		return true
+	var total := 0
+	for player_id in career.player_ids:
+		var contract = career.player_contracts.get(str(player_id))
+		if contract is Dictionary:
+			total += int(contract.get("weekly_wage", 0))
+	if not str(replace_id).is_empty() and career.player_ids.has(str(replace_id)):
+		var current = career.player_contracts.get(str(replace_id))
+		if current is Dictionary:
+			total -= int(current.get("weekly_wage", 0))
+	if weekly_wage >= 0:
+		total += int(weekly_wage)
+	return total * WAGE_COVER_WEEKS <= int(career.balance)
 
 
 static func ensure_finances(career: Career, players: Array) -> void:

@@ -152,7 +152,7 @@ func _run() -> void:
 	_check(old != null, "an old save without the L2 keys loads")
 	_check(CareerIncomingOffers.received_rows(old, catalog).is_empty(),
 		"an old save has no incoming offers")
-	_check(CareerSquadActions.negotiation_rows(old, catalog).is_empty(),
+	_check((old.data.get("negotiations", {}) as Dictionary).is_empty(),
 		"an old save has no renewal talks")
 	old.data["date"] = "2026-09-05"
 	var old_tick := CareerAdvance.tick(old, catalog)

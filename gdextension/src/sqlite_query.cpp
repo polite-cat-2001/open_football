@@ -95,26 +95,29 @@ int lower_codepoint(int code) {
     return code;
 }
 
-int decode_utf8(const unsigned char *text, int *length) {
-    unsigned char first = text[0];
+// `size` bounds the read: a text cut in the middle of a sequence (a corrupted
+// database row) must not read past the buffer. A truncated lead byte is copied
+// as a single unchanged byte.
+int decode_utf8(const unsigned char *text, int size, int offset, int *length) {
+    unsigned char first = text[offset];
+    *length = 1;
     if (first < 0x80) {
-        *length = 1;
         return first;
     }
-    if ((first & 0xE0) == 0xC0) {
+    if ((first & 0xE0) == 0xC0 && offset + 1 < size) {
         *length = 2;
-        return ((first & 0x1F) << 6) | (text[1] & 0x3F);
+        return ((first & 0x1F) << 6) | (text[offset + 1] & 0x3F);
     }
-    if ((first & 0xF0) == 0xE0) {
+    if ((first & 0xF0) == 0xE0 && offset + 2 < size) {
         *length = 3;
-        return ((first & 0x0F) << 12) | ((text[1] & 0x3F) << 6) | (text[2] & 0x3F);
+        return ((first & 0x0F) << 12) | ((text[offset + 1] & 0x3F) << 6)
+            | (text[offset + 2] & 0x3F);
     }
-    if ((first & 0xF8) == 0xF0) {
+    if ((first & 0xF8) == 0xF0 && offset + 3 < size) {
         *length = 4;
-        return ((first & 0x07) << 18) | ((text[1] & 0x3F) << 12)
-            | ((text[2] & 0x3F) << 6) | (text[3] & 0x3F);
+        return ((first & 0x07) << 18) | ((text[offset + 1] & 0x3F) << 12)
+            | ((text[offset + 2] & 0x3F) << 6) | (text[offset + 3] & 0x3F);
     }
-    *length = 1;
     return first;
 }
 
@@ -157,7 +160,7 @@ void of_lower_func(sqlite3_context *context, int argc, sqlite3_value **argv) {
     int offset = 0;
     while (offset < size) {
         int step = 1;
-        int code = decode_utf8(text + offset, &step);
+        int code = decode_utf8(text, size, offset, &step);
         unsigned char encoded[4];
         int written = encode_utf8(lower_codepoint(code), encoded);
         sqlite3_str_append(builder, reinterpret_cast<const char *>(encoded), written);
@@ -196,6 +199,9 @@ Variant column_value(sqlite3_stmt *statement, int column) {
             return Variant(sqlite3_column_double(statement, column));
         case SQLITE_TEXT: {
             const unsigned char *text = sqlite3_column_text(statement, column);
+            if (text == nullptr) {
+                return Variant(String());
+            }
             return Variant(String::utf8(reinterpret_cast<const char *>(text)));
         }
         case SQLITE_BLOB: {

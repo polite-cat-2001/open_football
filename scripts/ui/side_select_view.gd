@@ -549,7 +549,7 @@ func _on_device_changed(gamepad: bool) -> void:
 
 func _keyboard_hints() -> Array:
 	return [
-		{"keys": ["в†ђ", "в†’"], "label": "move"},
+		{"keys": ["←", "→"], "label": "move"},
 		{"keys": ["ENTER"], "label": "ready"},
 		{"keys": ["ESC"], "label": _back_label},
 	]

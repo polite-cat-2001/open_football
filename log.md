@@ -2675,6 +2675,57 @@ fade+scale 150/240 мс (`_fade_out`/`_fade_in` хаба) вокруг смен�
 - `check_career_hub` один прогон делает `instant = false` и проверяет: полоса остаётся видимой
   и гаснет, путь приезжает, при закрытии поиска путь гаснет, полоса возвращается.
 
+## [2026-11-17] fix(career): состав доезжает до поля, сейв не теряется, зарплаты — одно правило
+
+- `CareerSquad.roster(catalog, career, club_id)` = `TeamCatalog.career_squad` + `career.club_deltas`
+  через `CareerWorldMarket.effective_players`. Экран состава, Game Plan, сила клубов и
+  расстановка на матч читали БД напрямую, а `players.team_id` открыт только на чтение: купленный
+  игрок не мог играть, проданный продолжал выходить на поле, ИИ-трансферы не меняли силу клуба.
+  Заменены `career_squad.gd`, `career_hub._build_match_setup`/`_strengths`/`_commit_advance`,
+  `career_plan._opponent_lineup`, `career_squad_view.refresh`. `effective_players` читает дельты
+  из `career.data`, а не через свойство: геттер создавал ключ и делал `to_save()` непостоянным.
+- `CareerSaveStore.save` заменяет файл через `.bak`: старый сейв больше не удаляется до
+  успешного rename (сбой или занятый файл оставлял папку без карьеры).
+- `CareerIncomingOffers.accept`/`resolve` не дают продать игрока дважды (проверка `_departing`):
+  вторая сделка раньше исчезала, но висела как `accepted` с датой исполнения.
+- Зарплатный фонд (`CareerSquad.wage_fund_ok`, бывший `career_squad_actions._affordable`)
+  проверяется и при подписании трансфера: свободный агент на 2М/неделю подписывался при пустом
+  балансе, хотя продление того же игрока отклонялось.
+- Скаутинг: `CareerAdvance.tick` и `CareerTransfersView` зовут `CareerScouting` напрямую —
+  load-by-path молча выключал скаутинг при переименовании файла; ошибка назначения скаута теперь
+  видна в баре подсказок (`career_transfers_view.status()`), а не теряется.
+- Переговоры: удалён мёртвый `CareerSquadActions.negotiation_rows` (его звал только тест);
+  строку теста заменила проверка пустых `negotiations` в сейве.
+- Кредит проверяется по доле зарплаты: `CareerTransferContracts.contract_wage` — та же формула,
+  что пишется в контракт (раньше фонд судил о полной зарплате и отклонял дешёвую аренду);
+  `CareerSquad.wage_fund_ok` учитывает зарплату и без `replace_id`.
+- Тесты дополнительно сверяют `career.player_ids` с `CareerSquad.roster` после подписи и
+  продажи — два списка состава не должны расходиться.
+- 43 строки UI хранили CP1251-мусор (`в†’`, `В·`) — заменены на `← → ↑ ↓ ·`.
+- C++: `decode_utf8` в `sqlite_query.cpp` больше не читает за границей текста (усечённая
+  последовательность копируется как байт), NULL из `sqlite_column_text` даёт пустую строку.
+  Расширение пересобрано.
+- Тесты: ростер после подписи и продажи, второй покупатель, зарплатный фонд при подписании,
+  отсутствие `.tmp`/`.bak` после сохранения. Прогнаны `check_career_*` (включая search, market,
+  contracts, UI) и `check_team_catalog` на новом DLL.
+- Удалены мёртвые обёртки `CareerTransfers.shortlist()`/`listed()`.
+
+## [2026-11-17] fix(ui): гербы клубов и логотипы сборных в выборе команд
+
+- Плитки выбора команд (Quick Match и сетевое лобби) собирали урезанную запись
+  (`id`/`name`/`logo_url`): `logo_url`-файлы в дерево данных не поставляются, и `team_logo`
+  падал на `images_teams/<id>.png` — копии из разных прогонов (у id 131 «FC Barcelona» лежал
+  герб Tacoma Defiance). В запись добавлены `career_logo`/`league_id`/`country_id`, карточки
+  берут поставляемый герб.
+- `UiAssets.team_logo` больше не читает `images_teams/<id>.png`: без картинки показывается глиф,
+  а не чужой клуб. Ветка сборных срабатывает только при непустом `country_id`.
+- Логотипы сборных: 242 файла `images_teams/national/<name>_logo.png` скопированы из
+  `GameplayFootball-of_port/build-x64/...` в `data/databases/default/images_teams/national/`
+  (четыре несуществующих государства — Вьетнамы до 1976, Родезия — остаются с глифом);
+  `logo_url` сборных теперь резолвится.
+- Тесты: `check_team_select_ui` требует `career_logo` у клуба и свой `logo_url` у сборной;
+  `check_team_select_view`, `check_network_ui`, `check_main_menu_ui`, `check_career_ui` зелёные.
+
 ## [2026-11-16] fix | TRANSFER CENTRE: табы переключались без анимации
 - `_refresh_tabs` звал `_layout_tabs`, а тот `fit_width()` — маркер ставился в цель сразу после
   `select_tab`, и твин ехал уже из цели. `UiTabBar.fit_width(animate := false)` получил флаг:

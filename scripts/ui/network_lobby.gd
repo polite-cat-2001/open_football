@@ -195,6 +195,12 @@ func _team_entries(league_id: String) -> Array:
 		entries.append({
 			"id": str(team.get("id", 0)),
 			"name": str(team.get("name", "")),
+			"league_id": str(team.get("league_id", "")),
+			"country_id": int(team.get("country_id", 0)),
+			# The shipped emblem: `logo_url` files are not in the data tree and
+			# the id-keyed `images_teams` copies can be stale, so pass the same
+			# `career_logo` the career screens use.
+			"career_logo": str(team.get("career_logo", "")),
 			"logo_url": str(team.get("logo_url", "")),
 			"_texture_loaded": false,
 		})

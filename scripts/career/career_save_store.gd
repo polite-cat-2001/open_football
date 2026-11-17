@@ -57,16 +57,28 @@ func save(career: Career) -> bool:
 		return false
 	file.store_string(JSON.stringify(career.to_save(), "  ", false))
 	file.close()
-	if FileAccess.file_exists(path):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
-	var error := DirAccess.rename_absolute(
-		ProjectSettings.globalize_path(temporary),
-		ProjectSettings.globalize_path(path)
-	)
-	if error != OK:
+	# Replace through a backup: deleting the old save before the rename leaves
+	# nothing on disk if the process dies or the rename fails (a locked file on
+	# Windows is enough), and the game would come back to "NO SAVES".
+	var path_global := ProjectSettings.globalize_path(path)
+	var temporary_global := ProjectSettings.globalize_path(temporary)
+	var backup := path + ".bak"
+	var backup_global := ProjectSettings.globalize_path(backup)
+	if FileAccess.file_exists(backup):
+		DirAccess.remove_absolute(backup_global)
+	var had_old := FileAccess.file_exists(path)
+	if had_old and DirAccess.rename_absolute(path_global, backup_global) != OK:
 		last_error = "Save %s is not writable." % career.id
 		last_error_kind = "format"
 		return false
+	if DirAccess.rename_absolute(temporary_global, path_global) != OK:
+		if had_old:
+			DirAccess.rename_absolute(backup_global, path_global)
+		last_error = "Save %s is not writable." % career.id
+		last_error_kind = "format"
+		return false
+	if had_old:
+		DirAccess.remove_absolute(backup_global)
 	return true
 
 

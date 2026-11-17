@@ -498,7 +498,7 @@ func _show_header() -> void:
 				_head_title.text = "SELECT COUNTRY"
 			_:
 				_head_title.text = "SCOUT TASK"
-		_head_sub.text = "%s В· %s" % [_club_name,
+		_head_sub.text = "%s · %s" % [_club_name,
 			CareerScoutReportsFeed._date_label(career.date if career != null else "")]
 
 
@@ -1609,7 +1609,7 @@ func _open_report_modal(player_id: String) -> void:
 	_reports.select(player_id)
 	var pane := CareerPlayerPane.new()
 	_report_modal.setup("SCOUT REPORT",
-		"%s В· %s В· %s" % [
+		"%s · %s · %s" % [
 			"SCOUT REPORT READY" if str(entry.get("kind", "")) == "report" \
 				else "PLAYER FOUND",
 			str(entry.get("scout_name", "")),

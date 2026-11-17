@@ -114,6 +114,19 @@ func _run() -> void:
 			_check(compatible == 3,
 				"scan counts the prototype save and both generated careers as compatible")
 
+			# The replace goes through a backup; a stale one must not survive and
+			# no temporary file may be left behind.
+			var backup_path := store.path_for(career.id) + ".bak"
+			var stale := FileAccess.open(backup_path, FileAccess.WRITE)
+			if stale != null:
+				stale.store_string("stale")
+				stale.close()
+			_check(store.save(career), "a save replaces the previous file")
+			_check(not FileAccess.file_exists(backup_path),
+				"the backup is removed after a successful save")
+			_check(not FileAccess.file_exists(store.path_for(career.id) + ".tmp"),
+				"the temporary file is gone after a successful save")
+
 	_finish()
 
 

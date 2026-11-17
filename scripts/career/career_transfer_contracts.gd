@@ -313,6 +313,11 @@ static func sign(career: Career, catalog: TeamCatalog, player_id) -> Dictionary:
 		return {"ok": false, "error": str(clean.get("error", "")), "item": {}}
 	var terms: Dictionary = clean["terms"]
 	var fee := int(state_value.get("fee", 0))
+	var payable_wage := contract_wage(str(state_value.get("kind", "transfer")),
+		int(terms.get("weekly_wage", 0)), int(state_value.get("wage_share", 100)))
+	if not CareerSquad.wage_fund_ok(career, key, payable_wage):
+		return {"ok": false, "error": "not enough money to fit this wage into the wage fund",
+			"item": {}}
 	if not _affordable(career, fee):
 		return {"ok": false, "error": "not enough money to complete this transfer", "item": {}}
 	var execute_on := execution_date(career.date)
@@ -467,6 +472,10 @@ static func transfer_contract_view(career: Career, player_id) -> Dictionary:
 	if not (terms is Dictionary):
 		terms = state_value.get("offer")
 	var demand = state_value.get("demand")
+	var wage_ok := CareerSquad.wage_fund_ok(career, player_id,
+		contract_wage(str(state_value.get("kind", "transfer")),
+			int((terms as Dictionary).get("weekly_wage", 0)) if terms is Dictionary else -1,
+			int(state_value.get("wage_share", 100))))
 	return {
 		"player_id": str(state_value.get("player_id", player_id)),
 		"offer_id": state_value.get("offer_id"),
@@ -485,7 +494,7 @@ static func transfer_contract_view(career: Career, player_id) -> Dictionary:
 		"message": str(state_value.get("message", "")),
 		"affordable": _affordable(career, fee),
 		"balance_after": null if career.balance == null else int(career.balance) - fee,
-		"can_sign": status == "accepted" and _affordable(career, fee),
+		"can_sign": status == "accepted" and _affordable(career, fee) and wage_ok,
 	}
 
 
@@ -610,6 +619,16 @@ static func _resolve_one(career: Career, player_id: String, state_value: Diction
 		state_value["message"] = " ".join(PackedStringArray(messages))
 
 
+static func contract_wage(kind: String, weekly_wage: int, wage_share: int) -> int:
+	# A loan on a shared wage is stored at the share. The fund check must use the
+	# same number, or a cheap loan is judged as if it cost the full wage.
+	if weekly_wage < 0 or kind != "loan" or wage_share >= 100:
+		return weekly_wage
+	var share := clampi(wage_share, 0, 100)
+	return maxi(CareerSquad.MIN_WEEKLY_WAGE,
+		CareerSearch.python_round(float(weekly_wage) * float(share) / 100.0 / 100.0) * 100)
+
+
 static func _join_squad(career: Career, catalog: TeamCatalog, player_id: String,
 		terms: Dictionary, item: Dictionary) -> void:
 	var from_club_id := str(item.get("from_club_id", ""))
@@ -620,12 +639,8 @@ static func _join_squad(career: Career, catalog: TeamCatalog, player_id: String,
 	if not career.player_ids.has(player_id):
 		career.player_ids.append(player_id)
 	var contract: Dictionary = terms.duplicate(true)
-	if str(item.get("kind", "transfer")) == "loan" \
-			and int(item.get("wage_share", 100)) < 100:
-		var share := clampi(int(item.get("wage_share", 100)), 0, 100)
-		var wage := int(terms.get("weekly_wage", 0))
-		contract["weekly_wage"] = maxi(CareerSquad.MIN_WEEKLY_WAGE,
-			CareerSearch.python_round(float(wage) * float(share) / 100.0 / 100.0) * 100)
+	contract["weekly_wage"] = contract_wage(str(item.get("kind", "transfer")),
+		int(terms.get("weekly_wage", 0)), int(item.get("wage_share", 100)))
 	career.player_contracts[player_id] = contract
 	var values: Dictionary = career.player_values
 	if not values.has(player_id):
