@@ -167,6 +167,13 @@ func _run() -> void:
 	await _frames(1)
 	_check(screen.open_id() == ids["buyout"], "confirm opens the row accordion")
 	_check(screen.zone() == "actions", "an open row hands focus to its actions")
+	var focused_action = screen.get_viewport().gui_get_focus_owner()
+	_check(focused_action is Button, "an action button owns the focus")
+	if focused_action is Button:
+		var focus_box := (focused_action as Button).get_theme_stylebox(&"focus")
+		_check(focus_box is StyleBoxFlat
+			and (focus_box as StyleBoxFlat).bg_color == UiTokens.FOCUS_MARK,
+			"the focused accordion action is filled with the lime mark")
 	_check(screen.action_ids() == ["withdraw"], "a pending offer can only be ended")
 	_check(screen.action_label("withdraw") == "END TALKS", "the action is labelled")
 	var sent_hints: Array = screen.hints()
@@ -236,7 +243,21 @@ func _run() -> void:
 	_check(listed_box.position.y >= tabs_panel.size.y,
 		"the listed list starts below the tab strip, so the tabs stay reachable")
 	screen.focus_row_at(0)
+	# Headless runs transitions instantly; flip that off for a frame so the
+	# unfold can be checked (the plate starts invisible, then fades in).
+	var transition = root.get_node_or_null("UiTransition")
+	var was_instant := bool(transition.get("instant")) if transition != null else false
+	if transition != null:
+		transition.set("instant", false)
 	nav.confirmed.emit()
+	var listed_row = (screen.get("_row_nodes") as Array)[0]
+	var listed_acc: Control = listed_row.get("_acc")
+	_check(listed_acc != null and listed_acc.clip_contents,
+		"the listed plate clips its content while it unfolds")
+	_check(listed_acc != null and listed_acc.modulate.a < 1.0,
+		"the listed row fades in instead of popping")
+	if transition != null:
+		transition.set("instant", was_instant)
 	await _frames(1)
 	_check(screen.action_ids() == ["remove"], "the listed row has one action")
 	_check(screen.action_label("remove") == "REMOVE FROM LIST", "the action is labelled")

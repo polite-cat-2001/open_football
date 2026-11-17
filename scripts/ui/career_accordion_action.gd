@@ -93,3 +93,4 @@ func _apply_state() -> void:
 	_label.add_theme_color_override(&"font_color", ink)
 	_ticket.add_theme_color_override(&"font_color",
 		Color(UiTokens.INK, 0.6) if focused else Color(UiTokens.FOCUS_INK_2, 0.7))
+	_label.modulate.a = 1.0 if enabled else 0.72

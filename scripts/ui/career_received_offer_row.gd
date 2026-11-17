@@ -25,7 +25,6 @@ const CREST := 24.0
 const DOT := 9.0
 const FLAG := 22.0
 const ACC_PAD := 16.0
-const FOCUS_SOFT := Color(0.168627, 0.192157, 0.341176)
 const WARN := Color("a66a00")
 
 
@@ -34,7 +33,7 @@ var row: Dictionary = {}
 var _player: Dictionary = {}
 var _offer_id := ""
 var _open := false
-var _actions: Array[CareerSentOfferRow.AccAction] = []
+var _actions: Array[CareerAccordionAction] = []
 var _tween: Tween
 
 var _bg: Panel
@@ -203,8 +202,9 @@ func _build() -> void:
 	_acc = PanelContainer.new()
 	_acc.name = "Accordion"
 	_acc.mouse_filter = Control.MOUSE_FILTER_PASS
+	_acc.clip_contents = true
 	var acc_box := StyleBoxFlat.new()
-	acc_box.bg_color = FOCUS_SOFT
+	acc_box.bg_color = UiTokens.FOCUS_FILL_SOFT
 	acc_box.content_margin_left = ACC_PAD
 	acc_box.content_margin_right = ACC_PAD
 	acc_box.content_margin_top = 12.0
@@ -296,7 +296,7 @@ func _build_accordion() -> void:
 	if bool(row.get("can_counter", false)):
 		specs.append({"id": "counter", "label": "COUNTER OFFER"})
 	for spec in specs:
-		var action := CareerSentOfferRow.AccAction.new()
+		var action := CareerAccordionAction.new()
 		_actions_box.add_child(action)
 		action.setup(spec)
 		action.pressed.connect(_on_action_pressed.bind(str(spec.get("id", ""))))
@@ -451,11 +451,9 @@ func _play_open() -> void:
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
 	_acc.modulate.a = 0.0
-	_acc.position = Vector2(0.0, HEAD_H - 8.0)
 	_tween = create_tween().set_parallel(true)
 	_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_tween.tween_property(_acc, "modulate:a", 1.0, UiTokens.SCREEN_OUT)
-	_tween.tween_property(_acc, "position", Vector2(0.0, HEAD_H), UiTokens.SCREEN_IN)
 
 
 # Input ----------------------------------------------------------------------

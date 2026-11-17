@@ -457,7 +457,7 @@ class ListedRow extends Control:
 	var row: Dictionary = {}
 	var _player_id := ""
 	var _open := false
-	var _actions: Array[CareerSentOfferRow.AccAction] = []
+	var _actions: Array[CareerAccordionAction] = []
 	var _bg: Panel
 	var _rail: ColorRect
 	var _head: Button
@@ -470,6 +470,7 @@ class ListedRow extends Control:
 	var _date: Label
 	var _acc: PanelContainer
 	var _height_tween: Tween
+	var _tween: Tween
 
 
 	func _init() -> void:
@@ -507,6 +508,8 @@ class ListedRow extends Control:
 		_build_accordion()
 		_sync_height(true)
 		_apply_state()
+		if _open:
+			_play_open()
 
 
 	func is_open() -> bool:
@@ -597,8 +600,9 @@ class ListedRow extends Control:
 		_acc = PanelContainer.new()
 		_acc.name = "Accordion"
 		_acc.mouse_filter = Control.MOUSE_FILTER_PASS
+		_acc.clip_contents = true
 		var box := StyleBoxFlat.new()
-		box.bg_color = Color(0.168627, 0.192157, 0.341176)
+		box.bg_color = UiTokens.FOCUS_FILL_SOFT
 		box.content_margin_left = 16.0
 		box.content_margin_right = 16.0
 		box.content_margin_top = 10.0
@@ -632,7 +636,7 @@ class ListedRow extends Control:
 			_acc.visible = false
 			return
 		_acc.visible = true
-		var action := CareerSentOfferRow.AccAction.new()
+		var action := CareerAccordionAction.new()
 		action.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		action.custom_minimum_size.x = 260.0
 		_acc.add_child(action)
@@ -701,6 +705,19 @@ class ListedRow extends Control:
 			_height_tween.tween_callback(func() -> void:
 				if not _open:
 					_acc.visible = false)
+
+
+	# Same unfold as the offer rows: the panel fades in while the list below
+	# reflows, so the row opens instead of popping.
+	func _play_open() -> void:
+		if UiTransition.instant or not is_inside_tree() or _acc == null:
+			return
+		if _tween != null and _tween.is_valid():
+			_tween.kill()
+		_acc.modulate.a = 0.0
+		_tween = create_tween().set_parallel(true)
+		_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		_tween.tween_property(_acc, "modulate:a", 1.0, UiTokens.SCREEN_OUT)
 
 
 	func _apply_state() -> void:

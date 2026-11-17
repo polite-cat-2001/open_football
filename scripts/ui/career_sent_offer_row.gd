@@ -28,103 +28,9 @@ const CREST := 24.0
 const DOT := 9.0
 const FLAG := 22.0
 const ACC_PAD := 16.0
-const ACC_ACTION_H := 36.0
-const FOCUS_SOFT := Color(0.168627, 0.192157, 0.341176)
 const WIN := Color("2f7d4f")
 const WARN := Color("a66a00")
 const LOSS := Color("b23a48")
-
-
-# Borderless action row of the accordion (prototype .tf-offer-acc-action).
-# Focus fills it with the lime mark and flips the text to ink. Disabled rows
-# still take focus (the ticket carries the prototype's reason) but do nothing.
-class AccAction extends Button:
-	var id := ""
-	var enabled := true
-	var _label: Label
-	var _ticket: Label
-
-	func _ready() -> void:
-		flat = true
-		text = ""
-		focus_mode = Control.FOCUS_ALL
-		mouse_filter = Control.MOUSE_FILTER_STOP
-		custom_minimum_size.y = ACC_ACTION_H
-		for state in [&"normal", &"hover", &"pressed", &"focus", &"disabled"]:
-			add_theme_stylebox_override(state, StyleBoxEmpty.new())
-		_label = Label.new()
-		_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_label.clip_text = true
-		_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		_label.add_theme_font_override(&"font", UiTheme.inter(600))
-		_label.add_theme_font_size_override(&"font_size", 16)
-		add_child(_label)
-		_ticket = Label.new()
-		_ticket.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_ticket.clip_text = true
-		_ticket.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		_ticket.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		_ticket.add_theme_font_override(&"font", UiTheme.inter(600))
-		_ticket.add_theme_font_size_override(&"font_size", 13)
-		add_child(_ticket)
-		resized.connect(_layout_content)
-		focus_entered.connect(_apply_state)
-		focus_exited.connect(_apply_state)
-		mouse_entered.connect(grab_focus)
-		_apply_state()
-
-	func setup(spec: Dictionary) -> void:
-		id = str(spec.get("id", ""))
-		enabled = bool(spec.get("enabled", true))
-		if _label == null:
-			return
-		_label.text = str(spec.get("label", "")).to_upper()
-		_ticket.text = str(spec.get("ticket", "")).to_upper()
-		_apply_state()
-		_layout_content()
-
-	func label_text() -> String:
-		return "" if _label == null else str(_label.text)
-
-	func ticket_text() -> String:
-		return "" if _ticket == null else str(_ticket.text)
-
-	func _layout_content() -> void:
-		if _label == null:
-			return
-		var ticket_w := 0.0
-		if not _ticket.text.is_empty():
-			var font := _ticket.get_theme_font(&"font")
-			var font_size := _ticket.get_theme_font_size(&"font_size")
-			ticket_w = font.get_string_size(_ticket.text, HORIZONTAL_ALIGNMENT_LEFT,
-				-1, font_size).x + 10.0
-		_ticket.position = Vector2(maxf(0.0, size.x - 12.0 - ticket_w), 0.0)
-		_ticket.size = Vector2(ticket_w, size.y)
-		_label.position = Vector2(12.0, 0.0)
-		_label.size = Vector2(maxf(0.0, size.x - 24.0 - ticket_w), size.y)
-
-	func _apply_state() -> void:
-		if _label == null:
-			return
-		var focused := has_focus()
-		var box := StyleBoxFlat.new()
-		box.bg_color = UiTokens.FOCUS_MARK if focused else Color(0, 0, 0, 0)
-		box.anti_aliasing = true
-		add_theme_stylebox_override(&"normal", box)
-		add_theme_stylebox_override(&"hover", box)
-		add_theme_stylebox_override(&"pressed", box)
-		var ink := UiTokens.INK
-		if focused:
-			ink = UiTokens.INK
-		elif not enabled:
-			ink = Color(UiTokens.FOCUS_INK_2, 0.55)
-		else:
-			ink = UiTokens.FOCUS_INK
-		_label.add_theme_color_override(&"font_color", ink)
-		_ticket.add_theme_color_override(&"font_color",
-			Color(UiTokens.INK, 0.6) if focused else Color(UiTokens.FOCUS_INK_2, 0.7))
-		_label.modulate.a = 1.0 if enabled else 0.72
 
 
 var row: Dictionary = {}
@@ -134,7 +40,7 @@ var _offer: Dictionary = {}
 var _offer_id := ""
 var _open := false
 var _needs_action := false
-var _actions: Array[AccAction] = []
+var _actions: Array[CareerAccordionAction] = []
 var _tween: Tween
 
 var _bg: Panel
@@ -312,8 +218,9 @@ func _build() -> void:
 	_acc = PanelContainer.new()
 	_acc.name = "Accordion"
 	_acc.mouse_filter = Control.MOUSE_FILTER_PASS
+	_acc.clip_contents = true
 	var acc_box := StyleBoxFlat.new()
-	acc_box.bg_color = FOCUS_SOFT
+	acc_box.bg_color = UiTokens.FOCUS_FILL_SOFT
 	acc_box.content_margin_left = ACC_PAD
 	acc_box.content_margin_right = ACC_PAD
 	acc_box.content_margin_top = 12.0
@@ -414,7 +321,7 @@ func _build_accordion() -> void:
 		if spec.has("note"):
 			_note.text = str(spec["note"])
 			continue
-		var action := AccAction.new()
+		var action := CareerAccordionAction.new()
 		_actions_box.add_child(action)
 		action.setup(spec)
 		action.pressed.connect(_on_action_pressed.bind(str(spec.get("id", ""))))
@@ -620,11 +527,9 @@ func _play_open() -> void:
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
 	_acc.modulate.a = 0.0
-	_acc.position = Vector2(0.0, HEAD_H - 8.0)
 	_tween = create_tween().set_parallel(true)
 	_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_tween.tween_property(_acc, "modulate:a", 1.0, UiTokens.SCREEN_OUT)
-	_tween.tween_property(_acc, "position", Vector2(0.0, HEAD_H), UiTokens.SCREEN_IN)
 
 
 # Input ----------------------------------------------------------------------
