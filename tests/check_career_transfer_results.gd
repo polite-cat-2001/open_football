@@ -18,6 +18,7 @@ var _routes: Array[Dictionary] = []
 var _changed := 0
 var _closed := 0
 var _scout_requests: Array = []
+var _sort_applied: Array = []
 var _viewport: SubViewport
 
 
@@ -91,6 +92,8 @@ func _run() -> void:
 	screen.closed.connect(func() -> void: _closed += 1)
 	screen.scout_requested.connect(func(player_id: String, scout_id: String) -> void:
 		_scout_requests.append([player_id, scout_id]))
+	screen.sort_applied.connect(func(sort: String, direction: String) -> void:
+		_sort_applied.append([sort, direction]))
 	await _frames(2)
 
 	# First page ------------------------------------------------------------
@@ -110,7 +113,7 @@ func _run() -> void:
 	_check((screen.get("_meta") as Label).text.contains(
 		CareerHubModel.month_label(career.date)), "the header shows the career date")
 	_check(screen.filters()["league"] == "ES1", "the screen reports its filters")
-	_check(screen.hints().size() == 3, "the results hint three controls")
+	_check(screen.hints().size() == 4, "the results hint four controls")
 
 	_check(absf(cards[0].size.x - cards[1].size.x) < 2.0, "the grid splits into two columns")
 	_check(cards[0].size.x > cards[0].size.y, "a card is wider than tall")
@@ -118,6 +121,55 @@ func _run() -> void:
 	_check((screen.get("_pane") as Control).visible, "the detail pane is shown")
 	_check((screen.get("_right") as Control).position.x
 		>= (screen.get("_left") as Control).size.x, "the pane sits right of the results")
+
+	# Sort modal ------------------------------------------------------------
+	screen.call("_input", _key_event(KEY_S))
+	await _frames(2)
+	var sort_modal = screen.get("_sort")
+	_check(sort_modal != null and bool(sort_modal.call("is_open")), "S opens the sort modal")
+	_check(nav.modal_owner() == sort_modal, "the sort modal owns input")
+	_check(screen.hints().size() == 3, "the sort modal hints three controls")
+	_check(str(sort_modal.call("sort_key")) == "overall", "the modal starts on the active sort")
+	_check(str(sort_modal.call("direction")) == "desc", "the modal starts on the active direction")
+	nav.moved.emit(Vector2i.RIGHT)
+	await _frames(1)
+	_check(str(sort_modal.call("sort_key")) == "age", "right steps to the next field")
+	nav.moved.emit(Vector2i.LEFT)
+	await _frames(1)
+	_check(str(sort_modal.call("sort_key")) == "overall", "left steps back")
+	nav.moved.emit(Vector2i.DOWN)
+	nav.moved.emit(Vector2i.RIGHT)
+	await _frames(1)
+	_check(str(sort_modal.call("direction")) == "asc", "right flips the direction")
+	nav.moved.emit(Vector2i.DOWN)
+	await _frames(1)
+	_check(int(sort_modal.call("focus_index")) == 2, "down reaches the confirm row")
+	nav.confirmed.emit()
+	await _wait(screen)
+	_check(not bool(sort_modal.call("is_open")), "confirm closes the sort modal")
+	_check(screen.filters()["sort"] == "overall" and screen.filters()["direction"] == "asc",
+		"the applied sort is part of the filters")
+	_check(screen.item_count() == 40, "the sort change reruns the search")
+	_check(_sort_applied.size() == 1 and _sort_applied[0][0] == "overall"
+		and _sort_applied[0][1] == "asc", "the screen reports the applied sort to the host")
+
+	# Back closes the modal and keeps the applied sort.
+	screen.call("_input", _key_event(KEY_S))
+	await _frames(2)
+	nav.cancelled.emit()
+	await _frames(2)
+	_check(not bool(sort_modal.call("is_open")), "Back closes the sort modal")
+	_check(screen.filters()["direction"] == "asc", "closing keeps the current sort")
+
+	# Gamepad Y opens the same modal.
+	var pad := InputEventJoypadButton.new()
+	pad.button_index = JOY_BUTTON_Y
+	pad.pressed = true
+	screen.call("_input", pad)
+	await _frames(2)
+	_check(bool(sort_modal.call("is_open")), "gamepad Y opens the sort modal")
+	nav.cancelled.emit()
+	await _frames(2)
 
 	# Selection follows focus ----------------------------------------------
 	screen.focus_initial()
@@ -301,3 +353,12 @@ func _run() -> void:
 	screen.queue_free()
 	await _frames(2)
 	_finish()
+
+
+func _key_event(code: Key) -> InputEventKey:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.physical_keycode = code
+	event.pressed = true
+	return event
+

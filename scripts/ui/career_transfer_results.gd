@@ -17,9 +17,11 @@ signal closed
 signal navigate(view: String, payload: Dictionary)
 signal changed
 signal scout_requested(player_id: String, scout_id: String)
+signal sort_applied(sort: String, direction: String)
 # Hints changed (a modal opened/closed): the host redraws its hints bar.
 signal state_changed
 
+const SORT_MODAL := preload("res://scripts/ui/career_sort_modal.gd")
 const PAGE := 40
 const GAP := 10.0
 const PAD := 16.0
@@ -57,6 +59,7 @@ var _right: Control
 var _pane: CareerPlayerPane
 var _empty: PanelContainer
 var _actions: CareerPlayerActions
+var _sort: Control
 
 
 func _ready() -> void:
@@ -104,6 +107,8 @@ func filters() -> Dictionary:
 
 # The host closes the view: drop any modal still owning input above it.
 func close() -> void:
+	if _sort != null and _sort.call("is_open"):
+		_sort.call("close")
 	if _actions == null:
 		return
 	# An offer / contract screen is coming over this one: hide the card but keep
@@ -122,6 +127,12 @@ func hints() -> Array:
 		gamepad = nav.using_gamepad()
 	var select := ["A"] if gamepad else ["ENTER"]
 	var back := ["B"] if gamepad else ["ESC"]
+	if _sort != null and bool(_sort.call("is_open")):
+		return [
+			{"keys": ["D-PAD"] if gamepad else ["←", "→"], "label": "change"},
+			{"keys": select, "label": "confirm"},
+			{"keys": back, "label": "close"},
+		]
 	if _actions != null and _actions.is_open():
 		return [
 			{"keys": select, "label": "select"},
@@ -130,6 +141,7 @@ func hints() -> Array:
 	return [
 		{"keys": ["D-PAD"] if gamepad else ["↑", "↓", "←", "→"], "label": "players"},
 		{"keys": select, "label": "actions"},
+		{"keys": ["Y"] if gamepad else ["S"], "label": "sort"},
 		{"keys": back, "label": "back"},
 	]
 
@@ -245,6 +257,12 @@ func _build() -> void:
 	_actions.scout_requested.connect(_on_scout_requested)
 	_actions.closed.connect(_on_actions_closed)
 	add_child(_actions)
+
+	_sort = SORT_MODAL.new()
+	_sort.name = "SortModal"
+	_sort.applied.connect(_on_sort_applied)
+	_sort.closed.connect(_on_sort_closed)
+	add_child(_sort)
 
 
 func _layout() -> void:
@@ -535,6 +553,36 @@ func _on_scout_requested(scout_id: String) -> void:
 	_refresh_scouts()
 
 
+func _open_sort() -> void:
+	if _sort == null or bool(_sort.call("is_open")):
+		return
+	if _actions == null or _actions.is_open():
+		return
+	if not is_inside_tree() or not is_visible_in_tree():
+		return
+	_sort.call("open", str(_filters.get("sort", "overall")),
+		str(_filters.get("direction", "asc")))
+	state_changed.emit()
+
+
+func _on_sort_applied(sort: String, direction: String) -> void:
+	_filters["sort"] = sort
+	_filters["direction"] = direction
+	sort_applied.emit(sort, direction)
+	_focus_pending = true
+	_reset()
+	_start_search()
+
+
+func _on_sort_closed() -> void:
+	state_changed.emit()
+
+
+func _exit_tree() -> void:
+	if _sort != null:
+		_sort.call("dismiss")
+
+
 func _refresh_scouts() -> void:
 	if career != null:
 		_scouts = _flagged_scouts(CareerScouting.assignable_scouts(career))
@@ -581,6 +629,31 @@ func _flagged_scouts(scouts: Array) -> Array:
 
 
 # Input ----------------------------------------------------------------------
+
+func _input(event: InputEvent) -> void:
+	if not _is_active():
+		return
+	if _is_sort_trigger(event):
+		get_viewport().set_input_as_handled()
+		call_deferred("_open_sort")
+
+
+func _is_sort_trigger(event: InputEvent) -> bool:
+	if _is_key(event, KEY_S):
+		return true
+	if event is InputEventJoypadButton:
+		var button := event as InputEventJoypadButton
+		return button.pressed and button.button_index == JOY_BUTTON_Y
+	return false
+
+
+func _is_key(event: InputEvent, code: Key) -> bool:
+	if not (event is InputEventKey):
+		return false
+	var key := event as InputEventKey
+	return key.pressed and not key.echo \
+		and (key.keycode == code or key.physical_keycode == code)
+
 
 func _is_active() -> bool:
 	var nav := _ui_nav()

@@ -893,7 +893,8 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			_finish_simulation()
 		return
-	if _busy or _advancing or overlay.is_open() or UiNav.is_modal():
+	if _busy or _advancing or overlay.is_open() or UiNav.is_modal() \
+			or (_tab == 2 and transfers_view.visible and transfers_view.is_overlay()):
 		return
 	if _squad_screen == null and (_tab != 2 or _zone == Zone.TABS):
 		# On the Transfers landing the transfer screen reads Q/E itself, but

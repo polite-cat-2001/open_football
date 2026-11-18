@@ -34,7 +34,7 @@ const POSITION_GROUP := {
 	"Left Winger": "MID", "Right Winger": "MID",
 	"Striker": "FWD", "Centre-Forward": "FWD", "Second Striker": "FWD",
 }
-const SORTS := ["name", "age", "overall", "position", "value", "wage"]
+const SORTS := ["name", "age", "overall", "position", "value", "wage", "height"]
 const STATUSES := ["transfer", "loan", "blocked"]
 const FILTER_KEYS := [
 	"name", "group", "position", "age_min", "age_max", "citizenship",
@@ -282,6 +282,8 @@ static func _build_query(career: Career, filters: Dictionary) -> Dictionary:
 			order_params.append(career.date)
 		"position":
 			order_expr = role_order_expr()
+		"height":
+			order_expr = HEIGHT_EXPR
 		"value":
 			order_expr = "p.market_value"
 		"wage":

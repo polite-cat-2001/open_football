@@ -12,9 +12,9 @@ const STATES := [
 	"centre", "squad_overview", "plan_squad", "plan_formations",
 	"plan_roles", "plan_details", "squad_centre", "squad_centre_stats",
 	"squad_centre_attrs", "squad_centre_finance",
-	"transfers_hub", "transfers_filters", "transfers_results", "transfers_centre",
-	"transfers_centre_sent", "transfers_offer", "transfers_contract", "transfers_history",
-	"scouting_scouts", "scouting_reports",
+	"transfers_hub", "transfers_filters", "transfers_results", "transfers_sort",
+	"transfers_centre", "transfers_centre_sent", "transfers_offer", "transfers_contract",
+	"transfers_history", "scouting_scouts", "scouting_reports",
 	"squad_actions", "negotiation", "shirt_number", "release",
 ]
 
@@ -127,6 +127,10 @@ func _capture(state: String, size: Vector2i) -> void:
 			_transfers(body).get_node("Hub").emit_signal("navigate", "filters", {})
 		"transfers_results":
 			await _open_results(hub, body)
+		"transfers_sort":
+			await _open_results(hub, body)
+			_transfers(body).get_node("Results").call("_open_sort")
+			await _frames(30)
 		"transfers_centre":
 			hub.call("_set_section", 2, 1)
 			await _frames(45)

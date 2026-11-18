@@ -186,6 +186,11 @@ func _ensure(view: String) -> Control:
 		screen.connect("applied", _on_filters_applied)
 	if screen.has_signal("state_changed"):
 		screen.connect("state_changed", func() -> void: view_changed.emit())
+	if screen.has_signal("sort_applied"):
+		screen.connect("sort_applied", func(sort: String, direction: String) -> void:
+			_filters["sort"] = sort
+			_filters["direction"] = direction
+			view_changed.emit())
 	return screen
 
 

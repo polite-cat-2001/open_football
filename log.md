@@ -2886,3 +2886,12 @@ fade+scale 150/240 мс (`_fade_out`/`_fade_in` хаба) вокруг смен�
 - Позиция — не плашка, а цветной кружок + обычный код (`UiTokens.position_color`; цвета групп
   переехали из `career_squad_view` в `UiTokens`). Чип рейтинга больше не равняется по ширине
   бейджу: он по цифре (`max(26, текст + 12)`), бейдж-плашка удалён вместе с `_badge_box`.
+
+## [2026-11-18] feat | Сортировка результатов поиска игроков (S / Y)
+`CareerTransferResults` открывает `CareerSortModal` — scrim + fade/scale как у остальных
+карьерных модалок: поле OVR / AGE / HEIGHT / VALUE / WAGE / POSITION и направление, A/Enter
+подтверждает и перезапускает поиск, Esc/B закрывает без изменений. Сортировка уходит в
+`filters["sort"]/["direction"]` (хост `CareerTransfersView`), `career_transfer_filters.normalize`
+теперь сохраняет `direction`, а `CareerSearch` получил ключ `height` (по `HEIGHT_EXPR`). Пока
+открыт подраздел трансферов, `career_hub` больше не забирает S под сохранение. Тесты —
+`check_career_transfer_results`, `check_career_transfer_search`.

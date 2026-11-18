@@ -482,6 +482,7 @@ static func normalize(filters: Dictionary) -> Dictionary:
 		"height_min": _int_or_zero(filters.get("height_min")),
 		"height_max": _int_or_zero(filters.get("height_max")),
 		"sort": str(filters.get("sort", "overall")),
+		"direction": str(filters.get("direction", "asc")),
 	}
 
 

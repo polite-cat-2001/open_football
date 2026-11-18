@@ -182,6 +182,16 @@ func _run() -> void:
 	_check(str(free_first.get("status", "")) == "free"
 		and str(free_first.get("club_id", "x")).is_empty(), "a free agent has no club")
 
+	var by_height := CareerSearch.search(catalog, career,
+		{"sort": "height", "direction": "desc"}, 40, 0)
+	var heights: Array[int] = []
+	for item in by_height.get("items", []):
+		heights.append(int((item as Dictionary).get("height", 0)))
+	var expected_heights := heights.duplicate()
+	expected_heights.sort()
+	expected_heights.reverse()
+	_check(heights == expected_heights, "the height sort orders the tallest first")
+
 	# The cached result must follow status changes that keep the map size.
 	var squad_ids: Array = career.player_ids.duplicate()
 	if squad_ids.size() >= 2:
