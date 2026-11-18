@@ -164,13 +164,16 @@ func _run() -> void:
 	var first_row: CareerPlayerPane.ActionRow = modal.get("_rows")[0]
 	_check(first_row.has_focus(), "the first row takes focus, disabled or not")
 	# The pane must own a real height: a collapsed ScrollContainer showed only
-	# the first action row of the card.
+	# the first action row of the card. The attribute pages keep the card free
+	# of a scrollbar, so every row still fits.
 	var pane_box: Control = modal.get("_pane")
 	_check(pane_box.size.y > 300.0, "the player pane gets its full height")
 	var rows: Array = modal.get("_rows")
 	var last_row: Control = rows[rows.size() - 1]
 	_check(last_row.position.y + last_row.size.y <= modal.get_node("Card").size.y + 0.5,
 		"every action row fits inside the card")
+	_check(modal.get_node("Card").size.y <= modal.size.y * 0.92 + 0.5,
+		"the card stays on screen without a scrollbar")
 	nav.moved.emit(Vector2i.DOWN)
 	await _frames(1)
 	_check((modal.get("_rows") as Array)[1].has_focus(), "down walks the rows")

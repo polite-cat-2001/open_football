@@ -4,7 +4,11 @@ extends ScrollContainer
 # card of the transfer screens. Photo, name, club crest, a facts row, the state
 # chips, the two-column metrics/attribute block, status lines and optional
 # action rows. Everything the scouts have not revealed (scouted == false) shows
-# as ? / ???.
+# as a single ?.
+#
+# Deviation from the prototype: the attribute column lists every attribute,
+# paged one group per page (MENTAL / PHYSICAL / TECHNICAL) with arrows, the
+# right stick and a dot indicator — all 22 in one list would need a scrollbar.
 #
 # The root scrolls vertically like .tf-detail (overflow-y:auto): put it in the
 # right-hand column and give it the column's size.
@@ -22,8 +26,6 @@ const METRIC_ROW_H := 30.0
 const STATUS_ROW_H := 26.0
 const ACTION_H := 44.0
 const HIDDEN := "?"
-const HIDDEN_STAT := "???"
-const UNKNOWN := "—"
 const MARK_WIN := Color("2f7d4f")
 const MARK_LOSS := Color("b23a48")
 const MARK_WARN := Color("a66a00")
@@ -141,9 +143,17 @@ var _name: Label
 var _fact_values: Array[Label] = []
 var _club_photo: CareerPlayerCard.Photo
 var _club_name: Label
-var _chips: HBoxContainer
+var _chips: VBoxContainer
 var _metric_values: Array[Label] = []
 var _stat_values: Array[Label] = []
+# One page per attribute group (MENTAL / PHYSICAL / TECHNICAL): the full list no
+# longer fits a card without a scrollbar, so Q / E or the right stick page it,
+# the dots show where we are.
+var _stat_pages: Array[VBoxContainer] = []
+var _stat_page := 0
+var _pager: HBoxContainer
+var _dots: HBoxContainer
+var _stick_latch := false
 var _status_box: VBoxContainer
 var _actions: VBoxContainer
 var _tween: Tween
@@ -199,6 +209,15 @@ static func months_until(target: String, current: String) -> int:
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	_build()
+	# The caps name the current input device: Q / E or the right stick.
+	var nav := get_node_or_null("/root/UiNav")
+	if nav != null and nav.has_signal("device_changed"):
+		nav.connect("device_changed", _on_device_changed)
+
+
+func _on_device_changed(_gamepad: bool) -> void:
+	if _pager != null:
+		_build_pager()
 
 
 func setup(player: Dictionary, options := {}) -> void:
@@ -261,7 +280,9 @@ func _build() -> void:
 	var card := PanelContainer.new()
 	card.name = "Card"
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	# Fills the host column (the ScrollContainer stretches an EXPAND child), so
+	# the card is as tall as the list beside it instead of hugging its content.
+	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var panel := StyleBoxFlat.new()
 	panel.bg_color = UiTokens.TILE
 	panel.shadow_color = UiTokens.SHADOW
@@ -338,7 +359,7 @@ func _build() -> void:
 	var club := VBoxContainer.new()
 	club.name = "Club"
 	club.add_theme_constant_override(&"separation", 4)
-	club.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	club.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	head.add_child(club)
 	_club_photo = CareerPlayerCard.Photo.new()
 	_club_photo.name = "Crest"
@@ -355,11 +376,24 @@ func _build() -> void:
 	_club_name.add_theme_font_size_override(&"font_size", 14)
 	_club_name.add_theme_color_override(&"font_color", UiTokens.INK_2)
 	club.add_child(_club_name)
+	# The pager hugs the bottom of the head, right-aligned above the attributes:
+	# it stays off the metrics grid, so the attribute rows keep their place.
+	var club_spacer := Control.new()
+	club_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	club_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	club.add_child(club_spacer)
+	_pager = HBoxContainer.new()
+	_pager.name = "Pager"
+	_pager.alignment = BoxContainer.ALIGNMENT_END
+	_pager.add_theme_constant_override(&"separation", 6)
+	_pager.custom_minimum_size.y = 28.0
+	club.add_child(_pager)
 
-	_chips = HBoxContainer.new()
+	# Tags stack under the general-info rows of the left column.
+	_chips = VBoxContainer.new()
 	_chips.name = "Chips"
-	_chips.add_theme_constant_override(&"separation", 6)
-	_content.add_child(_chips)
+	_chips.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_chips.add_theme_constant_override(&"separation", 4)
 
 	var metrics := HBoxContainer.new()
 	metrics.name = "Metrics"
@@ -371,24 +405,43 @@ func _build() -> void:
 		box.add_theme_constant_override(&"separation", 1)
 		box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		metrics.add_child(box)
-		var labels := ["OVERALL", "PRICE", "WAGE", "RELEASE CLAUSE"] if column == 0 \
-			else _stat_labels()
-		for label_text in labels:
-			var value := Label.new()
-			value.add_theme_font_override(&"font", UiTheme.barlow(700))
-			value.add_theme_font_size_override(&"font_size", 20)
-			value.add_theme_color_override(&"font_color", UiTokens.INK)
-			var row := _make_block(label_text, label_text, value, 5, 12, METRIC_ROW_H)
-			row.name = label_text
-			box.add_child(row)
-			if column == 0:
+		if column == 0:
+			for label_text in ["OVERALL", "PRICE", "WAGE", "RELEASE CLAUSE"]:
+				var value := _make_value_label()
+				var row := _make_block(label_text, label_text, value, 5, 12, METRIC_ROW_H)
+				row.name = label_text
+				box.add_child(row)
 				_metric_values.append(value)
-			else:
+			var chip_wrap := MarginContainer.new()
+			chip_wrap.name = "ChipWrap"
+			chip_wrap.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+			chip_wrap.add_theme_constant_override(&"margin_top", 8)
+			chip_wrap.add_child(_chips)
+			box.add_child(chip_wrap)
+			continue
+		for group in CareerSquad.ATTRIBUTE_GROUPS:
+			var page := VBoxContainer.new()
+			page.name = str(group["id"])
+			page.add_theme_constant_override(&"separation", 1)
+			box.add_child(page)
+			_stat_pages.append(page)
+			for key in group["keys"]:
+				var value := _make_value_label()
+				var row := _make_block(key, _stat_label(str(key)), value, 5, 12, METRIC_ROW_H)
+				page.add_child(row)
 				_stat_values.append(value)
+		_build_pager()
+		_set_page(0)
 
 	_status_box = VBoxContainer.new()
 	_status_box.name = "Status"
 	_status_box.add_theme_constant_override(&"separation", 1)
+	# The statuses sit on the bottom edge of the card: the spacer eats the slack.
+	var spacer := Control.new()
+	spacer.name = "Spacer"
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_content.add_child(spacer)
 	_content.add_child(_status_box)
 
 	_actions = VBoxContainer.new()
@@ -398,11 +451,147 @@ func _build() -> void:
 	_content.add_child(_actions)
 
 
-func _stat_labels() -> Array:
-	var labels: Array = []
-	for key in _stat_keys():
-		labels.append(str(CareerSquad.STAT_LABELS.get(key, key)).to_upper())
-	return labels
+func _make_value_label() -> Label:
+	var value := Label.new()
+	value.add_theme_font_override(&"font", UiTheme.barlow(700))
+	value.add_theme_font_size_override(&"font_size", 20)
+	value.add_theme_color_override(&"font_color", UiTokens.INK)
+	return value
+
+
+# Pager ----------------------------------------------------------------------
+
+# The caps name whatever pages the card: Q / E on the keyboard, the right stick
+# on a gamepad. They are hints, not buttons.
+func _build_pager() -> void:
+	for child in _pager.get_children():
+		_pager.remove_child(child)
+		child.free()
+	if _gamepad():
+		# One circled R: the right stick pages the card both ways.
+		_pager.add_child(_make_stick_cap())
+	else:
+		_pager.add_child(_make_key_cap("Q"))
+	_dots = HBoxContainer.new()
+	_dots.name = "Dots"
+	_dots.alignment = BoxContainer.ALIGNMENT_CENTER
+	_dots.add_theme_constant_override(&"separation", 4)
+	_pager.add_child(_dots)
+	if not _gamepad():
+		_pager.add_child(_make_key_cap("E"))
+	_set_page(_stat_page)
+
+
+func _make_stick_cap() -> PanelContainer:
+	var box := PanelContainer.new()
+	box.custom_minimum_size = Vector2(22.0, 22.0)
+	box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(UiTokens.INK, 0.09)
+	style.set_corner_radius_all(11)
+	box.add_theme_stylebox_override(&"panel", style)
+	var label := Label.new()
+	label.text = "R"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_override(&"font", UiTheme.inter(700))
+	label.add_theme_font_size_override(&"font_size", 12)
+	label.add_theme_color_override(&"font_color", UiTokens.INK_2)
+	box.add_child(label)
+	return box
+
+
+func _make_key_cap(text: String) -> PanelContainer:
+	var box := PanelContainer.new()
+	box.custom_minimum_size = Vector2(24.0, 20.0)
+	box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(UiTokens.INK, 0.09)
+	box.add_theme_stylebox_override(&"panel", style)
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_override(&"font", UiTheme.inter(700))
+	label.add_theme_font_size_override(&"font_size", 12)
+	label.add_theme_color_override(&"font_color", UiTokens.INK_2)
+	box.add_child(label)
+	return box
+
+
+func _gamepad() -> bool:
+	var nav := get_node_or_null("/root/UiNav")
+	return nav != null and nav.has_method("using_gamepad") and bool(nav.call("using_gamepad"))
+
+
+func _step_page(delta: int) -> void:
+	_set_page(_stat_page + delta)
+
+
+func _set_page(index: int) -> void:
+	if _stat_pages.is_empty():
+		return
+	_stat_page = clampi(index, 0, _stat_pages.size() - 1)
+	for page_index in _stat_pages.size():
+		_stat_pages[page_index].visible = page_index == _stat_page
+	for child in _dots.get_children():
+		_dots.remove_child(child)
+		child.queue_free()
+	for page_index in _stat_pages.size():
+		_dots.add_child(_make_dot(page_index == _stat_page))
+
+
+func _make_dot(active: bool) -> Control:
+	var dot := PanelContainer.new()
+	dot.custom_minimum_size = Vector2(6.0, 6.0)
+	dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var box := StyleBoxFlat.new()
+	box.bg_color = UiTokens.INK if active else Color(UiTokens.INK_2, 0.3)
+	box.set_corner_radius_all(3)
+	dot.add_theme_stylebox_override(&"panel", box)
+	return dot
+
+
+# Q / E and the right stick page the attributes of the card on screen: with a
+# modal open only the card inside it reacts, never the screen behind.
+func _unhandled_input(event: InputEvent) -> void:
+	if not is_visible_in_tree() or not _owns_input():
+		return
+	var key := event as InputEventKey
+	if key != null:
+		if not key.pressed or key.echo:
+			return
+		var code := key.physical_keycode if key.physical_keycode != 0 else key.keycode
+		if code == KEY_Q:
+			_step_page(-1)
+		elif code == KEY_E:
+			_step_page(1)
+		return
+	var motion := event as InputEventJoypadMotion
+	if motion == null or motion.axis != JOY_AXIS_RIGHT_X:
+		return
+	if absf(motion.axis_value) < 0.6:
+		_stick_latch = false
+		return
+	if _stick_latch:
+		return
+	_stick_latch = true
+	_step_page(1 if motion.axis_value > 0.0 else -1)
+
+
+func _owns_input() -> bool:
+	var nav := get_node_or_null("/root/UiNav")
+	if nav == null or not nav.has_method("is_modal") or not bool(nav.call("is_modal")):
+		return true
+	var owner: Node = nav.call("modal_owner")
+	return owner != null and is_ancestor_of(owner)
+
+
+func _stat_label(key: String) -> String:
+	return str(CareerSquad.STAT_LABELS.get(key, key)).to_upper()
 
 
 # A label/value row on the tinted background (prototype .gf-metric).
@@ -448,7 +637,7 @@ func _refresh() -> void:
 	_name.text = str(_player.get("name", "")).to_upper()
 	_fact_values[0].text = CareerPlayerCard.age_value(_player)
 	var height := int(_player.get("height", 0))
-	_fact_values[1].text = "%d CM" % height if height > 0 else UNKNOWN
+	_fact_values[1].text = "%d CM" % height if height > 0 else HIDDEN
 	_fact_values[2].text = CareerPlayerCard.position_code(
 		str(_player.get("position", "")), group)
 	_fact_values[3].text = _foot_label(str(_player.get("foot", ""))) if revealed else HIDDEN
@@ -472,7 +661,7 @@ func _refresh() -> void:
 		elif revealed:
 			if key == "overall":
 				var overall := int(round(float(raw)))
-				text = str(overall) if overall > 0 else UNKNOWN
+				text = str(overall) if overall > 0 else HIDDEN
 			elif key == "wage":
 				text = money(int(raw)) + " / WEEK"
 			else:
@@ -483,10 +672,10 @@ func _refresh() -> void:
 	var stats: Dictionary = _player.get("stats", {}) if _player.get("stats") is Dictionary else {}
 	var keys := _stat_keys()
 	for index in _stat_values.size():
-		var text := HIDDEN_STAT
+		var text := HIDDEN
 		if revealed:
 			var raw := int(round(float(stats.get(keys[index], 0))))
-			text = str(raw) if raw > 0 else UNKNOWN
+			text = str(raw) if raw > 0 else HIDDEN
 		_stat_values[index].text = text
 		_stat_values[index].add_theme_color_override(&"font_color",
 			UiTokens.INK if revealed else UiTokens.INK_2)
@@ -496,10 +685,7 @@ func _refresh() -> void:
 func _stat_keys() -> Array:
 	var keys: Array = []
 	for group in CareerSquad.ATTRIBUTE_GROUPS:
-		for key in group["keys"]:
-			if keys.size() >= 6:
-				return keys
-			keys.append(key)
+		keys.append_array(group["keys"])
 	return keys
 
 
@@ -517,7 +703,7 @@ func _foot_label(foot: String) -> String:
 			return "Right"
 		"both":
 			return "Both"
-	return UNKNOWN
+	return HIDDEN
 
 
 func _refresh_chips(revealed: bool) -> void:

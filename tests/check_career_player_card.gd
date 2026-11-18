@@ -224,8 +224,59 @@ func _check_pane(host: Control) -> void:
 	_check(_row_value(column.get_node("RELEASE CLAUSE")) == "€90M",
 		"metrics: release clause")
 	var stat_column := content.get_node("Metrics/Column1")
-	var stat_value := _row_value(stat_column.get_child(0))
+	var pager := content.get_node("Head/Club/Pager")
+	_check(stat_column.get_node("mental").is_visible_in_tree(),
+		"attributes start on the first group page")
+	_check(pager.get_node("Dots").get_child_count() == 3, "a dot per attribute page")
+	_check(pager.get_child_count() == 3 and _cap_text(pager.get_child(0)) == "Q" \
+		and _cap_text(pager.get_child(2)) == "E",
+		"the pager hints sit either side of the dots")
+	_check((pane.get("_stat_values") as Array).size() == 22, "every attribute has a row")
+	var stat_value := _row_value(stat_column.get_node("mental/mental_calmness"))
 	_check(stat_value == "71", "attributes: revealed stat value")
+	pane.call("_step_page", 1)
+	_check(stat_column.get_node("physical").is_visible_in_tree(),
+		"a page step moves to the next group")
+	_check(stat_column.get_node("technical/technical_volley").is_visible_in_tree() == false,
+		"only the current page is shown")
+	pane.call("_step_page", -1)
+	var motion := InputEventJoypadMotion.new()
+	motion.axis = JOY_AXIS_RIGHT_X
+	motion.axis_value = 1.0
+	pane.call("_unhandled_input", motion)
+	_check(stat_column.get_node("physical").is_visible_in_tree(),
+		"the right stick pages forward")
+	pane.call("_unhandled_input", motion)
+	_check(stat_column.get_node("physical").is_visible_in_tree(),
+		"a held stick does not repeat the step")
+	var release := InputEventJoypadMotion.new()
+	release.axis = JOY_AXIS_RIGHT_X
+	release.axis_value = 0.0
+	pane.call("_unhandled_input", release)
+	var back := InputEventJoypadMotion.new()
+	back.axis = JOY_AXIS_RIGHT_X
+	back.axis_value = -1.0
+	pane.call("_unhandled_input", back)
+	_check(stat_column.get_node("mental").is_visible_in_tree(),
+		"the right stick pages back once released")
+	var key := InputEventKey.new()
+	key.physical_keycode = KEY_E
+	key.pressed = true
+	pane.call("_unhandled_input", key)
+	_check(stat_column.get_node("physical").is_visible_in_tree(), "E pages forward")
+	key = InputEventKey.new()
+	key.physical_keycode = KEY_Q
+	key.pressed = true
+	pane.call("_unhandled_input", key)
+	_check(stat_column.get_node("mental").is_visible_in_tree(), "Q pages back")
+	var nav := root.get_node_or_null("UiNav")
+	if nav != null:
+		nav.set("_last_device", 1)  # UiNav.Device.GAMEPAD
+		pane.call("_build_pager")
+		_check(pager.get_child_count() == 2 and _cap_text(pager.get_child(0)) == "R",
+			"a gamepad shows one circled R left of the dots")
+		nav.set("_last_device", 0)
+		pane.call("_build_pager")
 	var status_lines := content.get_node("Status").get_child_count()
 	_check(status_lines == 3, "three status lines (club, availability, contract)")
 	var last_status := content.get_node("Status").get_child(2)
@@ -244,12 +295,12 @@ func _check_pane(host: Control) -> void:
 	await _frames(3)
 	_check(_row_value(pane.get_node("Card/Content/Metrics/Column0").get_node("OVERALL")) == "?",
 		"an unscouted overall is hidden")
-	_check(_row_value(pane.get_node("Card/Content/Metrics/Column1").get_child(0)) == "???",
+	_check(_row_value(pane.get_node("Card/Content/Metrics/Column1/mental/mental_calmness")) == "?",
 		"unscouted attributes are hidden")
 	_check(_row_value(pane.get_node("Card/Content/Metrics/Column0/RELEASE CLAUSE")) == "€90M",
 		"an unscouted release clause stays public")
 	var chip_texts: Array[String] = []
-	for chip in pane.get_node("Card/Content/Chips").get_children():
+	for chip in pane.get_node("Card/Content/Metrics/Column0/ChipWrap/Chips").get_children():
 		chip_texts.append((chip.get_child(0) as Label).text)
 	_check("NOT SCOUTED" in chip_texts, "the pane tags an unscouted player")
 
@@ -273,6 +324,11 @@ func _row_value(row: Node) -> String:
 				if label is Label and label.horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT:
 					return (label as Label).text
 	return ""
+
+
+func _cap_text(cap: Node) -> String:
+	var label := cap.get_child(0) as Label if cap.get_child_count() > 0 else null
+	return "" if label == null else label.text
 
 
 func _status_text(row: Node) -> String:
