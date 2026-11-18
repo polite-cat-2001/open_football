@@ -438,8 +438,6 @@ func _apply_state() -> void:
 		UiTokens.FOCUS_INK_2 if lit else UiTokens.INK_2)
 	_date.add_theme_color_override(&"font_color",
 		UiTokens.FOCUS_INK_2 if lit else UiTokens.INK_2)
-	_photo.tone = UiTokens.FOCUS_INK_2 if lit else UiTokens.INK_2
-	_photo.queue_redraw()
 
 
 func _play_open() -> void:

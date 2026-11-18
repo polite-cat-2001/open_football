@@ -151,8 +151,6 @@ class Slot extends Control:
 			UiTokens.FOCUS_INK_2 if focused else UiTokens.INK_2)
 		_empty_icon.modulate = UiTokens.FOCUS_INK_2 if focused \
 			else Color(UiTokens.INK_2, 0.5)
-		_photo.tone = UiTokens.FOCUS_INK_2 if focused else UiTokens.INK_2
-		_photo.queue_redraw()
 
 
 	func _layout() -> void:

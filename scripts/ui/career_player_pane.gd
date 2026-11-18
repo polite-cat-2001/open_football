@@ -446,7 +446,7 @@ func _refresh() -> void:
 	var group := str(_player.get("position_group", ""))
 	_photo.show_texture(CareerPlayerCard.face_texture(_player))
 	_name.text = str(_player.get("name", "")).to_upper()
-	_fact_values[0].text = str(_player.get("age", UNKNOWN))
+	_fact_values[0].text = CareerPlayerCard.age_value(_player)
 	var height := int(_player.get("height", 0))
 	_fact_values[1].text = "%d CM" % height if height > 0 else UNKNOWN
 	_fact_values[2].text = CareerPlayerCard.position_code(

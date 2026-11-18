@@ -648,7 +648,7 @@ static func _join_squad(career: Career, catalog: TeamCatalog, player_id: String,
 	career.player_values = values
 	var ages: Dictionary = career.player_ages
 	if not ages.has(player_id):
-		ages[player_id] = int(item.get("age", 25))
+		ages[player_id] = CareerSearch.player_age(item)
 	career.player_ages = ages
 	career.player_transfers = _without_key(career.player_transfers, player_id)
 	if career.data.get("negotiations") is Dictionary:

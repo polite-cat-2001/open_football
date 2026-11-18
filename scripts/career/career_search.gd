@@ -477,8 +477,10 @@ static func python_round(value: float) -> int:
 
 
 static func player_age(player: Dictionary) -> int:
-	var age = player.get("age")
-	return int(age) if age != null else 25
+	# Unknown birth dates arrive as 0; the prototype stores null and reads
+	# `age or 25`, so an unknown age must fall back to the same 25 for wages.
+	var age := int(player.get("age", 0))
+	return age if age > 0 else 25
 
 
 static func age_from_birth_date(birth_date: String, reference: String) -> int:

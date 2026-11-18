@@ -254,8 +254,6 @@ class Row extends Control:
 		_status.add_theme_color_override(&"font_color",
 			UiTokens.FOCUS_INK_2 if focused
 			else (WIN if status == "completed" else WARN))
-		_photo.tone = UiTokens.FOCUS_INK_2 if focused else UiTokens.INK_2
-		_photo.queue_redraw()
 
 
 	func _gui_input(event: InputEvent) -> void:

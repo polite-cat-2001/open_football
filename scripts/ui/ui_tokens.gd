@@ -21,6 +21,13 @@ const ERROR_PINK := Color(1.0, 0.607843, 0.658824, 1.0)
 const MARK_WIN := Color(0.184314, 0.490196, 0.309804, 1.0)
 const MARK_WARN := Color(0.650980, 0.415686, 0.0, 1.0)
 const MARK_WARN_SOFT := Color(0.650980, 0.415686, 0.0, 0.12)
+const MARK_LOSS := Color(0.698039, 0.227451, 0.282353, 1.0)
+
+# Position groups, shared by the squad plan and every transfer card.
+const POS_GK := Color(0.850980, 0.419608, 0.0, 1.0)
+const POS_DEF := Color(0.658824, 0.525490, 0.0, 1.0)
+const POS_MID := Color(0.137255, 0.525490, 0.290196, 1.0)
+const POS_FWD := Color(0.121569, 0.388235, 0.721569, 1.0)
 
 const TABLE_ROW_OWN := Color(0.901961, 0.137255, 0.431373, 0.14)
 const TABLE_DIVIDER := Color(0.113725, 0.129412, 0.219608, 0.10)
@@ -387,3 +394,30 @@ const SIDE_DEVICE_MOVE := 0.34
 const KIT_PANEL_COLOR := 0.16
 const KIT_PANEL_MOVE := 0.18
 const KIT_PANEL_SHADOW := 0.18
+
+
+# Ratings --------------------------------------------------------------------
+
+static func position_color(group: String) -> Color:
+	match group.to_upper():
+		"GK":
+			return POS_GK
+		"DEF":
+			return POS_DEF
+		"MID":
+			return POS_MID
+		"FWD":
+			return POS_FWD
+	return INK_2
+
+
+static func rating_color(value: int) -> Color:
+	# One ramp for every OVR number in the career UI (result cards, squad, plan),
+	# matching the prototype's ovrClass: 90+ ink, 80+ win, 60+ warn, below loss.
+	if value >= 90:
+		return INK
+	if value >= 80:
+		return MARK_WIN
+	if value >= 60:
+		return MARK_WARN
+	return MARK_LOSS

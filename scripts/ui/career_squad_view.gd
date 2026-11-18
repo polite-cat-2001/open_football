@@ -36,10 +36,10 @@ const PITCH_LINE := Color(1.0, 1.0, 1.0, 0.30)
 const MARK_WIN := Color("2f7d4f")
 const MARK_LOSS := Color("b23a48")
 const MARK_WARN := Color("a66a00")
-const POS_GK := Color("d96b00")
-const POS_DEF := Color("a88600")
-const POS_MID := Color("23864a")
-const POS_FWD := Color("1f63b8")
+const POS_GK := UiTokens.POS_GK
+const POS_DEF := UiTokens.POS_DEF
+const POS_MID := UiTokens.POS_MID
+const POS_FWD := UiTokens.POS_FWD
 const BENCH_BG := Color("f0f2f7")
 const SCHEME_BG := Color("e8ecf2")
 # Same shirt silhouette as the game's KitArt (240x196 view box), drawn inline
@@ -975,7 +975,7 @@ func _draw_centre_roster(rect: Rect2) -> void:
 			_draw_text(Rect2(row.end.x - 72.0, row.position.y, 40.0, row.size.y),
 				str(int(round(float(player.get("overall", 0.0))))),
 				UiTheme.barlow(700), 20,
-				UiTokens.FOCUS_INK if focused else _rating_color(
+				UiTokens.FOCUS_INK if focused else UiTokens.rating_color(
 					int(round(float(player.get("overall", 0.0))))))
 			if centre_tab == 0:
 				_draw_morale_face(Rect2(row.end.x - 34.0, row.position.y + 16.0,
@@ -1665,7 +1665,7 @@ func _draw_player_block(rect: Rect2, player: Dictionary, mirrored: bool,
 				arrow = "▼"
 			line_text = "%s  ›  %s %d %s" % [line_text, target_role, target_rating, arrow]
 	_draw_text(Rect2(info_x, row_y, info_w, 24.0), line_text, UiTheme.barlow(700), 20,
-		_rating_color(rating), align)
+		UiTokens.rating_color(rating), align)
 	var season: Dictionary = player.get("season_stats", {})
 	_draw_text(Rect2(info_x, row_y + 30.0, info_w, 20.0),
 		"%d APP · %d G · %d A · %d MIN" % [int(season.get("apps", 0)),
@@ -2325,12 +2325,7 @@ func _draw_player_photo(rect: Rect2, player: Dictionary, alpha := 1.0) -> void:
 			rect.end.y - fit.y), fit)
 		pen.draw_texture_rect(texture, dest, false, Color(1, 1, 1, alpha))
 		return
-	var c := rect.get_center()
-	var radius := minf(rect.size.x, rect.size.y) * 0.17
-	pen.draw_circle(Vector2(c.x, rect.position.y + rect.size.y * 0.34), radius,
-		Color(0.78, 0.80, 0.84, alpha))
-	pen.draw_arc(Vector2(c.x, rect.end.y), rect.size.x * 0.30, PI, TAU, 18,
-		Color(0.78, 0.80, 0.84, alpha), maxf(2.0, rect.size.x * 0.12), true)
+	UiAssets.draw_player_placeholder(pen, rect, Color(UiTokens.INK_2, alpha))
 
 
 func _draw_fatigue(rect: Rect2, fatigue: int) -> void:
@@ -3223,18 +3218,6 @@ func _role_color(role: String) -> Color:
 	if role in ["DM", "CM", "LM", "RM", "AM"]:
 		return POS_MID
 	return POS_FWD
-
-
-func _rating_color(rating: int) -> Color:
-	if rating >= 90:
-		return UiTokens.INK
-	if rating >= 80:
-		return MARK_WIN
-	if rating >= 70:
-		return MARK_WARN
-	if rating >= 60:
-		return MARK_WARN
-	return MARK_LOSS
 
 
 func _stat_color(value: int) -> Color:

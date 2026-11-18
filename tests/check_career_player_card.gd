@@ -102,20 +102,28 @@ func _check_card(host: Control) -> void:
 	_check(card.player().get("name") == "Lionel Messi", "the card keeps the player data")
 	_check((card.get_node("Name") as Label).text == "LIONEL MESSI",
 		"the name is upper-case like the prototype")
-	_check((card.get_node("Club") as Label).text == "Inter Miami", "the club name is shown")
-	_check((card.get_node("Age") as Label).text == "34", "the age slot is filled")
-	_check((card.get_node("Position/PositionLabel") as Label).text == "RW",
-		"the position badge uses the prototype code")
-	var tone := CareerPlayerCard.position_tone("FWD")
-	_check((card.get_node("Position/PositionLabel") as Label)
-		.get_theme_color(&"font_color") == tone, "the badge carries the position tone")
-	_check((card.get_node("Ovr") as Label).text == "88", "the card shows the OVR")
-	_check((card.get_node("Chips/Chip0") as Control).visible, "the status chip is shown")
-	_check((card.get_node("Chips/Chip0/ChipLabel0") as Label).text == "TRANSFER LISTED",
-		"the status chip reads the transfer status")
-	_check((card.get_node("Chips/Chip1/ChipLabel1") as Label).text == "SHORTLIST",
-		"the shortlist marker is shown")
-	_check(card.custom_minimum_size.y >= 100.0, "the card keeps the result card height")
+	_check((card.get_node("Age") as Label).text == "34 y.o.", "the age line reads like the prototype")
+	_check((card.get_node("Position") as Label).text == "RW",
+		"the position shows the prototype code")
+	_check((card.get_node("Position") as Label).get_theme_color(&"font_color") == UiTokens.INK,
+		"the position is plain ink text, not a plate")
+	_check((card.get_node("PositionDot") as Panel).get_theme_stylebox(&"panel").bg_color
+		== UiTokens.position_color("FWD"), "the position dot carries the position colour")
+	var tile := CareerPlayerCard.shows_overall_tile(PLAYER)
+	_check((card.get_node("OvrTile") as Control).visible == tile,
+		"a scouted OVR sits on the meta line")
+	_check((card.get_node("Photo") as Control).visible,
+		"the rating tile never replaces the portrait")
+	if tile:
+		_check((card.get_node("OvrTile/Value") as Label).text == "88",
+			"the tile shows the revealed OVR")
+		_check((card.get_node("OvrTile") as Panel).get_theme_stylebox(&"panel").bg_color
+			== UiTokens.rating_color(88), "the chip uses the shared rating ramp")
+		_check((card.get_node("OvrTile") as Control).size.x <= 30.0,
+			"the rating chip stays as narrow as its number")
+	_check(not (card.get_node("Chips/Chip0") as Control).visible,
+		"a transfer-listed player no longer takes a chip")
+	_check(card.custom_minimum_size.y >= 107.0, "the card keeps the result card height")
 
 	# Focus inverts the card and hides the rail; selected shows it without focus.
 	card.grab_focus()
@@ -145,6 +153,33 @@ func _check_card(host: Control) -> void:
 	_check(CareerPlayerCard.status_label("") == "AT CLUB", "status_label: at club")
 	_check(CareerPlayerCard.face_texture(PLAYER) == null or
 		CareerPlayerCard.face_texture(PLAYER) is Texture2D, "face lookup is safe")
+	var scouted := {"player_id": "0", "photo": "", "overall": 80, "scouted": true}
+	_check(CareerPlayerCard.shows_overall_tile(scouted),
+		"a scouted player's OVR gets the rating chip")
+	_check(not CareerPlayerCard.shows_overall_tile({"player_id": "0", "overall": 80}),
+		"an unscouted player hides the rating chip")
+	_check(not CareerPlayerCard.shows_overall_tile({"player_id": "0", "scouted": true}),
+		"no revealed OVR means no chip")
+	_check(CareerPlayerCard.age_text({"age": 0}) == "—",
+		"a player without a birth date has no age")
+	_check(CareerPlayerCard.age_text({"age": 25}) == "25 y.o.", "the age reads y.o.")
+	_check(CareerPlayerCard.age_value({"age": 25}) == "25", "the shared age value is bare")
+	_check(UiTokens.rating_color(92) == UiTokens.INK, "rating ramp: 90+ ink")
+	_check(UiTokens.rating_color(84) == UiTokens.MARK_WIN, "rating ramp: 80+ win")
+	_check(UiTokens.rating_color(72) == UiTokens.MARK_WARN, "rating ramp: 70+ warn")
+	_check(UiTokens.rating_color(62) == UiTokens.MARK_WARN, "rating ramp: 60+ warn")
+	_check(UiTokens.rating_color(45) == UiTokens.MARK_LOSS, "rating ramp: below loss")
+	var loan := PLAYER.duplicate(true)
+	loan["status"] = "loan"
+	card.setup(loan)
+	await _frames(2)
+	_check((card.get_node("Chips/Chip0/ChipLabel0") as Label).text == "ON LOAN",
+		"an on-loan player still takes a chip")
+	var placeholder := UiAssets.player_placeholder()
+	_check(placeholder != null, "the prototype portrait mask ships and imports")
+	if placeholder != null:
+		_check(placeholder.get_size() == Vector2(598.0, 600.0),
+			"the portrait mask is the prototype asset")
 	card.queue_free()
 	await _frames(2)
 

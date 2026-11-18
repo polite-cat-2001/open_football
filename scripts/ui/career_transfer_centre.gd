@@ -36,7 +36,7 @@ const TABS_H := 52.0
 const GAP := 8.0
 const PAD := 16.0
 const HEAD_H := 32.0
-const CARD_H := 120.0
+const CARD_H := 112.0
 const CARD_GAP := 8.0
 const COLUMNS := 2
 const LOAD_ERRORS := 26.0
@@ -177,7 +177,7 @@ class Detail extends ScrollContainer:
 		var facts: Array[String] = []
 		facts.append(CareerPlayerCard.position_code(str(player.get("position", "")),
 			str(player.get("position_group", ""))))
-		facts.append("AGE %s" % str(player.get("age", "—")))
+		facts.append("AGE %s" % CareerPlayerCard.age_value(player))
 		var height := int(player.get("height", 0))
 		facts.append("%d CM" % height if height > 0 else "— CM")
 		var citizenship = player.get("citizenship")
@@ -738,8 +738,6 @@ class ListedRow extends Control:
 				UiTokens.FOCUS_INK_2 if lit else UiTokens.INK_2)
 		_pos.add_theme_color_override(&"font_color",
 			UiTokens.FOCUS_INK if lit else UiTokens.INK)
-		_photo.tone = UiTokens.FOCUS_INK_2 if lit else UiTokens.INK_2
-		_photo.queue_redraw()
 
 
 	func _on_head_focused() -> void:

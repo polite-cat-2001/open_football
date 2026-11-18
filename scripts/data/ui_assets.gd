@@ -12,6 +12,12 @@ static var _face_root := ""
 static var _data_root := ""
 static var _fallback: Texture2D = null
 static var _fallback_loaded := false
+static var _placeholder: Texture2D = null
+static var _placeholder_loaded := false
+
+# The silhouette sits 6% inside its portrait slot, like a real cut-out whose
+# head does not touch the top of the frame.
+const PLACEHOLDER_INSET := 0.06
 
 
 static func data_root() -> String:
@@ -160,6 +166,34 @@ static func player_face(tm_id: int) -> Texture2D:
 	var texture := ImageTexture.create_from_image(image)
 	_faces[path] = texture
 	return texture
+
+
+static func player_placeholder() -> Texture2D:
+	# Portrait fallback, ported from the prototype's PlayerPhoto.svelte: a white
+	# bust mask (assets/faces is gitignored, so a missing face is normal).
+	if not _placeholder_loaded:
+		_placeholder_loaded = true
+		_placeholder = load("res://assets/ui/portraits/player_placeholder.png")
+	return _placeholder
+
+
+static func draw_player_placeholder(target: CanvasItem, rect: Rect2, ink: Color) -> void:
+	if rect.size.x <= 2.0 or rect.size.y <= 2.0:
+		return
+	var texture := player_placeholder()
+	if texture == null:
+		return
+	# Cover the portrait box (real cut-outs are ~0.77 wide, the mask is square),
+	# but keep a little headroom: portraits sit a touch lower than the slot top.
+	var shrink := rect.size * PLACEHOLDER_INSET
+	var inner := Rect2(rect.position + Vector2(shrink.x * 0.5, shrink.y), rect.size - shrink)
+	var texture_size := Vector2(texture.get_size())
+	var scale := maxf(inner.size.x / texture_size.x, inner.size.y / texture_size.y)
+	var region := inner.size / scale
+	var source := Rect2(
+		Vector2((texture_size.x - region.x) * 0.5, texture_size.y - region.y),
+		region)
+	target.draw_texture_rect_region(texture, inner, source, ink.lerp(Color.WHITE, 0.7))
 
 
 static func kit_texture(team: Dictionary, kit: int) -> Texture2D:

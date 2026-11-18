@@ -406,11 +406,7 @@ class GamePlanPitch extends Control:
 			_hover_index = -1
 
 	func _draw_silhouette(photo: Rect2) -> void:
-		var center := photo.get_center()
-		var r := minf(photo.size.x, photo.size.y) * 0.22
-		draw_circle(center + Vector2(0, -r * 0.55), r * 0.55, Color(0.82, 0.86, 0.88, 0.55))
-		var body := Rect2(center.x - r, center.y + r * 0.1, r * 2.0, photo.size.y * 0.38)
-		draw_rect(body, Color(0.82, 0.86, 0.88, 0.45), true)
+		UiAssets.draw_player_placeholder(self, photo, C_INK)
 
 	func _fatigue_color(percent: int) -> Color:
 		if percent >= 90:
@@ -593,11 +589,7 @@ class GamePlanHeader extends Control:
 			draw_polyline(closed, stroke, 1.6)
 
 	func _draw_silhouette(photo: Rect2) -> void:
-		var center := photo.get_center()
-		var r := minf(photo.size.x, photo.size.y) * 0.24
-		draw_circle(center + Vector2(0, -r * 0.45), r * 0.55, Color(C_INK2, 0.35))
-		draw_rect(Rect2(center.x - r, center.y + r * 0.15, r * 2.0, photo.size.y * 0.36),
-			Color(C_INK2, 0.25), true)
+		UiAssets.draw_player_placeholder(self, photo, C_INK2)
 
 	func _fatigue_color(percent: int) -> Color:
 		return C_WIN if percent >= 50 else C_LOSS
@@ -776,11 +768,7 @@ class GamePlanDetails extends Control:
 		return "€%d" % value
 
 	func _draw_silhouette(photo: Rect2) -> void:
-		var center := photo.get_center()
-		var r := minf(photo.size.x, photo.size.y) * 0.24
-		draw_circle(center + Vector2(0, -r * 0.45), r * 0.55, Color(C_INK2, 0.35))
-		draw_rect(Rect2(center.x - r, center.y + r * 0.15, r * 2.0, photo.size.y * 0.36),
-			Color(C_INK2, 0.25), true)
+		UiAssets.draw_player_placeholder(self, photo, C_INK2)
 
 
 class BenchCard extends Control:
@@ -880,12 +868,7 @@ class BenchCard extends Control:
 			area.x - pad_l - pad_r, name_size, mark)
 
 	func _draw_silhouette(photo: Rect2, color: Color) -> void:
-		var center := photo.get_center()
-		var radius := minf(photo.size.x, photo.size.y) * 0.22
-		draw_circle(center + Vector2(0, -radius * 0.55), radius * 0.55,
-			Color(color, 0.35))
-		draw_rect(Rect2(center.x - radius, center.y + radius * 0.15,
-			radius * 2.0, photo.size.y * 0.36), Color(color, 0.25), true)
+		UiAssets.draw_player_placeholder(self, photo, color)
 
 	func _gui_input(event: InputEvent) -> void:
 		if not editable:
