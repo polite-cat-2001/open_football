@@ -16,7 +16,13 @@ const OFFER_STATUS_LABELS := {
 	"withdrawn": "Withdrawn",
 	"expired": "Expired",
 }
-const KIND_LABELS := {"transfer": "Transfer", "loan": "Loan"}
+const KIND_LABELS := {"transfer": "Transfer", "loan": "Loan", "free_agent": "Free agent"}
+# Every feed row becomes a node tree plus a face and two crests, so the model
+# hands over the newest deals: the club's own history whole, the AI market
+# trimmed to fill the rest of the limit.
+# shortcut: an AI-heavy career loses its oldest AI deals on screen,
+# add paging (or reuse the row nodes) if the full market archive is ever wanted.
+const HISTORY_LIMIT := 200
 const CONTRACT_STATUS_LABELS := {
 	"pending": "In talks",
 	"counter": "Counter offer",
@@ -124,42 +130,93 @@ static func sent_offer_rows(career: Career, catalog: TeamCatalog) -> Array:
 
 
 static func history_rows(career: Career, catalog: TeamCatalog) -> Array:
+	# One feed from both ledgers: the club's own deals (`transfer_history`) and
+	# the AI market (`world_transfers`). They cannot double-count - the world
+	# market never trades with the own club - so this is a plain union. The cap
+	# trims the AI side only, so the club's own history stays whole.
+	var entries := _ledger(career, "transfer_history")
+	var market := _ledger(career, "world_transfers")
+	market.sort_custom(_newest_first)
+	# `resize` would pad a short market with nulls, so only ever shrink it.
+	var room := maxi(0, HISTORY_LIMIT - entries.size())
+	if market.size() > room:
+		market.resize(room)
+	entries.append_array(market)
+	entries.sort_custom(_newest_first)
+	var roles := {}
+	if catalog != null:
+		var ids: Array = []
+		for record in entries:
+			ids.append(record.get("player_id", ""))
+		roles = catalog.career_player_roles(ids)
 	var rows: Array = []
-	var history: Array = career.transfer_history
-	for index in range(history.size() - 1, -1, -1):
-		var record = history[index]
-		if not (record is Dictionary):
-			continue
-		var player_id := str(record.get("player_id", ""))
-		var player: Dictionary = {} if catalog == null \
-			else catalog.career_player(int(player_id), false)
-		var from_club := _club(catalog, record.get("from_club_id"))
-		var to_club := _club(catalog, record.get("to_club_id"))
-		rows.append({
-			"id": str(record.get("offer_id", "")) if record.get("offer_id") != null \
-				else player_id,
-			"player_id": player_id,
-			"player_name": str(player.get("name", "")),
-			"photo": int(player_id) if player_id.is_valid_int() else 0,
-			"role": str(player.get("role", "")),
-			"overall": roundf(float(record.get("overall", player.get("overall", 0.0))) * 10.0) / 10.0,
-			"from_club_id": record.get("from_club_id"),
-			"from_club_name": str(from_club.get("name", "")),
-			"from_club_logo": CareerSearch.club_logo(from_club),
-			"to_club_id": record.get("to_club_id"),
-			"to_club_name": str(to_club.get("name", "")),
-			"to_club_logo": CareerSearch.club_logo(to_club),
-			"fee": int(record.get("fee", 0)),
-			"kind": str(record.get("kind", "transfer")),
-			"kind_label": kind_label(record.get("kind")),
-			"status": str(record.get("status", "completed")),
-			"date": str(record.get("date", "")).substr(0, 10),
-		})
-	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		if str(a.get("date", "")) != str(b.get("date", "")):
-			return str(a.get("date", "")) > str(b.get("date", ""))
-		return str(a.get("id", "")) > str(b.get("id", "")))
+	for record in entries:
+		rows.append(_history_row(roles, catalog, record))
 	return rows
+
+
+static func _ledger(career: Career, key: String) -> Array:
+	# Read the stored value, not the property: its getter would write an empty
+	# list into the save, and a read model must not change the save.
+	var value = career.data.get(key)
+	if not (value is Array):
+		return []
+	var records: Array = []
+	for record in value:
+		if record is Dictionary:
+			records.append(record)
+	return records
+
+
+static func _newest_first(a: Dictionary, b: Dictionary) -> bool:
+	var left := str(a.get("date", "")).substr(0, 10)
+	var right := str(b.get("date", "")).substr(0, 10)
+	if left != right:
+		return left > right
+	return _record_id(a) > _record_id(b)
+
+
+static func _record_id(record: Dictionary) -> String:
+	var id := str(record.get("offer_id", "")) if record.get("offer_id") != null else ""
+	if id.is_empty():
+		id = str(record.get("id", ""))
+	return id if not id.is_empty() else str(record.get("player_id", ""))
+
+
+static func _history_row(roles: Dictionary, catalog: TeamCatalog,
+		record: Dictionary) -> Dictionary:
+	var player_id := str(record.get("player_id", ""))
+	# The AI ledger stores the name itself; the club's own records carry only the
+	# id and read the profile.
+	var player: Dictionary = {}
+	if str(record.get("player_name", "")).is_empty() and catalog != null \
+			and player_id.is_valid_int():
+		player = catalog.career_player(int(player_id), false)
+	var role := str(player.get("role", ""))
+	if role.is_empty() and player_id.is_valid_int():
+		role = str(roles.get(int(player_id), ""))
+	var from_club := _club(catalog, record.get("from_club_id"))
+	var to_club := _club(catalog, record.get("to_club_id"))
+	return {
+		"id": _record_id(record),
+		"player_id": player_id,
+		"player_name": str(record.get("player_name", player.get("name", ""))),
+		"photo": int(player_id) if player_id.is_valid_int() else 0,
+		"role": role,
+		"overall": roundf(float(record.get("overall", player.get("overall", 0.0))) * 10.0) / 10.0,
+		"from_club_id": record.get("from_club_id"),
+		"from_club_name": str(from_club.get("name", "")),
+		"from_club_logo": CareerSearch.club_logo(from_club),
+		"to_club_id": record.get("to_club_id"),
+		"to_club_name": str(to_club.get("name", "")),
+		"to_club_logo": CareerSearch.club_logo(to_club),
+		"fee": int(record.get("fee", 0)),
+		"kind": str(record.get("kind", "transfer")),
+		"kind_label": kind_label(record.get("kind")),
+		# A world deal is applied when it is recorded, so it has no status.
+		"status": str(record.get("status", "completed")),
+		"date": str(record.get("date", "")).substr(0, 10),
+	}
 
 
 static func offer_status_label(status) -> String:

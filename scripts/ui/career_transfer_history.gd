@@ -31,6 +31,8 @@ const GAP := 8.0
 const HEAD_H := 22.0
 const ROW_H := 76.0
 const ROW_GAP := 6.0
+# Rows are built in chunks so a long feed never blocks the screen from opening.
+const BUILD_CHUNK := 12
 const COL_GAP := 14.0
 const ROW_PAD_L := 16.0
 const ROW_PAD_R := 12.0
@@ -324,6 +326,7 @@ func close() -> void:
 	for tween in [_appear_tween, _list_tween]:
 		if tween != null and tween.is_valid():
 			tween.kill()
+	set_process(false)
 	release_focus()
 
 
@@ -544,7 +547,23 @@ func _rebuild(animate: bool) -> void:
 		node.queue_free()
 	_row_nodes.clear()
 	_rows = _filtered()
-	for row in _rows:
+	# One synchronous chunk paints the first screen; the rest arrives over the
+	# next frames instead of stalling the open for every row in the feed.
+	_build_more(BUILD_CHUNK)
+	set_process(_row_nodes.size() < _rows.size())
+	_focus_row = -1
+	_empty.visible = _rows.is_empty()
+	_scroll.visible = not _rows.is_empty()
+	if is_node_ready():
+		_layout()
+	if animate:
+		_animate_list(1)
+
+
+func _build_more(count: int) -> void:
+	var stop := mini(_row_nodes.size() + count, _rows.size())
+	while _row_nodes.size() < stop:
+		var row: Dictionary = _rows[_row_nodes.size()]
 		var node := Row.new()
 		node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		node.custom_minimum_size.y = ROW_H
@@ -553,13 +572,13 @@ func _rebuild(animate: bool) -> void:
 			_crest(str(row.get("to_club_logo", ""))))
 		node.focus_entered.connect(_on_row_focused.bind(_row_nodes.size()))
 		_row_nodes.append(node)
-	_focus_row = -1
-	_empty.visible = _rows.is_empty()
-	_scroll.visible = not _rows.is_empty()
-	if is_node_ready():
-		_layout()
-	if animate:
-		_animate_list(1)
+
+
+func _process(_delta: float) -> void:
+	if _row_nodes.size() >= _rows.size() or not is_visible_in_tree():
+		set_process(false)
+		return
+	_build_more(BUILD_CHUNK)
 
 
 func _crest(path: String) -> Texture2D:
@@ -592,11 +611,20 @@ func _focus_tab(index: int) -> void:
 
 
 func _focus_row_at(index: int) -> void:
-	if index < 0 or index >= _row_nodes.size():
+	if index < 0 or index >= _rows.size():
 		return
+	if index >= _row_nodes.size():
+		_build_more(index + 1 - _row_nodes.size())
 	_focus_row = index
 	_row_nodes[index].grab_focus()
-	_scroll.ensure_control_visible(_row_nodes[index])
+	# A row built this frame has no rect until the list sorts, so the scroll has
+	# to wait a frame (same as the results and centre screens).
+	_ensure_visible.call_deferred(_row_nodes[index])
+
+
+func _ensure_visible(node: Control) -> void:
+	if is_instance_valid(node):
+		_scroll.ensure_control_visible(node)
 
 
 func _on_row_focused(index: int) -> void:
@@ -699,6 +727,8 @@ func _animate_list(direction: int) -> void:
 
 
 func _on_visibility_changed() -> void:
+	if visible:
+		set_process(_row_nodes.size() < _rows.size())
 	if not visible or not is_inside_tree() or _tabs_panel == null or _instant():
 		return
 	var nodes: Array = [_tabs_panel, _head, _scroll, _empty]

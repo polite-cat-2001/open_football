@@ -311,6 +311,36 @@ func career_players_by_ids(player_ids: Array, with_stats := true) -> Array:
 	return players
 
 
+func career_player_roles(player_ids: Array) -> Dictionary:
+	# Roles for a whole list in one statement: the transfer history wants a role
+	# per row, and a `career_player` call per row cost 200 statements a screen.
+	# Same fallback as `_career_player_from_row` (career_role, then role).
+	var roles := {}
+	var ids: Array = []
+	for raw_id in player_ids:
+		var key := str(raw_id)
+		if not key.is_valid_int() or roles.has(int(key)):
+			continue
+		roles[int(key)] = ""
+		ids.append(int(key))
+	if ids.is_empty():
+		return roles
+	var db := sql_query()
+	if db == null:
+		return roles
+	var placeholders := PackedStringArray()
+	for _index in ids.size():
+		placeholders.append("?")
+	var rows: Array = db.call("select",
+		"SELECT p.id AS id, p.career_role AS career_role, p.role AS role"
+		+ " FROM players p WHERE p.id IN (%s)" % ", ".join(placeholders), ids)
+	for raw_row in rows:
+		var row := raw_row as Dictionary
+		var role := _text(row.get("career_role"))
+		roles[int(row.get("id", 0))] = role if not role.is_empty() else _text(row.get("role"))
+	return roles
+
+
 func sql_query() -> RefCounted:
 	# Native SQLite connection (GDExtension `SqliteQuery`) for the queries the
 	# hand-written reader is too slow for, like the transfer search.

@@ -299,6 +299,11 @@ func _run() -> void:
 	var old_save := Career.from_save(stripped)
 	_check(old_save != null, "a save without transfer keys still loads")
 	if old_save != null:
+		# A read model must not write the missing keys back into the save.
+		var untouched := old_save.data.duplicate(true)
+		CareerTransfers.history_rows(old_save, catalog)
+		_check(_same(old_save.data, untouched),
+			"reading the history feed leaves the save alone")
 		_check((old_save.transfer_offers as Array).is_empty()
 			and (old_save.transfer_history as Array).is_empty()
 			and (old_save.shortlist as Array).is_empty()

@@ -193,6 +193,91 @@ func _run() -> void:
 		_check(row._status.text == "COMPLETED", "the status cell is spelled out")
 	screen.queue_free()
 
+	# The AI market ledger feeds the same history: AI deals never involve the own
+	# club, carry no status of their own and may have no seller at all.
+	career.world_transfers = [
+		{"id": "wt-1", "player_id": first_id, "player_name": "AI DEAL",
+			"overall": 81.0, "from_club_id": foreign[0], "to_club_id": foreign[1],
+			"fee": 9000000, "kind": "transfer", "date": "2026-07-25"},
+		{"id": "wt-2", "player_id": second_id, "player_name": "FREE DEAL",
+			"overall": 70.0, "from_club_id": null, "to_club_id": foreign[1],
+			"fee": 0, "kind": "free_agent", "date": "2026-07-26"},
+	]
+	var merged := CareerTransfers.history_rows(career, catalog)
+	_check(merged.size() == 5, "the history merges the own deals and the AI market")
+	_check(str(merged[1].get("player_name", "")) == "FREE DEAL",
+		"an AI deal slots in by date behind the newer own deal")
+	_check(str(merged[1].get("kind_label", "")) == "Free agent"
+		and str(merged[1].get("status", "")) == "completed",
+		"an AI deal is completed and its free-agent kind is named")
+	_check(str(merged[2].get("from_club_name", ""))
+		== str(catalog.career_club(int(foreign[0])).get("name", "")),
+		"an AI deal resolves both clubs")
+	_check(str(merged[2].get("role", "")) == str(
+			catalog.career_player(int(first_id), false).get("role", ""))
+		and not str(merged[2].get("role", "")).is_empty(),
+		"an AI deal gets its role from the batch read")
+
+	var merged_screen = load(HISTORY_SCRIPT).new()
+	root.add_child(merged_screen)
+	merged_screen.size = SCREEN_SIZE
+	await _frames(2)
+	merged_screen.open(career, catalog, {})
+	await _frames(1)
+	_check(merged_screen.row_count() == 5, "the screen lists the AI deals too")
+	merged_screen._set_filter(2)
+	await _frames(1)
+	_check(merged_screen.row_count() == 2, "MY CLUB keeps only the own deals")
+	merged_screen.queue_free()
+
+	# A long career must not hand the screen one node per deal ever recorded, and
+	# the cap may not eat the club's own history.
+	var many: Array = []
+	for index in range(CareerTransfers.HISTORY_LIMIT + 50):
+		many.append({"id": "cap-%d" % index, "player_id": first_id,
+			"player_name": "CAP", "overall": 60.0, "from_club_id": foreign[0],
+			"to_club_id": foreign[1], "fee": 0, "kind": "transfer",
+			"date": "2026-09-01"})
+	career.world_transfers = many
+	var capped := CareerTransfers.history_rows(career, catalog)
+	var own_rows := 0
+	for deal in capped:
+		if str(deal.get("from_club_id", "")) == str(CLUB_ID) \
+				or str(deal.get("to_club_id", "")) == str(CLUB_ID):
+			own_rows += 1
+	_check(capped.size() == CareerTransfers.HISTORY_LIMIT,
+		"the feed stops at the newest HISTORY_LIMIT deals")
+	_check(own_rows == 2, "the cap trims the AI market, not the club's own history")
+
+	# A long feed must not be built in one go: the screen paints the first chunk
+	# and fills the rest over the following frames.
+	var big_screen = load(HISTORY_SCRIPT).new()
+	root.add_child(big_screen)
+	big_screen.size = SCREEN_SIZE
+	await _frames(2)
+	big_screen.open(career, catalog, {})
+	_check(big_screen.row_count() == CareerTransfers.HISTORY_LIMIT
+		and big_screen._row_nodes.size() < big_screen.row_count(),
+		"the screen builds only the first rows when it opens")
+	_check(big_screen.is_visible_in_tree() and big_screen.is_processing(),
+		"the rest of the feed keeps building")
+	big_screen._focus_row_at(big_screen.row_count() - 1)
+	_check(big_screen._row_nodes.size() == big_screen.row_count()
+		and big_screen.focused_row() == big_screen.row_count() - 1,
+		"focusing a row past the first chunk builds it on demand")
+	big_screen.queue_free()
+
+	# The background pump, not the focus path, must fill the rest of the feed.
+	var fill_screen = load(HISTORY_SCRIPT).new()
+	root.add_child(fill_screen)
+	fill_screen.size = SCREEN_SIZE
+	await _frames(2)
+	fill_screen.open(career, catalog, {})
+	await _frames(30)
+	_check(fill_screen._row_nodes.size() == fill_screen.row_count(),
+		"the remaining rows arrive over the following frames")
+	fill_screen.queue_free()
+
 	var empty_career := CareerFactory.create(catalog, CLUB_ID, "Golden Manager", 189, 44)
 	var empty_screen = load(HISTORY_SCRIPT).new()
 	root.add_child(empty_screen)
