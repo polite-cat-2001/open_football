@@ -140,6 +140,19 @@ func _run() -> void:
 	await _frames(2)
 	_check(modal.is_open(), "the modal opens")
 	_check(nav.is_modal() and nav.modal_owner() == modal, "the modal owns input")
+	# The card inside the modal pages its stats with Q/E; the pane of the screen
+	# behind the modal must not.
+	var modal_pane: CareerPlayerPane = modal.get("_pane")
+	var page_before := int(modal_pane.get("_stat_page"))
+	var page_key := InputEventKey.new()
+	page_key.keycode = KEY_E
+	page_key.physical_keycode = KEY_E
+	page_key.pressed = true
+	viewport.push_input(page_key)
+	await _frames(2)
+	_check(int(modal_pane.get("_stat_page")) == page_before + 1,
+		"the modal card pages its stats with E")
+	modal_pane.call("_step_page", -1)
 	_check(modal.row_ids() == ["scout", "shortlist", "offer_transfer", "offer_loan",
 		"discuss"], "a club player lists all five actions")
 	_check(modal.row_label("scout") == "HIRE A SCOUT", "no scouts: the row asks to hire one")

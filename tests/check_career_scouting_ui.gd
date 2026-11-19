@@ -372,6 +372,8 @@ func _run() -> void:
 			"the scrim darkens the whole screen")
 		_check(modal.get_node("Card").size.y <= modal.size.y * 0.92 + 0.5,
 			"the player card stays within 92% of the height")
+		_check(not (modal.get_node("Card/Column/Head") as Control).visible,
+			"the report card has no header line")
 		_click(viewport, Vector2(6.0, 6.0))
 		await _frames(2)
 		_check(not modal.is_open(), "a click on the backdrop closes the player card")

@@ -587,7 +587,9 @@ func _owns_input() -> bool:
 	if nav == null or not nav.has_method("is_modal") or not bool(nav.call("is_modal")):
 		return true
 	var owner: Node = nav.call("modal_owner")
-	return owner != null and is_ancestor_of(owner)
+	# The pane that sits inside the open modal owns the keys; the pane of the
+	# screen behind it does not.
+	return owner != null and owner.is_ancestor_of(self)
 
 
 func _stat_label(key: String) -> String:

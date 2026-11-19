@@ -1623,15 +1623,11 @@ func _open_report_modal(player_id: String) -> void:
 		return
 	_entry_id = player_id
 	_reports.select(player_id)
-	# The player-actions card itself: the report only asks for its eyebrow and
-	# the two host rows (the scout / shortlist rows belong to the transfer flow).
+	# The player-actions card itself: no header line, just the two host rows (the
+	# scout / shortlist rows belong to the transfer flow).
 	_report_actions.setup(career, catalog, player, {
 		"date": career.date,
-		"eyebrow": "%s · %s · %s" % [
-			"SCOUT REPORT READY" if str(entry.get("kind", "")) == "report" \
-				else "PLAYER FOUND",
-			str(entry.get("scout_name", "")),
-			CareerScoutReportsFeed._date_label(str(entry.get("date", "")))],
+		"eyebrow": "",
 		"show_scout": false,
 		"show_shortlist": false,
 		"extra_rows": [

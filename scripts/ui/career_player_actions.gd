@@ -345,6 +345,8 @@ func _build() -> void:
 
 func _refresh() -> void:
 	_eyebrow_label.text = _eyebrow.to_upper()
+	# No eyebrow, no header row: the card starts at the top.
+	(_eyebrow_label.get_parent() as Control).visible = not _eyebrow.is_empty()
 	# The pane rebuilds the player body and the action rows from the current
 	# career state; the card only collects the rows for its own focus nav.
 	# No inner scrollbar: the card is sized from the pane's full height.
