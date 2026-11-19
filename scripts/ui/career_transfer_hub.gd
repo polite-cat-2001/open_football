@@ -3,7 +3,8 @@ extends Control
 # Prototype transfers/TransferHub.svelte: the TRANSFERS landing. The scouting
 # reports card fills two of four columns and both rows; the four hub cards sit
 # in the remaining 2×2 grid. Feed and counts come from
-# CareerScouting.snapshot: six report slots per page, free-slot placeholders,
+# CareerScouting.snapshot: eight report tiles per page (the shared player card),
+# free-slot placeholders,
 # Left/Right paging while the card owns focus, confirm opens the reports centre.
 #
 # The host owns routing/animation (CareerTransfersView) and draws the hints bar
@@ -16,17 +17,13 @@ signal tab_requested(delta: int)
 # focus back to the main tab strip (same as the Centre dashboard).
 signal edge_requested(direction: Vector2i)
 
-const PAGE := 6
+const PAGE := 8
 const GAP := 10.0
 const PAD := 18.0
 const FocusGrid := preload("res://scripts/ui/ui_focus_grid.gd")
 const HEAD_H := 75.0
 const FOOT_H := 34.0
 const FEED_GAP := 6.0
-const SLOT_GAP := 10.0
-const SLOT_PAD := 8.0
-const PHOTO_W := 84.0
-const OVR_W := 46.0
 const PAGER_W := 34.0
 
 # transferHubCards from the prototype, translated. Payloads feed the host.
@@ -46,19 +43,13 @@ const CARDS := [
 ]
 
 
-# One report slot: photo, name / club / scout · date, overall, NEW dot, or the
-# "FREE SLOT" placeholder.
-class Slot extends Control:
+# One free report slot: the shirt glyph and the "FREE SLOT" caption. Taken slots
+# are the shared CareerPlayerCard, the same tile as the search and the reports
+# feed.
+class EmptySlot extends Control:
 	var _bg: Panel
-	var _photo: CareerPlayerCard.Photo
-	var _name: Label
-	var _club: Label
-	var _meta: Label
-	var _ovr: Label
-	var _ovr_caption: Label
-	var _dot: ColorRect
-	var _empty_icon: TextureRect
-	var _empty_label: Label
+	var _icon: TextureRect
+	var _label: Label
 
 
 	func _init() -> void:
@@ -66,90 +57,33 @@ class Slot extends Control:
 		_bg = Panel.new()
 		_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_bg)
-		_photo = CareerPlayerCard.Photo.new()
-		_photo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(_photo)
-		_name = _label(UiTheme.barlow(700), 20, UiTokens.INK)
-		_club = _label(UiTheme.inter(500), 15, UiTokens.INK_2)
-		_meta = _label(UiTheme.inter(500), 15, UiTokens.INK_2)
-		_ovr = _label(UiTheme.barlow(700), 24, UiTokens.INK)
-		_ovr.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		_ovr_caption = _label(UiTheme.inter(600), 13, UiTokens.INK_2)
-		_ovr_caption.text = "OVR"
-		_ovr_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		_dot = ColorRect.new()
-		_dot.color = UiTokens.RAIL
-		_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(_dot)
-		_empty_icon = TextureRect.new()
-		_empty_icon.texture = UiIcon.texture("shirt")
-		_empty_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		_empty_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		_empty_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(_empty_icon)
-		_empty_label = _label(UiTheme.inter(500), 15, UiTokens.INK_2)
-		_empty_label.text = "FREE SLOT"
-		_empty_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_icon = TextureRect.new()
+		_icon.texture = UiIcon.texture("shirt")
+		_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_icon)
+		_label = Label.new()
+		_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_label.text = "FREE SLOT"
+		_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_label.clip_text = true
+		_label.add_theme_font_override(&"font", UiTheme.inter(500))
+		_label.add_theme_font_size_override(&"font_size", 15)
+		add_child(_label)
 		resized.connect(_layout)
-		show_empty()
+		set_inverted(false)
 
 
-	func _label(font: Font, font_size: int, color: Color) -> Label:
-		var label := Label.new()
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		label.clip_text = true
-		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		label.add_theme_font_override(&"font", font)
-		label.add_theme_font_size_override(&"font_size", font_size)
-		label.add_theme_color_override(&"font_color", color)
-		add_child(label)
-		return label
-
-
-	func setup_entry(entry: Dictionary) -> void:
-		var player: Dictionary = entry.get("player", {}) if entry.get("player") is Dictionary else {}
-		var club := str(player.get("club_name", ""))
-		_name.text = str(player.get("name", "")).to_upper()
-		_club.text = club if not club.is_empty() else "Free agent"
-		_meta.text = "%s · %s" % [str(entry.get("scout_name", "")),
-			CareerHubModel.short_date(str(entry.get("date", "")))]
-		_ovr.text = str(int(round(float(player.get("overall", 0.0)))))
-		_photo.show_texture(CareerPlayerCard.face_texture(player))
-		_dot.visible = not bool(entry.get("acknowledged", false))
-		for label in [_name, _club, _meta, _ovr, _ovr_caption]:
-			label.visible = true
-		_photo.visible = true
-		_empty_icon.visible = false
-		_empty_label.visible = false
-		_layout()
-
-
-	func show_empty() -> void:
-		for label in [_name, _club, _meta, _ovr, _ovr_caption]:
-			label.visible = false
-		_photo.visible = false
-		_dot.visible = false
-		_empty_icon.visible = true
-		_empty_label.visible = true
-		_layout()
-
-
-	func set_focused(focused: bool) -> void:
+	func set_inverted(focused: bool) -> void:
 		var box := StyleBoxFlat.new()
 		box.bg_color = Color(UiTokens.FOCUS_INK, 0.08) if focused \
 			else Color(UiTokens.INK, 0.06)
 		box.anti_aliasing = true
 		_bg.add_theme_stylebox_override(&"panel", box)
-		_name.add_theme_color_override(&"font_color",
-			UiTokens.FOCUS_INK if focused else UiTokens.INK)
-		for label in [_club, _meta, _ovr_caption]:
-			label.add_theme_color_override(&"font_color",
-				UiTokens.FOCUS_INK_2 if focused else UiTokens.INK_2)
-		_ovr.add_theme_color_override(&"font_color",
-			UiTokens.FOCUS_INK if focused else UiTokens.INK)
-		_empty_label.add_theme_color_override(&"font_color",
+		_label.add_theme_color_override(&"font_color",
 			UiTokens.FOCUS_INK_2 if focused else UiTokens.INK_2)
-		_empty_icon.modulate = UiTokens.FOCUS_INK_2 if focused \
+		_icon.modulate = UiTokens.FOCUS_INK_2 if focused \
 			else Color(UiTokens.INK_2, 0.5)
 
 
@@ -158,35 +92,19 @@ class Slot extends Control:
 			return
 		_bg.position = Vector2.ZERO
 		_bg.size = size
-		_photo.position = Vector2(SLOT_PAD, 4.0)
-		_photo.size = Vector2(PHOTO_W, maxf(0.0, size.y - 8.0))
-		var text_x := SLOT_PAD + PHOTO_W + SLOT_GAP
-		var text_w := maxf(40.0, size.x - text_x - OVR_W - SLOT_PAD)
-		_name.position = Vector2(text_x, 4.0)
-		_name.size = Vector2(text_w, 24.0)
-		_club.position = Vector2(text_x, 27.0)
-		_club.size = Vector2(text_w, 18.0)
-		_meta.position = Vector2(text_x, 45.0)
-		_meta.size = Vector2(text_w, 18.0)
-		var ovr_x := size.x - SLOT_PAD - OVR_W
-		_ovr.position = Vector2(ovr_x, 20.0)
-		_ovr.size = Vector2(OVR_W, 26.0)
-		_ovr_caption.position = Vector2(ovr_x, 46.0)
-		_ovr_caption.size = Vector2(OVR_W, 16.0)
-		_dot.position = Vector2(size.x - 14.0, 6.0)
-		_dot.size = Vector2(8.0, 8.0)
 		var icon := 28.0
-		var pair_w := icon + 8.0 + _empty_label.get_theme_font(&"font").get_string_size(
-			_empty_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
+		var text_w := _label.get_theme_font(&"font").get_string_size(
+			_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
+		var pair_w := icon + 8.0 + text_w
 		var pair_x := maxf(6.0, (size.x - pair_w) * 0.5)
-		_empty_icon.position = Vector2(pair_x, (size.y - icon) * 0.5)
-		_empty_icon.size = Vector2(icon, icon)
-		_empty_label.position = Vector2(pair_x + icon + 8.0, 0.0)
-		_empty_label.size = Vector2(pair_w - icon - 8.0, size.y)
+		_icon.position = Vector2(pair_x, (size.y - icon) * 0.5)
+		_icon.size = Vector2(icon, icon)
+		_label.position = Vector2(pair_x + icon + 8.0, 0.0)
+		_label.size = Vector2(text_w, size.y)
 
 
-# The scouting reports card: header (kicker, title, NEW/UPDATES counts), six
-# feed slots and the pager footer. Focusable as one control, like the prototype.
+# The scouting reports card: header (kicker, title, NEW/UPDATES counts), eight
+# feed tiles and the pager footer. Focusable as one control, like the prototype.
 class ReportsCard extends Control:
 	signal activated
 	signal pager_requested(delta: int)
@@ -198,7 +116,7 @@ class ReportsCard extends Control:
 	var _count_values: Array[Label] = []
 	var _count_labels: Array[Label] = []
 	var _divider: ColorRect
-	var _slots: Array[Slot] = []
+	var _slots: Array[Control] = []
 	var _foot: Label
 	var _prev: Label
 	var _next: Label
@@ -233,10 +151,6 @@ class ReportsCard extends Control:
 		_divider.color = Color(UiTokens.INK, 0.12)
 		_divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_divider)
-		for index in PAGE:
-			var slot := Slot.new()
-			add_child(slot)
-			_slots.append(slot)
 		_foot = _label(UiTheme.inter(500), 15, UiTokens.INK_2)
 		_prev = _pager_label("‹")
 		_next = _pager_label("›")
@@ -282,11 +196,31 @@ class ReportsCard extends Control:
 	func setup(counts: Dictionary, entries: Array, page: int, pages: int) -> void:
 		_count_values[0].text = str(int(counts.get("new", 0)))
 		_count_values[1].text = str(int(counts.get("updates", 0)))
-		for index in _slots.size():
+		# Report tiles are the shared player card; a slot without a report keeps
+		# the "FREE SLOT" placeholder.
+		for slot in _slots:
+			remove_child(slot)
+			slot.queue_free()
+		_slots.clear()
+		for index in PAGE:
+			var slot: Control = null
 			if index < entries.size():
-				_slots[index].setup_entry(entries[index])
+				var entry: Dictionary = entries[index]
+				var player: Dictionary = entry.get("player", {}) \
+					if entry.get("player") is Dictionary else {}
+				var card := CareerPlayerCard.new()
+				# The host owns focus and sizes the tiles; the card only paints.
+				# Set after add_child: the card's _ready resets both.
+				card.custom_minimum_size.y = 1.0
+				add_child(card)
+				card.focus_mode = Control.FOCUS_NONE
+				card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				card.setup(player, {"rail": not bool(entry.get("acknowledged", false))})
+				slot = card
 			else:
-				_slots[index].show_empty()
+				slot = EmptySlot.new()
+				add_child(slot)
+			_slots.append(slot)
 		if entries.is_empty():
 			_foot.text = "No scout reports yet. Send a scout from player search."
 		else:
@@ -325,7 +259,8 @@ class ReportsCard extends Control:
 		var foot_top := size.y - PAD - FOOT_H
 		var feed_h := maxf(0.0, foot_top - 12.0 - feed_top)
 		var slot_w := (inner - FEED_GAP) * 0.5
-		var slot_h := (feed_h - FEED_GAP * 2.0) / 3.0
+		# Four rows of two: the compact player cards fit eight reports a page.
+		var slot_h := (feed_h - FEED_GAP * 3.0) / 4.0
 		for index in _slots.size():
 			var column := index % 2
 			var row := index / 2
@@ -369,7 +304,7 @@ class ReportsCard extends Control:
 		_next.add_theme_color_override(&"font_color",
 			UiTokens.FOCUS_INK if focused else UiTokens.INK)
 		for slot in _slots:
-			slot.set_focused(focused)
+			slot.call("set_inverted", focused)
 
 
 	func play_page_shift(direction: int) -> void:

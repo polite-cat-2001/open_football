@@ -1,6 +1,6 @@
 extends SceneTree
 # Headless check for the TRANSFERS landing screen (TransferHub.svelte): the
-# scouting reports card (feed page of six, pager, counts), the four hub cards,
+# scouting reports card (feed page of eight, pager, counts), the four hub cards,
 # grid navigation, the navigate payloads, tab requests and Back.
 #
 # Run:  godot --headless --path . -s res://tests/check_career_transfer_hub_screen.gd
@@ -55,7 +55,7 @@ func _run() -> void:
 		return
 
 	var feed_size := _seed_reports(career)
-	_check(feed_size == 8, "eight completed reports fill the feed (got %d)" % feed_size)
+	_check(feed_size == 10, "ten completed reports fill the feed (got %d)" % feed_size)
 	var snapshot := CareerScouting.snapshot(career, catalog)
 	_check((career.data.get("scouts", []) as Array).size() == 2,
 		"the two starting scouts are hired")
@@ -71,10 +71,16 @@ func _run() -> void:
 
 	_check(hub.card_count() == 4, "the hub shows four cards")
 	_check(hub.is_overlay() == false, "the landing is not an overlay")
-	_check(hub.page_count() == 2, "eight reports make two pages")
-	_check(hub.feed_page().size() == 6, "a page shows six report slots")
+	_check(hub.page_count() == 2, "ten reports make two pages")
+	_check(hub.feed_page().size() == 8, "a page shows eight report tiles")
 	var feed: Array = snapshot.get("feed", [])
 	_check(hub.feed_page()[0] == feed[0], "the first page starts at the newest report")
+	_check((hub.get_node("Reports").get("_slots")[0] as Node) is CareerPlayerCard,
+		"the report tiles are the shared player card")
+	var tile: CareerPlayerCard = hub.get_node("Reports").get("_slots")[0]
+	_check(tile.focus_mode == Control.FOCUS_NONE
+		and tile.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+		"the report tiles never take focus or hover")
 	_check(int(hub._counts.get("new", -1)) == int(snapshot["counts"].get("new", -2)),
 		"the NEW counter matches the snapshot")
 	_check(int(hub._counts.get("updates", -1)) == int(snapshot["counts"].get("updates", -2)),
@@ -95,7 +101,7 @@ func _run() -> void:
 	hub.call("_shift_page", 1)
 	await _frames(1)
 	_check(hub.page() == 1, "the pager moves the report feed forward")
-	_check(hub.feed_page()[0] == feed[6], "the second page starts at the seventh report")
+	_check(hub.feed_page()[0] == feed[8], "the second page starts at the ninth report")
 	hub.call("_shift_page", -1)
 	await _frames(1)
 	_check(hub.page() == 0, "the pager turns the page back")
@@ -232,11 +238,11 @@ func _seed_reports(career: Career) -> int:
 		return 0
 	var targets: Array = []
 	for player in catalog.career_squad(opponent_id):
-		if targets.size() >= 8:
+		if targets.size() >= 10:
 			break
 		targets.append(str(player.get("id", "")))
 	var next := 0
-	for round_index in 4:
+	for round_index in 5:
 		for scout in CareerScouting.assignable_scouts(career):
 			if next >= targets.size():
 				break

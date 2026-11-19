@@ -50,6 +50,9 @@ var _selected := false
 # The idle magenta rail; hosts that use the rail as an unread marker turn it off
 # for the entries that are already read.
 var _rail_idle := true
+# The host draws this card on its dark, focused tile (the transfers landing):
+# the card then paints the slot palette instead of inverting itself on focus.
+var _inverted := false
 
 var _bg: Panel
 var _rail: ColorRect
@@ -66,6 +69,7 @@ var _chip_panels: Array[PanelContainer] = []
 var _chip_labels: Array[Label] = []
 var _normal_box: StyleBoxFlat
 var _focused_box: StyleBoxFlat
+var _inverted_box: StyleBoxFlat
 
 
 # Portrait: the face texture bottom-centre, or the shared silhouette. The
@@ -203,6 +207,13 @@ func is_selected() -> bool:
 	return _selected
 
 
+# The host owns the focus (a card grid inside one focusable tile): repaint for
+# its dark surface without taking focus itself.
+func set_inverted(value: bool) -> void:
+	_inverted = value
+	_apply_state()
+
+
 # Build ----------------------------------------------------------------------
 
 func _build() -> void:
@@ -301,8 +312,9 @@ func _make_label(node_name: String, font: Font, font_size: int, color: Color) ->
 
 
 func _init_boxes() -> void:
-	_normal_box = _make_box(Color(UiTokens.INK, 0.055))
+	_normal_box = _make_box(Color(UiTokens.INK, 0.06))
 	_focused_box = _make_box(UiTokens.FOCUS_FILL)
+	_inverted_box = _make_box(Color(UiTokens.FOCUS_INK, 0.08))
 
 
 func _make_box(fill: Color) -> StyleBoxFlat:
@@ -427,14 +439,17 @@ func _apply_state() -> void:
 	if _bg == null:
 		return
 	var focused := has_focus()
-	_bg.add_theme_stylebox_override(&"panel", _focused_box if focused else _normal_box)
+	var dark := focused or _inverted
+	_bg.add_theme_stylebox_override(&"panel",
+		_focused_box if focused else (_inverted_box if _inverted else _normal_box))
 	_rail.visible = _rail_idle and (_selected or not focused)
-	var title := UiTokens.FOCUS_MARK if focused else UiTokens.INK
-	var body := UiTokens.FOCUS_INK_2 if focused else UiTokens.INK_2
+	var title := UiTokens.FOCUS_MARK if focused else (
+		UiTokens.FOCUS_INK if _inverted else UiTokens.INK)
+	var body := UiTokens.FOCUS_INK_2 if dark else UiTokens.INK_2
 	_name.add_theme_color_override(&"font_color", title)
 	_age.add_theme_color_override(&"font_color", body)
 	_pos.add_theme_color_override(&"font_color",
-		UiTokens.FOCUS_INK if focused else UiTokens.INK)
+		UiTokens.FOCUS_INK if dark else UiTokens.INK)
 	if _ovr_tile.visible:
 		# Focus inverts the whole card, so the chip inverts with it (the squad
 		# view paints a focused OVR FOCUS_INK for the same reason).
@@ -444,7 +459,7 @@ func _apply_state() -> void:
 		_ovr_tile_label.add_theme_color_override(&"font_color",
 			UiTokens.FOCUS_FILL if focused else UiTokens.FOCUS_INK)
 	for panel in _chip_panels:
-		panel.add_theme_stylebox_override(&"panel", _chip_box(focused))
+		panel.add_theme_stylebox_override(&"panel", _chip_box(dark))
 		for child in panel.get_children():
 			(child as Label).add_theme_color_override(&"font_color", body)
 
