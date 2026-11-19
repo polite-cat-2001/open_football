@@ -10,6 +10,8 @@ extends Control
 # filter and the host draws the hints bar from hints().
 
 signal closed
+# Hints changed (the sort modal opened/closed): the host redraws its bar.
+signal state_changed
 
 const TABS := [
 	{"id": "all", "label": "ALL LEAGUES"},
@@ -27,6 +29,17 @@ const STATUS_LABELS := {
 	"expired": "EXPIRED",
 }
 const TABS_H := 52.0
+const SORT_MODAL := preload("res://scripts/ui/career_sort_modal.gd")
+# The fields a deal feed can be ordered by (S / Y, the same modal as the search).
+const SORT_FIELDS := [
+	{"value": "date", "label": "DATE"},
+	{"value": "fee", "label": "FEE"},
+	{"value": "overall", "label": "OVR"},
+	{"value": "age", "label": "AGE"},
+	{"value": "height", "label": "HEIGHT"},
+	{"value": "position", "label": "POSITION"},
+	{"value": "player_name", "label": "PLAYER"},
+]
 const GAP := 8.0
 const HEAD_H := 22.0
 const ROW_H := 76.0
@@ -38,6 +51,8 @@ const ROW_PAD_L := 16.0
 const ROW_PAD_R := 12.0
 const PHOTO_COL := 56.0
 const OVR_COL := 56.0
+const AGE_COL := 46.0
+const HEIGHT_COL := 62.0
 const WIN := Color("2f7d4f")
 const WARN := Color("a66a00")
 
@@ -59,6 +74,8 @@ class Row extends Control:
 	var _fee: Label
 	var _ovr: Label
 	var _ovr_caption: Label
+	var _age: Label
+	var _height: Label
 	var _date: Label
 	var _status: Label
 
@@ -92,6 +109,10 @@ class Row extends Control:
 		_ovr_caption = _label(UiTheme.inter(600), 12, UiTokens.INK_2)
 		_ovr_caption.text = "OVR"
 		_ovr_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_age = _label(UiTheme.barlow(700), 18, UiTokens.INK)
+		_age.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_height = _label(UiTheme.inter(500), 14, UiTokens.INK_2)
+		_height.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_date = _label(UiTheme.inter(500), 14, UiTokens.INK_2)
 		_date.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		_status = _label(UiTheme.inter(600), 14, UiTokens.INK_2)
@@ -125,10 +146,12 @@ class Row extends Control:
 
 
 	# Shared with the column header: photo, name (1), clubs (1.7), fee (0.7),
-	# overall and date/status (0.8), mirroring the prototype's CSS grid.
+	# overall / age / height and date/status (0.8), mirroring the prototype's CSS
+	# grid plus the two sortable player facts.
 	static func column_widths(width: float) -> Array:
 		var inner := maxf(0.0, width - ROW_PAD_L - ROW_PAD_R)
-		var flex := maxf(0.0, inner - PHOTO_COL - OVR_COL - COL_GAP * 5.0)
+		var fixed := PHOTO_COL + OVR_COL + AGE_COL + HEIGHT_COL
+		var flex := maxf(0.0, inner - fixed - COL_GAP * 7.0)
 		var total := 4.2
 		var name_w := maxf(150.0, flex * (1.0 / total))
 		var clubs_w := maxf(200.0, flex * (1.7 / total))
@@ -137,7 +160,7 @@ class Row extends Control:
 		var overflow := name_w + clubs_w + fee_w + date_w - flex
 		if overflow > 0.0:
 			clubs_w = maxf(120.0, clubs_w - overflow)
-		return [PHOTO_COL, name_w, clubs_w, fee_w, OVR_COL, date_w]
+		return [PHOTO_COL, name_w, clubs_w, fee_w, OVR_COL, AGE_COL, HEIGHT_COL, date_w]
 
 
 	func setup(entry: Dictionary, from_logo: Texture2D, to_logo: Texture2D) -> void:
@@ -159,6 +182,10 @@ class Row extends Control:
 		_fee.text = CareerPlayerPane.money(int(entry.get("fee", 0)))
 		var ovr := int(round(float(entry.get("overall", 0.0))))
 		_ovr.text = str(ovr)
+		var age := int(entry.get("age", 0))
+		_age.text = str(age) if age > 0 else "—"
+		var height := int(entry.get("height", 0))
+		_height.text = "%d CM" % height if height > 0 else "—"
 		var status := str(entry.get("status", ""))
 		_status.text = str(STATUS_LABELS.get(status, status.to_upper()))
 		_date.text = CareerHubModel.short_date(str(entry.get("date", "")))
@@ -222,10 +249,16 @@ class Row extends Control:
 		_ovr_caption.position = Vector2(x, 40.0)
 		_ovr_caption.size = Vector2(widths[4], 16.0)
 		x += widths[4] + COL_GAP
+		_age.position = Vector2(x, (size.y - 22.0) * 0.5)
+		_age.size = Vector2(widths[5], 22.0)
+		x += widths[5] + COL_GAP
+		_height.position = Vector2(x, (size.y - 22.0) * 0.5)
+		_height.size = Vector2(widths[6], 22.0)
+		x += widths[6] + COL_GAP
 		_date.position = Vector2(x, 18.0)
-		_date.size = Vector2(widths[5], 18.0)
+		_date.size = Vector2(widths[7], 18.0)
 		_status.position = Vector2(x, 40.0)
-		_status.size = Vector2(widths[5], 18.0)
+		_status.size = Vector2(widths[7], 18.0)
 
 
 	func _apply_state() -> void:
@@ -242,12 +275,12 @@ class Row extends Control:
 		_rail.visible = not focused
 		_name.add_theme_color_override(&"font_color",
 			UiTokens.FOCUS_MARK if focused else UiTokens.INK)
-		for label in [_meta, _from_label, _arrow, _ovr_caption, _date]:
+		for label in [_meta, _from_label, _arrow, _ovr_caption, _height, _date]:
 			label.add_theme_color_override(&"font_color",
 				UiTokens.FOCUS_INK_2 if focused else UiTokens.INK_2)
 		_to_label.add_theme_color_override(&"font_color",
 			UiTokens.FOCUS_INK if focused else UiTokens.INK)
-		for label in [_fee, _ovr]:
+		for label in [_fee, _ovr, _age]:
 			label.add_theme_color_override(&"font_color",
 				UiTokens.FOCUS_INK if focused else UiTokens.INK)
 		var status := str(_entry.get("status", ""))
@@ -277,6 +310,9 @@ var _tab_bar: UiTabBar
 var _leagues: Dictionary = {}
 var _filter_index := 0
 var _focus_row := -1
+var _sort := "date"
+var _direction := "desc"
+var _sort_modal: Control
 
 var _head: Panel
 var _head_labels: Array[Label] = []
@@ -324,6 +360,8 @@ func close() -> void:
 	for tween in [_appear_tween, _list_tween]:
 		if tween != null and tween.is_valid():
 			tween.kill()
+	if _sort_modal != null:
+		_sort_modal.call("dismiss")
 	set_process(false)
 	release_focus()
 
@@ -341,14 +379,28 @@ func hints() -> Array:
 	var nav := _ui_nav()
 	if nav != null:
 		gamepad = nav.using_gamepad()
+	if _sort_modal != null and bool(_sort_modal.call("is_open")):
+		return [
+			{"keys": ["D-PAD"] if gamepad else ["↑", "↓"], "label": "change"},
+			{"keys": ["A"] if gamepad else ["ENTER"], "label": "confirm"},
+			{"keys": ["B"] if gamepad else ["ESC"], "label": "close"},
+		]
 	return [
 		{"keys": ["D-PAD"] if gamepad else ["↑", "↓"], "label": "navigate"},
 		{"keys": ["LB", "RB"] if gamepad else ["Q", "E"], "label": "filter"},
+		{"keys": ["Y"] if gamepad else ["S"], "label": "sort"},
 		{"keys": ["B"] if gamepad else ["ESC"], "label": "back"},
 	]
 
 
 # Test seams ----------------------------------------------------------------
+
+func sort_key() -> String:
+	return _sort
+
+
+func sort_direction() -> String:
+	return _direction
 
 func row_count() -> int:
 	return _rows.size()
@@ -400,7 +452,7 @@ func _build() -> void:
 	head_box.border_width_bottom = 1
 	_head.add_theme_stylebox_override(&"panel", head_box)
 	add_child(_head)
-	for text in ["", "PLAYER", "CLUBS", "FEE", "OVR", "DATE / STATUS"]:
+	for text in ["", "PLAYER", "CLUBS", "FEE", "OVR", "AGE", "HEIGHT", "DATE / STATUS"]:
 		var label := Label.new()
 		label.text = text
 		label.clip_text = true
@@ -413,7 +465,9 @@ func _build() -> void:
 		_head_labels.append(label)
 	_head_labels[3].horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_head_labels[4].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_head_labels[5].horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_head_labels[5].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_head_labels[6].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_head_labels[7].horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 
 	_scroll = ScrollContainer.new()
 	_scroll.name = "List"
@@ -450,6 +504,12 @@ func _build() -> void:
 	_empty_text.add_theme_font_size_override(&"font_size", 15)
 	_empty_text.add_theme_color_override(&"font_color", UiTokens.INK_2)
 	_empty.add_child(_empty_text)
+
+	_sort_modal = SORT_MODAL.new()
+	_sort_modal.name = "SortModal"
+	_sort_modal.applied.connect(_on_sort_applied)
+	_sort_modal.closed.connect(func() -> void: state_changed.emit())
+	add_child(_sort_modal)
 
 
 func _layout() -> void:
@@ -527,7 +587,7 @@ func _filtered() -> Array:
 		return []
 	var filter := str(TABS[_filter_index]["id"])
 	if filter == "all":
-		return _all_rows.duplicate()
+		return _sorted(_all_rows.duplicate())
 	var result: Array = []
 	for row in _all_rows:
 		if not (row is Dictionary):
@@ -536,7 +596,41 @@ func _filtered() -> Array:
 			result.append(row)
 		elif filter == "club" and _in_club(row, career.club_id):
 			result.append(row)
-	return result
+	return _sorted(result)
+
+
+# Orders the feed the way the sort modal asked; DATE descending is the natural
+# newest-first order the ledger already arrives in. Equal keys fall back to the
+# rating (best first), then to the freshest deal.
+func _sorted(rows: Array) -> Array:
+	var asc := _direction == "asc"
+	var by_text := _sort == "date" or _sort == "player_name"
+	var key := "position_order" if _sort == "position" else _sort
+	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var left = a.get(key)
+		var right = b.get(key)
+		var same := false
+		if by_text:
+			var l_text := str(left) if left != null else ""
+			var r_text := str(right) if right != null else ""
+			same = l_text == r_text
+			if not same:
+				return l_text < r_text if asc else l_text > r_text
+		else:
+			var l_num := float(left) if left != null else 0.0
+			var r_num := float(right) if right != null else 0.0
+			same = is_equal_approx(l_num, r_num)
+			if not same:
+				return l_num < r_num if asc else l_num > r_num
+		var l_ovr := float(a.get("overall", 0.0))
+		var r_ovr := float(b.get("overall", 0.0))
+		if not is_equal_approx(l_ovr, r_ovr):
+			return l_ovr > r_ovr
+		if str(a.get("date", "")) != str(b.get("date", "")):
+			return str(a.get("date", "")) > str(b.get("date", ""))
+		# Fully equal rows keep a fixed order, so a rebuild never reshuffles them.
+		return str(a.get("id", "")) < str(b.get("id", "")))
+	return rows
 
 
 func _rebuild(animate: bool) -> void:
@@ -687,12 +781,47 @@ func _on_tab_next() -> void:
 func _input(event: InputEvent) -> void:
 	if not _is_active():
 		return
+	if _is_key(event, KEY_S) or _is_gamepad_y(event):
+		get_viewport().set_input_as_handled()
+		call_deferred("_open_sort")
+		return
 	if _is_key(event, KEY_Q):
 		get_viewport().set_input_as_handled()
 		_cycle_filter(-1)
 	elif _is_key(event, KEY_E):
 		get_viewport().set_input_as_handled()
 		_cycle_filter(1)
+
+
+func _is_gamepad_y(event: InputEvent) -> bool:
+	if not (event is InputEventJoypadButton):
+		return false
+	var button := event as InputEventJoypadButton
+	return button.pressed and button.button_index == JOY_BUTTON_Y
+
+
+# Sort -----------------------------------------------------------------------
+
+func _open_sort() -> void:
+	if _sort_modal == null or bool(_sort_modal.call("is_open")):
+		return
+	if not is_inside_tree() or not is_visible_in_tree():
+		return
+	_sort_modal.call("open", _sort, _direction, SORT_FIELDS, "SORT TRANSFERS")
+	state_changed.emit()
+
+
+func _on_sort_applied(sort: String, direction: String) -> void:
+	_sort = sort
+	_direction = direction
+	_rebuild(true)
+	# The focused row is rebuilt; keep the keyboard on the tabs.
+	_focus_tab(_filter_index)
+
+
+func _exit_tree() -> void:
+	if _sort_modal != null:
+		_sort_modal.call("dismiss")
 
 
 func _is_key(event: InputEvent, code: Key) -> bool:

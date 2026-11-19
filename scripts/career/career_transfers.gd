@@ -143,15 +143,15 @@ static func history_rows(career: Career, catalog: TeamCatalog) -> Array:
 		market.resize(room)
 	entries.append_array(market)
 	entries.sort_custom(_newest_first)
-	var roles := {}
+	var facts := {}
 	if catalog != null:
 		var ids: Array = []
 		for record in entries:
 			ids.append(record.get("player_id", ""))
-		roles = catalog.career_player_roles(ids)
+		facts = catalog.career_player_facts(ids, career.date)
 	var rows: Array = []
 	for record in entries:
-		rows.append(_history_row(roles, catalog, record))
+		rows.append(_history_row(facts, catalog, record))
 	return rows
 
 
@@ -183,7 +183,7 @@ static func _record_id(record: Dictionary) -> String:
 	return id if not id.is_empty() else str(record.get("player_id", ""))
 
 
-static func _history_row(roles: Dictionary, catalog: TeamCatalog,
+static func _history_row(facts: Dictionary, catalog: TeamCatalog,
 		record: Dictionary) -> Dictionary:
 	var player_id := str(record.get("player_id", ""))
 	# The AI ledger stores the name itself; the club's own records carry only the
@@ -192,9 +192,10 @@ static func _history_row(roles: Dictionary, catalog: TeamCatalog,
 	if str(record.get("player_name", "")).is_empty() and catalog != null \
 			and player_id.is_valid_int():
 		player = catalog.career_player(int(player_id), false)
-	var role := str(player.get("role", ""))
-	if role.is_empty() and player_id.is_valid_int():
-		role = str(roles.get(int(player_id), ""))
+	var fact: Dictionary = facts.get(int(player_id), {}) if player_id.is_valid_int() else {}
+	var role := str(fact.get("role", ""))
+	if role.is_empty():
+		role = str(player.get("role", ""))
 	var from_club := _club(catalog, record.get("from_club_id"))
 	var to_club := _club(catalog, record.get("to_club_id"))
 	return {
@@ -203,6 +204,10 @@ static func _history_row(roles: Dictionary, catalog: TeamCatalog,
 		"player_name": str(record.get("player_name", player.get("name", ""))),
 		"photo": int(player_id) if player_id.is_valid_int() else 0,
 		"role": role,
+		# Sort keys for the history's AGE / POSITION / HEIGHT fields.
+		"age": int(fact.get("age", player.get("age", 0))),
+		"height": int(fact.get("height", player.get("height", 0))),
+		"position_order": int(CareerSearch.ROLE_ORDER.get(role, 99)),
 		"overall": roundf(float(record.get("overall", player.get("overall", 0.0))) * 10.0) / 10.0,
 		"from_club_id": record.get("from_club_id"),
 		"from_club_name": str(from_club.get("name", "")),

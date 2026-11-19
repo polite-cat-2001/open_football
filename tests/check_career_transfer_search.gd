@@ -1,7 +1,9 @@
 extends SceneTree
 # Headless golden check for the career transfer search (ticket 07): filters,
 # sorting, paging, fog of war, the player profile and the filter reference.
-# The fixture comes from the prototype app (tmp/oracle_transfers.py).
+# The fixture comes from the prototype app (tmp/oracle_transfers.py). Its
+# tie-heavy cases (free agents by age, Real Madrid by position) follow our
+# rating tie-break inside a sort category, which the prototype did not have.
 #
 # Run:  godot --headless --path . -s res://tests/check_career_transfer_search.gd
 
@@ -191,6 +193,50 @@ func _run() -> void:
 	expected_heights.sort()
 	expected_heights.reverse()
 	_check(heights == expected_heights, "the height sort orders the tallest first")
+
+	# Inside one category the rating breaks the tie: best first. The own squad is
+	# fully scouted, so the item's rating is the one the query ordered by.
+	var by_position := CareerSearch.search(catalog, career,
+		{"club": str(career.club_id), "sort": "position", "direction": "asc"}, 40, 0)
+	var own_items: Array = by_position.get("items", [])
+	var previous := ""
+	var previous_ovr := 9999.0
+	var tie_ordered := true
+	for item in own_items:
+		var code := str((item as Dictionary).get("position", ""))
+		var ovr := float((item as Dictionary).get("overall", 0.0))
+		if code != previous:
+			previous = code
+			previous_ovr = 9999.0
+		if ovr > previous_ovr:
+			tie_ordered = false
+		previous_ovr = ovr
+	_check(own_items.size() > 5 and tie_ordered,
+		"equal positions fall back to the best rating first")
+
+	# The tie-heavy golden cases now follow our tie-break, so the ordering rules
+	# themselves are checked here: age asc and the position ranks stay monotone.
+	var by_age := CareerSearch.search(catalog, career, {"sort": "age", "direction": "asc"}, 40, 0)
+	var ages: Array[int] = []
+	for item in by_age.get("items", []):
+		ages.append(int((item as Dictionary).get("age", 0)))
+	var age_ordered := true
+	for index in range(1, ages.size()):
+		if ages[index] < ages[index - 1]:
+			age_ordered = false
+	_check(age_ordered, "the age sort orders the youngest first")
+	var all_by_position := CareerSearch.search(catalog, career,
+		{"sort": "position", "direction": "asc"}, 40, 0)
+	var groups: Array[String] = []
+	var group_rank := {"GK": 0, "DEF": 1, "MID": 2, "FWD": 3}
+	for item in all_by_position.get("items", []):
+		groups.append(str((item as Dictionary).get("position_group", "")))
+	var group_ordered := true
+	for index in range(1, groups.size()):
+		if int(group_rank.get(groups[index], 9)) \
+				< int(group_rank.get(groups[index - 1], 9)):
+			group_ordered = false
+	_check(group_ordered, "the position sort keeps keepers/defenders/midfielders/forwards")
 
 	# The cached result must follow status changes that keep the map size.
 	var squad_ids: Array = career.player_ids.duplicate()

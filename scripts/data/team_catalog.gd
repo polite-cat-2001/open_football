@@ -311,34 +311,46 @@ func career_players_by_ids(player_ids: Array, with_stats := true) -> Array:
 	return players
 
 
-func career_player_roles(player_ids: Array) -> Dictionary:
-	# Roles for a whole list in one statement: the transfer history wants a role
-	# per row, and a `career_player` call per row cost 200 statements a screen.
-	# Same fallback as `_career_player_from_row` (career_role, then role).
-	var roles := {}
+func career_player_facts(player_ids: Array, today: String) -> Dictionary:
+	# The sort keys of a whole feed in one statement: role, age and height. The
+	# history orders by them and must not read a player per row. The age follows
+	# the birth date relative to the career date, like the search's own sort.
+	var facts := {}
 	var ids: Array = []
 	for raw_id in player_ids:
 		var key := str(raw_id)
-		if not key.is_valid_int() or roles.has(int(key)):
+		if not key.is_valid_int() or facts.has(int(key)):
 			continue
-		roles[int(key)] = ""
+		facts[int(key)] = {"role": "", "age": 0, "height": 0}
 		ids.append(int(key))
 	if ids.is_empty():
-		return roles
+		return facts
 	var db := sql_query()
 	if db == null:
-		return roles
+		return facts
 	var placeholders := PackedStringArray()
 	for _index in ids.size():
 		placeholders.append("?")
+	var age_expr := "CASE WHEN p.birth_date IS NULL OR p.birth_date = '' THEN p.age"
+	age_expr += " ELSE CAST((julianday(?) - julianday(p.birth_date)) / 365.2425 AS INTEGER) END"
+	var params: Array = [today]
+	params.append_array(ids)
 	var rows: Array = db.call("select",
-		"SELECT p.id AS id, p.career_role AS career_role, p.role AS role"
-		+ " FROM players p WHERE p.id IN (%s)" % ", ".join(placeholders), ids)
+		"SELECT p.id AS id, p.career_role AS career_role, p.role AS role,"
+		+ " %s AS age, p.height_cm AS height_cm, p.height AS height" % age_expr
+		+ " FROM players p WHERE p.id IN (%s)" % ", ".join(placeholders), params)
 	for raw_row in rows:
 		var row := raw_row as Dictionary
 		var role := _text(row.get("career_role"))
-		roles[int(row.get("id", 0))] = role if not role.is_empty() else _text(row.get("role"))
-	return roles
+		if role.is_empty():
+			role = _text(row.get("role"))
+		facts[int(row.get("id", 0))] = {
+			"role": role,
+			"age": _int(row.get("age")),
+			"height": _int(row.get("height_cm")) if _int(row.get("height_cm")) > 0 \
+				else int(round(_float(row.get("height"), 1.8) * 100.0)),
+		}
+	return facts
 
 
 func sql_query() -> RefCounted:

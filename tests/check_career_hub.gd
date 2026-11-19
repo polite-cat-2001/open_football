@@ -399,6 +399,23 @@ func _run() -> void:
 	_check(tab_bar.visible and not breadcrumb.visible,
 		"the strip comes back with the section")
 
+	# A sub-screen opened while the strip still owns the zone keeps the arrows
+	# for itself: it used to page the main tabs and close the screen on the
+	# first visit.
+	hub.call("_set_section", 2, 1)
+	hub.call("_focus_tabs")
+	await _frames(3)
+	transfers_view.call("_show", "filters", {})
+	await _frames(6)
+	nav.moved.emit(Vector2i.RIGHT)
+	await _frames(6)
+	_check(tab_bar.get_active_tab() == 2 and transfers_view.current_view() == "filters",
+		"an arrow in a transfers sub-screen pages the screen, not the main tabs")
+	nav.cancelled.emit()
+	await _frames(6)
+	hub.call("_set_section", 0, -1)
+	await _frames(4)
+
 	nav.tab_next.emit()
 	await _frames(3)
 	var save_key := InputEventKey.new()

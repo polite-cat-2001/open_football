@@ -116,9 +116,64 @@ func _run() -> void:
 		"the from club name resolves from the catalog")
 
 	var hints: Array = screen.hints()
-	_check(hints.size() == 3 and str(hints[1]["label"]) == "filter"
-		and hints[1]["keys"] == ["Q", "E"] and hints[2]["keys"] == ["ESC"],
-		"the history advertises navigation/filter/back")
+	_check(hints.size() == 4 and str(hints[1]["label"]) == "filter"
+		and hints[1]["keys"] == ["Q", "E"] and hints[2]["keys"] == ["S"]
+		and hints[3]["keys"] == ["ESC"],
+		"the history advertises navigation/filter/sort/back")
+
+	# Sort: the same modal as the search, with the deal fields.
+	var sort_modal = screen.get("_sort_modal")
+	screen._input(_key(KEY_S))
+	await _frames(2)
+	_check(bool(sort_modal.call("is_open")), "S opens the sort modal")
+	_check(str(sort_modal.get("_title")) == "SORT TRANSFERS",
+		"the modal is titled for the history")
+	sort_modal.call("close")
+	await _frames(2)
+	screen.call("_on_sort_applied", "fee", "desc")
+	await _frames(2)
+	var by_fee: Array = screen.visible_rows()
+	_check(int(by_fee[0].get("fee", 0)) == 50000000
+		and int(by_fee[by_fee.size() - 1].get("fee", 0)) == 0,
+		"FEE descending puts the biggest deal first")
+	_check(screen.sort_key() == "fee" and screen.sort_direction() == "desc",
+		"the chosen sort is kept")
+	# AGE / HEIGHT / POSITION are numeric keys; equal keys fall back to the rating.
+	for spec in [["age", "asc"], ["height", "desc"], ["position", "asc"]]:
+		screen.call("_on_sort_applied", str(spec[0]), str(spec[1]))
+		await _frames(2)
+		var key := "position_order" if str(spec[0]) == "position" else str(spec[0])
+		var values: Array = []
+		for row in screen.visible_rows():
+			values.append(float((row as Dictionary).get(key, 0)))
+		var ordered := true
+		for index in range(1, values.size()):
+			if str(spec[1]) == "asc" and values[index] < values[index - 1]:
+				ordered = false
+			if str(spec[1]) == "desc" and values[index] > values[index - 1]:
+				ordered = false
+		_check(ordered, "the %s sort orders the feed" % str(spec[0]))
+	# The age follows the birth date and the career date, like the search's own
+	# AGE_EXPR: compare against what the search reports for the same player.
+	var sample: Dictionary = {}
+	for row in screen.visible_rows():
+		if career.player_ids.has(str((row as Dictionary).get("player_id", ""))):
+			sample = row
+			break
+	_check(not sample.is_empty(), "the feed has an own-club deal to check")
+	if not sample.is_empty():
+		var sample_id := str(sample.get("player_id", ""))
+		var own_page := CareerSearch.search(catalog, career,
+			{"club": str(career.club_id)}, 40, 0)
+		var search_age := -1
+		for item in own_page.get("items", []):
+			if str((item as Dictionary).get("player_id", "")) == sample_id:
+				search_age = int((item as Dictionary).get("age", 0))
+				break
+		_check(search_age > 0 and int(sample.get("age", 0)) == search_age,
+			"the history age matches the search")
+	screen.call("_on_sort_applied", "date", "desc")
+	await _frames(2)
 
 	screen.focus_initial()
 	await _frames(1)

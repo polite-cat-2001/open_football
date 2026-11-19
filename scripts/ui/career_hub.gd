@@ -841,6 +841,10 @@ func _on_transfers_opening(view: String) -> void:
 	breadcrumb.set_items(transfers_view.breadcrumb(view))
 	breadcrumb.position = Vector2.ZERO
 	_set_tabs_row(false, true)
+	# The sub-screen owns the keys now: leave the tab-strip zone, otherwise an
+	# arrow pages the main sections (and closes the screen) instead of the screen
+	# itself.
+	_zone = Zone.GRID
 
 
 func _on_transfers_changed() -> void:

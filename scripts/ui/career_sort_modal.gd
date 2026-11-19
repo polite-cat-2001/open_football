@@ -33,10 +33,15 @@ var _sort := "overall"
 var _direction := "desc"
 var _focus := 0
 var _open := false
+# The caller picks the field list and the heading (player search, history…);
+# the search's own list is the default.
+var _fields: Array = FIELDS
+var _title := "SORT PLAYERS"
 
 var _scrim: ColorRect
 var _window_scrim: ColorRect
 var _card: PanelContainer
+var _title_label: Label
 var _rows: Array = []
 var _confirm_panel: PanelContainer
 var _confirm_label: Label
@@ -54,10 +59,13 @@ func _ready() -> void:
 	call_deferred("_layout")
 
 
-func open(sort: String, direction: String) -> void:
+func open(sort: String, direction: String, fields: Array = [],
+		title := "SORT PLAYERS") -> void:
 	if _open:
 		return
-	_sort = _option_value(FIELDS, sort, "overall")
+	_fields = FIELDS if fields.is_empty() else fields
+	_title = title
+	_sort = _option_value(_fields, sort, str(_fields[0]["value"]))
 	_direction = _option_value(DIRECTIONS, direction, "asc")
 	_focus = 0
 	_refresh()
@@ -180,6 +188,7 @@ func _build() -> void:
 
 	var title := Label.new()
 	title.name = "Title"
+	_title_label = title
 	title.text = "SORT PLAYERS"
 	title.add_theme_font_override(&"font", UiTheme.barlow(700))
 	title.add_theme_font_size_override(&"font_size", 26)
@@ -257,8 +266,9 @@ func _make_arrow(text: String) -> Label:
 func _refresh() -> void:
 	if _rows.is_empty():
 		return
+	_title_label.text = _title
 	var values := [
-		_option_label(FIELDS, _sort, "OVR"),
+		_option_label(_fields, _sort, "OVR"),
 		_option_label(DIRECTIONS, _direction, "ASCENDING"),
 	]
 	for index in _rows.size():
@@ -323,7 +333,7 @@ func _option_label(options: Array, value: String, fallback: String) -> String:
 
 func _step(index: int, delta: int) -> void:
 	if index == 0:
-		_sort = _cycle(FIELDS, _sort, delta)
+		_sort = _cycle(_fields, _sort, delta)
 	elif index == 1:
 		_direction = _cycle(DIRECTIONS, _direction, delta)
 	else:

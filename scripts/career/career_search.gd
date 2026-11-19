@@ -292,13 +292,15 @@ static func _build_query(career: Career, filters: Dictionary) -> Dictionary:
 				+ "WHEN %s <= 23 THEN 1.1 WHEN %s <= 28 THEN 1.0 " \
 				+ "WHEN %s <= 31 THEN 0.9 ELSE 0.8 END) END") % [AGE_EXPR, AGE_EXPR, AGE_EXPR]
 			order_params.append_array([career.date, career.date, career.date])
-	# Nulls sort last in both directions, then the lowercased name and the id
-	# break ties (the engine compares ids as text, like the old comparator).
+	# Nulls sort last in both directions, then the rating breaks ties inside the
+	# chosen category, then the lowercased name and the id (the engine compares
+	# ids as text, like the old comparator).
+	var overall_break := "" if sort_key == "overall" else ", p.overall DESC"
 	return {
 		"where": " AND ".join(clauses) if not clauses.is_empty() else "1",
 		"params": params,
-		"order": "(%s IS NULL) ASC, %s %s, n.low ASC, CAST(p.id AS TEXT) ASC"
-			% [order_expr, order_expr, direction],
+		"order": ("(%s IS NULL) ASC, %s %s%s, n.low ASC, CAST(p.id AS TEXT) ASC"
+			% [order_expr, order_expr, direction, overall_break]),
 		"order_params": order_params + order_params,
 		"join": join_teams,
 	}
