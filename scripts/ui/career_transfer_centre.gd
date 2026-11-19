@@ -41,6 +41,8 @@ const CARD_GAP := 8.0
 const COLUMNS := 2
 const LOAD_ERRORS := 26.0
 const DETAIL_RATIO := 1.35 / 2.15
+# A short beat between a folding accordion and the action it was asked for.
+const ACTION_GAP := 0.08
 
 
 # Right-hand offer detail (prototype SentOfferDetail / ReceivedOfferDetail):
@@ -505,11 +507,27 @@ class ListedRow extends Control:
 		if _open == value:
 			return
 		_open = value
-		_build_accordion()
+		if _open:
+			_build_accordion()
+			_sync_height(true)
+			_apply_state()
+			_play_open()
+			return
+		# Closing keeps the body while the plate folds, so the collapse is visible.
 		_sync_height(true)
 		_apply_state()
-		if _open:
-			_play_open()
+		_play_close()
+
+
+	# Fold the panel down and come back when the animation is over, so a host can
+	# run its action only after the accordion is gone.
+	func fold() -> void:
+		if not _open:
+			return
+		set_open(false)
+		if UiTransition.instant or _height_tween == null:
+			return
+		await _height_tween.finished
 
 
 	func is_open() -> bool:
@@ -720,6 +738,17 @@ class ListedRow extends Control:
 		_tween.tween_property(_acc, "modulate:a", 1.0, UiTokens.SCREEN_OUT)
 
 
+	# The body fades out while the row folds; _sync_height hides it at the end.
+	func _play_close() -> void:
+		if _tween != null and _tween.is_valid():
+			_tween.kill()
+		if UiTransition.instant or _acc == null:
+			_acc.visible = false
+			return
+		_tween = create_tween()
+		_tween.tween_property(_acc, "modulate:a", 0.0, 0.16)
+
+
 	func _apply_state() -> void:
 		if _bg == null:
 			return
@@ -766,6 +795,8 @@ var _focus_row := -1
 var _resume_actions := false
 var _selected_id := ""
 var _open_id := ""
+# An action waits for its accordion to fold before the screen changes.
+var _folding := false
 var _unread := 0
 var _error := ""
 
@@ -1607,6 +1638,21 @@ func _ack(index: int) -> void:
 # Actions -------------------------------------------------------------------
 
 func _on_row_action_requested(id: String) -> void:
+	# Fold the accordion first, then run the action: navigating (or rebuilding
+	# the row) inside the press killed the closing animation.
+	if _folding:
+		return
+	var node = _open_node()
+	if node != null and node.is_open():
+		var row_id := _open_id
+		_folding = true
+		await node.fold()
+		# A beat after the fold, so the action does not land on a collapsing row.
+		if not UiTransition.instant:
+			await get_tree().create_timer(ACTION_GAP).timeout
+		_folding = false
+		if _open_id != row_id:
+			return
 	match _tab:
 		"sent":
 			_sent_action(id)

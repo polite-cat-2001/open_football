@@ -26,6 +26,8 @@ const HEAD_H := 20.0
 const HEAD_GAP := 8.0
 const ROW_MIN_H := 166.0
 const ACTION_GAP := 2.0
+# A short beat between the folded plate and the action it was asked for.
+const CLOSE_GAP := 0.08
 const DOT := 7.0
 
 var career: Career
@@ -370,6 +372,10 @@ func _on_close_finished() -> void:
 	if not _pending.is_empty():
 		var action := _pending
 		_pending = ""
+		# A beat after the fold, so the screen does not open on a collapsing plate.
+		var transition := get_node_or_null("/root/UiTransition")
+		if transition != null and not bool(transition.get("instant")):
+			await get_tree().create_timer(CLOSE_GAP).timeout
 		action_requested.emit(action, _player_id)
 
 

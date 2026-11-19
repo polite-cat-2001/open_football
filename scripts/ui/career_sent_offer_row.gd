@@ -94,11 +94,27 @@ func set_open(value: bool) -> void:
 	if _open == value:
 		return
 	_open = value
-	_build_accordion()
+	if _open:
+		_build_accordion()
+		_sync_height(true)
+		_apply_state()
+		_play_open()
+		return
+	# Closing keeps the body while the plate folds, so the collapse is visible.
 	_sync_height(true)
 	_apply_state()
-	if _open:
-		_play_open()
+	_play_close()
+
+
+# Fold the panel down and come back when the animation is over, so a host can
+# run its action only after the accordion is gone.
+func fold() -> void:
+	if not _open:
+		return
+	set_open(false)
+	if UiTransition.instant or _height_tween == null:
+		return
+	await _height_tween.finished
 
 
 func is_open() -> bool:
@@ -527,6 +543,21 @@ func _play_open() -> void:
 	_tween = create_tween().set_parallel(true)
 	_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_tween.tween_property(_acc, "modulate:a", 1.0, UiTokens.SCREEN_OUT)
+
+
+func _play_close() -> void:
+	if _tween != null and _tween.is_valid():
+		_tween.kill()
+	var transition := get_node_or_null("/root/UiTransition")
+	if _acc == null or (transition != null and bool(transition.get("instant"))):
+		if _acc != null:
+			_acc.visible = false
+		return
+	_tween = create_tween()
+	_tween.tween_property(_acc, "modulate:a", 0.0, 0.16)
+	_tween.finished.connect(func() -> void:
+		if not _open and _acc != null:
+			_acc.visible = false)
 
 
 # Input ----------------------------------------------------------------------
