@@ -16,7 +16,6 @@ const GAP := 10.0
 const PAD := 14.0
 const CARD_GAP := 8.0
 const COLUMNS := 2
-const STRIP_H := 58.0
 
 const EMPTY := {
 	"requests": ["NO REQUESTED REPORTS YET",
@@ -42,11 +41,8 @@ var _grid: GridContainer
 var _empty: Label
 var _right: Control
 var _detail_bg: Panel
-var _strip: PanelContainer
-var _badge: Label
-var _footer: Label
 var _pane: CareerPlayerPane
-var _cards: Array[CareerScoutReportCard] = []
+var _cards: Array[CareerPlayerCard] = []
 
 
 func _ready() -> void:
@@ -170,40 +166,10 @@ func _build() -> void:
 	detail_box.shadow_offset = Vector2(0.0, 24.0)
 	_detail_bg.add_theme_stylebox_override(&"panel", detail_box)
 	_right.add_child(_detail_bg)
-	_strip = PanelContainer.new()
-	_strip.add_theme_stylebox_override(&"panel", _strip_box())
-	_right.add_child(_strip)
-	var strip_column := VBoxContainer.new()
-	strip_column.add_theme_constant_override(&"separation", 2)
-	_strip.add_child(strip_column)
-	_badge = Label.new()
-	_badge.add_theme_font_override(&"font", UiTheme.inter(700))
-	_badge.add_theme_font_size_override(&"font_size", 15)
-	strip_column.add_child(_badge)
-	_footer = Label.new()
-	_footer.add_theme_font_override(&"font", UiTheme.inter(500))
-	_footer.add_theme_font_size_override(&"font_size", 15)
-	_footer.add_theme_color_override(&"font_color", UiTokens.INK_2)
-	_footer.clip_text = true
-	_footer.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	strip_column.add_child(_footer)
 
 	_pane = CareerPlayerPane.new()
 	_pane.name = "Pane"
 	_right.add_child(_pane)
-
-
-func _strip_box() -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = UiTokens.TILE
-	box.shadow_color = UiTokens.SHADOW
-	box.shadow_size = 24
-	box.shadow_offset = Vector2(0.0, 16.0)
-	box.content_margin_left = 14.0
-	box.content_margin_right = 14.0
-	box.content_margin_top = 8.0
-	box.content_margin_bottom = 8.0
-	return box
 
 
 func _sync_tabs(filters: Array) -> void:
@@ -231,14 +197,17 @@ func _rebuild_cards() -> void:
 	for entry in _entries:
 		if not (entry is Dictionary):
 			continue
-		var card := CareerScoutReportCard.new()
+		# The same tile as the transfer search: one card component, two screens.
+		var card := CareerPlayerCard.new()
 		_grid.add_child(card)
-		card.setup(entry)
+		var player: Dictionary = entry.get("player", {}) if entry.get("player") is Dictionary \
+			else {}
+		# The rail marks an unread report; read entries lose it.
+		card.setup(player, {"rail": not bool(entry.get("acknowledged", false))})
 		# `pressed` carries the player id, so the handler takes it as well (a
 		# no-argument lambda raised and swallowed every mouse click).
 		card.pressed.connect(_activate_card)
-		card.focus_entered.connect(
-			func() -> void: entry_focused.emit(card.player_id()))
+		card.focus_entered.connect(_on_card_focused.bind(card))
 		_cards.append(card)
 	var empty := _entries.is_empty()
 	_grid.visible = not empty
@@ -260,19 +229,9 @@ func _apply_selection() -> void:
 		else {}
 	var has_player := not player.is_empty()
 	_pane.visible = has_player
-	_strip.visible = has_player
 	if not has_player:
 		return
 	_pane.setup(player, {"date": _date})
-	var acknowledged := bool(entry.get("acknowledged", false))
-	var kind := str(entry.get("kind", "report"))
-	_badge.text = "NEW" if not acknowledged else (
-		"RECOMMENDATION" if kind == "recommendation" else "SCOUT REPORT")
-	_badge.add_theme_color_override(&"font_color",
-		UiTokens.RAIL if not acknowledged else UiTokens.INK_2)
-	_footer.text = "%s · %s · %s" % [
-		"SCOUT REPORT READY" if kind == "report" else "PLAYER FOUND",
-		str(entry.get("scout_name", "")), _date_label(str(entry.get("date", "")))]
 
 
 func _entry_for(player_id: String) -> Dictionary:
@@ -300,6 +259,13 @@ func _activate_card(player_id: String) -> void:
 	entry_activated.emit(player_id)
 
 
+# The ScrollContainer does not follow keyboard focus by itself, so the card that
+# takes focus is scrolled into view (same as the transfer results grid).
+func _on_card_focused(card: Control) -> void:
+	_scroll.ensure_control_visible.call_deferred(card)
+	entry_focused.emit((card as CareerPlayerCard).player_id())
+
+
 func _layout() -> void:
 	if _left == null or size.x <= 0.0:
 		return
@@ -325,10 +291,8 @@ func _layout() -> void:
 	_empty.position = Vector2(PAD, list_top + 8.0)
 	_empty.size = Vector2(inner, 90.0)
 
-	_strip.position = Vector2.ZERO
-	_strip.size = Vector2(right_w, maxf(STRIP_H, _strip.get_combined_minimum_size().y))
 	_detail_bg.position = Vector2.ZERO
 	_detail_bg.size = Vector2(right_w, size.y)
-	_pane.position = Vector2(0.0, _strip.size.y + CARD_GAP)
-	_pane.size = Vector2(right_w, maxf(0.0, size.y - _pane.position.y))
+	_pane.position = Vector2.ZERO
+	_pane.size = Vector2(right_w, size.y)
 	_pane.custom_minimum_size.x = right_w

@@ -118,10 +118,23 @@ func _run() -> void:
 	_check(hints.size() == 4, "the shortlist lists four hints")
 	_check(hints[0]["keys"] == ["↑", "↓", "←", "→"] and str(hints[0]["label"]) == "players",
 		"arrows walk the players")
-	_check(hints[1]["keys"] == ["Q", "E"] and str(hints[1]["label"]) == "tabs",
-		"Q/E switch tabs")
+	_check(hints[1]["keys"] == ["Q", "E"] and str(hints[1]["label"]) == "stats",
+		"Q/E page the player stats")
 	_check(hints[2]["keys"] == ["ENTER"] and hints[3]["keys"] == ["ESC"],
 		"keyboard hints list select and back")
+
+	# Q/E page the shortlisted player's stats instead of cycling the tabs.
+	var short_pane: CareerPlayerPane = screen.get("_short_pane")
+	var page_before := int(short_pane.get("_stat_page"))
+	var page_key := InputEventKey.new()
+	page_key.keycode = KEY_E
+	page_key.physical_keycode = KEY_E
+	page_key.pressed = true
+	root.push_input(page_key)
+	await _frames(2)
+	_check(int(short_pane.get("_stat_page")) == page_before + 1,
+		"E pages the shortlist player's stats")
+	_check(screen.tab() == "shortlist", "E leaves the centre tabs alone")
 
 	# Shortlist: cards, the player pane and the shared actions modal.
 	_check(screen.card_count() == 1, "the shortlist shows one card")
@@ -131,6 +144,13 @@ func _run() -> void:
 	await _frames(1)
 	_check(screen.zone() == "list" and screen.focused_row() == 0,
 		"Down enters the shortlist")
+	nav.moved.emit(Vector2i.UP)
+	await _frames(1)
+	_check(screen.zone() == "tabs", "Up from the top row reaches the tab strip")
+	nav.moved.emit(Vector2i.DOWN)
+	await _frames(1)
+	_check(screen.zone() == "list" and screen.focused_row() == 0,
+		"Down returns to the cards")
 	nav.confirmed.emit()
 	await _frames(1)
 	_check(screen._actions.is_open(), "confirm opens the player actions")
@@ -281,7 +301,7 @@ func _run() -> void:
 	_check(screen.empty_title() == "LISTED FOR TRANSFER",
 		"the empty state names the tab")
 
-	# Tab strip: arrows and Q/E cycle, Back closes.
+	# Tab strip: arrows cycle, Q/E page the stats instead, Back closes.
 	screen.open(career, catalog, {"tab": "shortlist"})
 	await _frames(2)
 	screen.focus_initial()
@@ -292,10 +312,9 @@ func _run() -> void:
 	nav.moved.emit(Vector2i.LEFT)
 	await _frames(1)
 	_check(screen.tab() == "shortlist", "Left cycles back")
-	screen._input(_key(KEY_E))
-	_check(screen.tab() == "sent", "E switches to the next tab")
-	screen._input(_key(KEY_Q))
-	_check(screen.tab() == "shortlist", "Q switches to the previous tab")
+	root.push_input(_key(KEY_E))
+	await _frames(2)
+	_check(screen.tab() == "shortlist", "E no longer switches the centre tabs")
 	var closes_before: int = closes[0]
 	nav.cancelled.emit()
 	_check(closes[0] == closes_before + 1, "Back leaves the centre")

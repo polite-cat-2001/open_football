@@ -240,6 +240,12 @@ func _check_pane(host: Control) -> void:
 	_check(stat_column.get_node("technical/technical_volley").is_visible_in_tree() == false,
 		"only the current page is shown")
 	pane.call("_step_page", -1)
+	pane.call("_step_page", -1)
+	_check(stat_column.get_node("technical").is_visible_in_tree(),
+		"paging wraps from the first page to the last")
+	pane.call("_step_page", 1)
+	_check(stat_column.get_node("mental").is_visible_in_tree(),
+		"paging wraps from the last page to the first")
 	var motion := InputEventJoypadMotion.new()
 	motion.axis = JOY_AXIS_RIGHT_X
 	motion.axis_value = 1.0

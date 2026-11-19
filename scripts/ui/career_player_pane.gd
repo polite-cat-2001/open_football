@@ -533,7 +533,7 @@ func _step_page(delta: int) -> void:
 func _set_page(index: int) -> void:
 	if _stat_pages.is_empty():
 		return
-	_stat_page = clampi(index, 0, _stat_pages.size() - 1)
+	_stat_page = posmod(index, _stat_pages.size())
 	for page_index in _stat_pages.size():
 		_stat_pages[page_index].visible = page_index == _stat_page
 	for child in _dots.get_children():

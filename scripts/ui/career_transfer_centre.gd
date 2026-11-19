@@ -884,18 +884,29 @@ func hints() -> Array:
 			{"keys": back, "label": "close"},
 		]
 	if _tab == "shortlist":
-		return [
+		# Q/E page the player pane's stats here; the tabs stay on LB/RB and the
+		# mouse (or the strip's own arrows).
+		var shortlist_hints: Array = [
 			{"keys": ["D-PAD"] if gamepad else ["↑", "↓", "←", "→"], "label": "players"},
-			{"keys": ["LB", "RB"] if gamepad else ["Q", "E"], "label": "tabs"},
+		]
+		if gamepad:
+			shortlist_hints.append({"keys": ["LB", "RB"], "label": "tabs"})
+		shortlist_hints.append_array([
+			{"keys": ["R-STICK"] if gamepad else ["Q", "E"], "label": "stats"},
 			{"keys": select, "label": "actions"},
 			{"keys": back, "label": "back"},
-		]
-	return [
+		])
+		return shortlist_hints
+	var table_hints: Array = [
 		{"keys": ["D-PAD"] if gamepad else ["↑", "↓"], "label": "navigate"},
-		{"keys": ["LB", "RB"] if gamepad else ["Q", "E"], "label": "tabs"},
+	]
+	if gamepad:
+		table_hints.append({"keys": ["LB", "RB"], "label": "tabs"})
+	table_hints.append_array([
 		{"keys": select, "label": "open"},
 		{"keys": back, "label": "back"},
-	]
+	])
+	return table_hints
 
 
 func focus_initial() -> void:
@@ -1856,6 +1867,9 @@ func _move_card(direction: Vector2i) -> void:
 		Vector2i.RIGHT:
 			index += 1
 	if index < 0 or index >= _short_cards.size():
+		# Up from the top row leaves the grid for the tab strip.
+		if direction == Vector2i.UP:
+			_focus_tab(_tab_index(_tab))
 		return
 	if (direction == Vector2i.LEFT or direction == Vector2i.RIGHT) \
 			and floori(float(index) / COLUMNS) != floori(float(_focus_row) / COLUMNS):
@@ -1919,25 +1933,6 @@ func _on_tab_previous() -> void:
 func _on_tab_next() -> void:
 	if _is_active():
 		_cycle_tab(1)
-
-
-func _input(event: InputEvent) -> void:
-	if not _is_active():
-		return
-	if _is_key(event, KEY_Q):
-		get_viewport().set_input_as_handled()
-		_cycle_tab(-1)
-	elif _is_key(event, KEY_E):
-		get_viewport().set_input_as_handled()
-		_cycle_tab(1)
-
-
-func _is_key(event: InputEvent, code: Key) -> bool:
-	if not (event is InputEventKey):
-		return false
-	var key := event as InputEventKey
-	return key.pressed and not key.echo \
-		and (key.keycode == code or key.physical_keycode == code)
 
 
 # Motion -------------------------------------------------------------------

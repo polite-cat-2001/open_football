@@ -319,6 +319,18 @@ func _run() -> void:
 	_check(reports.entry_count() > 0, "the feed lists the reports")
 	_check(_screen.hints().size() == 4, "the reports view hints four controls")
 	_check(reports.active_tab() == 0, "the feed opens on the ALL tab")
+	# Q/E page the report card's attributes; the filter tabs moved to LB/RB and
+	# the mouse, so the key must not switch the filter any more.
+	var report_pane: CareerPlayerPane = reports.get("_pane")
+	var page_before := int(report_pane.get("_stat_page"))
+	var page_key := InputEventKey.new()
+	page_key.keycode = KEY_E
+	page_key.physical_keycode = KEY_E
+	page_key.pressed = true
+	viewport.push_input(page_key)
+	await _frames(2)
+	_check(int(report_pane.get("_stat_page")) == page_before + 1, "E pages the report card's stats")
+	_check(_screen.report_filter == "all", "E leaves the report filter alone")
 	var acknowledged := bool((career.data["scout_reports"].get(player_id, {}) as Dictionary)
 		.get("acknowledged", false))
 	_check(acknowledged, "opening the feed acknowledges the new reports")
@@ -344,7 +356,7 @@ func _run() -> void:
 		_check(report_cards[2].has_focus(), "Down lands on the card below, not diagonally")
 	var target := -1
 	for index in report_cards.size():
-		if (report_cards[index] as CareerScoutReportCard).player_id() == player_id:
+		if (report_cards[index] as CareerPlayerCard).player_id() == player_id:
 			target = index
 	_check(target >= 0, "the report player has a card")
 	if target >= 0:
@@ -429,6 +441,30 @@ func _run() -> void:
 	await _frames(2)
 	_check(_closed == 1, "B leaves the network screen")
 
+	# Keyboard navigation scrolls the list: a fed card that takes focus below
+	# the fold pulls the ScrollContainer down.
+	var probe_host := Control.new()
+	probe_host.size = Vector2(520.0, 200.0)
+	host.add_child(probe_host)
+	var probe := CareerScoutReportsFeed.new()
+	probe_host.add_child(probe)
+	probe.size = Vector2(520.0, 200.0)
+	var fake: Array = []
+	for index in 8:
+		fake.append({
+			"player": {"player_id": str(index), "name": "PLAYER %d" % index,
+				"overall": 70, "age": 20, "position": "Striker",
+				"position_group": "FWD", "scouted": true},
+			"acknowledged": true,
+		})
+	probe.setup(fake, [], "all", "", "2026-11-14")
+	await _frames(3)
+	probe.entry_cards()[7].grab_focus()
+	await _frames(3)
+	_check((probe.get("_scroll") as ScrollContainer).scroll_vertical > 0.0,
+		"the feed scrolls the focused card into view")
+	probe_host.queue_free()
+
 	_screen.queue_free()
 	await _frames(2)
 	_finish()
@@ -454,7 +490,7 @@ func _click(viewport: SubViewport, position: Vector2) -> void:
 
 func _report_card_for(feed: CareerScoutReportsFeed, player_id: String) -> Control:
 	for card in feed.entry_cards():
-		if (card as CareerScoutReportCard).player_id() == player_id:
+		if (card as CareerPlayerCard).player_id() == player_id:
 			return card
 	return null
 

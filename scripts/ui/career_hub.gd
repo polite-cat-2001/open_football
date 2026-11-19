@@ -784,7 +784,7 @@ func _on_nav_tab_previous(suppress_landing := true) -> void:
 		return
 	if _tab == 1 and squad_view.visible and squad_view.handle_tab(-1):
 		return
-	if _tab == 2 and transfers_view.visible and transfers_view.is_overlay():
+	if _transfers_overlay():
 		# A transfers sub-screen (search, centre, offer…) owns the tab keys
 		# itself; on the landing the strip still pages through the sections.
 		return
@@ -800,9 +800,15 @@ func _on_nav_tab_next(suppress_landing := true) -> void:
 		return
 	if _tab == 1 and squad_view.visible and squad_view.handle_tab(1):
 		return
-	if _tab == 2 and transfers_view.visible and transfers_view.is_overlay():
+	if _transfers_overlay():
 		return
 	_switch_section(1, suppress_landing)
+
+
+# A transfers sub-screen is open (search, centre, offer, network…): it owns the
+# tab keys and its own hints, the landing strip does not.
+func _transfers_overlay() -> bool:
+	return _tab == 2 and transfers_view.visible and transfers_view.is_overlay()
 
 
 func _on_squad_state_changed() -> void:
@@ -894,7 +900,7 @@ func _input(event: InputEvent) -> void:
 			_finish_simulation()
 		return
 	if _busy or _advancing or overlay.is_open() or UiNav.is_modal() \
-			or (_tab == 2 and transfers_view.visible and transfers_view.is_overlay()):
+			or _transfers_overlay():
 		return
 	if _squad_screen == null and (_tab != 2 or _zone == Zone.TABS):
 		# On the Transfers landing the transfer screen reads Q/E itself, but
@@ -1424,7 +1430,7 @@ func _update_hints() -> void:
 	if _match_overlay.is_open():
 		hints.setup(_match_hints())
 		return
-	if _zone == Zone.TABS:
+	if _zone == Zone.TABS and not _transfers_overlay():
 		hints.setup(_gamepad_hints() if UiNav.using_gamepad() else _keyboard_hints())
 		return
 	if _tab == 1 and squad_view.visible:

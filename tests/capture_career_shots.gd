@@ -46,6 +46,7 @@ func _run() -> void:
 	CareerSession.catalog = catalog
 	CareerSaveStore.root_override = "user://career_capture_%d" % Time.get_ticks_usec()
 	_seed_transfers(catalog, career)
+	_seed_reports(catalog, career)
 	root.mode = Window.MODE_WINDOWED
 	root.size = Vector2i(960, 540)
 	await _frames(2)
@@ -198,6 +199,38 @@ func _capture(state: String, size: Vector2i) -> void:
 
 func _transfers(body: Control) -> Control:
 	return body.get_node("TransfersView")
+
+
+# Hired scouts with finished reports make the reports feed screenshots show the
+# entry cards instead of the empty state.
+func _seed_reports(catalog: TeamCatalog, career: Career) -> void:
+	CareerScouting.ensure_scouts(career)
+	var hired: Array = []
+	for scout in CareerScouting.scout_pool(career):
+		if hired.size() >= 4:
+			break
+		var scout_id = (scout as Dictionary).get("id", "")
+		if scout_id == null or str(scout_id).is_empty():
+			continue
+		if not bool(CareerScouting.hire(career, scout_id).get("ok", false)):
+			continue
+		hired.append(scout_id)
+	var found := CareerSearch.search(catalog, career, {}, 40, 0)
+	var items: Array = found.get("items", [])
+	for index in mini(hired.size(), items.size()):
+		CareerScouting.assign(career, catalog, hired[index],
+			str((items[index] as Dictionary).get("player_id", "")))
+	if hired.is_empty():
+		return
+	var from := career.date
+	var to := CareerSearch.add_days(from, 10)
+	career.data["date"] = to
+	CareerScouting.process_days(career, catalog, from, to)
+	# One read entry, so the screenshots show cards with and without the rail.
+	var reports: Dictionary = career.data.get("scout_reports", {})
+	for player_id in reports:
+		(reports[player_id] as Dictionary)["acknowledged"] = true
+		break
 
 
 # A shortlist entry, one listed player and one pending offer make the transfer

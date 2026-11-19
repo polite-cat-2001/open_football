@@ -154,7 +154,14 @@ func hints() -> Array:
 	if _scout_actions.is_open() or _hire_modal.is_open():
 		return [move, select, back]
 	if view == "reports":
-		return [move, tabs, select, back]
+		# Q/E page the player card's attributes here; the report tabs stay on
+		# LB/RB (or a mouse click).
+		var stats := {"keys": ["R-STICK"] if gamepad else ["Q", "E"], "label": "stats"}
+		var report_hints: Array = [move, stats]
+		if gamepad:
+			report_hints.append({"keys": ["LB", "RB"], "label": "tabs"})
+		report_hints.append_array([select, back])
+		return report_hints
 	if view == "region" or view == "country":
 		return [move, select, back]
 	if view == "task":
@@ -810,8 +817,8 @@ func _id_of(control: Control) -> String:
 		return "scout:" + (control as CareerScoutCard).scout_id()
 	if control is CareerScoutTaskCard:
 		return "scout:" + (control as CareerScoutTaskCard).scout_id()
-	if control is CareerScoutReportCard:
-		return "entry:" + (control as CareerScoutReportCard).player_id()
+	if control is CareerPlayerCard:
+		return "entry:" + (control as CareerPlayerCard).player_id()
 	if control == _task_action:
 		return "action"
 	return ""
@@ -1098,8 +1105,8 @@ func _on_nav_confirmed() -> void:
 			elif focus is CareerScoutTaskEditor.Cell:
 				_on_task_field_selected((focus as CareerScoutTaskEditor.Cell).id)
 		"reports":
-			if focus is CareerScoutReportCard:
-				_open_report_modal((focus as CareerScoutReportCard).player_id())
+			if focus is CareerPlayerCard:
+				_open_report_modal((focus as CareerPlayerCard).player_id())
 			elif focus is Button:
 				(focus as Button).pressed.emit()
 
@@ -1143,14 +1150,17 @@ func _input(event: InputEvent) -> void:
 	if nav != null and nav.is_modal() \
 			and not (_report_actions.is_open() and nav.modal_owner() == _report_actions):
 		return
-	if _is_key(event, KEY_Q):
-		get_viewport().set_input_as_handled()
-		_handle_tabs(-1)
-		return
-	if _is_key(event, KEY_E):
-		get_viewport().set_input_as_handled()
-		_handle_tabs(1)
-		return
+	# In REPORTS the card pages its attributes with Q/E, so the view must not
+	# swallow them; the report tabs stay on LB/RB and the mouse there.
+	if view != "reports":
+		if _is_key(event, KEY_Q):
+			get_viewport().set_input_as_handled()
+			_handle_tabs(-1)
+			return
+		if _is_key(event, KEY_E):
+			get_viewport().set_input_as_handled()
+			_handle_tabs(1)
+			return
 	if _is_key(event, KEY_X) or _is_button(event, JOY_BUTTON_X):
 		get_viewport().set_input_as_handled()
 		if view == "reports" and _report_actions.is_open():

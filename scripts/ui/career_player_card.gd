@@ -47,6 +47,9 @@ const POSITION_CODES := {
 var _player: Dictionary = {}
 var _player_id := ""
 var _selected := false
+# The idle magenta rail; hosts that use the rail as an unread marker turn it off
+# for the entries that are already read.
+var _rail_idle := true
 
 var _bg: Panel
 var _rail: ColorRect
@@ -174,6 +177,8 @@ func _notification(what: int) -> void:
 func setup(player: Dictionary, options := {}) -> void:
 	_player = player
 	_player_id = str(player.get("player_id", player.get("id", "")))
+	if options.has("rail"):
+		_rail_idle = bool(options["rail"])
 	if options.has("width"):
 		custom_minimum_size.x = float(options["width"])
 	if _name == null:
@@ -423,7 +428,7 @@ func _apply_state() -> void:
 		return
 	var focused := has_focus()
 	_bg.add_theme_stylebox_override(&"panel", _focused_box if focused else _normal_box)
-	_rail.visible = _selected or not focused
+	_rail.visible = _rail_idle and (_selected or not focused)
 	var title := UiTokens.FOCUS_MARK if focused else UiTokens.INK
 	var body := UiTokens.FOCUS_INK_2 if focused else UiTokens.INK_2
 	_name.add_theme_color_override(&"font_color", title)
