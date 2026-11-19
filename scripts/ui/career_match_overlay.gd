@@ -25,6 +25,11 @@ var _phase := "setup"
 var _minute := 0
 var _matchday: Dictionary = {}
 var _step := "results"
+var _review: Dictionary = {}
+var _review_step := 0
+var _review_club: Dictionary = {}
+var _review_center: Control
+var _review_season_start := ""
 var _table_scroll: ScrollContainer
 var _ink := UiTokens.INK
 var _ink_2 := UiTokens.INK_2
@@ -58,6 +63,17 @@ func render_matchday(data: Dictionary, step: String) -> void:
 	_mode = "matchday"
 	_matchday = data
 	_step = step
+	_style_card("matchday")
+	_render()
+
+
+func render_season_review(review: Dictionary, step: int, club: Dictionary,
+		season_start: String) -> void:
+	_mode = "review"
+	_review = review
+	_review_step = step
+	_review_club = club
+	_review_season_start = season_start
 	_style_card("matchday")
 	_render()
 
@@ -192,6 +208,13 @@ func _render() -> void:
 		root.add_theme_constant_override(&"separation", 16)
 		_content.add_child(root)
 		_render_matchday(root)
+	elif _mode == "review":
+		var root := VBoxContainer.new()
+		root.position = Vector2.ZERO
+		root.size = _content.size
+		root.add_theme_constant_override(&"separation", 8)
+		_content.add_child(root)
+		_render_review(root)
 
 
 # Match simulation (prototype MatchScreen): the dark scoreboard strip above two
@@ -779,6 +802,384 @@ func _table_line(item: Dictionary, head: bool, own: bool) -> Control:
 	row.add_child(right)
 	panel.add_child(row)
 	return panel
+
+
+func _render_review(root: VBoxContainer) -> void:
+	var review := _review
+	var league := _dict(review.get("league"))
+	var head := VBoxContainer.new()
+	head.add_theme_constant_override(&"separation", 4)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override(&"separation", 20)
+	var eyebrow := _label(16, UiTheme.inter(600), _ink_2)
+	if _review_step == 0:
+		eyebrow.text = "SEASON REVIEW · %s" % _review_season_start.substr(0, 4)
+	else:
+		eyebrow.text = "NEW SEASON"
+	eyebrow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(eyebrow)
+	var right := _label(16, UiTheme.inter(600), _ink_2)
+	right.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	if _review_step == 0:
+		var own := _own_review_row()
+		if not own.is_empty():
+			right.text = "%d%s · %d PTS" % [int(own.get("position", 0)),
+				CareerHubModel._ordinal(int(own.get("position", 0))),
+				int(own.get("points", 0))]
+	else:
+		right.text = _next_season_label()
+	top.add_child(right)
+	head.add_child(top)
+	var title := _label(34, UiTheme.barlow(800), _ink)
+	var next_league := _dict(_dict(review.get("next")).get("league", {}))
+	if _review_step == 0:
+		title.text = str(league.get("name", "")).to_upper()
+	else:
+		title.text = str(next_league.get("name", "")).to_upper()
+	head.add_child(title)
+	head.add_child(_rule(0.15))
+	root.add_child(head)
+	if _review_step == 0:
+		root.add_child(_review_table())
+		root.add_child(_review_zones())
+	else:
+		var widget := _review_transition()
+		root.add_child(widget)
+		_reveal_widget(_review_center if _review_center != null else widget)
+		root.add_child(_review_next_grid())
+
+
+func _reviews_row_style(own: bool, up: bool, down: bool) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = UiTokens.TABLE_ROW_OWN if own else Color(UiTokens.INK, 0.045)
+	box.border_width_left = 4 if up or down else 0
+	box.border_color = MARK_WIN if up else MARK_LOSS
+	box.content_margin_left = 10.0
+	box.content_margin_right = 10.0
+	return box
+
+
+func _review_table() -> Control:
+	var wrap := VBoxContainer.new()
+	wrap.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	wrap.add_theme_constant_override(&"separation", 2)
+	wrap.add_child(_review_line({}, true, false, false, false))
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_table_scroll = scroll
+	var body := VBoxContainer.new()
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override(&"separation", 2)
+	for row in _review.get("standings", []):
+		body.add_child(_review_line(row, false,
+			_has_ref(_review.get("promoted", []), str(row.get("club_id", ""))),
+			_has_ref(_review.get("relegated", []), str(row.get("club_id", ""))),
+			str(row.get("club_id", "")) == str(_review_club.get("id", ""))))
+	scroll.add_child(body)
+	wrap.add_child(scroll)
+	_scroll_review_to_own()
+	return wrap
+
+
+func _scroll_review_to_own() -> void:
+	# The prototype centres the career club's row; without it the bottom of a
+	# 18/20-club table hides the row that matters most.
+	if _table_scroll == null:
+		return
+	await get_tree().process_frame
+	if _table_scroll == null or not is_instance_valid(_table_scroll):
+		return
+	var own_id := str(_review_club.get("id", ""))
+	var rows: Array = _review.get("standings", [])
+	var index := -1
+	for row_index in range(rows.size()):
+		if str(rows[row_index].get("club_id", "")) == own_id:
+			index = row_index
+			break
+	if index < 0:
+		return
+	var target := float(index) * 27.0 - (_table_scroll.size.y - 25.0) * 0.5
+	_table_scroll.scroll_vertical = int(maxf(0.0, target))
+
+
+func _review_line(row: Dictionary, head: bool, up: bool, down: bool,
+		own: bool) -> Control:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override(&"panel", _reviews_row_style(own, up, down))
+	var line := HBoxContainer.new()
+	line.custom_minimum_size.y = 26.0 if head else 25.0
+	line.add_theme_constant_override(&"separation", 10)
+	var weight := UiTheme.inter(600) if head else UiTheme.inter(500)
+	var pos := _label(16, weight, _ink_2 if not own else _ink)
+	pos.text = str(row.get("position", "")) if not head else "#"
+	pos.custom_minimum_size.x = 26.0
+	line.add_child(pos)
+	if not head:
+		var crest := _crest_rect()
+		crest.custom_minimum_size = Vector2(24.0, 24.0)
+		crest.size = Vector2(24.0, 24.0)
+		crest.texture = _logo(str(row.get("club_logo", "")))
+		line.add_child(crest)
+	else:
+		var spacer := Control.new()
+		spacer.custom_minimum_size.x = 24.0
+		line.add_child(spacer)
+	var name := _label(16, weight, _ink if not own else _ink)
+	name.text = str(row.get("club_name", "")) if not head else "CLUB"
+	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name.clip_text = true
+	line.add_child(name)
+	for column in [
+		{"key": "played", "label": "P", "width": 52.0},
+		{"key": "goal_difference", "label": "GD", "width": 60.0},
+		{"key": "points", "label": "PTS", "width": 56.0},
+	]:
+		var value := _label(16, UiTheme.inter(700) if not head else weight, _ink_2)
+		if head:
+			value.text = str(column["label"])
+		elif str(column["key"]) == "goal_difference" and int(row.get("goal_difference", 0)) > 0:
+			value.text = "+%d" % int(row.get("goal_difference", 0))
+		else:
+			value.text = str(row.get(column["key"], ""))
+		value.custom_minimum_size.x = float(column["width"])
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		line.add_child(value)
+	panel.add_child(line)
+	return panel
+
+
+func _review_zones() -> Control:
+	var zones := HBoxContainer.new()
+	zones.add_theme_constant_override(&"separation", int(UiTokens.GAP))
+	var promoted: Array = _review.get("promoted", [])
+	var relegated: Array = _review.get("relegated", [])
+	if not promoted.is_empty():
+		zones.add_child(_review_zone("PROMOTED TO %s" % _league_name(_review.get("promoted_to")),
+			promoted, MARK_WIN))
+	if not relegated.is_empty():
+		zones.add_child(_review_zone("RELEGATED TO %s" % _league_name(_review.get("relegated_to")),
+			relegated, MARK_LOSS))
+	if promoted.is_empty() != relegated.is_empty():
+		# A lone zone keeps the left half; the right half stays empty.
+		var spacer := Control.new()
+		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		zones.add_child(spacer)
+	return zones
+
+
+func _review_zone(title: String, clubs: Array, mark: Color) -> Control:
+	var panel := PanelContainer.new()
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(UiTokens.INK, 0.045)
+	box.border_width_left = 4
+	box.border_color = mark
+	box.content_margin_left = 14.0
+	box.content_margin_right = 14.0
+	box.content_margin_top = 10.0
+	box.content_margin_bottom = 10.0
+	panel.add_theme_stylebox_override(&"panel", box)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override(&"separation", 6)
+	var label := _label(16, UiTheme.inter(600), _ink_2)
+	label.text = title
+	column.add_child(label)
+	var chips := HFlowContainer.new()
+	chips.add_theme_constant_override(&"h_separation", 16)
+	chips.add_theme_constant_override(&"v_separation", 6)
+	for club in clubs:
+		var chip := HBoxContainer.new()
+		chip.add_theme_constant_override(&"separation", 8)
+		var crest := _crest_rect()
+		crest.custom_minimum_size = Vector2(20.0, 20.0)
+		crest.size = Vector2(20.0, 20.0)
+		crest.texture = _logo(str(club.get("logo", "")))
+		var name := _label(16, UiTheme.inter(500), _ink)
+		name.text = str(club.get("name", ""))
+		chip.add_child(crest)
+		chip.add_child(name)
+		chips.add_child(chip)
+	column.add_child(chips)
+	panel.add_child(column)
+	return panel
+
+
+func _reveal_widget(node: Control) -> void:
+	# The prototype's review-move-in, with the direction of the outcome:
+	# stayed -> slide right, promoted -> slide up, relegated -> slide down.
+	if UiTransition.instant:
+		return
+	node.modulate.a = 0.0
+	await get_tree().process_frame
+	if not is_instance_valid(node):
+		return
+	var amplitude := 40.0
+	var base := node.position
+	var movement = _review.get("movement")
+	var offset := Vector2(-amplitude, 0.0)
+	if movement == "up":
+		offset = Vector2(0.0, amplitude)
+	elif movement == "down":
+		offset = Vector2(0.0, -amplitude)
+	node.position = base + offset
+	var tween := create_tween().set_parallel(true)
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(node, "modulate:a", 1.0, 0.22)
+	tween.tween_property(node, "position", base, 0.22)
+
+
+func _review_transition() -> Control:
+	var panel := PanelContainer.new()
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(UiTokens.INK, 0.045)
+	box.content_margin_left = 24.0
+	box.content_margin_right = 24.0
+	box.content_margin_top = 24.0
+	box.content_margin_bottom = 24.0
+	panel.add_theme_stylebox_override(&"panel", box)
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_theme_constant_override(&"separation", 24)
+	_review_center = row
+	var movement = _review.get("movement")
+	var mark := MARK_WIN if movement == "up" else (MARK_LOSS if movement == "down" else _ink_2)
+	var arrow := _label(96, UiTheme.barlow(700), mark)
+	arrow.text = "↑" if movement == "up" else ("↓" if movement == "down" else "→")
+	row.add_child(arrow)
+	if not UiTransition.instant:
+		arrow.pivot_offset = arrow.get_combined_minimum_size() * 0.5
+		arrow.scale = Vector2(0.72, 0.72)
+		var arrow_tween := create_tween()
+		arrow_tween.tween_property(arrow, "scale", Vector2.ONE, 0.22) \
+			.set_delay(0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	var crest := _crest_rect()
+	crest.custom_minimum_size = Vector2(96.0, 96.0)
+	crest.size = Vector2(96.0, 96.0)
+	var club_logo := str(_review_club.get("career_logo", ""))
+	if club_logo.is_empty():
+		club_logo = str(_review_club.get("logo", ""))
+	crest.texture = _logo(club_logo)
+	row.add_child(crest)
+	var copy := VBoxContainer.new()
+	copy.add_theme_constant_override(&"separation", 6)
+	var name := _label(40, UiTheme.barlow(700), _ink)
+	name.text = str(_review_club.get("name", "")).to_upper()
+	copy.add_child(name)
+	var line := _label(18, UiTheme.inter(600), mark)
+	var league := _league_name(_dict(_review.get("next")).get("league"))
+	if movement == "up":
+		line.text = "PROMOTED TO %s" % league
+	elif movement == "down":
+		line.text = "RELEGATED TO %s" % league
+	else:
+		line.text = "STAYED IN %s" % league
+	copy.add_child(line)
+	row.add_child(copy)
+	panel.add_child(row)
+	return panel
+
+
+func _review_next_grid() -> Control:
+	var grid := HBoxContainer.new()
+	grid.add_theme_constant_override(&"separation", int(UiTokens.GAP))
+	var next_block := _dict(_review.get("next"))
+	var from_above: Array = next_block.get("from_above", [])
+	var from_below: Array = next_block.get("from_below", [])
+	var columns := 0
+	if not from_above.is_empty():
+		grid.add_child(_review_next_column("FROM %s" % _league_name(next_block.get("above")),
+			from_above))
+		columns += 1
+	if not from_below.is_empty():
+		grid.add_child(_review_next_column("FROM %s" % _league_name(next_block.get("below")),
+			from_below))
+		columns += 1
+	if columns == 1:
+		# One column keeps the same half-width slot as the two-column case.
+		var spacer := Control.new()
+		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		grid.add_child(spacer)
+	return grid
+
+
+func _review_next_column(title: String, rows: Array) -> Control:
+	var panel := PanelContainer.new()
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(UiTokens.INK, 0.045)
+	box.content_margin_left = 14.0
+	box.content_margin_right = 14.0
+	box.content_margin_top = 12.0
+	box.content_margin_bottom = 12.0
+	panel.add_theme_stylebox_override(&"panel", box)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override(&"separation", 4)
+	var label := _label(16, UiTheme.inter(600), _ink_2)
+	label.text = title
+	column.add_child(label)
+	for index in range(rows.size()):
+		var item: Dictionary = rows[index]
+		var club := _dict(item.get("club"))
+		var league := _dict(item.get("league"))
+		var line := HBoxContainer.new()
+		line.custom_minimum_size.y = 28.0
+		line.add_theme_constant_override(&"separation", 10)
+		var crest := _crest_rect()
+		crest.custom_minimum_size = Vector2(24.0, 24.0)
+		crest.size = Vector2(24.0, 24.0)
+		crest.texture = _logo(str(club.get("logo", "")))
+		line.add_child(crest)
+		var name := _label(16, UiTheme.inter(500), _ink)
+		name.text = str(club.get("name", ""))
+		name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name.clip_text = true
+		line.add_child(name)
+		var league_label := _label(16, UiTheme.inter(500), _ink_2)
+		league_label.text = str(league.get("name", ""))
+		line.add_child(league_label)
+		var row_panel := PanelContainer.new()
+		var row_box := StyleBoxFlat.new()
+		row_box.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+		if index < rows.size() - 1:
+			row_box.border_width_bottom = 1
+			row_box.border_color = Color(UiTokens.INK, 0.10)
+		row_panel.add_theme_stylebox_override(&"panel", row_box)
+		row_panel.add_child(line)
+		column.add_child(row_panel)
+	panel.add_child(column)
+	return panel
+
+
+func _own_review_row() -> Dictionary:
+	var club_id := str(_review_club.get("id", ""))
+	for row in _review.get("standings", []):
+		if str(row.get("club_id", "")) == club_id:
+			return row
+	return {}
+
+
+func _has_ref(rows: Array, club_id: String) -> bool:
+	for row in rows:
+		if str(row.get("id", "")) == club_id:
+			return true
+	return false
+
+
+func _league_name(value) -> String:
+	if not (value is Dictionary):
+		return "—"
+	return str(value.get("name", "—"))
+
+
+func _next_season_label() -> String:
+	if _review_season_start.length() < 4:
+		return ""
+	var year := int(_review_season_start.substr(0, 4)) + 1
+	return "%d/%02d" % [year, (year + 1) % 100]
 
 
 func _visible_events() -> Array:

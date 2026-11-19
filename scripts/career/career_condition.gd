@@ -78,6 +78,24 @@ static func ensure_player_states(career: Career, player_ids: Array) -> void:
 		career.data["condition_date"] = career.date
 
 
+static func reset_season_state(career: Career) -> void:
+	# New season, clean slate: fatigue, injuries, suspensions and last season's
+	# stats do not carry over (condition.py reset_season_state).
+	var states = career.data.get("player_state")
+	if states is Dictionary:
+		for state in states.values():
+			if not (state is Dictionary):
+				continue
+			state["fatigue"] = 100
+			state["injury"] = null
+			state["suspension"] = null
+			state["stats"] = empty_stats()
+			state["stats_by_competition"] = {}
+			state["available_matches"] = 0
+			state["expected_minutes"] = 0
+	career.data["condition_date"] = career.season_start
+
+
 static func recover_condition(career: Career, target_date: String) -> void:
 	var states = career.data.get("player_state")
 	if not (states is Dictionary) or states.is_empty():

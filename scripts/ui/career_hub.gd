@@ -69,6 +69,9 @@ var _matchday: Dictionary = {}
 var _match_minute := 0
 var _match_token := 0
 var _match_confirm_guard_until := 0
+var _review: Dictionary = {}
+var _review_step := 0
+var _review_transition: Dictionary = {}
 
 
 func _ready() -> void:
@@ -634,7 +637,8 @@ func _on_nav_moved(direction: Vector2i) -> void:
 		_plan_action(_direction_action(direction))
 		return
 	if _match_overlay.is_open():
-		if _match_phase == "matchday_table" \
+		if (_match_phase == "matchday_table"
+				or (_match_phase == "season_review" and _review_step == 0)) \
 				and (direction == Vector2i.UP or direction == Vector2i.DOWN):
 			_match_overlay.scroll_step(-1 if direction == Vector2i.UP else 1)
 		return
@@ -877,8 +881,12 @@ func _on_device_changed(_gamepad: bool) -> void:
 			_plan.refresh_hints()
 		return
 	if _match_overlay.is_open():
-		hints.setup(_match_hints())
-		hints.set_status(_match_note())
+		if _match_phase == "season_review":
+			hints.setup(_season_review_hints())
+			hints.set_status(_season_review_note())
+		else:
+			hints.setup(_match_hints())
+			hints.set_status(_match_note())
 		return
 	if overlay.is_open():
 		hints.setup(_overlay_hints())
@@ -942,7 +950,19 @@ func _on_next_pressed() -> void:
 		return
 	var next = _snapshot.get("season", {}).get("next")
 	if not (next is Dictionary):
-		hints.set_status("The season is complete.")
+		var season_end := CareerSeason.season_end(_career)
+		if _career.date < season_end:
+			_sim_start = _career.date
+			_sim_date = _career.date
+			if UiTransition.instant:
+				_commit_advance(season_end)
+				return
+			_advancing = true
+			_advance_token += 1
+			_render_simulation()
+			_run_advance(season_end, _advance_token)
+			return
+		_open_season_review()
 		return
 	var match_date := str(next.get("date", ""))
 	if _career.date >= match_date:
@@ -987,16 +1007,23 @@ func _commit_advance(target: String) -> void:
 	_advance_token += 1
 	_sim_start = ""
 	_sim_date = ""
-	var league_clubs := CareerSession.catalog.all_teams_for_league(_career.league_id)
-	var strengths := {}
-	for club in league_clubs:
-		var club_id := str(club.get("id", ""))
-		strengths[club_id] = CareerSeason.squad_strength(CareerSquad.roster(
-			CareerSession.catalog, _career, int(club_id), false))
-	if not CareerSeason.advance_to(_career, target, league_clubs, strengths):
-		hints.set_status(CareerSeason.last_error, true)
-		_apply_snapshot()
-		return
+	var next_fixture := CareerSeason.next_fixture(_career)
+	if next_fixture.is_empty():
+		if not CareerSeason.advance_days(_career, target):
+			hints.set_status(CareerSeason.last_error, true)
+			_apply_snapshot()
+			return
+	else:
+		var league_clubs := _league_clubs()
+		var strengths := {}
+		for club in league_clubs:
+			var club_id := str(club.get("id", ""))
+			strengths[club_id] = CareerSeason.squad_strength(CareerSquad.roster(
+				CareerSession.catalog, _career, int(club_id), false))
+		if not CareerSeason.advance_to(_career, target, league_clubs, strengths):
+			hints.set_status(CareerSeason.last_error, true)
+			_apply_snapshot()
+			return
 	var tick := CareerAdvance.tick(_career, CareerSession.catalog)
 	_snapshot = CareerFactory.snapshot(CareerSession.catalog, _career)
 	_apply_snapshot()
@@ -1009,6 +1036,78 @@ func _commit_advance(target: String) -> void:
 	hints.set_status("Advanced to %s · round %d" % [
 		CareerHubModel.short_date(target), round_no,
 	])
+
+
+func _open_season_review() -> void:
+	if _busy or _advancing or _match_overlay.is_open():
+		return
+	_review_transition = CareerSeason.transition(CareerSession.catalog, _career)
+	if _review_transition.is_empty():
+		hints.set_status(CareerSeason.last_error if not CareerSeason.last_error.is_empty()
+			else "The season is complete.", true)
+		return
+	_review = _review_transition.get("review", {})
+	_review_step = 0
+	_match_phase = "season_review"
+	_busy = true
+	_render_match_overlay()
+	await _fade_out(body)
+	body.visible = false
+	_match_overlay.open()
+	await _fade_in(_match_overlay.card())
+	_update_hints()
+	_busy = false
+
+
+func _start_new_season() -> void:
+	if _busy:
+		return
+	var transition := _review_transition
+	if transition.is_empty():
+		transition = CareerSeason.transition(CareerSession.catalog, _career)
+	if transition.is_empty():
+		hints.set_status(CareerSeason.last_error, true)
+		return
+	# Close the review first; the new season starts on the next day (July 1).
+	await _close_match_overlay()
+	if not is_inside_tree():
+		return
+	_review_transition = transition
+	_commit_next_season()
+
+
+func _commit_next_season() -> void:
+	_advancing = false
+	_advance_token += 1
+	_sim_start = ""
+	_sim_date = ""
+	var transition := _review_transition
+	_review_transition = {}
+	if not CareerSeason.next_season(_career, CareerSession.catalog, transition):
+		hints.set_status(CareerSeason.last_error, true)
+		_apply_snapshot()
+		return
+	_snapshot = CareerFactory.snapshot(CareerSession.catalog, _career)
+	_apply_snapshot()
+	next_tile.play_advance_in()
+	if not _save():
+		return
+	hints.set_status("Season %s begins · %s" % [
+		CareerHubModel.season_label(_career.season_start),
+		CareerHubModel.short_date(_career.season_start),
+	])
+
+
+func _show_review_step(step: int) -> void:
+	# Same shell transition as the matchday results -> table swap.
+	if _busy or not _match_overlay.is_open():
+		return
+	_busy = true
+	await _fade_out(_match_overlay.card())
+	_review_step = step
+	_render_match_overlay()
+	await _fade_in(_match_overlay.card())
+	_busy = false
 
 
 func _on_play_pressed() -> void:
@@ -1066,6 +1165,9 @@ func _close_match_overlay() -> void:
 	_match_token += 1
 	_match_phase = ""
 	_match_confirm_guard_until = 0
+	_review = {}
+	_review_step = 0
+	_review_transition = {}
 	_match_overlay.close()
 	await _fade_out(_match_overlay.card())
 	_match_overlay.hide_card()
@@ -1080,6 +1182,13 @@ func _close_match_overlay() -> void:
 
 
 func _render_match_overlay() -> void:
+	if _match_phase == "season_review":
+		_match_overlay.render_season_review(_review, _review_step,
+			CareerSession.catalog.career_club(int(_career.club_id)),
+			_career.season_start)
+		hints.setup(_season_review_hints())
+		hints.set_status(_season_review_note())
+		return
 	if _match_phase in ["setup", "live", "done"]:
 		_match_overlay.render_simulation(
 			_match_setup, _match_result, _match_phase, _match_minute)
@@ -1094,6 +1203,11 @@ func _match_action() -> void:
 	if _busy:
 		return
 	match _match_phase:
+		"season_review":
+			if _review_step == 0:
+				_show_review_step(1)
+			else:
+				_start_new_season()
 		"setup":
 			_begin_simulation()
 		"live":
@@ -1110,6 +1224,11 @@ func _match_back() -> void:
 	if _busy:
 		return
 	match _match_phase:
+		"season_review":
+			if _review_step == 1:
+				_show_review_step(0)
+			else:
+				_close_match_overlay()
 		"setup", "matchday_results":
 			_close_match_overlay()
 		"matchday_table":
@@ -1256,7 +1375,17 @@ func _matchday_data() -> Dictionary:
 
 
 func _league_clubs() -> Array:
-	return CareerSession.catalog.all_teams_for_league(_career.league_id)
+	# The career composition is authoritative: after promotion/relegation it
+	# differs from the club rows' database league.
+	var catalog := CareerSession.catalog
+	if _career.league_club_ids.is_empty():
+		return catalog.all_teams_for_league(_career.league_id)
+	var clubs: Array = []
+	for club_id in _career.league_club_ids:
+		var club := catalog.career_club(int(club_id))
+		if not club.is_empty():
+			clubs.append(club)
+	return clubs
 
 
 func _strengths(league_clubs: Array) -> Dictionary:
@@ -1284,7 +1413,27 @@ func _match_note() -> String:
 			return "Results of the day"
 		"matchday_table":
 			return "Table after the round"
+		"season_review":
+			return _season_review_note()
 	return ""
+
+
+func _season_review_note() -> String:
+	return "Season review" if _review_step == 0 else "New season"
+
+
+func _season_review_hints() -> Array:
+	var next_label := "next" if _review_step == 0 else "start season"
+	var back_label := "close" if _review_step == 0 else "table"
+	if UiNav.using_gamepad():
+		return [
+			{"keys": ["A"], "label": next_label},
+			{"keys": ["B"], "label": back_label},
+		]
+	return [
+		{"keys": ["ENTER"], "label": next_label},
+		{"keys": ["ESC"], "label": back_label},
+	]
 
 
 func _match_hints() -> Array:
@@ -1432,7 +1581,10 @@ func _update_hints() -> void:
 				bool(_squad_screen.status_error()) if _squad_screen.has_method("status_error") else false)
 		return
 	if _match_overlay.is_open():
-		hints.setup(_match_hints())
+		if _match_phase == "season_review":
+			hints.setup(_season_review_hints())
+		else:
+			hints.setup(_match_hints())
 		return
 	if _zone == Zone.TABS and not _transfers_overlay():
 		hints.setup(_gamepad_hints() if UiNav.using_gamepad() else _keyboard_hints())

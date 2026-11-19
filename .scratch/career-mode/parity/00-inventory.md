@@ -74,7 +74,7 @@
 | 20 | Scouting (задания, карта, отчёты, скауты) | `Scouting.svelte`, `career/scouting/*` | `scouting.css`, `scouting-reports.css` | — (вкладка SCOUTING пустая) | нет |
 | 21 | Matchday (результаты → таблица после тура) | `career/match/MatchdayOverlay`, `MatchdayScreen.svelte` | `matchday.css` | `career_match_overlay.gd` | есть |
 | 22 | Match simulation (setup → live → final) | `career/match/MatchSimulationOverlay`, `MatchScreen.svelte` | `match.css` | `career_match_overlay.gd` | есть |
-| 23 | Season review (2 шага) | `career/match/SeasonReview.svelte` | `match.css` | — | нет |
+| 23 | Season review (2 шага) | `career/match/SeasonReview.svelte` | `match.css` | `career_match_overlay.gd` (режим review) | есть |
 | 24 | Bench drawer (скамейка поверх поля) | `BenchDrawer.svelte`, `BenchPlayerCard.svelte` | `squad-players.css` | `career_squad_view.gd` (`_draw_bench_drawer`) | есть |
 
 Общие виджеты прототипа (`web/src/lib/ui/*`, `career/shared/*`): `AppShell`, `TabBar`,

@@ -11,9 +11,12 @@ const CREST := 42.0
 const PILL := 28.0
 const PILL_GAP := 6.0
 
+
 var _eyebrow: Label
 var _headline: Label
 var _month: Label
+var _season_title: Label
+var _season_meta: Label
 var _days: Control
 var _track: Control
 var _day_cells: Array = []
@@ -39,6 +42,10 @@ func _ready() -> void:
 	_headline = _label(52, UiTheme.barlow(800), UiTokens.INK)
 	_month = _label(16, UiTheme.inter(600), UiTokens.INK_2)
 	_month.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_season_title = _label(28, UiTheme.barlow(700), UiTokens.INK)
+	_season_title.text = "SEASON COMPLETE"
+	_season_meta = _label(16, UiTheme.inter(500), UiTokens.INK_2)
+	_season_meta.clip_text = true
 	_days = Control.new()
 	_days.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_days.clip_contents = true
@@ -68,6 +75,8 @@ func _ready() -> void:
 	add_child(_eyebrow)
 	add_child(_headline)
 	add_child(_month)
+	add_child(_season_title)
+	add_child(_season_meta)
 	add_child(_days)
 	add_child(_fixture)
 	add_child(_meta)
@@ -88,9 +97,16 @@ func setup(model: Dictionary) -> void:
 	_match_crest = _logo(str(model.get("opponent_logo", "")))
 	_meta.text = str(model.get("meta", ""))
 	var complete := bool(model.get("season_complete", false))
-	_days.visible = not complete
-	_fixture.visible = not complete
-	_form.visible = not complete
+	var transition := bool(model.get("transition", false))
+	_days.visible = transition or not complete
+	_fixture.visible = not complete and not transition
+	_form.visible = not complete and not transition
+	_season_title.visible = complete and not transition
+	_season_meta.visible = complete and not transition
+	_meta.visible = not (complete and not transition)
+	if complete and not transition:
+		_season_title.text = str(model.get("season_title", "SEASON COMPLETE"))
+		_season_meta.text = _meta.text
 	_day_offset = int(model.get("day_offset", 0))
 	var changed := _build_days(model.get("days", []))
 	if changed:
@@ -170,6 +186,11 @@ func _layout_content() -> void:
 	_headline.size = Vector2(width - PAD * 2.0, 62.0)
 	_month.position = Vector2(width - PAD - 160.0, 16.0)
 	_month.size = Vector2(160.0, 20.0)
+
+	_season_title.position = Vector2(PAD, 106.0)
+	_season_title.size = Vector2(width - PAD * 2.0, 34.0)
+	_season_meta.position = Vector2(PAD, 144.0)
+	_season_meta.size = Vector2(width - PAD * 2.0, 22.0)
 
 	_days.position = Vector2(PAD, 106.0)
 	_days.size = Vector2(width - PAD * 2.0, DAY_H)
@@ -288,6 +309,10 @@ func _apply_state(animate: bool) -> void:
 		label.add_theme_color_override(&"font_color", ink_2)
 	for label in [_headline, _home_name, _away_name]:
 		label.add_theme_color_override(&"font_color", ink)
+	for label in [_season_title]:
+		label.add_theme_color_override(&"font_color", ink)
+	for label in [_season_meta]:
+		label.add_theme_color_override(&"font_color", ink_2)
 	for cell in _day_cells:
 		(cell["week"] as Label).add_theme_color_override(&"font_color", ink_2)
 		(cell["number"] as Label).add_theme_color_override(&"font_color", ink)

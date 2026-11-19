@@ -163,6 +163,13 @@ static func snapshot(catalog: TeamCatalog, career: Career) -> Dictionary:
 		return {}
 	if career.league_id.is_empty():
 		career.data["league_id"] = str(club.get("league_id", ""))
+	var league := catalog.league_by_id(career.league_id)
+	if not league.is_empty():
+		# After promotion/relegation the club's database row still points at its
+		# old league; the career's current league is the authoritative one.
+		club = club.duplicate()
+		club["league_id"] = career.league_id
+		club["league_name"] = str(league.get("name", club.get("league_name", "")))
 	var league_clubs := catalog.all_teams_for_league(str(club.get("league_id", "")))
 	var league_ids: Array = []
 	for team in league_clubs:
@@ -320,6 +327,7 @@ static func _season_state(career: Career, clubs: Dictionary) -> Dictionary:
 		}
 	return {
 		"season_start": career.season_start,
+		"season_end": CareerSeason.season_end(career),
 		"round": int(next_fixture.get("round", rounds_total)) if not next_fixture.is_empty() else rounds_total,
 		"played_round": last_played_round(career),
 		"rounds_total": rounds_total,

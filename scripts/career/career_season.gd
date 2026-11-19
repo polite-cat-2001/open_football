@@ -1,8 +1,8 @@
 class_name CareerSeason
 extends RefCounted
 # Season calendar ported from server/career/season.py: squad strength, the
-# Poisson score line and calendar advance. Pure: the caller supplies the club
-# list and the club strengths, so no database reads happen here.
+# Poisson score line, calendar advance, the season-end transition (promotion /
+# relegation) and the next-season rollover.
 
 static var last_error := ""
 
@@ -113,6 +113,377 @@ static func advance_to(career: Career, target: String, league_clubs: Array,
 			continue
 		results[fixture_id] = simulate(career.seed, match, strengths)
 	return true
+
+
+static func next_season_start(career: Career) -> String:
+	# The prototype shifts season_start by a year (Feb 29 falls back to the 28th).
+	var parts := CareerSearch.date_parts(career.season_start)
+	if parts.is_empty():
+		return career.season_start
+	var year := int(parts[0]) + 1
+	var month := int(parts[1])
+	var day := mini(int(parts[2]), CareerSearch.days_in_month(year, month))
+	return "%04d-%02d-%02d" % [year, month, day]
+
+
+static func season_end(career: Career) -> String:
+	# The last day before the next season starts (June 30 for a July 1 start).
+	return add_days(next_season_start(career), -1)
+
+
+static func advance_days(career: Career, target: String) -> bool:
+	# Off-season calendar step: no fixtures left, so only the date moves. The
+	# hub then runs the normal daily tick for the span.
+	last_error = ""
+	if not _is_iso_date(target):
+		last_error = "date must be ISO YYYY-MM-DD"
+		return false
+	if target < career.date:
+		last_error = "cannot move time backwards"
+		return false
+	if target > season_end(career):
+		last_error = "cannot pass the season end"
+		return false
+	career.data["date"] = target
+	return true
+
+
+static func transition(catalog: TeamCatalog, career: Career) -> Dictionary:
+	# Port of season.py season_transition: rank the finished season and swap
+	# the career league with the adjacent tiers (same country, tier_rank ±1/±2).
+	last_error = ""
+	if catalog == null or career == null:
+		last_error = "career is missing"
+		return {}
+	if not next_fixture(career).is_empty():
+		return {}
+	var league := catalog.league_by_id(career.league_id)
+	if league.is_empty():
+		last_error = "career league is missing from the database"
+		return {}
+	var current_ids: Array = []
+	for club_id in career.league_club_ids:
+		current_ids.append(str(club_id))
+	if current_ids.is_empty():
+		for club in catalog.all_teams_for_league(career.league_id):
+			current_ids.append(str(club.get("id", "")))
+	if not current_ids.has(career.club_id):
+		current_ids.append(career.club_id)
+	var clubs := {}
+	for club_id in current_ids:
+		var club := catalog.career_club(int(club_id))
+		if not club.is_empty():
+			clubs[club_id] = club
+	var table := CareerFactory.standings(career, clubs)
+	if table.is_empty():
+		last_error = "the season table is empty"
+		return {}
+
+	var rank := _rank_of(league)
+	var same_country: Array = []
+	for item in catalog.career_leagues():
+		if int(item.get("country_id", 0)) == int(league.get("country_id", 0)) \
+				and _rank_of(item) < 90:
+			same_country.append(item)
+	var above_league = _league_at(same_country, rank - 1)
+	var below_league = _league_at(same_country, rank + 1)
+	var above2_league = _league_at(same_country, rank - 2)
+	var below2_league = _league_at(same_country, rank + 2)
+
+	var current_set := {}
+	for club_id in current_ids:
+		current_set[club_id] = true
+	var promoted: Array = []
+	if not above_league.is_empty():
+		for row in table.slice(0, mini(CareerFactory.PROMOTION_PLACES, table.size())):
+			promoted.append(_row_ref(row))
+	var relegated: Array = []
+	if not below_league.is_empty():
+		for row in table.slice(maxi(0, table.size() - CareerFactory.RELEGATION_PLACES), table.size()):
+			relegated.append(_row_ref(row))
+	var promoted_ids := {}
+	for row in promoted:
+		promoted_ids[str(row.get("id", ""))] = true
+	var relegated_ids := {}
+	for row in relegated:
+		relegated_ids[str(row.get("id", ""))] = true
+	var movement = null
+	if promoted_ids.has(career.club_id):
+		movement = "up"
+	elif relegated_ids.has(career.club_id):
+		movement = "down"
+
+	# Only the tiers the outcome actually needs are loaded. A stay needs the
+	# two adjacent tiers; a promotion needs the target tier plus the one above
+	# it (to know who leaves it); a relegation mirrors that below.
+	var strengths := {}
+	var above: Array = []
+	var below: Array = []
+	var above2: Array = []
+	var below2: Array = []
+	var above_clubs: Array = []
+	var below_clubs: Array = []
+	if movement == "up":
+		above_clubs = _clubs_of(catalog, above_league, current_set)
+		above = _ranked_clubs(above_clubs, catalog, career, strengths)
+		above2 = _ranked_clubs(_clubs_of(catalog, above2_league, current_set),
+			catalog, career, strengths)
+	elif movement == "down":
+		below_clubs = _clubs_of(catalog, below_league, current_set)
+		below = _ranked_clubs(below_clubs, catalog, career, strengths)
+		below2 = _ranked_clubs(_clubs_of(catalog, below2_league, current_set),
+			catalog, career, strengths)
+	else:
+		above_clubs = _clubs_of(catalog, above_league, current_set)
+		below_clubs = _clubs_of(catalog, below_league, current_set)
+		above = _ranked_clubs(above_clubs, catalog, career, strengths)
+		below = _ranked_clubs(below_clubs, catalog, career, strengths)
+
+	var from_above: Array = []
+	if movement != "down" and not above.is_empty():
+		for club in above.slice(maxi(0, above.size() - CareerFactory.RELEGATION_PLACES), above.size()):
+			from_above.append(_club_ref(club))
+	var from_below: Array = []
+	if movement != "up" and not below.is_empty():
+		for club in below.slice(0, mini(CareerFactory.PROMOTION_PLACES, below.size())):
+			from_below.append(_club_ref(club))
+	var from_above_ids := {}
+	for club in from_above:
+		from_above_ids[str(club.get("id", ""))] = true
+	var from_below_ids := {}
+	for club in from_below:
+		from_below_ids[str(club.get("id", ""))] = true
+
+	var next_league := {}
+	var next_above_league := {}
+	var next_below_league := {}
+	var next_above: Array = []
+	var next_below: Array = []
+	var next_ids: Array = []
+	if movement == "up":
+		next_league = above_league
+		next_above_league = above2_league
+		for club in above2.slice(maxi(0, above2.size() - CareerFactory.RELEGATION_PLACES), above2.size()):
+			next_above.append(_club_ref(club))
+		next_below_league = league
+		next_below = promoted
+		for club in above_clubs:
+			if not from_above_ids.has(str(club.get("id", ""))):
+				next_ids.append(str(club.get("id", "")))
+		for row in promoted:
+			next_ids.append(str(row.get("id", "")))
+	elif movement == "down":
+		next_league = below_league
+		next_above_league = league
+		next_above = relegated
+		next_below_league = below2_league
+		for club in below2.slice(0, mini(CareerFactory.PROMOTION_PLACES, below2.size())):
+			next_below.append(_club_ref(club))
+		for club in below_clubs:
+			if not from_below_ids.has(str(club.get("id", ""))):
+				next_ids.append(str(club.get("id", "")))
+		for row in relegated:
+			next_ids.append(str(row.get("id", "")))
+	else:
+		next_league = league
+		next_above_league = above_league
+		next_above = from_above
+		next_below_league = below_league
+		next_below = from_below
+		for club_id in current_ids:
+			if not promoted_ids.has(club_id) and not relegated_ids.has(club_id):
+				next_ids.append(club_id)
+		for club in from_above:
+			next_ids.append(str(club.get("id", "")))
+		for club in from_below:
+			next_ids.append(str(club.get("id", "")))
+
+	next_ids = _unique_ids(next_ids)
+	if not next_ids.has(career.club_id):
+		next_ids.append(career.club_id)
+	var next_above_ref = _league_ref(next_above_league)
+	var next_below_ref = _league_ref(next_below_league)
+	var from_above_rows: Array = []
+	for club in next_above:
+		from_above_rows.append({"club": club, "league": next_above_ref})
+	var from_below_rows: Array = []
+	for club in next_below:
+		from_below_rows.append({"club": club, "league": next_below_ref})
+	var review := {
+		"league": _league_ref(league),
+		"standings": table,
+		"promoted": promoted,
+		"relegated": relegated,
+		"promoted_to": _league_ref(above_league) if not promoted.is_empty() else null,
+		"relegated_to": _league_ref(below_league) if not relegated.is_empty() else null,
+		"movement": movement,
+		"next": {
+			"league": _league_ref(next_league),
+			"above": next_above_ref,
+			"below": next_below_ref,
+			"from_above": from_above_rows,
+			"from_below": from_below_rows,
+		},
+	}
+	return {
+		"review": review,
+		"league_id": str(next_league.get("id", career.league_id)),
+		"league_club_ids": next_ids,
+	}
+
+
+static func next_season(career: Career, catalog: TeamCatalog, transition_data: Dictionary) -> bool:
+	# Port of season.py next_season: archive the finished season, shift the year,
+	# build the new schedule and roll the squad over. The off-season transfer
+	# window is skipped deliberately: the hub reels the calendar to the new
+	# season start without generating market activity for the gap.
+	last_error = ""
+	if catalog == null or career == null:
+		last_error = "career is missing"
+		return false
+	if not next_fixture(career).is_empty():
+		last_error = "season is not complete"
+		return false
+	if transition_data.is_empty() or not (transition_data.get("review") is Dictionary):
+		last_error = "season transition is missing"
+		return false
+	var review: Dictionary = transition_data["review"]
+	var table: Array = review.get("standings", [])
+	var next_block: Dictionary = review.get("next", {})
+	var champion := {}
+	var own := {}
+	if not table.is_empty():
+		champion = table[0]
+	for row in table:
+		if str(row.get("club_id", "")) == career.club_id:
+			own = row
+			break
+	_journal(career, "season.completed", {
+		"season_start": career.season_start,
+		"champion": str(champion.get("club_name", "")) if not champion.is_empty() else null,
+		"position": int(own.get("position", 0)) if not own.is_empty() else null,
+		"points": int(own.get("points", 0)) if not own.is_empty() else null,
+		"movement": review.get("movement"),
+		"league": next_block.get("league"),
+	})
+
+	var new_start := next_season_start(career)
+	var next_ids: Array = []
+	var stored_ids = transition_data.get("league_club_ids", [])
+	if stored_ids is Array:
+		for club_id in stored_ids:
+			next_ids.append(str(club_id))
+	if next_ids.is_empty():
+		for club_id in career.league_club_ids:
+			next_ids.append(str(club_id))
+	career.data["season_start"] = new_start
+	career.data["date"] = new_start
+	career.data["league_id"] = str(transition_data.get("league_id", career.league_id))
+	var next_ids_unique := _unique_ids(next_ids)
+	career.data["league_club_ids"] = next_ids_unique
+	career.data["schedule"] = CareerFactory.build_schedule(next_ids_unique, new_start)
+	career.data["schedule_version"] = CareerFactory.SCHEDULE_VERSION
+	career.data["results"] = {}
+	CareerSquad.rollover_values(career, CareerSquad.roster(
+		catalog, career, int(career.club_id), false))
+	CareerCondition.reset_season_state(career)
+	# The gap between the last match and the new season start stays market-free.
+	career.incoming_market_date = new_start
+	career.world_market_date = new_start
+	career.data["last_tick_date"] = new_start
+	# Already-agreed deals complete on the new season date; the window itself is
+	# not simulated (the hub only reels the calendar across the gap).
+	CareerTransferContracts.execute_pending(career, catalog, new_start)
+	CareerIncomingOffers.execute_pending_departures(career, catalog, new_start)
+	_journal(career, "season.started", {
+		"season_start": new_start,
+		"league_id": career.league_id,
+	})
+	return true
+
+
+static func _journal(career: Career, kind: String, payload: Dictionary) -> void:
+	var journal: Array = career.data.get("journal", [])
+	journal.append({"seq": journal.size() + 1, "type": kind, "payload": payload})
+	career.data["journal"] = journal
+
+
+static func _clubs_of(catalog: TeamCatalog, league: Dictionary,
+		exclude: Dictionary = {}) -> Array:
+	if league.is_empty():
+		return []
+	var result: Array = []
+	for club in catalog.all_teams_for_league(str(league.get("id", ""))):
+		if not exclude.has(str(club.get("id", ""))):
+			result.append(club)
+	return result
+
+
+static func _league_at(leagues: Array, rank: int) -> Dictionary:
+	for league in leagues:
+		if _rank_of(league) == rank:
+			return league
+	return {}
+
+
+static func _rank_of(league: Dictionary) -> int:
+	# The prototype's canon carries tier_rank; the unified database stores the
+	# same order in `tier`. Prefer tier_rank when it is present.
+	var rank := int(league.get("tier_rank", 0))
+	return rank if rank > 0 else int(league.get("tier", 0))
+
+
+static func _ranked_clubs(clubs: Array, catalog: TeamCatalog, career: Career,
+		strengths: Dictionary) -> Array:
+	var ranked: Array = clubs.duplicate()
+	ranked.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var id_a := str(a.get("id", ""))
+		var id_b := str(b.get("id", ""))
+		if not strengths.has(id_a):
+			strengths[id_a] = squad_strength(CareerSquad.roster(catalog, career,
+				int(id_a), false))
+		if not strengths.has(id_b):
+			strengths[id_b] = squad_strength(CareerSquad.roster(catalog, career,
+				int(id_b), false))
+		if not is_equal_approx(float(strengths[id_a]), float(strengths[id_b])):
+			return float(strengths[id_a]) > float(strengths[id_b])
+		return str(a.get("name", "")) < str(b.get("name", "")))
+	return ranked
+
+
+static func _club_ref(club: Dictionary) -> Dictionary:
+	return {
+		"id": str(club.get("id", "")),
+		"name": str(club.get("name", "")),
+		"logo": _club_logo(club),
+	}
+
+
+static func _row_ref(row: Dictionary) -> Dictionary:
+	return {
+		"id": str(row.get("club_id", "")),
+		"name": str(row.get("club_name", "")),
+		"logo": str(row.get("club_logo", "")),
+		"position": int(row.get("position", 0)),
+	}
+
+
+static func _league_ref(league: Dictionary):
+	if league.is_empty():
+		return null
+	return {"id": str(league.get("id", "")), "name": str(league.get("name", ""))}
+
+
+static func _unique_ids(club_ids: Array) -> Array:
+	var seen := {}
+	var result: Array = []
+	for club_id in club_ids:
+		var key := str(club_id)
+		if key.is_empty() or seen.has(key):
+			continue
+		seen[key] = true
+		result.append(key)
+	return result
 
 
 static func play_next_match(career: Career, league_clubs: Array,

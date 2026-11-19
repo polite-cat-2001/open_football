@@ -37,6 +37,9 @@ const ROLE_THRESHOLDS := [
 ]
 const DEFAULT_ROLE := "rotation"
 const MIN_MARKET_VALUE := 50000
+const VALUE_AGE_FACTORS := [
+	[21, 1.15], [24, 1.08], [27, 1.02], [30, 0.94], [33, 0.84], [99, 0.68],
+]
 const MAX_SHIRT_NUMBER := 99
 const WAGE_COVER_WEEKS := 4
 const MIN_WEEKLY_WAGE := 1000
@@ -197,6 +200,47 @@ static func ensure_finances(career: Career, players: Array) -> void:
 			_round_money(float(total) * STARTING_BALANCE_RATIO))
 	_ensure_contracts(career, players)
 	_ensure_shirt_numbers(career, players)
+
+
+static func rollover_values(career: Career, players: Array) -> void:
+	# The prototype's season rollover: +1 year and a fresh value from age,
+	# overall and the minutes played last season (squad.py rollover_player_values).
+	ensure_finances(career, players)
+	var values: Dictionary = career.player_values
+	var ages: Dictionary = career.player_ages
+	var states: Dictionary = career.data.get("player_state", {})
+	for player in players:
+		var player_id := str(player.get("id", ""))
+		var age := int(ages.get(player_id, _player_age(player))) + 1
+		var value := maxi(MIN_MARKET_VALUE, int(values.get(player_id,
+			player.get("market_value", 0))))
+		var state: Dictionary = states.get(player_id) if states.get(player_id) is Dictionary else {}
+		var stats: Dictionary = state.get("stats", {}) if state.get("stats") is Dictionary else {}
+		var ratio := 0.0
+		var expected := int(state.get("expected_minutes", 0))
+		var minutes_factor := 1.0
+		if expected > 0:
+			ratio = clampf(float(stats.get("minutes", 0)) / float(expected), 0.0, 2.0)
+			minutes_factor = 0.85 + 0.15 * ratio
+		var rolled := float(value) * _age_value_factor(age) \
+			* _ovr_value_factor(player.get("overall")) * minutes_factor
+		values[player_id] = maxi(MIN_MARKET_VALUE, _round_money(rolled))
+		ages[player_id] = age
+		player["market_value"] = values[player_id]
+		player["age"] = age
+	career.player_values = values
+	career.player_ages = ages
+
+
+static func _age_value_factor(age: int) -> float:
+	for pair in VALUE_AGE_FACTORS:
+		if age <= int(pair[0]):
+			return float(pair[1])
+	return float(VALUE_AGE_FACTORS[-1][1])
+
+
+static func _ovr_value_factor(overall) -> float:
+	return maxf(0.8, minf(1.25, 1.0 + (float(overall if overall != null else 0.0) - 70.0) * 0.01))
 
 
 static func _ensure_contracts(career: Career, players: Array) -> void:

@@ -25,6 +25,35 @@ static func next_tile(snapshot: Dictionary, display_date := "", track_start := "
 	var next = season.get("next")
 	if not (next is Dictionary):
 		var own := own_row(snapshot)
+		var season_end := str(season.get("season_end", ""))
+		if not season_end.is_empty() and today < season_end:
+			# After the last match the calendar keeps rolling, at the normal
+			# pace, through the off-season days up to the season end. The strip
+			# is anchored at the start of the reel and spans the whole gap, so
+			# every day slides (a rolling window would rebuild and just swap
+			# numbers). No fixture to mark.
+			var start := today
+			var offset := 0
+			var count := 7
+			if simulating:
+				start = track_start
+				offset = days_between(start, today)
+				count = maxi(14, days_between(start, season_end) + 4)
+			return {
+				"match_day": false,
+				"eyebrow": "SIMULATING" if simulating else "OFF-SEASON",
+				"title": "STOP" if simulating else "SIMULATE",
+				"month": month_label(today),
+				"home_name": "", "away_name": "",
+				"home_logo": "", "away_logo": "", "opponent_logo": "",
+				"meta": "SEASON END · %s" % short_date(season_end),
+				"form": [],
+				"days": week_strip(start, season_end, count, today),
+				"day_offset": offset,
+				"simulating": simulating,
+				"season_complete": false,
+				"transition": true,
+			}
 		var meta := "SEASON COMPLETE"
 		if not own.is_empty():
 			meta = "%d%s · %d PTS · %d PLAYED" % [
@@ -35,6 +64,7 @@ static func next_tile(snapshot: Dictionary, display_date := "", track_start := "
 			"match_day": false,
 			"eyebrow": "SEASON",
 			"title": "SEASON COMPLETE",
+			"season_title": "START NEW SEASON",
 			"month": month_label(today),
 			"home_name": "", "away_name": "",
 			"home_logo": "", "away_logo": "", "opponent_logo": "",
@@ -44,6 +74,7 @@ static func next_tile(snapshot: Dictionary, display_date := "", track_start := "
 			"day_offset": 0,
 			"simulating": false,
 			"season_complete": true,
+			"transition": false,
 		}
 
 	var match_date := str(next.get("date", today))
@@ -54,7 +85,8 @@ static func next_tile(snapshot: Dictionary, display_date := "", track_start := "
 	var days: Array
 	var day_offset := 0
 	if simulating:
-		days = week_strip(track_start, match_date, 14, today)
+		var span := maxi(14, days_between(track_start, match_date) + 4)
+		days = week_strip(track_start, match_date, span, today)
 		day_offset = days_between(track_start, today)
 	else:
 		days = week_strip(today, match_date, 7, today)

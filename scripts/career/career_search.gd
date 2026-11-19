@@ -425,7 +425,7 @@ static func expiry_for(career: Career, player: Dictionary, player_id := "") -> S
 	var total: int = anchor[1] - 1 + months
 	var year: int = anchor[0] + total / 12
 	var month: int = total % 12 + 1
-	var day: int = mini(anchor[2], _days_in_month(year, month))
+	var day: int = mini(anchor[2], days_in_month(year, month))
 	return "%04d-%02d-%02d" % [year, month, day]
 
 
@@ -615,7 +615,7 @@ static func date_parts(iso_date: String) -> Array:
 	return [int(parts[0]), int(parts[1]), int(parts[2])]
 
 
-static func _days_in_month(year: int, month: int) -> int:
+static func days_in_month(year: int, month: int) -> int:
 	match month:
 		1, 3, 5, 7, 8, 10, 12:
 			return 31
