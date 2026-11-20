@@ -176,6 +176,12 @@ Status: v3 revised after three audits, the last one by attempting to encode all
   keeps the round sweep.
 - Schedule builders: `create`, `ensure_schedule` and `next_season` all switch to
   the stage builder when the league has a format.
+- **Calendar blackouts**: a new asset `assets/data/intl_calendar.json` holds the
+  FIFA international windows and the tournament dates per year (a snapshot with
+  sources). Rounds are spread inside the league window **around** the blackouts:
+  no fixture falls inside a window or a tournament, and the last round still
+  ends on the real final matchday, so rounds compress around the pauses. A pause
+  longer than 30 days advances in one step (the stage-gap skip rule).
 - Results: `{home, away, aet?: {home, away}, pens?: {home, away}}`; ties carry
   `{tie, leg}` on the fixture. Extra time only in the last leg; the timeline
   renders `aet` as 91-120 and prints the deciding line.

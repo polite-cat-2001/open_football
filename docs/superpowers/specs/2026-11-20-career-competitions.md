@@ -135,6 +135,9 @@ only.
 - The background world season is a simulation, not a real table.
 - Brazilian state championships are out of scope for now (the club plays the
   national league only).
+- National-team competitions (qualifiers, World Cup, Euro, Copa América, AFCON,
+  Asian Cup) are out of scope; only their calendar pauses are modelled, from
+  `assets/data/intl_calendar.json`. Player call-ups are not modelled.
 
 ## Phases
 
