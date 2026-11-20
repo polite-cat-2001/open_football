@@ -1,0 +1,615 @@
+{
+  "checked": "2026-11-20",
+  "scope": "Non-UEFA continental access lists: which domestic results earn a berth in which continental competition, at which entry round. One representative season per confederation (2026 for CONMEBOL/CONCACAF/OFC, 2026-27 for AFC/CAF).",
+  "confederations": [
+    {
+      "id": "CONMEBOL",
+      "season": "2026",
+      "competitions": [
+        {
+          "id": "libertadores",
+          "name": "Copa Libertadores",
+          "clubs": 47,
+          "clubs_note": "32 in the group stage: 28 direct + 4 third-stage winners",
+          "entry_rounds": ["first_stage", "second_stage", "third_stage", "group_stage"]
+        },
+        {
+          "id": "sudamericana",
+          "name": "Copa Sudamericana",
+          "clubs": 44,
+          "clubs_note": "plus 12 transferred from the Libertadores; 32 in the group stage: 12 direct + 16 first-stage winners + 4 Libertadores third-stage losers",
+          "entry_rounds": ["first_stage", "group_stage"]
+        }
+      ],
+      "allocation_basis": "fixed_quota",
+      "allocation_rule": "Fixed berth count per association, not a ranking: Brazil 7, Argentina 6, all other eight associations 4 each. The Libertadores and Sudamericana champions take an extra berth on top (marked '+1' in the sources), so an association can exceed its quota by one.",
+      "continental_berths": [
+        {"competition": "libertadores", "slot": "libertadores_title_holder", "entry": "group_stage"},
+        {"competition": "libertadores", "slot": "sudamericana_winner", "entry": "group_stage"}
+      ],
+      "slots": [
+        {
+          "country": "Brazil",
+          "libertadores": [
+            {"slot": "cup_winner", "entry": "group_stage", "note": "Copa do Brasil champions; berth 1"},
+            {"slot": "league_1st", "entry": "group_stage", "note": "Série A; berth 2"},
+            {"slot": "league_2nd", "entry": "group_stage"},
+            {"slot": "league_3rd", "entry": "group_stage"},
+            {"slot": "league_4th", "entry": "group_stage", "note": "berth 5"},
+            {"slot": "league_5th", "entry": "second_stage", "note": "berth 6"},
+            {"slot": "league_6th", "entry": "second_stage", "note": "berth 7"}
+          ],
+          "sudamericana": [
+            {"slot": "league_1st_not_qualified", "entry": "group_stage"},
+            {"slot": "league_2nd_not_qualified", "entry": "group_stage"},
+            {"slot": "league_3rd_not_qualified", "entry": "group_stage"},
+            {"slot": "league_4th_not_qualified", "entry": "group_stage"},
+            {"slot": "league_5th_not_qualified", "entry": "group_stage"},
+            {"slot": "league_6th_not_qualified", "entry": "group_stage"}
+          ],
+          "note": "2026 as played: Flamengo held the title-holder berth, so the league berths slid one place (league 2nd-5th to group stage, 6th-7th to second stage) and Brazil fielded 8 clubs."
+        },
+        {
+          "country": "Argentina",
+          "libertadores": [
+            {"slot": "apertura_champion", "entry": "group_stage", "note": "berth 1"},
+            {"slot": "clausura_champion", "entry": "group_stage", "note": "berth 2"},
+            {"slot": "cup_winner", "entry": "group_stage", "note": "Copa Argentina; berth 3"},
+            {"slot": "aggregate_1st_not_qualified", "entry": "group_stage", "note": "berth 4"},
+            {"slot": "aggregate_2nd_not_qualified", "entry": "group_stage", "note": "berth 5"},
+            {"slot": "aggregate_3rd_not_qualified", "entry": "second_stage", "note": "berth 6"}
+          ],
+          "sudamericana": [
+            {"slot": "aggregate_1st_not_qualified", "entry": "group_stage"},
+            {"slot": "aggregate_2nd_not_qualified", "entry": "group_stage"},
+            {"slot": "aggregate_3rd_not_qualified", "entry": "group_stage"},
+            {"slot": "aggregate_4th_not_qualified", "entry": "group_stage"},
+            {"slot": "aggregate_5th_not_qualified", "entry": "group_stage"},
+            {"slot": "aggregate_6th_not_qualified", "entry": "group_stage"}
+          ],
+          "note": "Aggregate table of the 2025 Apertura + Clausura season, not a single league table."
+        },
+        {
+          "country": "Bolivia",
+          "libertadores": [
+            {"slot": "league_1st", "entry": "group_stage"},
+            {"slot": "league_2nd", "entry": "group_stage"},
+            {"slot": "cup_winner", "entry": "second_stage", "note": "Copa Bolivia"},
+            {"slot": "aggregate_best_not_qualified", "entry": "first_stage"}
+          ],
+          "sudamericana": [
+            {"slot": "1st_not_qualified", "entry": "first_stage"},
+            {"slot": "2nd_not_qualified", "entry": "first_stage"},
+            {"slot": "3rd_not_qualified", "entry": "first_stage"},
+            {"slot": "4th_not_qualified", "entry": "first_stage"}
+          ]
+        },
+        {
+          "country": "Chile",
+          "libertadores": [
+            {"slot": "league_1st", "entry": "group_stage"},
+            {"slot": "league_2nd", "entry": "group_stage"},
+            {"slot": "league_3rd", "entry": "second_stage"},
+            {"slot": "cup_winner", "entry": "second_stage", "note": "Copa Chile"}
+          ],
+          "sudamericana": [
+            {"slot": "1st_not_qualified", "entry": "first_stage"},
+            {"slot": "2nd_not_qualified", "entry": "first_stage"},
+            {"slot": "3rd_not_qualified", "entry": "first_stage"},
+            {"slot": "4th_not_qualified", "entry": "first_stage"}
+          ]
+        },
+        {
+          "country": "Colombia",
+          "libertadores": [
+            {"slot": "apertura_champion", "entry": "group_stage"},
+            {"slot": "finalizacion_champion", "entry": "group_stage"},
+            {"slot": "aggregate_best_not_qualified", "entry": "second_stage"},
+            {"slot": "aggregate_2nd_not_qualified", "entry": "second_stage"}
+          ],
+          "sudamericana": [
+            {"slot": "1st_not_qualified", "entry": "first_stage"},
+            {"slot": "2nd_not_qualified", "entry": "first_stage"},
+            {"slot": "3rd_not_qualified", "entry": "first_stage"},
+            {"slot": "4th_not_qualified", "entry": "first_stage"}
+          ]
+        },
+        {
+          "country": "Ecuador",
+          "libertadores": [
+            {"slot": "league_1st", "entry": "group_stage"},
+            {"slot": "league_2nd", "entry": "group_stage"},
+            {"slot": "league_best_not_qualified", "entry": "second_stage"},
+            {"slot": "cup_winner", "entry": "first_stage", "note": "Copa Ecuador"}
+          ],
+          "sudamericana": [
+            {"slot": "1st_not_qualified", "entry": "first_stage"},
+            {"slot": "2nd_not_qualified", "entry": "first_stage"},
+            {"slot": "3rd_not_qualified", "entry": "first_stage"},
+            {"slot": "4th_not_qualified", "entry": "first_stage"}
+          ]
+        },
+        {
+          "country": "Paraguay",
+          "libertadores": [
+            {"slot": "champion_better_aggregate", "entry": "group_stage", "note": "of the Apertura and Clausura champions"},
+            {"slot": "champion_worse_aggregate", "entry": "group_stage"},
+            {"slot": "aggregate_best_not_qualified", "entry": "second_stage"},
+            {"slot": "cup_winner", "entry": "first_stage", "note": "Copa Paraguay; 2026 went to the runners-up because the cup winners were relegated"}
+          ],
+          "sudamericana": [
+            {"slot": "1st_not_qualified", "entry": "first_stage"},
+            {"slot": "2nd_not_qualified", "entry": "first_stage"},
+            {"slot": "3rd_not_qualified", "entry": "first_stage"},
+            {"slot": "4th_not_qualified", "entry": "first_stage"}
+          ]
+        },
+        {
+          "country": "Peru",
+          "libertadores": [
+            {"slot": "league_1st", "entry": "group_stage"},
+            {"slot": "league_2nd", "entry": "group_stage"},
+            {"slot": "league_3rd", "entry": "second_stage"},
+            {"slot": "league_4th", "entry": "first_stage"}
+          ],
+          "sudamericana": [
+            {"slot": "1st_not_qualified", "entry": "first_stage"},
+            {"slot": "2nd_not_qualified", "entry": "first_stage"},
+            {"slot": "3rd_not_qualified", "entry": "first_stage"},
+            {"slot": "4th_not_qualified", "entry": "first_stage"}
+          ]
+        },
+        {
+          "country": "Uruguay",
+          "libertadores": [
+            {"slot": "league_champion", "entry": "group_stage"},
+            {"slot": "league_runner_up", "entry": "group_stage"},
+            {"slot": "aggregate_best_not_qualified", "entry": "second_stage"},
+            {"slot": "aggregate_2nd_not_qualified", "entry": "first_stage"}
+          ],
+          "sudamericana": [
+            {"slot": "1st_not_qualified", "entry": "first_stage"},
+            {"slot": "2nd_not_qualified", "entry": "first_stage"},
+            {"slot": "3rd_not_qualified", "entry": "first_stage"},
+            {"slot": "4th_not_qualified", "entry": "first_stage"}
+          ]
+        },
+        {
+          "country": "Venezuela",
+          "libertadores": [
+            {"slot": "grand_final_champion", "entry": "group_stage"},
+            {"slot": "aggregate_1st", "entry": "group_stage"},
+            {"slot": "league_runner_up", "entry": "second_stage"},
+            {"slot": "aggregate_best_not_qualified", "entry": "first_stage"}
+          ],
+          "sudamericana": [
+            {"slot": "1st_not_qualified", "entry": "first_stage"},
+            {"slot": "2nd_not_qualified", "entry": "first_stage"},
+            {"slot": "3rd_not_qualified", "entry": "first_stage"},
+            {"slot": "4th_not_qualified", "entry": "first_stage"}
+          ]
+        }
+      ],
+      "drop_downs": [
+        {"from": "libertadores", "round": "third_stage", "to": "sudamericana", "entry": "group_stage", "clubs": 4},
+        {"from": "libertadores", "round": "group_stage", "condition": "third-placed teams", "to": "sudamericana", "entry": "knockout_round_playoffs", "clubs": 8},
+        {"from": "sudamericana", "round": "group_stage", "condition": "runners-up", "to": "sudamericana", "entry": "knockout_round_playoffs", "clubs": 8, "note": "internal: group runners-up meet the Libertadores third-placed teams"}
+      ],
+      "qualifying_window": {
+        "libertadores": {"from": "2026-02-03", "to": "2026-03-12", "note": "first stage 3-5 / 10-12 Feb, second stage 17-19 / 24-26 Feb, third stage 3-5 / 10-12 Mar; group stage 7 Apr - 28 May; final 28 Nov"},
+        "sudamericana": {"from": "2026-03-03", "to": "2026-03-05", "note": "single-leg first stage; group stage 7 Apr - 28 May; knockout play-offs 21-30 Jul; final 21 Nov"}
+      },
+      "source": "https://en.wikipedia.org/wiki/2026_Copa_Libertadores and https://en.wikipedia.org/wiki/2026_Copa_Sudamericana (both citing the CONMEBOL Manual de Clubes 2026 PDFs)",
+      "quote": "The following 47 teams from the 10 CONMEBOL member associations qualified for the tournament: Copa Libertadores champions; Copa Sudamericana champions; Brazil: 7 berths; Argentina: 6 berths; All other associations: 4 berths each. [...] Group stage: 28 teams [...] Teams which qualified for berths 1-5 from Argentina and Brazil; Teams which qualified for berths 1-2 from all other associations. Second stage: 13 teams [...] Teams which qualified for berths 6-7 from Brazil; Team which qualified for berth 6 from Argentina; Teams which qualified for berths 3-4 from Chile and Colombia; Teams which qualified for berth 3 from all other associations. First stage: 6 teams [...] Teams which qualified for berth 4 from Bolivia, Ecuador, Paraguay, Peru, Uruguay and Venezuela.",
+      "quote_drop_down": "A further 12 teams eliminated from the 2026 Copa Libertadores were transferred to the Copa Sudamericana, entering the group stage and the knockout round play-offs.",
+      "confidence": "high"
+    },
+    {
+      "id": "AFC",
+      "season": "2026-27",
+      "competitions": [
+        {"id": "acl_elite", "name": "AFC Champions League Elite", "clubs": 36, "clubs_note": "32 competition proper (16 West + 16 East league stage); 28 direct + 4 play-off winners", "entry_rounds": ["playoff", "league_stage"]},
+        {"id": "acl_two", "name": "AFC Champions League Two", "clubs": 35, "clubs_note": "32 group stage (16 West + 16 East); 29 direct + 3 preliminary winners", "entry_rounds": ["preliminary", "group_stage"]},
+        {"id": "afc_challenge_league", "name": "AFC Challenge League", "clubs": null, "clubs_note": "third tier; its winner is promoted into the next ACL Two group stage", "entry_rounds": ["group_stage"]}
+      ],
+      "allocation_basis": "association_ranking",
+      "allocation_rule": "Slots are not fixed per country: they follow the AFC Club Competitions Ranking, recomputed after the previous season, split into a West and an East region. The top association in each region gets 4 league-stage + 1 play-off berth, and the scale steps down from there. ACL Two slots come from the same ranking with a separate, flatter scale. The winner of ACL Two is promoted into the next ACL Elite play-off; the winner of the Challenge League into the next ACL Two group stage.",
+      "ranking_table": {
+        "west": [
+          {"rank_region": 1, "rank_afc": 1, "country": "Saudi Arabia", "points": 119.957, "elite_league_stage": 4, "elite_playoff": 1, "acl_two_group": 1},
+          {"rank_region": 2, "rank_afc": 4, "country": "United Arab Emirates", "points": 74.466, "elite_league_stage": 3, "elite_playoff": 1, "acl_two_group": 2, "note": "1 direct + the ACL Elite play-off loser"},
+          {"rank_region": 3, "rank_afc": 5, "country": "Qatar", "points": 69.326, "elite_league_stage": 3, "elite_playoff": 0, "acl_two_group": 1},
+          {"rank_region": 4, "rank_afc": 6, "country": "Iran", "points": 68.907, "elite_league_stage": 2, "elite_playoff": 0, "acl_two_group": 1},
+          {"rank_region": 5, "rank_afc": 9, "country": "Uzbekistan", "points": 49.821, "elite_league_stage": 1, "elite_playoff": 1, "acl_two_group": 1},
+          {"rank_region": 6, "rank_afc": 12, "country": "Iraq", "points": 39.28, "elite_league_stage": 1, "elite_playoff": 0, "acl_two_group": 1},
+          {"rank_region": 7, "rank_afc": 13, "country": "Jordan", "points": 36.905, "elite_league_stage": 0, "elite_playoff": 1, "acl_two_group": 2, "note": "1 direct + the ACL Elite play-off loser"},
+          {"rank_region": 8, "rank_afc": 16, "country": "Bahrain", "points": 27.233, "elite_league_stage": 0, "elite_playoff": 0, "acl_two_group": 2},
+          {"rank_region": 9, "rank_afc": 17, "country": "Oman", "points": 26.069, "elite_league_stage": 0, "elite_playoff": 0, "acl_two_group": 2},
+          {"rank_region": 10, "rank_afc": 18, "country": "India", "points": 24.958, "elite_league_stage": 0, "elite_playoff": 0, "acl_two_group": 0, "acl_two_preliminary": 2},
+          {"rank_region": 11, "rank_afc": 20, "country": "Turkmenistan", "points": 24.211, "elite_league_stage": 0, "elite_playoff": 0, "acl_two_group": 0, "acl_two_preliminary": 1},
+          {"rank_region": 12, "rank_afc": 21, "country": "Kuwait", "points": 21.26, "elite_league_stage": 0, "elite_playoff": 0, "acl_two_group": 1, "acl_two_preliminary": 1, "note": "group berth is the Challenge League winner's promotion"}
+        ],
+        "east": [
+          {"rank_region": 1, "rank_afc": 2, "country": "Japan", "points": 107.663, "elite_league_stage": 4, "elite_playoff": 1, "acl_two_group": 1, "note": "2026-27 anomaly: 4 league-stage berths because the J1 calendar moved to Sept-May and the J1 100 Year Vision League champion also got a berth"},
+          {"rank_region": 2, "rank_afc": 3, "country": "South Korea", "points": 90.982, "elite_league_stage": 3, "elite_playoff": 1, "acl_two_group": 2, "note": "1 direct + the ACL Elite play-off loser"},
+          {"rank_region": 3, "rank_afc": 7, "country": "Thailand", "points": 54.873, "elite_league_stage": 3, "elite_playoff": 0, "acl_two_group": 1},
+          {"rank_region": 4, "rank_afc": 8, "country": "China", "points": 54.682, "elite_league_stage": 2, "elite_playoff": 0, "acl_two_group": 1},
+          {"rank_region": 5, "rank_afc": 10, "country": "Australia", "points": 40.42, "elite_league_stage": 1, "elite_playoff": 1, "acl_two_group": 2, "note": "1 direct + the ACL Elite play-off loser"},
+          {"rank_region": 6, "rank_afc": 11, "country": "Malaysia", "points": 40.039, "elite_league_stage": 1, "elite_playoff": 0, "acl_two_group": 1},
+          {"rank_region": 7, "rank_afc": 14, "country": "Vietnam", "points": 35.038, "elite_league_stage": 0, "elite_playoff": 1, "acl_two_group": 1},
+          {"rank_region": 8, "rank_afc": 15, "country": "Singapore", "points": 29.405, "elite_league_stage": 0, "elite_playoff": 0, "acl_two_group": 2},
+          {"rank_region": 9, "rank_afc": 19, "country": "Hong Kong", "points": 24.436, "elite_league_stage": 0, "elite_playoff": 0, "acl_two_group": 2},
+          {"rank_region": 10, "rank_afc": 23, "country": "Cambodia", "points": 20.112, "elite_league_stage": 0, "elite_playoff": 0, "acl_two_group": 2},
+          {"rank_region": 11, "rank_afc": 25, "country": "Indonesia", "points": 18.653, "elite_league_stage": 0, "elite_playoff": 0, "acl_two_group": 0, "acl_two_preliminary": 1},
+          {"rank_region": 12, "rank_afc": 27, "country": "Philippines", "points": 16.706, "elite_league_stage": 0, "elite_playoff": 0, "acl_two_group": 0, "acl_two_preliminary": 1}
+        ]
+      },
+      "slots": [
+        {
+          "country": "Saudi Arabia",
+          "acl_elite": [
+            {"slot": "league_1st", "entry": "league_stage"},
+            {"slot": "league_2nd", "entry": "league_stage"},
+            {"slot": "league_3rd", "entry": "league_stage"},
+            {"slot": "league_4th", "entry": "league_stage"},
+            {"slot": "league_5th", "entry": "playoff"}
+          ],
+          "acl_two": [{"slot": "league_6th", "entry": "group_stage", "note": "King's Cup winners' berth, transferred because the cup winners had already qualified for the Elite"}]
+        },
+        {
+          "country": "Japan",
+          "acl_elite": [
+            {"slot": "league_1st", "entry": "league_stage"},
+            {"slot": "league_2nd", "entry": "league_stage"},
+            {"slot": "league_3rd", "entry": "league_stage"},
+            {"slot": "j1_100_year_vision_league_champion", "entry": "league_stage", "note": "transition-season extra berth, 2026-27 only"},
+            {"slot": "acl_two_winner", "entry": "playoff", "note": "Gamba Osaka as 2025-26 ACL Two winners"}
+          ],
+          "acl_two": [{"slot": "cup_winner", "entry": "group_stage", "note": "Emperor's Cup"}]
+        },
+        {
+          "country": "South Korea",
+          "acl_elite": [
+            {"slot": "league_1st", "entry": "league_stage"},
+            {"slot": "league_2nd", "entry": "league_stage"},
+            {"slot": "league_4th", "entry": "league_stage", "note": "the 3rd-place berth is void: Gimcheon Sangmu is a military club and ineligible"},
+            {"slot": "league_5th", "entry": "playoff"}
+          ],
+          "acl_two": [{"slot": "league_6th", "entry": "group_stage"}]
+        },
+        {
+          "country": "China",
+          "acl_elite": [
+            {"slot": "league_1st", "entry": "league_stage"},
+            {"slot": "cup_winner", "entry": "league_stage", "note": "Chinese FA Cup; the cup berth is an Elite berth, not ACL Two"}
+          ],
+          "acl_two": [{"slot": "league_2nd", "entry": "group_stage"}]
+        },
+        {
+          "country": "Qatar",
+          "acl_elite": [
+            {"slot": "league_1st", "entry": "league_stage"},
+            {"slot": "league_2nd", "entry": "league_stage"},
+            {"slot": "cup_winner", "entry": "league_stage", "note": "Amir of Qatar Cup"}
+          ],
+          "acl_two": [{"slot": "league_3rd", "entry": "group_stage"}]
+        },
+        {
+          "country": "United Arab Emirates",
+          "acl_elite": [
+            {"slot": "league_1st", "entry": "league_stage"},
+            {"slot": "league_2nd", "entry": "league_stage"},
+            {"slot": "league_3rd", "entry": "league_stage"},
+            {"slot": "league_4th", "entry": "playoff"}
+          ],
+          "acl_two": [{"slot": "league_5th", "entry": "group_stage", "note": "2026-27: President's Cup winners Al Ain also won the league, so the berth reserved for 4th place passed to 5th"}]
+        },
+        {
+          "country": "Iran",
+          "acl_elite": [
+            {"slot": "league_1st", "entry": "league_stage"},
+            {"slot": "league_2nd", "entry": "league_stage"}
+          ],
+          "acl_two": [{"slot": "league_4th", "entry": "group_stage", "note": "2026-27 replaced the Hazfi Cup path, which could not be completed"}],
+          "note": "The 2025-26 league was abandoned (2026 Iran war); the federation nominated the top two."
+        },
+        {
+          "country": "Uzbekistan",
+          "acl_elite": [
+            {"slot": "league_1st", "entry": "league_stage"},
+            {"slot": "cup_winner", "entry": "playoff", "note": "Uzbekistan Cup"}
+          ],
+          "acl_two": [{"slot": "league_3rd", "entry": "group_stage"}]
+        },
+        {
+          "country": "Iraq",
+          "acl_elite": [{"slot": "league_1st", "entry": "league_stage"}],
+          "acl_two": [{"slot": "league_2nd", "entry": "group_stage", "note": "2026-27: the Iraq FA Cup was cancelled, so the cup berth went to the league runners-up"}]
+        },
+        {
+          "country": "Australia",
+          "acl_elite": [
+            {"slot": "regular_season_1st", "entry": "league_stage", "note": "A-League Men premiers"},
+            {"slot": "regular_season_2nd", "entry": "playoff"}
+          ],
+          "acl_two": [{"slot": "league_4th", "entry": "group_stage", "note": "Australia Cup berth; 2026-27 transferred because the cup winners qualified for the Elite"}]
+        },
+        {
+          "country": "Malaysia",
+          "acl_elite": [{"slot": "league_1st", "entry": "league_stage"}],
+          "acl_two": [{"slot": "league_2nd", "entry": "group_stage", "note": "FA Cup berth transferred: JDT won the cup and were already Elite-qualified"}]
+        },
+        {
+          "country": "Vietnam",
+          "acl_elite": [{"slot": "league_1st", "entry": "playoff"}],
+          "acl_two": [{"slot": "league_2nd", "entry": "group_stage"}]
+        }
+      ],
+      "drop_downs": [
+        {"from": "acl_elite", "round": "playoff", "to": "acl_two", "entry": "group_stage", "clubs": 4},
+        {"from": "acl_two", "round": "preliminary", "to": "afc_challenge_league", "entry": "group_stage", "clubs": 3}
+      ],
+      "promotions": [
+        {"from": "acl_two", "condition": "winner", "to": "acl_elite", "entry": "playoff"},
+        {"from": "afc_challenge_league", "condition": "winner", "to": "acl_two", "entry": "group_stage"}
+      ],
+      "qualifying_window": {
+        "acl_elite": {"from": "2026-08-11", "to": "2026-08-11", "note": "single-leg play-off round; league stage 14 Sep 2026 - 1 May 2027"},
+        "acl_two": {"from": "2026-08-12", "to": "2026-08-31", "note": "single-leg preliminary stage; group stage 15 Sep 2026 - 15 May 2027"}
+      },
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_AFC_Champions_League_Elite and https://en.wikipedia.org/wiki/2026%E2%80%9327_AFC_Champions_League_Two (both citing the AFC 2026/27 Slot Allocation PDF)",
+      "quote": "The associations are allocated slots according to their club competitions ranking which was published after the 2024-25 competitions were completed.",
+      "quote_drop_down": "The four winners of the play-off round (two from West Region and two from East Region) advanced to the league stage to join the 28 direct entrants. The losers of the preliminary round entered the group stage of the AFC Champions League Two. [...] The three winners of the preliminary stage (two from West Region and one from East Region) advanced to the group stage to join the 29 direct entrants. The losers of the qualifying play-offs will enter the group stage of the 2026-27 AFC Challenge League.",
+      "confidence": "high",
+      "notes": [
+        "The 4+1 / 3+1 / 3 / 2 / 1+1 pattern is the 2026-27 outcome of the ranking, not a permanent table: recompute it each season from the AFC ranking.",
+        "Each region's Elite league stage is exactly 16 clubs, and each region's ACL Two group stage is exactly 16 clubs, which is what caps the number of associations that get slots.",
+        "Country-level domestic-result mapping is what each association nominated for 2026-27; the AFC regulations leave the domestic selection rule to the member association."
+      ]
+    },
+    {
+      "id": "CAF",
+      "season": "2026-27",
+      "competitions": [
+        {"id": "champions_league", "name": "CAF Champions League", "clubs": 61, "clubs_note": "61 entered from 48 associations; 16 reach the group stage", "entry_rounds": ["first_round", "second_round", "group_stage"]},
+        {"id": "confederation_cup", "name": "CAF Confederation Cup", "clubs": 56, "clubs_note": "56 entered from 44 associations; 16 reach the group stage", "entry_rounds": ["first_round", "second_round", "group_stage"]}
+      ],
+      "allocation_basis": "fixed_quota",
+      "allocation_rule": "One berth for every member association that enters, plus a second berth for the 12 highest-ranked associations in the CAF 5-year ranking. The reigning Champions League holder is also entitled to enter, but no association may be represented by more than two clubs, so the holder only adds a berth if its own association has room. Theoretical maximum 68 clubs; the quota is a flat 1-or-2 per country, not a sliding scale.",
+      "two_berth_associations": ["Egypt", "Morocco", "Algeria", "South Africa", "Tanzania", "Tunisia", "Angola", "DR Congo", "Sudan", "Mali", "Ivory Coast", "Nigeria"],
+      "slots": [
+        {
+          "country": "Egypt",
+          "champions_league": [
+            {"slot": "league_1st", "entry": "first_round"},
+            {"slot": "league_2nd", "entry": "first_round"}
+          ],
+          "confederation_cup": [
+            {"slot": "league_3rd", "entry": "first_round"},
+            {"slot": "cup_runner_up", "entry": "first_round", "note": "Egypt Cup runners-up, because the cup winners were already Champions League-qualified"}
+          ]
+        },
+        {
+          "country": "Morocco",
+          "champions_league": [
+            {"slot": "league_1st", "entry": "first_round"},
+            {"slot": "league_2nd", "entry": "first_round"}
+          ],
+          "confederation_cup": [
+            {"slot": "league_3rd", "entry": "first_round"},
+            {"slot": "league_4th", "entry": "first_round"}
+          ]
+        },
+        {
+          "country": "Algeria",
+          "champions_league": [
+            {"slot": "league_1st", "entry": "first_round"},
+            {"slot": "league_2nd", "entry": "first_round"}
+          ],
+          "confederation_cup": [
+            {"slot": "confederation_cup_holder", "entry": "first_round", "note": "also Algerian Cup winners in 2026-27"},
+            {"slot": "league_3rd", "entry": "first_round"}
+          ]
+        },
+        {
+          "country": "South Africa",
+          "champions_league": [
+            {"slot": "league_1st", "entry": "first_round"},
+            {"slot": "league_2nd", "entry": "first_round", "note": "also the Champions League holder's berth in 2026-27 (Mamelodi Sundowns)"}
+          ],
+          "confederation_cup": [
+            {"slot": "league_3rd", "entry": "first_round"},
+            {"slot": "cup_winner", "entry": "first_round", "note": "Nedbank Cup"}
+          ]
+        },
+        {
+          "country": "Tunisia",
+          "champions_league": [
+            {"slot": "league_1st", "entry": "first_round"},
+            {"slot": "league_2nd", "entry": "first_round"}
+          ],
+          "confederation_cup": [
+            {"slot": "league_3rd", "entry": "first_round"},
+            {"slot": "cup_runner_up", "entry": "first_round", "note": "Tunisian Cup runners-up"}
+          ]
+        }
+      ],
+      "single_berth_pattern": {
+        "champions_league": "league champion only",
+        "confederation_cup": "usually the national cup winner; the remaining associations field one club of their choosing",
+        "quote": "Associations are shown according to their CAF 5-year ranking"
+      },
+      "drop_downs": [],
+      "drop_down_note": "None. Both competitions are closed ladders: 61 CL entrants play two knockout rounds down to 16 group-stage clubs, and 56 Confederation Cup entrants do the same. No Champions League loser is transferred to the Confederation Cup in 2026-27 (the same was true in 2025-26). Do not model a drop-down for CAF.",
+      "qualifying_window": {
+        "champions_league": {"from": "2026-09-04", "to": "2026-10-25", "note": "first round 4-6 / 11-13 Sep, second round 16-18 / 23-25 Oct; group stage 27 Nov 2026 - 24 Jan 2027; final May 2027"},
+        "confederation_cup": {"from": "2026-09-04", "to": "2026-10-25", "note": "first round 4-6 / 11-13 Sep, second round 13-25 Oct; group stage 27 Nov 2026 - 24 Jan 2027"}
+      },
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_CAF_Champions_League and https://en.wikipedia.org/wiki/2026%E2%80%9327_CAF_Confederation_Cup (both citing the CAF club competition regulations)",
+      "quote": "All 56 CAF member associations may enter the CAF Champions League. The 12 highest-ranked associations according to the CAF 5-year ranking are eligible to enter two teams in the competition. [...] The reigning CAF Champions League title holders are also automatically entitled to enter the following edition. However, no association may normally be represented by more than two clubs. As a result, a maximum of 68 teams could theoretically enter the tournament.",
+      "quote_cc": "All 54 CAF member associations may enter the CAF Confederation Cup, with the 12 highest ranked associations according to the CAF 5-year ranking eligible to enter two teams in the competition.",
+      "confidence": "high"
+    },
+    {
+      "id": "CONCACAF",
+      "season": "2026",
+      "competitions": [
+        {"id": "champions_cup", "name": "CONCACAF Champions Cup", "clubs": 27, "clubs_note": "10 associations; 5 byes to the round of 16, 22 into round one", "entry_rounds": ["round_one", "round_of_16"]}
+      ],
+      "allocation_basis": "fixed_quota",
+      "allocation_rule": "A fixed quota by zone and by qualifying competition, not an association ranking. The North American Zone gets 18 berths split Mexico 6 / USA 8 / Canada 4; the Central American Zone 6; the Caribbean Zone 3. 12 of the 27 berths come from three international competitions (Leagues Cup, Caribbean Cup, Central American Cup), so a country's total is not a pure league quota.",
+      "zone_totals": {"north_america": 18, "central_america": 6, "caribbean": 3},
+      "slots": [
+        {
+          "country": "Mexico",
+          "champions_cup": [
+            {"slot": "liga_mx_champion_higher_aggregate", "entry": "round_of_16", "note": "Apertura/Clausura champion with the better aggregate; bye to the round of 16"},
+            {"slot": "liga_mx_other_champion", "entry": "round_one"},
+            {"slot": "liga_mx_runner_up", "entry": "round_one"},
+            {"slot": "liga_mx_runner_up_other_tournament", "entry": "round_one"},
+            {"slot": "liga_mx_aggregate_next_1", "entry": "round_one"},
+            {"slot": "liga_mx_aggregate_next_2", "entry": "round_one"}
+          ]
+        },
+        {
+          "country": "United States",
+          "champions_cup": [
+            {"slot": "mls_cup_winner", "entry": "round_of_16", "note": "bye"},
+            {"slot": "supporters_shield_winner", "entry": "round_one"},
+            {"slot": "mls_conference_regular_season_leader", "entry": "round_one"},
+            {"slot": "supporters_shield_next_1", "entry": "round_one"},
+            {"slot": "supporters_shield_next_2", "entry": "round_one"},
+            {"slot": "us_open_cup_winner", "entry": "round_one"},
+            {"slot": "leagues_cup_winner", "entry": "round_of_16", "note": "bye; the Leagues Cup berth is not tied to a league"},
+            {"slot": "leagues_cup_third_place", "entry": "round_one"}
+          ]
+        },
+        {
+          "country": "Canada",
+          "champions_cup": [
+            {"slot": "canadian_championship_winner", "entry": "round_one"},
+            {"slot": "cpl_playoff_champion", "entry": "round_one"},
+            {"slot": "cpl_shield_winner", "entry": "round_one"},
+            {"slot": "mls_supporters_shield_standing", "entry": "round_one", "note": "Canadian MLS clubs compete for the US-side MLS berths"}
+          ]
+        },
+        {
+          "country": "Costa Rica",
+          "champions_cup": [
+            {"slot": "central_american_cup_champion", "entry": "round_of_16", "note": "bye"},
+            {"slot": "central_american_cup_play_in_winner", "entry": "round_one"}
+          ]
+        },
+        {
+          "country": "Honduras",
+          "champions_cup": [
+            {"slot": "central_american_cup_semi_finalist", "entry": "round_one"},
+            {"slot": "central_american_cup_semi_finalist", "entry": "round_one"}
+          ]
+        },
+        {
+          "country": "Panama",
+          "champions_cup": [{"slot": "central_american_cup_play_in_winner", "entry": "round_one"}]
+        },
+        {
+          "country": "Guatemala",
+          "champions_cup": [{"slot": "central_american_cup_runner_up", "entry": "round_one"}]
+        },
+        {
+          "country": "Jamaica",
+          "champions_cup": [{"slot": "caribbean_cup_champion", "entry": "round_of_16", "note": "bye"}]
+        },
+        {
+          "country": "Dominican Republic",
+          "champions_cup": [{"slot": "caribbean_cup_runner_up", "entry": "round_one"}]
+        },
+        {
+          "country": "Trinidad and Tobago",
+          "champions_cup": [{"slot": "caribbean_cup_third_place", "entry": "round_one"}]
+        }
+      ],
+      "country_totals": {"Mexico": 6, "United States": 8, "Canada": 4, "Costa Rica": 2, "Honduras": 2, "Guatemala": 1, "Panama": 1, "Jamaica": 1, "Dominican Republic": 1, "Trinidad and Tobago": 1},
+      "drop_downs": [],
+      "drop_down_note": "None. Single-elimination bracket: round-one losers are out, there is no secondary CONCACAF club competition to fall into.",
+      "qualifying_window": {"from": "2026-02-03", "to": "2026-02-26", "note": "round one 3-4 and 17-19 Feb / 10-12 and 24-26 Feb; round of 16 10-19 Mar; final 30 May 2026"},
+      "source": "https://en.wikipedia.org/wiki/2026_CONCACAF_Champions_Cup citing https://www.concacaf.com/champions-cup/news/2026-concacaf-champions-cup-key-details/ and the 2026 CONCACAF Champions Cup regulations",
+      "quote": "Twenty-seven teams qualified for the tournament, with five qualifying directly to the round of 16. The remaining 22 teams entered in round one. In addition to national league competitions in the United States, Mexico, and Canada, 12 of 27 berths were determined by international competitions, including the 2025 Leagues Cup (three), 2025 CONCACAF Caribbean Cup (three), and 2025 CONCACAF Central American Cup (six).",
+      "confidence": "high",
+      "notes": [
+        "Leagues Cup nominally supplies 3 berths (champion, runner-up, third place); the 2026 team list contains only 2 (Seattle as champion, LA Galaxy as third place), so one berth was absorbed. Verify the Leagues Cup line each season.",
+        "Round one is two-legged; the round of 16, quarter-finals, semi-finals and final are also two-legged, with the final a single match."
+      ]
+    },
+    {
+      "id": "OFC",
+      "season": "2026",
+      "competitions": [
+        {"id": "champions_league", "name": "OFC Men's Champions League", "clubs": 11, "clubs_note": "8 in the group stage: 7 direct + 1 qualifying-stage winner", "entry_rounds": ["qualifying_stage", "group_stage"]}
+      ],
+      "allocation_basis": "fixed_quota",
+      "allocation_rule": "Exactly one berth per member association, for all 11 associations. There is no ranking and no second berth. Seven associations enter the group stage directly and four play a qualifying stage for the last group-stage place.",
+      "slots": [
+        {
+          "country": "New Zealand",
+          "champions_league": [{"slot": "national_league_champion", "entry": "group_stage"}]
+        },
+        {
+          "country": "Fiji",
+          "champions_league": [{"slot": "league_champion", "entry": "group_stage"}]
+        },
+        {
+          "country": "New Caledonia",
+          "champions_league": [{"slot": "league_champion", "entry": "group_stage"}]
+        },
+        {
+          "country": "Papua New Guinea",
+          "champions_league": [{"slot": "league_champion", "entry": "group_stage"}]
+        },
+        {
+          "country": "Solomon Islands",
+          "champions_league": [{"slot": "league_champion", "entry": "group_stage"}]
+        },
+        {
+          "country": "Tahiti",
+          "champions_league": [{"slot": "league_champion", "entry": "group_stage"}]
+        },
+        {
+          "country": "Vanuatu",
+          "champions_league": [{"slot": "league_champion", "entry": "group_stage"}]
+        },
+        {
+          "country": "American Samoa",
+          "champions_league": [{"slot": "league_placing", "entry": "qualifying_stage", "note": "2026 entrant was the league runner-up"}]
+        },
+        {
+          "country": "Cook Islands",
+          "champions_league": [{"slot": "cup_winner", "entry": "qualifying_stage"}]
+        },
+        {
+          "country": "Samoa",
+          "champions_league": [{"slot": "league_placing", "entry": "qualifying_stage", "note": "2026 entrant was 3rd"}]
+        },
+        {
+          "country": "Tonga",
+          "champions_league": [{"slot": "league_champion", "entry": "qualifying_stage"}]
+        }
+      ],
+      "drop_downs": [],
+      "drop_down_note": "None. One competition, single bracket; qualifying-stage losers are out.",
+      "qualifying_window": {"from": "2026-01-31", "to": "2026-02-06", "note": "qualifying stage in Samoa; competition proper 9-22 Aug 2026 in Fiji"},
+      "source": "https://en.wikipedia.org/wiki/2026_OFC_Men%27s_Champions_League",
+      "quote": "A total of 11 teams from all 11 OFC member associations may enter the competition. Seven associations (Fiji, New Caledonia, New Zealand, Papua New Guinea, Solomon Islands, Tahiti, Vanuatu) are awarded one berth each in the group stage. Four associations (American Samoa, Cook Islands, Samoa, Tonga) are awarded one berth each in the qualifying stage, with the winners advancing to the group stage.",
+      "confidence": "high",
+      "notes": [
+        "From 2026 the OFC Champions League winner no longer takes the FIFA Club World Cup / Intercontinental Cup berth; the OFC Professional League champion does. Do not link the two."
+      ]
+    }
+  ],
+  "simple_confederations": ["CONMEBOL", "CAF", "CONCACAF", "OFC"],
+  "simple_note": "CONMEBOL, CAF, CONCACAF and OFC all use flat fixed quotas (CONMEBOL 7/6/4, CAF 1-or-2 per member, CONCACAF fixed by zone, OFC 1 per member). AFC is the only one of the five that allocates by an association ranking, and the only one with a genuine two-tier drop-down ladder.",
+  "gaps": [
+    "AFC per-country domestic-result mapping is the 2026-27 nomination, not a regulation; associations may change which domestic competition supplies which berth.",
+    "CAF single-berth associations mostly send their cup winner to the Confederation Cup, but several sent a league placing or a cup runner-up in 2026-27. Treat that slot as 'one club of the association's choosing'.",
+    "CONCACAF Leagues Cup berth count differs between the published distribution (3) and the 2026 team list (2) — marked medium confidence on that single line."
+  ]
+}

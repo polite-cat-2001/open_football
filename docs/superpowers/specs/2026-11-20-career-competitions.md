@@ -121,11 +121,15 @@ only.
 - **Paths**: Champions Path and League Path, Q1–Q3 and the play-off round,
   every round two legs with the aggregate, no away goals, extra time and
   penalties on a level tie.
-- **Drop-downs** (an "on elimination, enqueue into another competition" hook):
-  UCL Q1/Q2 losers → UEL/UECL qualifying, Q3 losers → UEL play-off, play-off
-  losers → UEL league phase, UEL play-off losers → UECL league phase. The same
-  pattern for CONMEBOL (Libertadores → Sudamericana) and AFC (ACLE → ACLE Two),
-  CAF (Champions League → Confederation Cup).
+- **Drop-downs exist only where the confederation has them.** UEFA: UCL →
+  UEL → UECL (Q1/Q2 losers, Q3 → UEL play-off, play-off → UEL league phase,
+  UEL play-off → UECL league phase). CONMEBOL: Libertadores third-stage losers
+  → Sudamericana **group stage**, third-placed group teams → Sudamericana
+  **knockout play-off**. AFC: Elite play-off losers → CL Two groups, CL Two
+  preliminary losers → Challenge League groups, and the winners climb back up.
+  CAF, CONCACAF and OFC have **no** drop-down in 2026-27 (CAF's historic
+  Champions League → Confederation Cup transfer was removed in the reformat;
+  verify before modelling it). The map is per confederation data, not a rule.
 - **Data**: association coefficients (a snapshot like the league windows, with
   the source and the season), the access list, the path assignment rules (a
   club's domestic position plus its association rank), and the drop-down map.
@@ -172,5 +176,8 @@ only.
 
 ## Open decisions
 
+- CAF drop-down: the 2026-27 sources show none, but the historic Champions
+  League → Confederation Cup transfer existed until the reformat. Verify before
+  modelling it; today the map has no CAF entry.
 - Whether the club's cup participation is visible on the dashboard before the
   first round (a "cup draw" tile) or only when a fixture exists.
