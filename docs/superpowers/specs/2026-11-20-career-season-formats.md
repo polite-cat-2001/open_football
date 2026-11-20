@@ -6,8 +6,10 @@ implemented. Order starts with the calendar slice.
 ## Scope
 
 - 24 rows carry `phases: "apertura_clausura"`; the label is replaced by
-  `format`. Research: 10 are really Apertura/Clausura, the rest are one table,
-  zones, groups, or paths.
+  `format`. Research: 17 of them are really phased (16 two-phase plus Uruguay's
+  three), the rest are one table, zones or paths. **58 leagues in total need a
+  `format`**: the 24 above, 37 split leagues and a few group-based rows; the
+  other 219 are plain one-table leagues that need no format.
 - `AR3F` is now the merged **Torneo Federal A**: one 37-club competition (the
   former `AR3R` Reválida row was merged into it), with a Campeonato path and a
   Reválida path fed by the losers. It stays `out_of_scope: true` until its
@@ -112,8 +114,10 @@ implemented. Order starts with the calendar slice.
   `best_of` are mutually exclusive.
 - `carry`: `{points: "none" | "full" | "half", goals: "carry" | "reset"}` — the
   carried record is shown in the receiving stage's table and visible wherever
-  that table is read. A split league usually carries points and resets goals
-  (Ecuador, Egypt); Uruguay's Segunda carries both.
+  that table is read. Splits usually carry points and **keep goals** (Ecuador,
+  Greece, Denmark); Egypt and Romania reset them, and the `half` rounding is a
+  field (`rounding: "up" | "down"`, Romania up, Albania and Moldova down).
+  Uruguay's Segunda carries both.
 - A split is expressed as several `group` stages, each fed by a rank range of
   the regular stage (`from: "regular", rank: 1, n: 6`; `rank: 7, n: 4`; ...).
   Ecuador's three groups (championship 6, Sudamericana 4, relegation 6) are the
@@ -133,13 +137,14 @@ implemented. Order starts with the calendar slice.
   simulated as the aggregate until club history exists, and the review says so.
   `[]` is only legal when the league has **no** format; a format league states
   `none` explicitly when nothing moves.
-- **Roster size is the invariant.** For every boundary `up == down` (the
-  pyramid asset's rule; 106 of 108 boundaries comply, the two exceptions are
-  documented one-season structural changes: Serbia's 14→12 shrink, Chinese
-  Taipei's expansion). A league's `format.promotion`/`relegation` slots must sum
-  to the boundary counts; when they disagree the boundary wins and the review
-  notes it, and `check_league_formats` asserts the sum. A league closed in a
-  direction moves nobody, whatever its format says.
+- **Roster size is the invariant.** All 108 boundaries in the asset have
+  `up == down`; the research had six unbalanced ones — four one-off structural
+  changes (Serbia's 14→12 shrink, Chinese Taipei's expansion, New Zealand's
+  qualification, Argentina 3→4) and two source conflicts (Albania, Iran) that
+  were balanced to keep the sizes. A league's `format.promotion`/`relegation`
+  slots must sum to the boundary counts; when they disagree the boundary wins and
+  the review notes it, and `check_league_formats` asserts the sum. A league
+  closed in a direction moves nobody, whatever its format says.
 - **Parallel leagues.** A level may hold several equal leagues (Italy's three
   Serie C groups, Germany's regional leagues, France's N4/N5 groups). A
   boundary is level-to-level, not league-to-league: each lower league promotes
@@ -199,14 +204,17 @@ implemented. Order starts with the calendar slice.
   `season_end`. The scheduler is per club, not per round.
 - Schedule builders: `create`, `ensure_schedule` and `next_season` all switch to
   the stage builder when the league has a format.
-- **Calendar blackouts**: a new asset `assets/data/intl_calendar.json` holds the
-  FIFA international windows and the tournament dates per year (a snapshot with
-  sources), each with an `applies_to` scope (`world`, a confederation, or a
-  country). Rounds are spread inside the season window **around** the blackouts:
-  no fixture falls inside a window or tournament that applies to its competition
-  (an AFCON pause blanks African leagues, not Europe), and the last round still
-  ends on the real final matchday, so rounds compress around the pauses. A pause
-  longer than 30 days advances in one step (the stage-gap skip rule).
+- **Calendar blackouts**: `assets/data/intl_calendar.json` holds recurring rules,
+  not a fixed list: annual events (the FIFA windows) and multi-year events (the
+  World Cup every four years, the continental tournaments every two or four,
+  with an anchor year), each with `applies_to`. **FIFA windows are hard for
+  every competition.** The **World Cup is hard for every league**: a league whose
+  researched start falls inside it starts the day after the final, and the note
+  keeps the source date. Continental tournaments are hard for their
+  confederation (`Euro` → UEFA, `AFCON` → CAF, ...). Outside those, the
+  researched start and finish dates win over any preference. Rounds compress
+  around the pauses; the last round still ends on the real final matchday; a
+  pause longer than 30 days advances in one step.
 - Results: `{home, away, aet?: {home, away}, pens?: {home, away}}`; ties carry
   `{tie, leg}` on the fixture. Extra time only in the last leg; the timeline
   renders `aet` as 91-120 and prints the deciding line.
@@ -283,7 +291,8 @@ implemented. Order starts with the calendar slice.
 0. **Calendar** (the open work on the branch): boundary-based season start,
    season end before the next boundary, tests and the two date-bearing goldens
    green, commit.
-1. **League format data** lands as phase 2 of the competitions spec, in
+1. **League format data**: all **58** formats (24 apertura_clausura, 37 splits,
+   the group-based rows) land as phase 2 of the competitions spec, in
    `assets/data/league_regulations.json` (one `format` per league row), not in
    `competitions.json`.
 

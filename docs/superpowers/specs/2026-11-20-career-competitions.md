@@ -124,13 +124,14 @@ the missing amateur rounds are not modelled.
 Research in `docs/research/competition-formats/international.md`. Three groups
 by cost:
 
-- **Group + knockout** (CAF, CONCACAF, AFC Two, OFC): the existing stage model
-  covers them; only the berth graph and two-legged ties are new.
-- **Pot league + knockout** (Libertadores, Sudamericana, UEL, UECL): need
-  `fixture_list`, the 9–24 play-off and cross-competition transfers (losers
-  drop to the lower competition).
-- **Pot league + regions + centralised finals** (UCL, AFCL Elite): the same
-  plus a regional split and a qualification graph across all countries.
+- **Group + knockout** (CAF, CONCACAF, AFC Two, AFC Challenge League, OFC,
+  **Libertadores and Sudamericana**): the existing stage model covers them; only
+  the berth graph and two-legged ties are new. CONMEBOL belongs here, not in the
+  pot-league group.
+- **Pot league + knockout** (UEL, UECL): need `fixture_list`, the 9–24 play-off
+  and cross-competition transfers.
+- **Pot league + regions + centralised finals** (UCL, AFCL Elite): the same plus
+  a regional split and a qualification graph across all countries.
 
 Recommended order (agreed): container and domestic cups → super cups →
 berths with the background world season → group+knockout internationals →
@@ -235,7 +236,9 @@ only.
    data.
 2. **League formats data**: the 22 encoded formats.
 3. **Domestic cups**: single-leg knockout with byes, the two-legged attachment,
-   Turkey's group hybrid; data from the national-cups research (17 countries).
+   Turkey's group hybrid; all **106 countries** from the cups research (17 in
+   `national-cups.json`, 89 in `cups-*.json`), plus a pass that assigns the
+   berth `mode` (`add`/`consume`/`none`) to every cup.
 4. **Super cups**: two-team single match and the four-team mini-tournament, plus
    named pre-season tournaments when their data is known.
 5. **Berths and the background world season**; then group+knockout
