@@ -6427,6 +6427,52 @@
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Cypriot_First_Division",
    "note": "14 teams: 26-round regular season, then championship round (1-6) and relegation round (7-14). Number of relegation places not restated for 2026-27; 2025-26 table relegates 12th-14th. Inferred. No transfer window dates."
+  },
+  "RLN3": {
+   "start_md": "08-28",
+   "end_md": "05-22",
+   "filled": "",
+   "phases": "single",
+   "relegation": {
+    "slots": null,
+    "playoff": true
+   },
+   "tiebreak": [
+    "points",
+    "goal_difference",
+    "goals_scored",
+    "head_to_head_aggregate",
+    "head_to_head_away_goals",
+    "away_goals",
+    "play_off"
+   ],
+   "transfer_windows": [],
+   "confidence": "medium",
+   "source": "https://www.transfermarkt.com/regionalliga-nord/startseite/wettbewerb/rln3",
+   "note": "Regionalliga fourth tier, 18 clubs; the season window follows the German 3. Liga calendar (August to May). Added to the database on 2026-11-21 from Transfermarkt (clubs, squads, logos, kits); the club list is in the pyramid and the fixtures follow the German winter break only through the calendar blackout rule."
+  },
+  "RLW3": {
+   "start_md": "08-28",
+   "end_md": "05-22",
+   "filled": "",
+   "phases": "single",
+   "relegation": {
+    "slots": null,
+    "playoff": true
+   },
+   "tiebreak": [
+    "points",
+    "goal_difference",
+    "goals_scored",
+    "head_to_head_aggregate",
+    "head_to_head_away_goals",
+    "away_goals",
+    "play_off"
+   ],
+   "transfer_windows": [],
+   "confidence": "medium",
+   "source": "https://www.transfermarkt.com/regionalliga-west/startseite/wettbewerb/rlw3",
+   "note": "Regionalliga fourth tier, 18 clubs; the season window follows the German 3. Liga calendar (August to May). Added to the database on 2026-11-21 from Transfermarkt (clubs, squads, logos, kits); the club list is in the pyramid and the fixtures follow the German winter break only through the calendar blackout rule."
   }
  }
 }

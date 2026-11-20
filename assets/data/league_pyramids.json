@@ -1,5 +1,5 @@
 {
- "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league. AR3R merged into AR3F as one 37-club Torneo Federal A; a database rebuilt from the canon must move its 19 clubs into AR3F and drop the AR3R league.",
+ "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league. AR3R merged into AR3F as one 37-club Torneo Federal A; a database rebuilt from the canon must move its 19 clubs into AR3F and drop the AR3R league. RLN3 (Regionalliga Nord) and RLW3 (Regionalliga West) were added from Transfermarkt (18 clubs each) to complete the five German fourth-tier leagues; the clubs, squads, logos and kits are in the database build of 2026-11-21.",
  "_generated": "2026-11-20",
  "leagues": {
   "2DVB": {
@@ -5527,6 +5527,32 @@
    },
    "playoff": null,
    "country": "Cyprus",
+   "confidence": "high"
+  },
+  "RLN3": {
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": null,
+   "country": "Germany",
+   "confidence": "high"
+  },
+  "RLW3": {
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": null,
+   "country": "Germany",
    "confidence": "high"
   }
  },

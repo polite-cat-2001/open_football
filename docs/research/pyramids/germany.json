@@ -1,57 +1,234 @@
 {
-  "country": "Germany",
-  "season": "2026-27",
-  "sources": [
-    "https://de.wikipedia.org/wiki/Fu%C3%9Fball-Bundesliga_2026/27",
-    "https://de.wikipedia.org/wiki/2._Fu%C3%9Fball-Bundesliga_2026/27",
-    "https://de.wikipedia.org/wiki/3._Fu%C3%9Fball-Liga_2026/27",
-    "https://de.wikipedia.org/wiki/Fu%C3%9Fball-Regionalliga_2026/27",
-    "https://de.wikipedia.org/wiki/Fu%C3%9Fball-Regionalliga_Bayern_2026/27",
-    "https://de.wikipedia.org/wiki/Fu%C3%9Fball-Regionalliga_Nordost_2026/27",
-    "https://de.wikipedia.org/wiki/Fu%C3%9Fball-Regionalliga_S%C3%BCdwest_2026/27",
-    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Regionalliga"
-  ],
-  "leagues": [
-    {"id": "L1", "name": "Bundesliga", "level": 1, "size": 18, "closed_up": true, "closed_down": false,
-     "format": {"kind": "single", "rounds": 34},
-     "playoff": {"kind": "relegation", "entries": "16th of the Bundesliga vs 3rd of the 2. Bundesliga", "legs": 2, "note": ""}},
-    {"id": "L2", "name": "2. Bundesliga", "level": 2, "size": 18, "closed_up": false, "closed_down": false,
-     "format": {"kind": "single", "rounds": 34},
-     "playoff": {"kind": "promotion", "entries": "3rd of the 2. Bundesliga vs 16th of the Bundesliga", "legs": 2, "note": "the 16th also plays a relegation play-off vs the 3rd of the 3. Liga"}},
-    {"id": "L3", "name": "3. Liga", "level": 3, "size": 20, "closed_up": false, "closed_down": false,
-     "format": {"kind": "single", "rounds": 38},
-     "playoff": {"kind": "promotion", "entries": "3rd of the 3. Liga vs 16th of the 2. Bundesliga", "legs": 2, "note": ""}},
-    {"id": "RLB3", "name": "Regionalliga Bayern", "level": 4, "size": 19, "closed_up": false, "closed_down": false,
-     "format": {"kind": "single", "rounds": 36},
-     "playoff": {"kind": "promotion", "entries": "champion of Regionalliga Bayern vs champion of Regionalliga Nord", "legs": 2, "note": "only the 4th of the 4 promotion places; the winner goes up, the loser stays"}},
-    {"id": "RLN", "name": "Regionalliga Nord", "level": 4, "size": 18, "closed_up": false, "closed_down": false,
-     "format": {"kind": "single", "rounds": 34},
-     "playoff": {"kind": "promotion", "entries": "champion of Regionalliga Nord vs champion of Regionalliga Bayern", "legs": 2, "note": "only the 4th of the 4 promotion places"}},
-    {"id": "RLN4", "name": "Regionalliga Nordost", "level": 4, "size": 18, "closed_up": false, "closed_down": false,
-     "format": {"kind": "single", "rounds": 34}, "playoff": null},
-    {"id": "RLSW", "name": "Regionalliga S\u00fcdwest", "level": 4, "size": 18, "closed_up": false, "closed_down": false,
-     "format": {"kind": "single", "rounds": 34}, "playoff": null},
-    {"id": "RLW", "name": "Regionalliga West", "level": 4, "size": 18, "closed_up": false, "closed_down": false,
-     "format": {"kind": "single", "rounds": 34}, "playoff": null}
-  ],
-  "boundaries": [
-    {"upper": 1, "lower": 2, "up": 2, "up_playoff": 1, "down": 2, "down_playoff": 1,
-     "allocation": "free", "selection": "bottom_n",
-     "note": "2. Bundesliga: champion and runner-up up, 3rd into the play-off. Bundesliga: 17th-18th down, 16th into the play-off. Both ties are two legs."},
-    {"upper": 2, "lower": 3, "up": 2, "up_playoff": 1, "down": 2, "down_playoff": 1,
-     "allocation": "free", "selection": "bottom_n",
-     "note": "3. Liga: champion and runner-up up, 3rd into the play-off. 2. Bundesliga: 17th-18th down, 16th into the play-off."},
-    {"upper": 3, "lower": 4, "up": 4, "up_playoff": 1, "down": 4, "down_playoff": 0,
-     "allocation": "by_geography", "selection": "bottom_n",
-     "note": "Level 4 is 5 regional leagues. Champions of S\u00fcdwest and West go up directly; the third direct spot rotates yearly and is Nordost's in 2026-27; champions of Bayern and Nord play a two-leg play-off for the 4th place. 3. Liga relegates its bottom 4, each dropping into the Regionalliga of its region."}
-  ],
-  "conflicts": [
-    {"league": "level 4", "field": "membership", "ours": "3 Regionalligen (Bayern, Nordost, S\u00fcdwest) = 55 clubs", "real": "5 Regionalligen = 91 clubs",
-     "note": "Regionalliga Nord (18) and Regionalliga West (18) are missing from our data. The three we carry have correct sizes: Bayern 19, Nordost 18, S\u00fcdwest 18."},
-    {"league": "RLN4", "field": "name", "ours": "RLN4 = Regionalliga Northeast", "real": "Regionalliga Nordost",
-     "note": "Id reads like 'Nord' but holds Nordost. The newly added Regionalliga Nord uses id RLN; if ids are regenerated, prefer RLNO for Nordost."},
-    {"league": "L3", "field": "size", "ours": 20, "real": 20, "note": "Correct, and it implies 38 rounds (380 matches)."}
-  ],
-  "confidence": "high",
-  "notes": "Every level is a double round-robin with no split. Play-off ties between divisions are two legs; the higher-division club hosts the second leg. Level 5 (Oberliga) is outside the model: relegation counts from each Regionalliga are not fixed numbers, e.g. Nordost sends down 1 club plus 1 more if a 3. Liga club from the NOFV area is relegated, and S\u00fcdwest varies with 3. Liga relegations, so no level 4-5 boundary is encoded. The third direct promotion spot from level 4 rotates annually (2026-27: Nordost); a long career sim must rotate it, not hardcode Nordost."
+ "country": "Germany",
+ "season": "2026-27",
+ "sources": [
+  "https://de.wikipedia.org/wiki/Fu%C3%9Fball-Bundesliga_2026/27",
+  "https://de.wikipedia.org/wiki/2._Fu%C3%9Fball-Bundesliga_2026/27",
+  "https://de.wikipedia.org/wiki/3._Fu%C3%9Fball-Liga_2026/27",
+  "https://de.wikipedia.org/wiki/Fu%C3%9Fball-Regionalliga_2026/27",
+  "https://de.wikipedia.org/wiki/Fu%C3%9Fball-Regionalliga_Bayern_2026/27",
+  "https://de.wikipedia.org/wiki/Fu%C3%9Fball-Regionalliga_Nordost_2026/27",
+  "https://de.wikipedia.org/wiki/Fu%C3%9Fball-Regionalliga_S%C3%BCdwest_2026/27",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Regionalliga"
+ ],
+ "leagues": [
+  {
+   "id": "L1",
+   "name": "Bundesliga",
+   "level": 1,
+   "size": 18,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": {
+    "kind": "relegation",
+    "entries": "16th of the Bundesliga vs 3rd of the 2. Bundesliga",
+    "legs": 2,
+    "note": ""
+   }
+  },
+  {
+   "id": "L2",
+   "name": "2. Bundesliga",
+   "level": 2,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "3rd of the 2. Bundesliga vs 16th of the Bundesliga",
+    "legs": 2,
+    "note": "the 16th also plays a relegation play-off vs the 3rd of the 3. Liga"
+   }
+  },
+  {
+   "id": "L3",
+   "name": "3. Liga",
+   "level": 3,
+   "size": 20,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 38
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "3rd of the 3. Liga vs 16th of the 2. Bundesliga",
+    "legs": 2,
+    "note": ""
+   }
+  },
+  {
+   "id": "RLB3",
+   "name": "Regionalliga Bayern",
+   "level": 4,
+   "size": 19,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 36
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "champion of Regionalliga Bayern vs champion of Regionalliga Nord",
+    "legs": 2,
+    "note": "only the 4th of the 4 promotion places; the winner goes up, the loser stays"
+   }
+  },
+  {
+   "id": "RLN",
+   "name": "Regionalliga Nord",
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "champion of Regionalliga Nord vs champion of Regionalliga Bayern",
+    "legs": 2,
+    "note": "only the 4th of the 4 promotion places"
+   }
+  },
+  {
+   "id": "RLN4",
+   "name": "Regionalliga Nordost",
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": null
+  },
+  {
+   "id": "RLSW",
+   "name": "Regionalliga Südwest",
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": null
+  },
+  {
+   "id": "RLW",
+   "name": "Regionalliga West",
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": null
+  },
+  {
+   "id": "RLN3",
+   "name": "Regionalliga Nord",
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "note": "Added on 2026-11-21 from Transfermarkt to complete the five Regionalliga; the Open Football import had only three.",
+   "confidence": "high"
+  },
+  {
+   "id": "RLW3",
+   "name": "Regionalliga West",
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "note": "Added on 2026-11-21 from Transfermarkt to complete the five Regionalliga; the Open Football import had only three.",
+   "confidence": "high"
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 2,
+   "up_playoff": 1,
+   "down": 2,
+   "down_playoff": 1,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "2. Bundesliga: champion and runner-up up, 3rd into the play-off. Bundesliga: 17th-18th down, 16th into the play-off. Both ties are two legs."
+  },
+  {
+   "upper": 2,
+   "lower": 3,
+   "up": 2,
+   "up_playoff": 1,
+   "down": 2,
+   "down_playoff": 1,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "3. Liga: champion and runner-up up, 3rd into the play-off. 2. Bundesliga: 17th-18th down, 16th into the play-off."
+  },
+  {
+   "upper": 3,
+   "lower": 4,
+   "up": 4,
+   "up_playoff": 1,
+   "down": 4,
+   "down_playoff": 0,
+   "allocation": "by_geography",
+   "selection": "bottom_n",
+   "note": "Level 4 is 5 regional leagues. Champions of Südwest and West go up directly; the third direct spot rotates yearly and is Nordost's in 2026-27; champions of Bayern and Nord play a two-leg play-off for the 4th place. 3. Liga relegates its bottom 4, each dropping into the Regionalliga of its region."
+  }
+ ],
+ "conflicts": [
+  {
+   "league": "level 4",
+   "field": "membership",
+   "ours": "3 Regionalligen (Bayern, Nordost, Südwest) = 55 clubs",
+   "real": "5 Regionalligen = 91 clubs",
+   "note": "Regionalliga Nord (18) and Regionalliga West (18) are missing from our data. The three we carry have correct sizes: Bayern 19, Nordost 18, Südwest 18."
+  },
+  {
+   "league": "RLN4",
+   "field": "name",
+   "ours": "RLN4 = Regionalliga Northeast",
+   "real": "Regionalliga Nordost",
+   "note": "Id reads like 'Nord' but holds Nordost. The newly added Regionalliga Nord uses id RLN; if ids are regenerated, prefer RLNO for Nordost."
+  },
+  {
+   "league": "L3",
+   "field": "size",
+   "ours": 20,
+   "real": 20,
+   "note": "Correct, and it implies 38 rounds (380 matches)."
+  }
+ ],
+ "confidence": "high",
+ "notes": "Every level is a double round-robin with no split. Play-off ties between divisions are two legs; the higher-division club hosts the second leg. Level 5 (Oberliga) is outside the model: relegation counts from each Regionalliga are not fixed numbers, e.g. Nordost sends down 1 club plus 1 more if a 3. Liga club from the NOFV area is relegated, and Südwest varies with 3. Liga relegations, so no level 4-5 boundary is encoded. The third direct promotion spot from level 4 rotates annually (2026-27: Nordost); a long career sim must rotate it, not hardcode Nordost.",
+ "note": "Regionalliga Nord (RLN3) and West (RLW3) were added in 2026-11-21."
 }
