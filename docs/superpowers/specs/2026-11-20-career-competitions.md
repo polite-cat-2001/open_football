@@ -234,7 +234,7 @@ only.
    live in a new `assets/data/competitions.json`. The generated pre-season
    friendlies land here too: they test the non-competitive path without any
    data.
-2. **League formats data**: the 22 encoded formats.
+2. **League formats data**: the 58 encoded formats.
 3. **Domestic cups**: single-leg knockout with byes, the two-legged attachment,
    Turkey's group hybrid; all **106 countries** from the cups research (17 in
    `national-cups.json`, 89 in `cups-*.json`), plus a pass that assigns the
@@ -243,8 +243,7 @@ only.
    named pre-season tournaments when their data is known.
 5. **Berths and the background world season**; then group+knockout
    internationals.
-6. **Pot-league internationals** (Libertadores, Sudamericana, UEL, UECL), then
-   **UCL/AFCL Elite**.
+6. **Pot-league internationals** (UEL, UECL), then **UCL/AFCL Elite**.
 
 ## Open decisions
 
