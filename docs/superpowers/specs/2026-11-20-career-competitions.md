@@ -144,6 +144,26 @@ only.
 - **Prerequisite**: the background world season — the access list needs every
   league's final table, and the path assignment needs every club's position.
 
+## Edge cases (agreed)
+
+- **Politics mode**: a simulation flag `politics_mode` = `kind` (default) |
+  `political`. `kind` ignores political suspensions: every association gets its
+  coefficient berths, Russia included. `political` applies the suspension list:
+  Russia and Belarus get zero berths and their clubs never enter a continental
+  competition. The ban list is stored separately from the berth table, so both
+  modes read the same data. The flag lives in the save; the final game picks one.
+- **Reserve and youth teams**: `reserve: true` on the team (206 in senior
+  leagues today) plus `parent_club`. A reserve team plays its league, is never
+  promoted, is not selectable for a career, and never shares a division with
+  its parent.
+- **Cross-border clubs**: a club may play in another country's league. Its berth
+  path is a per-club override (`berth_via`), because the league's country is not
+  always the qualifying country: Vaduz qualifies only through the Liechtenstein
+  Cup (not Switzerland), Toronto and Vancouver through the Canadian
+  Championship (not the US Open Cup), Wellington Phoenix has no continental
+  berth. Cardiff, Swansea, Wrexham, Monaco and FC Andorra qualify through their
+  league's country, as today.
+
 ## Limitations to state in the UI and the wiki
 
 - Cup fields are built from the clubs in the database; early amateur rounds are
@@ -184,5 +204,8 @@ only.
 - CAF drop-down: the 2026-27 sources show none, but the historic Champions
   League → Confederation Cup transfer existed until the reformat. Verify before
   modelling it; today the map has no CAF entry.
+- Belarus in the access list: the report gives it one Champions League club
+  although Belarusian clubs are suspended. The ban list handles it in
+  `political` mode, but the berth table itself needs a check.
 - Whether the club's cup participation is visible on the dashboard before the
   first round (a "cup draw" tile) or only when a fixture exists.

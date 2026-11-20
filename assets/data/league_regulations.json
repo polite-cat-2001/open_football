@@ -600,7 +600,7 @@
    "start_md": "07-17",
    "end_md": "05-29",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -619,7 +619,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_First_Professional_Football_League_(Bulgaria)",
-   "note": "Window inherited from BU1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: 20 clubs, 38 rounds, a transitional single table. Window inherited from BU1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "BU1"
   },
   "C1": {
@@ -649,7 +649,7 @@
    "start_md": "07-24",
    "end_md": "05-30",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -666,7 +666,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Swiss_Super_League",
-   "note": "Window inherited from C1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: a 36-round single table; the label was inherited from the Super League. Window inherited from C1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "C1"
   },
   "CDN1": {
@@ -726,7 +726,7 @@
    "start_md": "07-24",
    "end_md": "05-30",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -743,7 +743,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Swiss_Super_League",
-   "note": "Window inherited from C1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: 18 clubs, 34 rounds in one table; the label was coarse. Window inherited from C1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "C1"
   },
   "CL2B": {
@@ -5465,7 +5465,7 @@
    "start_md": "07-25",
    "end_md": "05-23",
    "filled": "end",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -5480,7 +5480,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026–27_Slovak_First_Football_League",
-   "note": "Window inherited from SLO1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: a 16-club single table; the label was inherited from the Nike Liga. Window inherited from SLO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SLO1"
   },
   "SL1": {
@@ -5781,7 +5781,7 @@
    "start_md": "07-25",
    "end_md": "05-29",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -5799,7 +5799,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Czech_First_League",
-   "note": "Window inherited from TS1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: a 16-club single table; the label was inherited from the Chance Liga. Window inherited from TS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "TS1"
   },
   "TUN1": {
