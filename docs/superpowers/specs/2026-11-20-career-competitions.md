@@ -118,6 +118,11 @@ only.
   clubs, 6 → three, 7–15 → two, 16–55 → one, plus the two performance spots and
   the title-holder berths. The coefficients and the rules are a new asset
   (`assets/data/access_lists.json`), a snapshot with the season it belongs to.
+  The list is pinned to the coefficient ranking **finished at the end of the
+  previous season**, not the live table. Three special cases: Russia is ranked
+  with zero clubs under the current ban; Liechtenstein has no league and sends
+  only its cup winner (UECL Q2); England is the only association whose second
+  cup earns a berth (EFL Cup → UECL play-off round).
 - **Paths**: Champions Path and League Path, Q1–Q3 and the play-off round,
   every round two legs with the aggregate, no away goals, extra time and
   penalties on a level tie.

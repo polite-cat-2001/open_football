@@ -1,0 +1,378 @@
+{
+  "season": "2026-27",
+  "checked": "2026-11-20",
+  "coefficient_basis": {
+    "label_used_by_uefa": "2025 UEFA association coefficients",
+    "covers_seasons": "2020-21 to 2024-25",
+    "why": "An association ranking sets the allocation two seasons later, so the ranking finished at the end of 2024-25 drives 2026-27.",
+    "quote": "For the 2026-27 UEFA Champions League, the associations were allocated places according to their 2025 UEFA association coefficients ... which took into account their performance in European competitions from 2020-21 to 2024-25.",
+    "quote_source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking",
+    "formula_quote": "The number of points awarded each season is divided by the number of teams that participated for that association in that season. ... To determine an association's coefficient for a particular season, the coefficients for the last five seasons are added.",
+    "formula_source": "https://en.wikipedia.org/wiki/UEFA_coefficient#Men's_association_coefficient",
+    "nation_count": 55,
+    "note": "Do not confuse this with the live 5-year table on the UEFA_coefficient page (2022-23..2026-27, feeding 2028-29). That snapshot has Portugal 6th and Netherlands 8th; the 2026-27 access list has Netherlands 6th and Portugal 7th. Same source family, different window."
+  },
+  "coefficients": [
+    {"rank": 1, "association": "England", "coefficient": 115.196, "ucl_teams": 4, "extra": "+1 (EPS)", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "England 115.196"},
+    {"rank": 2, "association": "Italy", "coefficient": 97.231, "ucl_teams": 4, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Italy 97.231"},
+    {"rank": 3, "association": "Spain", "coefficient": 94.453, "ucl_teams": 4, "extra": "+1 (EPS)", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Spain 94.453"},
+    {"rank": 4, "association": "Germany", "coefficient": 86.331, "ucl_teams": 4, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Germany 86.331"},
+    {"rank": 5, "association": "France", "coefficient": 73.093, "ucl_teams": 4, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "France 73.093"},
+    {"rank": 6, "association": "Netherlands", "coefficient": 67.150, "ucl_teams": 3, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Netherlands 67.150"},
+    {"rank": 7, "association": "Portugal", "coefficient": 62.266, "ucl_teams": 2, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Portugal 62.266"},
+    {"rank": 8, "association": "Belgium", "coefficient": 56.850, "ucl_teams": 2, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Belgium 56.850"},
+    {"rank": 9, "association": "Czech Republic", "coefficient": 44.100, "ucl_teams": 2, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Czech Republic 44.100"},
+    {"rank": 10, "association": "Turkey", "coefficient": 43.900, "ucl_teams": 2, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Turkey 43.900"},
+    {"rank": 11, "association": "Norway", "coefficient": 39.687, "ucl_teams": 2, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Norway 39.687"},
+    {"rank": 12, "association": "Greece", "coefficient": 39.312, "ucl_teams": 2, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Greece 39.312"},
+    {"rank": 13, "association": "Austria", "coefficient": 36.450, "ucl_teams": 2, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Austria 36.450"},
+    {"rank": 14, "association": "Scotland", "coefficient": 35.550, "ucl_teams": 2, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Scotland 35.550"},
+    {"rank": 15, "association": "Poland", "coefficient": 35.000, "ucl_teams": 2, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Poland 35.000"},
+    {"rank": 16, "association": "Denmark", "coefficient": 33.981, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Denmark 33.981"},
+    {"rank": 17, "association": "Switzerland", "coefficient": 33.625, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Switzerland 33.625"},
+    {"rank": 18, "association": "Israel", "coefficient": 31.625, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Israel 31.625"},
+    {"rank": 19, "association": "Cyprus", "coefficient": 27.537, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Cyprus 27.537"},
+    {"rank": 20, "association": "Sweden", "coefficient": 27.125, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Sweden 27.125"},
+    {"rank": 21, "association": "Croatia", "coefficient": 27.025, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Croatia 27.025"},
+    {"rank": 22, "association": "Serbia", "coefficient": 25.500, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Serbia 25.500"},
+    {"rank": 23, "association": "Ukraine", "coefficient": 24.400, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Ukraine 24.400"},
+    {"rank": 24, "association": "Hungary", "coefficient": 24.000, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Hungary 24.000"},
+    {"rank": 25, "association": "Romania", "coefficient": 23.250, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Romania 23.250"},
+    {"rank": 26, "association": "Russia", "coefficient": 22.632, "ucl_teams": 0, "extra": "suspended since 28 Feb 2022", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Russia 22.632"},
+    {"rank": 27, "association": "Slovakia", "coefficient": 21.250, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Slovakia 21.250"},
+    {"rank": 28, "association": "Slovenia", "coefficient": 20.343, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Slovenia 20.343"},
+    {"rank": 29, "association": "Bulgaria", "coefficient": 19.875, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Bulgaria 19.875"},
+    {"rank": 30, "association": "Azerbaijan", "coefficient": 19.625, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Azerbaijan 19.625"},
+    {"rank": 31, "association": "Republic of Ireland", "coefficient": 14.968, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Republic of Ireland 14.968"},
+    {"rank": 32, "association": "Moldova", "coefficient": 14.500, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Moldova 14.500"},
+    {"rank": 33, "association": "Iceland", "coefficient": 13.520, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Iceland 13.520"},
+    {"rank": 34, "association": "Bosnia and Herzegovina", "coefficient": 13.031, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Bosnia and Herzegovina 13.031"},
+    {"rank": 35, "association": "Armenia", "coefficient": 12.250, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Armenia 12.250"},
+    {"rank": 36, "association": "Latvia", "coefficient": 12.250, "ucl_teams": 1, "extra": "tied with Armenia on 12.250; UEFA lists Armenia 35th", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Latvia 12.250"},
+    {"rank": 37, "association": "Kosovo", "coefficient": 12.041, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Kosovo 12.041"},
+    {"rank": 38, "association": "Finland", "coefficient": 11.750, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Finland 11.750"},
+    {"rank": 39, "association": "Kazakhstan", "coefficient": 11.125, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Kazakhstan 11.125"},
+    {"rank": 40, "association": "Faroe Islands", "coefficient": 10.750, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Faroe Islands 10.750"},
+    {"rank": 41, "association": "Malta", "coefficient": 8.500, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Malta 8.500"},
+    {"rank": 42, "association": "Northern Ireland", "coefficient": 8.333, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Northern Ireland 8.333"},
+    {"rank": 43, "association": "Lithuania", "coefficient": 8.250, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Lithuania 8.250"},
+    {"rank": 44, "association": "Liechtenstein", "coefficient": 8.000, "ucl_teams": 0, "extra": "no domestic league; only the cup winner enters Europe, and not the Champions League", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Liechtenstein 8.000"},
+    {"rank": 45, "association": "Estonia", "coefficient": 7.957, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Estonia 7.957"},
+    {"rank": 46, "association": "Albania", "coefficient": 7.875, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Albania 7.875"},
+    {"rank": 47, "association": "Montenegro", "coefficient": 7.208, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Montenegro 7.208"},
+    {"rank": 48, "association": "Luxembourg", "coefficient": 6.875, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Luxembourg 6.875"},
+    {"rank": 49, "association": "Wales", "coefficient": 6.791, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Wales 6.791"},
+    {"rank": 50, "association": "Georgia", "coefficient": 6.625, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Georgia 6.625"},
+    {"rank": 51, "association": "North Macedonia", "coefficient": 6.166, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "North Macedonia 6.166"},
+    {"rank": 52, "association": "Belarus", "coefficient": 6.000, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Belarus 6.000"},
+    {"rank": 53, "association": "Andorra", "coefficient": 5.498, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Andorra 5.498"},
+    {"rank": 54, "association": "Gibraltar", "coefficient": 5.457, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "Gibraltar 5.457"},
+    {"rank": 55, "association": "San Marino", "coefficient": 2.498, "ucl_teams": 1, "extra": null, "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_ranking", "quote": "San Marino 2.498"}
+  ],
+  "berth_counts_quote": {
+    "ucl": "Associations 1-5 each have four teams. ... Association 6 has three teams. ... Associations 7-15 each have two teams. ... Associations 16-55 (except Russia and Liechtenstein) each have one team.",
+    "uel": "Associations 1-12 each have two teams. ... Associations 13-33 (except Russia) each have one team.",
+    "uecl": "Associations 1-12 each have one team. ... Associations 13-33 and 51-55 (except Russia) each have two teams. ... Associations 34-50 each have three teams (except Liechtenstein, which has one).",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_team_allocation"
+  },
+  "bands": [
+    {
+      "rank_from": 1,
+      "rank_to": 4,
+      "ucl": [{"slot": "champion", "entry": "league_phase", "path": null}, {"slot": "2nd", "entry": "league_phase", "path": null}, {"slot": "3rd", "entry": "league_phase", "path": null}, {"slot": "4th", "entry": "league_phase", "path": null}],
+      "uel": [{"slot": "5th", "entry": "league_phase", "path": "main"}, {"slot": "cup_winner", "entry": "league_phase", "path": "main"}],
+      "uecl": [{"slot": "6th", "entry": "playoff_round", "path": "league"}],
+      "quote": "10 champions from associations 1-10 - 6 runners-up from associations 1-6 - 5 third-placed teams from associations 1-5 - 4 fourth-placed teams from associations 1-4 ... 7 domestic cup winners from associations 1-7 - 5 domestic league fifth-placed teams from associations 1-5 ... 5 domestic league sixth-placed teams from associations 1-5 (EFL Cup winners for England)",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"]
+    },
+    {
+      "rank_from": 5,
+      "rank_to": 5,
+      "ucl": [{"slot": "champion", "entry": "league_phase", "path": null}, {"slot": "2nd", "entry": "league_phase", "path": null}, {"slot": "3rd", "entry": "league_phase", "path": null}, {"slot": "4th", "entry": "q3", "path": "league"}],
+      "uel": [{"slot": "5th", "entry": "league_phase", "path": "main"}, {"slot": "cup_winner", "entry": "league_phase", "path": "main"}],
+      "uecl": [{"slot": "6th", "entry": "playoff_round", "path": "league"}],
+      "quote": "2 runners-up from associations 8-9 - 1 third-placed team from association 6 - 1 fourth-placed team from association 5",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution"],
+      "note": "The 4th-placed team of association 5 is the only top-5 league position that does not enter the league phase directly."
+    },
+    {
+      "rank_from": 6,
+      "rank_to": 6,
+      "ucl": [{"slot": "champion", "entry": "league_phase", "path": null}, {"slot": "2nd", "entry": "league_phase", "path": null}, {"slot": "3rd", "entry": "q3", "path": "league"}],
+      "uel": [{"slot": "4th", "entry": "q2", "path": "main"}, {"slot": "cup_winner", "entry": "league_phase", "path": "main"}],
+      "uecl": [{"slot": "5th", "entry": "q2", "path": "league"}],
+      "quote": "1 third-placed team from association 6 ... 5 domestic cup winner from associations 16-20 - 6 domestic league third-placed teams from associations 7-12 - 1 domestic league fourth-placed team from association 6 ... 1 domestic league fifth-placed team from association 6",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"]
+    },
+    {
+      "rank_from": 7,
+      "rank_to": 7,
+      "ucl": [{"slot": "champion", "entry": "league_phase", "path": null}, {"slot": "2nd", "entry": "q3", "path": "league"}],
+      "uel": [{"slot": "3rd", "entry": "q2", "path": "main"}, {"slot": "cup_winner", "entry": "league_phase", "path": "main"}],
+      "uecl": [{"slot": "4th", "entry": "q2", "path": "league"}],
+      "quote": "as the club with the highest club coefficient among all clubs that would otherwise have entered either the Champions Path or the League Path of the qualifying phase or play-off round, entered the league phase instead of the League Path third qualifying round ... 6 domestic league third-placed teams from associations 7-12 ... 9 domestic league fourth-placed teams from associations 7-15",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"],
+      "note": "The association-7 runner-up's default berth is UCL Q3 League Path; the first quoted clause names that slot because the published 2026-27 list vacated it (Sporting CP pulled up to the league phase)."
+    },
+    {
+      "rank_from": 8,
+      "rank_to": 9,
+      "ucl": [{"slot": "champion", "entry": "league_phase", "path": null}, {"slot": "2nd", "entry": "q3", "path": "league"}],
+      "uel": [{"slot": "3rd", "entry": "q2", "path": "main"}, {"slot": "cup_winner", "entry": "playoff_round", "path": "main"}],
+      "uecl": [{"slot": "4th", "entry": "q2", "path": "league"}],
+      "quote": "2 runners-up from associations 8-9 ... 5 domestic cup winners from associations 8-12 ... 9 domestic league fourth-placed teams from associations 7-15",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"]
+    },
+    {
+      "rank_from": 10,
+      "rank_to": 10,
+      "ucl": [{"slot": "champion", "entry": "league_phase", "path": null}, {"slot": "2nd", "entry": "q2", "path": "league"}],
+      "uel": [{"slot": "3rd", "entry": "q2", "path": "main"}, {"slot": "cup_winner", "entry": "playoff_round", "path": "main"}],
+      "uecl": [{"slot": "4th", "entry": "q2", "path": "league"}],
+      "quote": "4 runners-up from associations 10 and 13-15 ... 5 domestic cup winners from associations 8-12 ... 9 domestic league fourth-placed teams from associations 7-15",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"],
+      "note": "The published Q2 League Path row is '10 and 13-15' because the 11-12 runners-up were pulled up to Q3 by the Europa-League-title-holder rebalancing; the default bracket is runners-up of 10-15."
+    },
+    {
+      "rank_from": 11,
+      "rank_to": 12,
+      "ucl": [{"slot": "champion", "entry": "playoff_round", "path": "champions"}, {"slot": "2nd", "entry": "q2", "path": "league"}],
+      "uel": [{"slot": "3rd", "entry": "q2", "path": "main"}, {"slot": "cup_winner", "entry": "playoff_round", "path": "main"}],
+      "uecl": [{"slot": "4th", "entry": "q2", "path": "league"}],
+      "quote": "4 champions from associations 11-14 ... 4 runners-up from associations 10 and 13-15 ... 5 domestic cup winners from associations 8-12",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"],
+      "note": "The 11-12 runners-up are the pair lifted from Q2 to Q3 League Path by the Europa-League-title-holder rebalancing; their default round is Q2 League Path."
+    },
+    {
+      "rank_from": 13,
+      "rank_to": 14,
+      "ucl": [{"slot": "champion", "entry": "playoff_round", "path": "champions"}, {"slot": "2nd", "entry": "q2", "path": "league"}],
+      "uel": [{"slot": "cup_winner", "entry": "q3", "path": "main"}],
+      "uecl": [{"slot": "3rd", "entry": "q2", "path": "league"}, {"slot": "4th", "entry": "q2", "path": "league"}],
+      "quote": "4 champions from associations 11-14 ... 4 runners-up from associations 10 and 13-15 ... 3 domestic cup winners from associations 13-15 ... 16 domestic league third-placed teams from associations 13-29 (except Russia ... 9 domestic league fourth-placed teams from associations 7-15",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"],
+      "note": "Two European places in the league go to the Champions League here, so the Conference League berths are 3rd and 4th, not 2nd and 3rd."
+    },
+    {
+      "rank_from": 15,
+      "rank_to": 15,
+      "ucl": [{"slot": "champion", "entry": "q2", "path": "champions"}, {"slot": "2nd", "entry": "q2", "path": "league"}],
+      "uel": [{"slot": "cup_winner", "entry": "q3", "path": "main"}],
+      "uecl": [{"slot": "3rd", "entry": "q2", "path": "league"}, {"slot": "4th", "entry": "q2", "path": "league"}],
+      "quote": "8 champions from associations 15-22 ... 4 runners-up from associations 10 and 13-15 ... 3 domestic cup winners from associations 13-15 ... 9 domestic league fourth-placed teams from associations 7-15",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"]
+    },
+    {
+      "rank_from": 16,
+      "rank_to": 20,
+      "ucl": [{"slot": "champion", "entry": "q2", "path": "champions"}],
+      "uel": [{"slot": "cup_winner", "entry": "q2", "path": "main"}],
+      "uecl": [{"slot": "2nd", "entry": "q2", "path": "league"}, {"slot": "3rd", "entry": "q2", "path": "league"}],
+      "quote": "8 champions from associations 15-22 ... 5 domestic cup winner from associations 16-20 ... 17 domestic league runners-up from associations 16-33 (except Russia) ... 16 domestic league third-placed teams from associations 13-29 (except Russia",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"]
+    },
+    {
+      "rank_from": 21,
+      "rank_to": 22,
+      "ucl": [{"slot": "champion", "entry": "q2", "path": "champions"}],
+      "uel": [{"slot": "cup_winner", "entry": "q1", "path": "main"}],
+      "uecl": [{"slot": "2nd", "entry": "q2", "path": "league"}, {"slot": "3rd", "entry": "q2", "path": "league"}],
+      "quote": "8 champions from associations 15-22 ... 12 domestic cup winners from associations 21-33 (except Russia) ... 17 domestic league runners-up from associations 16-33 (except Russia)",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"]
+    },
+    {
+      "rank_from": 23,
+      "rank_to": 29,
+      "ucl": [{"slot": "champion", "entry": "q1", "path": "champions"}],
+      "uel": [{"slot": "cup_winner", "entry": "q1", "path": "main"}],
+      "uecl": [{"slot": "2nd", "entry": "q2", "path": "league"}, {"slot": "3rd", "entry": "q2", "path": "league"}],
+      "quote": "28 champions from associations 24-25 and 29-55 (except Russia and Liechtenstein) ... 12 domestic cup winners from associations 21-33 (except Russia) ... 17 domestic league runners-up from associations 16-33 (except Russia)",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"],
+      "note": "Band rule is champions of 23-55 to Q1. In the published list the champion of association 23 (Ukraine) starts in Q2 Champions Path because Russia (26) is suspended, so Q1 collects 24-25 and 29-55."
+    },
+    {
+      "rank_from": 30,
+      "rank_to": 33,
+      "ucl": [{"slot": "champion", "entry": "q1", "path": "champions"}],
+      "uel": [{"slot": "cup_winner", "entry": "q1", "path": "main"}],
+      "uecl": [{"slot": "2nd", "entry": "q2", "path": "league"}, {"slot": "3rd", "entry": "q1", "path": "league"}],
+      "quote": "28 champions from associations 24-25 and 29-55 (except Russia and Liechtenstein) ... 12 domestic cup winners from associations 21-33 (except Russia) ... 17 domestic league runners-up from associations 16-33 (except Russia) ... 20 domestic league third-placed teams from associations 30-50 (except Liechtenstein)",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"]
+    },
+    {
+      "rank_from": 34,
+      "rank_to": 44,
+      "ucl": [{"slot": "champion", "entry": "q1", "path": "champions"}],
+      "uel": [],
+      "uecl": [{"slot": "cup_winner", "entry": "q2", "path": "league"}, {"slot": "2nd", "entry": "q1", "path": "league"}, {"slot": "3rd", "entry": "q1", "path": "league"}],
+      "quote": "11 domestic cup winners from associations 34-44 ... 21 domestic league runners-up from associations 34-55 (except Liechtenstein) ... 20 domestic league third-placed teams from associations 30-50 (except Liechtenstein)",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"],
+      "note": "No Europa League place from association 34 down. Liechtenstein (44) has no league, so its single entrant is the cup winner in UECL Q2 League Path."
+    },
+    {
+      "rank_from": 45,
+      "rank_to": 50,
+      "ucl": [{"slot": "champion", "entry": "q1", "path": "champions"}],
+      "uel": [],
+      "uecl": [{"slot": "cup_winner", "entry": "q1", "path": "league"}, {"slot": "2nd", "entry": "q1", "path": "league"}, {"slot": "3rd", "entry": "q1", "path": "league"}],
+      "quote": "11 domestic cup winners from associations 45-55 ... 21 domestic league runners-up from associations 34-55 (except Liechtenstein) ... 20 domestic league third-placed teams from associations 30-50 (except Liechtenstein)",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"]
+    },
+    {
+      "rank_from": 51,
+      "rank_to": 55,
+      "ucl": [{"slot": "champion", "entry": "q1", "path": "champions"}],
+      "uel": [],
+      "uecl": [{"slot": "cup_winner", "entry": "q1", "path": "league"}, {"slot": "2nd", "entry": "q1", "path": "league"}],
+      "quote": "11 domestic cup winners from associations 45-55 ... 21 domestic league runners-up from associations 34-55 (except Liechtenstein) ... Associations 13-33 and 51-55 (except Russia) each have two teams.",
+      "quote_sources": ["https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution", "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Association_team_allocation"],
+      "note": "No third-placed berth here: the UECL Q1 third-place bucket stops at association 50."
+    }
+  ],
+  "entry_round_sizes": {
+    "ucl": {"q1": 28, "q2_champions": 24, "q2_league": 4, "q3_champions": 12, "q3_league": 8, "playoff_champions": 10, "playoff_league": 4, "league_phase": 36},
+    "uel": {"q1": 12, "q2": 18, "q3_champions": 12, "q3_main": 14, "playoff": 24, "league_phase": 36},
+    "uecl": {"q1": 52, "q2_champions": 12, "q2_league": 86, "q3_champions": 8, "q3_league": 52, "playoff_champions": 10, "playoff_league": 38, "league_phase": 36},
+    "note": "Sizes are the published 2026-27 list (Russia suspended, both title holders already qualified). Every round is even, so losers = teams/2."
+  },
+  "cup_slots": [
+    {
+      "association": "England",
+      "rank": 1,
+      "main_cup": "FA Cup",
+      "entry": "uel_league_phase",
+      "second_cup": "EFL Cup",
+      "second_entry": "uecl_playoff_round",
+      "second_path": "league",
+      "quote": "7 domestic cup winners from associations 1-7 ... 5 domestic league sixth-placed teams from associations 1-5 (EFL Cup winners for England)",
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution",
+      "note": "England is the only association where a second domestic cup carries a berth. Observed 2026-27 cascade: 5th took the EPS Champions League slot, 6th and 7th went to the Europa League league phase, and the Conference League play-off slot landed on 8th (Brighton & Hove Albion, listed as '8th' in the UECL teams table) because the cup winners were already qualified."
+    },
+    {
+      "association": "Italy",
+      "rank": 2,
+      "main_cup": "Coppa Italia",
+      "entry": "uel_league_phase",
+      "second_cup": null,
+      "second_entry": null,
+      "quote": "7 domestic cup winners from associations 1-7",
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution",
+      "note": "No second domestic cup. The association's 7 European berths are 4 UCL + 2 UEL (5th, cup) + 1 UECL (6th), which leaves no room for another cup."
+    },
+    {
+      "association": "Spain",
+      "rank": 3,
+      "main_cup": "Copa del Rey",
+      "entry": "uel_league_phase",
+      "second_cup": null,
+      "second_entry": null,
+      "quote": "7 domestic cup winners from associations 1-7",
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution",
+      "note": "No second domestic cup. The Supercopa is a four-team super cup and carries no European berth."
+    },
+    {
+      "association": "Germany",
+      "rank": 4,
+      "main_cup": "DFB-Pokal",
+      "entry": "uel_league_phase",
+      "second_cup": null,
+      "second_entry": null,
+      "quote": "7 domestic cup winners from associations 1-7",
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution",
+      "note": "No second domestic cup."
+    },
+    {
+      "association": "France",
+      "rank": 5,
+      "main_cup": "Coupe de France",
+      "entry": "uel_league_phase",
+      "second_cup": null,
+      "second_entry": null,
+      "quote": "7 domestic cup winners from associations 1-7",
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution",
+      "note": "No second domestic cup."
+    },
+    {
+      "association": "Portugal",
+      "rank": 7,
+      "main_cup": "Taca de Portugal",
+      "entry": "uel_league_phase",
+      "second_cup": "Taca da Liga",
+      "second_entry": null,
+      "quote": "7 domestic cup winners from associations 1-7 ... 6 domestic league third-placed teams from associations 7-12",
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution",
+      "note": "The Taca da Liga earns nothing. Portugal's allocation is champion (UCL league phase), runner-up (UCL Q3 League Path), 3rd (UEL Q2) + cup winner (UEL league phase), 4th (UECL Q2) - all already filled, so a second cup has nowhere to go."
+    }
+  ],
+  "drop_downs": [
+    {"from": "UCL", "round": "q1", "to": "UECL", "entry": "q2", "path": "champions", "count": 12, "quote": "12 teams eliminated from Champions League first qualifying round", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"},
+    {"from": "UCL", "round": "q2", "path_from": "champions", "to": "UEL", "entry": "q3", "path": "champions", "count": 12, "quote": "12 losers from Champions League second qualifying round (Champions Path)", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"},
+    {"from": "UCL", "round": "q2", "path_from": "league", "to": "UEL", "entry": "q3", "path": "main", "count": 2, "quote": "2 losers from Champions League second qualifying round (League Path)", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"},
+    {"from": "UCL", "round": "q3", "path_from": "champions", "to": "UEL", "entry": "playoff_round", "path": "main", "count": 6, "quote": "6 losers from Champions League third qualifying round (Champions Path)", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"},
+    {"from": "UCL", "round": "q3", "path_from": "league", "to": "UEL", "entry": "league_phase", "path": null, "count": 4, "quote": "4 losers from Champions League third qualifying round (League Path)", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"},
+    {"from": "UCL", "round": "playoff_round", "path_from": "champions", "to": "UEL", "entry": "league_phase", "path": null, "count": 5, "quote": "5 losers from Champions League play-off round (Champions Path)", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"},
+    {"from": "UCL", "round": "playoff_round", "path_from": "league", "to": "UEL", "entry": "league_phase", "path": null, "count": 2, "quote": "2 losers from Champions League play-off round (League Path)", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"},
+    {"from": "UEL", "round": "q1", "to": "UECL", "entry": "q2", "path": "league", "count": 6, "quote": "6 teams eliminated from Europa League first qualifying round", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"},
+    {"from": "UEL", "round": "q2", "to": "UECL", "entry": "q3", "path": "league", "count": 9, "quote": "9 teams eliminated from Europa League second qualifying round", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"},
+    {"from": "UEL", "round": "q3", "path_from": "champions", "to": "UECL", "entry": "playoff_round", "path": "champions", "count": 6, "quote": "6 teams eliminated from Europa League third qualifying round (Champions Path)", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"},
+    {"from": "UEL", "round": "q3", "path_from": "main", "to": "UECL", "entry": "playoff_round", "path": "league", "count": 7, "quote": "7 teams eliminated from Europa League third qualifying round (League Path)", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"},
+    {"from": "UEL", "round": "playoff_round", "to": "UECL", "entry": "league_phase", "path": null, "count": 12, "quote": "12 teams eliminated from Europa League play-off round", "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"}
+  ],
+  "title_holders": {
+    "ucl_winner": {
+      "rule": "Champions League winner gets a league-phase berth if not already qualified through the domestic league.",
+      "quote": "The winners of the 2025-26 UEFA Champions League and 2025-26 UEFA Europa League were each given an additional entry if they did not qualify for the 2026-27 UEFA Champions League through their domestic league.",
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_team_allocation",
+      "actual_2026_27": "Paris Saint-Germain qualified as Ligue 1 champions, so the slot was rebalanced (see rebalancing)."
+    },
+    "uel_winner": {
+      "rule": "Europa League winner gets a Champions League league-phase berth if not already qualified through the domestic league.",
+      "actual_2026_27": "Aston Villa qualified 4th in the Premier League, so the slot was rebalanced."
+    },
+    "uecl_winner": {
+      "rule": "Conference League winner gets a Europa League league-phase berth if not already qualified for the Champions League or Europa League.",
+      "quote": "The title holders of the 2025-26 UEFA Conference League received an entry into the Europa League (if they did not qualify for the Champions League or Europa League via league position).",
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Association_team_allocation",
+      "actual_2026_27": "Crystal Palace entered the Europa League league phase as CON."
+    }
+  },
+  "eps": {
+    "spots": 2,
+    "rule": "One extra Champions League league-phase berth for each of the two associations with the best single-season (2025-26) association coefficient.",
+    "quote": "The two associations with the best coefficients in the 2025-26 season each have one European Performance Spot into the league phase. ... The winners of the UEFA Champions League and Europa League could not fill the European Performance Spots.",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_team_allocation",
+    "computation_quote": "From the 2023-24 season and onward, the two highest annual coefficients are used to determine two additional European Performance Spots (one per association) in the Champions League for the next season.",
+    "computation_source": "https://en.wikipedia.org/wiki/UEFA_coefficient#Current_ranking",
+    "season_coefficient_formula": "(points earned by all of the association's clubs in that one season, bonus points included) / (number of clubs that association entered), truncated to three decimals",
+    "actual_2026_27": ["England - the extra berth went to 5th (Liverpool)", "Spain - the extra berth went to 5th (Real Betis)"],
+    "note": "The EPS is an extra berth on top of the association's normal allocation, so every league position below it slides down one and the association's 5th-placed team ends up in the Champions League league phase."
+  },
+  "rebalancing": {
+    "rule": "When a title holder is already qualified its berth is not wasted: the best-coefficient club still in the qualifying rounds is pulled into the league phase and the hole behind it is filled from the round below.",
+    "entries": [
+      {"trigger": "UCL title holder already qualified", "moved": "Shakhtar Donetsk (Ukraine, association 23 champion)", "from": "q2_champions", "to": "league_phase", "quote": "as the domestic champions with the highest club coefficient among the clubs that would otherwise have entered the Champions Path of the qualifying phase or play-off round, entered the league phase instead of the Champions Path second qualifying round."},
+      {"trigger": "UCL title holder already qualified", "moved": "Slovan Bratislava and Celje", "from": "q1_champions", "to": "q2_champions", "quote": "as the two clubs with the highest club coefficient that would otherwise have entered the Champions Path first qualifying round, entered the Champions Path second qualifying round."},
+      {"trigger": "UEL title holder already qualified", "moved": "Sporting CP (Portugal, association 7 runner-up)", "from": "q3_league", "to": "league_phase", "quote": "as the club with the highest club coefficient among all clubs that would otherwise have entered either the Champions Path or the League Path of the qualifying phase or play-off round, entered the league phase instead of the League Path third qualifying round."},
+      {"trigger": "UEL title holder already qualified", "moved": "Bodo/Glimt and Olympiacos", "from": "q2_league", "to": "q3_league", "quote": "as the two clubs with the highest club coefficient that would otherwise have entered the League Path second qualifying round, entered the League Path third qualifying round."}
+    ],
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution",
+    "knock_on": "Every promotion leaves a hole filled from the round below, so the league phase stays at 36 and every qualifying round stays even. Loser counts in drop_downs are post-rebalancing."
+  },
+  "traps": [
+    "Use the coefficient snapshot that matches the season, not the live one. The 2026-27 access list uses the ranking finished at the end of 2024-25; the live 2026-27 table on the UEFA_coefficient page feeds 2028-29.",
+    "Russia is 26th with 0 teams. Do not allocate its berth: the slot is absorbed by pushing the association-23 champion up a round.",
+    "Liechtenstein has no league and no Champions League entrant: exactly one club, the cup winner, into UECL Q2.",
+    "Team numbers per association are fixed first; the entry round is what moves. A cup winner already qualified for the Champions League frees its Europa League slot, and it cascades down the league table.",
+    "Round names are path-specific. There is no single UEL Q3: it is Q3 Champions Path (12) plus Q3 Main Path (14). UECL Q2/Q3/play-off each split into Champions Path and League Path (the same path is called Main Path in some sections of the same page).",
+    "Champions Path losers from UCL Q3 go to the Europa League play-off round, but League Path losers from the same UCL Q3 go straight to the Europa League league phase. Same round, different destination.",
+    "UCL Q1 losers do not all land in UECL Q2: the published list gave two of them a bye to UECL Q3 Champions Path because the Champions Path above them had been thinned by rebalancing.",
+    "A cup runner-up gets nothing unless the winner's slot cascades."
+  ],
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League",
+    "https://en.wikipedia.org/wiki/UEFA_coefficient"
+  ],
+  "source_quality": "All four pages are Wikipedia 2026-27 season articles, each citing the UEFA club competition regulations for that season. No documents.uefa.com PDF was retrieved (the guessed UEFA access-list URL returned 404). Quotes are transcriptions with wiki link markup stripped and en dashes written as hyphens; ellipses mark omitted text inside a row. The UCL association table renders its Teams column unreliably after conversion, so per-association ucl_teams values come from the prose allocation bullets, not from that column."
+}
