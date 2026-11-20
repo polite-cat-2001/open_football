@@ -1,0 +1,90 @@
+{
+  "country": "Switzerland",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Swiss_Super_League",
+    "https://en.wikipedia.org/wiki/Swiss_Challenge_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Swiss_Challenge_League",
+    "https://en.wikipedia.org/wiki/Promotion_League"
+  ],
+  "leagues": [
+    {
+      "id": "C1",
+      "name": "Super League",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 38,
+        "split_after": 33,
+        "groups": 2,
+        "points_carry": true,
+        "stages": [
+          { "name": "first phase", "clubs": 12, "series": 1, "rounds": 33, "note": "Each club plays the other 11 three times." },
+          { "name": "championship group", "clubs": 6, "series": 1, "rounds": 5, "start_points": "carried", "note": "Top six; one match against each group rival." },
+          { "name": "relegation group", "clubs": 6, "series": 1, "rounds": 5, "start_points": "carried", "note": "Bottom six; last is relegated, second-to-last goes to the play-off." }
+        ]
+      },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "11th of the Super League vs 2nd of the Challenge League",
+        "legs": 2,
+        "note": "Played 1 and 4 June 2027. The 12th-placed club is relegated directly. Same tie as the Challenge League promotion play-off."
+      }
+    },
+    {
+      "id": "C2",
+      "name": "Challenge League",
+      "level": 2,
+      "size": 10,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 36 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd",
+        "legs": 2,
+        "note": "The champion is promoted; 2nd plays the Super League 11th over two legs. The bottom club is relegated directly with no bottom play-off."
+      }
+    },
+    {
+      "id": "CHPR",
+      "name": "Promotion League",
+      "level": 3,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "playoff",
+      "note": "Challenge League champion up directly, runner-up in a two-legged tie against the Super League 11th. Super League 12th down directly, 11th only through that tie. One shared place."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 1,
+      "up_playoff": 0,
+      "down": 1,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Simple 1-up/1-down: Promotion League champion (subject to licensing) replaces the Challenge League's bottom club. The Promotion League also relegates its bottom two to the regional 1. Liga Classic."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "C1: 12 clubs, 33 rounds (triple round robin) then a 6+6 split for 5 more = 38, points carried; 12th relegated, 11th in a two-legged play-off against the Challenge League runner-up (1 and 4 June 2027). C2: 10 clubs, 36 rounds (four meetings); champion up, runner-up to the play-off, bottom club down directly - no bottom play-off. CHPR: 18 clubs, 34 rounds; champion up subject to professional licensing; bottom two down to the regional 1. Liga Classic (level 4, not modelled, hence closed_down=true). Reserve teams are allowed in the Promotion League but cannot be promoted. Season 24 July 2026 - 30 May 2027."
+}

@@ -1,0 +1,44 @@
+{
+  "country": "Oman",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Oman_Professional_League",
+    "https://en.wikipedia.org/wiki/2024%E2%80%9325_Oman_Professional_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_in_Asian_football_(AFC)"
+  ],
+  "leagues": [
+    {
+      "id": "OM1L",
+      "name": "Oman Jindal League",
+      "level": 1,
+      "size": 14,
+      "closed_up": true,
+      "closed_down": true,
+      "format": {
+        "kind": "single",
+        "rounds": 26,
+        "note": "26 rounds derived from 14 clubs playing home and away; no 2026-27 season source states the calendar, because the 2026-27 article does not exist"
+      },
+      "playoff": null
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "league": "OM1L",
+      "field": "name",
+      "ours": "Oman Jindal League",
+      "real": "Oman Professional League (Omantel Professional League for sponsorship)",
+      "note": "No source read uses 'Jindal'. Probably a 2026-27 title sponsor that is not documented, or a bad name in our database."
+    },
+    {
+      "league": "OM1L",
+      "field": "size/club_list",
+      "ours": "14",
+      "real": "the league page's own 2024-25 club list names only 12 clubs",
+      "note": "The named list is stale (it still mentions 2023-24 relegations); the infobox says 14. 14 used."
+    }
+  ],
+  "confidence": "low",
+  "notes": "Single Omani row in our list, so the league is closed in both directions in the data; in reality it relegates to the Oman First Division League (tier 2), which is not modelled, and the number of relegation places and any play-off could not be verified because the 2026-27 season article does not exist. Size 14 comes from the league infobox; 26 rounds is arithmetic. The league page's club list is stale (12 names, 2024-25 season). 2025-26 champion: Al-Seeb (5th title)."
+}

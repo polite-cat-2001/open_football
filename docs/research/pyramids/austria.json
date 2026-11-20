@@ -1,0 +1,18 @@
+{
+  "country": "Austria",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Austrian_Football_Bundesliga",
+    "https://en.wikipedia.org/wiki/Austrian_Football_Bundesliga"
+  ],
+  "leagues": [
+    {"id": "A1", "name": "Bundesliga", "level": 1, "size": 12, "closed_up": true, "closed_down": true,
+     "format": {"kind": "split", "rounds": 32, "split_after": 22, "groups": [6, 6], "points_carry": false,
+                "note": "double round-robin (22 rounds), then 1st-6th and 7th-12th play another double round-robin (10 rounds). Points from the regular season are halved and rounded down before the split, so the table is not carried forward intact."},
+     "playoff": null}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "12 clubs, 22 + 10 rounds (32 games). Points are halved and rounded down at the split, which is the key rule for a simulation. Only the last club of the Relegation Round is relegated; the 2. Liga champion is promoted in its place, a straight 1-up/1-down swap with no play-off. The 2. Liga is not in our rows so the league is closed downwards in our data. The separate Conference League play-off after the season decides a European place only and is excluded, as are the cup and European qualification."
+}

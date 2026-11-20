@@ -1,0 +1,53 @@
+{
+  "country": "Saudi Arabia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Saudi_Pro_League",
+    "https://en.wikipedia.org/wiki/Saudi_Pro_League",
+    "https://en.wikipedia.org/wiki/Saudi_First_Division_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Saudi_First_Division_League"
+  ],
+  "leagues": [
+    {
+      "id": "SA1",
+      "name": "Saudi Pro League",
+      "level": 1,
+      "size": 18,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": null
+    },
+    {
+      "id": "SA2L",
+      "name": "Saudi First Division League",
+      "level": 2,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "3rd-6th",
+        "legs": 1,
+        "note": "5th hosts 4th and 6th visits 3rd, both single matches; the final is one match hosted by the higher-placed club. The winner is the third promoted club."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 3,
+      "up_playoff": 1,
+      "down": 3,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Pro League: bottom 3 (16th-18th) relegated directly, no play-off. First Division: top 2 direct, 3rd-6th play off for the third place (single-leg ties)."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Both levels are plain 18-club double round robins (34 rounds). The Pro League has no relegation play-off; the First Division's promotion play-off is single-leg, not two-legged. The Saudi Second Division (level 3) is not in our database, so SA2L is closed downward here although clubs really are relegated into it. 2026-27 Pro League runs 13 Aug 2026 - 29 May 2027 with a winter break for the 2027 AFC Asian Cup. Sponsored names: Roshn Saudi League (SA1), Yelo League (SA2L)."
+}

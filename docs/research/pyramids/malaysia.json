@@ -1,0 +1,56 @@
+{
+  "country": "Malaysia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Malaysia_Super_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Malaysia_Super_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Malaysia_Super_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Malaysia_A1_Semi-Pro_League"
+  ],
+  "leagues": [
+    {
+      "id": "MYS1",
+      "name": "Malaysia Super League",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 26 },
+      "playoff": null
+    },
+    {
+      "id": "MAY2",
+      "name": "Malaysia A1 Semi-Pro League",
+      "level": 2,
+      "size": 14,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 26 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "by_licence",
+      "selection": "bottom_n",
+      "note": "A1 Semi-Pro: top two promoted. Super League: bottom two relegated. In practice the bottom places are decided by MFL licensing, not form - in both 2025-26 and 2026-27 clubs were ejected for failing the national licence - and reserve/feeder sides cannot go up."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "MYS1-MAY2",
+      "field": "season",
+      "ours": "calendar year 2026",
+      "real": "2026-27, August/September 2026 - May 2027",
+      "note": "Malaysia no longer runs a calendar-year league: 2025-26 ran 8 Aug 2025 - 17 May 2026 and 2026-27 runs 28 Aug 2026 - 23 May 2027. The Super League also had 13 clubs in 2025-26 and 12 in 2026-27, so our size 12 is right for the coming season only."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Level 1 (Super League, 12 clubs, 26 rounds, sponsorship name Unifi Liga Super) and level 2 (A1 Semi-Pro League, 14 clubs, 26 rounds). The A1 regulations for 2026-27 state explicitly: top two promoted, bottom two relegated to the A2 Amateur League. Super League relegation is less clean: the main article describes the old two-down rule, while recent seasons saw clubs removed by licensing instead, so the count 2 is the regulation figure and the licensed outcome may be 0-2. Reserve/feeder teams (JDT II, Selangor II, Immigration II, Negeri Sembilan II) are marked ineligible for promotion in the A1 table. Below A1 sit the A2 Amateur and A3 Community leagues, not modelled."
+}

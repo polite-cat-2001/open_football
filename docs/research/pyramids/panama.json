@@ -1,0 +1,35 @@
+{
+  "country": "Panama",
+  "season": "2026-27",
+  "sources": [
+    "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1)",
+    "https://es.wikipedia.org/wiki/Primera_Divisi%C3%B3n_de_Panam%C3%A1",
+    "https://en.wikipedia.org/wiki/Liga_LPF"
+  ],
+  "leagues": [
+    {
+      "id": "PN1A",
+      "name": "Liga Panameña de Fútbol Apertura",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": true,
+      "format": {
+        "kind": "groups",
+        "groups": 2,
+        "rounds": 16,
+        "note": "two conferences of six: 10 matches inside the conference and 6 against the other conference. This is one of the season's two championships; the Apertura and Clausura are separate 12-club tournaments with separate tables and no points carried between them."
+      },
+      "playoff": {
+        "kind": "title",
+        "entries": "top 3 of each conference",
+        "legs": 1,
+        "note": "2nd West v 3rd East and 2nd East v 3rd West, then single-match semi-finals (conference winners host) and a single-match final at the Estadio Rommel Fernández; extra time and penalties if level"
+      }
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "medium",
+  "notes": "One Panamanian row in our list and it is a half-season tournament, so the Apertura is closed in both directions in the data. In reality one club is relegated per season on the Apertura + Clausura accumulated table and the Liga Prom Superfinal winner replaces it (tier 2 not modelled); that happens at the end of the Clausura, not inside the Apertura. 12 clubs, two conferences of six, 16 rounds and a six-team play-off are confirmed by the Apertura 2026 page. From 2026 the calendar moved back to the European pattern at CONCACAF's request, so the second-half tournament is the Apertura again; the 2025 Clausura was a transition tournament with no promotion or relegation, which is why the same 12 clubs started 2026-27. Round 12 of the Apertura was postponed by the October 2026 earthquake, so mid-season tables have unequal games played."
+}

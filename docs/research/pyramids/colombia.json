@@ -1,0 +1,96 @@
+{
+  "country": "Colombia",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Liga_DIMAYOR",
+    "https://en.wikipedia.org/wiki/Categor%C3%ADa_Primera_B"
+  ],
+  "leagues": [
+    {
+      "id": "COL1",
+      "name": "Liga Dimayor",
+      "level": 1,
+      "size": 20,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "apertura_clausura",
+        "rounds": 19,
+        "stages": [
+          { "name": "Apertura", "clubs": 20, "rounds": 19, "note": "Single round-robin (19 matches), plus an extra regional-derby round in most seasons. Top 8 to two groups of four." },
+          { "name": "Apertura semi-finals", "clubs": 8, "groups": 2, "rounds": 6, "start_points": 0, "note": "Two groups of four, double round-robin; group winners to a two-legged final." },
+          { "name": "Apertura final", "clubs": 2, "legs": 2 },
+          { "name": "Finalizacion", "clubs": 20, "rounds": 19, "note": "Identical second tournament, independent title." },
+          { "name": "Finalizacion semi-finals", "clubs": 8, "groups": 2, "rounds": 6, "start_points": 0 },
+          { "name": "Finalizacion final", "clubs": 2, "legs": 2 }
+        ]
+      },
+      "playoff": {
+        "kind": "title",
+        "entries": "top 8 of each tournament",
+        "legs": 2,
+        "note": "Cuadrangulares: two groups of four play a double round-robin from zero; the two group winners meet in a two-legged final. Two champions per season (Apertura and Finalizacion)."
+      }
+    },
+    {
+      "id": "CO22",
+      "name": "Torneo DIMAYOR (Primera B)",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": true,
+      "format": {
+        "kind": "apertura_clausura",
+        "rounds": 15,
+        "stages": [
+          { "name": "Torneo I", "clubs": 16, "rounds": 15, "note": "Single round-robin, 15 or 16 matches (an extra derby round in some seasons). Top 8 to two groups of four." },
+          { "name": "Torneo I semi-finals", "clubs": 8, "groups": 2, "rounds": 6, "start_points": 0 },
+          { "name": "Torneo I final", "clubs": 2, "legs": 2 },
+          { "name": "Torneo II", "clubs": 16, "rounds": 15, "note": "Same fixtures reversed, independent title." },
+          { "name": "Torneo II semi-finals", "clubs": 8, "groups": 2, "rounds": 6, "start_points": 0 },
+          { "name": "Torneo II final", "clubs": 2, "legs": 2 },
+          { "name": "Grand Final", "clubs": 2, "legs": 2, "note": "Winners of the two tournaments; used only in the scenario where neither is in the top two of the aggregate table." }
+        ]
+      },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "tournament winners and aggregate table",
+        "legs": 2,
+        "note": "Two promotions, decided by a conditional set of rules: if one club wins both tournaments it is promoted and the next two in the aggregate table play off; if both winners are top two in the aggregate table both go up; otherwise a grand final plus a play-off against the aggregate table's best remaining club decides the second place."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "promedio",
+      "note": "Down: the bottom two of the three-season average table (promedio), not the season table, so a bad single season may not relegate a club. Up: exactly two clubs, but only in the simplest scenarios are both decided by the table; in the main scenario one goes up through the grand final and the other through a two-legged play-off, so up_playoff is 1 (at most one place is a play-off)."
+    }
+  ],
+  "conflicts": [
+    {
+      "topic": "A single row per league, but two championships per season",
+      "detail": "COL1 is stored as one league, but the Colombian top flight runs two independent tournaments (Apertura and Finalizacion), each with its own champion and its own semi-final groups and final. The row name 'Liga Dimayor Finalizacion' names only the second half. Fixtures, form and the title race reset in July."
+    },
+    {
+      "topic": "Relegation is not decided by the season table",
+      "detail": "The bottom two are relegated on a three-season average of first-stage points (promedio). A newly promoted club carries only its own seasons in the average, which is why the rule historically protected big clubs."
+    },
+    {
+      "topic": "Promotion rules are conditional",
+      "detail": "Since 2025, how the two Primera B promotions are decided depends on where the two short-tournament winners finish in the aggregate table (four scenarios, ranging from both direct to a grand final plus a play-off). The count (2) is fixed; the route is not."
+    },
+    {
+      "topic": "Primera B has no relegation",
+      "detail": "The second tier's infobox has no relegation, and no club drops out of the professional pyramid from it. It is therefore closed downwards even though Primera C exists as an amateur/regional level."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Calendar-year season (2026 Apertura + Finalizacion); the 2026 season is nearly over at the research date. Sizes 20/16 and levels match our rows. Reserve/filial sides historically appear in Primera B (e.g. America B, Nacional B) but none is in the 2026 field and the promotion rules above do not mention them. Cups and CONMEBOL competitions excluded."
+}

@@ -1,0 +1,66 @@
+{
+  "country": "Hungary",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Nemzeti_Bajnoks%C3%A1g_I",
+    "https://hu.wikipedia.org/wiki/2026%E2%80%932027-es_magyar_labdar%C3%BAg%C3%B3-bajnoks%C3%A1g_(els%C5%91_oszt%C3%A1ly)",
+    "https://hu.wikipedia.org/wiki/Magyar_labdar%C3%BAg%C3%B3-bajnoks%C3%A1g_(m%C3%A1sodoszt%C3%A1ly)",
+    "https://en.wikipedia.org/wiki/Nemzeti_Bajnoks%C3%A1g_II"
+  ],
+  "leagues": [
+    {
+      "id": "UNG1",
+      "name": "Nemzeti Bajnokság",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 33 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "11th in NB I vs 2nd in NB II",
+        "legs": 1,
+        "note": "New from 2026-27: one match at a neutral venue (29 May 2027) that must be VAR-capable. 12th is relegated directly."
+      }
+    },
+    {
+      "id": "UN2",
+      "name": "Nemzeti Bajnokság II.",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd in NB II vs 11th in NB I",
+        "legs": 1,
+        "note": "The champion is promoted directly; the runner-up gets the single-match play-off."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "NB II champion up; NB II runner-up meets the NB I 11th in one match. NB I 12th goes down directly. Both promotions are conditional on licensing."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "UN2",
+      "field": "playoff",
+      "ours": "not encoded",
+      "real": "champion up, runner-up into a one-legged play-off against the NB I 11th (new for 2026-27)",
+      "note": "The NB II article still describes the previous rule - top two promoted, NB I 11th and 12th relegated. The 2026-27 NB I page and the Hungarian season page both confirm the new single-match play-off, so that is what is recorded here."
+    }
+  ],
+  "confidence": "high",
+  "notes": "NB I: 12 clubs, 33 rounds (each team plays every other three times). The league has no title sponsor name in 2026-27 (it was Fizz Liga before). NB II: 16 clubs in one group, 30 rounds, bottom three relegated to NB III, which is played in three groups and is not in our rows. NB III sends its three group winners up, so level 2 stays at 16. Because the play-off replaces one direct promotion, NB II promotes one or two clubs depending on its outcome."
+}

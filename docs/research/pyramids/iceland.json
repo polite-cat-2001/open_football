@@ -1,0 +1,87 @@
+{
+  "country": "Iceland",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Besta_deild_karla",
+    "https://en.wikipedia.org/wiki/Besta_deild_karla",
+    "https://en.wikipedia.org/wiki/1._deild_karla",
+    "https://is.wikipedia.org/wiki/1._deild_karla_%C3%AD_knattspyrnu",
+    "https://en.wikipedia.org/wiki/2._deild_karla",
+    "https://en.wikipedia.org/wiki/Icelandic_football_league_system"
+  ],
+  "leagues": [
+    {
+      "id": "IS1",
+      "name": "Besta deild",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 27,
+        "split_after": 22,
+        "groups": { "championship": 6, "relegation": 6 },
+        "points_carry": "full",
+        "stages": [
+          { "name": "regular", "teams": 12, "rounds": 22, "kind": "double_round_robin" },
+          { "name": "championship_group", "teams": 6, "rounds": 5, "kind": "single_round_robin", "note": "each team meets the others once more for a third meeting overall; title on total points" },
+          { "name": "relegation_group", "teams": 6, "rounds": 5, "kind": "single_round_robin", "note": "bottom two relegated" }
+        ]
+      },
+      "playoff": null
+    },
+    {
+      "id": "IS2",
+      "name": "Lengjudeild",
+      "level": 2,
+      "size": 12,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 22 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd-5th",
+        "legs": 1,
+        "note": "Champion promoted directly; the next four play a knockout for the second promotion place (Keflavík won it in 2025)."
+      }
+    },
+    {
+      "id": "ISL3",
+      "name": "2. deild",
+      "level": 3,
+      "size": 12,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 22 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "1. deild champion up, 2nd-5th play off for the second place; the Besta deild bottom two go down directly (Vestri and Afturelding in 2025)."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Two clubs move each way at every Icelandic boundary. No promotion play-off is documented at the 2. deild/1. deild line - the top two go up."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "medium",
+  "notes": "Calendar-year league (May-October 2026); '2026-27' is only the dataset label. Every men's level holds 12 clubs and exactly two move up and down at each boundary. Besta deild plays 22 rounds then splits 6/6 for five more games (27), points carried in full; the other two divisions play a plain 22-round double round robin. Our IS2 name 'Lengjudeild' is the sponsor name of 1. deild karla and is current. Below 2. deild sits 3. deild (12, not in our rows), which takes two down and sends two up; the fifth tier 4. deild is grouped and decided by a knockout."
+}

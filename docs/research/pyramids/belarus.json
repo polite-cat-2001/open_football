@@ -1,0 +1,27 @@
+{
+  "country": "Belarus",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Belarusian_Premier_League",
+    "https://en.wikipedia.org/wiki/Football_in_Belarus",
+    "https://en.wikipedia.org/wiki/Belarusian_First_League"
+  ],
+  "leagues": [
+    {"id": "WER1", "name": "Vysheyshaya Liga", "level": 1, "size": 16, "closed_up": true, "closed_down": false,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": {"kind": "relegation", "entries": "14th", "legs": 2,
+                 "note": "14th plays the Belarusian First League 3rd over two legs for a place in the 2027 Premier League; 15th and 16th are relegated directly."}},
+    {"id": "WER2", "name": "Pershaya Liga", "level": 2, "size": 18, "closed_up": false, "closed_down": true,
+     "format": {"kind": "single", "rounds": 34},
+     "playoff": {"kind": "promotion", "entries": "3rd", "legs": 2,
+                 "note": "champion and runner-up are promoted directly; 3rd meets the Premier League 14th over two legs. Relegation to the Second League (level 3) is outside our data."}}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 3, "up_playoff": 1, "down": 3, "down_playoff": 1,
+     "allocation": "free", "selection": "bottom_n",
+     "note": "15th and 16th relegated directly, 14th in a two-legged play-off against the First League 3rd. First League champion and runner-up go up directly; its 3rd takes the play-off. One place is contested, so exactly one of {Premier League 14th, First League 3rd} is in the top flight next season."}
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Calendar-year season: the 2026 season is the one that overlaps the 2026-27 career year, so '2026' is the real label here. 16 clubs, 30 matches each. 14th plays the First League 3rd over two legs, 15th-16th are relegated directly; the First League sends its champion and runner-up up directly and its 3rd into that play-off. First League is 18 clubs (34 rounds by arithmetic); its relegation to the Second League is outside our data, so it is closed downwards. Belarusian clubs are currently excluded from UEFA competitions, but no European places are in scope anyway."
+}

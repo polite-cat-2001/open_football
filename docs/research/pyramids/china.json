@@ -1,0 +1,62 @@
+{
+  "country": "China",
+  "season": "2026",
+  "sources": [
+    "https://zh.wikipedia.org/wiki/2026%E5%B9%B4%E4%B8%AD%E5%9B%BD%E8%B6%B3%E7%90%83%E8%B6%85%E7%BA%A7%E8%81%94%E8%B5%9B",
+    "https://zh.wikipedia.org/wiki/2026%E5%B9%B4%E4%B8%AD%E5%9B%BD%E8%B6%B3%E7%90%83%E7%94%B2%E7%BA%A7%E8%81%94%E8%B5%9B",
+    "https://zh.wikipedia.org/wiki/2026%E5%B9%B4%E4%B8%AD%E5%9B%BD%E8%B6%B3%E7%90%83%E4%B9%99%E7%BA%A7%E8%81%94%E8%B5%9B",
+    "https://en.wikipedia.org/wiki/Chinese_Super_League",
+    "https://en.wikipedia.org/wiki/China_League_One",
+    "https://en.wikipedia.org/wiki/China_League_Two",
+    "https://en.wikipedia.org/wiki/2026_China_League_Two"
+  ],
+  "leagues": [
+    {"id": "CSL", "name": "Chinese Super League", "level": 1, "size": 16, "closed_up": true, "closed_down": false,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": null},
+    {"id": "CLO", "name": "China League One", "level": 2, "size": 16, "closed_up": false, "closed_down": false,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": {"kind": "relegation", "entries": "14th of China League One vs 3rd of the China League Two promotion group", "legs": 2,
+      "note": "the League One club hosts the second leg; the 15th and 16th go down directly, so the boundary is '2 up / 2.5 down'"}},
+    {"id": "CHL3", "name": "China League Two (North zone)", "level": 3, "size": 12, "closed_up": false, "closed_down": false,
+     "format": {"kind": "groups", "rounds": 30, "split_after": 22,
+      "groups": {"north": 12, "south": 12},
+      "points_carry": "full",
+      "stages": [
+        {"name": "first_stage", "teams": 24, "groups": 2, "teams_per_group": 12, "rounds": 22, "kind": "double_round_robin", "note": "North and South by geography"},
+        {"name": "promotion_group", "teams": 8, "rounds": 8, "kind": "double_round_robin_unmet_only", "note": "top 4 of each zone; plays only the 4 teams from the other zone, home and away"},
+        {"name": "relegation_a", "teams": 8, "rounds": 8, "kind": "double_round_robin_unmet_only", "note": "South 5,7,9,11 + North 6,8,10,12"},
+        {"name": "relegation_b", "teams": 8, "rounds": 8, "kind": "double_round_robin_unmet_only", "note": "South 6,8,10,12 + North 5,7,9,11"}]},
+     "playoff": {"kind": "promotion", "entries": "3rd of the promotion group vs 14th of China League One", "legs": 2,
+      "note": "top 2 of the promotion group go up directly; the 3rd plays the play-off"}},
+    {"id": "CL3S", "name": "China League Two (South zone)", "level": 3, "size": 12, "closed_up": false, "closed_down": false,
+     "format": {"kind": "groups", "rounds": 30, "split_after": 22,
+      "groups": {"north": 12, "south": 12},
+      "points_carry": "full",
+      "stages": [
+        {"name": "first_stage", "teams": 24, "groups": 2, "teams_per_group": 12, "rounds": 22, "kind": "double_round_robin", "note": "North and South by geography"},
+        {"name": "promotion_group", "teams": 8, "rounds": 8, "kind": "double_round_robin_unmet_only", "note": "top 4 of each zone"},
+        {"name": "relegation_a", "teams": 8, "rounds": 8, "kind": "double_round_robin_unmet_only", "note": "South 5,7,9,11 + North 6,8,10,12"},
+        {"name": "relegation_b", "teams": 8, "rounds": 8, "kind": "double_round_robin_unmet_only", "note": "South 6,8,10,12 + North 5,7,9,11"}]},
+     "playoff": {"kind": "promotion", "entries": "3rd of the promotion group vs 14th of China League One", "legs": 2,
+      "note": "top 2 of the promotion group go up directly; the 3rd plays the play-off"}}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 2, "up_playoff": 0, "down": 2, "down_playoff": 0,
+     "allocation": "free", "selection": "bottom_n",
+     "note": "League One champion and runner-up up; CSL 15th and 16th down. No play-off at this boundary in 2026."},
+    {"upper": 2, "lower": 3, "up": 3, "up_playoff": 1, "down": 3, "down_playoff": 1,
+     "allocation": "free", "selection": "other",
+     "note": "League Two promotion group: top 2 up directly, 3rd into a two-leg play-off. League One: 15th and 16th down directly, 14th into the same tie, so it can survive. Introduced for 2026 as '2 up / 2.5 down'; before that this boundary was 2 up / 2 down with no play-off (the last one was 2021)."}
+  ],
+  "conflicts": [
+    {"league": "CHL3/CL3S", "field": "membership", "ours": "China League Two A and China League Two B, two leagues of 12", "real": "one 24-club China League Two whose first stage is two geographic zones (North 12, South 12)",
+     "note": "The two 12s are the correct first-stage group size, but they are not separate divisions: the zones are re-pooled after round 22 into an 8-club promotion group and two cross-zonal relegation groups. The zone labels should be North/South, not A/B."},
+    {"league": "CLO", "field": "rules", "ours": "no play-off encoded at 2-3", "real": "2 up / 2 direct down + 14th in a two-leg play-off",
+     "note": "'2 up / 2.5 down' is new for 2026; a stored 2025 shape (2 down, no play-off) is stale."},
+    {"league": "level 3", "field": "size", "ours": "12 + 12 = 24", "real": 24,
+     "note": "Total is right by construction; do not treat the two rows as independent 12-club leagues when generating fixtures."}
+  ],
+  "confidence": "high",
+  "notes": "Calendar-year season: March-November, not 2026-27. League Two plays 30 rounds / 360 matches: 22 in the zones, then 8 against the teams not yet met. All points from the first stage carry over in full into the second stage. Promotion-group bottom half is not relegated and relegation-group top half cannot be promoted; the second stage is a full re-ranking of the 24 clubs, not a separate cup. Bottom 2 of each relegation group go down (4 clubs) to the Chinese Champions League (level 4, outside this model). B teams: since 2026 a reserve side may be promoted to League One, but at most one professional-club B team per season may take a direct promotion or a play-off place - if two or more finish in the top 3, the extra places pass to the best-placed non-B team; a B team may never play in the same tier as its A team and is relegated to the U-20 youth league instead of the CMCL. 2026 outcomes: Dalian Kewei champion and Shandong Taishan B runner-up both promoted, Guizhou Guiyang Jingji third into the play-off, Wenzhou / Shanghai Saigengda / Chengdu Rongcheng B / Beijing Ligong relegated. Addenda for a career sim: 9 CSL clubs and 4 League One clubs started 2026 with point deductions from the 2022-24 corruption case."
+}

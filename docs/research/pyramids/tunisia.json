@@ -1,0 +1,17 @@
+{
+  "country": "Tunisia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Tunisian_Ligue_Professionnelle_1",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Tunisian_Ligue_Professionnelle_1"
+  ],
+  "leagues": [
+    {"id": "TUN1", "name": "Ligue 1", "level": 1, "size": 16, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": null}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "One table of 16, 30 rounds, champion on points - no split and no championship play-off in 2026-27. Bottom three are relegated directly to Ligue Professionnelle 2, which is not in our rows, so closed_down is flagged true per the 'no league below in our list' rule; those three clubs leave the modelled pyramid. Top two go to the CAF Champions League, third to the Confederation Cup. Older seasons used 14 clubs and, in some years, a group/play-off phase, so a stored format taken from another season may be stale."
+}

@@ -1,0 +1,55 @@
+{
+  "country": "Costa Rica",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Liga_FPD",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_FPD"
+  ],
+  "leagues": [
+    {
+      "id": "CRPD",
+      "name": "Primera Division (Liga FPD)",
+      "level": 1,
+      "size": 10,
+      "closed_up": true,
+      "closed_down": true,
+      "format": {
+        "kind": "apertura_clausura",
+        "rounds": 18,
+        "stages": [
+          { "name": "Apertura regular phase", "clubs": 10, "rounds": 18, "note": "Double round-robin, 18 matches." },
+          { "name": "Apertura play-offs", "clubs": 4, "rounds": 3, "note": "Top four: two-legged semi-finals and a two-legged final." },
+          { "name": "Apertura grand final", "clubs": 2, "legs": 2, "note": "Only if the regular-phase winner and the play-off winner differ." },
+          { "name": "Clausura", "clubs": 10, "rounds": 18, "note": "Identical second tournament, January-May, independent title." }
+        ]
+      },
+      "playoff": {
+        "kind": "title",
+        "entries": "top 4",
+        "legs": 2,
+        "note": "Four-team knockout (semi-finals and final over two legs). If the play-off winner is not the regular-phase winner, a two-legged grand final decides the tournament."
+      }
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "topic": "Single row, but two tournaments and a grand final",
+      "detail": "CRPD is stored as one league. In reality the season is Apertura + Clausura, each 18 rounds plus a four-team knockout and a possible grand final, with two titles. Treating the row as one 36-round table (the older 12-club description) gives the wrong fixtures."
+    },
+    {
+      "topic": "The league page still says 22 matchdays",
+      "detail": "The Liga FPD format prose describes a double round-robin of 22 matchdays, which was the 12-club shape. Since 2025-26 the league has ten clubs and an 18-match regular phase; the 2025-26 season article is the correct source."
+    },
+    {
+      "topic": "Ten clubs is recent and partly administrative",
+      "detail": "The league dropped from 12 to 10 for 2025-26 after Guanacasteca and Santos de Guapiles had their licences revoked. A sim seeded with older data will show 12."
+    },
+    {
+      "topic": "Closed downwards by our data, not by reality",
+      "detail": "One club is relegated each season on the aggregate Apertura+Clausura table, to the Liga de Ascenso. That league is not in our list, so the report marks the direction closed (per the task rule for single-row countries)."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Season 2026-27 (Apertura July-December 2026, Clausura January-May 2027). Size 10 and level match our row. Relegation: one club, bottom of the combined Apertura+Clausura table. No promotion in our data. Cups and CONCACAF competitions excluded."
+}

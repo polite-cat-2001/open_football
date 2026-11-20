@@ -1,0 +1,22 @@
+{
+  "country": "Lebanon",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Lebanese_Premier_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Lebanese_Premier_League",
+    "https://en.wikipedia.org/wiki/2024%E2%80%9325_Lebanese_Premier_League",
+    "https://en.wikipedia.org/wiki/Lebanese_Premier_League"
+  ],
+  "leagues": [
+    {"id": "LIB1", "name": "Lebanese Premier League", "level": 1, "size": 12, "closed_up": true, "closed_down": true,
+     "format": {"kind": "split", "rounds": 21, "split_after": 11, "groups": [6, 6], "points_carry": true},
+     "playoff": null}
+  ],
+  "boundaries": [],
+  "conflicts": [
+    "The 2026-27 season article says both that the league is 'divided into two groups of six' and that 'the top four teams enter the championship group, while the bottom four enter the relegation group'. The two sentences cannot both be true for 12 clubs. The 'groups of six' reading is used because the same paragraph says each club plays 'the other five clubs in its group twice, for a further 10 matches', which only works with two groups of six, and because 2024-25 and 2025-26 both used a 6/6 split.",
+    "Points: the 2026-27 article says each club carries over half its points (rounded up); 2024-25 and 2025-26 say the same, so half-carry is used. This is why points_carry is true but the values are halved, not carried in full."
+  ],
+  "confidence": "medium",
+  "notes": "12 clubs. First phase single round-robin (11 matches); then split into top six (championship group) and bottom six (relegation group), with clubs unable to cross the halfway line; each group plays the other five home and away (10 more) = 21 matches. Half of the first-phase points carry over, rounded up. Bottom two of the relegation group are relegated; the Second Division's top two come up. Single row, so closed both ways. The LFA briefly planned to cut the league to 10 clubs for 2027-28 (which would have meant 4 down) but reversed it on 26 August 2026, keeping 12 clubs and 2 relegation places. The top flight was suspended in 2025-26 by the 2026 Lebanon war and finished with a 4-team championship group and a 3-team relegation group after Bourj withdrew."
+}

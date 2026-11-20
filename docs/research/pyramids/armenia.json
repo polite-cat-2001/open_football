@@ -1,0 +1,31 @@
+{
+  "country": "Armenia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Armenian_Premier_League",
+    "https://en.wikipedia.org/wiki/Armenian_Premier_League",
+    "https://en.wikipedia.org/wiki/Armenian_First_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Armenian_Premier_League"
+  ],
+  "leagues": [
+    {"id": "ARM1", "name": "Premier League", "level": 1, "size": 12, "closed_up": true, "closed_down": false,
+     "format": {"kind": "single", "rounds": null,
+                "note": "round count not published for 2026-27. 2025-26 was a triple round-robin (27 matches with 10 clubs), which would give 33 with 12 clubs."},
+     "playoff": null},
+    {"id": "ARM2", "name": "Armenian First League", "level": 2, "size": 15, "closed_up": false, "closed_down": true,
+     "format": {"kind": "single", "rounds": null,
+                "note": "double round-robin assumed from the club count; no 2026-27 fixture list was available"},
+     "playoff": null}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 1, "up_playoff": 0, "down": 1, "down_playoff": 0,
+     "allocation": "free", "selection": "bottom_n",
+     "note": "Premier League 12th is relegated. The First League sends up its highest-placed eligible club: reserve teams of Premier League clubs cannot be promoted and a licence is also required, so the promoted club is not necessarily the champion."}
+  ],
+  "conflicts": [
+    {"league": "ARM2", "field": "size", "ours": "15", "real": "16 (as of 2025-26)",
+     "note": "The First League article gives teams = 16 but its current-season link points at 2025-26; no 2026-27 source exists yet. 15 is kept as our row, 16 as the last confirmed figure."}
+  ],
+  "confidence": "low",
+  "notes": "Premier League expanded from 10 to 12 on 8 June 2026 (FFA vote), which spared Shirak; our 12 is correct for 2026-27. Only the 12th club is relegated. Round count for 2026-27 was not published anywhere readable, so rounds is null rather than guessed: 2025-26 was a triple round-robin (27 matches with 10 clubs) which would imply 33. First League is mostly reserve teams of Premier League clubs; reserve sides cannot be promoted and a licence is also required, so the promoted club is the highest-placed eligible one, not always the champion. First League clubs relegate to the Armenian Amateur A-League (outside our data). ffa.am could not be reached."
+}

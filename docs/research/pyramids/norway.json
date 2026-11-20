@@ -1,0 +1,186 @@
+{
+  "country": "Norway",
+  "season": "2026-27",
+  "sources": [
+    "https://no.wikipedia.org/wiki/Eliteserien_i_fotball_for_menn_2026",
+    "https://no.wikipedia.org/wiki/OBOS-ligaen_2026",
+    "https://no.wikipedia.org/wiki/2._divisjon_fotball_for_menn_2026",
+    "https://no.wikipedia.org/wiki/3._divisjon_fotball_for_menn_2026",
+    "https://no.wikipedia.org/wiki/2._divisjon_fotball_for_menn",
+    "https://no.wikipedia.org/wiki/3._divisjon_fotball_for_menn",
+    "https://no.wikipedia.org/wiki/Det_norske_seriesystemet_i_fotball_for_menn",
+    "https://no.wikipedia.org/wiki/Kvalifisering_til_1._divisjon_fotball_for_menn_2027",
+    "https://en.wikipedia.org/wiki/2026_Eliteserien",
+    "https://en.wikipedia.org/wiki/2026_Norwegian_First_Division",
+    "https://en.wikipedia.org/wiki/2026_Norwegian_Second_Division",
+    "https://en.wikipedia.org/wiki/2026_Norwegian_Third_Division"
+  ],
+  "leagues": [
+    {
+      "id": "NO1",
+      "name": "Eliteserien",
+      "level": 1,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "14th in Eliteserien vs winner of the OBOS-ligaen 3rd-6th play-offs",
+        "legs": 2,
+        "note": "Winner plays in Eliteserien, loser in OBOS-ligaen."
+      }
+    },
+    {
+      "id": "NO2",
+      "name": "OBOS-ligaen",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "3rd-6th",
+        "legs": 1,
+        "note": "Single-leg ladder: 5th hosts 6th, winner away to 4th, winner away to 3rd; the ladder winner then meets the Eliteserien 14th over two legs."
+      }
+    },
+    {
+      "id": "NO31",
+      "name": "2. divisjon avdeling 1",
+      "level": 3,
+      "size": 14,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "groups", "groups": 2, "rounds": 26 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd in each avdeling",
+        "legs": 2,
+        "note": "The two runners-up play each other over two legs; the winner meets the OBOS-ligaen 14th over two legs."
+      }
+    },
+    {
+      "id": "NO32",
+      "name": "2. divisjon avdeling 2",
+      "level": 3,
+      "size": 14,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "groups", "groups": 2, "rounds": 26 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd in each avdeling",
+        "legs": 2,
+        "note": "The two runners-up play each other over two legs; the winner meets the OBOS-ligaen 14th over two legs."
+      }
+    },
+    {
+      "id": "NO41",
+      "name": "3. divisjon avdeling 1",
+      "level": 4,
+      "size": 14,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "groups", "groups": 6, "rounds": 26 },
+      "playoff": null
+    },
+    {
+      "id": "NO42",
+      "name": "3. divisjon avdeling 2",
+      "level": 4,
+      "size": 14,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "groups", "groups": 6, "rounds": 26 },
+      "playoff": null
+    },
+    {
+      "id": "NO43",
+      "name": "3. divisjon avdeling 3",
+      "level": 4,
+      "size": 14,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "groups", "groups": 6, "rounds": 26 },
+      "playoff": null
+    },
+    {
+      "id": "NO44",
+      "name": "3. divisjon avdeling 4",
+      "level": 4,
+      "size": 14,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "groups", "groups": 6, "rounds": 26 },
+      "playoff": null
+    },
+    {
+      "id": "NO45",
+      "name": "3. divisjon avdeling 5",
+      "level": 4,
+      "size": 14,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "groups", "groups": 6, "rounds": 26 },
+      "playoff": null
+    },
+    {
+      "id": "NO46",
+      "name": "3. divisjon avdeling 6",
+      "level": 4,
+      "size": 14,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "groups", "groups": 6, "rounds": 26 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 3,
+      "up_playoff": 1,
+      "down": 3,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Eliteserien: 15th-16th direct, 14th in a two-legged play-off. OBOS: top 2 direct, 3rd-6th single-leg ladder; the ladder winner meets the Eliteserien 14th. One place is contested, so the loser stays at its level."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 3,
+      "up_playoff": 1,
+      "down": 3,
+      "down_playoff": 1,
+      "allocation": "by_geography",
+      "selection": "bottom_n",
+      "note": "2. divisjon: the two avdeling winners go up direct; the two runners-up play off, and that winner meets the OBOS 14th (3 places, 1 contested). OBOS: 15th-16th direct down plus 14th in the play-off. The relegated/14th clubs are placed into 2. divisjon avdeling 1 or 2 by geography."
+    },
+    {
+      "upper": 3,
+      "lower": 4,
+      "up": 6,
+      "up_playoff": 0,
+      "down": 6,
+      "down_playoff": 0,
+      "allocation": "by_geography",
+      "selection": "bottom_n",
+      "note": "All six 3. divisjon group winners go up, one per group; NFF places them three into each 2. divisjon avdeling by geography. 2. divisjon's bottom three in each avdeling (six) go down and are placed into the six 3. divisjon groups by geography."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "NO31-NO32",
+      "field": "name",
+      "ours": "PostNord-ligaen Avd. 1/2",
+      "real": "2. divisjon avdeling 1/2",
+      "note": "The PostNord sponsorship ran 2016-2025 only; from 2026 the league has no title sponsor. Level, size (14+14) and id mapping are correct."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Norway runs calendar-year seasons, so the season overlapping the 2026-27 career year is the 2026 season; '2026-27' is used here only as the dataset label. Level 2 is OBOS-ligaen (sponsor name; officially 1. divisjon), level 3 is 2. divisjon, level 4 is 3. divisjon (sponsor name Norsk Tipping-ligaen). Level 5 is 4. divisjon, run by the regional kretser in 24 groups, not modelled; 3. divisjon relegates its bottom 3 per group to it. Reserve teams cannot play above level 3. The 2026 season was still finishing on 20 Nov 2026, so 2027 placements are not final."
+}

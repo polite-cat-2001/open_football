@@ -1,0 +1,122 @@
+{
+  "country": "Scotland",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Scottish_football_league_system",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Premiership",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Championship",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_League_One",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_League_Two"
+  ],
+  "leagues": [
+    {
+      "id": "SC1",
+      "name": "Scottish Premiership",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 38,
+        "split_after": 33,
+        "groups": 2,
+        "points_carry": true,
+        "stages": [
+          { "name": "regular season", "clubs": 12, "series": 1, "rounds": 33, "note": "Each club plays the other 11 three times (22 matches home-and-away, then 11 more)." },
+          { "name": "championship group", "clubs": 6, "series": 1, "rounds": 5, "start_points": "carried", "note": "Top six after 33 rounds, single round robin." },
+          { "name": "relegation group", "clubs": 6, "series": 1, "rounds": 5, "start_points": "carried", "note": "Bottom six after 33 rounds, single round robin." }
+        ]
+      },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "11th in the Premiership vs winner of the Championship 2nd-4th ladder",
+        "legs": 2,
+        "note": "The 12th-placed club is relegated directly; 11th defends its place over two legs."
+      }
+    },
+    {
+      "id": "SC2",
+      "name": "Scottish Championship",
+      "level": 2,
+      "size": 10,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 36 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd-4th",
+        "legs": 2,
+        "note": "3rd v 4th over two legs, then 2nd v that winner over two legs; the winner meets the Premiership 11th over two legs. The league also has a relegation tie: 9th v the League One ladder winner, two legs."
+      }
+    },
+    {
+      "id": "SC3",
+      "name": "Scottish League One",
+      "level": 3,
+      "size": 10,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 36 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd-4th",
+        "legs": 2,
+        "note": "3rd v 4th, then 2nd v that winner, both two-legged; the winner meets the Championship 9th over two legs. Relegation tie: 9th v the League Two ladder winner, two legs."
+      }
+    },
+    {
+      "id": "SC4",
+      "name": "Scottish League Two",
+      "level": 4,
+      "size": 10,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 36 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd-4th",
+        "legs": 2,
+        "note": "3rd v 4th, then 2nd v that winner, both two-legged; the winner meets League One 9th over two legs. The bottom club (Club 42) plays the tier-5 play-off winner over two legs, subject to a bronze SFA licence."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "playoff",
+      "note": "Championship champion goes up directly; 2nd-4th play a two-legged ladder and its winner meets the Premiership 11th over two legs. Premiership 12th goes down directly, 11th only through that same tie, so one place moves through it."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "playoff",
+      "note": "League One champion up directly, 2nd-4th ladder winner meets the Championship 9th over two legs. Championship 10th down directly, 9th only through that tie."
+    },
+    {
+      "upper": 3,
+      "lower": 4,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "playoff",
+      "note": "League Two champion up directly, 2nd-4th ladder winner meets League One 9th over two legs. League One 10th down directly, 9th only through that tie."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Levels 2-4 are 10-club quadruple round robins (36 rounds, four meetings per pair); the Premiership is a 12-club split league (33 + 5 = 38). Every boundary is 1 direct + 1 play-off in each direction, and the play-off place is a single shared two-legged final, so up/down are not independent. League Two has no automatic relegation: its bottom club (Club 42) meets the tier-5 play-off winner over two legs, and from 2026-27 tier 5 is Highland plus Lowland East and Lowland West, whose three champions play off first; promotion needs a bronze SFA licence. Tier 5 and below are not in our dataset, hence closed_down=true for SC4."
+}

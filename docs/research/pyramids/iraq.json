@@ -1,0 +1,17 @@
+{
+  "country": "Iraq",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Iraq_Stars_League",
+    "https://en.wikipedia.org/wiki/Iraq_Stars_League"
+  ],
+  "leagues": [
+    {"id": "IRQ1", "name": "Iraq Stars League", "level": 1, "size": 20, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 38},
+     "playoff": null}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "20 clubs, double round-robin, 38 rounds, 380 matches (season 14 Aug 2026 - 28 May 2027). Single row, so closed both ways; the second tier (Iraqi Premier Division League) is outside our data. 2026-27 is a one-off transition season: the bottom FOUR are relegated and only the top TWO of the Premier Division League come up, to cut the league to 18 clubs for 2027-28 (20 - 4 + 2 = 18). In a normal season it is 2 direct down + the 18th-placed club in a two-legged play-off against the winner of a play-out between the Premier Division League's 3rd and 4th, with 2 promoted. If a career sim is seeded past 2026-27 it must switch back to the 3-up/3-down play-off shape. Tiebreakers changed for 2026-27: goal difference is the first tiebreaker again (it had been head-to-head)."
+}

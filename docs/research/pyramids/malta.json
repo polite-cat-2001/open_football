@@ -1,0 +1,108 @@
+{
+  "country": "Malta",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Maltese_Premier_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Maltese_Challenge_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Maltese_National_Amateur_League"
+  ],
+  "leagues": [
+    {
+      "id": "MT1N",
+      "name": "Premier League",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "split_after": 11,
+        "stages": 2,
+        "points_carry": "reset"
+      },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "bottom two of the Opening Round plus bottom two of the Closing Round (4 clubs)",
+        "legs": 1,
+        "note": "Knockout: the two losing teams are relegated, the two winners stay."
+      }
+    },
+    {
+      "id": "MAL2",
+      "name": "Challenge League",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "split_after": 15,
+        "stages": 1,
+        "points_carry": "keep"
+      },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd vs 3rd only if level on points and goal difference",
+        "legs": 1,
+        "note": "Normally the top two go up directly; in 2025-26 a tie forced a one-off play-off that Birżebbuġa won on penalties."
+      }
+    },
+    {
+      "id": "MAL3",
+      "name": "National Amateur League I",
+      "level": 3,
+      "size": 12,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 22 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "10th vs 11th only if level on points",
+        "legs": 1,
+        "note": "Bottom four go down; in 2025-26 a tie for 10th/11th added a play-off for the fourth place."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 2,
+      "allocation": "free",
+      "selection": "playoff",
+      "note": "Challenge League top two go up. Premier League relegation is entirely play-off: the bottom two of the Opening Round and the bottom two of the Closing Round meet in a four-team knockout and the two losers go down."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "National Amateur League I top two go up; Challenge League bottom two go down into it."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "MT1N",
+      "field": "name",
+      "ours": "Premier League Opening Round",
+      "real": "Maltese Premier League (Opening Round is one half of its season)",
+      "note": "The league is a single competition of 12 clubs split into an Opening Round and a Closing Round, each with its own table and its own champion; points reset to zero between them. 'Opening Round' is not the league's name."
+    },
+    {
+      "league": "MAL3",
+      "field": "size",
+      "ours": "12",
+      "real": "14 in 2025-26, 12 in 2026-27",
+      "note": "The Amateur League I had 14 clubs in 2025-26 (26 rounds) and drops to 12 for 2026-27 (22 rounds) after four relegations. Our 12 matches the coming season."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Malta runs one August-May season. Premier League: 12 clubs, 11 rounds then a Top Six / Bottom Six split (5 more), then the whole thing again as the Closing Round with points reset - 16 matches per round, 32 per club per season. Champions and UEFA places are decided by comparing the two rounds, with a Final Four if different clubs win them (out of scope here). Challenge League: 16 clubs, 15 rounds then a Top Eight / Play-Out split (7 more) = 22. National Amateur League I: 12 clubs, 22 rounds, top two up, bottom four down (level 4, Amateur League II, not modelled). Level 1's downward route is a knockout, so 'bottom_n' would be wrong - the two worst clubs are not the two relegated."
+}

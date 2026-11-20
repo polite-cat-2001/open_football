@@ -1,0 +1,51 @@
+{
+  "country": "Singapore",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Singapore_Premier_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Singapore_Premier_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Singapore_Premier_League",
+    "https://en.wikipedia.org/wiki/Singapore_Premier_League_2",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Singapore_Premier_League_2",
+    "https://en.wikipedia.org/wiki/Singapore_football_league_system"
+  ],
+  "leagues": [
+    {
+      "id": "SIN1",
+      "name": "Singapore Premier League",
+      "level": 1,
+      "size": 8,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 28 },
+      "playoff": null
+    },
+    {
+      "id": "SIN2",
+      "name": "Singapore Premier League 2",
+      "level": 99,
+      "size": 8,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 21 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "topic": "League article vs season article on the number of meetings",
+      "detail": "The Singapore Premier League article says eight clubs play four rounds (28 matches each, 112 total); the 2025-26 season article and its rule-change list say each team plays the others three times (21 matches). Both are right for their own season: 2025-26 was 21 rounds, 2026-27 is 28 (the fixture module encodes two home and two away legs)."
+    },
+    {
+      "topic": "SPL2 is not a tier",
+      "detail": "SPL2 is the reserve league for SPL clubs (one second team per club), not the country's second division. The real level 2 is the Singapore Football League, which is not in our database. SPL2 cannot feed the SPL."
+    },
+    {
+      "topic": "No promotion or relegation at all",
+      "detail": "SPL clubs are admitted by FAS invitation; there is no sporting route up from the SFL and none down. Any generic 1-up/1-down logic must be disabled for Singapore."
+    }
+  ],
+  "confidence": "high",
+  "notes": "SIN1: 8 clubs, four meetings (28 rounds) in 2026-27, 11 Sep 2026 - 16 May 2027, no promotion or relegation (invitation only). 2025-26 was 21 rounds; 2026-27 is 28. SIN2: 8 reserve sides, 21 rounds (three meetings), launched 2025-26 to replace the U21 league, development rules require six locals (four U23) on the pitch. Both leagues closed both ways, so there are no boundaries. Albirex Niigata Singapore became FC Jurong for 2026-27; DPMM left for Malaysia after 2024-25."
+}

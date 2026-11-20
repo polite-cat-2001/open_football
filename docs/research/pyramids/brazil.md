@@ -1,0 +1,44 @@
+# Brazil — pyramid research
+
+Season: 2026  |  confidence: high
+
+## Sources
+
+- https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_de_2026_-_S%C3%A9rie_A
+- https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_de_2026_-_S%C3%A9rie_B
+- https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_de_2026_-_S%C3%A9rie_C
+- https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_de_2026_-_S%C3%A9rie_D
+- https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol
+- https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_-_S%C3%A9rie_D
+- https://en.wikipedia.org/wiki/Brazilian_football_league_system
+- https://en.wikipedia.org/wiki/2026_Campeonato_Brasileiro_S%C3%A9rie_A
+- https://en.wikipedia.org/wiki/2026_Campeonato_Brasileiro_S%C3%A9rie_B
+- https://en.wikipedia.org/wiki/2026_Campeonato_Brasileiro_S%C3%A9rie_D
+- https://en.wikipedia.org/wiki/2026_Campeonato_Paulista
+
+## Leagues
+
+| id | name | level | size | up | down | format |
+|---|---|---|---|---|---|---|
+| BRA1 | Campeonato Brasileiro Série A | 1 | 20 | False | False | single |
+| BRA2 | Campeonato Brasileiro Série B | 2 | 20 | False | False | single |
+
+## Boundaries
+
+| upper | lower | up | up playoff | down | down playoff | allocation | selection | note |
+|---|---|---|---|---|---|---|---|---|
+
+## Mismatches and open questions
+
+- State championships run in parallel and are NOT a tier: the national pyramid (Série A-D) and the 27 state pyramids are two independent systems (en: 'Brazilian football league system'). Campeonato Paulista Série A1 2026 ran 10 Jan - 8 Mar while Série A ran 28 Jan - 2 Dec, so the same clubs are entered in both at once (e.g. Palmeiras, Corinthians, Santos, São Paulo, Red Bull Bragantino in both). A 'one club belongs to one league per season' model is therefore wrong for Brazil unless states are stored as a parallel competition, not a level.
+- State championships have their own promotion/relegation inside their own pyramid (Paulista A1 relegated Velo Clube and Ponte Preta to A2 in 2026), and their only structural link upward is qualification: state-league/state-cup places feed Série D entry (and the Copa do Brasil). No state title ever promotes a club into Série C or above.
+- A club cannot be in two national divisions in the same season: Série A, B, C and D are strictly disjoint (a Série A club is never also in B/C/D). The 'one league per season' invariant holds only within the national pyramid; across the state pyramid it does not.
+- Promotion/relegation between Série A and Série B is NOT the only structural movement: B<->C and C<->D also move clubs every year, so a model that only wires BRA1<->BRA2 will drop real clubs. Série B's bottom four go to Série C; Série C's top four go to Série B.
+- Série C and Série D exist below (20 and 96 clubs in 2026). 2026 is a transition year: Série C had only 2 relegated (Confiança, Itabaiana) instead of the usual 4, while 6 clubs came up from Série D (4 semi-finalists + 2 play-off winners among quarter-final losers), because Série C grows to 24 clubs in 2027 and 28 from 2028. So C->D = 2 and D->C = 6 in 2026, not the historical 4/4.
+- Série D has no relegation at all (pt infobox 'rebaixa' is empty; no downward edge exists). Its field is set by qualification: clubs relegated from Série C, state-league/state-cup qualifiers, clubs that reached the previous Série D second stage, and CBF-ranking fill-ups. A generic pyramid model that assumes every league has both an up and a down edge breaks at Série D.
+- Série B 2026 promotion is not a pure 'top N' rule: 2 of the 4 places are decided by a play-off among 3rd-6th, so a model that maps 'positions 1-4 promoted' produces the wrong set of clubs.
+- The season is a calendar year (late Jan - early Dec), not Aug-May, and 2026 had a FIFA World Cup pause (11 Jun - 19 Jul) plus the state-to-national handover in Jan-Apr; season-boundary logic copied from European leagues will mis-date every transfer between these divisions.
+
+## Notes
+
+Only two leagues are in our DB, so only the BRA1<->BRA2 edges are emitted; Série C (20 clubs, level 3) and Série D (96 clubs, level 4) were verified but are outside the listed set, so their movements (B->C 4, C->B 4, C->D 2, D->C 6) are described here rather than as edges. Both listed leagues are open (4 up / 4 down each season): Série A 2026 has 20 clubs over 38 rounds, Série B 2026 has 20 clubs over 38 rounds. Counts above describe the movement at the end of the 2026 season (the season's own regulation); the 2025->2026 entry was 4 relegated from Série A and 4 promoted from Série B with no play-off, so the edge counts are the same in both directions and only the play-off split is new. Nothing here is a guess: all sizes and counts come from the cited pt/en season articles and the CBF regulations they reference. State championships (Paulista, Carioca, Mineiro, Gaúcho, Baiano, Paranaense) are deliberately given no level and no edges - they are a parallel system, and their sizes differ per state (Paulista A1 2026: 16 clubs).

@@ -1,0 +1,88 @@
+{
+ "country": "Uruguay",
+ "season": "2026",
+ "sources": [
+  "https://es.wikipedia.org/wiki/Primera_División_de_Uruguay",
+  "https://es.wikipedia.org/wiki/Segunda_División_Profesional_de_Uruguay",
+  "https://es.wikipedia.org/wiki/Campeonato_Uruguayo_de_Segunda_División_2026",
+  "https://es.wikipedia.org/wiki/Primera_División_Amateur_de_Uruguay",
+  "https://es.wikipedia.org/wiki/Campeonato_Uruguayo_de_Primera_Divisional_C_2026",
+  "https://en.wikipedia.org/wiki/Liga_AUF_Uruguaya",
+  "https://en.wikipedia.org/wiki/Uruguayan_Segunda_División"
+ ],
+ "leagues": [
+  {
+   "id": "URUC",
+   "name": "Liga AUF Clausura",
+   "level": 1,
+   "size": 16,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "apertura_clausura",
+    "note": "apertura_intermedio_clausura"
+   },
+   "playoff": null
+  },
+  {
+   "id": "UR2T",
+   "name": "Segunda División - Torneo Competencia",
+   "level": 2,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": "torneo_competencia+double_round_robin+playoff"
+   },
+   "playoff": null
+  },
+  {
+   "id": "URC",
+   "name": "URC",
+   "level": 3,
+   "size": 28,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "single",
+    "note": "series_inicial+final"
+   },
+   "playoff": null
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 3,
+   "up_playoff": 1,
+   "down": 3,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "up is the total number of promotion slots and up_playoff is how many of them are decided by play-off: 2 direct (Segunda champion and runner-up) + 1 from the play-offs among 3rd-6th, which is why the Torneo Competencia winner matters. down=3, all direct from the Tabla de Descenso (two-season average), not from any single tournament table. 16 - 3 + 3 = 16 and 14 - 3 + 3 = 14, so sizes hold as long as the average table is computed on two seasons rather than on the current one."
+  },
+  {
+   "upper": 2,
+   "lower": 3,
+   "up": 2,
+   "up_playoff": 1,
+   "down": 2,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "Primera Divisional C promotes 2: its Torneo Final champion directly, and the winner of a single match between the Torneo Final runner-up and the Torneo Inicial champion. Segunda relegates 2 on the two-season average. 14 - 2 + 2 = 14 and 28 - 2 + 2 = 28. C took no relegation in 2026 (no drop to Divisional D), so closed_down is true for level 3 this season."
+  }
+ ],
+ "conflicts": [
+  "UR2T is marked level 1; it is level 2 (Segunda División Profesional). This is the plain error the rows contain.",
+  "UR2T's label 'Torneo Competencia' names the opening phase (two series of 7 plus a final) of the second division, not a competition: the row's size 14 is the whole second division, so keeping it as a separate 'league' invents a 14-club competition that lasts six matchdays.",
+  "The two rows skip level 3. Segunda relegates 2 clubs per season into Primera Divisional C (28 clubs); with no level-3 row those clubs have nowhere to go and any move would shrink level 2.",
+  "The level-1 row does not encode that the season is three tournaments plus a semi-final/final; a simulator using one 16-club table for the whole year cannot reproduce the Apertura/Intermedio/Clausura reset or the champion play-off.",
+  "Relegation from level 1 depends on a two-season average table (Tabla de Descenso), not on the Clausura standings; nothing in the rows can hold that state.",
+  "No row records that 3 of the 14 second-division clubs are promoted each year (2 direct + 1 play-off), which is the only reason a 16-club and a 14-club league can exchange clubs every season."
+ ],
+ "confidence": "high",
+ "notes": ""
+}

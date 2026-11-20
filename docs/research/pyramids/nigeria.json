@@ -1,0 +1,32 @@
+{
+  "country": "Nigeria",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Nigeria_Premier_Football_League",
+    "https://en.wikipedia.org/wiki/Nigeria_Premier_Football_League"
+  ],
+  "leagues": [
+    {
+      "id": "NPFL",
+      "name": "Nigeria Professional Football League",
+      "level": 1,
+      "size": 20,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 38 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "league": "NPFL",
+      "field": "name",
+      "ours": "Nigeria Professional Football League",
+      "real": "Nigeria Premier Football League (renamed 2023; the 2026-27 edition is branded Euromatch Premier Football League)",
+      "note": "Same competition and same 20-club format; only the name in our row is the pre-2023 one."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Level 1 only in our list, so the league is closed in both directions in the data. In reality four clubs are relegated (17th-20th in 2026-27) to the Nigeria National League, which is not modelled. 20 clubs, 38 rounds, August-May, no split and no play-off: the champion is the table leader. 2026-27 is the 56th season; four clubs were promoted from the NNL for it (Sporting Lagos, Inter Lagos, Doma United, Ranchers Bees). The only irregularity this season is administrative: Warri Wolves and Inter Lagos were docked three points and three goals for assault on match officials, which moves clubs around the bottom four but does not change how many go down."
+}

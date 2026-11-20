@@ -1,0 +1,131 @@
+{
+ "country": "Spain",
+ "season": "2026-27",
+ "sources": [
+  "https://es.wikipedia.org/wiki/Primera_Federaci%C3%B3n",
+  "https://es.wikipedia.org/wiki/Primera_Federaci%C3%B3n_2026-27",
+  "https://es.wikipedia.org/wiki/Segunda_Federaci%C3%B3n",
+  "https://es.wikipedia.org/wiki/Segunda_Federaci%C3%B3n_2026-27",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_La_Liga",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Segunda_Divisi%C3%B3n",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Primera_Federaci%C3%B3n",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Segunda_Federaci%C3%B3n"
+ ],
+ "leagues": [
+  {
+   "id": "ES1",
+   "name": "LaLiga",
+   "level": 1,
+   "size": 20,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  },
+  {
+   "id": "ES2",
+   "name": "LaLiga2",
+   "level": 2,
+   "size": 22,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  },
+  {
+   "id": "E3G1",
+   "name": "Primera Federación - Grupo I",
+   "level": 3,
+   "size": 20,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  },
+  {
+   "id": "E3G2",
+   "name": "Primera Federación - Grupo II",
+   "level": 3,
+   "size": 20,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  },
+  {
+   "id": "E4G2",
+   "name": "Segunda Federación - Grupo II",
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  },
+  {
+   "id": "E4G3",
+   "name": "Segunda Federación - Grupo III",
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  },
+  {
+   "id": "E4G4",
+   "name": "Segunda Federación - Grupo IV",
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  },
+  {
+   "id": "E4G5",
+   "name": "Segunda Federación - Grupo V",
+   "level": 4,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  }
+ ],
+ "boundaries": [],
+ "conflicts": [
+  "Segunda Federacion really has FIVE groups (I-V, 18 clubs each, 90 in total); our list holds only four (E4G2-E4G5), so Grupo I - the north-west group (Galicia, Asturias, Cantabria, Castilla y Leon) - is missing: 18 clubs, one fifth of level 4, with no row and no edges.",
+  "Because SF-I is absent, one fifth of every level-4 flow has no edge: in 2026-27 SF-I sent 2 clubs up to Primera Federacion (champion Deportivo Fabril + a play-off winner) and took 1 of the 10 clubs relegated from Primera Federacion (Ourense CF). Level 4 upward total is 10, not 8; downward total is 10, not 7.",
+  "Tier sizes differ by design: LaLiga 20, LaLiga2 22, Primera Federacion 2x20, Segunda Federacion 5x18. Any code assuming one uniform size per tier is wrong for ES2 (22).",
+  "All eight rows are competitions, none is a phase: Primera Federacion's Grupo I/II and Segunda Federacion's groups are competition groups, not play-off stages, so E3G1/E3G2 and E4G2-E4G5 map 1:1 onto real groups by number.",
+  "Naming only: 'LaLiga2' is officially Segunda Division (branded LaLiga Hypermotion); 'LaLiga' is Primera Division / LaLiga EA Sports. Same competitions, no structural mismatch.",
+  "Out of our list but part of the pyramid: Segunda Federacion sends 27 clubs down to Tercera Federacion each season (25 direct - last five of each group - plus 2 from a play-off between the four worst 13th-placed teams); Tercera has no row here, so that outflow is unrepresentable."
+ ],
+ "confidence": "high",
+ "notes": "Counts and promotion/relegation quotas are identical in the Spanish and English Wikipedia articles for 2026-27 (PF: 40 clubs, 2x20, 4 up / 5 down per group; SF: 90 clubs, 5x18, 10 up / 27 down; LaLiga2: 22 clubs, 3 up / 4 down; LaLiga: 20 clubs, 3 down). ES1 is flagged closed only because it is the top tier - there is no promotion out of it; it is open at the bottom (3 relegated). Group-level destination is the one soft spot: RFEF redraws the groups each June by geographical proximity, so which Primera Federacion group an SF group's promoted clubs join (and which SF group a relegated PF club joins) is NOT rule-fixed. Every edge whose note mentions a split reports the actual 2026-27 allocation (verified club by club from the group rosters) rather than a rule, e.g. PF Group 2's five relegated clubs went 4 to SF-IV, 0 to III/V, 1 dropped administratively; SF-IV's two promoted clubs split one to each PF group. Downward edges list only pairs that actually carried clubs in 2026-27; any PF group can in principle feed any SF group. Play-off details: PF 2nd-5th per group enter (4 entrants, 1 winner per group); SF 2nd-5th per group enter (4 entrants, 1 winner per group, home advantage to the better-placed side, extra time then penalties). Not included: Copa del Rey, Copa RFEF, European places, and the fact that reserve teams (filiales) cannot be promoted into the same division as their senior team, which can shift a promotion slot to the next-placed club."
+}

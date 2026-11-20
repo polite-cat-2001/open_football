@@ -1,0 +1,31 @@
+{
+  "country": "Israel",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Israeli_Premier_League",
+    "https://en.wikipedia.org/wiki/Israeli_Premier_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_Leumit",
+    "https://en.wikipedia.org/wiki/Liga_Leumit",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_Leumit"
+  ],
+  "leagues": [
+    {"id": "ISR1", "name": "Ligat ha'Al", "level": 1, "size": 14, "closed_up": true, "closed_down": false,
+     "format": {"kind": "split", "rounds": 36, "split_after": 26, "groups": [6, 8], "points_carry": true},
+     "playoff": null},
+    {"id": "ISR2", "name": "Liga Leumit", "level": 2, "size": 16, "closed_up": false, "closed_down": true,
+     "format": {"kind": "split", "rounds": 37, "split_after": 30, "groups": [8, 8], "points_carry": true},
+     "playoff": {"kind": "promotion", "entries": "1st-8th", "legs": 1,
+                 "note": "the top eight after 30 rounds play a single round-robin promotion group (7 more matches); its top two are promoted. This is a league phase, not a knockout."}}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 2, "up_playoff": 0, "down": 2, "down_playoff": 0,
+     "allocation": "free", "selection": "bottom_n",
+     "note": "Liga Leumit's top two are promoted; the Premier League's bottom two are relegated. Both directions are decided purely by tables - no promotion/relegation play-off between the divisions in the current format."}
+  ],
+  "conflicts": [
+    "Liga Leumit's own article still says points are halved and the split is played as a single round-robin, which is the pre-2013 description; the 2025-26 season tables show full points carried (37 matches, e.g. 18W-13D-6L = 67 pts) and both eight-team groups playing once. The season tables are used here.",
+    "The Israeli Premier League all-time table lists one '13th place' relegation play-off, and older seasons did use one; the 2023-24, 2024-25 and 2025-26 seasons all relegated exactly the bottom two with no play-off, so the 2026-27 model uses 2 down / 0 play-off."
+  ],
+  "confidence": "high",
+  "notes": "Premier League: 14 clubs, 26 rounds double round-robin, then a split - top six play each other twice (10 more, 36 total), bottom eight once (7 more, 33 total). Points and goals carry over in full (no halving since 2011). 240 matches in total, which is exactly (6x36 + 8x33)/2. Liga Leumit: 16 clubs, 30 rounds, then two groups of eight playing a single round-robin (37 matches each). Liga Leumit's bottom two go to Liga Alef (level 3, outside our data), hence closed_down. Liga Leumit is not fully professional in the way the Premier League is, and several clubs play home games at neutral venues because their grounds do not meet requirements - a licence/venue gate that can affect promotion."
+}

@@ -1,0 +1,17 @@
+{
+  "country": "Jordan",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Jordanian_Pro_League",
+    "https://en.wikipedia.org/wiki/Jordanian_Pro_League"
+  ],
+  "leagues": [
+    {"id": "JO1L", "name": "Jordanian Pro League", "level": 1, "size": 10, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 18},
+     "playoff": null}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "10 clubs, double round-robin, 18 rounds, 90 matches; season 3 Sep 2026 - 15 May 2027. Single row, so closed both ways; the Jordanian First Division League (level 2) is outside our data. Movement: bottom two relegated, top two of the First Division promoted (no play-off in 2025-26: Al-Arabi and Doqara came up, Al-Sarhan and Al-Ahli went down). The 2026-27 season article is tagged as relying on primary/unreliable sources, but size, dates and the 10-team statement are consistent with the JFA fixture announcement it cites."
+}

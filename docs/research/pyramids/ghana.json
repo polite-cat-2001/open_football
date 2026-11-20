@@ -1,0 +1,25 @@
+{
+  "country": "Ghana",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Ghana_Premier_League",
+    "https://en.wikipedia.org/wiki/Ghana_Premier_League",
+    "https://en.wikipedia.org/wiki/Ghana_Football_Association"
+  ],
+  "leagues": [
+    {
+      "id": "GHPL",
+      "name": "Ghana Premier League",
+      "level": 1,
+      "size": 18,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Single national division; the only level we hold, so there is no boundary to encode. The bottom three are relegated and each is placed into its own regional zone of the Division One League (Northern, Middle, Southern), which is level 2 and not in our rows. Three clubs came up for 2026-27 from those three zones. Season runs September-May (started 5 September 2026). No promotion play-off and no title play-off: the champion is the table winner."
+}

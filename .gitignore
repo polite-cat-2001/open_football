@@ -33,7 +33,7 @@ assets/faces/*
 # Local game data root: databases, images, kits, media (copied from the
 # GameplayFootball data tree). Rebuild the career DB with
 # tools/build_open_football_db.py.
-data/
+/data/
 
 # Generated screenshot book (tests/capture_*_shots.gd)
 .scratch/ui_shots/

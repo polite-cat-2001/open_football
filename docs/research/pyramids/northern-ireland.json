@@ -1,0 +1,70 @@
+{
+  "country": "Northern Ireland",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_NIFL_Premiership",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_NIFL_Championship"
+  ],
+  "leagues": [
+    {
+      "id": "NIR1",
+      "name": "NIFL Premiership",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 38,
+        "split_after": 33,
+        "groups": [6, 6],
+        "points_carry": true,
+        "note": "22 rounds home and away, rounds 23-33 a third meeting with each opponent, then Section A (1st-6th) and Section B (7th-12th) play their five rivals once more"
+      },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "11th",
+        "legs": 2,
+        "note": "11th plays the Championship runner-up over two legs for the last Premiership place; 12th is relegated directly"
+      }
+    },
+    {
+      "id": "NIR2",
+      "name": "NIFL Championship",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": true,
+      "format": {
+        "kind": "split",
+        "rounds": 37,
+        "split_after": 30,
+        "groups": [8, 8],
+        "points_carry": true,
+        "note": "new 16-club format in 2026-27: double round-robin of 30 rounds, then Section A (1st-8th) and Section B (9th-16th) play seven more"
+      },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd",
+        "legs": 2,
+        "note": "champion promoted directly; runner-up meets the Premiership 11th over two legs"
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Championship champion goes up directly, runner-up plays the Premiership 11th over two legs for the last place; 12th in the Premiership goes down directly. The play-off is shared, so exactly one of {11th, Championship runner-up} is in the top flight next season."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Sizes and levels match our rows: 12 and 16. 2026-27 is the first Championship season with 16 clubs (expanded from 12; four promoted from the Premier Intermediate League and none relegated in 2025-26 because of the expansion), so history seeded from 2025-26 will show a 12-club second tier and is not comparable. Premiership: 38 matches per club (22 + 11 + 5 split), Section A/B after round 33. Championship: 37 matches (30 + 7 split), Section A/B after 30, champion promoted, 16th relegated to the NCL Premier (level 3, not modelled) and 15th in a play-off against the NCL Premier runner-up - hence closed_down for NIR2. No regional split at either level."
+}

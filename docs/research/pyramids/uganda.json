@@ -1,0 +1,17 @@
+{
+  "country": "Uganda",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Uganda_Premier_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Uganda_Premier_League"
+  ],
+  "leagues": [
+    {"id": "UGL1", "name": "Uganda Premier League", "level": 1, "size": 18, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 34},
+     "playoff": null}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "The league expanded from 16 to 18 clubs for 2026-27 (four promoted from the FUFA Big League, two relegated in 2025-26), so 18 is the current shape and 16 was last season's. 34 rounds. Bottom four go down to the FUFA Big League, which is not in our rows, hence closed_down=true: those four leave the modelled pyramid and four replacements arrive from outside it. Champion enters the CAF Champions League. No play-off at either end of the table."
+}

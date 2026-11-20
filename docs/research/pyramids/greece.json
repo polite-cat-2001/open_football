@@ -1,0 +1,73 @@
+{
+  "country": "Greece",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Super_League_Greece",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Super_League_Greece",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Super_League_Greece_2",
+    "https://en.wikipedia.org/wiki/Super_League_Greece_2"
+  ],
+  "leagues": [
+    {
+      "id": "GR1",
+      "name": "Super League 1",
+      "level": 1,
+      "size": 14,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 32,
+        "split_after": 26,
+        "groups": { "championship": 4, "europe": 4, "relegation": 6 },
+        "points_carry": "full in the championship and relegation groups, half in the Europe play-offs",
+        "stages": [
+          { "name": "regular", "teams": 14, "rounds": 26, "kind": "double_round_robin" },
+          { "name": "championship_playoffs", "teams": 4, "rounds": 6, "kind": "double_round_robin", "note": "title and European places; 32 games, points carried in full" },
+          { "name": "europe_playoffs", "teams": 4, "rounds": 6, "kind": "double_round_robin", "note": "places 5-8; enter with half their regular-season points; only matters if the cup winner is already in the top four" },
+          { "name": "relegation_playouts", "teams": 6, "rounds": 10, "kind": "double_round_robin", "note": "places 9-14; decides the two relegated clubs" }
+        ]
+      },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "places 9-14",
+        "legs": 1,
+        "note": "Relegation play-outs: the bottom six play each other twice (10 games) and the last two are relegated."
+      }
+    },
+    {
+      "id": "GRS2",
+      "name": "Super League 2",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 2,
+      "allocation": "free",
+      "selection": "playoff",
+      "note": "Super League 2 promotes its top two directly, no play-off. Super League 1 decides both relegation places in the bottom-six play-outs, not by the regular-season table."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "GRS2",
+      "field": "structure",
+      "ours": "one league of 16",
+      "real": "one group of 16 in 2026-27, but two groups (North/South) in 2025-26",
+      "note": "The single group is new: the 2025-26 edition was split into a north and a south group, each with its own champion (Iraklis and Kalamata both went up). The reduction to 16 clubs in one group also removed the promotion play-offs and relegation play-outs."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Super League 1 is 14 clubs: 26-round double round robin, then three separate second phases - championship play-offs (top 4, 6 games, points carried in full), Europe play-offs (5th-8th, 6 games, entering with half their points) and relegation play-outs (bottom 6, 10 games). Super League 2 is 16 clubs, 30 rounds, top two promoted, bottom four relegated to Gamma Ethniki (level 3, not in our rows) - no play-offs in either direction. Reserve sides (PAOK B, Asteras Tripolis B, Olympiacos B) are eligible for relegation but not for promotion, so a top-two finish by a B team does not open an extra promotion place. Unverified detail: whether the relegation play-outs carry regular-season points in full; if they do not, the two relegated clubs are decided inside the play-out group alone."
+}

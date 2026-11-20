@@ -1,0 +1,29 @@
+{
+  "country": "South Africa",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/South_African_Premiership",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_South_African_Premiership"
+  ],
+  "leagues": [
+    {
+      "id": "SFA1",
+      "name": "Betway Premiership",
+      "level": 1,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "15th of the Premiership + 2nd and 3rd of the Motsepe Foundation Championship",
+        "legs": 1,
+        "note": "Three-club mini-league (single round robin), not a knockout and not two-legged. The winner plays in the Premiership next season; the 16th-placed club is relegated directly."
+      }
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "SFA1 is the only league in our dataset: 16 clubs, 30-round double round robin, August to May. 16th is relegated directly and replaced by the Championship winner; 15th enters a three-team promotion/relegation mini-league with the Championship's 2nd and 3rd (single round robin, winner promoted). The National First Division (level 2) and ABC Motsepe League (level 3) are not modelled, so the league is closed downward here and there are no boundaries to record. 2026-27 promoted Kruger United and Milford, relegated Orbit College and Magesi (one direct, one via the play-off)."
+}

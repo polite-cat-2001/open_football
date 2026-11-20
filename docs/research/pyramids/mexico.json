@@ -1,0 +1,111 @@
+{
+  "country": "Mexico",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Liga_MX",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_MX_season",
+    "https://en.wikipedia.org/wiki/Liga_de_Expansi%C3%B3n_MX",
+    "https://sub19.ligamx.net/",
+    "https://www.ceroacero.es/competicion/liga-mx-fuerzas-basicas-sub-19"
+  ],
+  "leagues": [
+    {
+      "id": "MEXA",
+      "name": "Liga MX",
+      "level": 1,
+      "size": 18,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "apertura_clausura", "rounds": 17, "stages": 2 },
+      "playoff": {
+        "kind": "title",
+        "entries": "1-8 (Apertura 2026 onwards)",
+        "legs": 2,
+        "note": "Quarter-finals, semi-finals and final over two legs. The play-in round was abolished permanently from Apertura 2026."
+      }
+    },
+    {
+      "id": "MEX2",
+      "name": "Liga de Expansión MX",
+      "level": 2,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "apertura_clausura", "rounds": 17, "stages": 2 },
+      "playoff": {
+        "kind": "title",
+        "entries": "1-8",
+        "legs": 2,
+        "note": "Two-legged liguilla; on aggregate level the higher seed advances."
+      }
+    },
+    {
+      "id": "M191",
+      "name": "Liga MX U19",
+      "level": 99,
+      "size": 18,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "apertura_clausura", "rounds": null, "stages": 2 },
+      "playoff": {
+        "kind": "title",
+        "entries": "top of the table after the regular phase",
+        "legs": 1,
+        "note": "Youth (Fuerzas Básicas) category, one team per Liga MX club. No promotion or relegation."
+      }
+    },
+    {
+      "id": "M21A",
+      "name": "Liga MX U21",
+      "level": 99,
+      "size": 18,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "apertura_clausura", "rounds": null, "stages": 2 },
+      "playoff": {
+        "kind": "title",
+        "entries": "top of the table after the regular phase",
+        "legs": 1,
+        "note": "Youth (Fuerzas Básicas) category, one team per Liga MX club. No promotion or relegation."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 0,
+      "up_playoff": 0,
+      "down": 0,
+      "down_playoff": 0,
+      "allocation": "none",
+      "selection": "other",
+      "note": "No sporting route in either direction. Promotion and relegation were suspended in 2020; a CAS ruling of 4 Sep 2025 ordered their return from 2026-27, but Liga MX's new regulations (16 Jul 2026) formalised a closed league instead. Atlante's arrival in 2026-27 came from buying Mazatlán's franchise, not from promotion."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "MEXA-MEX2",
+      "field": "promotion/relegation",
+      "ours": "none in the top division",
+      "real": "none in practice, but legally contested",
+      "note": "The CAS ordered relegation back for 2026-27; Liga MX ignored it and made itself a closed league in July 2026, and the FMF's August 2026 model keeps Liga MX closed while restoring promotion between Liga de Expansión and Liga Premier. A Mexican Senate bill (Sep 2026) would force promotion back. Treat as closed for now, with political risk."
+    },
+    {
+      "league": "MEX2",
+      "field": "size",
+      "ours": "16",
+      "real": "16 (prose says 15)",
+      "note": "The Liga de Expansión MX article's format paragraph says '15 clubs' while its own 2026-27 participant list and infobox say 16. Used 16."
+    },
+    {
+      "league": "MEXA/MEX2/M191/M21A",
+      "field": "name",
+      "ours": "Liga MX Apertura / Liga de Expansión MX Clausura / U19 Apertura / U21 Apertura",
+      "real": "Liga MX, Liga de Expansión MX, Liga MX Sub-19, Liga MX Sub-21",
+      "note": "All four are year-round competitions split into Apertura and Clausura; the row names carry one tournament, not the competition."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Two tournaments per season (Apertura Jul-Dec, Clausura Jan-May), each a single table of 17 rounds plus an eight-team liguilla. Liga MX has 18 clubs after Atlante replaced Mazatlán; 2026-27 has no promotion or relegation. The U19 and U21 categories (Fuerzas Basicas) run alongside with one side per Liga MX club, so 18 each; their Apertura 2026 calendar runs to at least matchday 18, so the exact round count is left null. Level 99 is our marker for youth competitions, not a pyramid level."
+}

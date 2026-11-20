@@ -1,0 +1,28 @@
+{
+  "country": "Morocco",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Botola_Pro"
+  ],
+  "leagues": [
+    {
+      "id": "MAR1",
+      "name": "Botola Pro Inwi",
+      "level": 1,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "13th and 14th vs 4th and 3rd of Botola 2",
+        "legs": 2,
+        "note": "Two two-legged ties for the last two Botola Pro places; away goals decide if level."
+      }
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Botola Pro: 16 clubs, 30 rounds, one August-May season. Relegation: 15th and 16th down direct, 13th and 14th into two-legged ties against the Botola 2 3rd and 4th; Botola 2 promotes its top two directly, so four places change each way. Botola 2 (16 clubs) is not in our list, so MAR1 is closed_down in our data even though the real route exists. 2025-26 needed the ties: UTS Rabat survived and Olympique Dcheira went down, alongside US Yacoub El Mansour and Olympic Safi."
+}

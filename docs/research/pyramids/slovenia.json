@@ -1,0 +1,67 @@
+{
+  "country": "Slovenia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Slovenian_PrvaLiga",
+    "https://en.wikipedia.org/wiki/Slovenian_Second_League",
+    "https://en.wikipedia.org/wiki/Slovenian_Junior_League"
+  ],
+  "leagues": [
+    {
+      "id": "SL1",
+      "name": "Prva liga Telemach",
+      "level": 1,
+      "size": 10,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 36 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "9th of the PrvaLiga vs 2nd of the 2. SNL",
+        "legs": 2,
+        "note": "The 10th-placed club is relegated directly; 9th defends its place over two legs. Same tie as the 2. SNL promotion play-off."
+      }
+    },
+    {
+      "id": "SL2",
+      "name": "2. SNL",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd",
+        "legs": 2,
+        "note": "The champion is promoted directly (subject to licensing); 2nd plays the PrvaLiga 9th over two legs."
+      }
+    },
+    {
+      "id": "SL19",
+      "name": "EON NextGen Liga",
+      "level": 99,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "other", "rounds": null, "note": "Under-19 championship (Slovenian Junior League) of the clubs' youth sides; round count not published on the sources used." },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "playoff",
+      "note": "2. SNL champion up directly, runner-up in a two-legged tie against the PrvaLiga 9th. PrvaLiga 10th down directly, 9th only through that tie. One shared place."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "SL1: 10 clubs, four meetings each (36 rounds) - not a double round robin. 10th relegated, 9th in a two-legged play-off against the 2. SNL runner-up. SL2: 16 clubs, 30 rounds; champion up (licensing applies), 2nd to the play-off, bottom two down to the regional 3. SNL (level 3, not modelled, hence closed_down=true). SL19 is the U19 EON NextGen Liga with 16 youth sides: closed both ways, no senior route. 2026-27 PrvaLiga ran 17 Jul 2026 - 22 May 2027; Nafta 1903 won the 2026 play-off 1-0 on aggregate against Primorje."
+}

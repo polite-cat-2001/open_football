@@ -1,0 +1,19 @@
+{
+  "country": "Azerbaijan",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Azerbaijan_Premier_League",
+    "https://en.wikipedia.org/wiki/Azerbaijan_Premier_League"
+  ],
+  "leagues": [
+    {"id": "AZ1", "name": "Premyer Liqa", "level": 1, "size": 12, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 33,
+                "note": "each pair meets three times; the third meeting's home team is drawn"},
+     "playoff": {"kind": "relegation", "entries": "11th", "legs": null,
+                 "note": "11th plays the Azerbaijan First League runner-up for a place in next season's Premier League; the First League champion goes up in place of the 12th club. Number of legs not documented in the sources read."}}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "medium",
+  "notes": "12 clubs, 33 matches each (three meetings, third-round home team drawn). 12th is relegated directly, 11th goes to a relegation play-off against the First League runner-up, and the First League champion replaces the 12th club. The play-off's leg count could not be read. The league expanded from 10 to 12 clubs for 2025-26 and keeps 12 in 2026-27, so our row is correct. First League (level 2) is not in our rows, so the league is closed downwards in our data; no cups or European places included."
+}

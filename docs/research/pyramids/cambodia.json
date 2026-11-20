@@ -1,0 +1,20 @@
+{
+  "country": "Cambodia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Cambodian_Premier_League",
+    "https://en.wikipedia.org/wiki/Cambodian_Premier_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Cambodian_Premier_League"
+  ],
+  "leagues": [
+    {"id": "KHM1", "name": "Cambodian Premier League", "level": 1, "size": 11, "closed_up": true, "closed_down": true,
+     "format": {"kind": "split", "rounds": 27, "split_after": 22, "groups": [6, 5],
+                "note": "double round-robin (22 rounds), then 1st-6th play a championship round and 7th-11th a bottom-five round, each a single round-robin. Top six reach 27 matches, bottom five 26. Whether points carry into the second phase is not stated in the sources."},
+     "playoff": {"kind": "title", "entries": "1-6", "legs": 1,
+                 "note": "the top six play a championship round inside the league table; there is no separate final"}}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "medium",
+  "notes": "11 clubs, double round-robin then a 6/5 split (27 or 26 matches). The top-six championship round is the title route; no relegation marker or count is published for 2026-27. 2025-26 had no promotion or relegation at all because the 2024-25 Cambodian League 2 was cancelled, which is a one-off. Cambodian League 2 (level 2) is not in our rows, so the league is closed both ways in our data even though relegation to League 2 exists in principle. Season label: although Cambodia has been treated as a calendar-year league, the current edition is 2026-27 (5 September 2026 to May 2027); the infobox's '17 May 2026' end date is a typo for 2027. No cups or AFC places included."
+}

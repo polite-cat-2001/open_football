@@ -1,0 +1,67 @@
+{
+  "country": "Gibraltar",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Gibraltar_Football_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Gibraltar_Football_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Gibraltar_Football_League",
+    "https://en.wikipedia.org/wiki/Gibraltar_Intermediate_League"
+  ],
+  "leagues": [
+    {
+      "id": "GI1",
+      "name": "Gibraltar Football League",
+      "level": 1,
+      "size": 11,
+      "closed_up": true,
+      "closed_down": true,
+      "format": {
+        "kind": "split",
+        "rounds": 25,
+        "split_after": 20,
+        "groups": { "championship": 6, "challenge": 5 },
+        "points_carry": "full",
+        "stages": [
+          { "name": "regular", "teams": 11, "rounds": 20, "kind": "double_round_robin" },
+          { "name": "championship_group", "teams": 6, "rounds": 5, "kind": "single_round_robin", "note": "title decided here on total points, 25 games" },
+          { "name": "challenge_group", "teams": 5, "rounds": 4, "kind": "single_round_robin", "note": "24 games; winner enters the European play-off" }
+        ]
+      },
+      "playoff": {
+        "kind": "europe",
+        "entries": "Challenge Group winner vs 3rd-6th of the Championship Group",
+        "legs": 1,
+        "note": "Play-off decides the last Conference League place; the champion takes the Champions League place."
+      }
+    },
+    {
+      "id": "GIIL",
+      "name": "Gibraltar Reserve League",
+      "level": 99,
+      "size": 9,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "other", "rounds": null },
+      "playoff": null
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "league": "GIIL",
+      "field": "name",
+      "ours": "Gibraltar Reserve League",
+      "real": "Gibraltar Intermediate League (since 2018)",
+      "note": "The Gibraltar Reserves Division was replaced by the Intermediate League in June 2018. It is a development competition: squads of up to 18, at least 13 players eligible for Gibraltar, at most 5 over the age of 23, plus a salary cap. No promotion route."
+    },
+    {
+      "league": "GIIL",
+      "field": "size",
+      "ours": "9",
+      "real": null,
+      "note": "Our 9 could not be confirmed from the sources used; the Intermediate League's entry varies with which GFL clubs field a side. Left at our value rather than guessed."
+    }
+  ],
+  "confidence": "high",
+  "notes": "The GFL is closed in both directions and that is not an oversight: there is no automatic relegation from it and no automatic promotion into it. Membership is a licensing decision by the Gibraltar FA, so clubs enter and leave by licence, withdrawal or folding - Manchester 62 folded in May 2026 after failing to submit licence documentation, which is why the league runs with 11 clubs instead of 12. Below the GFL the Gibraltar Intermediate League is a reserve/U23 competition, not a senior second tier, so GIIL has no sporting route up. Format: 11 clubs play each other twice (20 games), then the top six contest a five-game Championship Group (25 games) and the bottom five a four-game Challenge Group (24); points and goals carry over in full. The Challenge Group was scrapped in 2025-26 and returned for 2026-27."
+}

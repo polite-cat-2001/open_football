@@ -1,0 +1,158 @@
+{
+ "country": "Italy",
+ "season": "2026-27",
+ "sources": [
+  "https://it.wikipedia.org/wiki/Serie_A_2026-2027",
+  "https://it.wikipedia.org/wiki/Serie_B_2026-2027",
+  "https://it.wikipedia.org/wiki/Serie_C_2026-2027",
+  "https://it.wikipedia.org/wiki/Serie_B",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serie_A",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serie_B",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serie_C"
+ ],
+ "leagues": [
+  {
+   "id": "IT1",
+   "name": "Serie A",
+   "level": 1,
+   "size": 20,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 38
+   },
+   "playoff": null
+  },
+  {
+   "id": "IT2",
+   "name": "Serie B",
+   "level": 2,
+   "size": 20,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 38
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "3rd-8th: 5th v 8th and 6th v 7th single leg, then semi-finals and final",
+    "legs": 2,
+    "note": "Preliminary round is a single leg at the better-placed club; semi-finals and final are two legs. A level aggregate sends the better-placed club through. 3rd is promoted directly instead if at least 15 points clear of 4th. Not the relegation play-out (16th v 17th), which is recorded on the 1-2/2-3 boundaries."
+   }
+  },
+  {
+   "id": "IT3A",
+   "name": "Serie C Girone A",
+   "level": 3,
+   "size": 20,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "groups",
+    "groups": 3,
+    "rounds": 38
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "2nd-10th of each of the 3 groups (27 clubs) plus the Coppa Italia Serie C winner",
+    "legs": 2,
+    "note": "Competition-wide, not per group: group phase single leg (4th-10th), national phase two legs (3rd places enter round 1, 2nd places round 2), Final Four two legs. One promoted club."
+   }
+  },
+  {
+   "id": "IT3B",
+   "name": "Serie C Girone B",
+   "level": 3,
+   "size": 20,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "groups",
+    "groups": 3,
+    "rounds": 38
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "2nd-10th of each of the 3 groups (27 clubs) plus the Coppa Italia Serie C winner",
+    "legs": 2,
+    "note": "Competition-wide, not per group: group phase single leg (4th-10th), national phase two legs (3rd places enter round 1, 2nd places round 2), Final Four two legs. One promoted club."
+   }
+  },
+  {
+   "id": "IT3C",
+   "name": "Serie C Girone C",
+   "level": 3,
+   "size": 20,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "groups",
+    "groups": 3,
+    "rounds": 38
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "2nd-10th of each of the 3 groups (27 clubs) plus the Coppa Italia Serie C winner",
+    "legs": 2,
+    "note": "Competition-wide, not per group: group phase single leg (4th-10th), national phase two legs (3rd places enter round 1, 2nd places round 2), Final Four two legs. One promoted club."
+   }
+  },
+  {
+   "id": "ITJ7",
+   "name": "Campionato Under 18",
+   "level": 99,
+   "size": 20,
+   "closed_up": true,
+   "closed_down": true,
+   "format": null,
+   "playoff": null
+  },
+  {
+   "id": "IJ1",
+   "name": "Primavera 1",
+   "level": 99,
+   "size": 20,
+   "closed_up": true,
+   "closed_down": true,
+   "format": null,
+   "playoff": null
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 3,
+   "up_playoff": 1,
+   "down": 3,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "Serie B: top 2 direct, 3rd-8th play off for the third place (3rd direct if 15+ points clear of 4th). Serie A: 18th-20th relegated directly, no play-out."
+  },
+  {
+   "upper": 2,
+   "lower": 3,
+   "up": 4,
+   "up_playoff": 1,
+   "down": 4,
+   "down_playoff": 1,
+   "allocation": "by_geography",
+   "selection": "bottom_n",
+   "note": "Serie C: one direct promotion per group (3) plus the national play-off winner (1). Serie B: 18th-20th direct plus 16th v 17th play-out (skipped if 17th is 5+ points behind 16th, then 17th goes down). The four relegated clubs are placed into Serie C groups A/B/C by geography with no quota; 2026-27 was A 0, B 3, C 1."
+  }
+ ],
+ "conflicts": [
+  {
+   "league": "IT3A-IT3C",
+   "field": "membership",
+   "ours": "3 separate level-3 leagues of 20",
+   "real": "one 60-club Serie C with 3 geographical groups of 20",
+   "note": "Sizes and levels are correct, but the three rows share one promotion play-off, one relegation play-out and a yearly geographical re-draw of clubs between groups. Do not treat them as closed leagues with a fixed 1-up-1-down each."
+  }
+ ],
+ "confidence": "high",
+ "notes": "Serie C is one 60-club league with three geographical groups (A north, B centre, C south); IT3A-IT3C are groups, not separate competitions, and the play-off/play-out are competition-wide. Level 4 is Serie D (9 groups A-I, not modelled): its 9 group winners are promoted and Serie C's 9 relegated clubs enter it, with group placement by geography (2026-27 was 3 per group). Counts are nominal: the Serie B play-off place vanishes if 3rd is 15+ points clear of 4th, the Serie B play-out place vanishes if 17th is 5+ points adrift, and Serie C play-outs are skipped when the gap exceeds 8 points."
+}

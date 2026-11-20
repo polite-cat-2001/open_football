@@ -1,0 +1,49 @@
+{
+  "country": "Ukraine",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Ukrainian_Premier_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Ukrainian_Premier_League",
+    "https://en.wikipedia.org/wiki/Ukrainian_First_League",
+    "https://en.wikipedia.org/wiki/Ukrainian_Second_League"
+  ],
+  "leagues": [
+    {"id": "UKR1", "name": "Premier Liga", "level": 1, "size": 16, "closed_up": true, "closed_down": false,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": {"kind": "relegation", "entries": "13th and 14th vs 3rd and 4th of the Persha Liha", "legs": 2,
+      "note": "15th and 16th are relegated directly"}},
+    {"id": "UKR2", "name": "Persha Liga", "level": 2, "size": 16, "closed_up": false, "closed_down": false,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": {"kind": "promotion", "entries": "3rd and 4th vs 13th and 14th of the Premier Liga", "legs": 2,
+      "note": "champion and runner-up are promoted directly; since 2011 relegation play-offs against the Druha Liha have been irregular and were cancelled in 2025-26"}},
+    {"id": "UA3L", "name": "Druga Liga", "level": 3, "size": 18, "closed_up": false, "closed_down": true,
+     "format": {"kind": "groups", "groups": 2, "rounds": 16,
+      "stages": [
+        {"name": "group_a", "teams": 9, "rounds": 16, "kind": "double_round_robin", "note": "west"},
+        {"name": "group_b", "teams": 9, "rounds": 16, "kind": "double_round_robin", "note": "east/south"},
+        {"name": "championship_match", "teams": 2, "kind": "single_match", "note": "group winners play for the title only; both are normally promoted (reserve teams are not eligible)"}]},
+     "playoff": null},
+    {"id": "UA2P", "name": "Premier Liga 2", "level": 99, "size": 16, "closed_up": true, "closed_down": true,
+     "format": {"kind": "other",
+      "note": "UPL-organised youth/reserve championship (U-21, 16 clubs, one per Premier Liga club; an U-19 championship runs alongside it). Not a senior tier."},
+     "playoff": null}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 3, "up_playoff": 1, "down": 3, "down_playoff": 2,
+     "allocation": "free", "selection": "playoff",
+     "note": "Nominal shape is 2 direct + 2 play-off places each way (13th/14th vs 3rd/4th, two legs, plus 15th/16th down and champion/runner-up up). 2026-27 resolved as 3 up / 3 down: Bukovyna and Chornomorets up directly, Livyi Bereh won a play-off, Oleksandriya lost one; Poltava and Oleksandriya down, Rukh Lviv withdrew."},
+    {"upper": 2, "lower": 3, "up": 2, "up_playoff": 0, "down": 2, "down_playoff": 0,
+     "allocation": "by_geography", "selection": "bottom_n",
+     "note": "Druha Liha's two group winners go up (reserve sides ineligible), and the relegated Persha Liha clubs are placed in group A or B by geography. Downwards this is nominal: the PFL has not relegated Druha Liha clubs by table position since 2006-07, and the Persha Liha's relegation play-offs are irregular and were cancelled in 2025-26 - clubs leave by losing professional status or withdrawing."}
+  ],
+  "conflicts": [
+    {"league": "UA2P", "field": "membership", "ours": "Premier Liga 2, a 16-club senior-looking league", "real": "no senior competition of that name exists",
+     "note": "The Ukrainian pyramid is UPL - Persha Liha - Druha Liha. 'Premier Liga 2' matches the UPL's youth/reserve championship (U-21, 16 clubs, one per UPL club). Keep level 99 and closed; it must never promote or relegate."},
+    {"league": "UA3L", "field": "size", "ours": "18", "real": "18 in the 2026-27 group list (9 + 9); the league infobox says 22",
+     "note": "The infobox figure is stale. 18 is the correct count for 2026-27; note that group sizes flex every season with withdrawals."},
+    {"league": "UA3L", "field": "relegation", "ours": "not encoded", "real": "no relegation by rule",
+     "note": "Druha Liha clubs that finish last lose professional status and return to regional football, or simply withdraw; the PFL does not relegate them. Model exits, not relegations."}
+  ],
+  "confidence": "medium",
+  "notes": "Levels 1 and 2 are 16 clubs / 30 rounds each, season July-June with a three-month winter break. 2026-27 UPL: 16 clubs, 13th and 14th into two-legged play-offs, 15th and 16th down; only three clubs came up because one play-off tie was won by the UPL side and Rukh Lviv withdrew. Druha Liha is one competition in two geographic groups of nine (18 total), 16 rounds per group, group winners meet in a championship match that decides the title only. Promotion from level 3 is 2 places, minus reserve teams. A great many matches in 2026-27 were interrupted or postponed by air-raid alerts, which affects fixture generation but not the pyramid. Confidence is medium because level 3's numbers flex every season and UA2P's identity is inferred."
+}

@@ -1,0 +1,132 @@
+{
+ "country": "Estonia",
+ "season": "2026",
+ "sources": [
+  "https://en.wikipedia.org/wiki/Meistriliiga",
+  "https://en.wikipedia.org/wiki/Esiliiga",
+  "https://en.wikipedia.org/wiki/Esiliiga_B"
+ ],
+ "leagues": [
+  {
+   "id": "EST1",
+   "name": "Meistriliiga (Premium Liiga)",
+   "level": 1,
+   "size": 10,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 36,
+    "note": "Quadruple round-robin: 10 clubs meet four times (36 matches). Calendar-year season, March-November."
+   },
+   "playoff": {
+    "kind": "relegation",
+    "entries": "9th",
+    "legs": 2,
+    "note": "9th plays a two-legged play-off against the Esiliiga runner-up; 10th is relegated directly."
+   }
+  },
+  {
+   "id": "EST2",
+   "name": "Esiliiga",
+   "level": 2,
+   "size": 10,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 36,
+    "note": "Quadruple round-robin, 36 matches. Several reserve sides (U21) in the field."
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "2nd",
+    "legs": 2,
+    "note": "Champion is promoted if licensed; 2nd plays the Meistriliiga 9th over two legs. Relegation: bottom two down, 8th plays the Esiliiga B 3rd."
+   }
+  },
+  {
+   "id": "EST3",
+   "name": "Esiliiga B",
+   "level": 3,
+   "size": 10,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 36,
+    "note": "Quadruple round-robin, 36 matches."
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "3rd",
+    "legs": 2,
+    "note": "1st and 2nd are promoted directly; 3rd plays the Esiliiga 8th over two legs. Bottom two are relegated, 9th plays a play-off against the II liiga winner."
+   }
+  },
+  {
+   "id": "EE19",
+   "name": "U19 Eliitliiga Esiliiga",
+   "level": 99,
+   "size": 12,
+   "closed_up": true,
+   "closed_down": true,
+   "format": null,
+   "playoff": null
+  },
+  {
+   "id": "ELME",
+   "name": "U19 Eliitliiga Meistriliiga",
+   "level": 99,
+   "size": 8,
+   "closed_up": true,
+   "closed_down": true,
+   "format": null,
+   "playoff": null
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 2,
+   "up_playoff": 1,
+   "down": 2,
+   "down_playoff": 1,
+   "allocation": "free",
+   "selection": "playoff",
+   "note": "Up: Esiliiga champion direct (licence required), runner-up in a two-legged play-off against the Meistriliiga 9th. Down: 10th direct, 9th through that same play-off. Reserve teams (U21) cannot be promoted, so the champion's place can pass down."
+  },
+  {
+   "upper": 2,
+   "lower": 3,
+   "up": 3,
+   "up_playoff": 1,
+   "down": 3,
+   "down_playoff": 1,
+   "allocation": "free",
+   "selection": "playoff",
+   "note": "Up: Esiliiga B 1st and 2nd direct, 3rd in a two-legged play-off against the Esiliiga 8th. Down: Esiliiga 10th and 9th direct, 8th through that same play-off. The Esiliiga B 9th also plays a separate play-off against the II liiga winner, below our floor."
+  }
+ ],
+ "conflicts": [
+  {
+   "topic": "Reserve teams are ineligible for promotion",
+   "detail": "Esiliiga 2026 contains Flora U21, Levadia U21, Nomme Kalju U21 and Nomme United U21; Esiliiga B contains several more U21 sides. None can be promoted to the Meistriliiga. A sim that promotes the top two of the Esiliiga will promote an ineligible club whenever a U21 side finishes there."
+  },
+  {
+   "topic": "Each boundary moves three clubs down but only two up directly",
+   "detail": "The Esiliiga sends 10th and 9th down directly and its 8th to a play-off; the Esiliiga B sends 1st and 2nd up directly and its 3rd to a play-off. The mismatch is real: the play-offs are separate ties (Esiliiga 8th v Esiliiga B 3rd, and Meistriliiga 9th v Esiliiga 2nd), so the number of clubs crossing each boundary is 3/3 but only two of each are automatic."
+  },
+  {
+   "topic": "All three levels are 10 clubs and 36 games",
+   "detail": "The pyramid is unusually uniform: 10 clubs, four meetings, 36 matches at levels 1-3. The differences are only in promotion/relegation rules, not in size."
+  },
+  {
+   "topic": "Licensing gate at the top",
+   "detail": "Esiliiga promotion to the Meistriliiga requires the Meistriliiga licence; the champion can be passed over, with the place going to the next eligible club. The source states this explicitly rather than as an exception."
+  }
+ ],
+ "confidence": "high",
+ "notes": "Calendar-year 2026 season, finishing in November; 2026 placements are the ones reported by the sources. Sizes 10/10/10 and levels match our rows. Esiliiga B sends two down to the II liiga and its 9th to a play-off (level 4, not modelled). Cups and UEFA competitions excluded."
+}

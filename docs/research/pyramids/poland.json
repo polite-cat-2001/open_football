@@ -1,0 +1,149 @@
+{
+  "country": "Poland",
+  "season": "2026-27",
+  "sources": [
+    "https://pl.wikipedia.org/wiki/Ekstraklasa_w_pi%C5%82ce_no%C5%BCnej_(2026/2027)",
+    "https://pl.wikipedia.org/wiki/Ekstraklasa_w_pi%C5%82ce_no%C5%BCnej",
+    "https://pl.wikipedia.org/wiki/I_liga_polska_w_pi%C5%82ce_no%C5%BCnej_(2026/2027)",
+    "https://pl.wikipedia.org/wiki/I_liga_polska_w_pi%C5%82ce_no%C5%BCnej_(2025/2026)",
+    "https://pl.wikipedia.org/wiki/I_liga_polska_w_pi%C5%82ce_no%C5%BCnej",
+    "https://pl.wikipedia.org/wiki/II_liga_polska_w_pi%C5%82ce_no%C5%BCnej_(2026/2027)",
+    "https://pl.wikipedia.org/wiki/II_liga_polska_w_pi%C5%82ce_no%C5%BCnej_(2025/2026)",
+    "https://pl.wikipedia.org/wiki/II_liga_polska_w_pi%C5%82ce_no%C5%BCnej",
+    "https://pl.wikipedia.org/wiki/III_liga_polska_w_pi%C5%82ce_no%C5%BCnej_(2026/2027)",
+    "https://pl.wikipedia.org/wiki/III_liga_polska_w_pi%C5%82ce_no%C5%BCnej"
+  ],
+  "leagues": [
+    {
+      "id": "PL1",
+      "name": "Ekstraklasa (PKO BP Ekstraklasa)",
+      "level": 1,
+      "size": 18,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": null
+    },
+    {
+      "id": "PL2",
+      "name": "Betclic 1 Liga",
+      "level": 2,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "3rd-6th",
+        "legs": 1,
+        "note": "Single-leg semi-finals paired 3v6 and 4v5, then a single-leg final; the higher-placed club hosts every match. Winner takes the third promotion place."
+      }
+    },
+    {
+      "id": "PL2L",
+      "name": "Betclic 2 Liga",
+      "level": 3,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "3rd-6th",
+        "legs": 1,
+        "note": "Same 3v6 / 4v5 single-leg bracket, winner promoted. This league also runs a relegation play-off (13th and 14th v the two III-liga runners-up that survive round 1, two legs) - see boundary 3-4."
+      }
+    },
+    {
+      "id": "PL31",
+      "name": "Betclic 3 Liga, group I",
+      "level": 4,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": null
+    },
+    {
+      "id": "PL32",
+      "name": "Betclic 3 Liga, group II",
+      "level": 4,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": null
+    },
+    {
+      "id": "PL33",
+      "name": "Betclic 3 Liga, group III",
+      "level": 4,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": null
+    },
+    {
+      "id": "PL34",
+      "name": "Betclic 3 Liga, group IV",
+      "level": 4,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 3,
+      "up_playoff": 1,
+      "down": 3,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Ekstraklasa 16th-18th relegated. 1 Liga 1st-2nd promoted directly, 3rd-6th play off for the third place."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 3,
+      "up_playoff": 1,
+      "down": 3,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "1 Liga 16th-18th relegated, so the league holds 18. 2 Liga 1st-2nd promoted directly, 3rd-6th play off for the third place."
+    },
+    {
+      "upper": 3,
+      "lower": 4,
+      "up": 6,
+      "up_playoff": 2,
+      "down": 6,
+      "down_playoff": 2,
+      "allocation": "by_geography",
+      "selection": "other",
+      "note": "Variable boundary: 4 is the floor, 6 the maximum. The champion of each of the four III-liga groups is promoted directly (4, no play-off). The four runners-up enter a two-round play-off: round 1 is a single match with the fixed bracket gr. I v gr. III and gr. IV v gr. II; round 2 is two legs against the 13th and 14th of 2 Liga (II-liga club hosts the second leg). Each tie won by a runner-up swaps one club, so 0-2 extra promotions and 0-2 extra relegations. Group placement is territorial by voivodeship, not a fixed membership; a group that receives a relegated II-liga club sends one extra club down to IV liga (5 instead of 4) to stay at 18."
+    }
+  ],
+  "conflicts": [
+    {
+      "topic": "Level 4 is one competition, not four leagues",
+      "detail": "PL31-PL34 are the four territorial groups of a single III liga (72 clubs). Clubs are re-placed between groups every season by voivodeship, and the play-off for promotion pairs groups against each other. Modelling the four rows as independent closed leagues with a fixed 1-up-1-down each is wrong: they share one promotion play-off and their relegation counts vary."
+    },
+    {
+      "topic": "3-4 boundary is not a fixed number",
+      "detail": "4 direct promotions (group champions) + 0-2 from the runners-up play-off; 4 direct relegations + 0-2 from the same ties. JSON stores the maximum 6 with the 2 variable places marked as playoff places; read 4 as the guaranteed floor."
+    },
+    {
+      "topic": "Reserve teams in level 3",
+      "detail": "Legia II Warszawa and Śląsk II Wrocław play in 2 Liga. No reserve team has ever played in the Polish second tier and the historical rule barred reserve teams of Ekstraklasa/1 Liga clubs from promotion to 1 Liga. Treat their promotion to level 2 as blocked, but confirm against the 2026-27 PZPN regulation before hard-coding."
+    }
+  ],
+  "confidence": "high",
+  "notes": "All four database rows (18/18/18/18x4) match the real 2026-27 sizes; the DB levels are correct. Every Polish level is a plain double round-robin (18 clubs = 34 rounds), no split, no carried points, no average-points rule. Season is in progress (mid-November 2026), so promotion/relegation outcomes above are the regulatory rules, not final tables. Level 4 -> IV liga is out of scope. Cups and UEFA competitions excluded."
+}

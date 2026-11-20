@@ -1,0 +1,36 @@
+{
+  "country": "Bulgaria",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_First_Professional_Football_League_(Bulgaria)",
+    "https://en.wikipedia.org/wiki/First_Professional_Football_League_(Bulgaria)",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Second_Professional_Football_League_(Bulgaria)",
+    "https://bg.wikipedia.org/wiki/%D0%9F%D1%8A%D1%80%D0%B2%D0%B0_%D0%BF%D1%80%D0%BE%D1%84%D0%B5%D1%81%D0%B8%D0%BE%D0%BD%D0%B0%D0%BB%D0%BD%D0%B0_%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB%D0%BD%D0%B0_%D0%BB%D0%B8%D0%B3%D0%B0_2026/27",
+    "https://bg.wikipedia.org/wiki/%D0%92%D1%82%D0%BE%D1%80%D0%B0_%D0%BF%D1%80%D0%BE%D1%84%D0%B5%D1%81%D0%B8%D0%BE%D0%BD%D0%B0%D0%BB%D0%BD%D0%B0_%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB%D0%BD%D0%B0_%D0%BB%D0%B8%D0%B3%D0%B0_2026/27"
+  ],
+  "leagues": [
+    {"id": "BU1", "name": "efbet Liga", "level": 1, "size": 14, "closed_up": true, "closed_down": false,
+     "format": {"kind": "split", "rounds": 32, "split_after": 26, "groups": [4, 4, 6], "points_carry": true,
+                "note": "14 clubs play a double round-robin (26 rounds), then split into 1st-4th, 5th-8th and 9th-14th. The top two groups play a double round-robin (6 rounds, 32 total); the bottom group plays a single round-robin (5 rounds, 31 total)."},
+     "playoff": {"kind": "relegation", "entries": "12th and 13th", "legs": 1,
+                 "note": "12th and 13th play one-off ties against the Second League 2nd and 3rd; the losers are relegated. 14th is relegated directly."}},
+    {"id": "BU2", "name": "Vtora Liga", "level": 2, "size": 20, "closed_up": false, "closed_down": true,
+     "format": {"kind": "single", "rounds": 38,
+                "note": "transitional season: 20 clubs, shrinking back to 16 for 2027-28"},
+     "playoff": {"kind": "promotion", "entries": "2nd and 3rd", "legs": 1,
+                 "note": "champion promoted directly; 2nd and 3rd play one-off ties against the First League 12th and 13th. Six clubs are relegated directly and 13th plays a play-off against the Third League play-off winner."}}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 3, "up_playoff": 2, "down": 3, "down_playoff": 2,
+     "allocation": "free", "selection": "bottom_n",
+     "note": "First League 14th is relegated directly; 12th and 13th play single-match ties against the Second League 2nd and 3rd. The Second League champion goes up directly and takes the 14th's place. Two of the three places each way are decided by the same pair of play-offs."}
+  ],
+  "conflicts": [
+    {"league": "BU2", "field": "size", "ours": "18", "real": "20",
+     "note": "The 2026-27 Second League has 20 clubs in a transitional season; it returns to 16 in 2027-28."},
+    {"league": "BU2", "field": "relegation", "ours": "6 direct (14th-20th)", "real": "5 direct (per the Bulgarian article)",
+     "note": "The English article says 14th-20th go down directly (six) and 13th plays off; the Bulgarian article says five direct relegations and 13th in a play-off. Six is used here because it matches the positions named."}
+  ],
+  "confidence": "medium",
+  "notes": "First League was cut from 16 to 14 clubs for 2026-27; our 14 is correct. Regular season 26 rounds, then groups 1-4, 5-8 and 9-14 (6, 6 and 5 extra rounds, so 32 or 31 matches - the division has no single round count). Points carry over. 14th is relegated directly, 12th and 13th play one-off ties against the Second League 2nd and 3rd, so three clubs move each way with two decided by the same ties. Second League is 20 clubs this season (our 18 is wrong), 38 rounds, transitional: it shrinks to 16 for 2027-28, which is why six clubs are relegated directly plus a play-off for 13th. The English and Bulgarian Second League articles disagree on whether five or six go down directly. No cups or European places included."
+}

@@ -1,0 +1,34 @@
+{
+  "country": "Wales",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Welsh_football_league_system",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Cymru_Premier",
+    "https://en.wikipedia.org/wiki/Cymru_Premier",
+    "https://en.wikipedia.org/wiki/Cymru_North",
+    "https://en.wikipedia.org/wiki/Cymru_South"
+  ],
+  "leagues": [
+    {"id": "WAL1", "name": "Cymru Premier", "level": 1, "size": 16, "closed_up": true, "closed_down": false,
+     "format": {"kind": "split", "rounds": 35, "split_after": 30, "groups": [6, 4, 6], "points_carry": true,
+                "note": "16 clubs play home and away (30 rounds), then split into 1st-6th, 7th-10th and 11th-16th; each group plays once more, so the top and bottom groups reach 35 rounds and the middle group stops at 33"},
+     "playoff": {"kind": "relegation", "entries": "14th", "legs": 1,
+                 "note": "14th plays the winner of a one-off tie between the Cymru North and Cymru South runners-up for the last Cymru Premier place; 15th and 16th go down directly"}},
+    {"id": "WAL2", "name": "Cymru North", "level": 2, "size": 16, "closed_up": false, "closed_down": false,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": {"kind": "promotion", "entries": "2nd", "legs": 1,
+                 "note": "champion promoted if it holds a Tier 1 licence; the runner-up meets the Cymru South runner-up, and that winner then meets the Cymru Premier 14th"}},
+    {"id": "WA2S", "name": "Cymru South", "level": 2, "size": 16, "closed_up": false, "closed_down": false,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": {"kind": "promotion", "entries": "2nd", "legs": 1,
+                 "note": "champion promoted if it holds a Tier 1 licence; the runner-up meets the Cymru North runner-up, and that winner then meets the Cymru Premier 14th"}}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 3, "up_playoff": 1, "down": 3, "down_playoff": 1,
+     "allocation": "by_geography", "selection": "bottom_n",
+     "note": "Cymru North and Cymru South each send their champion up (licence required). The two runners-up meet in a one-off; that winner then plays the Cymru Premier 14th for the last top-flight place, so exactly one of {14th, tier-2 play-off winner} is in the league next season. 15th and 16th are relegated directly and are placed in North or South by geography."}
+  ],
+  "conflicts": [],
+  "confidence": "medium",
+  "notes": "Sizes and levels match our rows and are solid: 16/16/16 is the new shape from 2026-27 (the Cymru Premier expanded from 12 to 16 for this season, taking 3 clubs from each of Cymru North and Cymru South in 2026). Confidence is medium only because the split/play-off mechanics come from a single encyclopaedic source (the Cymru Premier article citing BBC/FAW) and this is the first season of that format; no FAW page could be read directly to cross-check. WAL2 and WA2S are parallel regional divisions at level 2 and do not exchange clubs with each other - clubs are placed north or south by geography, and unlike England's National League North/South there is no balancing transfer between them. Level 2 relegates into the four Ardal Leagues (level 3), which is outside our dataset; the exact number of Ardal relegations was not verified and is not modelled. Cups and European qualification (including the 2nd-7th Conference League play-offs) excluded."
+}

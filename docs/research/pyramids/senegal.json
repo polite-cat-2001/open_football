@@ -1,0 +1,49 @@
+{
+  "country": "Senegal",
+  "season": "2026-27",
+  "sources": [
+    "https://fr.wikipedia.org/wiki/Championnat_du_S%C3%A9n%C3%A9gal_de_football_2026-2027",
+    "https://fr.wikipedia.org/wiki/Championnat_du_S%C3%A9n%C3%A9gal_de_football",
+    "https://fr.wikipedia.org/wiki/Championnat_du_S%C3%A9n%C3%A9gal_de_football_de_deuxi%C3%A8me_division",
+    "https://fr.wikipedia.org/wiki/Championnat_du_S%C3%A9n%C3%A9gal_de_football_de_deuxi%C3%A8me_division_2026-2027",
+    "https://en.wikipedia.org/wiki/Ligue_1_(Senegal)"
+  ],
+  "leagues": [
+    {
+      "id": "SEN1",
+      "name": "Ligue 1",
+      "level": 1,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": null
+    },
+    {
+      "id": "SEN2",
+      "name": "Ligue 2",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "No play-offs: Ligue 1's bottom two are replaced by Ligue 2's top two."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Both professional levels are 16-club single-table double round robins (30 rounds) with a straight 2-up/2-down link and no play-offs at either end. Ligue 2 expanded from 14 to 16 for 2024-25; the top flight was 14 in 2024-25 and returned to 16 in 2025-26. Season runs October to June: 2026-27 was postponed from 3 to 17 October 2026 and ends 6 June 2027. National 1 (level 3) is not in our database, so SEN2 is closed downward here although clubs really are relegated into it. Sponsored name of the top flight: Ligue 1 Lonase BET."
+}

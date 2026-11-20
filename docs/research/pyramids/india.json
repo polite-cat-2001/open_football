@@ -1,0 +1,90 @@
+{
+  "country": "India",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Indian_Super_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Indian_Football_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_I-League_2",
+    "https://en.wikipedia.org/wiki/Indian_football_league_system",
+    "https://en.wikipedia.org/wiki/Indian_Football_League"
+  ],
+  "leagues": [
+    {
+      "id": "IND1",
+      "name": "Indian Super League",
+      "level": 1,
+      "size": 13,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 24 },
+      "playoff": {
+        "kind": "title",
+        "entries": "top 6",
+        "legs": 2,
+        "note": "ISL Cup: 3rd-6th play a single-leg knockout, the two winners join the top two in two-legged semi-finals, single-leg final. The league table still decides the league champion and the relegation place."
+      }
+    },
+    {
+      "id": "INIL",
+      "name": "Indian Football League",
+      "level": 2,
+      "size": 11,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 20 },
+      "playoff": null
+    },
+    {
+      "id": "IND2",
+      "name": "I-League 2",
+      "level": 3,
+      "size": 8,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": null },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 1,
+      "up_playoff": 0,
+      "down": 1,
+      "down_playoff": 0,
+      "allocation": "by_licence",
+      "selection": "bottom_n",
+      "note": "The IFL champion is promoted, but only if it takes up the slot and pays the ISL participation fee - Diamond Harbour won the 2025-26 IFL, were promoted, then failed to pay and lost the place. The ISL bottom club is relegated."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "I-League 2 promotes two clubs to the IFL each season and loses two to I-League 3."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "IND2",
+      "field": "format",
+      "ours": "8 clubs",
+      "real": "8 clubs, but the season article does not state the round structure",
+      "note": "Rounds left null rather than assumed. The 2025-26 edition was a single table; whether 2026-27 is one or two round robins is not documented yet."
+    },
+    {
+      "league": "level 4",
+      "field": "membership",
+      "ours": "no row",
+      "real": "I-League 3 is the fourth national tier; state leagues are the fifth",
+      "note": "India now has four national divisions plus state leagues. Our rows stop at I-League 2, so its two relegation places have no destination in the dataset."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "ISL is 13 clubs in 2026-27 (down from 14): Jamshedpur withdrew before the season and Diamond Harbour - the IFL champion - never took its promoted slot, so the AIFF deemed Diamond Harbour bottom of the ISL table without points and returned it to the IFL for 2027-28. Relegation still applies at the end of 2026-27. IFL (the renamed I-League, rebranded in 2026 and now run by its clubs) is 11 clubs playing a double round robin; its champion goes up subject to the participation fee and licence, and its bottom two drop to I-League 2. I-League 2 is 8 clubs, two up and two down. Reserve sides are not part of I-League 3."
+}

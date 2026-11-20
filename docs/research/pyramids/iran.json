@@ -1,0 +1,135 @@
+{
+ "country": "Iran",
+ "season": "2026-27",
+ "sources": [
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Persian_Gulf_Pro_League",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Azadegan_League",
+  "https://en.wikipedia.org/wiki/2025%E2%80%9326_Azadegan_League",
+  "https://en.wikipedia.org/wiki/Iran_Football%27s_2nd_Division"
+ ],
+ "leagues": [
+  {
+   "id": "IRN1",
+   "name": "Persian Gulf Pro League",
+   "level": 1,
+   "size": 18,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": {
+    "kind": "relegation",
+    "entries": "14th in the Pro League vs 3rd in the Azadegan League",
+    "legs": 2,
+    "note": "Iran has used this two-legged promotion/relegation tie in recent seasons; the 2026-27 page does not spell it out, but its table legend and the Azadegan intake both imply it."
+   }
+  },
+  {
+   "id": "IRN2",
+   "name": "Azadegan League",
+   "level": 2,
+   "size": 16,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 30
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "3rd in the Azadegan League vs 14th in the Pro League",
+    "legs": 2,
+    "note": "Top two promoted directly; 3rd into the play-off. Bottom three relegated to League 2."
+   }
+  },
+  {
+   "id": "IRN3",
+   "name": "League 2",
+   "level": 3,
+   "size": 28,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "groups",
+    "groups": 2,
+    "rounds": 26,
+    "stages": [
+     {
+      "name": "group_1",
+      "teams": 14,
+      "rounds": 26,
+      "kind": "double_round_robin"
+     },
+     {
+      "name": "group_2",
+      "teams": 14,
+      "rounds": 26,
+      "kind": "double_round_robin"
+     },
+     {
+      "name": "final",
+      "teams": 2,
+      "kind": "single_match",
+      "note": "the two group winners meet to decide the League 2 title; both are promoted"
+     },
+     {
+      "name": "promotion_playoff",
+      "teams": 2,
+      "kind": "single_match",
+      "note": "the two group runners-up meet for a third promotion place"
+     }
+    ]
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "the two group runners-up",
+    "legs": 1,
+    "note": "Champion and runner-up of the group-winners' final go up; the runners-up play-off winner takes the third place (2026 intake: Foolad Novin, Naft Masjed Soleyman, Shahin Bandar Ameri)."
+   }
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 3,
+   "up_playoff": 1,
+   "down": 3,
+   "down_playoff": 1,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "Azadegan: top two up, 3rd into a two-legged tie with the Pro League 14th. Pro League: two bottom clubs down directly plus the 14th in that tie."
+  },
+  {
+   "upper": 2,
+   "lower": 3,
+   "up": 3,
+   "up_playoff": 1,
+   "down": 3,
+   "down_playoff": 0,
+   "allocation": "by_geography",
+   "selection": "bottom_n",
+   "note": "League 2: both group winners promoted (they also play a final for the title), the two runners-up play off for a third place. Azadegan's bottom three go down and are placed into the two regional groups. League 2's own bottom two in each group (four) drop to League 3. | balanced to keep league sizes after a source conflict."
+  }
+ ],
+ "conflicts": [
+  {
+   "league": "IRN1",
+   "field": "relegation",
+   "ours": "not encoded",
+   "real": "the 2026-27 table legend marks 15th-18th as relegation (four places), but only three clubs came up from the Azadegan League",
+   "note": "Recorded as three down (two direct plus the 14th in a play-off), which fits the three-club Azadegan intake. The four-place legend cannot be reconciled with a stable 18-club league, and the 2025-26 season is no guide because the league was expanding then: only Mes Rafsanjan went down, through the play-off, while three clubs came up."
+  },
+  {
+   "league": "IRN3",
+   "field": "promotion",
+   "ours": "not encoded",
+   "real": "the general League 2 article says the top two of each group go up (four clubs); the current Azadegan intake shows three",
+   "note": "The four-club rule is older. The 2026-27 Azadegan article names exactly three promoted clubs - the League 2 champion, the runner-up and the play-off winner - so the three-place model is recorded."
+  }
+ ],
+ "confidence": "medium",
+ "notes": "The Pro League expanded from 16 to 18 clubs for 2026-27 (16 clubs, one relegated, three promoted). Azadegan is a single table of 16 (30 rounds) with a 3rd-place promotion/relegation play-off; its bottom three drop to League 2. League 2 is a genuinely regional competition: two groups of 14 (28 clubs, 26 rounds each), the group winners meet in a final that decides the title, the runners-up play off for the third promotion place, and the bottom two of each group are relegated to League 3 (level 4, not in our rows). League 2 does not have a national table, so '28 clubs' is two separate 14-club leagues."
+}

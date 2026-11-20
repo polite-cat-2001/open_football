@@ -1,0 +1,28 @@
+{
+  "country": "Latvia",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Latvian_Higher_League",
+    "https://en.wikipedia.org/wiki/Latvian_Higher_League",
+    "https://en.wikipedia.org/wiki/Future_League"
+  ],
+  "leagues": [
+    {"id": "LET1", "name": "Virsliga", "level": 1, "size": 10, "closed_up": true, "closed_down": false,
+     "format": {"kind": "single", "rounds": 36},
+     "playoff": null},
+    {"id": "LET2", "name": "Futbola Pirmā līga", "level": 2, "size": 14, "closed_up": false, "closed_down": true,
+     "format": {"kind": "single", "rounds": 26},
+     "playoff": null}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 2, "up_playoff": 1, "down": 2, "down_playoff": 1,
+     "allocation": "free", "selection": "bottom_n",
+     "note": "Virsliga 10th is relegated directly and 9th plays a two-legged play-off against the 2nd-placed Future League club for the last place; the Future League champion is promoted directly. One shared play-off place, so the real movement is between 1+1 and 2+2 each way."}
+  ],
+  "conflicts": [
+    "The 2026 Virsliga infobox says 170 matches, but 10 clubs playing four rounds is 180; the round count (four rounds, 36 per club) is stated in prose and matches the LFF regulations cited there, so 36 is used.",
+    "Our row's name 'Futbola Pirmā līga' is the pre-2021 name: the second tier has been branded Nakotnes liga / Future League since 2021 and LVBET League for sponsorship in 2026. Same competition, id unchanged."
+  ],
+  "confidence": "medium",
+  "notes": "Calendar-year season (6 March - 8 November 2026). Virsliga: 10 clubs, four rounds = 36 matches each; champion RFS, Ogre United relegated. Future League: 14 clubs, double round-robin = 26 matches; champion promoted, 2nd into the play-off, bottom two relegated to the Second League (LIIGA) and 3rd-from-bottom into a play-off with the Second League 3rd. So the second tier's own relegation is a 2+1 structure. The 2026 Virsliga article is tagged AI-generated but its structure matches the LFF regulations it cites and the league article."
+}

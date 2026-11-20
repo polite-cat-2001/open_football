@@ -1,0 +1,42 @@
+{
+  "country": "Puerto Rico",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_Puerto_Rico_Pro_season",
+    "https://en.wikipedia.org/wiki/Liga_Puerto_Rico_Pro"
+  ],
+  "leagues": [
+    {
+      "id": "PRA1",
+      "name": "Liga Puerto Rico Apertura",
+      "level": 1,
+      "size": 9,
+      "closed_up": true,
+      "closed_down": true,
+      "format": {
+        "kind": "apertura_clausura",
+        "rounds": null,
+        "stages": ["Apertura (from 15 August 2026)", "Clausura"],
+        "note": "two championships in an identical format, each a round-robin plus a top-four play-off; the round count is unresolved: the article says each tournament is 'contested by eight teams' while listing and tabulating nine, the Apertura ladder runs to 17 matchdays and clubs had played 14-15 games by mid-November"
+      },
+      "playoff": {
+        "kind": "title",
+        "entries": "top 4",
+        "legs": null,
+        "note": "semi-finals and final; the match format is not described"
+      }
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "league": "PRA1",
+      "field": "size",
+      "ours": "9",
+      "real": "the season article says each tournament is 'contested by eight teams'",
+      "note": "The participating-club list and the standings both show nine clubs; the 'eight' looks like a leftover from 2025-26. 9 used."
+    }
+  ],
+  "confidence": "low",
+  "notes": "Single Puerto Rican row and no second division exists in our data, so the league is closed in both directions. In reality clubs enter and leave administratively (Guayama FC and FC Mayagüez left after 2025-26 and nobody joined), with no promotion or relegation route documented. Nine clubs, two championships (Apertura from 15 August 2026 and Clausura) in an identical format, each a round-robin plus a top-four play-off. The round count and the play-off legs are unknown; the article contradicts itself on eight v nine clubs. Several clubs share grounds and play in front of 1,000 or fewer, and the league is in only its third season under the LPR Pro name with its fifth Apertura/Clausura split."
+}

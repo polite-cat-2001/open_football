@@ -1,0 +1,100 @@
+{
+ "country": "New Zealand",
+ "season": "2026",
+ "sources": [
+  "https://en.wikipedia.org/wiki/New_Zealand_National_League",
+  "https://en.wikipedia.org/wiki/2026_New_Zealand_National_League",
+  "https://en.wikipedia.org/wiki/Northern_League_(New_Zealand)",
+  "https://en.wikipedia.org/wiki/Central_League_(New_Zealand)",
+  "https://en.wikipedia.org/wiki/Southern_League_(New_Zealand)",
+  "https://en.wikipedia.org/wiki/New_Zealand_football_league_system"
+ ],
+ "leagues": [
+  {
+   "id": "NZL1",
+   "name": "NZL1",
+   "level": 1,
+   "size": 11,
+   "closed_up": true,
+   "closed_down": true,
+   "format": {
+    "kind": "single",
+    "note": "regional_qualification+single_round_robin+grand_final"
+   },
+   "playoff": null
+  },
+  {
+   "id": "NNL1",
+   "name": "National League - North",
+   "level": 2,
+   "size": 12,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": "double_round_robin"
+   },
+   "playoff": null
+  },
+  {
+   "id": "NCL1",
+   "name": "National League - Central",
+   "level": 2,
+   "size": 10,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": "double_round_robin"
+   },
+   "playoff": null
+  },
+  {
+   "id": "NSL1",
+   "name": "National League - South",
+   "level": 2,
+   "size": 10,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": "double_round_robin"
+   },
+   "playoff": null
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 9,
+   "up_playoff": 0,
+   "down": 0,
+   "down_playoff": 0,
+   "allocation": "regional_fixed",
+   "selection": "bottom_n",
+   "note": "Qualification, not promotion: 4 Northern + 3 Central + 2 Southern = 9 level-2 clubs enter the Championship; the other 2 of the 11 are the automatic reserve sides that belong to no level-2 league. down=0 because the Championship has no relegation - the 9 qualifiers return to their regional league. Treat this boundary as non-transferring for membership (up=down=0 in that sense): applying up=9 as real moves would give level 1 20 clubs and level 2 23, which is exactly the bug this pyramid invites."
+  },
+  {
+   "upper": 2,
+   "lower": 3,
+   "up": 4,
+   "up_playoff": 2,
+   "down": 4,
+   "down_playoff": 0,
+   "allocation": "regional",
+   "selection": "bottom_n",
+   "note": "Inside each region only: Northern 2 up / 2 down (NRFL Championship), Central 1 up / 1 down (Central League 2; the up slot is the Capital Premier vs Federation League play-off), Southern 1 up / 1 down (Canterbury Premiership, Nelson Bays Premiership, Southern Premiership; decided by play-offs). up is the total and up_playoff is how many of those 4 are decided by a play-off. The 4/2 split is derived from the promoted clubs named in the 2026 season articles, not from a published slot table; level-3 league sizes are not in the database and vary by region."
+  }
+ ],
+ "conflicts": [
+  "All three rows are marked level 1. They are the level-2 regional stage: the pyramid has exactly one level-1 competition (the National League Championship) and three parallel level-2 leagues.",
+  "The real level 1 (National League Championship, 11 clubs) is missing from the database entirely, so the top of this pyramid has no row.",
+  "The three level-2 rows are parallel, not a hierarchy: their club pools are disjoint (north / centre / south of the country) and clubs never move between them. A simulation that treats them as 1st/1st/1st of one ladder, or that promotes between them, is wrong.",
+  "The names hide the competition format: 'National League - North/Central/South' are the regional leagues that feed the National League, not national divisions of it.",
+  "Nothing records the fixed 4/3/2 qualifying quota or the two automatic reserve entrants (Auckland FC Reserves, Wellington Phoenix Reserves), which are the reason level 1 has 11 clubs rather than 9.",
+  "The 2027 restructure (12-club national double round robin, summer phase scrapped) is already announced; the rows describe the 2021-2026 format only."
+ ],
+ "confidence": "high",
+ "notes": ""
+}

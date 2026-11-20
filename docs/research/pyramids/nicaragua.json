@@ -1,0 +1,65 @@
+{
+  "country": "Nicaragua",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_Primera",
+    "https://www.ligaprimera.com/",
+    "https://es.wikipedia.org/wiki/Segunda_Divisi%C3%B3n_de_Nicaragua"
+  ],
+  "leagues": [
+    {
+      "id": "NC1A",
+      "name": "Liga Primera",
+      "level": 1,
+      "size": 10,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "apertura_clausura", "rounds": 18, "stages": 2 },
+      "playoff": {
+        "kind": "title",
+        "entries": "1-2 straight to the semi-finals, 3-6 into quarter-finals",
+        "legs": 2,
+        "note": "Apertura and Clausura each crown a champion; the aggregate table across both decides relegation."
+      }
+    },
+    {
+      "id": "NC2A",
+      "name": "Liga de Ascenso",
+      "level": 2,
+      "size": 12,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "groups", "groups": 2, "rounds": 10, "stages": 2 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "group leaders into the knockout, then a final",
+        "legs": 2,
+        "note": "Champion goes up; the runner-up plays the 9th-placed Liga Primera club for a second place."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "average_table",
+      "note": "Liga Primera relegation comes from the aggregate table over Apertura + Clausura: last goes down, 9th plays the Ascenso runner-up over two legs. Ascenso champion goes up directly. Two places, one contested."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "NC2A",
+      "field": "name",
+      "ours": "Liga de Ascenso de Nicaragua",
+      "real": "Segunda División (branded Liga de Ascenso)",
+      "note": "The competition's official name is Segunda División de Nicaragua; the league and Transfermarkt both brand it 'Liga de Ascenso'. Our name is the branded one, and our id NC2A matches that branding."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Nicaragua runs two tournaments per season (Apertura in the second half of the calendar year, Clausura in the first half of the next). Liga Primera: 10 clubs, each tournament is a double round robin of 18 rounds, then a six-club knockout (top two to the semis, 3rd-6th to a quarter-final). Relegation is decided on the aggregate table across both tournaments, not on a single tournament - hence selection 'average_table'. Ascenso: 12 clubs in two groups of six (Centro and Costa), 10 rounds, group leaders into a knockout; the champion is promoted and the runner-up meets the Liga Primera 9th. In 2026 Real Madriz went down as last and San Marcos came up as champions, while UNAN Managua beat Matiguás in the play-off."
+}

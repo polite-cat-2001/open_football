@@ -1,0 +1,84 @@
+{
+  "country": "Qatar",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Qatar_Stars_League",
+    "https://en.wikipedia.org/wiki/Qatar_Stars_League_2",
+    "https://es.wikipedia.org/wiki/Segunda_Divisi%C3%B3n_de_Catar",
+    "https://ar.wikipedia.org/wiki/%D8%AF%D9%88%D8%B1%D9%8A_%D8%A7%D9%84%D8%AF%D8%B1%D8%AC%D8%A9_%D8%A7%D9%84%D8%AB%D8%A7%D9%86%D9%8A%D8%A9_%D8%A7%D9%84%D9%82%D8%B7%D8%B1%D9%8A"
+  ],
+  "leagues": [
+    {
+      "id": "QSL",
+      "name": "Qatar Stars League",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 22 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "11th",
+        "legs": 1,
+        "note": "11th plays the Qatar Stars League 2 runner-up in a single match for the last top-flight place; 12th is relegated directly"
+      }
+    },
+    {
+      "id": "QU2L",
+      "name": "Qatar Stars League 2",
+      "level": 2,
+      "size": 8,
+      "closed_up": false,
+      "closed_down": true,
+      "format": {
+        "kind": "single",
+        "rounds": 14,
+        "note": "eight clubs, 14 rounds derived from a double round-robin; no 2026-27 season article exists to quote a round count"
+      },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd",
+        "legs": 1,
+        "note": "champion promoted directly; runner-up meets the QSL 11th in a single match"
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "QSL2 champion goes up directly, runner-up plays the QSL 11th in a single match; QSL 12th goes down directly and 11th risks the same play-off, so exactly one of {QSL 11th, QSL2 runner-up} is in the top flight next season."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "QU2L",
+      "field": "size",
+      "ours": "12",
+      "real": "8 clubs in 2026-27",
+      "note": "Confirmed by the English 2026-27 club list and by the Spanish and Arabic league articles, both of which say eight. Our 12 looks like a copy of the QSL figure."
+    },
+    {
+      "league": "QU2L",
+      "field": "promotion_rule",
+      "ours": "1st direct + 2nd in the play-off",
+      "real": "the English article says the champion plays the 10th-placed QSL club and the runner-up is not mentioned",
+      "note": "Outdated 2022-23 rule. The 2026-27 QSL table marks 11th as the play-off place and the Arabic article describes runner-up v second-last. Current shape used."
+    },
+    {
+      "league": "QU2L",
+      "field": "relegation",
+      "ours": "no relegation from the second tier",
+      "real": "the English infobox lists relegation to a 'Qatar Stars League 3', while its own body text and the Spanish/Arabic articles say there is no relegation and no third tier",
+      "note": "No QSL3 season or club list was found. Either way the destination is outside our data, so QU2L is closed_down."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "QSL: 12 clubs, 22 rounds, champion on points, 12th relegated and 11th in a single-match play-off against the QSL2 runner-up. QSL2: 8 clubs, not 12; 14 rounds is arithmetic because no 2026-27 season article exists. The second tier's 2026-27 field includes Al Rayyan Next-Gen, a reserve side formed in 2026. Sources disagree on whether QSL2 relegates (English infobox mentions a QSL3 that no other source supports) and on which QSL place enters the play-off (10th in the outdated English text, 11th in the 2026-27 tables and the Arabic article). Both levels use plain double round-robins with no split."
+}

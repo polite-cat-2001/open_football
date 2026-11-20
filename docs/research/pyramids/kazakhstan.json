@@ -1,0 +1,28 @@
+{
+  "country": "Kazakhstan",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Kazakhstan_Premier_League",
+    "https://ru.wikipedia.org/wiki/%D0%A7%D0%B5%D0%BC%D0%BF%D0%B8%D0%BE%D0%BD%D0%B0%D1%82_%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D1%82%D0%B0%D0%BD%D0%B0_%D0%BF%D0%BE_%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB%D1%83_2026",
+    "https://en.wikipedia.org/wiki/Kazakhstan_First_League"
+  ],
+  "leagues": [
+    {"id": "KAS1", "name": "Premier Liga", "level": 1, "size": 16, "closed_up": true, "closed_down": false,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": null},
+    {"id": "KAS2", "name": "Pervaya Liga", "level": 2, "size": 14, "closed_up": false, "closed_down": true,
+     "format": {"kind": "single", "rounds": 26},
+     "playoff": null}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 2, "up_playoff": 0, "down": 2, "down_playoff": 0,
+     "allocation": "free", "selection": "bottom_n",
+     "note": "2026: Premier League bottom two relegated (Zhetysu, Kaisar); the First League's top two are promoted in a normal season. 2025 -> 2026 was a one-off 1 down / 3 up because the Premier League expanded from 14 to 16."}
+  ],
+  "conflicts": [
+    "The English 2026 Premier League article is tagged AI-generated and its attendance figure is meaningless, but its 16-team, 30-round, 240-match, 2-relegated shape matches the Russian Wikipedia article exactly, so the numbers are used.",
+    "Kazakhstan's second tier is variously called First League / First Division / Pervaya Liga; the Wikipedia article title is 'Kazakhstan First Division' while the league is 'Pervaya Liga'. Same competition."
+  ],
+  "confidence": "medium",
+  "notes": "Calendar-year season (7 March - 31 October 2026). Premier League expanded from 14 to 16 for 2026 (30 rounds, 240 matches), with a one-off transition: only the 2025 bottom club was relegated and three First League clubs came up. From 2026 onward it is 2 up / 2 down. Two clubs were relegated in 2026 (Zhetysu, Kaisar). First League: 14 clubs, 26 rounds, top two promoted, bottom clubs relegated to the Second League (level 3, outside our data) - the exact number of Second League relegation places was not verified, so it is not encoded. The First League regularly includes reserve teams (e.g. Aktobe-2), which cannot be promoted and would need filtering in a sim."
+}

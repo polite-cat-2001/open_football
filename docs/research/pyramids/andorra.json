@@ -1,0 +1,22 @@
+{
+  "country": "Andorra",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Primera_Divisi%C3%B3",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Primera_Divisi%C3%B3"
+  ],
+  "leagues": [
+    {"id": "AND1", "name": "Primera Divisió", "level": 1, "size": 10, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 27},
+     "playoff": {"kind": "relegation", "entries": "9th", "legs": 2,
+                 "note": "9th plays the Segona Divisió runner-up over two legs; the winner is in the Primera Divisió next season. 10th is relegated directly and the Segona champion comes up in its place."}}
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {"league": "AND1", "field": "format", "ours": "10 clubs, 27 rounds, no split",
+     "real": "the league overview text describes 8 clubs, 21 rounds, a top-four/bottom-four split and 27 games",
+     "note": "That prose describes the pre-2020 eight-club format. The infobox (teams = 10) and the 2025-26 season article (ten clubs, three meetings, no split) are current and are what is recorded."}
+  ],
+  "confidence": "medium",
+  "notes": "Ten clubs, each pair meeting three times (27 rounds). 10th relegated to the Segona Divisió, 9th in a two-legged play-off against the Segona runner-up; the Segona champion is promoted directly, so exactly one of {9th, Segona runner-up} stays/goes up. Segona Divisió (level 2) is not in our rows, so the league is closed downwards in our data. No 2026-27 season article exists yet on English or Catalan Wikipedia and no federation page was read, so the 2026-27 shape is the 2025-26 shape. Clubs can be expelled mid-season: Pas de la Casa was removed in 2025-26 after three matchdays, which is why that season shows 24 matches per club instead of 27."
+}

@@ -1,0 +1,71 @@
+{
+  "country": "Croatia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Croatian_Football_League",
+    "https://en.wikipedia.org/wiki/First_Football_League_(Croatia)",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Croatian_Football_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_First_Football_League_(Croatia)",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Croatian_Football_League"
+  ],
+  "leagues": [
+    {
+      "id": "KR1",
+      "name": "SuperSport HNL",
+      "level": 1,
+      "size": 10,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 36, "note": "Quadruple round-robin: 10 clubs meet four times (36 matches). No split." },
+      "playoff": null
+    },
+    {
+      "id": "KR2",
+      "name": "Prva nogometna liga (1. NL)",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 30, "note": "Double round-robin over 16 clubs (30 matches). The league expanded from 12 to 16 for 2026-27." },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "15th",
+        "legs": 2,
+        "note": "15th plays a two-legged relegation play-off; 16th is relegated directly. The champion is promoted directly, with no promotion play-off."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 1,
+      "up_playoff": 0,
+      "down": 1,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "One club each way, both direct: the Prva NL champion replaces the HNL's last-placed club. There is no promotion/relegation play-off between the two tiers; the play-off at this level is inside the Prva NL (15th v a 2. NL club)."
+    }
+  ],
+  "conflicts": [
+    {
+      "topic": "No HNL relegation play-off",
+      "detail": "The HNL table marks only 10th as relegated. Older Croatian seasons used a 9th-place play-off against the second tier; that is not the current rule, so a sim that adds one will invent a fixture."
+    },
+    {
+      "topic": "Prva NL size changed in 2026-27",
+      "detail": "The Prva NL had 12 clubs from 2022-23 to 2025-26 and expanded to 16 for 2026-27. Our row says 16, which is correct for this season and wrong for last season."
+    },
+    {
+      "topic": "Reserve team in the second tier",
+      "detail": "Dinamo Zagreb II plays in the Prva NL 2026-27 and cannot be promoted to the HNL (farm teams must stay at least one level below the senior side). The champion is promoted only if eligible; a second-placed finisher takes the place."
+    },
+    {
+      "topic": "The HNL is a quadruple round-robin",
+      "detail": "With 10 clubs the HNL plays 36 matches (four meetings), not the 33 of the old 12-club triple round-robin. The 180 matches per season confirm 36 per club."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Season 2026-27 in progress. Sizes 10/16 and levels match our rows. Prva NL relegation: 15th to a play-off, 16th direct to the 2. NL (level 3, not modelled). Cups and UEFA competitions excluded."
+}

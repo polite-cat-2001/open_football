@@ -1,0 +1,44 @@
+{
+  "country": "Japan",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_J1_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_J2_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_J3_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Japan_Football_League",
+    "https://en.wikipedia.org/wiki/J1_100_Year_Vision_League",
+    "https://en.wikipedia.org/wiki/J1_League",
+    "https://en.wikipedia.org/wiki/Japan_Football_League",
+    "https://en.wikipedia.org/wiki/2024_J1_League"
+  ],
+  "leagues": [
+    {"id": "JAP1", "name": "J1 League", "level": 1, "size": 20, "closed_up": true, "closed_down": false,
+     "format": {"kind": "single", "rounds": 38},
+     "playoff": null},
+    {"id": "JAP2", "name": "J2 League", "level": 2, "size": 20, "closed_up": false, "closed_down": false,
+     "format": {"kind": "single", "rounds": 38},
+     "playoff": {"kind": "promotion", "entries": "3rd-6th", "legs": 1,
+                 "note": "single-leg knock-out at the higher seed; the winner takes the third promotion place (top two go up automatically)"}},
+    {"id": "JAP3", "name": "J3 League", "level": 3, "size": 20, "closed_up": false, "closed_down": false,
+     "format": {"kind": "single", "rounds": 38},
+     "playoff": {"kind": "promotion", "entries": "3rd-6th", "legs": 1,
+                 "note": "single-leg knock-out; the winner takes the second promotion place if it holds a J2 licence"}},
+    {"id": "JFL", "name": "Japan Football League", "level": 4, "size": 16, "closed_up": false, "closed_down": true,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": null}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 3, "up_playoff": 1, "down": 3, "down_playoff": 0,
+     "allocation": "free", "selection": "bottom_n",
+     "note": "J2: top two automatic, 3rd-6th play off for the third place. J1: bottom three relegated, no J1/J2 play-off since 2024."},
+    {"upper": 2, "lower": 3, "up": 3, "up_playoff": 1, "down": 3, "down_playoff": 0,
+     "allocation": "free", "selection": "bottom_n",
+     "note": "J3: top two automatic, 3rd-6th play off for the third place (J2 licence required). J2: bottom three relegated."},
+    {"upper": 3, "lower": 4, "up": 1, "up_playoff": 1, "down": 1, "down_playoff": 1,
+     "allocation": "by_licence", "selection": "bottom_n",
+     "note": "JFL champion replaces J3's 20th automatically if it holds a J3 licence; JFL runner-up plays the J3 19th-placed club if it holds one. If neither JFL club is licensed, nothing moves and J3 relegates nobody (so 0-2 down)."}
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "2026-27 is the FIRST autumn-spring season in J.League history: J1 runs 7 Aug 2026 - 6 Jun 2027, J2/J3 from 8 Aug, JFL 29 Aug 2026 - 23 May 2027. Membership of 2026-27 was decided by the 2025 calendar-year season (3 relegated from J1, 3 promoted from J2), not by the 2026 half-season. The first half of 2026 was filled by the one-off J1 100 Year Vision League (6 Feb - 7 Jun 2026): the same 20 J1 clubs split into East/West groups of ten, double round-robin, penalty shoot-outs for draws (2 pts win / 1 pt loss), then a prize playoff - explicitly no relegation and no bearing on 2026-27 places. So Japan played three competitions in 2026: 2025 J1 (calendar year, finished Dec 2025), the 100 Year Vision League (Feb-Jun 2026), and 2026-27 (from Aug 2026). The JFL followed the J.League: 2025 was its last calendar-year season, 2026-27 its first autumn-spring one. All four divisions are single tables, double round-robin (20 clubs = 38 rounds, 16 clubs = 30). J1 has been 20 clubs since 2024, when the 3-down-without-play-off rule also started. JFL now relegates its bottom two (15th and 16th) directly to the regional leagues, replacing the old 15th-place play-off, so JFL closed_down is true in our data and its bottom two really do leave."
+}

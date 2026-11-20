@@ -1,0 +1,19 @@
+{
+  "country": "Canada",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Canadian_Premier_League_season",
+    "https://en.wikipedia.org/wiki/Canadian_Premier_League"
+  ],
+  "leagues": [
+    {"id": "CDN1", "name": "Canadian Premier League", "level": 1, "size": 8, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 28,
+                "note": "quadruple round-robin: each pair meets four times (twice at home, twice away)"},
+     "playoff": {"kind": "title", "entries": "1-4", "legs": 2,
+                 "note": "top four play two-legged semi-finals (1v4, 2v3); the winners meet in a single championship final. The regular-season winner takes the CPL Shield."}}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Calendar-year season: 2026 runs April-October with play-offs in November. 8 clubs, 28 matches each (four meetings). The league is genuinely closed: no promotion, no relegation, and no second level connected by sporting merit (League1 Ontario, League1 BC and the Premiere Ligue de soccer du Quebec sit below but do not feed it), so both closed flags are true rather than a gap in our data. 2026 membership changed (FC Supra du Quebec in, Valour FC suspended operations) but the size stayed at 8. No cups or CONCACAF places included."
+}

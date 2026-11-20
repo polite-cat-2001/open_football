@@ -1,0 +1,70 @@
+{
+  "country": "Moldova",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Moldovan_Liga",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Moldovan_Liga_1",
+    "https://en.wikipedia.org/wiki/Moldovan_Liga_1"
+  ],
+  "leagues": [
+    {
+      "id": "MO1N",
+      "name": "Super Liga",
+      "level": 1,
+      "size": 8,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "split_after": 21,
+        "stages": 2,
+        "points_carry": "half"
+      },
+      "playoff": null
+    },
+    {
+      "id": "MDL2",
+      "name": "Liga 1",
+      "level": 2,
+      "size": 11,
+      "closed_up": false,
+      "closed_down": true,
+      "format": {
+        "kind": "groups",
+        "groups": 2,
+        "stages": 2,
+        "points_carry": "keep"
+      },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "top two of each Phase I group into Phase II Group 1",
+        "legs": 1,
+        "note": "Phase II Group 1 decides the promoted clubs; the official Liga 1 summary states the top two go up."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Super Liga Phase I bottom two (7th and 8th) are relegated straight into Liga 1 Phase II; Liga 1 promotes its top two. No play-off."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "MDL2",
+      "field": "size",
+      "ours": "11",
+      "real": "11 (infobox says 12)",
+      "note": "The Liga 1 infobox says 12 clubs, but the 2026-27 participant list and Phase I groups (6 + 5) have 11. Used 11 for the season."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Moldova runs an August-May season (27 June 2026 - 22 May 2027 for the Super Liga). Super Liga: 8 clubs, Phase I is 21 rounds (each pair twice, then a third meeting), then the top six play Phase II over 10 more matches with Phase I points halved and rounded down; the bottom two are relegated after Phase I and do not play Phase II. Liga 1: 11 clubs in two geographic groups (A 6, B 5), then Phase II split into Group 1 (the top two of each group) and Group 2. Below Liga 1 is Liga 2, not modelled; MDL2 is closed_down in our data for that reason."
+}

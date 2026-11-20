@@ -1,0 +1,86 @@
+{
+  "country": "Cyprus",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Cypriot_First_Division",
+    "https://en.wikipedia.org/wiki/Cypriot_Second_Division",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Cypriot_Second_Division"
+  ],
+  "leagues": [
+    {
+      "id": "ZYP1",
+      "name": "Cyprus League (First Division)",
+      "level": 1,
+      "size": 14,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 36,
+        "split_after": 26,
+        "groups": [6, 8],
+        "points_carry": true,
+        "stages": [
+          { "name": "first round", "clubs": 14, "rounds": 26, "note": "Double round-robin." },
+          { "name": "Group A (championship)", "clubs": 6, "rounds": 10, "note": "Top six, double round-robin; 36 matches in total." },
+          { "name": "Group B (relegation)", "clubs": 8, "rounds": 7, "note": "Bottom eight, single round-robin; 33 matches in total. Bottom three relegated." }
+        ]
+      },
+      "playoff": null
+    },
+    {
+      "id": "CYP2",
+      "name": "2. Division (Second Division)",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 29,
+        "split_after": 15,
+        "groups": [8, 8],
+        "points_carry": true,
+        "stages": [
+          { "name": "first phase", "clubs": 16, "rounds": 15, "note": "Single round-robin: each club meets every other club once." },
+          { "name": "promotion round", "clubs": 8, "rounds": 14, "note": "Top eight, double round-robin; 29 matches in total. Top three promoted." },
+          { "name": "relegation round", "clubs": 8, "rounds": 14, "note": "Bottom eight, double round-robin; 29 matches in total. Bottom three relegated." }
+        ]
+      },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 3,
+      "up_playoff": 0,
+      "down": 3,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Three direct places each way, decided by the second-phase tables: the bottom three of the First Division's relegation group go down, the top three of the Second Division's promotion round go up. No play-offs at this boundary."
+    }
+  ],
+  "conflicts": [
+    {
+      "topic": "Asymmetric split in the top flight",
+      "detail": "The First Division does not split into two equal groups: the top six play a double round-robin (10 more games, 36 total) while the bottom eight play a single round-robin (7 more, 33 total). A single round count for the division only fits one of the two groups."
+    },
+    {
+      "topic": "Second Division points carry and it plays 29 games",
+      "detail": "The 16 clubs play each other once (15 rounds), then split into two groups of eight that each play a double round-robin (14 more). Points and goals are carried (the 2025-26 tables start with the first-phase points). A naive 'two groups of eight, 7 rounds' reading underestimates the season by half."
+    },
+    {
+      "topic": "No play-offs anywhere in the modelled pyramid",
+      "detail": "Both divisions decide promotion and relegation by table position after the split; there is no promotion/relegation play-off in either direction."
+    },
+    {
+      "topic": "Top flight has no relegation play-off",
+      "detail": "The bottom three of Group B are relegated directly; 12th is not spared by a play-off."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Season 2026-27 in progress. Sizes 14/16 and levels match our rows. Second Division relegates three to the Third Division (not modelled); First Division / Second Division is closed upwards only at the top. Cups and UEFA competitions excluded."
+}

@@ -1,0 +1,44 @@
+{
+  "country": "United States",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season",
+    "https://en.wikipedia.org/wiki/USL_Championship",
+    "https://en.wikipedia.org/wiki/2026_MLS_Next_Pro_season",
+    "https://en.wikipedia.org/wiki/2026_USL_League_One_season"
+  ],
+  "leagues": [
+    {"id": "MLS1", "name": "Major League Soccer", "level": 1, "size": 30, "closed_up": true, "closed_down": true,
+     "format": {"kind": "groups", "groups": 2, "rounds": 34,
+      "stages": [
+        {"name": "regular", "teams": 30, "groups": 2, "teams_per_group": 15, "rounds": 34, "kind": "conference_weighted_double_round_robin", "note": "Eastern and Western conferences are one competition, not two leagues"},
+        {"name": "playoffs", "kind": "single_elimination", "note": "per-conference bracket, MLS Cup final"}]},
+     "playoff": {"kind": "title", "entries": "per-conference qualifiers", "legs": 1,
+      "note": "conference play-offs decide MLS Cup; the Supporters' Shield goes to the best overall record. Number of qualifiers per conference not verified."}},
+    {"id": "USL", "name": "USL Championship", "level": 2, "size": 25, "closed_up": true, "closed_down": true,
+     "format": {"kind": "groups", "groups": 2, "rounds": null,
+      "stages": [
+        {"name": "regular", "teams": 25, "groups": 2, "kind": "conference_round_robin", "note": "13 east / 12 west; 34 matches per club, conference-weighted"},
+        {"name": "playoffs", "kind": "single_elimination", "note": "top eight in each conference"}]},
+     "playoff": {"kind": "title", "entries": "top 8 per conference", "legs": 1,
+      "note": "Players' Shield for the best overall record; USL Championship final decides the title"}},
+    {"id": "MNP3", "name": "MLS Next Pro", "level": 3, "size": 30, "closed_up": true, "closed_down": true,
+     "format": {"kind": "groups", "groups": 2, "rounds": 28,
+      "stages": [
+        {"name": "regular", "teams": 30, "groups": 2, "kind": "conference_round_robin", "note": "each conference split into divisions of seven or eight for scheduling; 28 matches per club"},
+        {"name": "playoffs", "kind": "single_elimination", "note": "top nine per conference; 8th v 9th play-in, then pick-your-opponent bracket"}]},
+     "playoff": {"kind": "title", "entries": "top 9 per conference", "legs": 1,
+      "note": "MLS Next Pro Cup; first independent winner in 2026 (Chattanooga FC)"}},
+    {"id": "USC3", "name": "USL League One", "level": 3, "size": 17, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 32},
+     "playoff": {"kind": "title", "entries": "top 8", "legs": 1,
+      "note": "single-elimination bracket, USL League One final"}}
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {"league": "MNP3/USC3", "field": "structure", "ours": "both at level 3", "real": "two rival third-tier leagues in different organisations",
+     "note": "MLS Next Pro belongs to MLS (reserve/development clubs), USL League One to the USL. They never exchange clubs and there is no sporting link between them or to MLS/USL Championship."}
+  ],
+  "confidence": "high",
+  "notes": "Calendar-year season. No promotion or relegation in any of the four leagues, so all are closed both ways and there are no boundaries. MLS is 30 clubs in two conferences of 15 over 34 matches, with conference play-offs for MLS Cup; the conferences are one league, not two. 2026 is the last full spring-autumn MLS season - it moves to summer-spring from 2027-28 after a short 14-match 2027 season. USL Championship is 25 clubs (13 east, 12 west) with the top eight per conference in the play-offs, and is unrelated to MLS (clubs join MLS only by buying a franchise). MLS Next Pro is MLS's own Division III reserve league: 30 clubs, 28 matches, top nine per conference with a new 8th-v-9th play-in. USL League One is 17 clubs over 32 matches with the top eight. The USL has voted for promotion and relegation but it starts only with the planned Division I USL Premier in 2028, so 2026 is fully closed. Sizes are 2026 snapshots and change almost every year."
+}

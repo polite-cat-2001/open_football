@@ -1,0 +1,25 @@
+{
+  "country": "United Arab Emirates",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/UAE_Pro_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_UAE_Pro_League",
+    "https://en.wikipedia.org/wiki/UAE_First_Division_League"
+  ],
+  "leagues": [
+    {"id": "UAE1", "name": "UAE Pro League", "level": 1, "size": 14, "closed_up": true, "closed_down": false,
+     "format": {"kind": "single", "rounds": 26},
+     "playoff": null},
+    {"id": "UAE2", "name": "UAE First Division League", "level": 2, "size": 15, "closed_up": false, "closed_down": true,
+     "format": {"kind": "single", "rounds": 28},
+     "playoff": null}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 2, "up_playoff": 0, "down": 2, "down_playoff": 0,
+     "allocation": "free", "selection": "bottom_n",
+     "note": "First Division champion and runner-up go up; Pro League 13th and 14th go down. No play-off in either direction."}
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "A two-tier professional structure: 14 clubs / 26 rounds at the top, 15 clubs / 28 rounds at level 2, 2 up and 2 down by table position only (2025-26: Hatta and United promoted, Al Bataeh and Dibba relegated). A Pro League licence is the only extra filter. UAE2 is closed_down only because the UAE Second Division League (level 3, founded 2019) is not in our rows - clubs can be relegated there in reality. The First Division's size is unstable (14, 16, 17 and 15 within six seasons as private clubs and academies were admitted from the Second Division), so treat 15 as this season's snapshot and re-check it annually."
+}

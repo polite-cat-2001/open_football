@@ -1,0 +1,56 @@
+{
+  "country": "Egypt",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Egyptian_Premier_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Egyptian_Premier_League"
+  ],
+  "leagues": [
+    {
+      "id": "EGY1",
+      "name": "Egyptian Premier League",
+      "level": 1,
+      "size": 20,
+      "closed_up": true,
+      "closed_down": true,
+      "format": {
+        "kind": "split",
+        "rounds": 19,
+        "split_after": 19,
+        "groups": [6, 14],
+        "points_carry": null,
+        "stages": [
+          { "name": "first phase", "clubs": 20, "rounds": 19, "note": "Single round-robin: each club meets every other club once." },
+          { "name": "championship group", "clubs": 6, "note": "1st-6th after the first phase; the winner is champion and takes a Champions League place." },
+          { "name": "relegation group", "clubs": 14, "note": "7th-20th; four clubs are relegated." }
+        ]
+      },
+      "playoff": null
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "topic": "The league article still describes the old 18-club season",
+      "detail": "The competition-format prose says '18 clubs ... 34 games ... three lowest-placed teams are relegated' and cites a format 'since 2015'. The 2026-27 season is the first with 20 clubs and a two-phase split (19 rounds, then 6 + 14), with four relegated; the infobox and the 2026-27 team list already show 20."
+    },
+    {
+      "topic": "Twenty clubs is new",
+      "detail": "The league expanded from 18 to 20 for 2026-27 (three promoted from the Second Division A, one extra place from the reshuffle). Our row says 20, which is right for this season and wrong for 2025-26."
+    },
+    {
+      "topic": "A single round-robin first phase",
+      "detail": "Unlike the old double round-robin, the 2026-27 first phase is one match per opponent (19 games), then the table splits. A sim that keeps a 38-round table will overplay the season by half."
+    },
+    {
+      "topic": "Points carry is not stated",
+      "detail": "The 2026-27 article says the league 'splits into two groups' but does not say whether first-phase points are carried. `points_carry` is left null rather than guessed; the usual Egyptian split practice is to carry them, but this is a new format with no completed season to check."
+    },
+    {
+      "topic": "Four relegated from a single row",
+      "detail": "Because EGY1 is the only Egyptian league in our list, the direction is closed in the report even though four clubs actually go down to the Second Division A."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Season 2026-27 (started 21 August 2026, in progress). Size 20 matches our row but is one season old in our data (18 in 2024-25 and 2025-26). Format: 19-round single round-robin, then a six-club championship group and a fourteen-club relegation group, four relegated. Round counts for the two groups and whether points carry are not stated in the source. Cups and CAF competitions excluded."
+}

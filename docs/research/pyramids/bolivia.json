@@ -1,0 +1,19 @@
+{
+  "country": "Bolivia",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_FBF_Divisi%C3%B3n_Profesional",
+    "https://en.wikipedia.org/wiki/FBF_Divisi%C3%B3n_Profesional"
+  ],
+  "leagues": [
+    {"id": "BO1A", "name": "División Profesional", "level": 1, "size": 16, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 30,
+                "note": "2026 is one double round-robin of 30 matchdays; the Apertura/Clausura split used in earlier seasons is not played this year"},
+     "playoff": {"kind": "relegation", "entries": "15th", "legs": null,
+                 "note": "relegation is decided by promedio (two-season average points): the bottom club of the average is relegated directly, the second-from-bottom plays the Copa Simón Bolívar runner-up. Legs not documented in the sources read."}}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "medium",
+  "notes": "Calendar-year season: the 2026 tournament is the one that overlaps the 2026-27 career year, so '2026' is the real label. 2026 is a single double round-robin of 30 matchdays, confirmed on 23 March 2026; the former Apertura/Clausura structure is not used. Relegation uses promedio (average points over the last two seasons): the bottom club goes down and the second-from-bottom plays a promotion/relegation play-off against the Copa Simón Bolívar runner-up, while the Copa Simón Bolívar champion is promoted directly. That second level is a cup feeding from regional leagues, not a league in our rows, so the league is closed downwards in our data. Play-off leg count not documented. No cups or continental places included."
+}

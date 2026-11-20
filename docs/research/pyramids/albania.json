@@ -1,0 +1,90 @@
+{
+ "country": "Albania",
+ "season": "2026-27",
+ "sources": [
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Kategoria_Superiore",
+  "https://sq.wikipedia.org/wiki/Kategoria_Superiore_2026%E2%80%9327",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Kategoria_e_Par%C3%AB",
+  "https://en.wikipedia.org/wiki/Kategoria_e_Par%C3%AB",
+  "https://sq.wikipedia.org/wiki/Kategoria_Superiore",
+  "https://en.wikipedia.org/wiki/2025%E2%80%9326_Kategoria_Superiore"
+ ],
+ "leagues": [
+  {
+   "id": "ALB1",
+   "name": "Kategoria Superiore",
+   "level": 1,
+   "size": 10,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 36,
+    "note": "10 clubs play each other four times (36 matches each). The season table also marks 1st-6th as a Championship round and 7th-10th as a Relegation round, but no second-phase round count exists in any source and the 21 Aug 2026 - 9 May 2027 calendar cannot hold one, so the split is not modelled."
+   },
+   "playoff": {
+    "kind": "relegation",
+    "entries": "9th",
+    "legs": 1,
+    "note": "9th plays the loser of the Kategoria e Pare promotion play-off final for the last top-flight place; 10th is relegated directly."
+   }
+  },
+  {
+   "id": "ALB2",
+   "name": "Kategoria e Pare",
+   "level": 2,
+   "size": 12,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "single",
+    "rounds": 33,
+    "note": "double round-robin (rounds 1-22) plus a third meeting (rounds 23-33)"
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "3-6",
+    "legs": 1,
+    "note": "semi-finals and final over one match; the winner is promoted, the final loser then meets the Kategoria Superiore 9th. 11th and 12th are relegated, 9th and 10th play a relegation play-out."
+   }
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 2,
+   "up_playoff": 1,
+   "down": 2,
+   "down_playoff": 1,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "Two clubs go up directly and the play-off winner is the third. Down: 10th directly, 9th through a one-off against that play-off's final loser. The published movement does not balance (3 up, 2 down) because the 2026-27 top-flight format is mid-reform; no source names a third relegated club. | balanced to keep league sizes after a source conflict."
+  }
+ ],
+ "conflicts": [
+  {
+   "league": "ALB1",
+   "field": "format",
+   "ours": "single table, 36 rounds",
+   "real": "36 rounds plus announced Championship/Relegation rounds (top 6 / bottom 4)",
+   "note": "Both the English and Albanian 2026-27 articles mark the split and link to sections that do not exist; neither gives a round count for it. Treated as an announcement, not a format."
+  },
+  {
+   "league": "ALB1",
+   "field": "relegation",
+   "ours": "9th and 10th relegated, no play-out",
+   "real": "10th relegated directly, 9th plays the Kategoria e Pare play-off final loser",
+   "note": "The Albanian league overview still states the old rule (bottom two down, no play-out); the 2026-27 Kategoria e Pare article describes the play-off for 9th."
+  },
+  {
+   "league": "ALB1-ALB2",
+   "field": "promotion_relegation",
+   "ours": "3 promoted, 2 relegated",
+   "real": "3 promoted (2 direct + 1 play-off) against 2 documented relegation places",
+   "note": "The two directions cannot both be true for a 10-club league; the missing place is not documented in any source read."
+  }
+ ],
+ "confidence": "low",
+ "notes": "Sizes and levels match our rows (10 and 12) and are solid for 2026-27. Kategoria Superiore: 36 matches each (four meetings) is stated by both wikis; the top-6/bottom-4 'Championship round'/'Relegation round' markers are not backed by any round structure and are not modelled. 2025-26 used a different relegation shape (8th in the play-off, 9th-10th down), so history seeded from last season will not match. Kategoria e Pare: 33 rounds (22+11), top two up, 3rd-6th play-off, 11th-12th down, 9th-10th play-out. Kategoria e Dyte (level 3) is outside our dataset. The federation's format-change announcement on fshf.org could not be loaded (timeouts)."
+}

@@ -1,0 +1,57 @@
+{
+  "country": "Georgia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Erovnuli_Liga",
+    "https://en.wikipedia.org/wiki/Erovnuli_Liga",
+    "https://en.wikipedia.org/wiki/Erovnuli_Liga_2"
+  ],
+  "leagues": [
+    {
+      "id": "GE1N",
+      "name": "Erovnuli Liga",
+      "level": 1,
+      "size": 10,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 36 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "8th vs 3rd of Erovnuli Liga 2, 9th vs 2nd of Erovnuli Liga 2",
+        "legs": 2,
+        "note": "10th is relegated directly; both play-off ties are two-legged."
+      }
+    },
+    {
+      "id": "GEO2",
+      "name": "Erovnuli Liga 2",
+      "level": 2,
+      "size": 10,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 36 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd and 3rd in Erovnuli Liga 2 vs 9th and 8th in Erovnuli Liga",
+        "legs": 2,
+        "note": "Winner is promoted directly; runner-up and 3rd go into two-legged play-offs. Last place is relegated to Liga 3."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 3,
+      "up_playoff": 2,
+      "down": 3,
+      "down_playoff": 2,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "10-club divisions, four meetings each. Liga 2 champion up; 9th and 8th of Liga 1 meet the Liga 2 2nd and 3rd over two legs. 10th of Liga 1 goes down directly, and the Liga 2 last place drops to Liga 3."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Calendar-year league (February-December 2026); '2026-27' is only the dataset label. Both divisions have 10 clubs playing each other four times (36 matches). Erovnuli Liga is branded Crystalbet Erovnuli Liga. Liga 3 exists below Erovnuli Liga 2 but is not in our rows. 2026 movement: Rustavi up as champions, Spaeri and Meshakhte up through the play-offs (beating Gareji and Telavi), Kolkheti down directly."
+}

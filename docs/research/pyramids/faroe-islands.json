@@ -1,0 +1,60 @@
+{
+  "country": "Faroe Islands",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Faroe_Islands_Premier_League",
+    "https://en.wikipedia.org/wiki/1._deild",
+    "https://en.wikipedia.org/wiki/2025_1._deild"
+  ],
+  "leagues": [
+    {
+      "id": "FARO",
+      "name": "Meistaradeildin (Premier League)",
+      "level": 1,
+      "size": 10,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 27, "note": "Triple round-robin: 10 clubs meet three times (27 matches). Extra home games are drawn before the season. Calendar-year, March-October." },
+      "playoff": null
+    },
+    {
+      "id": "FAR2",
+      "name": "1. deild",
+      "level": 2,
+      "size": 10,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 27, "note": "Triple round-robin, 27 matches. Field is dominated by reserve sides (B36 II, HB II, KI II, Vikingur II, NSI II, etc.)." },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Two direct places each way: bottom two of the Premier League are relegated, top two of 1. deild promoted. No play-off (one existed from 1995 to 2005). Only non-reserve clubs can be promoted; if a relegated club already has a reserve side in 1. deild, that reserve side drops a division instead, which reprieves another club."
+    }
+  ],
+  "conflicts": [
+    {
+      "topic": "Reserve teams make promotion conditional",
+      "detail": "1. deild is mostly reserve sides. A reserve team cannot be promoted, and there is only relegation from the top flight if at least one non-reserve club finishes in the 1. deild top three. If the top two are both reserve sides, the third-placed eligible club comes up instead."
+    },
+    {
+      "topic": "Cascading reserve relegation",
+      "detail": "If a club is relegated from the Premier League and already has a reserve team in 1. deild, the reserve team is moved down a division to make room. That can save another club from relegation, so the nominal 2 down / 2 up is not always 2/2 in practice."
+    },
+    {
+      "topic": "Triple round-robin, not double",
+      "detail": "Both levels are 10 clubs playing each other three times (27 matches), with the extra home games drawn before the season rather than decided by the previous table. A double round-robin model (18) understates the season by a third."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Calendar-year 2026 season, complete at the research date. Sizes 10/10 and levels match our rows. 1. deild relegates two to the 2. deild (level 3, not modelled). Cups and UEFA competitions excluded."
+}

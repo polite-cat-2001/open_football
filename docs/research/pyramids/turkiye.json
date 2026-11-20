@@ -1,0 +1,29 @@
+{
+  "country": "Türkiye",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/S%C3%BCper_Lig",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_S%C3%BCper_Lig",
+    "https://en.wikipedia.org/wiki/TFF_1._Lig",
+    "https://tr.wikipedia.org/wiki/U19_Elit_A_Ligi"
+  ],
+  "leagues": [
+    {"id": "TR1", "name": "Süper Lig", "level": 1, "size": 18, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 34},
+     "playoff": null},
+    {"id": "T191", "name": "U19 Süper Lig", "level": 99, "size": 18, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 34,
+      "stages": [
+        {"name": "regular", "teams": 18, "rounds": 34, "kind": "double_round_robin", "note": "fixture list mirrors the senior Süper Lig"},
+        {"name": "turkiye_finalleri", "teams": 8, "kind": "single_elimination", "note": "top 8: 1v8, 2v7, 3v6, 4v5; semi-final pairings drawn; neutral venues; third-place match"}]},
+     "playoff": {"kind": "title", "entries": "1-8", "legs": 1,
+      "note": "champion qualifies for the UEFA Youth League"}}
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {"league": "T191", "field": "level", "ours": "99 (youth/reserve sentinel)", "real": "not on the pyramid at all",
+     "note": "U19 Süper Lig is the Süper Lig clubs' youth competition: entry is compulsory for the 18 senior clubs, fixtures mirror the senior list, no promotion or relegation. Keep it at level 99 and closed both ways; the field changes only when a senior club goes up or down."}
+  ],
+  "confidence": "high",
+  "notes": "Süper Lig: 18 clubs since 2025-26, 34 rounds, bottom three relegated directly. The TFF 1. Lig (level 2, not in our rows) has 20 clubs and promotes 3: champion and runner-up directly, 3rd-7th into a play-off (3rd straight to the final, 4th-7th single games at the higher seed, two legs in the semi-finals, neutral final); it relegates four to the 2. Lig. Because level 2 is not a row, TR1 carries closed_down=true and no boundary object exists for 1-2. U19: 34 matches, top eight into the Türkiye Finalleri, U19 squad limits are 16-19 with at most five 20-21-year-olds and one foreigner."
+}

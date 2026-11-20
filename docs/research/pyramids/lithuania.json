@@ -1,0 +1,72 @@
+{
+  "country": "Lithuania",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Toplyga",
+    "https://en.wikipedia.org/wiki/I_Lyga",
+    "https://en.wikipedia.org/wiki/II_Lyga"
+  ],
+  "leagues": [
+    {
+      "id": "LI1",
+      "name": "Toplyga",
+      "level": 1,
+      "size": 10,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 36 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "9th in TOPLYGA vs 2nd in I Lyga",
+        "legs": 2,
+        "note": "Two-legged tie for the last place in next season's TOPLYGA."
+      }
+    },
+    {
+      "id": "LTU2",
+      "name": "I Lyga",
+      "level": 2,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": null },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd in I Lyga vs 9th in TOPLYGA",
+        "legs": 2,
+        "note": "Same tie from the other side; 3rd-last also plays a play-off against the 3rd-placed II Lyga club for a I Lyga place."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "I Lyga champion goes up, TOPLYGA 10th goes down directly; I Lyga 2nd meets TOPLYGA 9th over two legs for the second place, so only one of the two clubs in that tie plays in the top flight next season."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "LTU2",
+      "field": "size",
+      "ours": "16",
+      "real": "18",
+      "note": "The I Lyga infobox still says 16 clubs, but the approved 2026 participant list on the same page has 18 (including six B teams). Used 18 for the season."
+    },
+    {
+      "league": "LI1",
+      "field": "name",
+      "ours": "Toplyga",
+      "real": "TOPLYGA",
+      "note": "Correct: the A Lyga was renamed TOPLYGA from 2026. Only the capitalisation differs."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Calendar-year season (Feb-Nov 2026), so '2026' is the dataset label rather than the 2026-27 career year. TOPLYGA: 10 clubs, four rounds (36 matches) - clubs played 32 in 2026 because Riteriai withdrew and their results were annulled, and were relegated. The 9th-place play-off against the I Lyga runner-up (Minija) was still being played on 20 Nov 2026. II Lyga (level 3, two divisions, 16 + 12) is below our list: I Lyga's bottom two go down and 3rd-last plays a play-off, but LTU2 is closed_down in our data because we do not carry level 3. Reserve (B) teams are numerous in I Lyga and cannot be promoted above it."
+}

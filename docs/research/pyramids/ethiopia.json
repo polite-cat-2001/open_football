@@ -1,0 +1,37 @@
+{
+  "country": "Ethiopia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Ethiopian_Premier_League",
+    "https://en.wikipedia.org/wiki/2024%E2%80%9325_Ethiopian_Premier_League"
+  ],
+  "leagues": [
+    {
+      "id": "ETP1",
+      "name": "Ethiopian Premier League",
+      "level": 1,
+      "size": 20,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 38, "note": "Double round-robin, 38 matches, one table, no split. Season runs November-May." },
+      "playoff": null
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "topic": "Our row says 18, the league now has 20",
+      "detail": "2024-25 was an 18-club season (18-team table, two relegated). The league expanded to 20 for 2025-26 and the league's own infobox and format section now describe 20 clubs and 38 games. Our row is one season stale."
+    },
+    {
+      "topic": "No 2026-27 season article exists yet",
+      "detail": "The 2026-27 season has started (November 2026) but has no Wikipedia article, so the 2026-27 size of 20 is inferred from the league page describing the current (2025-26) season as 20 clubs. It is not confirmed by a 2026-27 club list."
+    },
+    {
+      "topic": "Single row, so closed both ways",
+      "detail": "Three clubs are relegated to the Ethiopian Higher League each season, but that league is not in our data, so the report marks the downward direction closed."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Season 2026-27 (November 2026 - May 2027). The league is a plain 20-club double round-robin (38 matches), three relegated. Our row's level is right; its size (18) is one season out of date. No split, no play-offs, no reserve-team complications. Cups and CAF competitions excluded."
+}

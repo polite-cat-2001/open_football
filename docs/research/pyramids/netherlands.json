@@ -1,0 +1,122 @@
+{
+  "country": "Netherlands",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Eredivisie",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Eerste_Divisie",
+    "https://en.wikipedia.org/wiki/Eerste_Divisie",
+    "https://en.wikipedia.org/wiki/Tweede_Divisie",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Tweede_Divisie",
+    "https://en.wikipedia.org/wiki/Derde_Divisie"
+  ],
+  "leagues": [
+    {
+      "id": "NL1",
+      "name": "Eredivisie",
+      "level": 1,
+      "size": 18,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "16th in the Eredivisie vs six Eerste Divisie clubs",
+        "legs": 2,
+        "note": "Nacompetitie: two pools, the 16th joins at the semi-final stage; one Eredivisie place at stake."
+      }
+    },
+    {
+      "id": "NL2",
+      "name": "Keuken Kampioen Divisie",
+      "level": 2,
+      "size": 20,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 38 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "3rd-8th (four period champions plus the two best-placed others)",
+        "legs": 2,
+        "note": "Knockout with the Eredivisie 16th for one Eredivisie place. Reserve (Jong) teams are ineligible."
+      }
+    },
+    {
+      "id": "NTD",
+      "name": "Tweede Divisie",
+      "level": 3,
+      "size": 18,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "14th and 15th (of the first teams) vs the Derde Divisie period champions",
+        "legs": 2,
+        "note": "The 16th goes down direct; 14th/15th play off for one further place."
+      }
+    },
+    {
+      "id": "510",
+      "name": "Derde Divisie A",
+      "level": 4,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "groups", "groups": 2, "rounds": 34 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 3,
+      "up_playoff": 1,
+      "down": 3,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Eerste Divisie: champion and runner-up up direct, 3rd-8th into the nacompetitie. Eredivisie: 17th and 18th down direct, 16th into the nacompetitie. Three places, one contested; if the 16th survives, only two clubs change level. Jong teams cannot take the promotion place."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 0,
+      "up_playoff": 0,
+      "down": 0,
+      "down_playoff": 0,
+      "allocation": "none",
+      "selection": "other",
+      "note": "Closed by KNVB decision (June 2022): promotion and relegation between the Eerste and Tweede Divisie is suspended for first teams for 5-10 seasons. Only one exchange survives, between the lowest-ranked Jong team in the Eerste Divisie and the best reserve team in the Tweede Divisie."
+    },
+    {
+      "upper": 3,
+      "lower": 4,
+      "up": 3,
+      "up_playoff": 1,
+      "down": 3,
+      "down_playoff": 2,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "The two Derde Divisie champions (A and B) are promoted mandatorily. The Tweede Divisie 16th goes down direct; the 14th and 15th join the Derde Divisie period champions in a play-off for one further place, so the real totals move between 2 and 3 each way."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "NL2-NTD",
+      "field": "closed",
+      "ours": "open pyramid",
+      "real": "closed for first teams",
+      "note": "The Eerste Divisie has had no sporting relegation since 2022 (KNVB suspension for 5-10 seasons). A Tweede Divisie amateur champion is not promoted; 2025-26 champions Quick Boys stayed put."
+    },
+    {
+      "league": "510",
+      "field": "id",
+      "ours": "510",
+      "real": "Derde Divisie A (one of two level-4 divisions)",
+      "note": "The id is opaque but the mapping is right. Level 4 is two parallel divisions, A and B, 18 clubs each; we carry only A."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Netherlands runs an August-May season. Eredivisie 18 clubs / 34 rounds; Eerste Divisie 20 / 38; Tweede Divisie 18 / 34; Derde Divisie two divisions of 18 / 34. Eerste Divisie promotion play-offs are seeded by the four period titles (quarters of the season) plus the two best-placed clubs not already qualified, so the entrants are usually 3rd-8th but not always. Tweede Divisie relegation is counted on first teams only, with a separate reserve-team route to the Under-21 division. Below the Derde Divisie sits the Vierde Divisie, not modelled, so 510 is closed_down in our data."
+}

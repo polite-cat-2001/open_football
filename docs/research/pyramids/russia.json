@@ -1,0 +1,80 @@
+{
+ "country": "Russia",
+ "season": "2026-27",
+ "sources": [
+  "https://ru.wikipedia.org/wiki/Система_футбольных_лиг_России",
+  "https://ru.wikipedia.org/wiki/Чемпионат_России_по_футболу_2026/2027",
+  "https://ru.wikipedia.org/wiki/Первая_лига_России_по_футболу_2026/2027",
+  "https://ru.wikipedia.org/wiki/Вторая_лига_России_по_футболу_2026/2027_(дивизион_«А»)",
+  "https://ru.wikipedia.org/wiki/Вторая_лига_России_по_футболу_2026_(дивизион_«Б»)",
+  "https://en.wikipedia.org/wiki/Football_in_Russia",
+  "https://en.wikipedia.org/wiki/2026–27_Russian_Second_League_Division_A",
+  "https://en.wikipedia.org/wiki/2026_Russian_Second_League_Division_B"
+ ],
+ "leagues": [
+  {
+   "id": "RU1",
+   "name": "Premier Liga",
+   "level": 1,
+   "size": 16,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  },
+  {
+   "id": "RU2",
+   "name": "1.Division",
+   "level": 2,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  },
+  {
+   "id": "R3D1",
+   "name": "2. Division A (Phase 1)",
+   "level": 3,
+   "size": 17,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  },
+  {
+   "id": "2DVB",
+   "name": "2. Division B",
+   "level": 4,
+   "size": 59,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": ""
+   },
+   "playoff": null
+  }
+ ],
+ "boundaries": [],
+ "conflicts": [
+  "2DVB is one row for 4 parallel leagues: the 2026 Division B is 59 clubs in 4 geographic groups (Group 1: 16, Group 2: 15, Group 3: 16, Group 4: 12), each with its own champion, its own single promotion place and its own relegation quota (1 / 2 / 2 / 2). Group 4 additionally splits into subgroups 4A/4B after its summer stage. One row can only hold the aggregate.",
+  "Season phase: Division B runs March-November on a calendar-year cycle (2026 season), while RU1/RU2/R3D1 run July-June (2026/27). There is no 2026-27 Division B season, so the row's season label points at the 2026 season, which overlaps but does not coincide.",
+  "R3D1 'Phase 1' is not a phase of a league, it is one stage of a single competition: Division A is played as an autumn first stage (17 clubs: 10 gold + 7 silver, because Chernomorets, Chayka and Kuban failed licensing) and a spring second stage (20 clubs: 2x10, after 4 clubs come up from Division B and 1 goes down). The gold/silver split and the mid-season 4-in/1-out rotation cannot be expressed by one row.",
+  "Promotion from Division B to Division A happens in the winter (November/March), not at the end of the season, so end-of-season-only rotation logic places the 4 promoted clubs half a season late.",
+  "There is no relegation from Division A or promotion to it at the end of 2026-27; the FNL moved the A/B rotation to the winter window. A model that demotes the 2 bottom clubs in June 2027 would be wrong.",
+  "The bottom edge of the pyramid is missing: Division B relegates to the amateur Third League (tier 5, no row in our DB) and entry is by licensing application, not automatic promotion - 7 clubs left Division B for tier 5 at the end of 2026 (Dynamo-2 Makhachkala, Iskra, Irkutsk, Arsenal-2, Kvant, Ural-2, Chelyabinsk-2).",
+  "Naming: '1.Division' is the pre-2022 name of RU2; since 2022 it is the First League (Первая лига), just as the old '2. Division' became Second League Division A/B in 2023."
+ ],
+ "confidence": "high",
+ "notes": "Tier 3 reality: Division A = 20-club competition in two 10-club groups (gold/silver) per season, but the 2026-27 autumn (first) stage started with 17 (gold 10, silver 7) after Chernomorets and Chayka were refused Second League licences and Kuban failed licensing; the spring (second) stage returns to 20 because the 4 Division B group winners join silver while Irtysh Omsk drops out. The row is reported with 17 because it is labelled 'Phase 1'; 20 is the competition's design size. Tier 4 reality: Division B 2026 = 59 clubs, 4 groups, 16/15/16/12 at the start, 57 finishing because PSK (Group 1, results annulled) and Irkutsk (Group 2) withdrew mid-season. Promotion/relegation between Division B and Division A works per group, not per league: each group winner goes up to the Division A spring silver group (4 clubs up), and the two bottom clubs of the Division A spring silver group go down in the winter window (only 1 went down in this cycle because silver was undersized). Within Division B there is no promotion between groups - group membership is geographic and re-drawn each season - and the 'Final Four' of the 4 group winners (won by Spartak Tambov) awards the Division B title only, with no promotion effect. Relegation from Division B is per group (bottom 1 in Group 1, bottom 2 in Groups 2 and 3, bottom 2 of subgroup 4B in Group 4) into the amateur Third League, by decision/licensing rather than automatic exchange. The only play-off anywhere above tier 4 is internal to a division: Division A's promotion play-off for the third First League place (Veles won it) and Division A's relegation play-off, whose loser (Irtysh) fell to Division B - so 2026-27 is the only cycle where 'playoff_clubs' is non-zero, and none of it involves clubs from the league above."
+}

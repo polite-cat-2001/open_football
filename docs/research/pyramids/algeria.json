@@ -1,0 +1,17 @@
+{
+  "country": "Algeria",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Algerian_Ligue_Professionnelle_1",
+    "https://en.wikipedia.org/wiki/Algerian_Ligue_Professionnelle_1"
+  ],
+  "leagues": [
+    {"id": "ALG1", "name": "Ligue Professionnelle 1", "level": 1, "size": 16, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": null}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "16 clubs, 30-round double round-robin, bottom three (14th-16th) relegated directly. The replacements come from League 2: its two best clubs plus a play-off winner, which is how JS El Biar, US Biskra and CR Temouchent came up for 2026-27. League 2 is regionalised and is not in our rows, so it is not modelled and the league is closed downwards in our data; there is no promotion/relegation play-off involving a Ligue 1 club. No cups or CAF places included."
+}

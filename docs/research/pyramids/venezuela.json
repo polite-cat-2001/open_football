@@ -1,0 +1,39 @@
+{
+  "country": "Venezuela",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Liga_FUTVE",
+    "https://en.wikipedia.org/wiki/2026_Liga_FUTVE",
+    "https://en.wikipedia.org/wiki/Liga_FUTVE_2"
+  ],
+  "leagues": [
+    {"id": "VZ1C", "name": "Liga FUTVE Clausura", "level": 1, "size": 14, "closed_up": true, "closed_down": false,
+     "format": {"kind": "apertura_clausura", "rounds": 13, "points_carry": "none",
+      "stages": [
+        {"name": "regular", "teams": 14, "rounds": 13, "kind": "single_round_robin", "note": "run twice, once as Torneo Apertura and once as Torneo Clausura; the table resets between them"},
+        {"name": "final_stages", "teams": 8, "kind": "two_groups_of_four", "note": "top 8 split into two groups, seeded 1st and 2nd; single round-robin of three matches per group"},
+        {"name": "half_final", "teams": 2, "kind": "single_match", "note": "group winners meet, hosted by the better-placed finalist"},
+        {"name": "grand_final", "teams": 2, "kind": "single_match", "note": "Apertura winner vs Clausura winner for the season title"}]},
+     "playoff": {"kind": "title", "entries": "top 8", "legs": 1,
+      "note": "per tournament: two groups of four then a final; the two tournament winners meet in the season's grand final"}},
+    {"id": "VN2A", "name": "Liga FUTVE 2", "level": 2, "size": 17, "closed_up": false, "closed_down": true,
+     "format": {"kind": "other", "note": "format not verified; the season ends with a final (2025: Trujillanos beat Titanes), so promotion is decided by a play-off rather than a plain table"},
+     "playoff": {"kind": "promotion", "entries": null, "legs": null,
+      "note": "champion promoted; the deciding final implies a play-off finish, exact bracket not verified"}}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 1, "up_playoff": 0, "down": 1, "down_playoff": 0,
+     "allocation": "free", "selection": "average_table",
+     "note": "One promotion place and one relegation place. Relegation is decided on an aggregate table covering Apertura and Clausura (2025: Yaracuyanos last; 2026: Anzoategui already down). The promoted club comes through the second tier's final, so it is a play-off winner in practice."}
+  ],
+  "conflicts": [
+    {"league": "VZ1C", "field": "structure", "ours": "one league named after the Clausura", "real": "one 14-club competition played as two tournaments (Apertura, Clausura), each with a top-8 group phase and a final",
+     "note": "The Clausura is the second half of the same league, not a separate division. Model two 13-round tournaments inside VZ1C, with the table resetting at mid-year and an aggregate table only for relegation."},
+    {"league": "VZ1C", "field": "relegation", "ours": "not encoded", "real": "one club in 2025 and 2026",
+     "note": "The league article still says the two lowest are relegated; the last two seasons relegated exactly one (Yaracuyanos 2025, Anzoategui 2026). Use one."},
+    {"league": "VN2A", "field": "size", "ours": "17", "real": "16 per the league infobox",
+     "note": "No 2026 season page exists, so 17 could not be verified. Treated as our figure with a flag rather than corrected."}
+  ],
+  "confidence": "medium",
+  "notes": "Calendar-year season (29 January - December). Level 1 is 14 clubs: Apertura and Clausura, each a 13-match single round-robin, then the top eight in two groups of four (three matches each) and a single final; the two tournament winners meet in the season's grand final. Points do not carry between tournaments or into the group phase, and the only aggregate table is the one used for relegation. Relegation is one club in recent practice, not two. Level 2 (Liga FUTVE 2) has 16 clubs per its infobox against 17 in our row, and its 2026 format could not be verified - it ends in a final, so promotion is a play-off, not a table place. Tercera Division (level 3) is outside the model, hence VN2A closed_down. Confidence is medium only because of the unverified level-2 size and format."
+}

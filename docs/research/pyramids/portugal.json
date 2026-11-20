@@ -1,0 +1,322 @@
+{
+ "country": "Portugal",
+ "season": "2026-27",
+ "sources": [
+  "https://pt.wikipedia.org/wiki/Primeira_Liga",
+  "https://pt.wikipedia.org/wiki/Segunda_Liga",
+  "https://pt.wikipedia.org/wiki/Liga_3",
+  "https://pt.wikipedia.org/wiki/Campeonato_de_Portugal_(liga)",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Primeira_Liga",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_Portugal_2",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_3_(Portugal)",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Campeonato_de_Portugal",
+  "https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_3_(Portugal)",
+  "https://en.wikipedia.org/wiki/2025%E2%80%9326_Campeonato_de_Portugal",
+  "https://en.wikipedia.org/wiki/Liga_3_(Portugal)"
+ ],
+ "leagues": [
+  {
+   "id": "PO1",
+   "name": "Liga Portugal (Primeira Liga)",
+   "level": 1,
+   "size": 18,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": {
+    "kind": "relegation",
+    "entries": "16th",
+    "legs": 2,
+    "note": "Two legs against the 3rd of Liga Portugal 2; the loser plays in Liga Portugal 2. This is the same tie as Liga Portugal 2's promotion play-off, not a second slot."
+   }
+  },
+  {
+   "id": "PO2",
+   "name": "Liga Portugal 2",
+   "level": 2,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "3rd",
+    "legs": 2,
+    "note": "Two legs against the 16th of the Primeira Liga. The league also runs a relegation play-off (16th v 3rd of Liga 3, two legs). Reserve teams (Sporting B, Benfica B, Porto B) cannot be promoted."
+   }
+  },
+  {
+   "id": "PT3A",
+   "name": "Liga 3",
+   "level": 3,
+   "size": 20,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "split",
+    "rounds": 18,
+    "split_after": 18,
+    "groups": 2,
+    "points_carry": false,
+    "stages": [
+     {
+      "name": "first stage",
+      "clubs": 20,
+      "series": 2,
+      "rounds": 18,
+      "note": "Two geographic series of 10: Série A north, Série B south."
+     },
+     {
+      "name": "promotion stage",
+      "clubs": 8,
+      "series": 1,
+      "rounds": 14,
+      "start_points": 0,
+      "note": "Top 4 of each series. Points start at zero - nothing carries over."
+     },
+     {
+      "name": "relegation stage",
+      "clubs": 12,
+      "series": 2,
+      "rounds": 10,
+      "start_points": "bonus 9..1 by first-stage position",
+      "note": "Positions 5-10 of each series. Bonus points ranked across both series: best 5th 9, worst 5th / best 6th 8, worst 6th 7, 7th 6, best 8th 5, worst 8th 4, best 9th 3, worst 9th 2, 10th 1."
+     }
+    ]
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "3rd of the promotion stage",
+    "legs": 2,
+    "note": "Two legs against the 16th of Liga Portugal 2 for the last place in the second tier."
+   }
+  },
+  {
+   "id": "CPSA",
+   "name": "Campeonato de Portugal, Série A",
+   "level": 4,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "groups",
+    "groups": 4,
+    "rounds": 26,
+    "points_carry": false,
+    "stages": [
+     {
+      "name": "series stage",
+      "clubs": 56,
+      "series": 4,
+      "rounds": 26
+     },
+     {
+      "name": "promotion groups",
+      "clubs": 8,
+      "groups": 2,
+      "rounds": 6,
+      "start_points": 0,
+      "note": "Top 2 of each series; two groups of four, double round-robin."
+     }
+    ]
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "top 2 of each series (8 clubs)",
+    "legs": 1,
+    "note": "Not a knockout tie: two groups of four play a double round-robin (6 matches each) from zero; the top 2 of each group are promoted (4 in total). Group winners play a one-off championship final."
+   }
+  },
+  {
+   "id": "CPSB",
+   "name": "Campeonato de Portugal, Série B",
+   "level": 4,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "groups",
+    "groups": 4,
+    "rounds": 26,
+    "points_carry": false,
+    "stages": [
+     {
+      "name": "series stage",
+      "clubs": 56,
+      "series": 4,
+      "rounds": 26
+     },
+     {
+      "name": "promotion groups",
+      "clubs": 8,
+      "groups": 2,
+      "rounds": 6,
+      "start_points": 0,
+      "note": "Top 2 of each series; two groups of four, double round-robin."
+     }
+    ]
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "top 2 of each series (8 clubs)",
+    "legs": 1,
+    "note": "Not a knockout tie: two groups of four play a double round-robin (6 matches each) from zero; the top 2 of each group are promoted (4 in total)."
+   }
+  },
+  {
+   "id": "CPSC",
+   "name": "Campeonato de Portugal, Série C",
+   "level": 4,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "groups",
+    "groups": 4,
+    "rounds": 26,
+    "points_carry": false,
+    "stages": [
+     {
+      "name": "series stage",
+      "clubs": 56,
+      "series": 4,
+      "rounds": 26
+     },
+     {
+      "name": "promotion groups",
+      "clubs": 8,
+      "groups": 2,
+      "rounds": 6,
+      "start_points": 0,
+      "note": "Top 2 of each series; two groups of four, double round-robin."
+     }
+    ]
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "top 2 of each series (8 clubs)",
+    "legs": 1,
+    "note": "Not a knockout tie: two groups of four play a double round-robin (6 matches each) from zero; the top 2 of each group are promoted (4 in total)."
+   }
+  },
+  {
+   "id": "CPSD",
+   "name": "Campeonato de Portugal, Série D",
+   "level": 4,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "groups",
+    "groups": 4,
+    "rounds": 26,
+    "points_carry": false,
+    "stages": [
+     {
+      "name": "series stage",
+      "clubs": 56,
+      "series": 4,
+      "rounds": 26
+     },
+     {
+      "name": "promotion groups",
+      "clubs": 8,
+      "groups": 2,
+      "rounds": 6,
+      "start_points": 0,
+      "note": "Top 2 of each series; two groups of four, double round-robin."
+     }
+    ]
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "top 2 of each series (8 clubs)",
+    "legs": 1,
+    "note": "Not a knockout tie: two groups of four play a double round-robin (6 matches each) from zero; the top 2 of each group are promoted (4 in total)."
+   }
+  },
+  {
+   "id": "PT23",
+   "name": "Liga Next Gen U23",
+   "level": 99,
+   "size": 20,
+   "closed_up": true,
+   "closed_down": true,
+   "format": null,
+   "playoff": null
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 3,
+   "up_playoff": 1,
+   "down": 3,
+   "down_playoff": 1,
+   "allocation": "free",
+   "selection": "playoff",
+   "note": "2 direct in each direction (top 2 of Liga Portugal 2 up, 17th-18th of the Primeira Liga down) plus one shared two-legged tie: 16th of the Primeira Liga v 3rd of Liga Portugal 2. One club moves through that tie, so 3 up and 3 down are not independent."
+  },
+  {
+   "upper": 2,
+   "lower": 3,
+   "up": 3,
+   "up_playoff": 1,
+   "down": 3,
+   "down_playoff": 1,
+   "allocation": "free",
+   "selection": "playoff",
+   "note": "2 direct (promotion-stage 1st and 2nd up; Liga Portugal 2 17th-18th down) plus one shared two-legged tie: 3rd of the Liga 3 promotion stage v 16th of Liga Portugal 2."
+  },
+  {
+   "upper": 3,
+   "lower": 4,
+   "up": 4,
+   "up_playoff": 0,
+   "down": 4,
+   "down_playoff": 0,
+   "allocation": "by_geography",
+   "selection": "other",
+   "note": "Fixed 4/4, no play-off. Down from Liga 3: bottom 2 of each of its two relegation series. Up from the Campeonato de Portugal: top 2 of each of the two promotion groups (the groups are filled by the top 2 of each of the four geographic series). A club crossing this boundary is then placed in the north (Série A) or south (Série B) Liga 3 series, or in the Campeonato de Portugal series covering its district association."
+  }
+ ],
+ "conflicts": [
+  {
+   "topic": "Liga 3 is not a single 20-club table",
+   "detail": "PT3A is stored as one league of 20 at level 3. In reality it is two geographic series of 10 (18 rounds) that then split: top 4 of each into a single 14-round promotion stage, positions 5-10 into two 6-club relegation series (10 rounds). Treating it as one table with 34 rounds and 3 relegations produces wrong fixtures and wrong promotion places (2 direct + 1 play-off, not 3 down)."
+  },
+  {
+   "topic": "Points carry differently in the two second phases",
+   "detail": "Nothing carries into the Liga 3 promotion stage (verified on the completed 2025-26 stage: 8 clubs, 14 matches each, no bonus). The relegation stage starts with bonus points 9 down to 1 based on first-stage position. A single boolean cannot express this; JSON keeps points_carry=false for the promotion path and documents the relegation bonus in stages."
+  },
+  {
+   "topic": "Campeonato de Portugal promotion is not 'series winners go up'",
+   "detail": "Top 2 of each of the four series (8 clubs) advance to two groups of four; only the top 2 of each group (4 clubs) are promoted. Four clubs also come down from Liga 3, so the level 3-4 boundary is a fixed 4/4 with no play-off."
+  },
+  {
+   "topic": "Levels 1-2 share a single play-off slot",
+   "detail": "16th of the Primeira Liga v 3rd of Liga Portugal 2 is one two-legged tie that decides one promotion and one relegation. Counting it as a separate up-place and down-place double-counts the movement."
+  },
+  {
+   "topic": "Reserve teams at level 2",
+   "detail": "Sporting B, Benfica B and Porto B play in Liga Portugal 2 and cannot be promoted to the Primeira Liga (they can be relegated, and go down automatically if the senior side is). A naive top-2 promotion rule will promote an ineligible club."
+  },
+  {
+   "topic": "Source disagreement on Liga Portugal 2 promotion places",
+   "detail": "The 2026-27 English Wikipedia standings mark result1=PL, result3=PL, result5=PO, which contradicts the Portuguese prose (top 2 promoted, 3rd to the play-off). The prose is used here; the wiki table looks mis-keyed."
+  },
+  {
+   "topic": "Campeonato de Portugal relegation line changed in 2026-27",
+   "detail": "2025-26: bottom five of each series (10th-14th) relegated directly, 20 clubs in total. 2026-27: 13th-14th direct, 11th-12th to relegation play-offs. Below the modelled floor (level 4 -> district championships), recorded as a note only. District intake is not fixed (24 in 2025-26, 20 in 2026-27)."
+  }
+ ],
+ "confidence": "high",
+ "notes": "All four database rows (18/18/20/14x4) match the real 2026-27 sizes and levels; the shapes at levels 3 and 4 do not. Season is in progress (mid-November 2026), so the counts above are the regulatory rules, not final outcomes. Levels 1 and 2 are plain 18-club double round-robins (34 rounds). Level 4 -> district championships is out of scope. Cups and UEFA competitions excluded."
+}

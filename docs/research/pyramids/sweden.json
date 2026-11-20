@@ -1,0 +1,98 @@
+{
+  "country": "Sweden",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Allsvenskan",
+    "https://en.wikipedia.org/wiki/2026_Superettan",
+    "https://en.wikipedia.org/wiki/Ettan_Fotboll"
+  ],
+  "leagues": [
+    {
+      "id": "SE1",
+      "name": "Allsvenskan",
+      "level": 1,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "14th of Allsvenskan vs winner of the Superettan 3rd-v-4th tie",
+        "legs": 2,
+        "note": "15th and 16th are relegated directly; 14th defends its place over two legs against the winner of the Superettan 3rd-v-4th tie."
+      }
+    },
+    {
+      "id": "SE2",
+      "name": "Superettan",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "3rd-4th (promotion); 13th-14th (relegation)",
+        "legs": 2,
+        "note": "3rd hosts 4th over two legs and the winner meets the Allsvenskan 14th. Separately, 13th and 14th each play one of the two Ettan runners-up over two legs; the two ties are independent."
+      }
+    },
+    {
+      "id": "SE3N",
+      "name": "Ettan Norra",
+      "level": 3,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd",
+        "legs": 2,
+        "note": "The winner goes up directly; the runner-up plays one of Superettan's 13th/14th over two legs. The 13th-placed club also plays a Division 2 play-off winner, and the bottom three go down (level 4 not modelled)."
+      }
+    },
+    {
+      "id": "SE3S",
+      "name": "Ettan Södra",
+      "level": 3,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd",
+        "legs": 2,
+        "note": "The winner goes up directly; the runner-up plays one of Superettan's 13th/14th over two legs. The 13th-placed club also plays a Division 2 play-off winner, and the bottom three go down (level 4 not modelled)."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 3,
+      "up_playoff": 1,
+      "down": 3,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Superettan: top 2 direct, 3rd v 4th over two legs, that winner meets the Allsvenskan 14th over two legs. Allsvenskan: 15th-16th direct down, 14th only through the shared tie. One place moves through the play-off."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 4,
+      "up_playoff": 2,
+      "down": 4,
+      "down_playoff": 2,
+      "allocation": "by_geography",
+      "selection": "bottom_n",
+      "note": "Ettan: each division winner goes up directly (2); each runner-up plays one of Superettan's 13th/14th over two legs (2 more). Superettan: 15th-16th direct down, 13th-14th only through those two ties."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Sweden runs calendar-year seasons, so the season overlapping the 2026-27 career year is the 2026 season (Allsvenskan 5 April - November 2026; Superettan 3 April - 7 November 2026); '2026-27' is only the dataset label. All four modelled leagues are 16-club double round robins (30 rounds). Two two-legged play-off structures: Allsvenskan 14th v Superettan 3rd/4th winner, and Superettan 13th/14th v the two Ettan runners-up (independent ties). Ettan's bottom three per division go down to Division 2 and 13th plays a Division 2 play-off, but level 4 is not modelled, hence closed_down=true for SE3N/SE3S. Reserve/farm sides can play in Ettan but not above it."
+}

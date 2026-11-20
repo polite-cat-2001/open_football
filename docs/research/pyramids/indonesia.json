@@ -1,0 +1,107 @@
+{
+  "country": "Indonesia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Super_League_(Indonesia)",
+    "https://en.wikipedia.org/wiki/Super_League_(Indonesia)",
+    "https://en.wikipedia.org/wiki/Championship_(Indonesia)",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_Nusantara",
+    "https://en.wikipedia.org/wiki/Liga_Nusantara",
+    "https://en.wikipedia.org/wiki/Indonesian_football_league_system",
+    "https://en.wikipedia.org/wiki/Liga_4_(Indonesia)"
+  ],
+  "leagues": [
+    {
+      "id": "IN1L",
+      "name": "Super League",
+      "level": 1,
+      "size": 18,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 34 },
+      "playoff": null
+    },
+    {
+      "id": "ILI2",
+      "name": "Championship Indonesia",
+      "level": 2,
+      "size": 20,
+      "closed_up": false,
+      "closed_down": false,
+      "format": {
+        "kind": "groups",
+        "groups": 2,
+        "rounds": 27,
+        "stages": [
+          { "name": "group_a", "teams": 10, "rounds": 27, "kind": "triple_round_robin", "note": "geographical" },
+          { "name": "group_b", "teams": 10, "rounds": 27, "kind": "triple_round_robin", "note": "geographical" },
+          { "name": "promotion_playoff", "teams": 2, "kind": "single_match", "note": "the two group runners-up play for one more promotion place" },
+          { "name": "relegation_playoff", "teams": 2, "kind": "single_match", "note": "the two 9th-placed clubs play; the loser is relegated as well as both 10th-placed clubs" }
+        ]
+      },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "runners-up of Group A and Group B",
+        "legs": 1,
+        "note": "Group winners are promoted directly; the two runners-up meet for a third promotion place."
+      }
+    },
+    {
+      "id": "IN3L",
+      "name": "Liga Nusantara",
+      "level": 3,
+      "size": 24,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "groups", "groups": null, "rounds": null },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "not published",
+        "legs": 1,
+        "note": "Three clubs go up to the Championship (two direct plus a play-off winner, as in 2025-26); the 2026-27 group draw was not published before the season started on 13 November 2026."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 3,
+      "up_playoff": 1,
+      "down": 3,
+      "down_playoff": 0,
+      "allocation": "by_geography",
+      "selection": "bottom_n",
+      "note": "The bottom three of the Super League go down and are placed into the Championship's two geographical groups. Up: both group winners plus the winner of the runners-up play-off."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 3,
+      "up_playoff": 1,
+      "down": 3,
+      "down_playoff": 1,
+      "allocation": "by_geography",
+      "selection": "bottom_n",
+      "note": "Championship: both 10th-placed clubs are relegated and the two 9th-placed clubs play off for a third relegation. Liga Nusantara sends two clubs up plus a play-off winner."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "IN3L",
+      "field": "format",
+      "ours": "24 clubs",
+      "real": "24 clubs, group structure for 2026-27 not yet published",
+      "note": "2024-25 used two groups of eight with a championship round and relegation play-offs; with 24 clubs the shape must differ. Recorded with null group count rather than a guess."
+    },
+    {
+      "league": "IN1L",
+      "field": "playoff",
+      "ours": "none encoded",
+      "real": "no title play-off section in the 2026-27 season article; 2024-25 had a Championship Series",
+      "note": "The 2026-27 Super League appears to be a straight 34-round table, but the format has changed twice in three seasons, so treat 'no title play-off' as season-specific."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Names changed in 2025: Liga 1 is now Super League, Liga 2 is Championship (Kejuaraan), Liga 3 is Liga Nusantara (since 2024). Four levels: Super League (professional), Championship (professional), Liga Nusantara (semi-professional), Liga 4 (amateur, 38 provincial leagues with a 64-club national phase - not in our rows). Championship is 20 clubs in two geographical groups of ten playing a triple round robin (27 games), with a runners-up promotion play-off and a 9th-place relegation play-off. Super League 2026-27 is 18 clubs; three came up (two direct, one through the promotion play-off) and three went down. Liga Nusantara 2026-27 has 24 clubs (15 retained, 3 down from the Championship, 6 up from Liga 4) and started on 13 November 2026."
+}

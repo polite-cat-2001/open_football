@@ -1,0 +1,17 @@
+{
+  "country": "Ireland",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_League_of_Ireland_Premier_Division",
+    "https://en.wikipedia.org/wiki/League_of_Ireland_Premier_Division"
+  ],
+  "leagues": [
+    {"id": "IR1", "name": "League of Ireland Premier Division", "level": 1, "size": 10, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 36},
+     "playoff": null}
+  ],
+  "boundaries": [],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Calendar-year season (6 Feb - 30 Oct 2026). 10 clubs, each plays the other four times (twice home, twice away): 36 matches per club, 180 in total. Single row, so closed both ways; the First Division (level 2) is outside our data. Normal movement: 10th relegated directly, 9th plays a two-legged promotion/relegation tie against the First Division play-off winner, First Division champion promoted directly. In 2026 Sligo Rovers went down directly and Drogheda United lost the play-off to UCD (First Division play-off winner), so 2 clubs left the division. Note the play-off is not inside the Premier Division table, so no playoff object is recorded."
+}

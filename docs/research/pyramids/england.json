@@ -1,0 +1,207 @@
+{
+ "country": "England",
+ "season": "2026-27",
+ "sources": [
+  "https://en.wikipedia.org/wiki/English_football_league_system",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Premier_League",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_EFL_Championship",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_EFL_League_One",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_EFL_League_Two",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_National_League",
+  "https://en.wikipedia.org/wiki/National_League_System",
+  "https://en.wikipedia.org/wiki/National_League_(English_football)"
+ ],
+ "leagues": [
+  {
+   "id": "GB1",
+   "name": "Premier League",
+   "level": 1,
+   "size": 20,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 38
+   },
+   "playoff": null
+  },
+  {
+   "id": "GB2",
+   "name": "Championship",
+   "level": 2,
+   "size": 24,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 46
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "3rd-8th (6 clubs, expanded from 4 in 2026-27)",
+    "legs": 1,
+    "note": "one-leg quarter-finals (5th v 8th, 6th v 7th) at the higher seed, 3rd and 4th enter two-leg semi-finals, one-leg final at Wembley"
+   }
+  },
+  {
+   "id": "GB3",
+   "name": "League One",
+   "level": 3,
+   "size": 24,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 46
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "3rd-6th",
+    "legs": 2,
+    "note": "two-leg semi-finals (3rd v 6th, 4th v 5th), one-leg final at Wembley"
+   }
+  },
+  {
+   "id": "GB4",
+   "name": "League Two",
+   "level": 4,
+   "size": 24,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 46
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "4th-7th",
+    "legs": 2,
+    "note": "two-leg semi-finals, one-leg final at Wembley"
+   }
+  },
+  {
+   "id": "CNAT",
+   "name": "National League",
+   "level": 5,
+   "size": 24,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 46
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "2nd-7th",
+    "legs": 1,
+    "note": "single-leg eliminators and semi-finals at the higher seed, one-leg promotion final at Wembley"
+   }
+  },
+  {
+   "id": "NLN6",
+   "name": "National League North",
+   "level": 6,
+   "size": 24,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 46
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "2nd-7th",
+    "legs": 1,
+    "note": "single-leg knockout at the higher seed; one winner per division goes up"
+   }
+  },
+  {
+   "id": "NLS6",
+   "name": "National League South",
+   "level": 6,
+   "size": 24,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 46
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "2nd-7th",
+    "legs": 1,
+    "note": "single-leg knockout at the higher seed; one winner per division goes up"
+   }
+  },
+  {
+   "id": "GB21",
+   "name": "Premier League 2",
+   "level": 99,
+   "size": 31,
+   "closed_up": true,
+   "closed_down": true,
+   "format": null,
+   "playoff": null
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 3,
+   "up_playoff": 1,
+   "down": 3,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "Championship: top 2 automatic, 3rd-8th play off for the 3rd place. Premier League: bottom 3 relegated."
+  },
+  {
+   "upper": 2,
+   "lower": 3,
+   "up": 3,
+   "up_playoff": 1,
+   "down": 3,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "League One: top 2 automatic, 3rd-6th play off for the 3rd place. Championship: bottom 3 relegated."
+  },
+  {
+   "upper": 3,
+   "lower": 4,
+   "up": 4,
+   "up_playoff": 1,
+   "down": 4,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "League Two: top 3 automatic, 4th-7th play off for the 4th place. League One: bottom 4 relegated."
+  },
+  {
+   "upper": 4,
+   "lower": 5,
+   "up": 2,
+   "up_playoff": 1,
+   "down": 2,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "National League: champion + 2nd-7th play-off winner. League Two: bottom 2 relegated into the single national division."
+  },
+  {
+   "upper": 5,
+   "lower": 6,
+   "up": 4,
+   "up_playoff": 2,
+   "down": 4,
+   "down_playoff": 0,
+   "allocation": "by_geography",
+   "selection": "bottom_n",
+   "note": "Each level-6 division sends its champion plus one 2nd-7th play-off winner (4 up in total). The National League's bottom 4 are split between North and South by geography, and clubs are transferred between the two divisions to balance numbers."
+  }
+ ],
+ "conflicts": [],
+ "confidence": "high",
+ "notes": "All sizes, levels and round counts match our rows; nothing to correct. Everything is a single table, double round-robin (20 clubs = 38 rounds, 24 clubs = 46). The one 2026-27 rule change that matters: the Championship play-off went from 4 to 6 clubs (3rd-8th), so 3 of the 3 promotion places are still 2 automatic + 1 play-off. Promotion anywhere in the pyramid is conditional on ground grading/financial criteria, not modelled here. Level 6 is not a floor: each division relegates its bottom 4 to level 7 (Northern Premier, Southern, Isthmian), which is outside our dataset, hence closed_down=false everywhere. Cups and European qualification deliberately excluded."
+}

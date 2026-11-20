@@ -1,0 +1,43 @@
+{
+  "country": "North Macedonia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Macedonian_First_Football_League",
+    "https://en.wikipedia.org/wiki/Macedonian_First_Football_League",
+    "https://en.wikipedia.org/wiki/2019%E2%80%9320_Macedonian_First_Football_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Macedonian_Second_Football_League"
+  ],
+  "leagues": [
+    {
+      "id": "MAZ1",
+      "name": "Prva Makedonska Fudbalska Liga",
+      "level": 1,
+      "size": 10,
+      "closed_up": true,
+      "closed_down": true,
+      "format": {
+        "kind": "single",
+        "rounds": 36,
+        "note": "10 clubs, four meetings each; 2026-27 is the first 10-club season since 2019-20 (12 clubs and 33 rounds from 2020-21 to 2025-26). The 36 is derived from the club count and the 2019-20 precedent, not quoted for 2026-27."
+      },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "8th",
+        "legs": null,
+        "note": "8th plays the 2. MFL promotion play-off winner for the last top-flight place; 9th and 10th are relegated directly. In 2026-27 that opponent is the 3rd-placed club of the single 14-club Second League. Legs not stated in the sources."
+      }
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "league": "MAZ1",
+      "field": "playoff_opponent",
+      "ours": "8th plays the 2. MFL play-off winner",
+      "real": "the league article still says the opponent is the winner of a tie between the two Second League group runners-up",
+      "note": "Outdated: the Second League has been a single division since 2021-22 and its 2026-27 table marks 3rd place as the play-off entrant. Use 1. MFL 8th v 2. MFL 3rd."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Only one Macedonian row in our list, so the league is closed in both directions in the data while in reality 9th and 10th go down and 8th risks a play-off. Size 10 and level 1 are confirmed; the 2026-27 season is the first with 10 clubs since 2019-20, which is why five clubs were relegated in 2025-26. The 36-round figure is inferred (10 clubs x 4 meetings = 36; 2019-20, the last 10-club season, played 36). The Second League (tier 2) is a single 14-club division in 2026-27: 1st and 2nd promoted, 3rd into the play-off against the 1. MFL 8th."
+}

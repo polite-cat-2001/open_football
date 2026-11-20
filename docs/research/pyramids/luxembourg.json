@@ -1,0 +1,57 @@
+{
+  "country": "Luxembourg",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Luxembourg_National_Division",
+    "https://en.wikipedia.org/wiki/Luxembourg_Division_of_Honour",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Luxembourg_Division_of_Honour"
+  ],
+  "leagues": [
+    {
+      "id": "LUX1",
+      "name": "BGL Ligue",
+      "level": 1,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "13th and 14th vs 4th and 3rd of the Division of Honour",
+        "legs": 1,
+        "note": "Two single-match ties; each winner plays in the National Division next season."
+      }
+    },
+    {
+      "id": "LUX2",
+      "name": "Ehrenpromotion",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "3rd and 4th vs 14th and 13th of the National Division",
+        "legs": 1,
+        "note": "Same two ties from the other side. 13th/14th also face the two 1. Division series runners-up for their own survival."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 4,
+      "up_playoff": 2,
+      "down": 4,
+      "down_playoff": 2,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "National Division: 15th and 16th down direct, 13th and 14th in two one-off ties. Division of Honour: top two up direct, 3rd and 4th in those ties. Four places, two of them contested; if both top-flight clubs win, only two clubs change level."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Names: level 1 is the National Division, sponsored as BGL Ligue; level 2 is the Division of Honour (Luxembourgish Eierepromotioun, German Ehrenpromotion) - our name is the German form, which is what the local press uses. Level 3 is the 1. Division, split into two series, not modelled; the Division of Honour's bottom two go down there and 13th/14th play the two series runners-up. All sizes 16 both levels, 30 rounds each, confirmed for 2025-26 and unchanged for 2026-27."
+}

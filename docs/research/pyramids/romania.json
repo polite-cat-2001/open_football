@@ -1,0 +1,79 @@
+{
+  "country": "Romania",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_I",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_II",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_II"
+  ],
+  "leagues": [
+    {
+      "id": "RO1",
+      "name": "SuperLiga",
+      "level": 1,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 40,
+        "split_after": 30,
+        "groups": [6, 10],
+        "points_carry": false,
+        "note": "30-round regular season, then points are halved and rounded up and the table splits: top six play a 10-match championship play-off (40 rounds in total), bottom ten a 9-match relegation play-out (39 rounds). Nothing else carries over and overall places 7-16 come from the play-out."
+      },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "13th-14th",
+        "legs": 2,
+        "note": "13th and 14th each play a two-legged tie against the 3rd- and 4th-placed clubs of the Liga II promotion play-off; 15th and 16th are relegated directly. 7th and 8th play the separate European play-offs, which are out of scope."
+      }
+    },
+    {
+      "id": "RO2",
+      "name": "Liga 2",
+      "level": 2,
+      "size": 22,
+      "closed_up": false,
+      "closed_down": true,
+      "format": {
+        "kind": "split",
+        "rounds": 31,
+        "split_after": 21,
+        "groups": [6, 8, 8],
+        "points_carry": true,
+        "note": "22 clubs play a single round-robin of 21 rounds; top six then a 10-match promotion play-off (31 in total), the other 16 split into two play-out groups of eight seeded 7/10/11/14/15/18/19/22 and 8/9/12/13/16/17/20/21 for 7 more matches (28 in total). All points are carried, unlike Liga I."
+      },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "3rd-4th of the promotion play-off",
+        "legs": 2,
+        "note": "play-off 1st and 2nd are promoted directly if eligible; 3rd and 4th play the Liga I 13th and 14th over two legs"
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 4,
+      "up_playoff": 2,
+      "down": 4,
+      "down_playoff": 2,
+      "allocation": "by_licence",
+      "selection": "bottom_n",
+      "note": "Liga II play-off 1st and 2nd go up directly subject to eligibility; 3rd and 4th meet Liga I 13th and 14th in two-legged ties. Liga I 15th and 16th are relegated directly, 13th and 14th only if they lose. Promotion is closed to 12 of the 22 Liga II clubs in 2026-27 on legal-status/ownership grounds, so the direct places can pass down the play-off table. In 2026 only three clubs moved each way (two direct promotions plus Voluntari via the play-off)."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "RO2",
+      "field": "size",
+      "ours": "23",
+      "real": "22",
+      "note": "The 2026-27 Liga II article says 'twenty-two teams' twice and its league table's team list contains 22 clubs. Our 23 does not match any reading of the sources."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Liga I: 16 clubs, 30-round regular season, then points halved and rounded up into a top-six championship play-off (10 matches) and a bottom-ten play-out (9 matches); 40 or 39 matches depending on the group, so rounds is the maximum. 15th and 16th relegated directly, 13th and 14th into two-legged play-offs against Liga II's play-off 3rd and 4th; 7th-8th into European play-offs (excluded). Liga II: 22 clubs, single round-robin of 21 rounds, top six into a 10-match promotion play-off with all points carried, the rest into two play-out groups of eight seeded alternately (7/10/11/14/15/18/19/22 and 8/9/12/13/16/17/20/21) for 7 more matches, all points carried. Relegation from Liga II: bottom two of each play-out group plus the loser of a play-off between the two sixth-placed clubs - five places nominally, three in 2025-26 because Politehnica Iași and Hermannstadt withdrew and two clubs were spared. Promotion eligibility is the defining constraint: 12 of 22 clubs were ineligible for promotion in 2026-27 on legal status/ownership grounds (Steaua cannot be promoted while government-owned), so a play-off winner can stay down. Liga II is closed downwards because Liga III is not modelled."
+}

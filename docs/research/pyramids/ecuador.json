@@ -1,0 +1,88 @@
+{
+  "country": "Ecuador",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/LigaPro_Serie_A",
+    "https://en.wikipedia.org/wiki/2026_LigaPro_Serie_A",
+    "https://en.wikipedia.org/wiki/Ecuadorian_Serie_B",
+    "https://en.wikipedia.org/wiki/2025_Ecuadorian_Serie_B"
+  ],
+  "leagues": [
+    {
+      "id": "EC1N",
+      "name": "LigaPro Serie A",
+      "level": 1,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 30,
+        "split_after": 30,
+        "groups": [6, 4, 6],
+        "points_carry": true,
+        "stages": [
+          { "name": "first stage", "clubs": 16, "rounds": 30, "note": "Double round-robin, 30 matches each (20 February - 14 September 2026)." },
+          { "name": "championship hexagonal", "clubs": 6, "rounds": 10, "note": "Top six, double round-robin; 40 matches in total. Title and Libertadores places." },
+          { "name": "Copa Sudamericana quadrangular", "clubs": 4, "rounds": 6, "note": "7th-10th, double round-robin; 36 matches. One Sudamericana place." },
+          { "name": "relegation hexagonal", "clubs": 6, "rounds": 10, "note": "Bottom six, double round-robin; 40 matches. Bottom two relegated." }
+        ]
+      },
+      "playoff": null
+    },
+    {
+      "id": "EC2L",
+      "name": "LigaPro Serie B",
+      "level": 2,
+      "size": 12,
+      "closed_up": false,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 22,
+        "split_after": 22,
+        "groups": [6, 6],
+        "points_carry": true,
+        "stages": [
+          { "name": "first stage", "clubs": 12, "rounds": 22, "note": "Double round-robin, 22 matches each." },
+          { "name": "promotion round", "clubs": 6, "rounds": 10, "note": "Top six, double round-robin; 32 matches. Top two promoted." },
+          { "name": "relegation round", "clubs": 6, "rounds": 10, "note": "Bottom six, double round-robin; 32 matches. Bottom two relegated." }
+        ]
+      },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Two direct places each way, decided after the split: the top two of Serie B's promotion round go up, the bottom two of Serie A's relegation hexagonal go down. No play-offs. Reserve sides (Independiente Juniors) are ineligible for promotion."
+    }
+  ],
+  "conflicts": [
+    {
+      "topic": "Serie A is one season with three final groups, not Apertura/Clausura",
+      "detail": "The 2026 format is a 30-round first stage followed by a championship hexagonal (6), a Copa Sudamericana quadrangular (4) and a relegation hexagonal (6). There are no two separate championships; the single champion comes from the hexagonal."
+    },
+    {
+      "topic": "Relegation is decided in a six-team mini-league",
+      "detail": "The bottom six carry their 30-match records into a 10-match relegation hexagonal, and its bottom two go down. A club can be bottom of the 30-round table and survive, or mid-table and be dragged down."
+    },
+    {
+      "topic": "The Serie B article describes an older format",
+      "detail": "The Serie B league page's prose still says 'top four after both stages ... playoffs'. The 2025 season (and the 2026 field) uses a 22-round first stage plus a six-team promotion round and a six-team relegation round, with points carried. The 2025 season tables are the evidence."
+    },
+    {
+      "topic": "Reserve team in the promotion race",
+      "detail": "Independiente Juniors plays in Serie B and is ineligible for promotion; in 2025 it finished 3rd in the promotion round and the place went to the next eligible club. A naive top-two promotion will promote it."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Calendar-year 2026 season, complete at the research date (champion Independiente del Valle). Sizes 16/12 and levels match our rows. Serie A's final groups carry first-stage points. Serie B relegates two to the Segunda Categoria (level 3, not modelled). Cups, Libertadores and Sudamericana excluded."
+}

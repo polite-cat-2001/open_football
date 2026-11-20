@@ -1,0 +1,4334 @@
+{
+ "mapped": [
+  {
+   "id": "ARM1",
+   "name": "Premier League",
+   "country": "Armenia",
+   "tier": 1,
+   "their_id": 230,
+   "their_name": "Premier League",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "ARM2",
+   "name": "Armenian First League",
+   "country": "Armenia",
+   "tier": 2,
+   "their_id": 231,
+   "their_name": "First League",
+   "up": 1,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "MT1N",
+   "name": "Premier League Opening Round",
+   "country": "Malta",
+   "tier": 1,
+   "their_id": 120,
+   "their_name": "Premier League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 25,
+     "from_month": 8,
+     "to_day": 20,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 4
+    }
+   }
+  },
+  {
+   "id": "MAL2",
+   "name": "Challenge League",
+   "country": "Malta",
+   "tier": 2,
+   "their_id": 121,
+   "their_name": "Challenge League",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 25,
+     "from_month": 8,
+     "to_day": 20,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 4
+    }
+   }
+  },
+  {
+   "id": "MAR1",
+   "name": "Botola Pro Inwi",
+   "country": "Morocco",
+   "tier": 1,
+   "their_id": 540,
+   "their_name": "Botola Pro",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "MEXA",
+   "name": "Liga MX Apertura",
+   "country": "Mexico",
+   "tier": 1,
+   "their_id": 380,
+   "their_name": "Liga MX",
+   "up": 0,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 8,
+     "from_month": 1,
+     "to_day": 28,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "AUS1",
+   "name": "A-League Men",
+   "country": "Australia",
+   "tier": 1,
+   "their_id": 130,
+   "their_name": "A-League",
+   "up": 0,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 10,
+     "to_day": 31,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "NCL1",
+   "name": "National League - Central",
+   "country": "New Zealand",
+   "tier": 1,
+   "their_id": 390,
+   "their_name": "Premiership",
+   "up": 0,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 10,
+     "to_day": 31,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 1,
+     "to_day": 15,
+     "to_month": 4
+    }
+   }
+  },
+  {
+   "id": "NNL1",
+   "name": "National League - North",
+   "country": "New Zealand",
+   "tier": 1,
+   "their_id": 390,
+   "their_name": "Premiership",
+   "up": 0,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 10,
+     "to_day": 31,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 1,
+     "to_day": 15,
+     "to_month": 4
+    }
+   }
+  },
+  {
+   "id": "NSL1",
+   "name": "National League - South",
+   "country": "New Zealand",
+   "tier": 1,
+   "their_id": 390,
+   "their_name": "Premiership",
+   "up": 0,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 10,
+     "to_day": 31,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 1,
+     "to_day": 15,
+     "to_month": 4
+    }
+   }
+  },
+  {
+   "id": "NL1",
+   "name": "Eredivisie",
+   "country": "Netherlands",
+   "tier": 1,
+   "their_id": 330,
+   "their_name": "Eredivisie",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 9,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 17,
+     "from_month": 1,
+     "to_day": 15,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "NL2",
+   "name": "Keuken Kampioen Divisie",
+   "country": "Netherlands",
+   "tier": 2,
+   "their_id": 331,
+   "their_name": "Eerste Divisie",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 9,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 17,
+     "from_month": 1,
+     "to_day": 15,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "NPFL",
+   "name": "Nigeria Professional Football League",
+   "country": "Nigeria",
+   "tier": 1,
+   "their_id": 210,
+   "their_name": "Premier League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "NO1",
+   "name": "Eliteserien",
+   "country": "Norway",
+   "tier": 1,
+   "their_id": 460,
+   "their_name": "Eliteserien",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 5,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 30,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "NO2",
+   "name": "OBOS-ligaen",
+   "country": "Norway",
+   "tier": 2,
+   "their_id": 461,
+   "their_name": "First Division",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 5,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 30,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "A1",
+   "name": "Bundesliga",
+   "country": "Austria",
+   "tier": 1,
+   "their_id": 320,
+   "their_name": "Bundesliga",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 25,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "AZ1",
+   "name": "Premyer Liqa",
+   "country": "Azerbaijan",
+   "tier": 1,
+   "their_id": 580,
+   "their_name": "Premyer Liqa",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 10,
+     "from_month": 8,
+     "to_day": 15,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 2,
+     "to_day": 20,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "PR1C",
+   "name": "Primera División Clausura",
+   "country": "Paraguay",
+   "tier": 1,
+   "their_id": 250,
+   "their_name": "Primera Division",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "PAR2",
+   "name": "División Intermedia",
+   "country": "Paraguay",
+   "tier": 2,
+   "their_id": 251,
+   "their_name": "Division Intermedia",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "TDeC",
+   "name": "Liga 1 Clausura",
+   "country": "Peru",
+   "tier": 1,
+   "their_id": 400,
+   "their_name": "Primera Division",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "PL1",
+   "name": "PKO BP Ekstraklasa",
+   "country": "Poland",
+   "tier": 1,
+   "their_id": 260,
+   "their_name": "Ekstraklasa",
+   "up": 0,
+   "down": 3,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 19,
+     "from_month": 7,
+     "to_day": 18,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "PL2",
+   "name": "Betclic 1 Liga",
+   "country": "Poland",
+   "tier": 2,
+   "their_id": 261,
+   "their_name": "I Liga",
+   "up": 3,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 19,
+     "from_month": 7,
+     "to_day": 18,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "PL2L",
+   "name": "Betclic 2 Liga",
+   "country": "Poland",
+   "tier": 3,
+   "their_id": 269,
+   "their_name": "Lower Leagues",
+   "up": 0,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 19,
+     "from_month": 7,
+     "to_day": 18,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "PO1",
+   "name": "Liga Portugal",
+   "country": "Portugal",
+   "tier": 1,
+   "their_id": 170,
+   "their_name": "Primeira Liga",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 11,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 19,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "PO2",
+   "name": "Liga Portugal 2",
+   "country": "Portugal",
+   "tier": 2,
+   "their_id": 61,
+   "their_name": "Second Liga",
+   "up": 2,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 9,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 17,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "PT3A",
+   "name": "Liga 3",
+   "country": "Portugal",
+   "tier": 3,
+   "their_id": 62,
+   "their_name": "Liga 3 Norte",
+   "up": 1,
+   "down": 0,
+   "group": {
+    "name": "Norte",
+    "competition": "Liga 3",
+    "total_groups": 2
+   },
+   "window": {
+    "start": {
+     "from_day": 9,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 17,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "RO1",
+   "name": "SuperLiga",
+   "country": "Romania",
+   "tier": 1,
+   "their_id": 410,
+   "their_name": "Liga 1",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 7,
+     "to_day": 19,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "RO2",
+   "name": "Liga 2",
+   "country": "Romania",
+   "tier": 2,
+   "their_id": 411,
+   "their_name": "Liga 2",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 7,
+     "to_day": 19,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "RU1",
+   "name": "Premier Liga",
+   "country": "Russia",
+   "tier": 1,
+   "their_id": 50,
+   "their_name": "Premier League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 1,
+     "to_month": 6
+    }
+   }
+  },
+  {
+   "id": "RU2",
+   "name": "1.Division",
+   "country": "Russia",
+   "tier": 2,
+   "their_id": 51,
+   "their_name": "First Division",
+   "up": 2,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 1,
+     "to_month": 6
+    }
+   }
+  },
+  {
+   "id": "R3D1",
+   "name": "2. Division A (Phase 1)",
+   "country": "Russia",
+   "tier": 3,
+   "their_id": 2000272298,
+   "their_name": "Second Division A Gold",
+   "up": 2,
+   "down": 2,
+   "group": {
+    "name": "Gold",
+    "competition": "Second Division A",
+    "total_groups": 2
+   },
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 1,
+     "to_month": 6
+    }
+   }
+  },
+  {
+   "id": "2DVB",
+   "name": "2. Division B",
+   "country": "Russia",
+   "tier": 4,
+   "their_id": 2000272305,
+   "their_name": "Second Division B Center",
+   "up": 1,
+   "down": 0,
+   "group": {
+    "name": "Center",
+    "competition": "Second Division B",
+    "total_groups": 4
+   },
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 1,
+     "to_month": 6
+    }
+   }
+  },
+  {
+   "id": "SA1",
+   "name": "Saudi Pro League",
+   "country": "Saudi Arabia",
+   "tier": 1,
+   "their_id": 455,
+   "their_name": "Pro League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 10,
+     "from_month": 8,
+     "to_day": 31,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 15,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "SA2L",
+   "name": "Saudi First Division League",
+   "country": "Saudi Arabia",
+   "tier": 2,
+   "their_id": 456,
+   "their_name": "First Division",
+   "up": 2,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 10,
+     "from_month": 8,
+     "to_day": 31,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 15,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "SE1",
+   "name": "Allsvenskan",
+   "country": "Sweden",
+   "tier": 1,
+   "their_id": 440,
+   "their_name": "Allsvenskan",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "SE2",
+   "name": "Superettan",
+   "country": "Sweden",
+   "tier": 2,
+   "their_id": 441,
+   "their_name": "Superettan",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "SE3N",
+   "name": "Ettan Norra",
+   "country": "Sweden",
+   "tier": 3,
+   "their_id": 449,
+   "their_name": "Lower Leagues",
+   "up": 0,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "SE3S",
+   "name": "Ettan Södra",
+   "country": "Sweden",
+   "tier": 3,
+   "their_id": 449,
+   "their_name": "Lower Leagues",
+   "up": 0,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "C1",
+   "name": "Super League",
+   "country": "Switzerland",
+   "tier": 1,
+   "their_id": 550,
+   "their_name": "Super League",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 7,
+     "to_day": 18,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 23,
+     "from_month": 1,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "C2",
+   "name": "Challenge League",
+   "country": "Switzerland",
+   "tier": 2,
+   "their_id": 551,
+   "their_name": "Challenge League",
+   "up": 1,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 7,
+     "to_day": 18,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 23,
+     "from_month": 1,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "SLO1",
+   "name": "Niké Liga",
+   "country": "Slovakia",
+   "tier": 1,
+   "their_id": 420,
+   "their_name": "Super Liga",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 7,
+     "to_day": 13,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 14,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "SK2",
+   "name": "II. Liga",
+   "country": "Slovakia",
+   "tier": 2,
+   "their_id": 421,
+   "their_name": "2. Liga",
+   "up": 1,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 7,
+     "to_day": 13,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 14,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "SL1",
+   "name": "Prva Liga",
+   "country": "Slovenia",
+   "tier": 1,
+   "their_id": 430,
+   "their_name": "Prva Liga",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 7,
+     "to_day": 13,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "SL2",
+   "name": "Druga Liga",
+   "country": "Slovenia",
+   "tier": 2,
+   "their_id": 431,
+   "their_name": "Druga Liga",
+   "up": 1,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 7,
+     "to_day": 13,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "ES1",
+   "name": "LaLiga",
+   "country": "Spain",
+   "tier": 1,
+   "their_id": 90,
+   "their_name": "La Liga",
+   "up": 0,
+   "down": 3,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 16,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "ES2",
+   "name": "LaLiga2",
+   "country": "Spain",
+   "tier": 2,
+   "their_id": 91,
+   "their_name": "LIGA adelante",
+   "up": 3,
+   "down": 4,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 8,
+     "to_month": 6
+    }
+   }
+  },
+  {
+   "id": "E3G1",
+   "name": "Primera Federación - Grupo I",
+   "country": "Spain",
+   "tier": 3,
+   "their_id": 92,
+   "their_name": "Primera Federación Grupo 1",
+   "up": 2,
+   "down": 0,
+   "group": {
+    "name": "Grupo 1",
+    "competition": "Primera Federación",
+    "total_groups": 2
+   },
+   "window": {
+    "start": {
+     "from_day": 30,
+     "from_month": 8,
+     "to_day": 21,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 4,
+     "from_month": 1,
+     "to_day": 17,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "E3G2",
+   "name": "Primera Federación - Grupo II",
+   "country": "Spain",
+   "tier": 3,
+   "their_id": 92,
+   "their_name": "Primera Federación Grupo 1",
+   "up": 2,
+   "down": 0,
+   "group": {
+    "name": "Grupo 1",
+    "competition": "Primera Federación",
+    "total_groups": 2
+   },
+   "window": {
+    "start": {
+     "from_day": 30,
+     "from_month": 8,
+     "to_day": 21,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 4,
+     "from_month": 1,
+     "to_day": 17,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "SFA1",
+   "name": "Betway Premiership",
+   "country": "South Africa",
+   "tier": 1,
+   "their_id": 560,
+   "their_name": "Premier Soccer League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 5,
+     "from_month": 8,
+     "to_day": 20,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 1,
+     "to_day": 20,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "TS1",
+   "name": "Chance Liga",
+   "country": "Czech Republic",
+   "tier": 1,
+   "their_id": 280,
+   "their_name": "First League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "TS2",
+   "name": "Chance Narodni Liga",
+   "country": "Czech Republic",
+   "tier": 2,
+   "their_id": 281,
+   "their_name": "National League",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 18,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "TR1",
+   "name": "Süper Lig",
+   "country": "Türkiye",
+   "tier": 1,
+   "their_id": 190,
+   "their_name": "Super Lig",
+   "up": 0,
+   "down": 3,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 11,
+     "from_month": 8,
+     "to_day": 23,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 1,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "UKR1",
+   "name": "Premier Liga",
+   "country": "Ukraine",
+   "tier": 1,
+   "their_id": 200,
+   "their_name": "Premier League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 26,
+     "from_month": 7,
+     "to_day": 12,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "UKR2",
+   "name": "Persha Liga",
+   "country": "Ukraine",
+   "tier": 2,
+   "their_id": 5314302,
+   "their_name": "First League",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 26,
+     "from_month": 7,
+     "to_day": 12,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "UNG1",
+   "name": "Nemzeti Bajnokság",
+   "country": "Hungary",
+   "tier": 1,
+   "their_id": 290,
+   "their_name": "NB I",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 26,
+     "from_month": 7,
+     "to_day": 14,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "UN2",
+   "name": "Nemzeti Bajnokság II.",
+   "country": "Hungary",
+   "tier": 2,
+   "their_id": 291,
+   "their_name": "NB II",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 26,
+     "from_month": 7,
+     "to_day": 14,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "URUC",
+   "name": "Liga AUF Clausura",
+   "country": "Uruguay",
+   "tier": 1,
+   "their_id": 140,
+   "their_name": "Primera Division",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 10,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "UR2T",
+   "name": "Segunda División - Torneo Competencia",
+   "country": "Uruguay",
+   "tier": 1,
+   "their_id": 140,
+   "their_name": "Primera Division",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 10,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "WER1",
+   "name": "Vysheyshaya Liga",
+   "country": "Belarus",
+   "tier": 1,
+   "their_id": 7483354,
+   "their_name": "Highest League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 7,
+     "to_day": 25,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "WER2",
+   "name": "Pershaya Liga",
+   "country": "Belarus",
+   "tier": 2,
+   "their_id": 7483366,
+   "their_name": "First League",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 7,
+     "to_day": 25,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "UZ1",
+   "name": "O'zbekiston Superligasi",
+   "country": "Uzbekistan",
+   "tier": 1,
+   "their_id": 270,
+   "their_name": "Super League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "VZ1C",
+   "name": "Liga FUTVE Clausura",
+   "country": "Venezuela",
+   "tier": 1,
+   "their_id": 300,
+   "their_name": "Primera Division",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "VN2A",
+   "name": "Liga FUTVE 2",
+   "country": "Venezuela",
+   "tier": 2,
+   "their_id": 301,
+   "their_name": "Segunda Division",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "UAE1",
+   "name": "UAE Pro League",
+   "country": "United Arab Emirates",
+   "tier": 1,
+   "their_id": 450,
+   "their_name": "Pro League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 9,
+     "to_day": 31,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 15,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "ZYP1",
+   "name": "Cyprus League",
+   "country": "Cyprus",
+   "tier": 1,
+   "their_id": 590,
+   "their_name": "First Division",
+   "up": 0,
+   "down": 3,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 24,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 17,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "CYP2",
+   "name": "2. Division",
+   "country": "Cyprus",
+   "tier": 2,
+   "their_id": 591,
+   "their_name": "Second Division",
+   "up": 3,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 24,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 17,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "GB1",
+   "name": "Premier League",
+   "country": "England",
+   "tier": 1,
+   "their_id": 80,
+   "their_name": "Premier League",
+   "up": 0,
+   "down": 3,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 16,
+     "from_month": 8,
+     "to_day": 26,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 4,
+     "from_month": 1,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "GB2",
+   "name": "Championship",
+   "country": "England",
+   "tier": 2,
+   "their_id": 81,
+   "their_name": "Championship",
+   "up": 3,
+   "down": 3,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 9,
+     "from_month": 8,
+     "to_day": 26,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 3,
+     "from_month": 1,
+     "to_day": 3,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "GB3",
+   "name": "League One",
+   "country": "England",
+   "tier": 3,
+   "their_id": 82,
+   "their_name": "League One",
+   "up": 3,
+   "down": 4,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 9,
+     "from_month": 8,
+     "to_day": 26,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 3,
+     "from_month": 1,
+     "to_day": 3,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "GB4",
+   "name": "League Two",
+   "country": "England",
+   "tier": 4,
+   "their_id": 83,
+   "their_name": "League Two",
+   "up": 4,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 9,
+     "from_month": 8,
+     "to_day": 26,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 3,
+     "from_month": 1,
+     "to_day": 3,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "BE1",
+   "name": "Jupiler Pro League",
+   "country": "Belgium",
+   "tier": 1,
+   "their_id": 350,
+   "their_name": "Pro League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 25,
+     "from_month": 7,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 17,
+     "from_month": 1,
+     "to_day": 22,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "BE2",
+   "name": "Challenger Pro League",
+   "country": "Belgium",
+   "tier": 2,
+   "their_id": 351,
+   "their_name": "Challenger Pro League",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 25,
+     "from_month": 7,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 17,
+     "from_month": 1,
+     "to_day": 22,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "EGY1",
+   "name": "Egyptian Premier League",
+   "country": "Egypt",
+   "tier": 1,
+   "their_id": 570,
+   "their_name": "Premier League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "SER1",
+   "name": "Super liga Srbije",
+   "country": "Serbia",
+   "tier": 1,
+   "their_id": 132321,
+   "their_name": "SuperLeague",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "SER2",
+   "name": "Prva liga Srbije",
+   "country": "Serbia",
+   "tier": 2,
+   "their_id": 132322,
+   "their_name": "Prva Liga",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "BRA1",
+   "name": "Campeonato Brasileiro Série A",
+   "country": "Brazil",
+   "tier": 1,
+   "their_id": 100,
+   "their_name": "Série A",
+   "up": 0,
+   "down": 4,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 8
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 9,
+     "to_day": 8,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "BRA2",
+   "name": "Campeonato Brasileiro Série B",
+   "country": "Brazil",
+   "tier": 2,
+   "their_id": 101,
+   "their_name": "Série B",
+   "up": 4,
+   "down": 4,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 8
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 9,
+     "to_day": 8,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "BU1",
+   "name": "efbet Liga",
+   "country": "Bulgaria",
+   "tier": 1,
+   "their_id": 7500000,
+   "their_name": "First League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "BU2",
+   "name": "Vtora Liga",
+   "country": "Bulgaria",
+   "tier": 2,
+   "their_id": 7500001,
+   "their_name": "Second League",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "ALB1",
+   "name": "Kategoria Superiore",
+   "country": "Albania",
+   "tier": 1,
+   "their_id": 8350942,
+   "their_name": "Superleague",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 24,
+     "from_month": 8,
+     "to_day": 20,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 25,
+     "from_month": 1,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "ALB2",
+   "name": "Kategoria e Parë",
+   "country": "Albania",
+   "tier": 2,
+   "their_id": 8350943,
+   "their_name": "First Division",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 24,
+     "from_month": 8,
+     "to_day": 20,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 25,
+     "from_month": 1,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "CLPD",
+   "name": "Liga de Primera",
+   "country": "Chile",
+   "tier": 1,
+   "their_id": 340,
+   "their_name": "Primera Division",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 10,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "CL2B",
+   "name": "Liga de Ascenso",
+   "country": "Chile",
+   "tier": 2,
+   "their_id": 341,
+   "their_name": "Primera B",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 10,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "CSL",
+   "name": "Chinese Super League",
+   "country": "China",
+   "tier": 1,
+   "their_id": 610,
+   "their_name": "Super League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "KR1",
+   "name": "SuperSport HNL",
+   "country": "Croatia",
+   "tier": 1,
+   "their_id": 150,
+   "their_name": "Prva HNL",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "KR2",
+   "name": "Prva Nogometna Liga",
+   "country": "Croatia",
+   "tier": 2,
+   "their_id": 151,
+   "their_name": "Druga HNL",
+   "up": 1,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "DK1",
+   "name": "Superliga",
+   "country": "Denmark",
+   "tier": 1,
+   "their_id": 360,
+   "their_name": "Superliga",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 17,
+     "from_month": 7,
+     "to_day": 8,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 2,
+     "to_day": 1,
+     "to_month": 6
+    }
+   }
+  },
+  {
+   "id": "DK2",
+   "name": "1.Division",
+   "country": "Denmark",
+   "tier": 2,
+   "their_id": 361,
+   "their_name": "1st Division",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 17,
+     "from_month": 7,
+     "to_day": 8,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 2,
+     "to_day": 1,
+     "to_month": 6
+    }
+   }
+  },
+  {
+   "id": "ALG1",
+   "name": "Ligue 1",
+   "country": "Algeria",
+   "tier": 1,
+   "their_id": 12015290,
+   "their_name": "League 1",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 9,
+     "to_day": 20,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 6
+    }
+   }
+  },
+  {
+   "id": "L1",
+   "name": "Bundesliga",
+   "country": "Germany",
+   "tier": 1,
+   "their_id": 110,
+   "their_name": "Bundesliga",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 23,
+     "from_month": 8,
+     "to_day": 21,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 11,
+     "from_month": 1,
+     "to_day": 17,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "L2",
+   "name": "2. Bundesliga",
+   "country": "Germany",
+   "tier": 2,
+   "their_id": 111,
+   "their_name": "2. Bundesliga",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 23,
+     "from_month": 8,
+     "to_day": 21,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 11,
+     "from_month": 1,
+     "to_day": 17,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "EST1",
+   "name": "Premium Liiga",
+   "country": "Estonia",
+   "tier": 1,
+   "their_id": 490,
+   "their_name": "Meistriliiga",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "EST2",
+   "name": "Esiliiga",
+   "country": "Estonia",
+   "tier": 2,
+   "their_id": 491,
+   "their_name": "Esiliiga",
+   "up": 1,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "EST3",
+   "name": "Esiliiga B",
+   "country": "Estonia",
+   "tier": 3,
+   "their_id": 499,
+   "their_name": "Lower Leagues",
+   "up": 0,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "FI1",
+   "name": "Veikkausliiga",
+   "country": "Finland",
+   "tier": 1,
+   "their_id": 370,
+   "their_name": "Veikkausliiga",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 10,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 7,
+     "to_day": 25,
+     "to_month": 10
+    }
+   }
+  },
+  {
+   "id": "FI2",
+   "name": "Ykkösliiga",
+   "country": "Finland",
+   "tier": 2,
+   "their_id": 371,
+   "their_name": "Ykkösliiga",
+   "up": 1,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 10,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 7,
+     "to_day": 25,
+     "to_month": 10
+    }
+   }
+  },
+  {
+   "id": "FIYK",
+   "name": "Ykkönen",
+   "country": "Finland",
+   "tier": 3,
+   "their_id": 379,
+   "their_name": "Lower Leagues",
+   "up": 0,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 10,
+     "from_month": 4,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 7,
+     "to_day": 25,
+     "to_month": 10
+    }
+   }
+  },
+  {
+   "id": "FR1",
+   "name": "Ligue 1",
+   "country": "France",
+   "tier": 1,
+   "their_id": 70,
+   "their_name": "Ligue 1",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 16,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 11,
+     "from_month": 1,
+     "to_day": 25,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "FR2",
+   "name": "Ligue 2",
+   "country": "France",
+   "tier": 2,
+   "their_id": 71,
+   "their_name": "Ligue 2",
+   "up": 3,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 25,
+     "from_month": 7,
+     "to_day": 19,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 16,
+     "from_month": 1,
+     "to_day": 22,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "FR3",
+   "name": "Ligue 3",
+   "country": "France",
+   "tier": 3,
+   "their_id": 72,
+   "their_name": "National",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 15,
+     "from_month": 8,
+     "to_day": 20,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 9,
+     "from_month": 1,
+     "to_day": 15,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "GE1N",
+   "name": "Erovnuli Liga",
+   "country": "Georgia",
+   "tier": 1,
+   "their_id": 220,
+   "their_name": "Erovnuli Liga",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 30,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "GEO2",
+   "name": "Erovnuli Liga 2",
+   "country": "Georgia",
+   "tier": 2,
+   "their_id": 221,
+   "their_name": "Erovnuli Liga 2",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 30,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "GHPL",
+   "name": "Ghana Premier League",
+   "country": "Ghana",
+   "tier": 1,
+   "their_id": 600,
+   "their_name": "Premier League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 9,
+     "to_day": 31,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 6
+    }
+   }
+  },
+  {
+   "id": "GR1",
+   "name": "Super League 1",
+   "country": "Greece",
+   "tier": 1,
+   "their_id": 160,
+   "their_name": "Super League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 24,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 18,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "GRS2",
+   "name": "Super League 2",
+   "country": "Greece",
+   "tier": 2,
+   "their_id": 161,
+   "their_name": "Super League 2 North",
+   "up": 1,
+   "down": 0,
+   "group": {
+    "name": "North",
+    "competition": "Super League 2",
+    "total_groups": 2
+   },
+   "window": {
+    "start": {
+     "from_day": 24,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 1,
+     "to_day": 18,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "IN1L",
+   "name": "Super League",
+   "country": "Indonesia",
+   "tier": 1,
+   "their_id": 41004312,
+   "their_name": "Super League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "IRN1",
+   "name": "Persian Gulf Pro League",
+   "country": "Iran",
+   "tier": 1,
+   "their_id": 530,
+   "their_name": "Persian Gulf Pro League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 8,
+     "to_day": 30,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "IS1",
+   "name": "Besta deild",
+   "country": "Iceland",
+   "tier": 1,
+   "their_id": 500,
+   "their_name": "Urvalsdeild",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 5,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 30,
+     "to_month": 9
+    }
+   }
+  },
+  {
+   "id": "ISR1",
+   "name": "Ligat ha'Al",
+   "country": "Israel",
+   "tier": 1,
+   "their_id": 240,
+   "their_name": "Premier League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 23,
+     "from_month": 8,
+     "to_day": 20,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 1,
+     "to_day": 20,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "IT1",
+   "name": "Serie A",
+   "country": "Italy",
+   "tier": 1,
+   "their_id": 32,
+   "their_name": "Serie A",
+   "up": 0,
+   "down": 3,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 7,
+     "from_month": 1,
+     "to_day": 28,
+     "to_month": 5
+    }
+   }
+  },
+  {
+   "id": "IT2",
+   "name": "Serie B",
+   "country": "Italy",
+   "tier": 2,
+   "their_id": 33,
+   "their_name": "Serie B",
+   "up": 3,
+   "down": 3,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 26,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 7,
+     "from_month": 1,
+     "to_day": 11,
+     "to_month": 6
+    }
+   }
+  },
+  {
+   "id": "IT3A",
+   "name": "Serie C - Girone A",
+   "country": "Italy",
+   "tier": 3,
+   "their_id": 34,
+   "their_name": "Serie C/A",
+   "up": 1,
+   "down": 3,
+   "group": {
+    "name": "A",
+    "competition": "Serie C",
+    "total_groups": 3
+   },
+   "window": {
+    "start": {
+     "from_day": 26,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 7,
+     "from_month": 1,
+     "to_day": 28,
+     "to_month": 4
+    }
+   }
+  },
+  {
+   "id": "IT3B",
+   "name": "Serie C - Girone B",
+   "country": "Italy",
+   "tier": 3,
+   "their_id": 35,
+   "their_name": "Serie C/B",
+   "up": 1,
+   "down": 3,
+   "group": {
+    "name": "B",
+    "competition": "Serie C",
+    "total_groups": 3
+   },
+   "window": {
+    "start": {
+     "from_day": 26,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 7,
+     "from_month": 1,
+     "to_day": 28,
+     "to_month": 4
+    }
+   }
+  },
+  {
+   "id": "IT3C",
+   "name": "Serie C - Girone C",
+   "country": "Italy",
+   "tier": 3,
+   "their_id": 34,
+   "their_name": "Serie C/A",
+   "up": 1,
+   "down": 3,
+   "group": {
+    "name": "A",
+    "competition": "Serie C",
+    "total_groups": 3
+   },
+   "window": {
+    "start": {
+     "from_day": 26,
+     "from_month": 8,
+     "to_day": 22,
+     "to_month": 12
+    },
+    "end": {
+     "from_day": 7,
+     "from_month": 1,
+     "to_day": 28,
+     "to_month": 4
+    }
+   }
+  },
+  {
+   "id": "JAP1",
+   "name": "J1 League",
+   "country": "Japan",
+   "tier": 1,
+   "their_id": 510,
+   "their_name": "J1 League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 7,
+     "to_day": 5,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "KAS1",
+   "name": "Premier Liga",
+   "country": "Kazakhstan",
+   "tier": 1,
+   "their_id": 520,
+   "their_name": "Premier League",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 5,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 10,
+     "from_month": 7,
+     "to_day": 20,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "COL1",
+   "name": "Liga Dimayor Finalización",
+   "country": "Colombia",
+   "tier": 1,
+   "their_id": 180,
+   "their_name": "Liga BetPlay",
+   "up": 0,
+   "down": 2,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "CO22",
+   "name": "Torneo DIMAYOR II",
+   "country": "Colombia",
+   "tier": 2,
+   "their_id": 181,
+   "their_name": "Liga BetPlay 2",
+   "up": 2,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 20,
+     "from_month": 1,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "ARG2",
+   "name": "Primera Nacional",
+   "country": "Argentina",
+   "tier": 2,
+   "their_id": 2000298336,
+   "their_name": "Primera Nacional Zona A",
+   "up": 1,
+   "down": 2,
+   "group": {
+    "name": "Zona A",
+    "competition": "Primera Nacional",
+    "total_groups": 2
+   },
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "AR3F",
+   "name": "Federal A - Fase Campeonato",
+   "country": "Argentina",
+   "tier": 3,
+   "their_id": 2000298340,
+   "their_name": "Primera B Metropolitana",
+   "up": 1,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "AR3R",
+   "name": "Federal A - Fase Reválida",
+   "country": "Argentina",
+   "tier": 3,
+   "their_id": 2000298340,
+   "their_name": "Primera B Metropolitana",
+   "up": 1,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "URL3",
+   "name": "Primera B Metropolitana",
+   "country": "Argentina",
+   "tier": 3,
+   "their_id": 2000298340,
+   "their_name": "Primera B Metropolitana",
+   "up": 1,
+   "down": 0,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 2,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 15,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 12
+    }
+   }
+  },
+  {
+   "id": "LET1",
+   "name": "Virsliga",
+   "country": "Latvia",
+   "tier": 1,
+   "their_id": 480,
+   "their_name": "Virsliga",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 5,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 5,
+     "from_month": 7,
+     "to_day": 10,
+     "to_month": 11
+    }
+   }
+  },
+  {
+   "id": "LI1",
+   "name": "Toplyga",
+   "country": "Lithuania",
+   "tier": 1,
+   "their_id": 470,
+   "their_name": "A Lyga",
+   "up": 0,
+   "down": 1,
+   "group": null,
+   "window": {
+    "start": {
+     "from_day": 1,
+     "from_month": 3,
+     "to_day": 30,
+     "to_month": 6
+    },
+    "end": {
+     "from_day": 1,
+     "from_month": 7,
+     "to_day": 15,
+     "to_month": 11
+    }
+   }
+  }
+ ],
+ "ambiguous": [
+  {
+   "id": "MLS1",
+   "name": "Major League Soccer",
+   "country": "United States",
+   "tier": 1,
+   "candidates": [
+    "MLS Eastern Conference",
+    "MLS Western Conference"
+   ]
+  },
+  {
+   "id": "ARGC",
+   "name": "Torneo Clausura",
+   "country": "Argentina",
+   "tier": 1,
+   "candidates": [
+    "Primera Division Zona A",
+    "Primera Division Zona B"
+   ]
+  }
+ ],
+ "unmapped": [
+  {
+   "id": "MAZ1",
+   "name": "Prva Makedonska Fudbalska Liga",
+   "country": "North Macedonia",
+   "tier": 1
+  },
+  {
+   "id": "MYS1",
+   "name": "Malaysia Super League",
+   "country": "Malaysia",
+   "tier": 1
+  },
+  {
+   "id": "MAY2",
+   "name": "Malaysia A1 Semi-Pro League",
+   "country": "Malaysia",
+   "tier": 2
+  },
+  {
+   "id": "MAL3",
+   "name": "National Amateur League I",
+   "country": "Malta",
+   "tier": 3
+  },
+  {
+   "id": "ETP1",
+   "name": "Ethiopian Premier League",
+   "country": "Ethiopia",
+   "tier": 1
+  },
+  {
+   "id": "MEX2",
+   "name": "Liga de Expansión MX Clausura",
+   "country": "Mexico",
+   "tier": 2
+  },
+  {
+   "id": "M191",
+   "name": "Liga MX U19 Apertura",
+   "country": "Mexico",
+   "tier": 99
+  },
+  {
+   "id": "M21A",
+   "name": "Liga MX U21 Apertura",
+   "country": "Mexico",
+   "tier": 99
+  },
+  {
+   "id": "MO1N",
+   "name": "Super Liga",
+   "country": "Moldova",
+   "tier": 1
+  },
+  {
+   "id": "MDL2",
+   "name": "Liga 1",
+   "country": "Moldova",
+   "tier": 2
+  },
+  {
+   "id": "MYA1",
+   "name": "M League",
+   "country": "Myanmar",
+   "tier": 1
+  },
+  {
+   "id": "A2SW",
+   "name": "National Premier League - New South Wales",
+   "country": "Australia",
+   "tier": 2
+  },
+  {
+   "id": "A2VI",
+   "name": "National Premier League - Victoria",
+   "country": "Australia",
+   "tier": 2
+  },
+  {
+   "id": "NC1A",
+   "name": "Liga Primera de Nicaragua Apertura",
+   "country": "Nicaragua",
+   "tier": 1
+  },
+  {
+   "id": "NC2A",
+   "name": "Liga de Ascenso de Nicaragua Apertura",
+   "country": "Nicaragua",
+   "tier": 2
+  },
+  {
+   "id": "NTD",
+   "name": "Tweede Divisie",
+   "country": "Netherlands",
+   "tier": 3
+  },
+  {
+   "id": "510",
+   "name": "Derde Divisie A",
+   "country": "Netherlands",
+   "tier": 4
+  },
+  {
+   "id": "NO31",
+   "name": "PostNord-ligaen Avd. 1",
+   "country": "Norway",
+   "tier": 3
+  },
+  {
+   "id": "NO32",
+   "name": "PostNord-ligaen Avd. 2",
+   "country": "Norway",
+   "tier": 3
+  },
+  {
+   "id": "NO41",
+   "name": "Norsk Tipping-Ligaen avdeling 1",
+   "country": "Norway",
+   "tier": 4
+  },
+  {
+   "id": "NO42",
+   "name": "Norsk Tipping-Ligaen avdeling 2",
+   "country": "Norway",
+   "tier": 4
+  },
+  {
+   "id": "NO43",
+   "name": "Norsk Tipping-Ligaen avdeling 3",
+   "country": "Norway",
+   "tier": 4
+  },
+  {
+   "id": "NO44",
+   "name": "Norsk Tipping-Ligaen avdeling 4",
+   "country": "Norway",
+   "tier": 4
+  },
+  {
+   "id": "NO45",
+   "name": "Norsk Tipping-Ligaen avdeling 5",
+   "country": "Norway",
+   "tier": 4
+  },
+  {
+   "id": "NO46",
+   "name": "Norsk Tipping-Ligaen avdeling 6",
+   "country": "Norway",
+   "tier": 4
+  },
+  {
+   "id": "OM1L",
+   "name": "Oman Jindal League",
+   "country": "Oman",
+   "tier": 1
+  },
+  {
+   "id": "PN1A",
+   "name": "Liga Panameña de Fútbol Apertura",
+   "country": "Panama",
+   "tier": 1
+  },
+  {
+   "id": "PER2",
+   "name": "Liga 2",
+   "country": "Peru",
+   "tier": 2
+  },
+  {
+   "id": "PLI3",
+   "name": "Liga 3",
+   "country": "Peru",
+   "tier": 3
+  },
+  {
+   "id": "PFL1",
+   "name": "Philippines Football League",
+   "country": "Philippines",
+   "tier": 1
+  },
+  {
+   "id": "PL31",
+   "name": "Betclic 3 Liga - Group I",
+   "country": "Poland",
+   "tier": 4
+  },
+  {
+   "id": "PL32",
+   "name": "Betclic 3 Liga - Group II",
+   "country": "Poland",
+   "tier": 4
+  },
+  {
+   "id": "PL33",
+   "name": "Betclic 3 Liga - Group III",
+   "country": "Poland",
+   "tier": 4
+  },
+  {
+   "id": "PL34",
+   "name": "Betclic 3 Liga - Group IV",
+   "country": "Poland",
+   "tier": 4
+  },
+  {
+   "id": "CPSA",
+   "name": "Campeonato de Portugal - Série A",
+   "country": "Portugal",
+   "tier": 4
+  },
+  {
+   "id": "CPSB",
+   "name": "Campeonato de Portugal - Série B",
+   "country": "Portugal",
+   "tier": 4
+  },
+  {
+   "id": "CPSC",
+   "name": "Campeonato de Portugal - Série C",
+   "country": "Portugal",
+   "tier": 4
+  },
+  {
+   "id": "CPSD",
+   "name": "Campeonato de Portugal - Série D",
+   "country": "Portugal",
+   "tier": 4
+  },
+  {
+   "id": "PT23",
+   "name": "Liga Next Gen U23",
+   "country": "Portugal",
+   "tier": 99
+  },
+  {
+   "id": "QSL",
+   "name": "Qatar Stars League",
+   "country": "Qatar",
+   "tier": 1
+  },
+  {
+   "id": "QU2L",
+   "name": "Qatar Stars League 2",
+   "country": "Qatar",
+   "tier": 2
+  },
+  {
+   "id": "SMR1",
+   "name": "Campionato Sammarinese",
+   "country": "San Marino",
+   "tier": 1
+  },
+  {
+   "id": "CHPR",
+   "name": "Promotion League",
+   "country": "Switzerland",
+   "tier": 3
+  },
+  {
+   "id": "SEN1",
+   "name": "Ligue 1",
+   "country": "Senegal",
+   "tier": 1
+  },
+  {
+   "id": "SEN2",
+   "name": "Ligue 2",
+   "country": "Senegal",
+   "tier": 2
+  },
+  {
+   "id": "SIN1",
+   "name": "Singapore Premier League",
+   "country": "Singapore",
+   "tier": 1
+  },
+  {
+   "id": "SIN2",
+   "name": "Singapore Premier League 2",
+   "country": "Singapore",
+   "tier": 99
+  },
+  {
+   "id": "SK19",
+   "name": "I. Liga starsieho dorastu",
+   "country": "Slovakia",
+   "tier": 99
+  },
+  {
+   "id": "SL19",
+   "name": "NextGen Liga",
+   "country": "Slovenia",
+   "tier": 99
+  },
+  {
+   "id": "E4G2",
+   "name": "Segunda Federación - Grupo II",
+   "country": "Spain",
+   "tier": 4
+  },
+  {
+   "id": "E4G3",
+   "name": "Segunda Federación - Grupo III",
+   "country": "Spain",
+   "tier": 4
+  },
+  {
+   "id": "E4G4",
+   "name": "Segunda Federación - Grupo IV",
+   "country": "Spain",
+   "tier": 4
+  },
+  {
+   "id": "E4G5",
+   "name": "Segunda Federación - Grupo V",
+   "country": "Spain",
+   "tier": 4
+  },
+  {
+   "id": "TFPL",
+   "name": "Taiwan Football Premier League",
+   "country": "Chinese Taipei",
+   "tier": 1
+  },
+  {
+   "id": "TFL2",
+   "name": "Taiwan Football League Div.2",
+   "country": "Chinese Taipei",
+   "tier": 2
+  },
+  {
+   "id": "THA1",
+   "name": "Thai League",
+   "country": "Thailand",
+   "tier": 1
+  },
+  {
+   "id": "THA2",
+   "name": "Thai League 2",
+   "country": "Thailand",
+   "tier": 2
+  },
+  {
+   "id": "CZ3C",
+   "name": "Ceska fotbalova liga",
+   "country": "Czech Republic",
+   "tier": 3
+  },
+  {
+   "id": "CZ3M",
+   "name": "Moravskoslezska fotbalova liga",
+   "country": "Czech Republic",
+   "tier": 3
+  },
+  {
+   "id": "TUN1",
+   "name": "Ligue 1",
+   "country": "Tunisia",
+   "tier": 1
+  },
+  {
+   "id": "T191",
+   "name": "U19 Süper Lig",
+   "country": "Türkiye",
+   "tier": 99
+  },
+  {
+   "id": "UGL1",
+   "name": "Uganda Premier League",
+   "country": "Uganda",
+   "tier": 1
+  },
+  {
+   "id": "UA3L",
+   "name": "Druga Liga",
+   "country": "Ukraine",
+   "tier": 3
+  },
+  {
+   "id": "UA2P",
+   "name": "Premier Liga 2",
+   "country": "Ukraine",
+   "tier": 99
+  },
+  {
+   "id": "UZ2L",
+   "name": "O'zbekiston Pro Liga",
+   "country": "Uzbekistan",
+   "tier": 2
+  },
+  {
+   "id": "UAE2",
+   "name": "UAE First Division League",
+   "country": "United Arab Emirates",
+   "tier": 2
+  },
+  {
+   "id": "USL",
+   "name": "USL Championship",
+   "country": "United States",
+   "tier": 2
+  },
+  {
+   "id": "MNP3",
+   "name": "MLS Next Pro",
+   "country": "United States",
+   "tier": 3
+  },
+  {
+   "id": "USC3",
+   "name": "USL League One",
+   "country": "United States",
+   "tier": 3
+  },
+  {
+   "id": "VIE1",
+   "name": "V.League 1",
+   "country": "Vietnam",
+   "tier": 1
+  },
+  {
+   "id": "CNAT",
+   "name": "National League",
+   "country": "England",
+   "tier": 5
+  },
+  {
+   "id": "NLN6",
+   "name": "National League North",
+   "country": "England",
+   "tier": 6
+  },
+  {
+   "id": "NLS6",
+   "name": "National League South",
+   "country": "England",
+   "tier": 6
+  },
+  {
+   "id": "GB21",
+   "name": "Premier League 2",
+   "country": "England",
+   "tier": 99
+  },
+  {
+   "id": "BE3A",
+   "name": "1ste Nationale FFA",
+   "country": "Belgium",
+   "tier": 3
+  },
+  {
+   "id": "BE3V",
+   "name": "1ste Nationale VV",
+   "country": "Belgium",
+   "tier": 3
+  },
+  {
+   "id": "BEY1",
+   "name": "U18 Elite 1 - Belgium",
+   "country": "Belgium",
+   "tier": 99
+  },
+  {
+   "id": "BE21",
+   "name": "U21 Pro League",
+   "country": "Belgium",
+   "tier": 99
+  },
+  {
+   "id": "SC1",
+   "name": "Scottish Premiership",
+   "country": "Scotland",
+   "tier": 1
+  },
+  {
+   "id": "SC2",
+   "name": "Scottish Championship",
+   "country": "Scotland",
+   "tier": 2
+  },
+  {
+   "id": "SC3",
+   "name": "Scottish League One",
+   "country": "Scotland",
+   "tier": 3
+  },
+  {
+   "id": "SC4",
+   "name": "Scottish League Two",
+   "country": "Scotland",
+   "tier": 4
+  },
+  {
+   "id": "WAL1",
+   "name": "Cymru Premier",
+   "country": "Wales",
+   "tier": 1
+  },
+  {
+   "id": "WAL2",
+   "name": "Cymru North",
+   "country": "Wales",
+   "tier": 2
+  },
+  {
+   "id": "WA2S",
+   "name": "Cymru South",
+   "country": "Wales",
+   "tier": 2
+  },
+  {
+   "id": "NIR1",
+   "name": "Premiership",
+   "country": "Northern Ireland",
+   "tier": 1
+  },
+  {
+   "id": "NIR2",
+   "name": "Championship",
+   "country": "Northern Ireland",
+   "tier": 2
+  },
+  {
+   "id": "FARO",
+   "name": "Meistaradeildin",
+   "country": "Faroe Islands",
+   "tier": 1
+  },
+  {
+   "id": "FAR2",
+   "name": "1. deild",
+   "country": "Faroe Islands",
+   "tier": 2
+  },
+  {
+   "id": "SB19",
+   "name": "Omladinska liga Srbije",
+   "country": "Serbia",
+   "tier": 99
+  },
+  {
+   "id": "MNE1",
+   "name": "Meridianbet 1. CFL",
+   "country": "Montenegro",
+   "tier": 1
+  },
+  {
+   "id": "MNE2",
+   "name": "2. CFL",
+   "country": "Montenegro",
+   "tier": 2
+  },
+  {
+   "id": "HGKG",
+   "name": "Hong Kong Premier League",
+   "country": "Hongkong",
+   "tier": 1
+  },
+  {
+   "id": "HK2L",
+   "name": "Hong Kong First Division",
+   "country": "Hongkong",
+   "tier": 2
+  },
+  {
+   "id": "HK3L",
+   "name": "Hong Kong Second Division",
+   "country": "Hongkong",
+   "tier": 3
+  },
+  {
+   "id": "HK22",
+   "name": "Hong Kong U22 League",
+   "country": "Hongkong",
+   "tier": 99
+  },
+  {
+   "id": "PRA1",
+   "name": "Liga Puerto Rico Apertura",
+   "country": "Puerto Rico",
+   "tier": 1
+  },
+  {
+   "id": "BO1A",
+   "name": "División Profesional",
+   "country": "Bolivia",
+   "tier": 1
+  },
+  {
+   "id": "KO1",
+   "name": "Superliga e Kosovës",
+   "country": "Kosovo",
+   "tier": 1
+  },
+  {
+   "id": "GI1",
+   "name": "Gibraltar Football League",
+   "country": "Gibraltar",
+   "tier": 1
+  },
+  {
+   "id": "GIIL",
+   "name": "Gibraltar Reserve League",
+   "country": "Gibraltar",
+   "tier": 99
+  },
+  {
+   "id": "CL2F",
+   "name": "Segunda División - Fase 2",
+   "country": "Chile",
+   "tier": 3
+  },
+  {
+   "id": "CL2Z",
+   "name": "Segunda División - Liguilla zonal",
+   "country": "Chile",
+   "tier": 3
+  },
+  {
+   "id": "CLO",
+   "name": "China League One",
+   "country": "China",
+   "tier": 2
+  },
+  {
+   "id": "CHL3",
+   "name": "China League Two A",
+   "country": "China",
+   "tier": 3
+  },
+  {
+   "id": "CL3S",
+   "name": "China League Two B",
+   "country": "China",
+   "tier": 3
+  },
+  {
+   "id": "CRPD",
+   "name": "Primera División Apertura",
+   "country": "Costa Rica",
+   "tier": 1
+  },
+  {
+   "id": "DK3O",
+   "name": "2.Division",
+   "country": "Denmark",
+   "tier": 3
+  },
+  {
+   "id": "DK4L",
+   "name": "3.Division",
+   "country": "Denmark",
+   "tier": 4
+  },
+  {
+   "id": "L3",
+   "name": "3. Liga",
+   "country": "Germany",
+   "tier": 3
+  },
+  {
+   "id": "RLB3",
+   "name": "Regionalliga Bayern",
+   "country": "Germany",
+   "tier": 4
+  },
+  {
+   "id": "RLN4",
+   "name": "Regionalliga Northeast",
+   "country": "Germany",
+   "tier": 4
+  },
+  {
+   "id": "RLSW",
+   "name": "Regionalliga Südwest",
+   "country": "Germany",
+   "tier": 4
+  },
+  {
+   "id": "EC1N",
+   "name": "LigaPro Serie A",
+   "country": "Ecuador",
+   "tier": 1
+  },
+  {
+   "id": "EC2L",
+   "name": "Liga Pro Serie B",
+   "country": "Ecuador",
+   "tier": 2
+  },
+  {
+   "id": "EE19",
+   "name": "U19 Eliitliiga Esiliiga",
+   "country": "Estonia",
+   "tier": 99
+  },
+  {
+   "id": "ELME",
+   "name": "U19 Eliitliiga Meistriliiga",
+   "country": "Estonia",
+   "tier": 99
+  },
+  {
+   "id": "KOG2",
+   "name": "Kolmonen Etelä Group B",
+   "country": "Finland",
+   "tier": 5
+  },
+  {
+   "id": "AND1",
+   "name": "Primera Divisió",
+   "country": "Andorra",
+   "tier": 1
+  },
+  {
+   "id": "FR4A",
+   "name": "Championnat National 1 - Groupe A",
+   "country": "France",
+   "tier": 4
+  },
+  {
+   "id": "FR4B",
+   "name": "Championnat National 1 - Groupe B",
+   "country": "France",
+   "tier": 4
+  },
+  {
+   "id": "FR4C",
+   "name": "Championnat National 1 - Groupe C",
+   "country": "France",
+   "tier": 4
+  },
+  {
+   "id": "FR5E",
+   "name": "Championnat National 2 - Groupe E",
+   "country": "France",
+   "tier": 5
+  },
+  {
+   "id": "FR5F",
+   "name": "Championnat National 2 - Groupe F",
+   "country": "France",
+   "tier": 5
+  },
+  {
+   "id": "FR5G",
+   "name": "Championnat National 2 - Groupe G",
+   "country": "France",
+   "tier": 5
+  },
+  {
+   "id": "IND1",
+   "name": "Indian Super League",
+   "country": "India",
+   "tier": 1
+  },
+  {
+   "id": "INIL",
+   "name": "Indian Football League",
+   "country": "India",
+   "tier": 2
+  },
+  {
+   "id": "IND2",
+   "name": "I-League 2",
+   "country": "India",
+   "tier": 3
+  },
+  {
+   "id": "ILI2",
+   "name": "Championship Indonesia",
+   "country": "Indonesia",
+   "tier": 2
+  },
+  {
+   "id": "IN3L",
+   "name": "Liga Nusantara",
+   "country": "Indonesia",
+   "tier": 3
+  },
+  {
+   "id": "IRQ1",
+   "name": "Iraq Stars League",
+   "country": "Iraq",
+   "tier": 1
+  },
+  {
+   "id": "IRN2",
+   "name": "Azadegan League",
+   "country": "Iran",
+   "tier": 2
+  },
+  {
+   "id": "IRN3",
+   "name": "League 2",
+   "country": "Iran",
+   "tier": 3
+  },
+  {
+   "id": "IR1",
+   "name": "League of Ireland Premier Division",
+   "country": "Ireland",
+   "tier": 1
+  },
+  {
+   "id": "IS2",
+   "name": "Lengjudeild",
+   "country": "Iceland",
+   "tier": 2
+  },
+  {
+   "id": "ISL3",
+   "name": "2. deild",
+   "country": "Iceland",
+   "tier": 3
+  },
+  {
+   "id": "ISR2",
+   "name": "Liga Leumit",
+   "country": "Israel",
+   "tier": 2
+  },
+  {
+   "id": "ITJ7",
+   "name": "Campionato Under 18",
+   "country": "Italy",
+   "tier": 99
+  },
+  {
+   "id": "IJ1",
+   "name": "Primavera 1",
+   "country": "Italy",
+   "tier": 99
+  },
+  {
+   "id": "JPL1",
+   "name": "Jamaica Premier League",
+   "country": "Jamaica",
+   "tier": 1
+  },
+  {
+   "id": "JAP2",
+   "name": "J2 League",
+   "country": "Japan",
+   "tier": 2
+  },
+  {
+   "id": "JAP3",
+   "name": "J3 League",
+   "country": "Japan",
+   "tier": 3
+  },
+  {
+   "id": "JFL",
+   "name": "Japan Football League",
+   "country": "Japan",
+   "tier": 4
+  },
+  {
+   "id": "JO1L",
+   "name": "Jordanian Pro League",
+   "country": "Jordan",
+   "tier": 1
+  },
+  {
+   "id": "KHM1",
+   "name": "Cambodian Premier League",
+   "country": "Cambodia",
+   "tier": 1
+  },
+  {
+   "id": "CDN1",
+   "name": "Canadian Premier League",
+   "country": "Canada",
+   "tier": 1
+  },
+  {
+   "id": "KAS2",
+   "name": "Pervaya Liga",
+   "country": "Kazakhstan",
+   "tier": 2
+  },
+  {
+   "id": "LET2",
+   "name": "Futbola Pirmā līga",
+   "country": "Latvia",
+   "tier": 2
+  },
+  {
+   "id": "LIB1",
+   "name": "Lebanese Premier League",
+   "country": "Lebanon",
+   "tier": 1
+  },
+  {
+   "id": "LPL",
+   "name": "Libyan Premier League",
+   "country": "Libya",
+   "tier": 1
+  },
+  {
+   "id": "LTU2",
+   "name": "I Lyga",
+   "country": "Lithuania",
+   "tier": 2
+  },
+  {
+   "id": "LUX1",
+   "name": "BGL Ligue",
+   "country": "Luxembourg",
+   "tier": 1
+  },
+  {
+   "id": "LUX2",
+   "name": "Ehrenpromotion",
+   "country": "Luxembourg",
+   "tier": 2
+  }
+ ],
+ "their_only": [
+  {
+   "id": 2000060001,
+   "name": "Primera Division Zona A",
+   "tier": 1,
+   "country": "Argentina"
+  },
+  {
+   "id": 2000060002,
+   "name": "Primera Division Zona B",
+   "tier": 1,
+   "country": "Argentina"
+  },
+  {
+   "id": 2000298338,
+   "name": "Primera Nacional Zona B",
+   "tier": 2,
+   "country": "Argentina"
+  },
+  {
+   "id": 321,
+   "name": "2. Liga",
+   "tier": 2,
+   "country": "Austria"
+  },
+  {
+   "id": 329,
+   "name": "Lower Leagues",
+   "tier": 3,
+   "country": "Austria"
+  },
+  {
+   "id": 581,
+   "name": "First League",
+   "tier": 2,
+   "country": "Azerbaijan"
+  },
+  {
+   "id": 589,
+   "name": "Lower Leagues",
+   "tier": 3,
+   "country": "Azerbaijan"
+  },
+  {
+   "id": 102,
+   "name": "Série C",
+   "tier": 3,
+   "country": "Brazil"
+  },
+  {
+   "id": 103,
+   "name": "Série D Grupo 1",
+   "tier": 4,
+   "country": "Brazil"
+  },
+  {
+   "id": 104,
+   "name": "Série D Grupo 2",
+   "tier": 4,
+   "country": "Brazil"
+  },
+  {
+   "id": 105,
+   "name": "Série D Grupo 3",
+   "tier": 4,
+   "country": "Brazil"
+  },
+  {
+   "id": 106,
+   "name": "Série D Grupo 4",
+   "tier": 4,
+   "country": "Brazil"
+  },
+  {
+   "id": 107,
+   "name": "State Leagues",
+   "tier": 5,
+   "country": "Brazil"
+  },
+  {
+   "id": 13172336,
+   "name": "Elite One",
+   "tier": 1,
+   "country": "Cameroon"
+  },
+  {
+   "id": 599,
+   "name": "Lower Leagues",
+   "tier": 3,
+   "country": "Cyprus"
+  },
+  {
+   "id": 93,
+   "name": "Primera Federación Grupo 2",
+   "tier": 3,
+   "country": "Spain"
+  },
+  {
+   "id": 8457149,
+   "name": "Premier League",
+   "tier": 1,
+   "country": "Fiji"
+  },
+  {
+   "id": 229,
+   "name": "Lower Leagues",
+   "tier": 3,
+   "country": "Georgia"
+  },
+  {
+   "id": 162,
+   "name": "Super League 2 South",
+   "tier": 2,
+   "country": "Greece"
+  },
+  {
+   "id": 152,
+   "name": "Treca HNL",
+   "tier": 3,
+   "country": "Croatia"
+  },
+  {
+   "id": 299,
+   "name": "Lower Leagues",
+   "tier": 3,
+   "country": "Hungary"
+  },
+  {
+   "id": 36,
+   "name": "Serie C/C",
+   "tier": 3,
+   "country": "Italy"
+  },
+  {
+   "id": 13211639,
+   "name": "Premier Division",
+   "tier": 1,
+   "country": "Kenya"
+  },
+  {
+   "id": 13162593,
+   "name": "Ligue 1",
+   "tier": 1,
+   "country": "Mali"
+  },
+  {
+   "id": 63,
+   "name": "Liga 3 Sul",
+   "tier": 3,
+   "country": "Portugal"
+  },
+  {
+   "id": 419,
+   "name": "Lower Leagues",
+   "tier": 3,
+   "country": "Romania"
+  },
+  {
+   "id": 2000272300,
+   "name": "Second Division A Silver",
+   "tier": 3,
+   "country": "Russia"
+  },
+  {
+   "id": 2000272303,
+   "name": "Second Division B Northwest",
+   "tier": 4,
+   "country": "Russia"
+  },
+  {
+   "id": 2000272302,
+   "name": "Second Division B South",
+   "tier": 4,
+   "country": "Russia"
+  },
+  {
+   "id": 2000272306,
+   "name": "Second Division B Ural-Volga",
+   "tier": 4,
+   "country": "Russia"
+  },
+  {
+   "id": 439,
+   "name": "Lower Leagues",
+   "tier": 3,
+   "country": "Slovenia"
+  },
+  {
+   "id": 429,
+   "name": "Lower Leagues",
+   "tier": 3,
+   "country": "Slovakia"
+  },
+  {
+   "id": 13211674,
+   "name": "Premier Division",
+   "tier": 1,
+   "country": "Chad"
+  },
+  {
+   "id": 191,
+   "name": "1. Lig",
+   "tier": 2,
+   "country": "Turkey"
+  },
+  {
+   "id": 2000310001,
+   "name": "MLS Eastern Conference",
+   "tier": 1,
+   "country": "USA"
+  },
+  {
+   "id": 2000310002,
+   "name": "MLS Western Conference",
+   "tier": 1,
+   "country": "USA"
+  },
+  {
+   "id": 141,
+   "name": "Segunda Division",
+   "tier": 2,
+   "country": "Uruguay"
+  },
+  {
+   "id": 142,
+   "name": "Primera Divisional C Serie A",
+   "tier": 3,
+   "country": "Uruguay"
+  },
+  {
+   "id": 143,
+   "name": "Primera Divisional C Serie B",
+   "tier": 3,
+   "country": "Uruguay"
+  },
+  {
+   "id": 144,
+   "name": "Primera Divisional C Serie C",
+   "tier": 3,
+   "country": "Uruguay"
+  },
+  {
+   "id": 309,
+   "name": "Lower Leagues",
+   "tier": 3,
+   "country": "Venezuela"
+  }
+ ]
+}

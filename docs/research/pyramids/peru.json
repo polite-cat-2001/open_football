@@ -1,0 +1,100 @@
+{
+  "country": "Peru",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Liga_1_(Peru)",
+    "https://en.wikipedia.org/wiki/2026_Liga_2_(Peru)",
+    "https://en.wikipedia.org/wiki/2026_Liga_3_(Peru)"
+  ],
+  "leagues": [
+    {
+      "id": "TDeC",
+      "name": "Liga 1 Clausura",
+      "level": 1,
+      "size": 18,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "apertura_clausura",
+        "rounds": 17,
+        "stages": ["Apertura (single round-robin, 17 rounds)", "Clausura (single round-robin, 17 rounds)", "season aggregate table", "four-team play-off"],
+        "note": "18 clubs; our row is the Clausura. The season champion comes from a two-legged four-team play-off (Apertura winner, Clausura winner, best two of the aggregate table), not from the Clausura table. A club that wins both tournaments or tops the aggregate takes a bye, as Alianza Lima did in 2026."
+      },
+      "playoff": {
+        "kind": "title",
+        "entries": "Apertura winner, Clausura winner, best two of the aggregate table",
+        "legs": 2,
+        "note": "2026 was reduced to one semi-final because Alianza Lima won the Apertura and led the aggregate; the final is two legs"
+      }
+    },
+    {
+      "id": "PER2",
+      "name": "Liga 2",
+      "level": 2,
+      "size": 18,
+      "closed_up": false,
+      "closed_down": false,
+      "format": {
+        "kind": "groups",
+        "groups": 2,
+        "rounds": 18,
+        "stages": ["regional stage: 2 geographical groups of 9, double round-robin, 18 rounds", "championship groups: 3 groups of 4, 6 rounds, with bonus points", "relegation groups: 2 groups of 3, 4 rounds", "promotion play-offs"],
+        "note": "the two regional group winners and the best runner-up start the championship groups on +2, the other runner-up and the third-placed clubs on +1"
+      },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "top six of each regional group",
+        "legs": 2,
+        "note": "semi-finals over two legs (three group winners plus best runner-up), final for the title and a repechaje for the losers; the champion goes up and the repechaje winner meets the final loser in a single match for the second promotion place"
+      }
+    },
+    {
+      "id": "PLI3",
+      "name": "Liga 3",
+      "level": 3,
+      "size": 37,
+      "closed_up": false,
+      "closed_down": true,
+      "format": {
+        "kind": "groups",
+        "groups": 4,
+        "rounds": null,
+        "stages": ["Torneo Regional: 4 geographical groups of unequal size", "second stage: 4 groups of 4", "quarter-finals, semi-finals and final over two legs"],
+        "note": "37 clubs, eight of them reserve sides of Liga 1/2 clubs; the two finalists are promoted"
+      },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "8 (two per second-stage group)",
+        "legs": 2,
+        "note": "quarter-finals, semi-finals and final over two legs; both finalists go up to Liga 2"
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 2,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "Liga 2 promotes through its play-offs: the champion (final winner) and the winner of a single runner-up match. Liga 1 relegates the bottom two of the season aggregate table (17th and 18th in 2025); a club can also lose its place administratively, as Binacional did in 2025."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 2,
+      "up_playoff": 2,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "other",
+      "note": "Liga 3 promotes its two finalists, both via the knockout stage. Liga 2 relegates the bottom club of each of its two triangular relegation groups, so it is a group position rather than a division-wide bottom-n."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Sizes 18/18/37 and levels 1/2/3 all match our rows. Liga 1 runs Apertura and Clausura of 17 rounds each plus an aggregate table; the season champion is decided by a four-team two-legged play-off, so the Clausura table alone does not crown anyone. Liga 2 has 18 clubs in two regional groups of 9 (18 rounds), three championship groups of 4 with bonus points, two triangular relegation groups of 3 (bottom club of each relegated) and a promotion play-off that sends the champion plus the runner-up-match winner up. Liga 3 is a 37-club competition in four unequal regional groups, then four groups of 4, then a two-legged knockout; eight of the clubs are reserve sides ('II') and reserve status is not a promotion bar (Sport Huancayo II went up for 2026). Liga 3's entry is not purely sporting: Copa Perú and U18 tournament promotions, withdrawals, mergers, exclusions and disqualifications reshape the field every season, so a seeded 37-team table will be wrong at the start of the season. Liga 3 relegates to the Copa Perú, which is not modelled."
+}

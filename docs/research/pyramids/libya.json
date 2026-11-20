@@ -1,0 +1,22 @@
+{
+  "country": "Libya",
+  "season": "2026-27",
+  "sources": [
+    "https://libyaobserver.ly/sports/libyan-football-federation-approves-premier-league-format-new-season",
+    "https://en.wikipedia.org/wiki/Libyan_Premier_League",
+    "https://www.transfermarkt.us/libyan-premier-league/startseite/wettbewerb/LPL"
+  ],
+  "leagues": [
+    {"id": "LPL", "name": "Libyan Premier League", "level": 1, "size": 28, "closed_up": true, "closed_down": true,
+     "format": {"kind": "groups", "rounds": 26, "groups": [14, 14],
+                "stages": "two groups of 14, double round-robin home and away (26 matches); top two per group enter a final four (group winners meet for the title, runners-up for third place)"},
+     "playoff": {"kind": "title", "entries": "top 2 per group (4 clubs)", "legs": 1,
+                 "note": "group winners play a single final for the title; the two runners-up play a single third-place match"}}
+  ],
+  "boundaries": [],
+  "conflicts": [
+    "The Wikipedia league article still describes 36 clubs in 4 groups (its infobox and lead), which was the shape in earlier seasons. The LFF approved a 28-club, 2-group format for 2026-27 (Libya Observer, 21 September 2026), and Transfermarkt's 2026-27 tables show exactly two groups of 14. Our row's size 28 is right for 2026-27 and the 36/4 figure is stale."
+  ],
+  "confidence": "medium",
+  "notes": "28 clubs in two groups of 14, first stage played home and away (26 matches). Top two of each group go to a final four: the two group winners contest the title, the two runners-up contest third place. Six clubs are relegated directly at the end of the season (LFF decision). Because the division stays at 28, six clubs must come up from the First Division; the promotion count is implied by that arithmetic rather than stated. The groups are not geographic in the 2026-27 release (East/West was the old shape) - the LFF announcement only says two groups. Single row, so closed both ways. Third place matters: it feeds a continental place."
+}

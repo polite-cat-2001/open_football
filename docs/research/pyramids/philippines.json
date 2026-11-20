@@ -1,0 +1,36 @@
+{
+  "country": "Philippines",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Philippines_Football_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Philippines_Football_League"
+  ],
+  "leagues": [
+    {
+      "id": "PFL1",
+      "name": "Philippines Football League",
+      "level": 1,
+      "size": 10,
+      "closed_up": true,
+      "closed_down": true,
+      "format": {
+        "kind": "single",
+        "rounds": 20,
+        "note": "double round-robin of 20 games; the season article's table also labels places 1-5 'Championship round' and 6-10 'Classification round' but no second phase is described anywhere, and 2025-26 was decided on the single table"
+      },
+      "playoff": null
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "league": "PFL1",
+      "field": "format",
+      "ours": "single 20-round table",
+      "real": "the 2026-27 league table labels places 1-5 'Championship round' and 6-10 'Classification round', implying a split that no text describes",
+      "note": "Unresolved: the stated format is a double round-robin of 20 games and the 2025-26 title was decided on the single table. Recorded as single; re-check if a PFF regulation appears."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Single Philippine row, and the league really has no promotion or relegation: clubs join and leave by invitation/licence, not by results (One Taguig, 2nd in 2025-26, and Don Bosco Garelli dropped out for 2026-27; Azkals Development Club rejoined). Ten clubs, 20-round double round-robin, no play-off. The table's 'Championship round' / 'Classification round' labels are unexplained. Do not model this league as a closed pool that only changes through results: its membership changes administratively every season."
+}

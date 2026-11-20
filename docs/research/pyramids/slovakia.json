@@ -1,0 +1,89 @@
+{
+  "country": "Slovakia",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Slovak_First_Football_League",
+    "https://en.wikipedia.org/wiki/Slovak_First_Football_League",
+    "https://sk.wikipedia.org/wiki/Nik%C3%A9_liga",
+    "https://en.wikipedia.org/wiki/2._Liga_(Slovakia)",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_2._Liga_(Slovakia)"
+  ],
+  "leagues": [
+    {
+      "id": "SLO1",
+      "name": "Niké liga",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 32,
+        "split_after": 22,
+        "groups": 2,
+        "points_carry": true,
+        "stages": [
+          { "name": "regular stage", "clubs": 12, "series": 1, "rounds": 22, "note": "Double round robin." },
+          { "name": "championship group", "clubs": 6, "series": 1, "rounds": 10, "start_points": "carried", "note": "Top 6; home and away against the other five." },
+          { "name": "relegation group", "clubs": 6, "series": 1, "rounds": 10, "start_points": "carried", "note": "Bottom 6; home and away against the other five. 12th relegated, 11th to the play-off." }
+        ]
+      },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "11th of the Niké liga vs 2nd of the II. Liga",
+        "legs": 2,
+        "note": "Baráž over two legs; the winner plays in the Niké liga next season. This is the same tie as the II. Liga promotion play-off."
+      }
+    },
+    {
+      "id": "SK2",
+      "name": "II. Liga",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd",
+        "legs": 2,
+        "note": "Plays the 11th of the Niké liga over two legs. The champion is promoted directly subject to licensing; reserve sides (Slovan B, Žilina B) cannot be promoted."
+      }
+    },
+    {
+      "id": "SK19",
+      "name": "I. Liga staršieho dorastu",
+      "level": 99,
+      "size": 14,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "other", "rounds": null, "note": "National under-19 championship of the professional clubs' youth sides; format and round count not verified." },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 1,
+      "down": 2,
+      "down_playoff": 1,
+      "allocation": "free",
+      "selection": "playoff",
+      "note": "II. Liga champion up directly (subject to licence); 2nd plays the Niké liga 11th over two legs. Niké liga 12th goes down directly, 11th only through that same tie, so one place moves through it."
+    }
+  ],
+  "conflicts": [
+    {
+      "topic": "Youth league size is unverified",
+      "detail": "SK19 (I. liga staršieho dorastu, U19) has no usable public table; our 14 clubs could not be confirmed. Kept as-is and flagged rather than guessed."
+    },
+    {
+      "topic": "Licensing can void a promotion",
+      "detail": "The II. Liga champion is promoted only if it meets the league's requirements; a licensed lower-placed club can take the place. Promotion is not purely sporting."
+    }
+  ],
+  "confidence": "high",
+  "notes": "SLO1: 12 clubs, 22 rounds then a 6+6 split for 10 more (32 total), points carried; 12th relegated, 11th in a two-legged baráž against the II. Liga runner-up. SK2: 16 clubs, 30 rounds; champion up subject to licence, 2nd to the play-off, bottom two down to the 3. Liga (level 3, not modelled, hence closed_down=true). Reserve sides Slovan B and Žilina B cannot be promoted. SK19 is the U19 youth championship: closed both ways, no senior route, size unverified. 2026-27 started 25-26 July 2026 with a winter break 13 Dec 2026 - 7 Feb 2027."
+}

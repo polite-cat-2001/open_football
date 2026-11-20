@@ -1,0 +1,35 @@
+{
+  "country": "Uzbekistan",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/Uzbekistan_Super_League",
+    "https://en.wikipedia.org/wiki/2026_Uzbekistan_Super_League",
+    "https://en.wikipedia.org/wiki/Uzbekistan_Pro_League",
+    "https://en.wikipedia.org/wiki/2026_Uzbekistan_Pro_League"
+  ],
+  "leagues": [
+    {"id": "UZ1", "name": "O'zbekiston Superligasi", "level": 1, "size": 16, "closed_up": true, "closed_down": false,
+     "format": {"kind": "single", "rounds": 30},
+     "playoff": {"kind": "relegation", "entries": "12th vs 3rd of the Pro League", "legs": 1,
+      "note": "single match at the Pro League club's ground; bottom club relegated directly"}},
+    {"id": "UZ2L", "name": "O'zbekiston Pro Liga", "level": 2, "size": 14, "closed_up": false, "closed_down": true,
+     "format": {"kind": "single", "rounds": 26},
+     "playoff": {"kind": "promotion", "entries": "3rd vs 12th of the Super League", "legs": 1,
+      "note": "1st and 2nd promoted directly; the play-off is hosted by the Pro League club"}}
+  ],
+  "boundaries": [
+    {"upper": 1, "lower": 2, "up": 3, "up_playoff": 1, "down": 3, "down_playoff": 1,
+     "allocation": "free", "selection": "playoff",
+     "note": "Pro League 1st and 2nd up directly, 3rd into a single play-off at home against the Super League 12th; Super League bottom down directly. Counts flex: the Super League article says two or three clubs can be relegated, and promotion is voided if a reserve side wins the Pro League."}
+  ],
+  "conflicts": [
+    {"league": "UZ2L", "field": "size", "ours": "14", "real": "14 in 2026, 6 in 2024 and 2025",
+     "note": "14 is correct for 2026 (the season article lists 14 clubs and 182 matches) but the league's own infobox and lead sentence still say 6. A row copied from last season would say 6 - and 14 clubs means 26 rounds, not 10."},
+    {"league": "UZ1", "field": "relegation", "ours": "3 down (1 play-off)", "real": "2-3 depending on the season, plus a one-off 2026 reshape",
+     "note": "The Pro League article describes bottom-club-down plus a 12th-v-3rd play-off; the 2026 Super League table instead marks 12th-15th as play-off places and 16th as direct relegation. Treat the 2026 markings as an unexplained one-off and implement the documented rule."},
+    {"league": "UZ2L", "field": "relegation", "ours": "1 down", "real": "last club down per the rule; the 2026 table marks 13th and 14th",
+     "note": "The regulations text says the last-placed club is relegated to the First League; the 2026 standings mark two places. Level 3 (First League) is not in our rows either way."}
+  ],
+  "confidence": "medium",
+  "notes": "Calendar-year season, March-November. Super League 16 clubs / 30 rounds; Pro League 14 clubs / 26 rounds in 2026 after shrinking to 6 in 2024-25, so the 14 is new and the Pro League's own article has not caught up. Promotion is 2 direct + 1 single-match play-off hosted by the second-tier club; the Super League bottom club goes down. Reserve teams may not be promoted to the top flight, and a reserve champion voids a promotion place, so the up-count can fall to 2. UZ2L is closed_down only because the First League (level 3) is not in our rows."
+}

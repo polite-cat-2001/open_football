@@ -1,0 +1,51 @@
+{
+  "country": "Paraguay",
+  "season": "2026",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_Copa_de_Primera",
+    "https://en.wikipedia.org/wiki/2026_APF_Divisi%C3%B3n_Intermedia"
+  ],
+  "leagues": [
+    {
+      "id": "PR1C",
+      "name": "Primera División Clausura",
+      "level": 1,
+      "size": 12,
+      "closed_up": true,
+      "closed_down": false,
+      "format": {
+        "kind": "apertura_clausura",
+        "rounds": 22,
+        "stages": ["Apertura (January-May, 22 rounds)", "Clausura (July-November, 22 rounds)"],
+        "note": "each tournament is a 22-round double round-robin and crowns its own champion from its own table; no play-off, no points carried between the two; our row is the Clausura half of a 44-match season"
+      },
+      "playoff": null
+    },
+    {
+      "id": "PAR2",
+      "name": "División Intermedia",
+      "level": 2,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "average_table",
+      "note": "Intermedia champion and runner-up are promoted directly. The two worst three-season points-per-game averages in the top flight are relegated, regardless of the single-season table (Rubio Ñu and San Lorenzo went down in 2026). No play-offs in either direction."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Both 2026 seasons are complete. 12 clubs at level 1, 16 at level 2, matching our rows. Level 1 runs two championships (Apertura and Clausura) of 22 rounds each; each crowns its own champion, no play-off, no points carried, and a separate aggregate table is used only for the relegation average and Libertadores seeding. Relegation from the top flight is decided by a three-season points-per-game average (tabla de descenso): two clubs go down, which is why promoted clubs Rubio Núu and San Lorenzo were relegated again in the same season. División Intermedia: 30 rounds, champion and runner-up promoted directly, three clubs relegated on the same three-season average, with the destination split by geography between Primera B Metropolitana and Primera B Nacional (tier 3, not modelled, hence closed_down for PAR2). No promotion or relegation play-offs anywhere in this pyramid."
+}

@@ -1,0 +1,57 @@
+{
+  "country": "Montenegro",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Montenegrin_First_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Montenegrin_First_League",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Montenegrin_Second_League"
+  ],
+  "leagues": [
+    {
+      "id": "MNE1",
+      "name": "Meridianbet 1. CFL",
+      "level": 1,
+      "size": 10,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 36 },
+      "playoff": {
+        "kind": "relegation",
+        "entries": "8th vs 2nd of 2. CFL and 9th vs 3rd of 2. CFL",
+        "legs": 2,
+        "note": "Two two-legged ties; winners play in the 1. CFL next season."
+      }
+    },
+    {
+      "id": "MNE2",
+      "name": "2. CFL",
+      "level": 2,
+      "size": 10,
+      "closed_up": false,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 36 },
+      "playoff": {
+        "kind": "promotion",
+        "entries": "2nd and 3rd vs 9th and 8th of the 1. CFL",
+        "legs": 2,
+        "note": "Same two ties from the other side; the 2. CFL champion is promoted directly."
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 3,
+      "up_playoff": 2,
+      "down": 3,
+      "down_playoff": 2,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "1. CFL: 10th down direct; 9th and 8th play the 2. CFL 3rd and 2nd over two legs. 2. CFL: champion up direct, 2nd and 3rd in those ties. Three places, two contested."
+    }
+  ],
+  "conflicts": [],
+  "confidence": "high",
+  "notes": "Montenegro runs an August-May season. Both levels have 10 clubs and 36 rounds (each pair meets four times). 1. CFL is sponsored as Meridianbet 1.CFL, which is our name. 2. CFL's bottom two (9th and 10th) go down to the Third League; the Third League is not modelled, so MNE2 is closed_down in our data. In 2025-26 Jezero and Bokelj (8th and 9th) won their ties and stayed up, while Jedinstvo (10th) went down."
+}

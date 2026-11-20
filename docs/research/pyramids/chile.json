@@ -1,0 +1,141 @@
+{
+ "country": "Chile",
+ "season": "2026",
+ "sources": [
+  "https://es.wikipedia.org/wiki/Liga_de_Primera_2026",
+  "https://es.wikipedia.org/wiki/Liga_de_Ascenso_de_Chile_2026",
+  "https://es.wikipedia.org/wiki/Liga_de_Segunda",
+  "https://es.wikipedia.org/wiki/Liga_de_Segunda_2026",
+  "https://es.wikipedia.org/wiki/Segunda_División_Profesional_de_Chile_2025",
+  "https://es.wikipedia.org/wiki/Segunda_División_Profesional_de_Chile_2016-17",
+  "https://es.wikipedia.org/wiki/Tercera_División_A_de_Chile_2026",
+  "https://en.wikipedia.org/wiki/Liga_de_Primera",
+  "https://en.wikipedia.org/wiki/Campeonato_Nacional_Primera_B",
+  "https://en.wikipedia.org/wiki/Segunda_División_Profesional_de_Chile"
+ ],
+ "leagues": [
+  {
+   "id": "CLPD",
+   "name": "Liga de Primera",
+   "level": 1,
+   "size": 16,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": "double_round_robin"
+   },
+   "playoff": null
+  },
+  {
+   "id": "CL2B",
+   "name": "Liga de Ascenso",
+   "level": 2,
+   "size": 16,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": "double_round_robin+playoff"
+   },
+   "playoff": null
+  },
+  {
+   "id": "CL2",
+   "name": "CL2",
+   "level": 3,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": "zonal+liguilla"
+   },
+   "playoff": null
+  },
+  {
+   "id": "CL3A",
+   "name": "CL3A",
+   "level": 4,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "note": "zonal+playoff"
+   },
+   "playoff": null
+  },
+  {
+   "id": "CL2F",
+   "name": "Segunda División - Fase 2",
+   "level": 3,
+   "size": 12,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "other",
+    "note": "second phase of the 14-club level 3"
+   },
+   "playoff": null
+  },
+  {
+   "id": "CL2Z",
+   "name": "Segunda División - Liguilla zonal",
+   "level": 3,
+   "size": 2,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "other",
+    "note": "zonal play-off group of the same level 3"
+   },
+   "playoff": null
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 2,
+   "up_playoff": 1,
+   "down": 2,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "up is the total and up_playoff the part decided by play-off: Liga de Ascenso champion direct, plus the winner of (runner-up vs 3rd-8th liguilla) over two legs. down=2, both direct from the Liga de Primera table. 16 - 2 + 2 = 16."
+  },
+  {
+   "upper": 2,
+   "lower": 3,
+   "up": 1,
+   "up_playoff": 0,
+   "down": 1,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "Only the Liga de Segunda champion goes up (the level-3 runner-up has no play-off), and only the last-placed Liga de Ascenso club comes down. 16 - 1 + 1 = 16 and 14 - 1 + 1 = 14."
+  },
+  {
+   "upper": 3,
+   "lower": 4,
+   "up": 2,
+   "up_playoff": 1,
+   "down": 2,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "Tercera División A (ANFA, semi-professional, 14 clubs, two zones) sends its champion up directly and a second club through a play-off among 2nd-5th. Liga de Segunda sends its bottom 2 down. 14 - 2 + 2 = 14. 2026 was exceptional: 3 went up (Atlético Colina, Colchagua, Lota Schwager) and 3 went down (Melipilla, San Antonio Unido, plus Barnechea's suspension) because of disciplinary expulsions, so do not hard-code the exceptional count."
+  }
+ ],
+ "conflicts": [
+  "CL2F and CL2Z are not leagues. Both are stages of the single level-3 competition (Liga de Segunda): CL2F is 'Fase 2', the split into the Liguilla de Ascenso and Liguilla de Descenso; CL2Z is a zonal stage/qualifier of the same competition, not a play-off group with its own 2 clubs. The database has turned one competition's phases into three level-? leagues.",
+  "CL2F's size 12 matches no current level-3 format: 2026 has 14 clubs whose Fase 2 groups hold 7 each, and 2025 was a single 13-club table. The last 12-club second phase was 2016-17 (zonal phase, then a 12-club national phase), so the number is a stale historical format and is dropped here instead of copied into a league size.",
+  "CL2Z's size 2 is not a club count at all; it is the number of zones (Norte/Sur) / a two-club zonal qualifier, so a 2-club 'league' would break any table generation.",
+  "The three fragments (CL2F 12, CL2Z 2) leave the actual level 3 without a row of the right size (14), so promotion from level 2 (1 club) and relegation to level 4 (2 clubs) currently have no valid destination.",
+  "Level 4 (Tercera División A, 14 clubs) is missing, so the 2 clubs relegated from level 3 have nowhere to go.",
+  "The rows describe a flat single-table league; from 2026 level 3 resets into two 7-club liguillas mid-season, so its schedule and table structure cannot be modelled as one 14-team round robin."
+ ],
+ "confidence": "medium",
+ "notes": ""
+}

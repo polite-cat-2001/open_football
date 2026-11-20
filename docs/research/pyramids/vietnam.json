@@ -1,0 +1,20 @@
+{
+  "country": "Vietnam",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/V.League_1",
+    "https://en.wikipedia.org/wiki/V.League_2"
+  ],
+  "leagues": [
+    {"id": "VIE1", "name": "V.League 1", "level": 1, "size": 14, "closed_up": true, "closed_down": true,
+     "format": {"kind": "single", "rounds": 26},
+     "playoff": null}
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {"league": "VIE1", "field": "season", "ours": "calendar year 2026", "real": "September/October 2026 - June/July 2027",
+     "note": "Vietnam played spring-to-autumn until 2023; since 2023-24 the season is autumn/spring, so the current one is 2026-27."}
+  ],
+  "confidence": "high",
+  "notes": "14 clubs, 26 rounds, single table, no split and no championship play-off. Bottom two are relegated directly to V.League 2 (2025-26: PVF-CAND 13th and Becamex Ho Chi Minh City 14th, both of whom appear in the 2026-27 second-tier list). V.League 2 is itself 14 clubs / 26 rounds with two up and two down, but it is not in our rows, so VIE1 carries closed_down=true: two clubs leave the modelled pyramid each season and two enter from outside it. Reserve sides can appear in the second tier (Hanoi FC B in 2026-27), so its promotion places are not always the top two clubs."
+}

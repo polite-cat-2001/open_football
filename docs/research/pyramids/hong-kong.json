@@ -1,0 +1,108 @@
+{
+  "country": "Hong Kong",
+  "season": "2026-27",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Hong_Kong_Premier_League",
+    "https://en.wikipedia.org/wiki/Hong_Kong_Premier_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Hong_Kong_First_Division_League",
+    "https://en.wikipedia.org/wiki/Hong_Kong_First_Division_League",
+    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Hong_Kong_Second_Division_League",
+    "https://en.wikipedia.org/wiki/Hong_Kong_Second_Division_League",
+    "https://en.wikipedia.org/wiki/Football_in_Hong_Kong"
+  ],
+  "leagues": [
+    {
+      "id": "HGKG",
+      "name": "Hong Kong Premier League",
+      "level": 1,
+      "size": 11,
+      "closed_up": true,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 20 },
+      "playoff": null
+    },
+    {
+      "id": "HK2L",
+      "name": "Hong Kong First Division",
+      "level": 2,
+      "size": 14,
+      "closed_up": false,
+      "closed_down": false,
+      "format": { "kind": "single", "rounds": 26 },
+      "playoff": null
+    },
+    {
+      "id": "HK3L",
+      "name": "Hong Kong Second Division",
+      "level": 3,
+      "size": 16,
+      "closed_up": false,
+      "closed_down": false,
+      "format": {
+        "kind": "split",
+        "rounds": 22,
+        "split_after": 15,
+        "groups": { "championship": 8, "challenge": 8 },
+        "points_carry": "full",
+        "stages": [
+          { "name": "regular", "teams": 16, "rounds": 15, "kind": "single_round_robin" },
+          { "name": "championship_group", "teams": 8, "rounds": 7, "kind": "single_round_robin", "note": "top two promoted to the First Division" },
+          { "name": "challenging_group", "teams": 8, "rounds": 7, "kind": "single_round_robin", "note": "bottom two relegated to the Third Division" }
+        ]
+      },
+      "playoff": null
+    },
+    {
+      "id": "HK22",
+      "name": "Hong Kong U22 League",
+      "level": 99,
+      "size": 11,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "other", "rounds": null },
+      "playoff": null
+    }
+  ],
+  "boundaries": [
+    {
+      "upper": 1,
+      "lower": 2,
+      "up": 1,
+      "up_playoff": 0,
+      "down": 1,
+      "down_playoff": 0,
+      "allocation": "by_licence",
+      "selection": "bottom_n",
+      "note": "The Premier League bottom club is relegated and the First Division's top two are 'offered' promotion, but a Premier League place requires the HKFA club licence and a professional set-up, so in most seasons fewer clubs go up than are entitled to."
+    },
+    {
+      "upper": 2,
+      "lower": 3,
+      "up": 2,
+      "up_playoff": 0,
+      "down": 2,
+      "down_playoff": 0,
+      "allocation": "free",
+      "selection": "bottom_n",
+      "note": "First Division: bottom two down. Second Division: top two of the Championship Group up, bottom two of the Challenging Group down."
+    }
+  ],
+  "conflicts": [
+    {
+      "league": "HK3L",
+      "field": "format",
+      "ours": "16 clubs",
+      "real": "16 clubs in 2026-27, split 8/8; the competition-format text describes an 8+7 split because it was written for a 15-club season",
+      "note": "The single-round-robin-then-split shape is right; the group sizes follow the entry list, so they change with promotions and withdrawals."
+    },
+    {
+      "league": "HK22",
+      "field": "identity",
+      "ours": "Hong Kong U22 League, 11 clubs",
+      "real": null,
+      "note": "No HKFA U22 league article could be found; the HKFA runs age-group competitions alongside the senior pyramid (the U22-minute quota used to be enforced through the Sapling Cup, discontinued after 2025-26). Treat the row as an age-group competition with no promotion route; size 11 is our value, unverified."
+    }
+  ],
+  "confidence": "medium",
+  "notes": "Four senior levels, all run by the HKFA: Premier League (11), First Division (14), Second Division (16), Third Division (not in our rows, and its bottom club leaves the system entirely). The Premier League's promotion door is a licence, not a table position - First Division clubs are 'offered' promotion and regularly decline or fail licensing, which is why the top flight sat at 11 clubs in 2026-27 after Sha Tin went up. Second Division plays a single round robin (15 games) then splits into an 8-team Championship Group and an 8-team Challenging Group for seven more games. HK22 is an age-group competition: closed in both directions by definition, and reserve/youth sides cannot move into the senior pyramid."
+}

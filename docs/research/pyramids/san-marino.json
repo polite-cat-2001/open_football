@@ -1,0 +1,40 @@
+{
+  "country": "San Marino",
+  "season": "2026-27",
+  "sources": [
+    "https://it.wikipedia.org/wiki/Campionato_Sammarinese_2026-2027",
+    "https://it.wikipedia.org/wiki/Campionato_Sammarinese",
+    "https://en.wikipedia.org/wiki/Campionato_Sammarinese",
+    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Campionato_Sammarinese_di_Calcio"
+  ],
+  "leagues": [
+    {
+      "id": "SMR1",
+      "name": "Campionato Sammarinese",
+      "level": 1,
+      "size": 16,
+      "closed_up": true,
+      "closed_down": true,
+      "format": { "kind": "single", "rounds": 30 },
+      "playoff": {
+        "kind": "europe",
+        "entries": "2nd-11th",
+        "legs": 2,
+        "note": "Conference League play-off, separate from the title: 8th-11th play a single-match preliminary round, 2nd-7th enter at the quarter-finals, quarter-finals and semi-finals are two-legged, and the 2nd-3rd and 4th-5th placing finals are single matches. The champion (table) takes the Champions League place."
+      }
+    }
+  ],
+  "boundaries": [],
+  "conflicts": [
+    {
+      "topic": "Who takes the second European place",
+      "detail": "The Italian league article says the 2nd-placed club qualifies for the Conference League; the English 2025-26 season article says the winner of the 2-11 play-off qualifies. The play-off exists either way; only its prize differs."
+    },
+    {
+      "topic": "San Marino Academy U22 is not an ordinary club",
+      "detail": "One of the 16 participants is the federation's U22 academy side. It is a full member of the table and can finish anywhere, including 1st, but it is not a normal club that could be promoted or relegated."
+    }
+  ],
+  "confidence": "high",
+  "notes": "Single level, no lower division, so closed in both directions and no boundaries. 16 clubs = 15 ordinary clubs + San Marino Academy U22. Title decided by the 30-round table since 2023-24; the 2nd-11th play-off only allocates the second Conference League place. Season started 28 August 2026. Clubs have no home grounds - venues are drawn per match. There is no English Wikipedia page for 2026-27; the Italian page is the primary source."
+}

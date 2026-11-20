@@ -1,0 +1,43 @@
+# Argentina — pyramid research
+
+Season: 2026  |  confidence: high
+
+## Sources
+
+- https://es.wikipedia.org/wiki/Campeonato_de_Primera_Divisi%C3%B3n_2026_(Argentina)
+- https://es.wikipedia.org/wiki/Campeonato_de_Primera_Nacional_2026
+- https://es.wikipedia.org/wiki/Torneo_Federal_A_2026
+- https://es.wikipedia.org/wiki/Campeonato_de_Primera_B_2026_(Argentina)
+- https://es.wikipedia.org/wiki/Torneo_Argentino_del_Interior
+- https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol
+- https://en.wikipedia.org/wiki/2026_Primera_Nacional
+- https://en.wikipedia.org/wiki/2026_Torneo_Federal_A
+
+## Leagues
+
+| id | name | level | size | up | down | format |
+|---|---|---|---|---|---|---|
+| ARGC | Torneo Clausura | 1 | 30 | True | False | apertura_clausura |
+| ARG2 | Primera Nacional | 2 | 36 | False | False | split |
+| AR3F | Federal A - Fase Campeonato | 3 | 18 | False | True | split |
+| AR3R | Federal A - Fase Reválida | 3 | 19 | False | False | other |
+| URL3 | Primera B Metropolitana | 3 | 22 | False | False | single |
+
+## Boundaries
+
+| upper | lower | up | up playoff | down | down playoff | allocation | selection | note |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 2 | 2 | 1 | 2 | 0 | free | down: (a) last place of the three-season promedio table (2024+2025+2026 points / matches played, newly promoted clubs averaging only the seasons they played) and (b) the penultimate place of the season's aggregate table (Apertura + Clausura zone-stage points); in practice (b) is the worst club not already relegated by (a). up: Primera Nacional final winner (zone winners, one-off final) + Torneo Reducido winner | Exactly two down and two up every season, any club regardless of affiliation or geography. 2026: Estudiantes (RC) went down by promedio (30th, 0.437) and Aldosivi by the aggregate table (29th of 30, 19 pts); Godoy Cruz went up as Primera Nacional champion. The English page compresses rule (b) to 'last in the aggregate table' because the promedio-relegated club usually occupies that last place; the Spanish page and the 2026 outcome show the slot is the penultimate place of the 30-club table. |
+| 2 | 3 | 4 | 2 | 4 | 0 | by_affiliation | down: bottom two of each of the two Primera Nacional zones (4 clubs), each sent to the level-3 branch of its AFA affiliation - Primera B Metropolitana if directly affiliated / Buenos Aires metropolitan area, Torneo Federal A if indirectly affiliated (regional leagues) / outside Greater Buenos Aires. up: Torneo Federal A champion + Torneo Federal A Revalida winner + Primera B Metropolitana champion + Primera B Metropolitana Reducido winner = 2 from each branch | Totals are fixed (4 down, 4 up) but the per-branch split is not: 2026 sent 3 down to Primera B Metropolitana (Acassuso, San Miguel, Nueva Chicago) and 1 to Torneo Federal A (Guemes, Santiago del Estero). 2025 sent 3 to Primera B (Arsenal, Talleres (RdE), Defensores Unidos) and 1 to Federal A (Alvarado). Do not hardcode 2/2. |
+| 3 | 4 | None | None | 6 | 0 | by_affiliation | down: Torneo Federal A bottom two of each Revalida zone on the combined table (4, to the interior branch's 4th tier) + Primera B Metropolitana bottom two of the single table (2, to Primera C). up: from Primera C to Primera B Metropolitana (2 in the 2025 edition; 2026 count not published) and from the 4th-tier interior tournament to Federal A | Included because level 3 cannot be resized without it. The interior 4th tier changes in 2027: the Torneo Regional Federal Amateur is replaced by the Torneo Argentino del Interior, which takes the 4 Federal A 2026 relegations and grants 6 promotions to Federal A (not the 4 TRFA used in 2026). Up-counts from level 4 are therefore left null. |
+
+## Mismatches and open questions
+
+- ARGC is a phase, not a competition: the 2026 top division is Apertura + Clausura + aggregate table. The Apertura row (same 30 clubs) is missing, so the 'Campeon de Liga' title and one of the two relegation slots cannot be computed from the database.
+- Level-1 relegation is not resolvable from the ARGC row at all: it needs the season aggregate table (both tournaments) and a 2024-2026 promedio table, and 2024/2025 data is absent.
+- AR3F (18) and AR3R (19) are two paths of one 37-club competition (Torneo Federal A 2026), not two competitions. 18+19=37 is only the entry split after the first phase; clubs eliminated from the championship path are re-fed into the Revalida, so one club can appear in both rows within a season and the Revalida's final field exceeds 19.
+- Level 3 is two parallel branches, not one league: Torneo Federal A (37 clubs, indirectly affiliated) and Primera B Metropolitana (22 clubs, directly affiliated). The three level-3 rows sum to 59, which is the correct total, but treating those 59 as one league is wrong - clubs only cross branches through Primera Nacional relegation, by affiliation.
+- The level-3 downward edge is missing entirely (Federal A: 4 down; Primera B: 2 down). Without those rows, clubs relegated from level 3 have nowhere to go and level-3 sizes cannot be maintained.
+- Missing rows: Torneo Apertura 2026 (level 1, 30 clubs), Primera C Metropolitana (level 4, directly affiliated), Torneo Argentino del Interior 2027 / Torneo Regional Federal Amateur (level 4, indirectly affiliated).
+- Source conflict: the English Torneo Federal A page says 20 clubs entered the Revalida first phase; the Spanish page and arithmetic (37 - 18) give 19, which matches our row. The English page also says Federal A relegation goes to the Torneo Regional Federal Amateur, while the Spanish page (newer) says the Torneo Argentino del Interior, which replaces the TRFA as 4th tier from 2027.
+- Primera Nacional totals are stable but the branch split is not: 2026 relegated 3 to Primera B Metropolitana and 1 to Torneo Federal A. Any model that assigns a fixed 2/2 will break the branch sizes.
