@@ -104,8 +104,14 @@ Status: v3 revised after three audits, the last one by attempting to encode all
 - `bonus`: ordered rules `{from, rank: [..], value, per_group?, best_of?}`.
   Signed values; `rank` is a position inside a group table; `per_group` and
   `best_of` are mutually exclusive.
-- `carry`: `none` | `full`; points enter the receiving stage's own table and
-  are visible everywhere that table is read. Only Uruguay's Segunda uses it.
+- `carry`: `{points: "none" | "full" | "half", goals: "carry" | "reset"}` — the
+  carried record is shown in the receiving stage's table and visible wherever
+  that table is read. A split league usually carries points and resets goals
+  (Ecuador, Egypt); Uruguay's Segunda carries both.
+- A split is expressed as several `group` stages, each fed by a rank range of
+  the regular stage (`from: "regular", rank: 1, n: 6`; `rank: 7, n: 4`; ...).
+  Ecuador's three groups (championship 6, Sudamericana 4, relegation 6) are the
+  worked case; no new stage kind is needed.
 - Conditional stages: `if: {skip_when: "shared" | "same_club", stages: [ids]}`:
   `shared` means one club holds every named stage's champion spot; `same_club`
   means the resolved entrants hold fewer than two distinct clubs.

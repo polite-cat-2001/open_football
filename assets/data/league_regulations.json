@@ -3900,7 +3900,7 @@
    "start_md": "03-21",
    "end_md": "12-13",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": 0,
     "playoff": false
@@ -3917,7 +3917,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_New_Zealand_National_League",
-   "note": "Dates '21 March – 13 December' (2026) from infobox. 32 clubs: Northern/Central/Southern qualifying leagues feed a National Championship phase (that is the split). Table template carries the comment 'No Relegation in 2026'. Transfer windows not stated."
+   "note": "Not a split: this is a regional qualifying league; the three regional leagues feed a separate 11-club National Championship phase (single round-robin, September to 13 December, points start at zero, top two to a grand final). The 'split' label came from the window survey and is wrong. Dates '21 March – 13 December' (2026) from infobox. 32 clubs: Northern/Central/Southern qualifying leagues feed a National Championship phase (that is the split). Table template carries the comment 'No Relegation in 2026'. Transfer windows not stated."
   },
   "NIR1": {
    "start_md": "08-07",
@@ -4083,7 +4083,7 @@
    "start_md": "03-21",
    "end_md": "12-13",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": false
@@ -4100,7 +4100,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_New_Zealand_National_League",
-   "note": "Dates '21 March – 13 December' (2026) from infobox. 32 clubs: Northern/Central/Southern qualifying leagues feed a National Championship phase (that is the split). Table template carries the comment 'No Relegation in 2026'. Transfer windows not stated.",
+   "note": "Not a split: this is a regional qualifying league; the three regional leagues feed a separate 11-club National Championship phase (single round-robin, September to 13 December, points start at zero, top two to a grand final). The 'split' label came from the window survey and is wrong. Dates '21 March – 13 December' (2026) from infobox. 32 clubs: Northern/Central/Southern qualifying leagues feed a National Championship phase (that is the split). Table template carries the comment 'No Relegation in 2026'. Transfer windows not stated.",
    "inherited_from": "NCL1"
   },
   "NO1": {
@@ -4359,7 +4359,7 @@
    "start_md": "03-21",
    "end_md": "12-13",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": false
@@ -4376,7 +4376,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_New_Zealand_National_League",
-   "note": "Dates '21 March – 13 December' (2026) from infobox. 32 clubs: Northern/Central/Southern qualifying leagues feed a National Championship phase (that is the split). Table template carries the comment 'No Relegation in 2026'. Transfer windows not stated.",
+   "note": "Not a split: this is a regional qualifying league; the three regional leagues feed a separate 11-club National Championship phase (single round-robin, September to 13 December, points start at zero, top two to a grand final). The 'split' label came from the window survey and is wrong. Dates '21 March – 13 December' (2026) from infobox. 32 clubs: Northern/Central/Southern qualifying leagues feed a National Championship phase (that is the split). Table template carries the comment 'No Relegation in 2026'. Transfer windows not stated.",
    "inherited_from": "NCL1"
   },
   "NTD": {

@@ -1,0 +1,379 @@
+{
+  "checked": "2026-11-20",
+  "note": "Split formats only. 'regular' = the phase before the cut. 'groups[].rounds' = matchdays played inside that group, not total. 'threshold' = where the table is cut and on what points rule. Leagues that are not actually split carry \"split\": false and their real structure in 'note'.",
+  "leagues": [
+    {
+      "id": "EGY1",
+      "country": "Egypt",
+      "split": true,
+      "regular": {
+        "rounds": 19,
+        "start_md": "08-21",
+        "end_md": null,
+        "precision": "day"
+      },
+      "split_after_rounds": 19,
+      "groups": [
+        {
+          "label": "Championship group",
+          "teams": 6,
+          "rounds": 5,
+          "decides": "title; 1st and 2nd to CAF Champions League, 3rd to CAF Confederation Cup"
+        },
+        {
+          "label": "Relegation group",
+          "teams": 14,
+          "rounds": 13,
+          "decides": "bottom four relegated to Second Division A"
+        }
+      ],
+      "points_carry": "full",
+      "threshold": "top 6 / 7th-20th of the 20-club single round-robin table; full points, goals reset to zero",
+      "champion": "group_table",
+      "after": "no final",
+      "split_window": null,
+      "superior_sources": [
+        "https://en.wikipedia.org/wiki/2026%E2%80%9327_Egyptian_Premier_League",
+        "https://en.wikipedia.org/wiki/2025%E2%80%9326_Egyptian_Premier_League"
+      ],
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Egyptian_Premier_League",
+      "quote": "In the first phase, teams face each other once in a single-leg tie, after which the league splits into two groups. Phase two features a championship group for the teams finishing first to sixth and a relegation group for teams placed seventh to twentieth.",
+      "points_quote": "\"(Note: Clubs qualified for this phase with the full regular season points they got, but without goals for or against)\" - 2025-26 championship-round table rules, https://en.wikipedia.org/wiki/2025%E2%80%9326_Egyptian_Premier_League",
+      "confidence": "medium",
+      "note": "Confirmed 2026-27 shape (20 clubs, 19-round single round-robin, 6/14 split); the previous season ran 21 clubs with a 7-team championship stage. Group rounds (5 and 13) are derived, not stated: the 2025-26 championship stage was rounds 22-28 for seven clubs, i.e. one single round-robin, and 14 clubs cannot play a double round-robin inside the calendar. Neither the regular-season end nor the split dates for 2026-27 are published (infobox: '21 August 2026 -'); in 2025-26 the championship stage finished on 20 May 2026 and the relegation stage on 29 May 2026."
+    },
+    {
+      "id": "EC1N",
+      "country": "Ecuador",
+      "split": true,
+      "regular": {
+        "rounds": 30,
+        "start_md": "02-20",
+        "end_md": "09-14",
+        "precision": "day"
+      },
+      "split_after_rounds": 30,
+      "groups": [
+        {
+          "label": "Championship hexagonal",
+          "teams": 6,
+          "rounds": 10,
+          "decides": "title, three Copa Libertadores and three Copa Sudamericana berths"
+        },
+        {
+          "label": "Copa Sudamericana quadrangular",
+          "teams": 4,
+          "rounds": 6,
+          "decides": "the last Copa Sudamericana berth"
+        },
+        {
+          "label": "Relegation hexagonal",
+          "teams": 6,
+          "rounds": 10,
+          "decides": "bottom two relegated to Serie B"
+        }
+      ],
+      "points_carry": "full",
+      "threshold": "top 6 / 7th-10th / 11th-16th of the 16-club double round-robin; whole first-stage record carried (points and goals)",
+      "champion": "group_table",
+      "after": "no final",
+      "split_window": {
+        "start_md": "09-18",
+        "end_md": "12-13",
+        "precision": "day"
+      },
+      "source": "https://en.wikipedia.org/wiki/2026_LigaPro_Serie_A",
+      "quote": "in the first stage the 16 participating teams played each other twice (once at home and once away) for a total of 30 matches, and teams were sorted according to their placement into two hexagonals and one quadrangular group for the final stages. ... Teams carried over their first stage records to the final stages.",
+      "window_quote": "\"The championship and relegation hexagonals began on 18 and 20 September and are scheduled to end on 13 December, whilst the Copa Sudamericana group was played from 19 September to 7 November 2026.\" and \"The first stage began on 20 February and ended on 14 September 2026.\"",
+      "confidence": "high",
+      "note": "Not Apertura/Clausura: one table, then a three-way split. This is also not the old 'two stages plus a final' - in 2026 the champion is simply the top of the championship hexagonal (Independiente del Valle clinched with four rounds to go on 8 November 2026), with no final match. The 4-team middle group was cut from six clubs for 2026."
+    },
+    {
+      "id": "EC2L",
+      "country": "Ecuador",
+      "split": true,
+      "regular": {
+        "rounds": 22,
+        "start_md": "03-18",
+        "end_md": "08-21",
+        "precision": "day"
+      },
+      "split_after_rounds": 22,
+      "groups": [
+        {
+          "label": "Ascenso (promotion group)",
+          "teams": 6,
+          "rounds": 10,
+          "decides": "champion and runner-up promoted to Serie A"
+        },
+        {
+          "label": "Descenso (relegation group)",
+          "teams": 6,
+          "rounds": 10,
+          "decides": "bottom two relegated to Segunda Categoría"
+        }
+      ],
+      "points_carry": "full",
+      "threshold": "top 6 / bottom 6 of the 12-club double round-robin; points and goals both kept",
+      "champion": "group_table",
+      "after": "no final",
+      "split_window": {
+        "start_md": "08-27",
+        "end_md": "10-28",
+        "precision": "day"
+      },
+      "source": "https://es.wikipedia.org/wiki/Serie_B_de_Ecuador_2026",
+      "quote": "La fase regular o clasificatoria se jugó bajo la modalidad todos contra todos (22 fechas), al terminar dicha fase los seis primeros equipos avanzaron a la fase final por el ascenso, los restantes seis equipos avanzaron a la fase final por el descenso; en los dos grupos los equipos conservaron los puntos y goles obtenidos en la fase regular.",
+      "window_quote": "Fecha 22 played 20-21 August 2026 (last regular round); fecha 23 (first final-stage round) played 27 August 2026; fecha 32 (last) played 28 October 2026.",
+      "confidence": "high",
+      "note": "12 clubs, 32 matchdays in all (22 + 10). 'Reserve' sides (filiales) are not eligible for promotion. Season 18 March - 28 October 2026."
+    },
+    {
+      "id": "KHM1",
+      "country": "Cambodia",
+      "split": true,
+      "regular": {
+        "rounds": 20,
+        "start_md": "09-05",
+        "end_md": null,
+        "precision": "day"
+      },
+      "split_after_rounds": 20,
+      "groups": [
+        {
+          "label": "Championship round",
+          "teams": 6,
+          "rounds": 10,
+          "decides": "title and AFC Champions League Two berth"
+        },
+        {
+          "label": "Bottom-five round",
+          "teams": 5,
+          "rounds": 8,
+          "decides": "placings only; no relegation in 2025-26"
+        }
+      ],
+      "points_carry": "full",
+      "threshold": "top 6 / bottom 5 of the 11-club double round-robin; full points kept",
+      "champion": "group_table",
+      "after": "no final",
+      "split_window": null,
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Cambodian_Premier_League",
+      "quote": "Much like the previous season, eleven teams are competing in a double round-robin match before the top-six teams proceed to the champion round.",
+      "points_quote": "2025-26 championship-round table keeps first-phase results (e.g. PKR Svay Rieng 21W 3D 6L = 30 matches) - https://en.wikipedia.org/wiki/2025%E2%80%9326_Cambodian_Premier_League",
+      "confidence": "medium",
+      "note": "Group sizes and rounds are taken from the 2025-26 season, the last completed one with this shape: championship round of six and a separate 'Bottom-five round', each played home and away (10 and 8 matches). 2026-27 states only that the top six go to the champion round. No relegation column exists for 2026-27 (2025-26 had none either because Cambodian League 2 was cancelled). Split dates are not published; the 2025-26 championship round was still running in mid-May 2026 and the season closed on 17 May. The 2026-27 infobox end date '17 May 2026' is a typo for 2027."
+    },
+    {
+      "id": "LIB1",
+      "country": "Lebanon",
+      "split": true,
+      "regular": {
+        "rounds": 22,
+        "start_md": "10-08",
+        "end_md": null,
+        "precision": "day"
+      },
+      "split_after_rounds": 22,
+      "groups": [
+        {
+          "label": "Championship group",
+          "teams": 6,
+          "rounds": 10,
+          "decides": "title and AFC Challenge League place"
+        },
+        {
+          "label": "Relegation group",
+          "teams": 6,
+          "rounds": 10,
+          "decides": "bottom two relegated to the Second Division"
+        }
+      ],
+      "points_carry": "half",
+      "threshold": "top 6 / bottom 6 of the 12-club double round-robin; half of first-phase points, a half point rounded up",
+      "champion": "group_table",
+      "after": "no final",
+      "split_window": null,
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Lebanese_Premier_League",
+      "quote": "Teams play each other twice (22 matches), before the league is split into two groups of six (the top six and the bottom six), where each team plays the other teams in their group twice (10 matches). Teams carry over half their point tally from the first phase into the second phase.",
+      "points_quote": "\"Each club carries over half of the points it accumulated during the first phase, with a half point rounded up to a full point.\"",
+      "confidence": "medium",
+      "note": "The article contradicts itself: its Format prose still says 'the top four teams enter the championship group, while the bottom four enter the relegation group', which is left over from 2025-26 (that season really did use a 4-team championship group and a 3-team relegation group after Bourj withdrew) and cannot fit 12 clubs. The table note above, the 10-match second phase and the template's split6 flag all point to 6+6, which is what is recorded here. Season 8 October 2026 - 12 April 2027; the split date between them is not published."
+    },
+    {
+      "id": "PFL1",
+      "country": "Philippines",
+      "split": true,
+      "regular": {
+        "rounds": 20,
+        "start_md": "08-31",
+        "end_md": null,
+        "precision": "day"
+      },
+      "split_after_rounds": 20,
+      "groups": [
+        {
+          "label": "Championship round",
+          "teams": 5,
+          "rounds": 4,
+          "decides": "title and the AFC club-competition places"
+        },
+        {
+          "label": "Classification round",
+          "teams": 5,
+          "rounds": 4,
+          "decides": "placings only; no relegation"
+        }
+      ],
+      "points_carry": "full",
+      "threshold": "top 5 / bottom 5 of the 10-club double round-robin; full regular-season points included",
+      "champion": "group_table",
+      "after": "no final",
+      "split_window": null,
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Philippines_Football_League",
+      "quote": "The ten teams will play in a double round robin consisting of 20 games",
+      "points_quote": "2025-26: \"The top six teams from the regular season phase will advance to the championship round, which will adopt a single round robin format. Points from the regular season are included.\" - https://en.wikipedia.org/wiki/2025%E2%80%9326_Philippines_Football_League",
+      "confidence": "medium",
+      "note": "The 2026-27 article has no format prose: the split is visible only in the standings template (result1-5 = Championship round, result6-10 = Classification round) and in the positions-by-round legend. Rounds per group (4) are derived from 2025-26, where both second-phase groups were single round-robins (6 teams = 5 matches, 5 teams = 4). No relegation and no end date ('August 31, 2026 - TBA'). Season postponed one day from 30 August because of monsoon rains."
+    },
+    {
+      "id": "NCL1",
+      "country": "New Zealand",
+      "split": false,
+      "regular": {
+        "rounds": 18,
+        "start_md": "03-28",
+        "end_md": "08-29",
+        "precision": "day"
+      },
+      "split_after_rounds": null,
+      "groups": [],
+      "points_carry": null,
+      "threshold": null,
+      "champion": "league_table",
+      "after": "no final; top 3 plus Wellington Phoenix Reserves enter the separate National Championship phase, whose top 2 play a single Grand Final",
+      "split_window": null,
+      "source": "https://en.wikipedia.org/wiki/2026_New_Zealand_National_League",
+      "quote": "32 clubs compete in the competition, with four qualifying from the Northern League, three qualifying from the Central League and two qualifying from the Southern League for the National Championship phase. Auckland FC Reserves and Wellington Phoenix Reserves qualify automatically for the championship phase.",
+      "confidence": "high",
+      "note": "Not a split of one league. The Central League is a 10-club regional qualifying league (18 rounds, 28 March - 29 August 2026) that feeds 3 clubs + Wellington Phoenix Reserves into the National Championship - a separate 11-club competition, single round-robin of 10 matches, September to 13 December 2026, from zero points, top two to the Grand Final (one match). Reserve sides cannot play the Grand Final. No relegation in 2026."
+    },
+    {
+      "id": "NNL1",
+      "country": "New Zealand",
+      "split": false,
+      "regular": {
+        "rounds": 22,
+        "start_md": "03-21",
+        "end_md": "08-29",
+        "precision": "day"
+      },
+      "split_after_rounds": null,
+      "groups": [],
+      "points_carry": null,
+      "threshold": null,
+      "champion": "league_table",
+      "after": "no final; top 4 plus Auckland FC Reserves enter the separate National Championship phase, whose top 2 play a single Grand Final",
+      "split_window": null,
+      "source": "https://en.wikipedia.org/wiki/2026_New_Zealand_National_League",
+      "quote": "Twelve teams are competing in the league - the top ten teams from the previous season and the two teams promoted from the 2025 NRFL Leagues#Championship. ... Winner of Northern League, qualification to National League Championship",
+      "confidence": "high",
+      "note": "Not a split of one league: 12-club regional league, double round-robin (22 rounds, 21 March - 29 August 2026) whose top four qualify for the separate 11-club National Championship (single round-robin, September - 13 December 2026, points start at zero, top two to a single Grand Final). Auckland FC Reserves qualify automatically and cannot be relegated; no relegation in 2026."
+    },
+    {
+      "id": "NSL1",
+      "country": "New Zealand",
+      "split": false,
+      "regular": {
+        "rounds": 18,
+        "start_md": "03-21",
+        "end_md": "09-12",
+        "precision": "day"
+      },
+      "split_after_rounds": null,
+      "groups": [],
+      "points_carry": null,
+      "threshold": null,
+      "champion": "league_table",
+      "after": "no final; top 2 enter the separate National Championship phase, whose top 2 play a single Grand Final",
+      "split_window": null,
+      "source": "https://en.wikipedia.org/wiki/2026_New_Zealand_National_League",
+      "quote": "The 2026 Southern League is the 5th season of a full 10 team league ... The League starts in March and finishes in September, with the top two side qualifying for the National League Championship.",
+      "confidence": "high",
+      "note": "Not a split of one league: 10-club regional league, 18 rounds, 21 March - 12 September 2026 per the section infobox (the 24 February fixtures release said it would end on 30 August), top two into the separate 11-club National Championship (single round-robin, September - 13 December, zero points, top two to the Grand Final). No relegation in 2026."
+    },
+    {
+      "id": "SER1",
+      "country": "Serbia",
+      "split": true,
+      "regular": {
+        "rounds": 26,
+        "start_md": "07-17",
+        "end_md": "04-03",
+        "precision": "day"
+      },
+      "split_after_rounds": 26,
+      "groups": [
+        {
+          "label": "Championship round (play-off)",
+          "teams": 6,
+          "rounds": 5,
+          "decides": "title, Champions League, Europa League and Conference League places"
+        },
+        {
+          "label": "Relegation round (play-out)",
+          "teams": 8,
+          "rounds": 7,
+          "decides": "bottom four relegated to the First League because the league shrinks to 12"
+        }
+      ],
+      "points_carry": "full",
+      "threshold": "top 6 / 7th-14th of the 14-club double round-robin; full points kept",
+      "champion": "group_table",
+      "after": "no final",
+      "split_window": null,
+      "source": "https://sr.wikipedia.org/wiki/%D0%A1%D1%83%D0%BF%D0%B5%D1%80%D0%BB%D0%B8%D0%B3%D0%B0_%D0%A1%D1%80%D0%B1%D0%B8%D1%98%D0%B5_%D1%83_%D1%84%D1%83%D0%B4%D0%B1%D0%B0%D0%BB%D1%83_2026/27.",
+      "quote": "Први део такмичења ... Одиграно кола 0 од 26 ... Доигравање за титулу (Плеј-оф) ... Одиграно кола 0 од 5 ... Доигравање за опстанак (Плеј-аут) ... Одиграно кола 0 од 7",
+      "points_quote": "2025-26 championship-round table is cumulative (Red Star 27W 5D 5L = 37 matches = 30+7, 100 goals), i.e. the regular season is not reset or halved - https://en.wikipedia.org/wiki/2025%E2%80%9326_Serbian_SuperLiga",
+      "confidence": "high",
+      "note": "26-round regular season (round 1: 17-19 July 2026, round 26: 3 April 2027), then 6/8 split confirmed by the standings colouring and by the separate play-off (5 rounds, 15 matches) and play-out (7 rounds, 28 matches) brackets. Rounds run 27-31 (play-off) and 27-33 (play-out), listed for 2027 without dates, so the split window is not published. The 2026-27 season is the last with 14 clubs: four are relegated and the league drops to 12 from 2027-28, so this is the only season with the 6/8 cut.",
+      "shrink_note": "The shrink changes the split: 2025-26 had 16 clubs and an 8/8 cut with 7 rounds per group; 2026-27 has 14 clubs and a 6/8 cut."
+    },
+    {
+      "id": "SER2",
+      "country": "Serbia",
+      "split": true,
+      "regular": {
+        "rounds": 30,
+        "start_md": "07-31",
+        "end_md": null,
+        "precision": "day"
+      },
+      "split_after_rounds": 30,
+      "groups": [
+        {
+          "label": "Championship round",
+          "teams": 6,
+          "rounds": 5,
+          "decides": "top two promoted to the SuperLiga"
+        },
+        {
+          "label": "Relegation round",
+          "teams": 10,
+          "rounds": 9,
+          "decides": "places 11-16 of the final order relegated to the Serbian League"
+        }
+      ],
+      "points_carry": "full",
+      "threshold": "top 6 / 7th-16th of the 16-club double round-robin; full points kept",
+      "champion": "group_table",
+      "after": "no final",
+      "split_window": null,
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serbian_First_League",
+      "quote": "Each team plays every other team twice. After the regular season, the top six teams advance to the Championship round, while the remaining ten enter the Relegation round. The top two teams are promoted to the Serbian SuperLiga, and the teams placed 11th to 16th are relegated to the Serbian League.",
+      "points_quote": "2025-26: \"The top six teams advanced from the regular season. Teams played each other once.\" / \"The bottom ten teams advanced from the regular season. Teams played each other once.\" - https://en.wikipedia.org/wiki/2025%E2%80%9326_Serbian_First_League",
+      "confidence": "high",
+      "note": "Round counts inside the groups (5 and 9) are derived from 2025-26, when both groups played each other once; the 2026-27 regulations PDF is the primary source but the article text gives no group rounds. Season began 31 July 2026, no end date or split date published. 2025-26 confirmed full points carry (Zemun 20W 10D 5L = 35 matches = 30+5)."
+    }
+  ]
+}
