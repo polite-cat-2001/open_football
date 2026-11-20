@@ -28,7 +28,17 @@ only one with promotion and relegation.
 ]
 ```
 
-- `kind`: `league` | `cup` | `super_cup` | `international`.
+- `kind`: `league` | `cup` | `super_cup` | `international` | `friendly` |
+  `pre_season`.
+- **Non-competitive matches.** `friendly` is a single match with a generated
+  opponent (4–6 in the pre-season, chosen by country and strength); it has no
+  table, no winner, no berth, and never touches the league standings or the
+  form strip, but it does count for player condition and can injure. A
+  `pre_season` competition is a named tournament (4–8 clubs, knockout or a small
+  group, possibly international) with a trophy but again no berth and no effect
+  on any table. Both are scheduled before the first competitive fixture and are
+  marked `non_competitive: true`, which every table, form and review reader
+  excludes.
 - A country may have **more than one cup**, and each is its own `kind: "cup"`
   competition: England has the FA Cup and the EFL Cup, Portugal the Taça de
   Portugal and the Taça da Liga, Scotland two, Brazil has regional cups
@@ -77,8 +87,12 @@ only one with promotion and relegation.
 - "Next fixture" is the earliest unplayed fixture across all competitions.
   `season.next` carries `competition` and the competition's label.
 - The season review: primary league (table, promotion/relegation) plus one
-  block per other competition (winner, final score).
+  block per other competition (winner, final score). Non-competitive
+  competitions appear as a single "pre-season" line (matches played, no table).
 - Promotion and relegation read the primary league only.
+- Friendly and pre-season fixtures are excluded from `_played_fixtures`, from
+  the form strip, from `last_played_round` and from every standings call; they
+  only feed player condition.
 - When the club is eliminated from a cup or continental competition, the rest
   of that bracket is **generated and simulated immediately**, so the winner
   exists for next season's berths; the competition then drops out of the hub
@@ -216,11 +230,14 @@ only.
    leagues). This replaces the formats spec's phases 2 – 4; the two specs share
    one `format` object. League competitions keep their rows in
    `assets/data/league_regulations.json`; cups, super cups and internationals
-   live in a new `assets/data/competitions.json`.
+   live in a new `assets/data/competitions.json`. The generated pre-season
+   friendlies land here too: they test the non-competitive path without any
+   data.
 2. **League formats data**: the 22 encoded formats.
 3. **Domestic cups**: single-leg knockout with byes, the two-legged attachment,
    Turkey's group hybrid; data from the national-cups research (17 countries).
-4. **Super cups**: two-team single match and the four-team mini-tournament.
+4. **Super cups**: two-team single match and the four-team mini-tournament, plus
+   named pre-season tournaments when their data is known.
 5. **Berths and the background world season**; then group+knockout
    internationals.
 6. **Pot-league internationals** (Libertadores, Sudamericana, UEL, UECL), then

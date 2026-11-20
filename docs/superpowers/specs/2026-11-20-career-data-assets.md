@@ -35,6 +35,10 @@ reference its ids.
   is recomputed from the format and the loader asserts equality.
 - `phases` is **retained unread** after `format` lands, purely as the research
   audit trail; the engine never reads it.
+- **Friendlies are generated, not data**: at season creation the career builds
+  4–6 pre-season matches against clubs chosen by country and strength, seeded
+  deterministically by the career seed, so they survive a save without an asset.
+  Named pre-season tournaments are data when known and generated otherwise.
 - `out_of_scope` on a competition means it exists for berths but is never
   scheduled (the Brazilian regional cups, when added).
 - Domestic→domestic berths (a regional cup winner entering another cup's round)
