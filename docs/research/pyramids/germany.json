@@ -85,24 +85,6 @@
    }
   },
   {
-   "id": "RLN",
-   "name": "Regionalliga Nord",
-   "level": 4,
-   "size": 18,
-   "closed_up": false,
-   "closed_down": false,
-   "format": {
-    "kind": "single",
-    "rounds": 34
-   },
-   "playoff": {
-    "kind": "promotion",
-    "entries": "champion of Regionalliga Nord vs champion of Regionalliga Bayern",
-    "legs": 2,
-    "note": "only the 4th of the 4 promotion places"
-   }
-  },
-  {
    "id": "RLN4",
    "name": "Regionalliga Nordost",
    "level": 4,
@@ -129,19 +111,6 @@
    "playoff": null
   },
   {
-   "id": "RLW",
-   "name": "Regionalliga West",
-   "level": 4,
-   "size": 18,
-   "closed_up": false,
-   "closed_down": false,
-   "format": {
-    "kind": "single",
-    "rounds": 34
-   },
-   "playoff": null
-  },
-  {
    "id": "RLN3",
    "name": "Regionalliga Nord",
    "level": 4,
@@ -153,7 +122,13 @@
     "rounds": 34
    },
    "note": "Added on 2026-11-21 from Transfermarkt to complete the five Regionalliga; the Open Football import had only three.",
-   "confidence": "high"
+   "confidence": "high",
+   "playoff": {
+    "kind": "promotion",
+    "entries": "champion of Regionalliga Nord vs champion of Regionalliga Bayern",
+    "legs": 2,
+    "note": "only the 4th of the 4 promotion places"
+   }
   },
   {
    "id": "RLW3",
@@ -167,7 +142,8 @@
     "rounds": 34
    },
    "note": "Added on 2026-11-21 from Transfermarkt to complete the five Regionalliga; the Open Football import had only three.",
-   "confidence": "high"
+   "confidence": "high",
+   "playoff": null
   }
  ],
  "boundaries": [

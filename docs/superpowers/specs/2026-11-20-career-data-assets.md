@@ -59,6 +59,12 @@ reference its ids.
   club, not a reserve side).
 - `berth_via` exists only where a club's qualifying country differs from its
   league's country.
+- **Post-import merges.** `AR3R → AR3F` (one 37-club Torneo Federal A) and
+  `CL2Z → CL2F` (one 14-club Chilean Segunda) are applied **after every database
+  import**: the step moves the clubs in `database.sqlite` and `canon.db`, names
+  the merged league and drops the extra row. A rebuild from the scraper canon
+  re-creates the split rows, because the canon still carries them as separate
+  competitions, so the merge is a mandatory post-step, not a one-off.
 - Suspended associations are a list separate from the berth table, so the
   `politics_mode` flag can include or exclude them without touching the data.
 
