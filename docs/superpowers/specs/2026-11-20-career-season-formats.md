@@ -249,21 +249,21 @@ Status: v3 revised after three audits, the last one by attempting to encode all
 
 ## Implementation phases
 
-0. **Calendar**: boundary-based season start (mid-gap), season end before the
-   next boundary, tests and the two date-bearing goldens green, commit.
+0. **Calendar** (the open work on the branch): boundary-based season start,
+   season end before the next boundary, tests and the two date-bearing goldens
+   green, commit.
 1. **Data**: schema, the 22 formats encoded (`AR3F` among them as the merged
    two-path tournament, then `out_of_scope` removed; `M191`/`M21A` single), row
    windows recomputed, loader, validation test, `check_league_regulations`
-   updated.
-2. **Schedule and tables**: stage/group builders and the three call sites, the
-   round index and `stage_round`, `standings(view)` with `group`, `season.
-   standings` vs `season.aggregate`, next-fixture by date.
-3. **Persistence**: version gates, id-set migration, `.bak` retention,
-   normalisers, `stages_generated`.
-4. **Brackets**: lazy generation, produced-gate, knockouts, extra time and
-   penalties, ties, promotion/relegation rules.
-5. **UI**: labels, tiles, tabs, review, skip rule.
-6. **Tests, goldens, wiki.**
+   updated — this lands in `assets/data/competitions.json`, one `format` per
+   competition.
+
+Phases 2–6 of this slice are executed as the container phases in
+`2026-11-20-career-competitions.md` (stage engine, schedule, persistence,
+brackets, UI), because the container owns the data model: a league is one
+`kind: "league"` competition and shares the stage engine with cups. This spec
+owns the league-format semantics (entrants, bonus, carry, aggregate,
+promotion/relegation, conditional stages); that one owns the container.
 
 ## Open decisions
 
