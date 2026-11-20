@@ -1,0 +1,219 @@
+{
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "SC1",
+      "country": "Scotland",
+      "split": true,
+      "regular": {"rounds": 33, "start_md": "08-01", "end_md": "04-11", "precision": "day"},
+      "split_after_rounds": 33,
+      "groups": [
+        {"label": "Championship (top six)", "teams": 6, "rounds": 5},
+        {"label": "Relegation (bottom six)", "teams": 6, "rounds": 5}
+      ],
+      "points_carry": "full",
+      "champion": "group_table",
+      "after": "no final; 12th relegated directly, 11th plays the two-legged Premiership play-off final (20 & 23 May 2027)",
+      "split_window": {"start_md": "04-17", "end_md": "05-16", "precision": "day"},
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Premiership ; https://spfl.co.uk/news/key-dates-for-202627",
+      "quote": "After 33 games, the league splits into two sections of six teams, with each team playing each other in that section once. ... Fixture round 33 Weekend of April 10/11, 2027 ... Fixture round 38 Weekend of May 15/16, 2027 ... William Hill Premiership play-off final Thursday May 20 & Sunday May 23, 2027",
+      "confidence": "high",
+      "note": "33 rounds = 22 home/away + 11 third meetings; 38 total. Split start 17 Apr is derived: round 33 is 10/11 Apr, round 38 is 15/16 May, and the five split rounds fill the five weekends between them. 11th may be in the bottom six; 12th is relegated regardless."
+    },
+    {
+      "id": "SC2",
+      "country": "Scotland",
+      "split": false,
+      "regular": {"rounds": 36, "start_md": "08-01", "end_md": "04-30", "precision": "day"},
+      "split_after_rounds": null,
+      "groups": [],
+      "points_carry": null,
+      "champion": "table",
+      "after": "no split; 2nd-4th promotion play-offs (2nd to the final), 9th relegation play-off, 10th relegated",
+      "split_window": null,
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Championship ; https://spfl.co.uk/news/key-dates-for-202627",
+      "quote": "Teams play each other four times, twice in the first half of the season (home and away) and twice in the second half of the season (home and away), making a total of 180 games, with each team playing 36. ... Fixture round 36 Friday April 30, 2027",
+      "confidence": "high",
+      "note": "The Championship does not split. The 'split' phase label in league_regulations.json is inherited from SC1 and is wrong for this tier. 10 clubs, four meetings each."
+    },
+    {
+      "id": "SC3",
+      "country": "Scotland",
+      "split": false,
+      "regular": {"rounds": 36, "start_md": "08-01", "end_md": "05-01", "precision": "day"},
+      "split_after_rounds": null,
+      "groups": [],
+      "points_carry": null,
+      "champion": "table",
+      "after": "no split; 2nd-4th promotion play-offs, 9th relegation play-off, 10th relegated",
+      "split_window": null,
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_League_One ; https://spfl.co.uk/news/key-dates-for-202627",
+      "quote": "Teams play each other four times, twice in the first half of the season (home and away) and twice in the second half of the season (home and away), making a total of 180 games, with each team playing 36. ... Fixture round 36 Saturday May 1, 2027",
+      "confidence": "high",
+      "note": "League One does not split; the inherited 'split' label is wrong. 10 clubs, four meetings each."
+    },
+    {
+      "id": "SC4",
+      "country": "Scotland",
+      "split": false,
+      "regular": {"rounds": 36, "start_md": "08-01", "end_md": "05-01", "precision": "day"},
+      "split_after_rounds": null,
+      "groups": [],
+      "points_carry": null,
+      "champion": "table",
+      "after": "no split; 2nd-4th promotion play-offs, 10th (Club 42) to the pyramid play-off, no direct relegation",
+      "split_window": null,
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_League_Two ; https://spfl.co.uk/news/key-dates-for-202627",
+      "quote": "Teams play each other four times, twice in the first half of the season (home and away) and twice in the second half of the season (home and away), making a total of 180 games, with each team playing 36. ... Fixture round 36 Saturday May 1, 2027",
+      "confidence": "high",
+      "note": "League Two does not split; the inherited 'split' label is wrong. 10 clubs, four meetings each. The infobox date '1 August 2025 - 1 May 2026' is a typo; the body says the season began 1 August 2026 and the SPFL lists round 36 on 1 May 2027."
+    },
+    {
+      "id": "NIR1",
+      "country": "Northern Ireland",
+      "split": true,
+      "regular": {"rounds": 33, "start_md": "08-07", "end_md": null, "precision": "month"},
+      "split_after_rounds": 33,
+      "groups": [
+        {"label": "Section A (top six)", "teams": 6, "rounds": 5},
+        {"label": "Section B (bottom six)", "teams": 6, "rounds": 5}
+      ],
+      "points_carry": "full",
+      "champion": "group_table",
+      "after": "no final; 12th relegated directly, 11th plays a two-legged play-off against the Championship runner-up",
+      "split_window": {"start_md": null, "end_md": "04-24", "precision": "month"},
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_NIFL_Premiership",
+      "quote": "For the final five matches, the table splits into two halves, with the top six teams forming Section A and the bottom six teams forming Section B. Each team plays every other team in their respective section once. The fixtures are reversed from those played during rounds 23-33, ensuring that teams have played every other team in their respective section twice at home and twice away overall throughout the season. ... dates = 7 August 2026 - 24 April 2027",
+      "confidence": "high",
+      "note": "33 rounds = 22 home/away + 11 third meetings, then 5 sectional rounds (38 total). The regular-phase end and the exact split start are not published in the season article; only the 24 April season end is stated. Relegation/play-off mechanics are from the table qualification markers (11th = play-off final, 12th = relegation) and the 2025-26 two-legged play-off precedent."
+    },
+    {
+      "id": "NIR2",
+      "country": "Northern Ireland",
+      "split": true,
+      "regular": {"rounds": 30, "start_md": "08-08", "end_md": null, "precision": "month"},
+      "split_after_rounds": 30,
+      "groups": [
+        {"label": "Section A (top eight)", "teams": 8, "rounds": 7},
+        {"label": "Section B (bottom eight)", "teams": 8, "rounds": 7}
+      ],
+      "points_carry": "full",
+      "champion": "group_table",
+      "after": "no final; Section A runner-up plays a two-legged play-off against the Premiership 11th; 15th plays the NCL Premier runner-up (legs not stated)",
+      "split_window": {"start_md": null, "end_md": "04-24", "precision": "month"},
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_NIFL_Championship",
+      "quote": "For the final seven matches, the table splits into two halves, with the top eight teams forming Section A and the bottom eight teams forming Section B. Each team plays every other team in their respective section once. ... The winners of Section A are the champions, and they get promoted ... while the runners-up go into a two-legged play-off against the second-bottom team in the Premiership ... The bottom club in Section B gets relegated, while the team in the 15th position will face a play-off against the runner-up in the NCL Premier",
+      "confidence": "high",
+      "note": "First 16-club Championship season (expanded from 12): 30 rounds double round-robin, then 7 sectional rounds (37 total). The regular-phase end and split start are not published; season ends 24 April 2027. The 15th-place play-off legs are not stated in the article."
+    },
+    {
+      "id": "WAL1",
+      "country": "Wales",
+      "split": true,
+      "regular": {"rounds": 30, "start_md": "07-31", "end_md": "03-26", "precision": "day"},
+      "split_after_rounds": 30,
+      "groups": [
+        {"label": "Championship Race (top six)", "teams": 6, "rounds": 5},
+        {"label": "European Challenger (7th-10th)", "teams": 4, "rounds": 3},
+        {"label": "Survival Zone (bottom six)", "teams": 6, "rounds": 5}
+      ],
+      "points_carry": "full",
+      "champion": "group_table",
+      "after": "no final; 14th plays a one-off relegation play-off, 15th and 16th relegated; separate one-off European play-offs",
+      "split_window": {"start_md": "04-02", "end_md": "04-25", "precision": "day"},
+      "source": "https://en.wikipedia.org/wiki/Cymru_Premier ; https://en.wikipedia.org/wiki/2026%E2%80%9327_Cymru_Premier ; https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/",
+      "quote": "In September 2024, the FAW confirmed the new league format would start in the 2026-27 season and would consist of 16 teams each playing each other home and away before being split into three tiers of six, four and six clubs. The top six in the table will play each other once more, with the club topping the table after Matchday 35 crowned champions. ... Clubs ranked seventh through tenth will play each other once more, with the club placing seventh after Matchday 33 receiving the final play-off spot for European qualification. ... At the end of Matchday 35, the two lowest clubs will be automatically relegated, while the club in 14th will compete in the relegation play-off ... Final round of Phase Two fixtures: 23 - 25 April 2027",
+      "confidence": "medium",
+      "note": "First 16-club season of the new format. 30 rounds then 5/3/5 more, so 35 rounds for the top and bottom groups and 33 for the middle four. The 26 March Phase One end and 2 April split start come from the same FAW season-dates release (as recorded in docs/research/season-windows/wales.json; the page itself timed out). European play-offs (2nd-7th) are separate from promotion/relegation."
+    },
+    {
+      "id": "WA2S",
+      "country": "Wales",
+      "split": false,
+      "regular": {"rounds": 30, "start_md": null, "end_md": "04-17", "precision": "month"},
+      "split_after_rounds": null,
+      "groups": [],
+      "points_carry": null,
+      "champion": "table",
+      "after": "no split; champion promoted subject to licence, runner-up enters the promotion play-off",
+      "split_window": null,
+      "source": "https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/ ; https://en.wikipedia.org/wiki/Cymru_South",
+      "quote": "JD Cymru North & JD Cymru South ... Final round of fixtures: 16-17 April 2027",
+      "confidence": "medium",
+      "note": "No split: 16 clubs, double round-robin = 30 rounds. The 2026-27 Cymru South season article does not exist; the 30 is arithmetic from 16 clubs, and the start date was not published in a readable source (the FAW page only yielded the final-round line)."
+    },
+    {
+      "id": "WAL2",
+      "country": "Wales",
+      "split": false,
+      "regular": {"rounds": 30, "start_md": null, "end_md": "04-17", "precision": "month"},
+      "split_after_rounds": null,
+      "groups": [],
+      "points_carry": null,
+      "champion": "table",
+      "after": "no split; champion promoted subject to licence, runner-up enters the promotion play-off",
+      "split_window": null,
+      "source": "https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/ ; https://en.wikipedia.org/wiki/Cymru_North",
+      "quote": "JD Cymru North & JD Cymru South ... Final round of fixtures: 16-17 April 2027",
+      "confidence": "medium",
+      "note": "No split: 16 clubs, double round-robin = 30 rounds. The 2026-27 Cymru North season article does not exist; the 30 is arithmetic from 16 clubs, and the start date was not published in a readable source."
+    },
+    {
+      "id": "GI1",
+      "country": "Gibraltar",
+      "split": true,
+      "regular": {"rounds": 20, "start_md": "08-21", "end_md": "03-14", "precision": "day"},
+      "split_after_rounds": 20,
+      "groups": [
+        {"label": "GFL Championship Group (top six)", "teams": 6, "rounds": 5},
+        {"label": "Challenge Group (bottom five)", "teams": 5, "rounds": 4}
+      ],
+      "points_carry": "full",
+      "champion": "group_table",
+      "after": "no final; European play-off among the Challenge Group winner and Championship Group 3rd-6th (4-15 May 2027); no promotion or relegation",
+      "split_window": {"start_md": "03-19", "end_md": "04-25", "precision": "day"},
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Gibraltar_Football_League ; https://www.gibraltarfa.com/news/men-s-domestic-football-fixtures-confirmed-for-the-2026-27-season-866",
+      "quote": "Instead of playing one round of fixtures before splitting, teams will instead play each other twice for a total of 20 games this season. After the second round of games, the top 6 enter the GFL Championship Group, where each team plays each other once to decide the league champion. This season, the Challenge Group returns, with the winner of the 5 team group advancing to playoffs with teams placed 3rd-6th ... GFL Championship GW1 19/03/2027 ... GW5 23/04/2027 ... GFL Challenge GW5 25/04/2027 ... Play-offs First Round 04/05/2027 ... Final 15/05/2027",
+      "confidence": "high",
+      "note": "11 clubs: 20 matches each over 22 matchdays (one bye per round); last regular matchday 12-14 March 2027. The Challenge Group's five teams play 4 matches each across 5 matchdays. No relegation at all; entry is by licence."
+    },
+    {
+      "id": "ISR1",
+      "country": "Israel",
+      "split": true,
+      "regular": {"rounds": 26, "start_md": "08-22", "end_md": null, "precision": "month"},
+      "split_after_rounds": 26,
+      "groups": [
+        {"label": "Championship round (top six)", "teams": 6, "rounds": 10},
+        {"label": "Relegation round (bottom eight)", "teams": 8, "rounds": 7}
+      ],
+      "points_carry": "full",
+      "champion": "group_table",
+      "after": "no final; bottom two of the Relegation round are relegated",
+      "split_window": {"start_md": null, "end_md": "05-22", "precision": "month"},
+      "source": "https://en.wikipedia.org/wiki/Israeli_Premier_League ; https://en.wikipedia.org/wiki/2026%E2%80%9327_Israeli_Premier_League",
+      "quote": "The participating clubs first play a conventional round-robin schedule for a total of 26 matches. Following this, the top six teams play in a championship playoff, where they meet each other twice. ... In addition, the bottom eight teams will play each other once to avoid two relegation spots. ... At the end of each season, the two lowest-placed teams are relegated to Liga Leumit",
+      "confidence": "high",
+      "note": "14 clubs: 26 rounds, then 10 more for the top six (36) and 7 for the bottom eight (33). Points are not halved (halving ended in 2011). The regular-phase end and split start are not published in the season article; season ends 22 May 2027."
+    },
+    {
+      "id": "ISR2",
+      "country": "Israel",
+      "split": true,
+      "regular": {"rounds": 30, "start_md": "08-18", "end_md": null, "precision": "month"},
+      "split_after_rounds": 30,
+      "groups": [
+        {"label": "Promotion group (top eight)", "teams": 8, "rounds": 7},
+        {"label": "Relegation group (bottom eight)", "teams": 8, "rounds": 7}
+      ],
+      "points_carry": "full",
+      "champion": "group_table",
+      "after": "no knockout; top two of the Promotion group promoted, bottom two of the Relegation group relegated to Liga Alef",
+      "split_window": {"start_md": null, "end_md": "05-07", "precision": "month"},
+      "source": "https://en.wikipedia.org/wiki/Liga_Leumit ; https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_Leumit",
+      "quote": "The participating clubs were first play a conventional round-robin schedule for a total of 30 matches ... Following this, the top eight teams will first play in a promotion playoff ... the eight clubs play a single round-robin schedule. In addition, the bottom eight teams play out to avoid two relegation spots. ... The two highest-placed Liga Leumit teams are promoted to the Israeli Premier League ... two lowest-placed teams are relegated to Liga Alef",
+      "confidence": "medium",
+      "note": "16 clubs: 30 rounds, then 7 sectional rounds (37 total). The league article still says points are halved after the regular season, but the completed 2025-26 tables show 37 matches and full points, so full carry is used. Regular-phase end and split start are not published; season ends 7 May 2027."
+    }
+  ]
+}

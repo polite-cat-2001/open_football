@@ -5141,7 +5141,7 @@
    "start_md": "07-31",
    "end_md": "05-16",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -5157,14 +5157,14 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Premiership",
-   "note": "Window inherited from SC1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: a plain 36-round quadruple round-robin; the label was inherited from the Premiership. Window inherited from SC1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SC1"
   },
   "SC3": {
    "start_md": "07-31",
    "end_md": "05-16",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -5180,14 +5180,14 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Premiership",
-   "note": "Window inherited from SC1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: a plain 36-round quadruple round-robin; the label was inherited from the Premiership. Window inherited from SC1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SC1"
   },
   "SC4": {
    "start_md": "07-31",
    "end_md": "05-16",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -5203,7 +5203,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Premiership",
-   "note": "Window inherited from SC1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: a plain 36-round quadruple round-robin; the label was inherited from the Premiership. Window inherited from SC1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SC1"
   },
   "SE1": {
@@ -6287,7 +6287,7 @@
    "start_md": "07-31",
    "end_md": "04-17",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -6305,7 +6305,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Cymru_Premier",
-   "note": "Window inherited from WAL1; the season facts in that division's note were not re-checked for this league. end_md from https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/: \"JD Cymru North & JD Cymru South ... Final round of fixtures: 16-17 April 2027\".",
+   "note": "Not a split: 16 clubs, 30 rounds. Only the Cymru Premier splits (6/4/6); the label was inherited from it. Window inherited from WAL1; the season facts in that division's note were not re-checked for this league. end_md from https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/: \"JD Cymru North & JD Cymru South ... Final round of fixtures: 16-17 April 2027\".",
    "inherited_from": "WAL1"
   },
   "WAL1": {
@@ -6336,7 +6336,7 @@
    "start_md": "07-31",
    "end_md": "04-17",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -6354,7 +6354,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Cymru_Premier",
-   "note": "Window inherited from WAL1; the season facts in that division's note were not re-checked for this league. end_md from https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/: \"JD Cymru North & JD Cymru South ... Final round of fixtures: 16-17 April 2027\".",
+   "note": "Not a split: 16 clubs, 30 rounds. Only the Cymru Premier splits (6/4/6); the label was inherited from it. Window inherited from WAL1; the season facts in that division's note were not re-checked for this league. end_md from https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/: \"JD Cymru North & JD Cymru South ... Final round of fixtures: 16-17 April 2027\".",
    "inherited_from": "WAL1"
   },
   "WER1": {
