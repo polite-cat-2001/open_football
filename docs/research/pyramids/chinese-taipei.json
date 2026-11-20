@@ -1,65 +1,78 @@
 {
-  "country": "Chinese Taipei",
-  "season": "2026-27",
-  "sources": [
-    "https://en.wikipedia.org/wiki/Taiwan_Football_Premier_League",
-    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Taiwan_Football_Premier_League",
-    "https://en.wikipedia.org/wiki/Taiwan_Second_Division_Football_League",
-    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Taiwan_Football_League_2"
-  ],
-  "leagues": [
-    {
-      "id": "TFPL",
-      "name": "Taiwan Football Premier League",
-      "level": 1,
-      "size": 8,
-      "closed_up": true,
-      "closed_down": true,
-      "format": { "kind": "single", "rounds": 21, "note": "Triple round-robin: 8 clubs meet three times, 21 matches each. No split, no carried points." },
-      "playoff": null
-    },
-    {
-      "id": "TFL2",
-      "name": "Taiwan Football League Div. 2",
-      "level": 2,
-      "size": 10,
-      "closed_up": false,
-      "closed_down": true,
-      "format": { "kind": "single", "rounds": 18, "note": "Double round-robin, 18 matches each. Ten clubs from 2026-27 (it was eight)." },
-      "playoff": null
-    }
-  ],
-  "boundaries": [
-    {
-      "upper": 1,
-      "lower": 2,
-      "up": 2,
-      "up_playoff": 0,
-      "down": 0,
-      "down_playoff": 0,
-      "allocation": "free",
-      "selection": "other",
-      "note": "2026-27 only: the top flight expands for 2027-28, so League 2's top two are promoted and no TFPL club is relegated. The standing rule is 1 up (League 2 champion) + 1 shared two-legged play-off (League 2 runner-up v TFPL 7th), and 1 down (TFPL 8th) + that same play-off."
-    }
-  ],
-  "conflicts": [
-    {
-      "topic": "No relegation from the 2026-27 top flight",
-      "detail": "The TFPL has eight clubs and normally relegates 8th directly and sends 7th to a play-off against the League 2 runner-up. For 2026-27 only, the CFA decided there would be no relegations because the league expands for 2027-28. A sim that always relegates the bottom club will be wrong for this season."
-    },
-    {
-      "topic": "League 2 promotes two, not one plus a play-off",
-      "detail": "Because of the same expansion, the 2026-27 League 2 table marks 1st and 2nd as promoted (both green). The normal route is champion only, with the runner-up in the promotion/relegation play-off."
-    },
-    {
-      "topic": "League 2 size changed this season",
-      "detail": "Our row says 10, which is right for 2026-27 (the league expanded from eight). The competition-format prose on the league page still describes eight clubs and 14 games; the 2026-27 season article (10 clubs, 18 games) is the correct source."
-    },
-    {
-      "topic": "League 2 has no sporting relegation",
-      "detail": "Below League 2 clubs enter through pre-season qualifiers and can withdraw (three clubs did not enter for 2026-27), so there is no bottom-club relegation to model."
-    }
-  ],
-  "confidence": "medium",
-  "notes": "Season runs September to May (2026-27), so this is the season now in progress; final standings do not exist yet. Levels and sizes (8/10) match our rows. The 2026-27 top flight is a one-off: no relegation and two promotions from League 2, both due to the 2027-28 expansion (the new size is not stated in the source). League 2 teams are a mix of senior clubs, university sides and reserve sides (Kaohsiung Attackers Reserves, Hang Yuan Reserves, Sunny Bank Reserves); reserve sides can be promoted, unlike in most European pyramids. Cups and AFC competitions excluded."
+ "country": "Chinese Taipei",
+ "season": "2026-27",
+ "sources": [
+  "https://en.wikipedia.org/wiki/Taiwan_Football_Premier_League",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Taiwan_Football_Premier_League",
+  "https://en.wikipedia.org/wiki/Taiwan_Second_Division_Football_League",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Taiwan_Football_League_2"
+ ],
+ "leagues": [
+  {
+   "id": "TFPL",
+   "name": "Taiwan Football Premier League",
+   "level": 1,
+   "size": 8,
+   "closed_up": true,
+   "closed_down": true,
+   "format": {
+    "kind": "single",
+    "rounds": 21,
+    "note": "Triple round-robin: 8 clubs meet three times, 21 matches each. No split, no carried points."
+   },
+   "playoff": null
+  },
+  {
+   "id": "TFL2",
+   "name": "Taiwan Football League Div. 2",
+   "level": 2,
+   "size": 10,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "single",
+    "rounds": 18,
+    "note": "Double round-robin, 18 matches each. Ten clubs from 2026-27 (it was eight)."
+   },
+   "playoff": null
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 2,
+   "up_playoff": 0,
+   "down": 0,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "other",
+   "note": "2026-27 only: the top flight expands for 2027-28, so League 2's top two are promoted and no TFPL club is relegated. The standing rule is 1 up (League 2 champion) + 1 shared two-legged play-off (League 2 runner-up v TFPL 7th), and 1 down (TFPL 8th) + that same play-off.",
+   "steady": {
+    "up": 1,
+    "down": 1
+   },
+   "steady_note": "Steady state (1 up / 1 down): the 2026-27 expansion (2 up / 0 down) is a one-off and is recorded in this note but not applied. The shared promotion/relegation play-off is not modelled either: its winner moves one club across and would change the roster size by one. Applying the expansion every season would grow the top flight until the second division is empty."
+  }
+ ],
+ "conflicts": [
+  {
+   "topic": "No relegation from the 2026-27 top flight",
+   "detail": "The TFPL has eight clubs and normally relegates 8th directly and sends 7th to a play-off against the League 2 runner-up. For 2026-27 only, the CFA decided there would be no relegations because the league expands for 2027-28. A sim that always relegates the bottom club will be wrong for this season."
+  },
+  {
+   "topic": "League 2 promotes two, not one plus a play-off",
+   "detail": "Because of the same expansion, the 2026-27 League 2 table marks 1st and 2nd as promoted (both green). The normal route is champion only, with the runner-up in the promotion/relegation play-off."
+  },
+  {
+   "topic": "League 2 size changed this season",
+   "detail": "Our row says 10, which is right for 2026-27 (the league expanded from eight). The competition-format prose on the league page still describes eight clubs and 14 games; the 2026-27 season article (10 clubs, 18 games) is the correct source."
+  },
+  {
+   "topic": "League 2 has no sporting relegation",
+   "detail": "Below League 2 clubs enter through pre-season qualifiers and can withdraw (three clubs did not enter for 2026-27), so there is no bottom-club relegation to model."
+  }
+ ],
+ "confidence": "medium",
+ "notes": "Season runs September to May (2026-27), so this is the season now in progress; final standings do not exist yet. Levels and sizes (8/10) match our rows. The 2026-27 top flight is a one-off: no relegation and two promotions from League 2, both due to the 2027-28 expansion (the new size is not stated in the source). League 2 teams are a mix of senior clubs, university sides and reserve sides (Kaohsiung Attackers Reserves, Hang Yuan Reserves, Sunny Bank Reserves); reserve sides can be promoted, unlike in most European pyramids. Cups and AFC competitions excluded."
 }

@@ -5716,13 +5716,13 @@
    "country": "Chinese Taipei",
    "upper": 1,
    "lower": 2,
-   "up": 2,
+   "up": 1,
    "up_playoff": 0,
-   "down": 0,
+   "down": 1,
    "down_playoff": 0,
    "allocation": "free",
    "selection": "other",
-   "note": "2026-27 only: the top flight expands for 2027-28, so League 2's top two are promoted and no TFPL club is relegated. The standing rule is 1 up (League 2 champion) + 1 shared two-legged play-off (League 2 runner-up v TFPL 7th), and 1 down (TFPL 8th) + that same play-off."
+   "note": "2026-27 only: the top flight expands for 2027-28, so League 2's top two are promoted and no TFPL club is relegated. The standing rule is 1 up (League 2 champion) + 1 shared two-legged play-off (League 2 runner-up v TFPL 7th), and 1 down (TFPL 8th) + that same play-off. Steady state (1 up / 1 down): the 2026-27 expansion (2 up / 0 down) is a one-off and is recorded in this note but not applied. The shared promotion/relegation play-off is not modelled either: its winner moves one club across and would change the roster size by one. Applying the expansion every season would grow the top flight until the second division is empty."
   },
   {
    "country": "Colombia",
@@ -6678,11 +6678,11 @@
    "lower": 2,
    "up": 2,
    "up_playoff": 0,
-   "down": 4,
+   "down": 2,
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "2026-27 only: the SuperLiga shrinks from 14 to 12, so four clubs (11th-14th) are relegated while the First League promotes only its top two. No play-off in either direction. From 2027-28 this should return to 2 up / 2 down."
+   "note": "2026-27 only: the SuperLiga shrinks from 14 to 12, so four clubs (11th-14th) are relegated while the First League promotes only its top two. No play-off in either direction. From 2027-28 this should return to 2 up / 2 down. Steady state (2 up / 2 down): the game runs on the database snapshot of 14 clubs and must keep the roster size, so the one-off 2026-27 shrink (4 down / 2 up, 14 to 12) is recorded in this note but not applied. Applying it every season would shrink the league by two clubs a year."
   },
   {
    "country": "Slovakia",

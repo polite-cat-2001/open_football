@@ -1,93 +1,142 @@
 {
-  "country": "Serbia",
-  "season": "2026-27",
-  "sources": [
-    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serbian_SuperLiga",
-    "https://en.wikipedia.org/wiki/Serbian_SuperLiga",
-    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Serbian_SuperLiga",
-    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serbian_First_League"
-  ],
-  "leagues": [
-    {
-      "id": "SER1",
-      "name": "Super liga Srbije",
-      "level": 1,
-      "size": 14,
-      "closed_up": true,
-      "closed_down": false,
-      "format": {
-        "kind": "split",
-        "rounds": 26,
-        "split_after": 26,
-        "groups": 2,
-        "points_carry": true,
-        "stages": [
-          { "name": "regular season", "clubs": 14, "series": 1, "rounds": 26, "note": "Double round robin." },
-          { "name": "championship round", "clubs": 6, "series": 1, "rounds": 5, "start_points": "carried", "note": "Top 6; single round robin. 31 matches in total for these clubs." },
-          { "name": "relegation round", "clubs": 8, "series": 1, "rounds": 7, "start_points": "carried", "note": "Bottom 8; single round robin. 33 matches in total for these clubs." }
-        ]
-      },
-      "playoff": null
-    },
-    {
-      "id": "SER2",
-      "name": "Prva liga Srbije",
-      "level": 2,
-      "size": 16,
-      "closed_up": false,
-      "closed_down": true,
-      "format": {
-        "kind": "split",
-        "rounds": 30,
-        "split_after": 30,
-        "groups": 2,
-        "points_carry": true,
-        "stages": [
-          { "name": "regular season", "clubs": 16, "series": 1, "rounds": 30, "note": "Double round robin." },
-          { "name": "championship round", "clubs": 6, "series": 1, "rounds": 5, "start_points": "carried", "note": "Top 6; single round robin. 35 matches in total." },
-          { "name": "relegation round", "clubs": 10, "series": 1, "rounds": 9, "start_points": "carried", "note": "Bottom 10; single round robin. 39 matches in total. Positions 11-16 are relegated." }
-        ]
-      },
-      "playoff": null
-    },
-    {
-      "id": "SB19",
-      "name": "Omladinska liga Srbije",
-      "level": 99,
-      "size": 14,
-      "closed_up": true,
-      "closed_down": true,
-      "format": { "kind": "other", "rounds": null, "note": "National under-19 championship of the SuperLiga and First League youth sides; format and round count not verified." },
-      "playoff": null
-    }
-  ],
-  "boundaries": [
-    {
-      "upper": 1,
-      "lower": 2,
-      "up": 2,
-      "up_playoff": 0,
-      "down": 4,
-      "down_playoff": 0,
-      "allocation": "free",
-      "selection": "bottom_n",
-      "note": "2026-27 only: the SuperLiga shrinks from 14 to 12, so four clubs (11th-14th) are relegated while the First League promotes only its top two. No play-off in either direction. From 2027-28 this should return to 2 up / 2 down."
-    }
-  ],
-  "conflicts": [
-    {
-      "topic": "Promotion and relegation are not balanced in 2026-27",
-      "detail": "SuperLiga: 14 clubs now, 12 from 2027-28, therefore 4 relegated (11th-14th). First League: still 16 clubs, promoting only 2 champions/runners-up but relegating 6 (11th-16th) to the Srpska liga. Any generic 3-up/3-down assumption is wrong for both levels this season."
-    },
-    {
-      "topic": "Split groups are different sizes",
-      "detail": "SuperLiga splits 6 + 8 (31 vs 33 matches per club); First League splits 6 + 10 (35 vs 39). Points carry over, and the two groups are separate final tables, so 'one table of N clubs' cannot express either league."
-    },
-    {
-      "topic": "Youth league size is unverified",
-      "detail": "SB19 (Omladinska liga Srbije) has no Wikipedia article; our 14 clubs could not be confirmed. Recorded as-is and flagged rather than guessed or nulled."
-    }
-  ],
-  "confidence": "high",
-  "notes": "SER1 is 14 clubs in 2026-27 (16 in 2025-26, 12 from 2027-28); SER2 is 16. Both use a points-carrying split after the double round robin, with unequal group sizes, so clubs play different numbers of matches (31/33 and 35/39). 2026-27 is the transition season with 4 down from level 1 and 2 up, and 6 down from level 2 into the four-group Srpska liga (level 3, not modelled, hence closed_down=true for SER2). No relegation play-offs at either level this season. SB19 is the U19 youth championship of the top two tiers' youth sides: closed both ways, no route into the senior pyramid, size unverified."
+ "country": "Serbia",
+ "season": "2026-27",
+ "sources": [
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serbian_SuperLiga",
+  "https://en.wikipedia.org/wiki/Serbian_SuperLiga",
+  "https://en.wikipedia.org/wiki/2025%E2%80%9326_Serbian_SuperLiga",
+  "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serbian_First_League"
+ ],
+ "leagues": [
+  {
+   "id": "SER1",
+   "name": "Super liga Srbije",
+   "level": 1,
+   "size": 14,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "split",
+    "rounds": 26,
+    "split_after": 26,
+    "groups": 2,
+    "points_carry": true,
+    "stages": [
+     {
+      "name": "regular season",
+      "clubs": 14,
+      "series": 1,
+      "rounds": 26,
+      "note": "Double round robin."
+     },
+     {
+      "name": "championship round",
+      "clubs": 6,
+      "series": 1,
+      "rounds": 5,
+      "start_points": "carried",
+      "note": "Top 6; single round robin. 31 matches in total for these clubs."
+     },
+     {
+      "name": "relegation round",
+      "clubs": 8,
+      "series": 1,
+      "rounds": 7,
+      "start_points": "carried",
+      "note": "Bottom 8; single round robin. 33 matches in total for these clubs."
+     }
+    ]
+   },
+   "playoff": null
+  },
+  {
+   "id": "SER2",
+   "name": "Prva liga Srbije",
+   "level": 2,
+   "size": 16,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "split",
+    "rounds": 30,
+    "split_after": 30,
+    "groups": 2,
+    "points_carry": true,
+    "stages": [
+     {
+      "name": "regular season",
+      "clubs": 16,
+      "series": 1,
+      "rounds": 30,
+      "note": "Double round robin."
+     },
+     {
+      "name": "championship round",
+      "clubs": 6,
+      "series": 1,
+      "rounds": 5,
+      "start_points": "carried",
+      "note": "Top 6; single round robin. 35 matches in total."
+     },
+     {
+      "name": "relegation round",
+      "clubs": 10,
+      "series": 1,
+      "rounds": 9,
+      "start_points": "carried",
+      "note": "Bottom 10; single round robin. 39 matches in total. Positions 11-16 are relegated."
+     }
+    ]
+   },
+   "playoff": null
+  },
+  {
+   "id": "SB19",
+   "name": "Omladinska liga Srbije",
+   "level": 99,
+   "size": 14,
+   "closed_up": true,
+   "closed_down": true,
+   "format": {
+    "kind": "other",
+    "rounds": null,
+    "note": "National under-19 championship of the SuperLiga and First League youth sides; format and round count not verified."
+   },
+   "playoff": null
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 2,
+   "up_playoff": 0,
+   "down": 4,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "2026-27 only: the SuperLiga shrinks from 14 to 12, so four clubs (11th-14th) are relegated while the First League promotes only its top two. No play-off in either direction. From 2027-28 this should return to 2 up / 2 down.",
+   "steady": {
+    "up": 2,
+    "down": 2
+   },
+   "steady_note": "Steady state (2 up / 2 down): the game runs on the database snapshot of 14 clubs and must keep the roster size, so the one-off 2026-27 shrink (4 down / 2 up, 14 to 12) is recorded in this note but not applied. Applying it every season would shrink the league by two clubs a year."
+  }
+ ],
+ "conflicts": [
+  {
+   "topic": "Promotion and relegation are not balanced in 2026-27",
+   "detail": "SuperLiga: 14 clubs now, 12 from 2027-28, therefore 4 relegated (11th-14th). First League: still 16 clubs, promoting only 2 champions/runners-up but relegating 6 (11th-16th) to the Srpska liga. Any generic 3-up/3-down assumption is wrong for both levels this season."
+  },
+  {
+   "topic": "Split groups are different sizes",
+   "detail": "SuperLiga splits 6 + 8 (31 vs 33 matches per club); First League splits 6 + 10 (35 vs 39). Points carry over, and the two groups are separate final tables, so 'one table of N clubs' cannot express either league."
+  },
+  {
+   "topic": "Youth league size is unverified",
+   "detail": "SB19 (Omladinska liga Srbije) has no Wikipedia article; our 14 clubs could not be confirmed. Recorded as-is and flagged rather than guessed or nulled."
+  }
+ ],
+ "confidence": "high",
+ "notes": "SER1 is 14 clubs in 2026-27 (16 in 2025-26, 12 from 2027-28); SER2 is 16. Both use a points-carrying split after the double round robin, with unequal group sizes, so clubs play different numbers of matches (31/33 and 35/39). 2026-27 is the transition season with 4 down from level 1 and 2 up, and 6 down from level 2 into the four-group Srpska liga (level 3, not modelled, hence closed_down=true for SER2). No relegation play-offs at either level this season. SB19 is the U19 youth championship of the top two tiers' youth sides: closed both ways, no route into the senior pyramid, size unverified."
 }
