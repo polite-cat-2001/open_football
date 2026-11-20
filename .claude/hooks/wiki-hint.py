@@ -133,6 +133,12 @@ PAGES = {
     "manifest_diff.gd":        "порт-gameplayfootball",
     "trace_diff.gd":           "порт-gameplayfootball",
     "run_scenario.gd":         "порт-gameplayfootball",
+    # --- карьера: данные, каталог ---
+    "league_regulations.gd":   "регламенты-и-пирамиды",
+    "league_pyramids.json":    "регламенты-и-пирамиды",
+    "team_catalog.gd":         "каталог-команд",
+    "career_factory.gd":       "карьера",
+    "career_season.gd":        "карьера",
 }
 
 def main():

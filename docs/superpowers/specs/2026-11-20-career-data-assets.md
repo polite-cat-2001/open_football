@@ -16,8 +16,8 @@ a guess.
 
 | file | contents | source | refresh |
 |---|---|---|---|
-| `assets/data/league_regulations.json` | 277 leagues: season window (`start_md`/`end_md`), legacy `phases`, tiebreak, relegation, `format` (the league's stages), `inherited_from`, confidence, source, note | season-window + formats research | manual, yearly |
-| `assets/data/league_pyramids.json` | 277 leagues: level, size, closed directions, format note; 108 boundaries with `up == down`, playoff counts, allocation | pyramid research + database topology | manual, when the DB changes |
+| `assets/data/league_regulations.json` | 284 leagues: season window (`start_md`/`end_md`), legacy `phases`, tiebreak, relegation, `format` (the league's stages), `inherited_from`, confidence, source, note | season-window + formats research | manual, yearly |
+| `assets/data/league_pyramids.json` | 284 leagues: level, size, closed directions, format note; 108 boundaries with `up == down`, playoff counts, allocation | pyramid research + database topology | manual, when the DB changes |
 | `assets/data/competitions.json` *(new)* | cups, super cups, internationals: id, kind, country/confederation, participants rule, `format` (same stage model), calendar, `out_of_scope` | cups + international research; TM ids from the canon | manual, yearly |
 | `assets/data/access_lists.json` *(new)* | per confederation: association coefficients, rank bands with entry rounds, cup slots (`add`/`consume`/`none`), drop-down map, suspended associations | access-list research | manual, yearly (pinned to the previous season's ranking) |
 | `assets/data/intl_calendar.json` *(new)* | **recurring rules, not a fixed list**: annual FIFA windows and multi-year tournaments (`every_years`, `anchor_year`, `start_md`/`end_md`, `applies_to`: `world` \| confederation \| country list) | FIFA calendar research (2026–2028) + the recurrence rule | manual, yearly |
@@ -92,9 +92,10 @@ reference its ids.
 
 ## Out of scope for the data
 
-- **German level 4 is short two leagues**: the database has `RLB3`, `RLN4`,
-  `RLSW` (3 of the 5 Regionalliga; Nord and West are absent). They are a scrape,
-  not a research item; the pyramid stays at 3 leagues until they are imported.
+- **German level 4 is complete**: the database carries all five Regionalliga rows
+  (`RLB3`, `RLN4`, `RLSW`, `RLN3`, `RLW3`). `RLN3`/`RLW3` were imported from
+  Transfermarkt on 2026-11-20; `RLN`/`RLW` are the 1963–74 competition and must
+  not be used.
 - Result adjustments (points deductions, awarded matches): no data is collected
   until the mechanics exist; the extension point is a per-club, per-season
   `adjustments` list in the table builder.
