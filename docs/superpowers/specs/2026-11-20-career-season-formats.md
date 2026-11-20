@@ -148,10 +148,12 @@ Status: v3 revised after three audits, the last one by attempting to encode all
 
 ## Simulation contract
 
-- `round` is a season-wide matchday index; **all groups of a stage share one
-  round number and one date** (a matchday). Each fixture carries `stage`,
-  `group` (or `""`) and `stage_round` (`round - stage_first_round + 1`). Both
-  the date sweep and the round sweep depend on "one round = one date".
+- `round` is a season-wide matchday index; all groups of a stage share one round
+  number. **A round is a date window, not one date**: every fixture carries its
+  own date inside it (Friday–Monday normally), and a fixture may be postponed
+  to a free midweek when its club plays a cup or continental match. Each fixture
+  also carries `stage`, `group` (or `""`) and `stage_round`
+  (`round - stage_first_round + 1`).
 - Ids: single-table leagues keep `r%02d-%02d`; a league with a format uses
   `<stage>:<round>-<n>`.
 - `CareerFactory.standings(career, clubs, view := {})`:
@@ -179,7 +181,12 @@ Status: v3 revised after three audits, the last one by attempting to encode all
   currently scans in array order).
 - `advance_to` keeps the **date sweep** (`date <= target`), not a round sweep:
   odd-club leagues skip rounds, and a round sweep strands them. `play_next_match`
-  keeps the round sweep.
+  simulates the round's other fixtures whose date is on or before the club's own
+  fixture date.
+- **Fixture congestion**: a club never plays twice within two days. A fixture
+  that clashes with a cup or continental match keeps its `round` and is re-dated
+  to the nearest free midweek before the season end; every postponed fixture is
+  played before the last round. The scheduler is per club, not per round.
 - Schedule builders: `create`, `ensure_schedule` and `next_season` all switch to
   the stage builder when the league has a format.
 - **Calendar blackouts**: a new asset `assets/data/intl_calendar.json` holds the

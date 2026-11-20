@@ -214,6 +214,11 @@ only.
 
 ## Open decisions
 
+- **Result adjustments** (points deductions, awarded matches) are not modelled
+  now; the door stays open through one extension point: a per-club, per-season
+  `adjustments` list applied when a table is built (the table builder already
+  sums from results, so it is one lookup away). No data is collected until the
+  mechanics exist.
 - CAF drop-down: the 2026-27 sources show none, but the historic Champions
   League → Confederation Cup transfer existed until the reformat. Verify before
   modelling it; today the map has no CAF entry.
