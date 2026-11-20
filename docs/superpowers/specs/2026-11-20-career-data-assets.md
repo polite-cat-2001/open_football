@@ -18,7 +18,7 @@ a guess.
 |---|---|---|---|
 | `assets/data/league_regulations.json` | 284 leagues: season window (`start_md`/`end_md`), legacy `phases`, tiebreak, relegation, `format` (the league's stages), `inherited_from`, confidence, source, note | season-window + formats research | manual, yearly |
 | `assets/data/league_pyramids.json` | 284 leagues: level, size, closed directions, format note; 108 boundaries with `up == down`, playoff counts, allocation | pyramid research + database topology | manual, when the DB changes |
-| `assets/data/competitions.json` *(new)* | cups, super cups, internationals: id, kind, country/confederation, participants rule, `format` (same stage model), calendar, `out_of_scope` | cups + international research; TM ids from the canon | manual, yearly |
+| `assets/data/competitions.json` *(new)* | cups, super cups, confederation internationals and the global/secondary club competitions: id, kind, country/confederation, participants rule, `format` (same stage model), calendar, `out_of_scope` | cups + international research; TM ids from the canon | manual, yearly |
 | `assets/data/access_lists.json` *(new)* | per confederation: association coefficients, rank bands with entry rounds, cup slots (`add`/`consume`/`none`), drop-down map, suspended associations | access-list research | manual, yearly (pinned to the previous season's ranking) |
 | `assets/data/intl_calendar.json` *(new)* | **recurring rules, not a fixed list**: annual FIFA windows and multi-year tournaments (`every_years`, `anchor_year`, `start_md`/`end_md`, `applies_to`: `world` \| confederation \| country list) | FIFA calendar research (2026–2028) + the recurrence rule | manual, yearly |
 | `assets/data/team_links.json` *(new)* | `reserve` flags, `parent_club_id` by id, the per-country promotion ceiling for reserve teams, `berth_via` overrides (Vaduz, Toronto, Vancouver, Wellington; `null` means "no continental berth") | database names + manual review | when the DB changes |
@@ -67,6 +67,10 @@ reference its ids.
   competitions, so the merge is a mandatory post-step, not a one-off.
 - Suspended associations are a list separate from the berth table, so the
   `politics_mode` flag can include or exclude them without touching the data.
+- **League size: the database snapshot wins.** Where a research report and the
+  database disagree (seven leagues as of 2026-11-21), `size` and the teams come
+  from the database; the note records the research figure and that the seasons
+  differ. The reports are not rewritten.
 
 ## Loaders and validation
 

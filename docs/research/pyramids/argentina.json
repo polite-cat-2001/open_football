@@ -75,8 +75,8 @@
    "down": 2,
    "down_playoff": 0,
    "allocation": "free",
-   "selection": "down: (a) last place of the three-season promedio table (2024+2025+2026 points / matches played, newly promoted clubs averaging only the seasons they played) and (b) the penultimate place of the season's aggregate table (Apertura + Clausura zone-stage points); in practice (b) is the worst club not already relegated by (a). up: Primera Nacional final winner (zone winners, one-off final) + Torneo Reducido winner",
-   "note": "Exactly two down and two up every season, any club regardless of affiliation or geography. 2026: Estudiantes (RC) went down by promedio (30th, 0.437) and Aldosivi by the aggregate table (29th of 30, 19 pts); Godoy Cruz went up as Primera Nacional champion. The English page compresses rule (b) to 'last in the aggregate table' because the promedio-relegated club usually occupies that last place; the Spanish page and the 2026 outcome show the slot is the penultimate place of the 30-club table."
+   "selection": "down: (a) last place of the three-season promedio table (2024+2025+2026 regular phases, points / matches played, newly promoted clubs counting only from their promotion season) and (b) last place of the season's aggregate table (Apertura + Clausura regular phases). If the same club is last in both, it goes down by promedio and (b) passes to the penultimate place (29th) of the aggregate; ties in a relegation place are play-off matches. up: Primera Nacional final winner (zone winners, one-off final) + Torneo Reducido winner",
+   "note": "Exactly two down and two up every season, any club regardless of affiliation or geography. 2026: Estudiantes (RC) was last in both tables and went down by promedio (0.437), so the aggregate slot passed to Aldosivi (29th of 30, 19 pts); Godoy Cruz went up as Primera Nacional champion. The general rule is last of the aggregate table, not always the penultimate: the 29th is the overlap case. The English page compresses (b) to 'last in the aggregate table'."
   },
   {
    "upper": 2,

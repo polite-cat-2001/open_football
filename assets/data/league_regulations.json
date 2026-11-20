@@ -259,9 +259,9 @@
    "start_md": "01-22",
    "end_md": "12-12",
    "filled": "",
-   "phases": "apertura_clausura",
+   "phases": "other",
    "relegation": {
-    "slots": null,
+    "slots": 4,
     "playoff": false
    },
    "tiebreak": [
@@ -274,7 +274,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
-   "note": "Window inherited from ARGC; the season facts in that division's note were not re-checked for this league.",
+   "note": "Primera Nacional: two parallel zones of 18 (double round-robin plus interzonal rounds), zone winners meet in a single final for the title and the first promotion; the beaten finalist is seed 1 of the 15-club Torneo reducido (2nd-8th of each zone plus the finalist), which decides the second promotion. Bottom two of each zone (4 clubs) go down to Primera B Metropolitana or Torneo Federal A. Window inherited from ARGC.",
    "inherited_from": "ARGC"
   },
   "ARGC": {
@@ -296,7 +296,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
-   "note": "Season = Torneo Apertura + Torneo Clausura (30 teams in two zones of 15, single round-robin plus two interzonal games, top 8 per zone to single-leg knockout). Two relegated: one by the coefficients table, one as last of the 2026 aggregate table (extra matches if level on points). Tiebreak order taken from the aggregate-table class_rules. No transfer-window dates in the article."
+   "note": "Season = Torneo Apertura + Torneo Clausura (30 teams in two zones of 15, single round-robin plus two interzonal games, top 8 per zone to single-leg knockout). Two relegated: the last of the 2024-2026 promedio and the last of the 2026 annual table (Apertura + Clausura regular phases only); if the same club is last in both, it goes down by promedio and the annual slot passes to the 29th. Ties in a relegation place are settled by play-off matches, not goal difference. Tiebreak order taken from the aggregate-table class_rules. No transfer-window dates in the article."
   },
   "ARM1": {
    "start_md": "07-31",
@@ -911,7 +911,7 @@
    "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
-    "slots": null,
+    "slots": 0,
     "playoff": false
    },
    "tiebreak": [
@@ -926,7 +926,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_DIMAYOR",
-   "note": "Window inherited from COL1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Primera B: 16 clubs, Torneo Apertura and Torneo Finalización, each 15 matchdays + two groups of four + a two-legged final. No relegation. Two promoted through the reclasificación (all matches of both tournaments): the champion in its top two goes up, otherwise the champion plays a two-legged repechaje against the best-placed top-two club that won no tournament; a double champion sends the next two to the repechaje; when both champions are in the top two the repechaje is cancelled. Case with neither champion in the top two is not stated in the 2026 source. Window inherited from COL1.",
    "inherited_from": "COL1"
   },
   "COL1": {

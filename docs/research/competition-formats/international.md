@@ -24,7 +24,9 @@ single-year ones. Numbers and dates are taken verbatim from the phase tables quo
 Secondary confederation competitions not modelled above: CONCACAF Central American Cup and
 CONCACAF Caribbean Cup are the feeders that supply Champions Cup berths (sub-regional, run by
 CONCACAF); the UEFA Super Cup, Recopa Sudamericana and CAF Super Cup are single matches between
-two champions and need no bracket at all.
+two champions and need no bracket at all. From 2026 the OFC global berth (Intercontinental Cup,
+Club World Cup) comes from the **OFC Professional League** winner, not from the OFC Men's
+Champions League; the global layer is in `international-global.md`.
 
 ## What is shared, what is new
 

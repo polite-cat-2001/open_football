@@ -137,6 +137,12 @@ Recommended order (agreed): container and domestic cups → super cups →
 berths with the background world season → group+knockout internationals →
 pot-league internationals → UCL/AFCL Elite.
 
+The global and secondary layer (Club World Cup, Intercontinental Cup, the
+continental super cups, the CONCACAF feeders and the OFC Professional League) is
+**not** part of the 12; it is researched in
+`docs/research/competition-formats/international-global.json` and scheduled as
+phase 7.
+
 ## Full qualification network (agreed)
 
 The international cut models the real qualification chain, not direct entrants
@@ -188,7 +194,8 @@ only.
   coefficient berths, Russia included. `political` applies the suspension list:
   Russia and Belarus get zero berths and their clubs never enter a continental
   competition. The ban list is stored separately from the berth table, so both
-  modes read the same data. The flag lives in the save; the final game picks one.
+  modes read the same data. The flag lives in the save; the shipped game
+  defaults to `kind` (decided 2026-11-21).
 - **Reserve and youth teams**: `reserve: true` on the team plus `parent_club_id`
   (a data link built once and reviewed **by id** — names lie, e.g. Willem II is
   a club, not a reserve side). Two modes, a save flag `reserve_teams_mode`:
@@ -198,6 +205,8 @@ only.
     it does not enter the domestic cup.
   - `independent`: reserve teams are ordinary clubs, unlinked, can be promoted,
     meet the first teams and play the cup.
+  The shipped game defaults to `linked` and exposes the toggle (decided
+  2026-11-21).
 - **Cross-border clubs**: a club may play in another country's league. Its berth
   path is a per-club override (`berth_via`), because the league's country is not
   always the qualifying country: Vaduz qualifies only through the Liechtenstein
@@ -211,8 +220,10 @@ only.
 - Cup fields are built from the clubs in the database; early amateur rounds are
   not modelled.
 - A cup or super cup that does not exist in the snapshot (Mexico) stays absent.
-- Two-legged finals are supported; **no away-goals rule**, and extra time only in
-  the last leg (penalties after it).
+- Two-legged finals are supported; extra time only in the last leg (penalties after
+  it). **Away goals are off by default; the CONCACAF Central American Cup and
+  Caribbean Cup use them**, so the rule is per-competition data, not a global
+  switch.
 - The background world season is a simulation, not a real table.
 - Brazilian state championships are out of scope for now (the club plays the
   national league only).
@@ -237,13 +248,26 @@ only.
 2. **League formats data**: the 58 encoded formats.
 3. **Domestic cups**: single-leg knockout with byes, the two-legged attachment,
    Turkey's group hybrid; all **106 countries** from the cups research (17 in
-   `national-cups.json`, 89 in `cups-*.json`), plus a pass that assigns the
-   berth `mode` (`add`/`consume`/`none`) to every cup.
+   `national-cups.json`, 89 in `cups-*.json`). The berth `mode`
+   (`add`/`consume`/`none`) is not needed here; it lands with the berth pass in
+   phase 5 (decided 2026-11-21).
 4. **Super cups**: two-team single match and the four-team mini-tournament, plus
    named pre-season tournaments when their data is known.
 5. **Berths and the background world season**; then group+knockout
    internationals.
-6. **Pot-league internationals** (UEL, UECL), then **UCL/AFCL Elite**.
+6. **Pot-league internationals**: UEL and UECL first, then UCL and AFC Elite in
+   the same phase. **All 12** confederation competitions are in the first
+   playable version (decided 2026-11-21): the pot-league engine is shared, the
+   extra cost of UCL is the cross-country qualification graph, of AFC Elite the
+   regional split and centralised finals.
+7. **Global and secondary competitions**: the nine in
+   `docs/research/competition-formats/international-global.json` (FIFA Club World Cup,
+   Intercontinental Cup, UEFA and CAF Super Cups, Recopa Sudamericana, CONCACAF
+   Central American Cup, Caribbean Cup, CFU Club Shield, OFC Professional League),
+   researched before phase 0 and scheduled after the 12. The Club World Cup is
+   quadrennial (2029 next), so the allocator must support "not this season". The
+   OFC global berth comes from the Professional League winner, not the OFC
+   Champions League.
 
 ## Open decisions
 

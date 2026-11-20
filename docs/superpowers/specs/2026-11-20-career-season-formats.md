@@ -5,11 +5,14 @@ implemented. Order starts with the calendar slice.
 
 ## Scope
 
-- 24 rows carry `phases: "apertura_clausura"`; the label is replaced by
-  `format`. Research: 17 of them are really phased (16 two-phase plus Uruguay's
-  three), the rest are one table, zones or paths. **58 leagues in total need a
-  `format`**: the 24 above, 37 split leagues and a few group-based rows; the
-  other 219 are plain one-table leagues that need no format.
+- 23 rows carry `phases: "apertura_clausura"`; the label is replaced by
+  `format`. (The original count was 24; `ARG2` was corrected to `other` on
+  2026-11-21 — it is a two-zone regular season plus a reducido, not
+  Apertura/Clausura, and still needs a format.) Research: 17 of them are really
+  phased (16 two-phase plus Uruguay's three), the rest are one table, zones or
+  paths. **58 leagues in total need a `format`**: the rows above, 37 split
+  leagues and a few group-based rows; the other leagues are plain one-table and
+  need no format.
 - `AR3F` is now the merged **Torneo Federal A**: one 37-club competition (the
   former `AR3R` Reválida row was merged into it), with a Campeonato path and a
   Reválida path fed by the losers. It stays `out_of_scope: true` until its
@@ -67,6 +70,13 @@ implemented. Order starts with the calendar slice.
   boundary before the earliest of them and `season_end` is the day before the
   next season's start, so `advance_days` and the off-season reel use the union,
   never the league alone.
+- **Career epoch**: a career starts at the boundary **nearest to the data
+  snapshot date** (`2026-07-01` for the current assets), not the moment the
+  player creates it. Every career in a build begins in the same season; the
+  lookup must search both directions (`nearest_boundary(epoch)`, replacing
+  `first_window_on_or_after`). The boundary is the midpoint between the row's
+  `end_md` (or `format.end_md`) and the next season's `start_md`; a tie goes to
+  the upcoming boundary. The creation screen shows the chosen date.
 - `start_md`/`end_md` on a stage: either bound may be `null`; `precision` is
   `day` | `month` | `none`, and `proxy: true` separately marks a previous-season
   estimate. An undated first stage is anchored at `format.start_md`; an undated
@@ -305,12 +315,23 @@ owns the container.
 
 ## Open decisions
 
-- `CO22` promotion (three conditional branches): `unknown`; the game promotes
-  the aggregate top two until the rule is modelled.
-- `ARGC` relegation combines the average bottom and the aggregate penultimate;
-  the ordered "not already named" rule takes the overlap out.
-- `ARG2`'s reducido field is not enumerated in the research; the stage is
-  encoded as `entrants: [{"rule": "unknown"}]` until a source line is added.
+A research pass on 2026-11-21, before phase 0, closed the three open rules; the
+full clauses and quotes are in
+`docs/research/season-formats/colombia-argentina-rules.md`.
+- `CO22` promotion: the reclasificación sums **all** matches of both tournaments.
+  Three branches are sourced: one champion in the top two (that champion up, the
+  other to a two-legged repechaje); the same club wins both (it goes up, the next
+  two play the repechaje); both champions in the top two (both up, repechaje
+  cancelled). **Case 4, neither champion in the top two, is not stated in the
+  2026 source — encode `unknown`, never a Gran Final.**
+- `ARG2` reducido: 15 entrants — 2nd–8th of each zone plus the beaten finalist as
+  seed 1. Single-match first phase with cross-zone pairings (a draw favours the
+  better-placed club), then two legs 1v8/2v7/3v6/4v5 on a zone-position seeding
+  table, re-seeded semis and a two-leg final.
+- `ARGC` relegation: last of the 2024–2026 promedio **plus last of the 2026 annual
+  table**; if the same club is last in both it goes down by promedio and the
+  annual slot passes to the 29th. Ties are play-off matches, not goal difference.
+- Promedio: regular phases only (COL1's six tournaments; ARGC's three seasons),
+  points ÷ matches played; promoted clubs count from their promotion season. The
+  aggregate fallback is exact for a one-season club.
 - Cross-division relegation play-offs: out of scope.
-- Average/coefficient relegation is simulated as the aggregate until club
-  history exists.

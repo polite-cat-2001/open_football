@@ -1,6 +1,6 @@
 {
  "country": "Argentina",
- "checked": "2026-11-20",
+ "checked": "2026-11-21",
  "leagues": [
   {
    "id": "ARGC",
@@ -32,7 +32,64 @@
    "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Divisi%C3%B3n_2026_(Argentina)",
    "quote": "A su vez, el equipo que más puntos haya obtenido en la tabla general de la temporada (producto de la suma de puntos obtenidos en el Apertura y el Clausura) será consagrado como «Campeón de Liga».",
    "confidence": "high",
-   "note": "Two independent tournaments with the same 30 clubs (two zones of 15, single round-robin plus two interzonal games = 16 matches; top 8 of each zone to a single-leg knockout that crowns the phase champion; Apertura final 24 May, Clausura final 12 December). Phase tables restart; the aggregate table of both phases crowns the Campeón de Liga (Boca Juniors in 2026). Relegation: last of the 2024-2026 promedio plus the penultimate of the 2026 aggregate table. Row id/name says Clausura but the 30 clubs and the January-December window are the whole division."
+   "note": "Two independent tournaments with the same 30 clubs (two zones of 15, single round-robin plus two interzonal games = 16 matches; top 8 of each zone to a single-leg knockout that crowns the phase champion; Apertura final 24 May, Clausura final 12 December). Phase tables restart; the aggregate table of both phases crowns the Campeón de Liga (Boca Juniors in 2026). Relegation: two clubs, the last of the 2024-2026 promedio plus the last of the 2026 aggregate table; when the same club is last in both, the second place goes to the 29th of the aggregate (see relegation_detail). Row id/name says Clausura but the 30 clubs and the January-December window are the whole division.",
+   "relegation_detail": {
+    "clubs_down": 2,
+    "rules": [
+     {
+      "rule": "promedio",
+      "seasons": [
+       "2024",
+       "2025",
+       "2026"
+      ],
+      "counts": "regular (fase de zonas) matches of Primera División only",
+      "formula": "total points / total matches played over 2024-2026",
+      "quote": "Incluyó las temporadas 2024, 2025 y 2026. El equipo que ocupó la última posición descendió a la Primera Nacional. A este se le agregó el penúltimo de la tabla acumulada de ambos torneos, completando dos descensos.",
+      "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Divisi%C3%B3n_2026_(Argentina)"
+     },
+     {
+      "rule": "annual_table",
+      "seasons": [
+       "2026"
+      ],
+      "counts": "Tabla General de Posiciones 2026 = Apertura regular phase + Clausura regular phase (32 matches); knockout rounds excluded",
+      "quote": "Se confeccionó con la sumatoria de los puntos obtenidos en la fase de zonas de los torneos Apertura y Clausura. … Además, se utilizó para la clasificación a las copas … y para determinar uno de los dos descensos.",
+      "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Divisi%C3%B3n_2026_(Argentina)"
+     }
+    ],
+    "second_relegation": "the last of the 2026 aggregate table; if the same club is last in both tables, the anteúltimo (29th) of the aggregate table",
+    "overlap": {
+     "quote": "Si un mismo club ocupa el último puesto en ambas clasificaciones, descenderá por los promedios y la segunda plaza recaerá sobre el anteúltimo de la tabla anual, garantizando que haya dos pérdidas de categoría.",
+     "source": "https://eleconomista.com.ar/deportes/que-pasa-ultimo-equipo-tabla-anual-mismo-promedios-liga-profesional-n87680"
+    },
+    "promoted_clubs": {
+     "rule": "a promoted club averages only from its promotion season; the divisor is the matches it actually played in Primera",
+     "quote": "Los equipos ascendidos computan únicamente desde su llegada a Primera División, por lo que dividen por una menor cantidad de encuentros.",
+     "source": "https://eleconomista.com.ar/deportes/que-pasa-ultimo-equipo-tabla-anual-mismo-promedios-liga-profesional-n87680",
+     "example": "2026 table: Gimnasia y Esgrima (M) 41/32 = 1.281 (promoted for 2026); Estudiantes (RC) 14/32 = 0.437 (promoted for 2026); Aldosivi 52/64 = 0.812 (promoted for 2025)"
+    },
+    "tie_break": {
+     "rule": "a play-off match or matches (art. 111 of the AFA Reglamento General), not goal difference",
+     "quote": "26.2 Para el caso de igualdad en puntos entre dos o más equipos en posiciones que definan descenso (sean las mismas por promedio o por posición en la Tabla General de Posiciones 2026 definida en el artículo 24) será de aplicación lo establecido en el artículo 111 del Reglamento General de AFA, que establece la realización de partido/s de desempate.",
+     "source": "https://assets1.afa.com.ar/2026/BOLETINES/Boletin-Resoluciones-6818---Complementario-01---Reglamento-Torneos-LPF-Primera-2026.pdf"
+    },
+    "general_rule": {
+     "quote": "26.1 La determinación de los descensos y ascensos de y a la Liga Profesional de Fútbol se regirá conforme lo dispuesto en el artículo 93 del Estatuto de la Asociación del Fútbol Argentino.",
+     "source": "https://assets1.afa.com.ar/2026/BOLETINES/Boletin-Resoluciones-6818---Complementario-01---Reglamento-Torneos-LPF-Primera-2026.pdf",
+     "note": "The tournament reglamento only delegates the formula to the Estatuto; the average itself is not written in it."
+    },
+    "observed_2026": {
+     "relegated": [
+      "Estudiantes (RC)",
+      "Aldosivi"
+     ],
+     "table": "Estudiantes (RC) last of the promedio (14/32 = 0.437) and last of the aggregate (14 pts) → down by promedio; Aldosivi 29th of the aggregate (19 pts) → second relegation",
+     "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Divisi%C3%B3n_2026_(Argentina)"
+    },
+    "confidence": "high",
+    "note": "The spec's 'last of the 2024-2026 promedio plus the penultimate of the 2026 aggregate' is the 2026 outcome, not the general rule: encode last-of-promedio + last-of-annual, then, if both name the same club, take the 29th of the annual. The annual table counts the two regular phases only, so the Apertura/Clausura knockouts never change relegation. A club with only one Primera season has a smaller divisor, so its promedio equals its annual points per match — the aggregate fallback is exact for it."
+   }
   },
   {
    "id": "ARG2",
@@ -59,7 +116,105 @@
    "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Nacional_2026",
    "quote": "Los participantes se dividieron en dos zonas de dieciocho equipos, que se disputaron mediante el sistema de todos contra todos, a dos ruedas, más una fecha especial de interzonales en cada rueda. Los que ocuparon el primer puesto en ambas se enfrentarán en una final a un solo partido, en cancha neutral, por el título de campeón y el primer ascenso.",
    "confidence": "high",
-   "note": "No Apertura/Clausura: two parallel zones of 18 (double round-robin plus interzonal rounds), one table per zone. Champion = winner of the single final between the two zone winners (15 November, neutral venue) who also takes the first promotion; the beaten finalist enters the Torneo reducido, which decides the second promotion (knockout, ends 19 December). Relegation: bottom two of each zone (4 clubs) to the third tier, by affiliation (Primera B Metropolitana or Torneo Federal A)."
+   "note": "No Apertura/Clausura: two parallel zones of 18 (double round-robin plus interzonal rounds), one table per zone. Champion = winner of the single final between the two zone winners (15 November, neutral venue) who also takes the first promotion; the beaten finalist is the top seed of the Torneo reducido, which decides the second promotion (15 entrants, four stages, ends 19 December). Relegation: bottom two of each zone (4 clubs) to the third tier, by affiliation (Primera B Metropolitana or Torneo Federal A).",
+   "promotion": {
+    "clubs_up": 2,
+    "first": {
+     "rule": "single final between the two zone winners, neutral venue; winner is champion and goes up",
+     "quote": "El ganador de este encuentro será consagrado Campeón del Campeonato de Primera Nacional 2026, y ascenderá a la Categoría 1ra. División (L.P.F.).",
+     "source": "https://assets1.afa.com.ar/2026/Lau/Boletin-Especial-6823---Reglamento-del-Campeonato-de-Primera-Nacional-2026.pdf",
+     "date": "2026-11-15"
+    },
+    "second": {
+     "name": "Torneo reducido por el segundo ascenso",
+     "entrants": "2nd to 8th of each zone (14 clubs) plus the beaten finalist = 15",
+     "quote": "Disputarán este Torneo, los siete -7- clubes ubicados en los puestos 2°, 3°, 4°, 5°, 6°, 7° y 8° de la Tabla Final de Posiciones 2026 de cada una de las Zonas “A” y “B” (total 14), más el perdedor del partido Final por el 1er. Ascenso (Punto 2.).",
+     "source": "https://assets1.afa.com.ar/2026/Lau/Boletin-Especial-6823---Reglamento-del-Campeonato-de-Primera-Nacional-2026.pdf",
+     "stages": [
+      {
+       "stage": "Primera fase",
+       "teams": 14,
+       "format": "single match, better-placed club at home; pairings 2A-8B, 2B-8A, 3A-7B, 3B-7A, 4A-6B, 4B-6A, 5A-5B; a draw sends the better-placed club through",
+       "quote": "Los catorce participantes se enfrentarán a un solo partido, según un orden preestablecido (2.º de una zona con 8.º de la otra, 3.º con 7.º, 4.º con 6.º y 5.º con 5.º), actuando de local el mejor posicionado … el que, en caso de empate, será el clasificado.",
+       "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Nacional_2026",
+       "dates": "2026-11-14..2026-11-15"
+      },
+      {
+       "stage": "Segunda fase",
+       "teams": 8,
+       "format": "two legs, 1v8 2v7 3v6 4v5 on a cross-zone seeding table; the beaten finalist is seed 1; level on points and goal difference sends the better seed through",
+       "quote": "A los siete clasificados en la Primera fase se les agregará el perdedor de la final, los que se ordenarán en una tabla general de posiciones, según el puesto y el rendimiento que hayan obtenido en su respectiva zona, enfrentándose los mejor contra los peor ubicados, sucesivamente (1 con 8, 2 con 7, 3 con 6 y 4 con 5). Los cruces serán a doble partido y, en caso de empate en puntos y goles al finalizar la serie, clasificará el equipo que tenga el menor número de orden, que será local en el partido de desquite.",
+       "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Nacional_2026",
+       "first_leg_dates": "2026-11-21..2026-11-22",
+       "second_leg_dates": null
+      },
+      {
+       "stage": "Semifinales",
+       "teams": 4,
+       "format": "two legs, re-seeded 1v4 and 2v3 by zone position then points, goal difference, goals for and draw; the better seed hosts the return leg and advances if points and goal difference are level",
+       "source": "https://assets1.afa.com.ar/2026/Lau/Boletin-Especial-6823---Reglamento-del-Campeonato-de-Primera-Nacional-2026.pdf",
+       "dates": null
+      },
+      {
+       "stage": "Final",
+       "teams": 2,
+       "format": "two legs, better seed hosts the return leg; level on points and goal difference goes to penalties",
+       "quote": "La instancia de Final se disputará a doble partido, local y visitante, actuando como local en el segundo encuentro, el equipo mejor ubicado … Si al término de los segundos 90 minutos, la cantidad de puntos y la diferencia de gol resultaran igualadas, la definición se operará mediante la ejecución de tiros desde el punto penal",
+       "source": "https://assets1.afa.com.ar/2026/Lau/Boletin-Especial-6823---Reglamento-del-Campeonato-de-Primera-Nacional-2026.pdf",
+       "dates": "2026-12-12..2026-12-19"
+      }
+     ],
+     "seeding": {
+      "rule": "zone position first, then points, goal difference, goals for, draw; the beaten finalist is always seed 1",
+      "quote": "se conformará una “Tabla General de Posiciones” entre ambas Zonas, teniendo en cuenta a tal efecto, en primer lugar la posición en la Tabla de su respectiva Zona, luego la cantidad de puntos obtenidos, diferencia de goles, goles a favor, y por último, sorteo, todo sucesivamente, y los cuales se ordenarán del 1° al 8° … considerando al citado perdedor de la Final como 1°",
+      "source": "https://assets1.afa.com.ar/2026/Lau/Boletin-Especial-6823---Reglamento-del-Campeonato-de-Primera-Nacional-2026.pdf"
+     },
+     "winner": "promoted to Primera División"
+    },
+    "entrants_2026": {
+     "zona_a": {
+      "1": "Godoy Cruz",
+      "2": "Ferro Carril Oeste",
+      "3": "Deportivo Morón",
+      "4": "Deportivo Madryn",
+      "5": "Colón",
+      "6": "Almirante Brown",
+      "7": "Ciudad de Bolívar",
+      "8": "Estudiantes (BA)"
+     },
+     "zona_b": {
+      "1": "Tristán Suárez",
+      "2": "Atlanta",
+      "3": "Temperley",
+      "4": "Gimnasia y Esgrima (J)",
+      "5": "Ferrocarril Midland",
+      "6": "Deportivo Maipú",
+      "7": "Colegiales",
+      "8": "Gimnasia y Tiro (S)"
+     },
+     "beaten_finalist": "Tristán Suárez",
+     "note": "The map is the final zone table; only places 2-8 enter the reducido. Godoy Cruz (Zona A) beat Tristán Suárez 3-1 in the final on 15 November, so Godoy Cruz is promoted and Tristán Suárez enters as the beaten finalist, seed 1."
+    },
+    "confidence": "high",
+    "note": "The reducido is 15 clubs, not 8: fourteen zone places (2nd-8th of each) play a single-match first phase, and the seven winners join the beaten finalist in an eight-club two-legged bracket. Only the first promotion is a one-off final; every reducido stage after the first phase is two-legged. First-phase matches were 14-15 November, second-phase first legs 21-22 November, the final 12 and 19 December; the article does not print dates for the return legs or the semi-finals."
+   },
+   "relegation_detail": {
+    "clubs_down": 4,
+    "rule": "bottom two of each zone",
+    "quote": "Al término del Campeonato de Primera Nacional 2026, descenderán de Categoría directamente, los equipos ubicados en los dos -2- últimos puestos de la Tabla Final de Posiciones 2026 de cada una de las Zonas “A” y “B”, los que en la temporada siguiente militarán, en Primera División “B” y/o en el Torneo Federal “A”, según corresponda.",
+    "source": "https://assets1.afa.com.ar/2026/Lau/Boletin-Especial-6823---Reglamento-del-Campeonato-de-Primera-Nacional-2026.pdf",
+    "destination": "Primera B Metropolitana or Torneo Federal A, by affiliation",
+    "tie_break": "play-off match(es) under art. 111 of the AFA Reglamento General, for the four direct relegation places",
+    "tie_break_quote": "Si al término del Campeonato de1ra. Nacional 2026, dos o más equipos igualaran la puntuación en alguna de las Zonas … con relación a los cuatro -4- descensos directos, serán de aplicación las disposiciones del art. 111 del R.G., que establece la realización de partido/s de desempate",
+    "observed_2026": [
+     "Acassuso",
+     "Güemes (SdE)",
+     "Nueva Chicago",
+     "San Miguel"
+    ],
+    "confidence": "high",
+    "note": "No promedio here: relegation is purely the zone table, two per zone. The destination tier depends on affiliation, not on the zone."
+   }
   },
   {
    "id": "AR3F",

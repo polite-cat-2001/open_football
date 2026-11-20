@@ -1,6 +1,6 @@
 {
   "country": "Colombia",
-  "checked": "2026-11-20",
+  "checked": "2026-11-21",
   "leagues": [
     {
       "id": "COL1",
@@ -37,7 +37,51 @@
       "source": "https://es.wikipedia.org/wiki/Torneo_Finalizaci%C3%B3n_2026_(Colombia)",
       "quote": "En la fase todos contra todos se jugaron 19 fechas, sin fecha de clásicos, donde los ocho primeros equipos de la tabla de posiciones al final de la primera fase del torneo clasificaron a los cuadrangulares semifinales, disputando la final a partidos de ida y vuelta los ganadores de cada cuadrangular.",
       "confidence": "high",
-      "note": "Apertura and Finalización are independent championships and the cuadrangulares restart from zero, so nothing carries. The two 2026 tournaments did NOT share a knock-out: Apertura 2026 dropped the cuadrangulares for the World Cup and went straight to two-legged quarter-finals (9-13 May), semi-finals (16 and 23 May) and final (2 and 8 June) among the top 8, 25 matchdays in all; Finalización 2026 kept the usual shape - top 8 into two groups of four over 6 matchdays (first round 20-21 November), group winners to a two-legged final, tournament ending 22 December. Relegation is the three-season promedio (a separate table sums first-stage points of 2024-I to 2026-II, bottom two go down); Boyacá Chicó and Jaguares went down in 2026."
+      "note": "Apertura and Finalización are independent championships and the cuadrangulares restart from zero, so nothing carries. The two 2026 tournaments did NOT share a knock-out: Apertura 2026 dropped the cuadrangulares for the World Cup and went straight to two-legged quarter-finals (9-13 May), semi-finals (16 and 23 May) and final (2 and 8 June) among the top 8, 25 matchdays in all; Finalización 2026 kept the usual shape - top 8 into two groups of four over 6 matchdays (first round 20-21 November), group winners to a two-legged final, tournament ending 22 December. Relegation is the six-tournament promedio (2024-I to 2026-II); Boyacá Chicó and Jaguares went down in 2026.",
+      "relegation_detail": {
+        "clubs_down": 2,
+        "rule": "promedio",
+        "tournaments": [
+          "2024-I",
+          "2024-II",
+          "2025-I",
+          "2025-II",
+          "2026-I",
+          "2026-II"
+        ],
+        "counts": "regular all-against-all phase only; cuadrangulares and semester finals are excluded",
+        "formula": "sum of regular-phase points / matches played in those phases",
+        "promoted_clubs": "average starts from zero and does not inherit the relegated club's average, so the divisor is the matches the club actually played",
+        "tie_break": null,
+        "clauses": [
+          {
+            "clause": "calculation",
+            "quote": "Los ascensos y descensos en el fútbol colombiano se definen por la tabla del descenso, la cual promedia las campañas de los equipos en la fase todos contra todos de los últimos seis campeonatos dividiendo el puntaje total por los partidos jugados en esta fase.",
+            "source": "https://es.wikipedia.org/wiki/Temporada_2026_del_f%C3%BAtbol_colombiano"
+          },
+          {
+            "clause": "window for the 2026 relegation",
+            "quote": "Para el descenso a la Primera B al final del año 2026, se tendrán en cuenta únicamente los torneos 2024-I, 2024-II, 2025-I, 2025-II, 2026-I y 2026-II.",
+            "source": "https://es.wikipedia.org/wiki/Temporada_2026_del_f%C3%BAtbol_colombiano"
+          },
+          {
+            "clause": "promoted clubs",
+            "quote": "Los equipos ascendidos desde la Primera B inician su promedio desde cero, sin heredar el promedio del último clasificado de la temporada anterior en la Primera A.",
+            "source": "https://es.wikipedia.org/wiki/Temporada_2026_del_f%C3%BAtbol_colombiano"
+          }
+        ],
+        "observed_2026": {
+          "relegated": [
+            "Jaguares",
+            "Boyacá Chicó"
+          ],
+          "table": "Jaguares 31/38 = 0.8158 (2026 only, promoted for 2026); Boyacá Chicó 106/116 = 0.9138 (2024+2025+2026)",
+          "source": "https://es.wikipedia.org/wiki/Temporada_2026_del_f%C3%BAtbol_colombiano",
+          "as_of": "2026-11-14"
+        },
+        "confidence": "high",
+        "note": "The source is explicit that only the fase todos contra todos counts: a cup run or a semester final does not move the average. A club with fewer than six tournaments divides by the matches it actually played (Jaguares and Cúcuta 38, Llaneros 78), which is exactly the rule a career engine needs for a promoted or newly created club. The season article does not state a tie-break between clubs level on average, so tie_break stays null; Dimayor's reglamento is the place to confirm it."
+      }
     },
     {
       "id": "CO22",
@@ -74,7 +118,92 @@
       "source": "https://es.wikipedia.org/wiki/Primera_B_2026_(Colombia)",
       "quote": "Al finalizar la primera fase del campeonato —también denominada «Todos contra todos»—, los ocho equipos con mayor puntaje disputaron la segunda fase, los cuadrangulares semifinales.",
       "confidence": "medium",
-      "note": "16 clubs, two championships; each is 15 matchdays + two groups of four (6 matchdays) + a two-legged final, so each tournament's champion comes out of the knock-out rather than the table (Apertura final 25 and 29 May 2026). The 19 April and 25 October dates are the cuadrangulares draws held after the last first-stage matchday; the article dates no jornada-15 match. Finalización 2026 knock-out dates are not published yet (window null); the season closes in December 2026, month only. No relegation: 'descenso = Sin descenso'. Promotion runs off the reclasificación table (points of both tournaments): a club in its top two that won no tournament goes to a repechaje for the second promotion place, a club that wins both tournaments sends the next two to that repechaje, and if both champions are the top two the repechaje is cancelled and both go up."
+      "note": "16 clubs, two championships; each is 15 matchdays + two groups of four (6 matchdays) + a two-legged final, so each tournament's champion comes out of the knock-out rather than the table (Apertura final 25 and 29 May 2026, Envigado champion over Real Cartagena 4-3). The 19 April and 25 October dates are the cuadrangulares draws held after the last first-stage matchday; the article dates no jornada-15 match. Finalización 2026 knock-out dates are not published yet (window null); the season closes in December 2026, month only. No relegation: 'descenso = Sin descenso'. Promotion runs off the reclasificación table (points of both tournaments, finals included): a club in its top two that won no tournament goes to a repechaje for the second promotion place, a club that wins both tournaments sends the next two to that repechaje, and if both champions are the top two the repechaje is cancelled and both go up.",
+      "promotion": {
+        "clubs_up": 2,
+        "decided_by": "reclasificación table plus repechaje",
+        "table_includes": "all matches of both tournaments: all-against-all phase, cuadrangulares semifinales and semester finals",
+        "clauses": [
+          {
+            "clause": "reclasificación scope",
+            "quote": "La tabla de reclasificación de la Primera B 2026 se elabora a partir de la sumatoria de puntos de los clubes en todos los partidos de los dos torneos del año, incluyendo las fases todos contra todos, cuadrangulares semifinales y finales semestrales.",
+            "source": "https://es.wikipedia.org/wiki/Primera_B_2026_(Colombia)"
+          },
+          {
+            "clause": "the three 2026 cases",
+            "quote": "El club que ocupe el primer o segundo puesto en esta tabla y no haya ganado alguno de los torneos semestrales clasificará al repechaje por el segundo ascenso a la Primera A, mientras que si un club logra ganar los dos torneos de la temporada, el repechaje será disputado por los siguientes dos clubes mejor ubicados en esta tabla. En caso de que ambos campeones ocupen los dos primeros puestos, el repechaje por el segundo ascenso se cancelará y estos clubes ascenderán directamente.",
+            "source": "https://es.wikipedia.org/wiki/Primera_B_2026_(Colombia)"
+          },
+          {
+            "clause": "same system in 2025 (mechanics of the one-champion case)",
+            "quote": "Si únicamente uno de ellos ocupara el primer o segundo puesto en esta tabla, este club ascendería mientras que el otro ganador jugaría el repechaje por el segundo ascenso contra el club que hubiera quedado mejor ubicado en la reclasificación sin ganar alguno de los torneos.",
+            "source": "https://es.wikipedia.org/wiki/Primera_B_2025_(Colombia)"
+          },
+          {
+            "clause": "repechaje is two-legged",
+            "quote": "el segundo ascenso lo disputarían los siguientes dos clubes que estén mejor ubicados en la tabla de reclasificación de la temporada en una serie de repechaje con partidos de ida y vuelta.",
+            "source": "https://es.wikipedia.org/wiki/Primera_B_2025_(Colombia)"
+          }
+        ],
+        "branches": [
+          {
+            "case": "exactly one semester champion finishes in the reclasificación top two",
+            "who_enters_repechaje": "the other champion (the one outside the top two) against the best-placed top-two club that won no tournament",
+            "who_goes_up": "the champion inside the top two goes up directly; the repechaje winner takes the second place",
+            "repechaje_cancelled": false,
+            "quote": "El club que ocupe el primer o segundo puesto en esta tabla y no haya ganado alguno de los torneos semestrales clasificará al repechaje por el segundo ascenso a la Primera A",
+            "source": "https://es.wikipedia.org/wiki/Primera_B_2026_(Colombia)",
+            "mechanics_quote": "este club ascendería mientras que el otro ganador jugaría el repechaje por el segundo ascenso contra el club que hubiera quedado mejor ubicado en la reclasificación sin ganar alguno de los torneos",
+            "mechanics_source": "https://es.wikipedia.org/wiki/Primera_B_2025_(Colombia)"
+          },
+          {
+            "case": "the same club wins both Apertura and Finalización",
+            "who_enters_repechaje": "the next two best-placed clubs in the reclasificación, i.e. the top two clubs that are not the double champion",
+            "who_goes_up": "the double champion goes up directly; the repechaje winner takes the second place",
+            "repechaje_cancelled": false,
+            "quote": "si un club logra ganar los dos torneos de la temporada, el repechaje será disputado por los siguientes dos clubes mejor ubicados en esta tabla",
+            "source": "https://es.wikipedia.org/wiki/Primera_B_2026_(Colombia)"
+          },
+          {
+            "case": "both champions finish in the reclasificación top two",
+            "who_enters_repechaje": null,
+            "who_goes_up": "both champions, directly",
+            "repechaje_cancelled": true,
+            "quote": "En caso de que ambos campeones ocupen los dos primeros puestos, el repechaje por el segundo ascenso se cancelará y estos clubes ascenderán directamente.",
+            "source": "https://es.wikipedia.org/wiki/Primera_B_2026_(Colombia)"
+          },
+          {
+            "case": "neither champion finishes in the reclasificación top two",
+            "who_enters_repechaje": null,
+            "who_goes_up": null,
+            "repechaje_cancelled": null,
+            "status": "unstated in the 2026 article",
+            "quote": null,
+            "source": null,
+            "note": "The 2026 paragraph lists only the three cases above. In 2025, the same system added a two-legged Gran Final between the two champions (winner up, loser into the repechaje against the best-placed non-champion): 'si ninguno de los ganadores de los torneos cortos de la temporada finalizara en los dos primeros puestos de la tabla de reclasificación, estos clubes jugarían la gran final en partidos de ida y vuelta que decidirían al primer ascendido … mientras que el perdedor de ese duelo se enfrentaría al mejor de la reclasificación del año en partidos de ida y vuelta'. The English 2026 page still says the Torneo winners 'qualify for the season's grand final', but the Spanish 2026 article does not spell the case out; do not encode it as a rule without the Dimayor reglamento.",
+            "mechanics_source": "https://es.wikipedia.org/wiki/Primera_B_2025_(Colombia)"
+          }
+        ],
+        "repechaje": {
+          "teams": 2,
+          "format": "two-legged series (ida y vuelta)",
+          "format_source": "https://es.wikipedia.org/wiki/Primera_B_2025_(Colombia)",
+          "dates": null,
+          "note": "No 2026 date is published. The Torneo II final is on 25 and 28 November 2026, so the repechaje would fall in December, but the article does not schedule it."
+        },
+        "observed_2026": {
+          "as_of": "2026-11-19",
+          "reclasificación_top": [
+            "Deportes Quindío 76",
+            "Real Cartagena 72",
+            "Envigado 72"
+          ],
+          "state": "Torneo I champion Envigado is 3rd; the Torneo II final is Boca Juniors de Cali vs Deportes Quindío, with Quindío 1st. A Quindío title is the one-champion branch (Quindío up, Envigado v Real Cartagena in the repechaje); a Boca title leaves both champions outside the top two, the case the 2026 article does not resolve.",
+          "source": "https://es.wikipedia.org/wiki/Primera_B_2026_(Colombia)"
+        },
+        "confidence": "medium",
+        "note": "The reclasificación is not the regular-phase table: it adds the cuadrangulares and the two semester finals, unlike the Primera A promedio which counts the all-against-all phase only. The three 2026 cases are explicit; the fourth (neither champion in the top two) is not, and the 2026 repechaje dates and bracket are unpublished."
+      }
     }
   ]
 }
