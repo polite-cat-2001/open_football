@@ -29,6 +29,16 @@ only one with promotion and relegation.
 ```
 
 - `kind`: `league` | `cup` | `super_cup` | `international`.
+- A country may have **more than one cup**, and each is its own `kind: "cup"`
+  competition: England has the FA Cup and the EFL Cup, Portugal the Taça de
+  Portugal and the Taça da Liga, Scotland two, Brazil has regional cups
+  (Copa do Nordeste, Copa Verde) beside the Copa do Brasil. The berth map names
+  the specific competition, never "the national cup".
+- The set of competitions is **per season**, not a constant: Wales' League Cup
+  is cancelled for 2026-27, France's Coupe de la Ligue (2020), Argentina's Copa
+  de la Liga (2025) and Mexico's Copa MX (2020) are abolished. A berth may also
+  feed another domestic cup (Brazil's regional cup winner enters the Copa do
+  Brasil third round), not only a continental one.
 - `role`: `primary` marks the career league (the one with promotion and
   relegation, the one the hub tile shows by default).
 - `participants` rules: `league` (its clubs), `country` + `tiers` (every club of
