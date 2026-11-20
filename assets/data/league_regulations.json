@@ -1124,7 +1124,7 @@
    "start_md": "07-25",
    "end_md": "05-29",
    "filled": "",
-   "phases": "split",
+   "phases": "other",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -1142,14 +1142,14 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Czech_First_League",
-   "note": "Window inherited from TS1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: two parallel groups of 16 (Bohemia), each a single round-robin; the two group winners play a two-legged baraz for the one promotion place and there is no overall champion. The level, not the season, is split. Window inherited from TS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "TS1"
   },
   "CZ3M": {
    "start_md": "07-25",
    "end_md": "05-29",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -1167,7 +1167,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Czech_First_League",
-   "note": "Window inherited from TS1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: one 18-club table, 34 rounds; the champion is promoted and the bottom one to three are relegated to Divize D/E/F. Window inherited from TS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "TS1"
   },
   "DK1": {

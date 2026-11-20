@@ -598,6 +598,56 @@
       "quote": "This season there will be 20 teams and there are some changes regarding promotion and relegation teams: At the top of the standings, the first respectively will win direct promotion to First League, while the 2nd and 3rd teams will play a play-off with the teams finishing 12th and 13th in the 2026/27 First League season.",
       "confidence": "medium",
       "note": "No split. Transitional 20-club season (back to 16 in 2027-28), so 38 rounds is derived from a double round-robin of 20 - the article does not print the round count. The article says 'a total of 6 (from 14th to 20th place)', which is seven positions; the Bulgarian source (per the pyramid research) says five direct plus 13th, so the exact direct-relegation count is disputed. Dates: July 2026 - June 2027."
+    },
+    {
+      "id": "CZ3C",
+      "country": "Czech Republic",
+      "name": "Česká fotbalová liga (ČFL, level 3, groups A+B)",
+      "season": "2026-27",
+      "split": false,
+      "regular": {
+        "rounds": 30,
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "start_precision": "unknown",
+        "end_precision": "unknown"
+      },
+      "split_after_rounds": null,
+      "groups": [],
+      "points_carry": "none",
+      "champion": "none",
+      "after": "No split. 32 clubs in two parallel groups of 16 (A and B), each a plain double round-robin. The two group winners meet in a baráž for the single promotion place to the Chance Národní liga; there is no overall champion. Relegation comes from the bottom of each group to Divize A/B/C, and the number of relegated ČFL clubs depends on how many Czech clubs drop from the 2. liga (four if two Czech clubs come down, three if one Czech and one Moravian, two if two Moravian).",
+      "split_window": null,
+      "source": "https://cs.wikipedia.org/wiki/%C4%8Cesk%C3%A1_fotbalov%C3%A1_liga_2026/2027 ; https://cs.wikipedia.org/wiki/%C4%8Cesk%C3%A1_fotbalov%C3%A1_liga",
+      "quote": "Liga bude pro tuto sezónu rozdělena na 2 skupiny po 16 týmech. Po skončení základní části se vítězové obou skupin utkají v baráži o jedno postupové místo do Chance Národní ligy. Každé mužstvo s každým soupeřem sehraje dvě utkání, a sice jednou na svém domácím hřišti a jednou na hřišti soupeřově.",
+      "confidence": "medium",
+      "note": "Not a championship/relegation split despite the label: the 'groups' are two parallel 16-club divisions (since 2019-20), and the only post-season step is the promotion baráž between the two group winners (in 2025-26 both winners went up because the Národní liga had extra vacancies, which is why a baráž can look like a formality). 30 rounds is arithmetic from the quoted 16 clubs playing each other twice - the article prints neither the round count nor a calendar, hence null dates. The base article still says only the first-placed team is promoted, which is the pre-baráž rule text."
+    },
+    {
+      "id": "CZ3M",
+      "country": "Czech Republic",
+      "name": "Moravskoslezská fotbalová liga (MSFL, level 3, Moravia)",
+      "season": "2026-27",
+      "split": false,
+      "regular": {
+        "rounds": 34,
+        "start_md": "08-01",
+        "end_md": "06-30",
+        "precision": "month",
+        "start_precision": "month",
+        "end_precision": "month"
+      },
+      "split_after_rounds": null,
+      "groups": [],
+      "points_carry": "none",
+      "champion": "table",
+      "after": "No split: one 18-club table. The champion is promoted to the Chance Národní liga (subject to licensing); the bottom one to three clubs are relegated to Divize D/E/F depending on how many Moravian clubs come down from the 2. liga (three if two Moravian clubs drop, two if one Moravian and one Czech, one if two Czech).",
+      "split_window": null,
+      "source": "https://cs.wikipedia.org/wiki/Moravskoslezsk%C3%A1_fotbalov%C3%A1_liga_2026/2027 ; https://cs.wikipedia.org/wiki/Moravskoslezsk%C3%A1_fotbalov%C3%A1_liga",
+      "quote": "Tento ročník začal v srpnu 2026 a skončí v červnu 2027. Soutěže se od sezony 2019/20 účastní 18 týmů. Každé mužstvo s každým soupeřem sehraje dvě utkání, a sice jednou na svém domácím hřišti a jednou na hřišti soupeřově. Mistrem se stává tým s nejvyšším počtem bodů v tabulce.",
+      "confidence": "medium",
+      "note": "Not a split league: MSFL is the Moravian half of level 3, a plain double round-robin with no groups. 34 rounds is arithmetic from the quoted 18 clubs playing each other twice (the article prints the club count, not the round count). Season August 2026 - June 2027, month precision only. The base article still credits the champion with direct promotion, while the 2026-27 ČFL article puts a baráž in front of the ČFL winners only - MSFL's champion is not part of that baráž."
     }
   ]
 }

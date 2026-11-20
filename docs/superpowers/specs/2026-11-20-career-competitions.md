@@ -152,10 +152,15 @@ only.
   Russia and Belarus get zero berths and their clubs never enter a continental
   competition. The ban list is stored separately from the berth table, so both
   modes read the same data. The flag lives in the save; the final game picks one.
-- **Reserve and youth teams**: `reserve: true` on the team (206 in senior
-  leagues today) plus `parent_club`. A reserve team plays its league, is never
-  promoted, is not selectable for a career, and never shares a division with
-  its parent.
+- **Reserve and youth teams**: `reserve: true` on the team plus `parent_club_id`
+  (a data link built once and reviewed **by id** — names lie, e.g. Willem II is
+  a club, not a reserve side). Two modes, a save flag `reserve_teams_mode`:
+  - `linked` (default, realistic): a reserve team plays its league but is never
+    promoted into its parent's division; its promotion ceiling is a per-country
+    field (default: not the top division; Germany and Spain: not the top two);
+    it does not enter the domestic cup.
+  - `independent`: reserve teams are ordinary clubs, unlinked, can be promoted,
+    meet the first teams and play the cup.
 - **Cross-border clubs**: a club may play in another country's league. Its berth
   path is a per-club override (`berth_via`), because the league's country is not
   always the qualifying country: Vaduz qualifies only through the Liechtenstein
