@@ -8,11 +8,13 @@ Status: v3 revised after three audits, the last one by attempting to encode all
 - 25 rows carry `phases: "apertura_clausura"`; the label is replaced by
   `format`. Research: 10 are really Apertura/Clausura, the rest are one table,
   zones, groups, or paths.
-- `AR3F`/`AR3R` (two paths of one 37-club tournament, clubs shared) are marked
-  `out_of_scope: true` and excluded from career creation and from the promotion
-  league list. `M191`/`M21A` stay single-table (no calendar). Tier-99 youth
-  leagues (19 rows) are not career leagues at all: excluded from creation and
-  from the transition's league list.
+- `AR3F` is now the merged **Torneo Federal A**: one 37-club competition (the
+  former `AR3R` Reválida row was merged into it), with a Campeonato path and a
+  Reválida path fed by the losers. It stays `out_of_scope: true` until its
+  two-path format is encoded in phase 1, so the game never plays it as a
+  37-club round-robin. `M191`/`M21A` stay single-table (no calendar). Tier-99
+  youth leagues (18 rows) are not career leagues at all: excluded from creation
+  and from the transition's league list.
 - Chile's `CL2Z` (a 2-club zonal play-off group) is merged into `CL2F` as one
   14-club level 3; the empty row is gone from the database, the asset and the
   canon.
@@ -249,9 +251,10 @@ Status: v3 revised after three audits, the last one by attempting to encode all
 
 0. **Calendar**: boundary-based season start (mid-gap), season end before the
    next boundary, tests and the two date-bearing goldens green, commit.
-1. **Data**: schema, the 21 encodable formats (`AR3F`/`AR3R` out of scope,
-   `M191`/`M21A` single), row windows recomputed, loader, validation test,
-   `check_league_regulations` updated.
+1. **Data**: schema, the 22 formats encoded (`AR3F` among them as the merged
+   two-path tournament, then `out_of_scope` removed; `M191`/`M21A` single), row
+   windows recomputed, loader, validation test, `check_league_regulations`
+   updated.
 2. **Schedule and tables**: stage/group builders and the three call sites, the
    round index and `stage_round`, `standings(view)` with `group`, `season.
    standings` vs `season.aggregate`, next-fixture by date.

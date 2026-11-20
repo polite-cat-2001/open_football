@@ -1,143 +1,122 @@
 {
-  "country": "Argentina",
-  "checked": "2026-11-20",
-  "leagues": [
+ "country": "Argentina",
+ "checked": "2026-11-20",
+ "leagues": [
+  {
+   "id": "ARGC",
+   "season": "2026",
+   "structure": "two_phases",
+   "phases": [
     {
-      "id": "ARGC",
-      "season": "2026",
-      "structure": "two_phases",
-      "phases": [
-        {
-          "label": "Torneo Apertura",
-          "start_md": "01-22",
-          "end_md": "05-24",
-          "precision": "day",
-          "source": "https://es.wikipedia.org/wiki/Anexo:Torneo_Apertura_2026_(Argentina)",
-          "quote": "Comenzó el 22 de enero y finalizó el 24 de mayo con la final en el Estadio Mario Alberto Kempes de Córdoba."
-        },
-        {
-          "label": "Torneo Clausura",
-          "start_md": "07-23",
-          "end_md": "12-12",
-          "precision": "day",
-          "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
-          "quote": "The league season began on 22 January and will end on 12 December 2026."
-        }
-      ],
-      "points_carry": "none",
-      "champion": "table",
-      "playoff": null,
-      "relegation": "average",
-      "row_is": "league",
-      "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Divisi%C3%B3n_2026_(Argentina)",
-      "quote": "A su vez, el equipo que más puntos haya obtenido en la tabla general de la temporada (producto de la suma de puntos obtenidos en el Apertura y el Clausura) será consagrado como «Campeón de Liga».",
-      "confidence": "high",
-      "note": "Two independent tournaments with the same 30 clubs (two zones of 15, single round-robin plus two interzonal games = 16 matches; top 8 of each zone to a single-leg knockout that crowns the phase champion; Apertura final 24 May, Clausura final 12 December). Phase tables restart; the aggregate table of both phases crowns the Campeón de Liga (Boca Juniors in 2026). Relegation: last of the 2024-2026 promedio plus the penultimate of the 2026 aggregate table. Row id/name says Clausura but the 30 clubs and the January-December window are the whole division."
+     "label": "Torneo Apertura",
+     "start_md": "01-22",
+     "end_md": "05-24",
+     "precision": "day",
+     "source": "https://es.wikipedia.org/wiki/Anexo:Torneo_Apertura_2026_(Argentina)",
+     "quote": "Comenzó el 22 de enero y finalizó el 24 de mayo con la final en el Estadio Mario Alberto Kempes de Córdoba."
     },
     {
-      "id": "ARG2",
-      "season": "2026",
-      "structure": "other",
-      "phases": [
-        {
-          "label": "Temporada (fase regular en dos zonas + final + Torneo reducido)",
-          "start_md": "02-13",
-          "end_md": "12-19",
-          "precision": "day",
-          "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Nacional_2026",
-          "quote": "Comenzó el 13 de febrero y finalizaría el 19 de diciembre."
-        }
-      ],
-      "points_carry": "none",
-      "champion": "phase_final",
-      "playoff": {
-        "teams": 2,
-        "window": "2026-11-15..2026-11-15"
-      },
-      "relegation": "aggregate",
-      "row_is": "league",
-      "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Nacional_2026",
-      "quote": "Los participantes se dividieron en dos zonas de dieciocho equipos, que se disputaron mediante el sistema de todos contra todos, a dos ruedas, más una fecha especial de interzonales en cada rueda. Los que ocuparon el primer puesto en ambas se enfrentarán en una final a un solo partido, en cancha neutral, por el título de campeón y el primer ascenso.",
-      "confidence": "high",
-      "note": "No Apertura/Clausura: two parallel zones of 18 (double round-robin plus interzonal rounds), one table per zone. Champion = winner of the single final between the two zone winners (15 November, neutral venue) who also takes the first promotion; the beaten finalist enters the Torneo reducido, which decides the second promotion (knockout, ends 19 December). Relegation: bottom two of each zone (4 clubs) to the third tier, by affiliation (Primera B Metropolitana or Torneo Federal A)."
-    },
-    {
-      "id": "AR3F",
-      "season": "2026",
-      "structure": "other",
-      "phases": [
-        {
-          "label": "Fase Campeonato (segunda a quinta fase)",
-          "start_md": "08-01",
-          "end_md": "10-25",
-          "precision": "day",
-          "source": "https://es.wikipedia.org/wiki/Torneo_Federal_A_2026",
-          "quote": "Los dieciocho equipos provenientes de la Primera fase fueron agrupados en dos zonas (A y B) de nueve participantes cada una. Dentro de cada una de ellas, jugaron todos contra todos a una sola rueda."
-        }
-      ],
-      "points_carry": "none",
-      "champion": "playoff",
-      "playoff": {
-        "teams": 8,
-        "window": "2026-09-27..2026-10-25"
-      },
-      "relegation": "none",
-      "row_is": "phase",
-      "source": "https://es.wikipedia.org/wiki/Torneo_Federal_A_2026",
-      "quote": "Los dos equipos ganadores de la Cuarta fase se enfrentaron en un solo partido, en sede neutral. El ganador se consagró campeón y ascendió a la Primera B Nacional, mientras que el perdedor clasificó a la Cuarta etapa de la Reválida.",
-      "confidence": "high",
-      "note": "Row is the 18-club championship path of the 37-club Torneo Federal A, not a division: the primera fase (4 zones, 20 March - July) sends 18 clubs here (2 zones of 9, single round-robin, 1 August - 20 September), then 8 play two-legged ties (27 September - 18 October) and a single final on 25 October decides the champion and first promotion (San Martín (F)). The rest of the field plays the parallel Reválida (AR3R). No relegation from this path."
-    },
-    {
-      "id": "AR3R",
-      "season": "2026",
-      "structure": "other",
-      "phases": [
-        {
-          "label": "Reválida (primera a sexta etapa)",
-          "start_md": "08-01",
-          "end_md": "11-29",
-          "precision": "day",
-          "source": "https://es.wikipedia.org/wiki/Torneo_Federal_A_2026",
-          "quote": "Los diecinueve clubes que no clasificaron a la Segunda Fase se agruparon en dos zonas."
-        }
-      ],
-      "points_carry": "none",
-      "champion": "none",
-      "playoff": null,
-      "relegation": "aggregate",
-      "row_is": "phase",
-      "source": "https://es.wikipedia.org/wiki/Torneo_Federal_A_2026",
-      "quote": "Estuvo integrada por los diez clubes clasificados de la Primera Etapa, por los diez clubes de la Segunda Fase y por los cuatro perdedores de la Tercera Fase. Se disputó por eliminación directa a doble partido, una en cada sede.",
-      "confidence": "medium",
-      "note": "Row is the Reválida path of the same 37-club Torneo Federal A, not a league or a division: losers of the championship path are re-fed into it, so its field grows past 19 and a club can appear in both rows. No champion - its bracket winner takes the second promotion to Primera Nacional (six re-seeded knockout stages, 1 August - 29 November). Relegation comes from the combined table (primera fase + Reválida primera etapa): bottom two of each Reválida zone, 4 clubs, to the Torneo Argentino del Interior. Second promotion bracket window follows the printed fixture dates."
-    },
-    {
-      "id": "URL3",
-      "season": "2026",
-      "structure": "single",
-      "phases": [
-        {
-          "label": "Temporada (una tabla)",
-          "start_md": "02-13",
-          "end_md": "12-19",
-          "precision": "day",
-          "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_B_2026_(Argentina)",
-          "quote": "Comenzó el 13 de febrero y finalizaría el 19 de diciembre."
-        }
-      ],
-      "points_carry": "none",
-      "champion": "table",
-      "playoff": {
-        "teams": 8,
-        "window": "2026-11-14..2026-12-19"
-      },
-      "relegation": "aggregate",
-      "row_is": "league",
-      "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_B_2026_(Argentina)",
-      "quote": "Los veintidós participantes se enfrentan en dos ruedas por el sistema de todos contra todos. El equipo que ocupe el primer lugar de la tabla de posiciones se consagrará campeón y obtendrá el primer ascenso a la Primera Nacional.",
-      "confidence": "high",
-      "note": "Primera B Metropolitana, the directly-affiliated branch of level 3: one table, 22 clubs, double round-robin (42 rounds), champion = first place (Excursionistas) plus direct promotion. The Torneo reducido (8 clubs, places 2-9) decides the second promotion, first phase 14 and 21 November, ends by 19 December. Relegation: bottom two of the single table to Primera C. Note the id is misleading - this row is an Argentine league, not a Uruguayan one."
+     "label": "Torneo Clausura",
+     "start_md": "07-23",
+     "end_md": "12-12",
+     "precision": "day",
+     "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
+     "quote": "The league season began on 22 January and will end on 12 December 2026."
     }
-  ]
+   ],
+   "points_carry": "none",
+   "champion": "table",
+   "playoff": null,
+   "relegation": "average",
+   "row_is": "league",
+   "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Divisi%C3%B3n_2026_(Argentina)",
+   "quote": "A su vez, el equipo que más puntos haya obtenido en la tabla general de la temporada (producto de la suma de puntos obtenidos en el Apertura y el Clausura) será consagrado como «Campeón de Liga».",
+   "confidence": "high",
+   "note": "Two independent tournaments with the same 30 clubs (two zones of 15, single round-robin plus two interzonal games = 16 matches; top 8 of each zone to a single-leg knockout that crowns the phase champion; Apertura final 24 May, Clausura final 12 December). Phase tables restart; the aggregate table of both phases crowns the Campeón de Liga (Boca Juniors in 2026). Relegation: last of the 2024-2026 promedio plus the penultimate of the 2026 aggregate table. Row id/name says Clausura but the 30 clubs and the January-December window are the whole division."
+  },
+  {
+   "id": "ARG2",
+   "season": "2026",
+   "structure": "other",
+   "phases": [
+    {
+     "label": "Temporada (fase regular en dos zonas + final + Torneo reducido)",
+     "start_md": "02-13",
+     "end_md": "12-19",
+     "precision": "day",
+     "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Nacional_2026",
+     "quote": "Comenzó el 13 de febrero y finalizaría el 19 de diciembre."
+    }
+   ],
+   "points_carry": "none",
+   "champion": "phase_final",
+   "playoff": {
+    "teams": 2,
+    "window": "2026-11-15..2026-11-15"
+   },
+   "relegation": "aggregate",
+   "row_is": "league",
+   "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_Nacional_2026",
+   "quote": "Los participantes se dividieron en dos zonas de dieciocho equipos, que se disputaron mediante el sistema de todos contra todos, a dos ruedas, más una fecha especial de interzonales en cada rueda. Los que ocuparon el primer puesto en ambas se enfrentarán en una final a un solo partido, en cancha neutral, por el título de campeón y el primer ascenso.",
+   "confidence": "high",
+   "note": "No Apertura/Clausura: two parallel zones of 18 (double round-robin plus interzonal rounds), one table per zone. Champion = winner of the single final between the two zone winners (15 November, neutral venue) who also takes the first promotion; the beaten finalist enters the Torneo reducido, which decides the second promotion (knockout, ends 19 December). Relegation: bottom two of each zone (4 clubs) to the third tier, by affiliation (Primera B Metropolitana or Torneo Federal A)."
+  },
+  {
+   "id": "AR3F",
+   "season": "2026",
+   "structure": "other",
+   "phases": [
+    {
+     "label": "Fase Campeonato (segunda a quinta fase)",
+     "start_md": "08-01",
+     "end_md": "10-25",
+     "precision": "day",
+     "source": "https://es.wikipedia.org/wiki/Torneo_Federal_A_2026",
+     "quote": "Los dieciocho equipos provenientes de la Primera fase fueron agrupados en dos zonas (A y B) de nueve participantes cada una. Dentro de cada una de ellas, jugaron todos contra todos a una sola rueda."
+    }
+   ],
+   "points_carry": "none",
+   "champion": "playoff",
+   "playoff": {
+    "teams": 8,
+    "window": "2026-09-27..2026-10-25"
+   },
+   "relegation": "none",
+   "row_is": "league",
+   "source": "https://es.wikipedia.org/wiki/Torneo_Federal_A_2026",
+   "quote": "Los dos equipos ganadores de la Cuarta fase se enfrentaron en un solo partido, en sede neutral. El ganador se consagró campeón y ascendió a la Primera B Nacional, mientras que el perdedor clasificó a la Cuarta etapa de la Reválida.",
+   "confidence": "high",
+   "note": "Row is the 18-club championship path of the 37-club Torneo Federal A, not a division: the primera fase (4 zones, 20 March - July) sends 18 clubs here (2 zones of 9, single round-robin, 1 August - 20 September), then 8 play two-legged ties (27 September - 18 October) and a single final on 25 October decides the champion and first promotion (San Martín (F)). The rest of the field plays the parallel Reválida (AR3R). No relegation from this path. AR3R (the Reválida row of the same 37-club tournament) was merged into this row on 2026-11-20.",
+   "merged": [
+    "AR3R"
+   ]
+  },
+  {
+   "id": "URL3",
+   "season": "2026",
+   "structure": "single",
+   "phases": [
+    {
+     "label": "Temporada (una tabla)",
+     "start_md": "02-13",
+     "end_md": "12-19",
+     "precision": "day",
+     "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_B_2026_(Argentina)",
+     "quote": "Comenzó el 13 de febrero y finalizaría el 19 de diciembre."
+    }
+   ],
+   "points_carry": "none",
+   "champion": "table",
+   "playoff": {
+    "teams": 8,
+    "window": "2026-11-14..2026-12-19"
+   },
+   "relegation": "aggregate",
+   "row_is": "league",
+   "source": "https://es.wikipedia.org/wiki/Campeonato_de_Primera_B_2026_(Argentina)",
+   "quote": "Los veintidós participantes se enfrentan en dos ruedas por el sistema de todos contra todos. El equipo que ocupe el primer lugar de la tabla de posiciones se consagrará campeón y obtendrá el primer ascenso a la Primera Nacional.",
+   "confidence": "high",
+   "note": "Primera B Metropolitana, the directly-affiliated branch of level 3: one table, 22 clubs, double round-robin (42 rounds), champion = first place (Excursionistas) plus direct promotion. The Torneo reducido (8 clubs, places 2-9) decides the second promotion, first phase 14 and 21 November, ends by 19 December. Relegation: bottom two of the single table to Primera C. Note the id is misleading - this row is an Argentine league, not a Uruguayan one."
+  }
+ ]
 }

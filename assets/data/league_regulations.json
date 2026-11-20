@@ -234,8 +234,8 @@
    "note": "No '2026–27 Primera Divisió' article exists (404 on Wikipedia), so these figures come from the 2025-26 article and are a proxy, not confirmed for 2026-27. Infobox '11 October 2025 – 17 May 2026'. Single table, 1 direct relegation plus a Primera Divisió play-off. No transfer-window dates."
   },
   "AR3F": {
-   "start_md": "01-22",
-   "end_md": "12-12",
+   "start_md": "03-20",
+   "end_md": "11-29",
    "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
@@ -250,31 +250,9 @@
     "drawing_of_lots"
    ],
    "transfer_windows": [],
-   "confidence": "high",
-   "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
-   "note": "Window inherited from ARGC; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "ARGC"
-  },
-  "AR3R": {
-   "start_md": "01-22",
-   "end_md": "12-12",
-   "filled": "",
-   "phases": "apertura_clausura",
-   "relegation": {
-    "slots": null,
-    "playoff": false
-   },
-   "tiebreak": [
-    "points",
-    "goal_difference",
-    "goals_for",
-    "fair_play",
-    "drawing_of_lots"
-   ],
-   "transfer_windows": [],
-   "confidence": "high",
-   "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
-   "note": "Window inherited from ARGC; the season facts in that division's note were not re-checked for this league.",
+   "confidence": "medium",
+   "source": "https://es.wikipedia.org/wiki/Torneo_Federal_A_2026",
+   "note": "Torneo Federal A, one competition of 37 clubs: primera fase in four zones from 20 March, then the Campeonato path (18 clubs, 1 August - 25 October, champion promoted) and the Reválida path (19 clubs plus the losers of the Campeonato path, to 29 November, its winner takes the second promotion). AR3R (the Reválida row) was merged into this one.",
    "inherited_from": "ARGC"
   },
   "ARG2": {

@@ -1,5 +1,5 @@
 {
- "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league.",
+ "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league. AR3R merged into AR3F as one 37-club Torneo Federal A; a database rebuilt from the canon must move its 19 clubs into AR3F and drop the AR3R league.",
  "_generated": "2026-11-20",
  "leagues": {
   "2DVB": {
@@ -146,29 +146,17 @@
   },
   "AR3F": {
    "level": 3,
-   "size": 18,
-   "closed_up": false,
-   "closed_down": true,
-   "format": {
-    "kind": "split",
-    "note": "split"
-   },
-   "playoff": null,
-   "country": "Argentina",
-   "confidence": "high"
-  },
-  "AR3R": {
-   "level": 3,
-   "size": 19,
+   "size": 37,
    "closed_up": false,
    "closed_down": true,
    "format": {
     "kind": "other",
-    "note": "cup-phase"
+    "note": "one 37-club Torneo Federal A: primera fase zones, then the Campeonato path (18 clubs, promotion play-off) and the Reválida path (19 clubs plus the losers of the Campeonato path, second promotion). Encoded in the formats slice; until then the league is out of career selection."
    },
    "playoff": null,
    "country": "Argentina",
-   "confidence": "high"
+   "confidence": "high",
+   "out_of_scope": true
   },
   "ARG2": {
    "level": 2,
