@@ -126,6 +126,14 @@ only.
 - **Paths**: Champions Path and League Path, Q1–Q3 and the play-off round,
   every round two legs with the aggregate, no away goals, extra time and
   penalties on a level tie.
+- **Cup slots are not uniform.** A cup berth is `add` (an extra place, e.g.
+  England's FA Cup → UEL league phase) or `consume` (it takes one of the
+  association's league places: Chile and Uruguay give the cup winner the
+  country's last Libertadores spot). A cup winner may also earn **nothing**
+  continental (Vietnam → ASEAN Club Championship, New Zealand, the Philippines,
+  Cambodia; Costa Rica only a Recopa place; Russia none under the ban). Some
+  countries have **no cup at all** (Peru since 2021, Indonesia since 2018-19).
+  The map stores `mode: add | consume | none` per slot.
 - **Drop-downs exist only where the confederation has them.** UEFA: UCL →
   UEL → UECL (Q1/Q2 losers, Q3 → UEL play-off, play-off → UEL league phase,
   UEL play-off → UECL league phase). CONMEBOL: Libertadores third-stage losers

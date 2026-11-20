@@ -1,0 +1,205 @@
+{
+  "checked": "2026-11-20",
+  "countries": [
+    {
+      "country": "Algeria",
+      "main_cup": {
+        "name": "Algerian Cup (Coupe d'Algerie / Coupe de la Republique)",
+        "participants": "open to all clubs of the Algerian league system; 64 clubs from the first national round (2026-27 infobox: '64 (as of first national round)')",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "12-04",
+        "end_md": "05-01",
+        "precision": "day",
+        "winner_berth": "CAF Confederation Cup (plus Algerian Super Cup)",
+        "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Algerian_Cup ; https://en.wikipedia.org/wiki/Algerian_Cup",
+        "quote": "dates = 4 December 2026 - 1 May 2027 ... The winners automatically qualify for both the CAF Confederation Cup and the Algerian Super Cup the following year.",
+        "confidence": "high",
+        "note": "Final is a single match at a national stadium (Nelson Mandela Stadium, Algiers in 2025 and 2026); no two-legged final in the current format."
+      },
+      "second_cup": null,
+      "super_cup": "Algerian Super Cup (cup winner vs league champion)"
+    },
+    {
+      "country": "Ethiopia",
+      "main_cup": {
+        "name": "Ethiopian Cup",
+        "participants": "clubs of the Ethiopian league system; entry count not documented in the sources checked",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "CAF Confederation Cup (assumed; not stated in the source)",
+        "source": "https://en.wikipedia.org/wiki/Ethiopian_Cup ; https://www.rsssf.org/tablese/ethicuphist.html",
+        "quote": "The Ethiopian Cup is the top knockout tournament of the Ethiopian football. It was created in 1945. ... 2025/26 Welwalo Adigrat University 2-0 Sidama Bunna",
+        "confidence": "low",
+        "note": "No season articles exist on Wikipedia, and no round dates are published; only the final result is recorded (RSSSF page last updated 26 Jul 2026, so the 2025-26 final was played before late July). Format/berth inferred from the standard Ethiopian pattern, not sourced."
+      },
+      "second_cup": null,
+      "super_cup": "Ethiopian Super Cup"
+    },
+    {
+      "country": "Ghana",
+      "main_cup": {
+        "name": "Ghana FA Cup (MTN FA Cup)",
+        "participants": "110 clubs: 92 in the preliminary round, 64 in the main competition including 32 qualifiers; Premier League clubs enter the main draw",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "10-24",
+        "end_md": "05-31",
+        "precision": "day",
+        "winner_berth": "CAF Confederation Cup",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Ghana_FA_Cup",
+        "quote": "dates = 24 October 2025 - 31 May 2026 ... num_teams = 110 ... 92 (preliminary round) ... 64 (main competition incl. 32 qualifiers)",
+        "confidence": "medium",
+        "note": "Berth not printed in the season article; taken from the standard Ghanaian cup-winner slot."
+      },
+      "second_cup": null,
+      "super_cup": "Ghana Super Cup"
+    },
+    {
+      "country": "Libya",
+      "main_cup": {
+        "name": "Libyan Cup (Al-Fatih Cup)",
+        "participants": "Libyan clubs of the top divisions; field is small and the recent editions are compressed, no entry count published",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "CAF Confederation Cup (assumed; not stated in the source)",
+        "source": "https://en.wikipedia.org/wiki/Libyan_Cup ; https://www.rsssf.org/tablesl/libcuphist.html",
+        "quote": "2026 Al-Ahly (Tripoli) 1-0 Al-Ahly (Benghazi) [played in Cairo, Egypt]",
+        "confidence": "low",
+        "note": "2023-24 edition was not played; the 2025 and 2026 finals were staged abroad in Cairo. No round dates published anywhere checked, so the window is left null."
+      },
+      "second_cup": null,
+      "super_cup": "Libyan Super Cup"
+    },
+    {
+      "country": "Morocco",
+      "main_cup": {
+        "name": "Throne Cup (Coupe du Trone)",
+        "participants": "clubs from all tiers through 4 preliminary rounds; final phase is a 32-team round of 32 made of the 16 Botola clubs plus 16 qualifiers (64 teams from the third round onwards)",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "CAF Confederation Cup (reallocated to the runner-up if the winner is already in the Champions League)",
+        "source": "https://en.wikipedia.org/wiki/Throne_Cup ; https://en.wikipedia.org/wiki/2023%E2%80%9324_Moroccan_Throne_Cup",
+        "quote": "The current format features 4 preliminary rounds and the final phase. All games are one-legged. ... The winners of the Throne Cup qualify for the following season's CAF Confederation Cup.",
+        "confidence": "medium",
+        "note": "Window is irregular: the 2023-24 edition played its quarter-finals on 14-15 June 2025, so a fixed annual window cannot be stated. Some rounds were two-legged in earlier periods; the current format is one-legged with a single final, usually at the Prince Moulay Abdellah Stadium in Rabat."
+      },
+      "second_cup": null,
+      "super_cup": "Moroccan Super Cup"
+    },
+    {
+      "country": "Nigeria",
+      "main_cup": {
+        "name": "Nigeria Federation Cup (President Federation Cup)",
+        "participants": "74 clubs (70 in 2026) - the winners and runners-up of each of the 36 state cups plus the FCT; a rookie play-off among the 20 lowest-ranked clubs sends 10 into the 54-team first round",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "05-06",
+        "end_md": "07-11",
+        "precision": "day",
+        "winner_berth": "CAF Confederation Cup (plus Nigeria Super Cup)",
+        "source": "https://en.wikipedia.org/wiki/2026_Nigeria_Federation_Cup ; https://en.wikipedia.org/wiki/Nigeria_Federation_Cup",
+        "quote": "dates = 6 May - 11 July 2026 ... The tournament began with the National playoffs on 6 May.",
+        "confidence": "high",
+        "note": "All matches are played at neutral venues; replays existed historically (1968, 1972 finals) but not in the current format."
+      },
+      "second_cup": null,
+      "super_cup": "Nigeria Super Cup"
+    },
+    {
+      "country": "Senegal",
+      "main_cup": {
+        "name": "Coupe du Senegal",
+        "participants": "64 teams in the final phase (32es de finale), professionals, semi-pros and amateurs, single pot from the round of 32",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "CAF Confederation Cup qualifying round",
+        "source": "https://fr.wikipedia.org/wiki/Coupe_du_S%C3%A9n%C3%A9gal_de_football_2025-2026",
+        "quote": "participants = 64 equipes (phase finale) ... Le tirage au sort a ete effectue le 16 janvier 2026 ... Le vainqueur de la competition se qualifie pour le tour de qualification de la Coupe de la confederation 2026-2027.",
+        "confidence": "medium",
+        "note": "Penalties decide drawn matches from the round of 32; extra time only from the semi-finals. The draw was on 16 January 2026 but the source gives no round dates, so no window is stated."
+      },
+      "second_cup": null,
+      "super_cup": null
+    },
+    {
+      "country": "South Africa",
+      "main_cup": {
+        "name": "Nedbank Cup",
+        "participants": "32-club main draw: 16 Premiership clubs (automatic), 8 National First Division clubs (via qualifiers) and 8 amateur clubs",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "02-04",
+        "end_md": "05-02",
+        "precision": "day",
+        "winner_berth": "CAF Confederation Cup",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Nedbank_Cup ; https://en.wikipedia.org/wiki/Nedbank_Cup",
+        "quote": "dates = 4 February 2026 - ... Final: date = 2 May 2026 ... Durban City 2-1 TS Galaxy, Peter Mokaba Stadium, Polokwane.",
+        "confidence": "high",
+        "note": "No replays: drawn matches go to extra time and penalties. Final is a single match at a neutral venue."
+      },
+      "second_cup": "Carling Knockout (already documented in league-cups.json); MTN 8 is the separate top-8 league cup",
+      "super_cup": null
+    },
+    {
+      "country": "Tunisia",
+      "main_cup": {
+        "name": "Tunisian Cup (Coupe de Tunisie)",
+        "participants": "clubs of Ligue 1 and Ligue 2 plus lower-tier qualifiers; 8 Ligue 1 clubs enter in the round of 32 and the other 6 in the next round",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "04-03",
+        "end_md": "06-01",
+        "precision": "day",
+        "winner_berth": "CAF Confederation Cup (finalist takes the slot if the winner is already in the Champions League)",
+        "source": "https://en.wikipedia.org/wiki/2024%E2%80%9325_Tunisian_Cup ; https://en.wikipedia.org/wiki/Tunisian_Cup",
+        "quote": "dates = 3 April - 1 June 2025 ... The Tunisian Cup champion qualifies directly for the CAF Confederation Cup.",
+        "confidence": "medium",
+        "note": "Window is from the last completed edition (2024-25); the 2025-26 edition ran into 2026 with the round-of-16 draw on 27 February 2026. Final is a single match; two-legged finals appear only in older editions."
+      },
+      "second_cup": null,
+      "super_cup": "Tunisian Super Cup"
+    },
+    {
+      "country": "Uganda",
+      "main_cup": {
+        "name": "Uganda Cup",
+        "participants": "168 clubs, the largest field in the region, drawn from the top flight down to regional/amateur clubs",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "CAF Confederation Cup",
+        "source": "https://en.wikipedia.org/wiki/Uganda_Cup",
+        "quote": "number of teams = 168 ... The winner of the competition represents Uganda in the CAF Confederations Cup ... the current holders are BUL FC who won the cup by defeating VIPERS SC 3-1 on 12 June 2022 in Masindi district.",
+        "confidence": "low",
+        "note": "No season articles exist for recent editions and no round calendar is published; only the fact that recent finals were played in June (12 June 2022, Masindi) is documented. Format assumed single-leg knockout."
+      },
+      "second_cup": "Uganda Super 8 (top-8 league cup, not a national cup)",
+      "super_cup": null
+    }
+  ]
+}

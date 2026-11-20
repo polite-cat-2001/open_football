@@ -1,0 +1,317 @@
+{
+  "checked": "2026-11-20",
+  "countries": [
+    {
+      "country": "Bolivia",
+      "main_cup": {
+        "name": "Copa Bolivia (Copa Paceña)",
+        "participants": "16 clubs of the Primera División only, drawn into four groups of four; lower-division and regional (OFI-style) clubs are not in the current edition (they appeared once, in 2022)",
+        "format": "group_then_knockout",
+        "replays": false,
+        "two_legged_rounds": ["quarter-final", "semi-final", "final"],
+        "start_md": "08-18",
+        "end_md": "11-25",
+        "precision": "day",
+        "winner_berth": "Copa Libertadores group stage as Bolivia 3; the runner-up takes the Copa Sudamericana slot as Bolivia 1",
+        "source": "https://es.wikipedia.org/wiki/Copa_Bolivia_2026 ; https://es.wikipedia.org/wiki/Copa_Bolivia_de_Fútbol",
+        "quote": "El torneo contará con la participación de 16 equipos, distribuidos en cuatro series de cuatro equipos cada una. ... Los cuartos de final se disputarán en partidos de ida y vuelta, al igual que las semifinales y la final.",
+        "confidence": "high",
+        "note": "Two-legged final, no neutral venue. The group phase is eight matchdays with clubs crossing groups, so it is not a clean round-robin per group."
+      },
+      "second_cup": null,
+      "super_cup": null
+    },
+    {
+      "country": "Canada",
+      "main_cup": {
+        "name": "Canadian Championship (Campeonato Canadiense de Fútbol)",
+        "participants": "15 clubs: the 3 Canadian MLS clubs (Toronto, Vancouver, Montréal), the 8 Canadian Premier League clubs and 4 League1 Canada divisional champions. The previous winner (Vancouver in 2025) gets a bye straight to the quarter-finals",
+        "format": "two_legged_rounds",
+        "replays": false,
+        "two_legged_rounds": ["quarter-final", "semi-final"],
+        "start_md": "05-05",
+        "end_md": "10-21",
+        "precision": "day",
+        "winner_berth": "CONCACAF Champions Cup (plus the Voyageurs Cup trophy); this is the only route into CONCACAF for the three MLS clubs",
+        "source": "https://es.wikipedia.org/wiki/Campeonato_Canadiense_de_Fútbol_2026 ; https://en.wikipedia.org/wiki/Canadian_Championship",
+        "quote": "El torneo constará de cuatro rondas: los cuartos de final y las semifinales serán un partido doble, y la ronda preliminar y la final, un partido único. ... The winner is awarded the Voyageurs Cup and a berth in the CONCACAF Champions Cup.",
+        "confidence": "high",
+        "note": "Preliminary round and final are single matches; only the middle two rounds are two-legged."
+      },
+      "second_cup": null,
+      "super_cup": null
+    },
+    {
+      "country": "Chile",
+      "main_cup": {
+        "name": "Copa Chile",
+        "participants": "32 clubs: Liga de Primera and Liga de Ascenso only (Segunda División and ANFA amateurs excluded since 2025). Eight groups of four, top two per group advance; no byes",
+        "format": "group_then_knockout",
+        "replays": false,
+        "two_legged_rounds": ["round of 16", "quarter-final", "semi-final"],
+        "start_md": "01-26",
+        "end_md": "12-10",
+        "precision": "day",
+        "winner_berth": "Copa Libertadores via the Chile 4 play-off (cup winner vs 3rd place of the league, two legs); the play-off loser gets a Copa Sudamericana berth. Winner also qualifies for the Supercopa de Chile",
+        "source": "https://es.wikipedia.org/wiki/Copa_Chile_2025 ; https://es.wikipedia.org/wiki/Copa_Chile_2026",
+        "quote": "La definición del Chile 4 para la Copa Libertadores 2027, la disputarán el equipo que termine en el 3.° lugar de la Liga de Primera 2026, contra el equipo que se coronará campeón de la Copa Chile 2026, en partidos de ida y vuelta. ... los octavos de final, cuartos de final y semifinal en partidos de ida y vuelta, mientras que la final única se desarrollará en campo neutral.",
+        "confidence": "high",
+        "note": "Window from 2025 (26 Jan - 10 Dec); 2026 started 30 Jan and its closing date was still unset when checked. Single neutral final; older editions had a two-legged final."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Supercopa de Chile",
+        "teams": 2,
+        "format": "single_match"
+      }
+    },
+    {
+      "country": "Colombia",
+      "main_cup": {
+        "name": "Copa Colombia (Copa BetPlay Dimayor)",
+        "participants": "36 clubs: 20 Primera A + 16 Primera B. Phase 1A = the 20 clubs knocked out early in the Apertura, in four groups of five; Phase 1B = the 16 clubs that reached the Apertura or Primera B final stages, in eight knockout ties; both feed a 16-team round of 16",
+        "format": "group_then_knockout",
+        "replays": false,
+        "two_legged_rounds": ["semi-final", "final"],
+        "start_md": "05-28",
+        "end_md": "12-17",
+        "precision": "day",
+        "winner_berth": "Copa Sudamericana group stage",
+        "source": "https://es.wikipedia.org/wiki/Copa_Colombia_2026 ; https://es.wikipedia.org/wiki/Copa_Colombia_2025",
+        "quote": "El campeón tendrá garantizado un cupo en la Copa Sudamericana 2027. ... Inicialmente todas las fases finales se jugarían a partidos de ida y vuelta, sin embargo ... se determinó jugar las fases de octavos y cuartos de final a partido único, manteniendo las series de ida y vuelta para las semifinales y la final.",
+        "confidence": "high",
+        "note": "2026 exception: after the Colombia earthquake Dimayor made the round of 16 and quarter-finals single-leg. The default (2025 and earlier) is two legs in every knockout round including the final. Window from 2025 (28 May - 17 Dec); 2026 ran May - December."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Superliga de Colombia",
+        "teams": 2,
+        "format": "two_legs"
+      }
+    },
+    {
+      "country": "Costa Rica",
+      "main_cup": {
+        "name": "Torneo de Copa (Copa UNAFUT)",
+        "participants": "22 clubs from Primera División, Liga de Ascenso (second tier) and LINAFA (third tier); the 4 clubs already qualified for the CONCACAF Central American Cup enter directly at the quarter-finals",
+        "format": "two_legged_rounds",
+        "replays": false,
+        "two_legged_rounds": ["fase 1", "round of 16", "quarter-final"],
+        "start_md": "07-27",
+        "end_md": "04-15",
+        "precision": "day",
+        "winner_berth": "Recopa de Costa Rica (cup winner vs league champion). No CONCACAF berth comes from the cup",
+        "source": "https://es.wikipedia.org/wiki/Torneo_de_Copa_UNAFUT_2025-2026 ; https://es.wikipedia.org/wiki/Torneo_de_Copa_de_Costa_Rica",
+        "quote": "La fase previa la disputarán los equipos de LINAFA a eliminación directa (partido único), a partir de la fase 1 y 2 serán con juegos de ida y vuelta. ... La Copa seguirá en enero, cuando se disputen las semifinales y la final, la cual será en el estadio Edgardo Baltodano Briceño en Liberia.",
+        "confidence": "medium",
+        "note": "Runs across the split season: opens in the Apertura (late July) and closes in April of the next calendar year. The LINAFA preliminary round is single-leg; the semi-final leg count is not stated in the source."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Recopa de Costa Rica",
+        "teams": 2,
+        "format": null
+      }
+    },
+    {
+      "country": "Ecuador",
+      "main_cup": {
+        "name": "Copa Ecuador (Copa Ecuador Banco Pichincha)",
+        "participants": "51 clubs from Serie A, Serie B, Segunda Categoría and amateur football; staggered entry by division with a qualifying phase before the last 32",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": ["semi-final"],
+        "start_md": "03-28",
+        "end_md": "12-10",
+        "precision": "day",
+        "winner_berth": "Copa Libertadores group stage (Ecuador 4) plus the Supercopa de Ecuador",
+        "source": "https://es.wikipedia.org/wiki/Copa_Ecuador_2026",
+        "quote": "Para las semifinales que serán a partidos de ida y vuelta la localía en la revancha tendrá el mismo criterio usado en los partidos únicos. La final se disputará en una sede neutral definida por la organización en la previa del partido decisivo.",
+        "confidence": "high",
+        "note": "Every round is a single match except the semi-finals; the final is one match at a neutral venue (Estadio Alejandro Serrano Aguilar, Cuenca in 2026)."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Supercopa de Ecuador",
+        "teams": 2,
+        "format": "single_match"
+      }
+    },
+    {
+      "country": "Jamaica",
+      "main_cup": {
+        "name": "JFF Champions Cup / Lynk Cup",
+        "participants": "24 clubs: the 14 Jamaica Premier League clubs plus 10 JFF Tier II clubs; no byes documented",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "03-21",
+        "end_md": "05-26",
+        "precision": "day",
+        "winner_berth": "none; Jamaica's CONCACAF Caribbean berths come from the league, not the cup",
+        "source": "https://en.wikipedia.org/wiki/JFF_Champions_Cup ; https://en.wikipedia.org/wiki/Lynk_Cup",
+        "quote": "The JFF Champions Cup, known since 2022 as the Lynk Cup, is an annual knockout tournament in Jamaican football. ... contended between the 14 Jamaica Premier League clubs and 10 JFF National Tier II clubs.",
+        "confidence": "medium",
+        "note": "Window from the 2023 edition (kick-off 21 Mar, final 26 May at Sabina Park, Kingston). The competition is a single calendar-year spring knockout, not a season-long cup; no season article with full dates exists."
+      },
+      "second_cup": null,
+      "super_cup": null
+    },
+    {
+      "country": "Nicaragua",
+      "main_cup": {
+        "name": "Copa Primera (formerly Copa Nicaragua)",
+        "participants": "34 clubs: 10 Liga Primera, 14 Liga de Ascenso (second tier) and 10 Tercera División. Since 2024 the top-flight clubs enter at the round of 16 after two preliminary rounds between lower-division clubs",
+        "format": "two_legged_rounds",
+        "replays": false,
+        "two_legged_rounds": ["preliminary round 1", "preliminary round 2", "round of 16", "quarter-final", "semi-final", "final"],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "none",
+        "source": "https://es.wikipedia.org/wiki/Copa_Primera",
+        "quote": "Participan 34 equipos: los 10 de Liga Primera, los 14 de Segunda División y los 10 de Tercera División. ... Se disputan las eliminatorias a doble partido (2 rondas preliminares, octavos, cuartos, semifinales y final).",
+        "confidence": "medium",
+        "note": "Two legs in every round including the final, no neutral final. Played inside the split Apertura/Clausura season; the Wikipedia articles carry no per-season dates, so no window is given."
+      },
+      "second_cup": null,
+      "super_cup": null
+    },
+    {
+      "country": "Panama",
+      "main_cup": {
+        "name": "Torneo de Copa (Copa Panamá)",
+        "participants": "44 clubs: Liga Panameña de Fútbol (first tier), the second-tier promotion league, plus champions and runners-up of the lower/regional leagues",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "none",
+        "source": "https://es.wikipedia.org/wiki/Torneo_de_Copa_(Panamá)",
+        "quote": "fue un torneo futbolístico por eliminación directa que se disputaba anualmente entre los clubes de la Liga Panameña de Fútbol; los clubes de la Liga Nacional de Ascenso hoy Liga de Promoción (Liga Prom) y los equipos campeones y subcampeones de los [lower leagues]",
+        "confidence": "low",
+        "note": "One edition per Apertura of the split season (2015-2021), so it is a half-season cup, not a full-year one. Dormant 2022-2025 and revived for 2026 as the Copa Rommel Fernández; no round dates are published on Wikipedia for any edition."
+      },
+      "second_cup": null,
+      "super_cup": null
+    },
+    {
+      "country": "Paraguay",
+      "main_cup": {
+        "name": "Copa Paraguay",
+        "participants": "74 clubs in the national phase: Primera División, División Intermedia and UFI interior-league clubs, with staggered entry (the first phase includes two triangular groups alongside 20 single ties)",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "06-02",
+        "end_md": "12-06",
+        "precision": "day",
+        "winner_berth": "Copa Libertadores group stage (since the 2023 edition; the slot passes to the runner-up, then 3rd and 4th of the aggregate league table if the winner is already qualified) plus the Supercopa Paraguay",
+        "source": "https://es.wikipedia.org/wiki/Copa_Paraguay_2026 ; https://es.wikipedia.org/wiki/Copa_Paraguay",
+        "quote": "Los participantes se enfrentarán en llaves de 2 equipos en un único juego de eliminación directa en cancha neutral ... El campeón tiene derecho a cupo de la Copa Libertadores de América esto es así desde la Copa Paraguay 2023.",
+        "confidence": "high",
+        "note": "Single-leg throughout, ties level after 90 minutes go straight to penalties, final one match at a neutral ground (Estadio La Huerta, Asunción in 2026)."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Supercopa Paraguay",
+        "teams": 2,
+        "format": "single_match"
+      }
+    },
+    {
+      "country": "Peru",
+      "main_cup": {
+        "name": "Copa Bicentenario",
+        "participants": "32 clubs: 19 Liga1 + 13 Liga2",
+        "format": "two_legged_rounds",
+        "replays": false,
+        "two_legged_rounds": ["round of 16", "quarter-final", "semi-final"],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "Copa Sudamericana first stage plus the Supercopa Peruana",
+        "source": "https://es.wikipedia.org/wiki/Copa_Bicentenario_(Perú)",
+        "quote": "Se disputan eliminatorias en partidos de ida y vuelta. ... Los octavos, cuartos y semis, se juegan a series de eliminación en partidos de ida y vuelta ... La Final se juega en partido único en campo neutral.",
+        "confidence": "medium",
+        "note": "Defunct: only two editions (2019, 2021); the FPF announced in 2023 that it would not run again and promised a new national cup from 2024 with a Libertadores berth, but no such competition is documented. It began in June, after the Liga1 Apertura, which is why no end date is given."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Supercopa Peruana",
+        "teams": 2,
+        "format": null
+      }
+    },
+    {
+      "country": "Puerto Rico",
+      "main_cup": {
+        "name": "Copa Luis Villarejo",
+        "participants": "8 clubs of the Puerto Rico league system (Liga Puerto Rico); quarter-finals and semi-finals drawn as four and two ties",
+        "format": "two_legged_rounds",
+        "replays": false,
+        "two_legged_rounds": ["quarter-final", "semi-final"],
+        "start_md": "02-27",
+        "end_md": "05-26",
+        "precision": "day",
+        "winner_berth": "none",
+        "source": "https://fpfpuertorico.com/a-celebrarse-el-congresillo-para-la-copa-luis-villarejo-2019/ ; https://en.wikipedia.org/wiki/2016_Copa_Luis_Villarejo",
+        "quote": "La nueva edición de la Copa Luis Villarejo iniciará el 27 de febrero y se espera que la final del evento sea disputada el 26 de mayo. ... (2016 bracket) aggregate=y / First legs / Second legs",
+        "confidence": "medium",
+        "note": "Window from 2019; the 2026 edition ran 10 Jan - 12 Apr, i.e. the cup sits in the first half of the calendar year inside the split season. Not held every year (2017 cancelled after hurricane Maria, 2018 skipped)."
+      },
+      "second_cup": null,
+      "super_cup": null
+    },
+    {
+      "country": "Uruguay",
+      "main_cup": {
+        "name": "Copa AUF Uruguay",
+        "participants": "40 clubs: 16 Primera División, 8 Segunda División, 4 Primera Divisional C, 2 Divisional D and 10 OFI (interior) clubs. The 24 professionals play six groups of four (top two plus the four best thirds advance); amateurs come through a separate qualifying route",
+        "format": "group_then_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "08-25",
+        "end_md": "11",
+        "precision": "month",
+        "winner_berth": "Copa Libertadores as Uruguay 4",
+        "source": "https://es.wikipedia.org/wiki/Copa_AUF_Uruguay_2026 ; https://es.wikipedia.org/wiki/Copa_AUF_Uruguay",
+        "quote": "El torneo otorga un cupo a la Copa Libertadores 2027, clasificando a su campeón como Uruguay 4. ... Las semifinales se disputarán en cancha neutral, al igual que la final.",
+        "confidence": "high",
+        "note": "Every knockout round is one match; both semi-finals and the final are at neutral venues. Start is exact (25 Aug, infobox); the closing date is only given as ''noviembre''."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Supercopa Uruguaya",
+        "teams": 2,
+        "format": "single_match"
+      }
+    },
+    {
+      "country": "Venezuela",
+      "main_cup": {
+        "name": "Copa Venezuela",
+        "participants": "27 clubs from Primera División and Segunda División. 2026 introduced a group stage (5 groups) whose five winners plus three best runners-up join the 8 semi-finalists of the Apertura at the round of 16",
+        "format": "group_then_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "06-24",
+        "end_md": "12-24",
+        "precision": "day",
+        "winner_berth": "none; no CONMEBOL berth is attached to the cup in the current format",
+        "source": "https://es.wikipedia.org/wiki/Copa_Venezuela_2026 ; https://es.wikipedia.org/wiki/Copa_Venezuela",
+        "quote": "En la fase final los ocho clasificados de la fase de grupos se unirán a los ocho equipos participantes de los cuadrangulares semifinales del Torneo Apertura 2026. Los partidos de las rondas eliminatorias (octavos de final, cuartos de final, semifinales y final) se jugarán a partido único, y el equipo local en cada enfrentamiento se decidirá mediante sorteo.",
+        "confidence": "high",
+        "note": "Format changed in 2026 (previously a straight knockout). Every knockout tie is one match at the drawn home side, so there is no neutral final."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Supercopa de Venezuela",
+        "teams": 2,
+        "format": null
+      }
+    }
+  ]
+}

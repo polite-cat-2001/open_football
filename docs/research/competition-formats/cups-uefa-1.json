@@ -1,0 +1,779 @@
+{
+  "checked": "2026-11-20",
+  "note": "Main domestic cup + super cup for 24 UEFA associations (mostly 2025-26 or 2025 calendar-year seasons). Winner berths cross-checked against docs/research/competition-formats/access-uefa.json (2026-27 access list); where a season article names a different round, both are quoted and the access list is used.",
+  "countries": [
+    {
+      "country": "Albania",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Kupa e Shqipërisë",
+        "participants": "42 clubs: 10 Kategoria Superiore, 12 Kategoria e Parë, 20 Kategoria e Dytë. Superiore clubs enter at the round of 64 (2) and the round of 16 (8, seeded 1-8); the other 32 come through the preliminary round and round of 64.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "quarter-finals",
+          "semi-finals"
+        ],
+        "start_md": "10-01",
+        "end_md": "05-13",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League first qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Albanian_Cup",
+        "quote": "** Quarter-finals (two-legged): the eight winners will face each other / ** Semi-finals (two-legged): the four winners will face each other / ** Final (one-legged)",
+        "confidence": "high",
+        "note": "42 teams; final 13 May 2026."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Superkupa e Shqipërisë",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Albanian_Supercup",
+        "quote": "an annually held match between the champions of the Kategoria Superiore and the Albanian Cup winners, or, if the same team won both trophies, the Cup's runners-up",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Andorra",
+      "season": "2026",
+      "main_cup": {
+        "name": "Copa Constitució",
+        "participants": "12 clubs: the 8 Primera Divisió clubs and 4 Segona Divisió clubs, all entering the first round (6 ties).",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "01-11",
+        "end_md": "05-23",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League first qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2026_Copa_Constituci%C3%B3",
+        "quote": "The winners qualified for the 2026–27 UEFA Conference League first qualifying round.",
+        "confidence": "high",
+        "note": "Calendar-year season; first round 11 Jan, final 23 May 2026."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Supercopa Andorrana",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Andorran_Supercup",
+        "quote": "The Andorran Supercup (Catalan: Supercopa Andorrana de Futbol) is the football Supercup of Andorra.",
+        "confidence": "low",
+        "note": ""
+      }
+    },
+    {
+      "country": "Armenia",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Armenian Cup (Hayastani Ankakhutyan Gavath)",
+        "participants": "19-20 clubs: all 10 Armenian Premier League clubs, 8 First League clubs and 2 Amateur A-League clubs. 12 start in the preliminary round, 6 Premier League clubs join at the round of 16, the champions and cup holders at the quarter-finals.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "quarter-finals",
+          "semi-finals"
+        ],
+        "start_md": "09-16",
+        "end_md": "05-14",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League second qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Armenian_Cup",
+        "quote": "The 2025–26 Armenian Cup is the 35th edition of the football competition in Armenia. The winners will qualify for the 2026–27 UEFA Conference League second qualifying round.",
+        "confidence": "medium",
+        "note": "Each QF and SF tie is listed with two match dates a month apart (QF 3–5 Mar + 1–2 Apr, SF 15–16 Apr + 29 Apr), i.e. two legs; the page does not label the legs explicitly. Final traditionally on 9 May, here 14 May 2026."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Armenian Supercup (Hakob Tonoyan Supercup)",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Armenian_Supercup",
+        "quote": "a match that is played between the Armenian Premier League Champion and Armenian Cup Winner... typically takes place in May every year",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Austria",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "ÖFB-Cup",
+        "participants": "64 clubs: 32 first-round ties, all tiers (12 Bundesliga, 16 2. Liga, regional/amateur cup winners).",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "07-25",
+        "end_md": "05-01",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League third qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Austrian_Cup",
+        "quote": "The winners qualified for the 2026–27 Europa League third qualifying round.",
+        "confidence": "high",
+        "note": "Final 1 May 2026 at Wörthersee Stadion, Klagenfurt (neutral)."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "ÖFB-Supercup",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Austrian_Supercup",
+        "quote": "was a football competition held annually from 1986 until 2004 between the winners of the Austrian Football Bundesliga and the Austrian Cup",
+        "confidence": "high",
+        "note": "Discontinued in 2004; no current super cup."
+      }
+    },
+    {
+      "country": "Azerbaijan",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Azərbaycan Kuboku",
+        "participants": "34 clubs: 12 Azerbaijan Second League (first round), 10 First League + 8 Premier League (second round), 4 more Premier League clubs at the last 16.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "quarter-finals",
+          "semi-finals"
+        ],
+        "start_md": "10-09",
+        "end_md": "05-13",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League first qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Azerbaijan_Cup",
+        "quote": "The winners will qualify for the 2026–27 UEFA Europa League first qualifying round.",
+        "confidence": "medium",
+        "note": "Quarter-finals and semi-finals are played over two legs (match boxes carry 'First leg' and an aggregate score); all earlier rounds single."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Azərbaycan Superkuboku",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Azerbaijan_Supercup",
+        "quote": "was a football competition... disputed between the winners of the Azerbaijan Premier League and the winners of the Azerbaijan Cup... not held since",
+        "confidence": "high",
+        "note": "Not held since 2013."
+      }
+    },
+    {
+      "country": "Belarus",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Kubak Belarusi",
+        "participants": "Clubs from six regional zones plus the top tiers; the 16 Premier League clubs enter the round of 32 alongside 16 second-round winners (7 rounds in total).",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "quarter-finals",
+          "semi-finals"
+        ],
+        "start_md": "04-03",
+        "end_md": "05-16",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League first qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Belarusian_Cup",
+        "quote": "The cup began on 3 April 2025 and seven rounds are playing before the final, which took place on 16 May 2026.",
+        "confidence": "medium",
+        "note": "The infobox gives 3 May 2025 as the start, the prose 3 April 2025 (first-round draw 23 April) - start month uncertain by one month."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Superkubak Belarusi",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Belarusian_Super_Cup",
+        "quote": "an annual one-match... played between the Belarusian Premier League Champions and the Belarusian Cup Winners of the previous season",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Belgium",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Croky Cup (Beker van België)",
+        "participants": "301 clubs: 11 proper rounds from the provincial leagues (52 clubs in the preliminary round, 114 in the first round) up to the 16 Pro League clubs, which enter in the last rounds.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "semi-finals"
+        ],
+        "start_md": "07-19",
+        "end_md": "05-14",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League play-off round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Belgian_Cup",
+        "quote": "The competition consists of eleven proper rounds. All rounds are single-match elimination rounds, except for the semi-finals.",
+        "confidence": "medium",
+        "note": "Season page says only 'qualify for the 2026-27 UEFA Europa League'; the round (play-off) comes from the 2026-27 access list. Final at King Baudouin Stadium, Brussels."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Belgian Super Cup (Volkswagen Supercup)",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Belgian_Super_Cup",
+        "quote": "a Belgian club competition played as a single match between the Belgian Pro League champions (also received the Super Cup host) and the Belgian Cup winners",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Bulgaria",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Kupa na Bũlgariya",
+        "participants": "47 clubs qualified; preliminary round then a 32-team round of 32 (one club received a bye into it), all tiers.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "semi-finals"
+        ],
+        "start_md": "10-11",
+        "end_md": "05-20",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League first qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Bulgarian_Cup",
+        "quote": "The competition began on 11 October 2025 with the preliminary round and finished with the final on 20 May 2026.",
+        "confidence": "high",
+        "note": "Semi-finals over first and second legs; everything else one-legged."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Supercup na Bũlgariya",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Bulgarian_Supercup",
+        "quote": "a football match held between the football club that has won the Bulgarian first football division... and the holder of the Bulgarian Cup",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Croatia",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Hrvatski nogometni kup (SuperSport HNK)",
+        "participants": "48 clubs: 16 best-placed clubs by cup coefficient (all HNL) plus the winners and runners-up of the 32 county cups.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "08-27",
+        "end_md": "05-13",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League first qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Croatian_Football_Cup",
+        "quote": "The following 48 teams qualified for the competition",
+        "confidence": "medium",
+        "note": "All 2025-26 rounds are single matches: the calendar lists one date per round and 4 QF / 2 SF fixtures. Historically the QF and SF were two-legged - do not carry that assumption over. Final 13 May 2026 at Opus Arena, Osijek (host chosen in advance)."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Hrvatski nogometni superkup",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Croatian_Football_Super_Cup",
+        "quote": "is only held when different clubs win the two most important competitions in the previous season",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Cyprus",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Kypriako Kypello (Cypriot Cup)",
+        "participants": "28 clubs: the First and Second Division clubs. 22 play the first round, 4 are exempt to the second round (16 teams from there on).",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "semi-finals"
+        ],
+        "start_md": "10-01",
+        "end_md": "05-29",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League second qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Cypriot_Cup",
+        "quote": "The tournament begins with 22 teams entering the first round; four teams receive a bye to the second round.",
+        "confidence": "medium",
+        "note": "Season page says the winner enters 'the first qualifying round of the 2026-27 UEFA Europa League'; the 2026-27 access list puts Cyprus (rank 19) in the second qualifying round - both are cited, the access list is used here. Final at GSP Stadium, Nicosia (29 May 2026)."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Cypriot Super Cup",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Cypriot_Super_Cup",
+        "quote": "contested in an annual match between the previous season's Cypriot First Division champions, and the Cypriot Cup winners... usually played at the GSP Stadium in Nicosia",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Czech Republic",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "MOL Cup (Pohár FAČR)",
+        "participants": "135 clubs: Czech First League, Second League and lower-division/regional clubs; top-flight clubs enter in the later rounds.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "07-20",
+        "end_md": "05-20",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League play-off round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Czech_Cup",
+        "quote": "The winners qualified for the 2026–27 UEFA Europa League.",
+        "confidence": "medium",
+        "note": "Season page names the competition but not the round; play-off round comes from the 2026-27 access list (Czech Republic rank 9). Cup winner Karviná was later disqualified for match-fixing, so the berth cascaded."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Český Superpohár",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Czech_Supercup",
+        "quote": "was an annual football match between the winners of the Czech First League and the Czech Cup... discontinued in 2015",
+        "confidence": "high",
+        "note": "Discontinued 2015, replaced by the Czech-Slovak Supercup."
+      }
+    },
+    {
+      "country": "Denmark",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Oddset Pokalen (DBU Pokalen)",
+        "participants": "104 clubs: every club of the top four divisions is entered automatically plus 56 qualifiers from the regional/amateur cups; 92 teams play the first round, Superliga clubs enter in rounds 2-3.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "quarter-finals",
+          "semi-finals"
+        ],
+        "start_md": "08-05",
+        "end_md": "05-14",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League second qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Danish_Cup",
+        "quote": "The quarter-finals included eight teams from the 4th round (winners) playing two legs",
+        "confidence": "high",
+        "note": "Both QF and SF are two-legged; final 14 May 2026 at Parken Stadium, Copenhagen."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Danish Super Cup",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Danish_Super_Cup",
+        "quote": "The Danish Super Cup was played for by the Danish League champions and the Danish Cup Winners.",
+        "confidence": "medium",
+        "note": "Not currently staged."
+      }
+    },
+    {
+      "country": "Estonia",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Eesti Karikas (Estonian Cup)",
+        "participants": "71 clubs: 22 in the first round, 45 more enter the round of 64, the top four Meistriliiga clubs get byes to the round of 32.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "06-10",
+        "end_md": "05-23",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League first qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Estonian_Cup",
+        "quote": "45 clubs entered the Round of 64 alongside the 11 first round winners; the top four teams of the 2024 Meistriliiga (FCI Levadia, Flora, Nõmme Kalju, and Paide Linnameeskond) received byes.",
+        "confidence": "medium",
+        "note": "Season page names no European round for the winner; Conference League Q1 comes from the 2026-27 access list (Estonia rank 45). Final 23 May 2026."
+      },
+      "second_cup": {
+        "name": "Väike karikas (Estonian Small Cup)",
+        "participants": "77 clubs (2025): amateur and lower-division teams only, separate from the Estonian Cup.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "UEFA Regions' Cup (not a club berth)",
+        "source": "https://en.wikipedia.org/wiki/Estonian_Small_Cup",
+        "quote": "Estonian football competition for amateurs",
+        "confidence": "medium",
+        "note": "The only second cup on this list that carries a UEFA amateur (Regions' Cup) place."
+      },
+      "super_cup": {
+        "name": "Eesti Superkarikas",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Estonian_Supercup",
+        "quote": "contested between the champions of the previous Meistriliiga season and the holders of the Estonian Cup",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Faroe Islands",
+      "season": "2025",
+      "main_cup": {
+        "name": "Løgmanssteypið",
+        "participants": "15 clubs: 10 from the Faroe Islands Premier League, 4 from 1. deild and 1 from 2. deild; one Premier League club (EB/Streymur) had a bye to the quarter-finals.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "semi-finals"
+        ],
+        "start_md": "04-07",
+        "end_md": "10-31",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League second qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025_Faroe_Islands_Cup",
+        "quote": "The four quarter-final winners entered the semi-finals, held over two legs. The first legs were held on 20 and 21 May 2025, followed by the second legs on 17 June.",
+        "confidence": "medium",
+        "note": "Only the semis are two-legged; the final is played on 31 October 2025 at Tórsvøllur (long gap after the June semis). Berth round from the 2026-27 access list (rank 40)."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Stórsteypadystur",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Faroe_Islands_Super_Cup",
+        "quote": "contested between the Faroe Islands Premier League champions and the winners of the Faroe Islands Cup from the previous season",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Finland",
+      "season": "2025",
+      "main_cup": {
+        "name": "Suomen Cup (Finnish Cup)",
+        "participants": "420 clubs registered; 248 played round 0. All levels from Nelonen up; Veikkausliiga clubs enter in round 3 (non-European) and round 5 (European), Ykkösliiga/Ykkönen/Kakkonen in round 3.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "02-07",
+        "end_md": "09-20",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League second qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025_Finnish_Cup",
+        "quote": "The cup is played as a one legged knockout tournament.",
+        "confidence": "medium",
+        "note": "400+ entrants, 10 rounds in a calendar-year season. Season page names no European round; Conference League Q2 from the 2026-27 access list (rank 38)."
+      },
+      "second_cup": {
+        "name": "Liigacup (Finnish League Cup)",
+        "participants": "Veikkausliiga clubs only; played indoors in winter, administered by Veikkausliiga.",
+        "format": "other",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "none",
+        "source": "https://en.wikipedia.org/wiki/Finnish_League_Cup",
+        "quote": "The competition is notably the only football competition in Europe which is mostly played indoors.",
+        "confidence": "medium",
+        "note": "Second cup in the season calendar but with no European berth."
+      },
+      "super_cup": null
+    },
+    {
+      "country": "Georgia",
+      "season": "2025",
+      "main_cup": {
+        "name": "Sakartvelos Tasi (Davit Kipiani Cup)",
+        "participants": "Clubs of the top four tiers plus regional/amateur leagues. Preliminary round 32 (Liga 4, Regionuli, amateur), first round (Liga 3), third round adds Erovnuli Liga and Erovnuli Liga 2, round of 16 adds the clubs in UEFA competition.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "05-04",
+        "end_md": "12-10",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League first qualifying round + Georgian Super Cup",
+        "source": "https://en.wikipedia.org/wiki/2025_Georgian_Cup",
+        "quote": "is a single knock-out football tournament... The winner of this year's Cup will earn the right to take part in the 2026–27 UEFA Conference League qualifying round and the 2026 Georgian Super Cup.",
+        "confidence": "medium",
+        "note": "Calendar-year season: 4 May - 10 December 2025. Access list puts Georgia (rank 50) in Conference League Q1."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Georgian Super Cup",
+        "teams": 4,
+        "format": "mini_tournament",
+        "source": "https://en.wikipedia.org/wiki/Georgian_Super_Cup",
+        "quote": "the current version has been contested since 2023 by four teams, those being the first, second, and third placed teams in the Erovnuli Liga, as well as the winners of the Georgian Cup",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Gibraltar",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Rock Cup",
+        "participants": "12 clubs: the whole Gibraltar Football League. Single-leg first round, quarter-finals, semi-finals and final.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "01-31",
+        "end_md": "03-14",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League first qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Peninsula_Rock_Cup",
+        "quote": "is a single-leg knockout football tournament contested by clubs from Gibraltar",
+        "confidence": "medium",
+        "note": "Very short window (31 Jan - 14 Mar 2026), played at Europa Point Stadium. Berth round from the 2026-27 access list (Gibraltar rank 54)."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Pepe Reyes Cup",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Pepe_Reyes_Cup",
+        "quote": "the Gibraltarian football super cup, contested by the winners of the Gibraltar Football League and the Rock Cup at the Victoria Stadium",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Greece",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Kypello Elladas (Betsson Greek Cup)",
+        "participants": "31 clubs: 23 in the qualifying round (Super League 1 places 9-12, promoted clubs, Super League 2 and lower), 12 advance to a 20-team league phase joined by the top 8 of the previous Super League 1.",
+        "format": "group_then_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "semi-finals"
+        ],
+        "start_md": "08-18",
+        "end_md": "04-25",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League play-off round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Greek_Football_Cup",
+        "quote": "This year's competition was the first implementation of a new conducting system, which included a qualifying round, league phase, play-offs, quarter-finals, semi-finals and final",
+        "confidence": "medium",
+        "note": "New-format season: single qualifying round, then a 5-matchday league phase (top 4 to the QF, 5th-12th to one-legged play-offs), then QF one leg, SF two legs. Season page says only 'Europa League'; play-off round from the 2026-27 access list (Greece rank 12). Final 25 April 2026 at Panthessaliko Stadium, Volos."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Superbet Super Cup",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Greek_Super_Cup",
+        "quote": "contested annually between the champions of the previous Super League Greece season and the holders of the Greek Cup",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Hungary",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "MOL Magyar Kupa",
+        "participants": "144 clubs: NB III clubs and 94 county-cup qualifiers play the first round; the 12 Nemzeti Bajnokság I and 16 NB II clubs enter at the round of 64.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "08-02",
+        "end_md": "05-09",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League first qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Magyar_Kupa",
+        "quote": "The Magyar Kupa is played as a knockout tournament. All rounds are played as one-off matches. The final is traditionally held in the Puskás Aréna, Budapest",
+        "confidence": "high",
+        "note": "8 rounds, 2 August 2025 - 9 May 2026, final at Puskás Aréna."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Szuperkupa",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Szuperkupa",
+        "quote": "an annual association football match between the League (Nemzeti Bajnokság I) champions and the Cup (Magyar Kupa) winners",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Iceland",
+      "season": "2025",
+      "main_cup": {
+        "name": "Bikarkeppni karla (Icelandic Cup)",
+        "participants": "74 clubs: open to all levels; 12 Besta deild karla clubs enter at the round of 32, 1. deild clubs at the second round.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "03-28",
+        "end_md": "08-22",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League first qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025_Icelandic_Men%27s_Football_Cup",
+        "quote": "The 20 second round winners and the 12 teams from the 2025 Besta deild karla entered the Round of 32.",
+        "confidence": "medium",
+        "note": "Calendar-year, 28 Mar - 22 Aug 2025, final at Laugardalsvöllur. Season page names no European round; Europa League Q1 from the 2026-27 access list (Iceland rank 33)."
+      },
+      "second_cup": {
+        "name": "Deildabikar (Icelandic Men's Football League Cup)",
+        "participants": "Besta deild and 1. deild clubs; group stage then knockout, played before the league season.",
+        "format": "group_then_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "none",
+        "source": "https://en.wikipedia.org/wiki/Icelandic_Men%27s_Football_League_Cup",
+        "quote": "Icelandic Men's Football League Cup",
+        "confidence": "low",
+        "note": "Exists as a separate league cup; no European berth."
+      },
+      "super_cup": {
+        "name": "Meistarasveitin (Icelandic Men's Football Super Cup)",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Icelandic_Men%27s_Football_Super_Cup",
+        "quote": "Icelandic Men's Football Super Cup",
+        "confidence": "low",
+        "note": ""
+      }
+    },
+    {
+      "country": "Israel",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Gvia HaMedina (Israel State Cup)",
+        "participants": "186 clubs: all levels. Liga Bet and Liga Gimel play district preliminary rounds, Liga Alef enters at the fifth round, the 14 Premier League and 14 Liga Leumit clubs at the eighth round (32 teams).",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "08-29",
+        "end_md": "05-26",
+        "precision": "day",
+        "winner_berth": "UEFA Europa League second qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Israel_State_Cup",
+        "quote": "The 14 seventh round winners, the four 2024–25 Liga Leumit teams given seventh round byes, and the 14 teams from the 2024–25 Israeli Premier League entered the eighth round.",
+        "confidence": "medium",
+        "note": "Season page states no European round; Europa League Q2 from the 2026-27 access list (Israel rank 18). Final 26 May 2026 at Teddy Stadium, Jerusalem."
+      },
+      "second_cup": {
+        "name": "Toto Cup",
+        "participants": "30 clubs in two parallel competitions: Toto Cup Al (14 Premier League) and Toto Cup Leumit (16 Liga Leumit); group stage then knockout.",
+        "format": "group_then_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": null,
+        "end_md": null,
+        "precision": "unknown",
+        "winner_berth": "none",
+        "source": "https://en.wikipedia.org/wiki/Toto_Cup",
+        "quote": "teams = 30 (14 participants in Al, 16 in Leumit)",
+        "confidence": "medium",
+        "note": "Real second cup, split by division, no European berth."
+      },
+      "super_cup": {
+        "name": "Aluf HaAlufim (Israel Super Cup)",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Israel_Super_Cup",
+        "quote": "played as a single match between the winner of the latest Israeli top league champions and the winner of the latest Israel State Cup",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Kazakhstan",
+      "season": "2025",
+      "main_cup": {
+        "name": "Kazakhstan Cup",
+        "participants": "30 clubs: 16 First/Second Division clubs in the preliminary round, the 14 Premier League clubs join at the round of 16.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "semi-finals"
+        ],
+        "start_md": "03-15",
+        "end_md": "10-04",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League second qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025_Kazakhstan_Cup",
+        "quote": "The Kazakhstan Football League announced that 30 clubs would participate in the 2025 edition of the Kazakhstan Cup, commencing on 15 March 2025.",
+        "confidence": "medium",
+        "note": "Calendar-year: prelim 15 Mar, R16 12-13 Apr, QF 14 May, SF two legs (25 Jun / 30 Aug), final 4 Oct 2025. Berth round from the 2026-27 access list (rank 39)."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Kazakhstan Super Cup",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Kazakhstan_Super_Cup",
+        "quote": "The two participating clubs are the Kazakhstan Premier League champion and the Kazakhstan Cup winner",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Kosovo",
+      "season": "2025-26",
+      "main_cup": {
+        "name": "Kupa e Kosovës",
+        "participants": "32 clubs: all 10 Superleague clubs plus the top six of the First League are seeded in the round of 32, the rest come from the lower divisions.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [
+          "semi-finals"
+        ],
+        "start_md": "12-03",
+        "end_md": "05-21",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League second qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Kosovar_Cup",
+        "quote": "A total of 32 teams participated in this round. All clubs from the Superleague, along with the top six clubs from the First League, were seeded for this round.",
+        "confidence": "high",
+        "note": "Round of 32 3-5 Dec 2025, R16 Feb, QF Mar, SF two-legged (8/22 Apr), final 21 May 2026."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Superkupa e Kosovës",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Kosovar_Supercup",
+        "quote": "an annual football match played between the winners of the previous season's Kosovo Superleague and Kosovar Cup competitions",
+        "confidence": "high",
+        "note": ""
+      }
+    },
+    {
+      "country": "Latvia",
+      "season": "2025",
+      "main_cup": {
+        "name": "Latvijas Kauss",
+        "participants": "49 clubs: open to all levels through a preliminary round, two qualifying rounds and a play-off round before the round of 16.",
+        "format": "single_leg_knockout",
+        "replays": false,
+        "two_legged_rounds": [],
+        "start_md": "05-02",
+        "end_md": "10-29",
+        "precision": "day",
+        "winner_berth": "UEFA Conference League second qualifying round",
+        "source": "https://en.wikipedia.org/wiki/2025_Latvian_Football_Cup",
+        "quote": "Auda won the cup (their second Latvian Football Cup win), defeating Riga 2–1 in the final and they qualified for the Conference League.",
+        "confidence": "medium",
+        "note": "Calendar-year, every round single-legged, final 29 October 2025 at Skonto Stadium, Riga. Season page says only 'Conference League'; Q2 from the 2026-27 access list (Latvia rank 36)."
+      },
+      "second_cup": null,
+      "super_cup": {
+        "name": "Latvijas Superkauss",
+        "teams": 2,
+        "format": "one_match",
+        "source": "https://en.wikipedia.org/wiki/Latvian_Supercup",
+        "quote": "The two participating clubs are holders of the Latvian Higher League champions title and the Latvian Football Cup... Since 2014, the competition has been suspended.",
+        "confidence": "medium",
+        "note": "Only staged in 2013; dormant since 2014."
+      }
+    }
+  ]
+}
