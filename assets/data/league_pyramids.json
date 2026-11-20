@@ -1,5 +1,5 @@
 {
- "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology.",
+ "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league.",
  "_generated": "2026-11-20",
  "leagues": {
   "2DVB": {
@@ -585,25 +585,12 @@
   },
   "CL2F": {
    "level": 3,
-   "size": 12,
+   "size": 14,
    "closed_up": false,
    "closed_down": true,
    "format": {
     "kind": "other",
-    "note": "second phase of the 14-club level 3"
-   },
-   "playoff": null,
-   "country": "Chile",
-   "confidence": "medium"
-  },
-  "CL2Z": {
-   "level": 3,
-   "size": 2,
-   "closed_up": false,
-   "closed_down": true,
-   "format": {
-    "kind": "other",
-    "note": "zonal play-off group of the same level 3"
+    "note": "single 14-club level 3 (the former Fase 2 + Liguilla zonal rows merged)"
    },
    "playoff": null,
    "country": "Chile",

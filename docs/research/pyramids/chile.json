@@ -70,27 +70,15 @@
    "id": "CL2F",
    "name": "Segunda División - Fase 2",
    "level": 3,
-   "size": 12,
+   "size": 14,
    "closed_up": false,
    "closed_down": false,
    "format": {
     "kind": "other",
     "note": "second phase of the 14-club level 3"
    },
-   "playoff": null
-  },
-  {
-   "id": "CL2Z",
-   "name": "Segunda División - Liguilla zonal",
-   "level": 3,
-   "size": 2,
-   "closed_up": false,
-   "closed_down": false,
-   "format": {
-    "kind": "other",
-    "note": "zonal play-off group of the same level 3"
-   },
-   "playoff": null
+   "playoff": null,
+   "note": "Merged with CL2Z (its Liguilla zonal phase, 2 clubs) into one 14-club level 3 on 2026-11-20."
   }
  ],
  "boundaries": [

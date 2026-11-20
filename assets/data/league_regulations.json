@@ -817,33 +817,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_de_Primera",
-   "note": "Window inherited from CLPD; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "CLPD"
-  },
-  "CL2Z": {
-   "start_md": "01-30",
-   "end_md": "12-06",
-   "filled": "",
-   "phases": "single",
-   "relegation": {
-    "slots": null,
-    "playoff": false
-   },
-   "tiebreak": [
-    "points",
-    "playoff_game",
-    "goal_difference",
-    "matches_won",
-    "goals_for",
-    "away_goals_for",
-    "red_cards",
-    "yellow_cards",
-    "drawing_of_lots"
-   ],
-   "transfer_windows": [],
-   "confidence": "high",
-   "source": "https://en.wikipedia.org/wiki/2026_Liga_de_Primera",
-   "note": "Window inherited from CLPD; the season facts in that division's note were not re-checked for this league.",
+   "note": "Window inherited from CLPD; the season facts in that division's note were not re-checked for this league. CL2Z (Liguilla zonal, 2 clubs) merged into this row as one 14-club level 3.",
    "inherited_from": "CLPD"
   },
   "CL3S": {

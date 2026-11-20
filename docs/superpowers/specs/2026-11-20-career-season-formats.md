@@ -10,7 +10,12 @@ Status: v3 revised after three audits, the last one by attempting to encode all
   zones, groups, or paths.
 - `AR3F`/`AR3R` (two paths of one 37-club tournament, clubs shared) are marked
   `out_of_scope: true` and excluded from career creation and from the promotion
-  league list. `M191`/`M21A` stay single-table (no calendar).
+  league list. `M191`/`M21A` stay single-table (no calendar). Tier-99 youth
+  leagues (19 rows) are not career leagues at all: excluded from creation and
+  from the transition's league list.
+- Chile's `CL2Z` (a 2-club zonal play-off group) is merged into `CL2F` as one
+  14-club level 3; the empty row is gone from the database, the asset and the
+  canon.
 - Out: cups, continental competitions, national teams, the Costa Rica/Nicaragua
   cross-division play-off, per-phase transfer rules.
 
@@ -121,6 +126,16 @@ Status: v3 revised after three audits, the last one by attempting to encode all
   to the boundary counts; when they disagree the boundary wins and the review
   notes it, and `check_league_formats` asserts the sum. A league closed in a
   direction moves nobody, whatever its format says.
+- **Parallel leagues.** A level may hold several equal leagues (Italy's three
+  Serie C groups, Germany's regional leagues, France's N4/N5 groups). A
+  boundary is level-to-level, not league-to-league: each lower league promotes
+  its own qualifiers per its stage rules, and the upper league's relegation
+  slots are filled by the leagues that sent clubs up — a league that sent `n`
+  receives `n`, distributed in league-id order when several sent the same
+  number. Geography is not modelled; the totals always equal the boundary's
+  `down`. Australia's level 1→2 boundary is closed (licence league) and New
+  Zealand's level-1 "9 up" is qualification for a phase, not promotion, so both
+  move nobody.
 - `unknown` is legal for a champion and for a promotion/relegation rule.
 
 ## Simulation contract
