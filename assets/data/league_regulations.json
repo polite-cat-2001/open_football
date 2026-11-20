@@ -168,7 +168,7 @@
    "start_md": "08-21",
    "end_md": "05-09",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -185,7 +185,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Kategoria_Superiore",
-   "note": "Window inherited from ALB1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: a single 33-round table followed by promotion play-offs (3rd-6th); the label was coarse. Window inherited from ALB1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ALB1"
   },
   "ALG1": {
@@ -1731,7 +1731,7 @@
    "start_md": "04-04",
    "end_md": "11-01",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -1748,7 +1748,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Veikkausliiga",
-   "note": "Window inherited from FI1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: a 27-round triple round-robin; the label was coarse. Window inherited from FI1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FI1"
   },
   "FIYK": {
@@ -2212,7 +2212,7 @@
    "start_md": "08-22",
    "end_md": "05-23",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": false
@@ -2226,7 +2226,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Super_League_Greece",
-   "note": "Window inherited from GR1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split in 2026-27: the second division collapsed to one 16-club, 30-round group and the split was dropped. Window inherited from GR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GR1"
   },
   "HGKG": {
@@ -2637,7 +2637,7 @@
    "start_md": "04-10",
    "end_md": "10-24",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": false
@@ -2656,14 +2656,14 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Besta_deild_karla",
-   "note": "Window inherited from IS1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: 22 rounds then a 2nd-5th promotion play-off; the label was coarse. Window inherited from IS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IS1"
   },
   "ISL3": {
    "start_md": "04-10",
    "end_md": "10-24",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": false
@@ -2682,7 +2682,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Besta_deild_karla",
-   "note": "Window inherited from IS1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: 22 rounds in one table; the label was coarse. Window inherited from IS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IS1"
   },
   "ISR1": {
@@ -3105,7 +3105,7 @@
    "start_md": "04-04",
    "end_md": "11-01",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": true
@@ -3122,7 +3122,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Veikkausliiga",
-   "note": "Window inherited from FI1; the season facts in that division's note were not re-checked for this league.",
+   "note": "Not a split: a regional fourth tier, 12 clubs, 22 rounds; the label was coarse. Window inherited from FI1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FI1"
   },
   "KR1": {
@@ -3505,7 +3505,7 @@
    "start_md": "08-17",
    "end_md": "05-11",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": null,
     "playoff": false
@@ -3522,7 +3522,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Maltese_Premier_League",
-   "note": "Window inherited from MT1N; the season facts in that division's note were not re-checked for this league. end_md from https://en.wikipedia.org/wiki/2026%E2%80%9327_National_League_I_(Malta): \"| dates = 18 September 2026 – 11 May 2027\".",
+   "note": "Not a split: 26 rounds in one table; the label was coarse. Window inherited from MT1N; the season facts in that division's note were not re-checked for this league. end_md from https://en.wikipedia.org/wiki/2026%E2%80%9327_National_League_I_(Malta): \"| dates = 18 September 2026 – 11 May 2027\".",
    "inherited_from": "MT1N"
   },
   "MAR1": {
