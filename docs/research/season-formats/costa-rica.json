@@ -1,0 +1,43 @@
+{
+  "country": "Costa Rica",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "CRPD",
+      "season": "2026-27",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura 2026",
+          "start_md": "07-26",
+          "end_md": "12-27",
+          "precision": "day",
+          "source": "https://es.wikipedia.org/wiki/Campeonato_de_Apertura_2026_(Costa_Rica)",
+          "quote": "|fecha de inicio = 26 de julio de 2026 ... |fecha de cierre = 20 o 26 de diciembre de 2026 ... | RD1= Semifinales<br />9 de diciembre (ida)<br /> 13 de diciembre (vuelta) | RD2= Final II Fase<br />16 de diciembre (ida)<br />20 de diciembre (vuelta) | RD3= Gran Final<br />23 de diciembre (ida)<br />27 de diciembre (vuelta)"
+        },
+        {
+          "label": "Clausura 2027",
+          "start_md": "01-13",
+          "end_md": "05-16",
+          "precision": "day",
+          "proxy": true,
+          "source": "https://es.wikipedia.org/wiki/Campeonato_de_Clausura_2026_(Costa_Rica)",
+          "quote": "|fecha de inicio = 13 de enero de 2026 ... |fecha de cierre = 16 de mayo de 2026 (proxy: Clausura 2026, the 2027 edition has no article yet)"
+        }
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {
+        "teams": 4,
+        "window": "2026-12-09..2026-12-27"
+      },
+      "relegation": "aggregate",
+      "row_is": "phase",
+      "source": "https://es.wikipedia.org/wiki/Campeonato_de_Apertura_2026_(Costa_Rica)",
+      "quote": "Los cuatro clubes calificados para esta fase del torneo serán reubicados ... 1.º vs 4.º / 2.º vs 3.º ... Disputará el título, mediante una gran final, el club que haya superado las dos series incluyendo al conjunto que fue líder de la fase general. Esta última etapa puede evitarse si el equipo líder de fase general fue el ganador de la final",
+      "proxy": true,
+      "confidence": "medium",
+      "note": "10 clubs, 18 rounds, top 4 to semi-finals (1v4, 2v3), then the final of the second phase; the title only goes to a Gran Final on 23/27 December when the regular-season leader is not the winner of that final (UNAFUT confirmed the same structure for 2026-27: '18 jornadas en fase regular, semifinales, final y una eventual Gran Final'). Apertura 2026: 26 July - 27 December (final legs 16/20 Dec, grand final 23/27 Dec; the infobox's '20 o 26 de diciembre' is the article's own uncertainty). Clausura 2027 is unpublished: proxy is Clausura 2026 (13 Jan - 16 May 2026). Relegation is by the season's accumulated table ('Acumulada de la temporada', 36 games per club, last place 'Descenso de categoría'), i.e. aggregate over Apertura + Clausura. The database row holds only the Clausura half (13 January - 24 May), not the league."
+    }
+  ]
+}

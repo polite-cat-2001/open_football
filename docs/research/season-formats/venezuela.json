@@ -1,0 +1,39 @@
+{
+  "country": "Venezuela",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "VZ1C",
+      "season": "2026",
+      "structure": "two_phases",
+      "phases": [
+        {"label": "Torneo Apertura", "start_md": "01-29", "end_md": "06-07", "precision": "day"},
+        {"label": "Torneo Clausura", "start_md": "07-31", "end_md": "11-29", "precision": "day"}
+      ],
+      "points_carry": "full",
+      "champion": "phase_final",
+      "relegation": "aggregate",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Primera_Divisi%C3%B3n_de_Venezuela_2026",
+      "quote": "Se jugarán dos torneos cortos en el año, el Apertura y Clausura, ambos bajo el mismo formato. ... Finalmente para determinar el campeón de la temporada, se jugará una serie final a partido único entre los campeones de cada uno de los torneos cortos.",
+      "confidence": "high",
+      "note": "14 clubs. Each short tournament is its own three-stage competition: 13-round round-robin, top 8 into two semifinal groups of 4 (6 rounds), then a single-match final; that winner takes a Libertadores place. The absolute champion is decided by a single-match Final Absoluta between the Apertura and Clausura winners (automatic title if one club wins both), played in December - the season closes on 13 December per the infobox. Points from both short tournaments sum into the tabla acumulada, which allocates the remaining continental berths and relegates its last-placed team (1 down). Windows from the sub-articles: Apertura 29 January - 7 June, Clausura 31 July - 29 November."
+    },
+    {
+      "id": "VN2A",
+      "season": "2026",
+      "structure": "single",
+      "phases": [
+        {"label": "Fase regular", "start_md": "02-21", "end_md": null, "precision": "month"}
+      ],
+      "points_carry": "none",
+      "champion": "unknown",
+      "relegation": "unknown",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Segunda_Divisi%C3%B3n_de_Venezuela_2026",
+      "quote": "El torneo de Segunda División tuvo la misma modalidad para dos torneos cortos, un Apertura y un Clausura, de la siguiente manera: Fase regular: 16 equipos se dividieron en dos grupos por su ubicación geográfica.",
+      "confidence": "medium",
+      "note": "The Apertura/Clausura label is not what was played. The article's own fixture is one continuous season of 34 matchdays (Fecha 1-34, from 21 February 2026, breaking for the World Cup in June-July) and it carries a single pair of group tables (Grupo Occidental 9 clubs + Grupo Oriental 8 = 17 clubs) in which teams already have 31 matches played - impossible for two 14-round short tournaments. So as played this is one long double round-robin split into two geographic groups, not two phases; the Formato section still describes the announced Apertura/Clausura plus two-legged Final Absoluta for promotion, and no eliminatoria or Final Absoluta data exists yet. Last matchday and the promotion/relegation rules are not documented, hence champion/relegation unknown."
+    }
+  ]
+}

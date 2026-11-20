@@ -1,0 +1,41 @@
+{
+  "country": "Puerto Rico",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "PRA1",
+      "season": "2026-27",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura 2026",
+          "start_md": "08-15",
+          "end_md": null,
+          "precision": "month",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_Puerto_Rico_Pro_season",
+          "quote": "| dates = '''Apertura:'''<br />{{nowrap|August 15, 2026 - December 2026  }} ... ====Jornada 17==== ... |date= November 18"
+        },
+        {
+          "label": "Clausura 2027",
+          "start_md": null,
+          "end_md": null,
+          "precision": "month",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_Puerto_Rico_Pro_season",
+          "quote": "==Clausura 2027== ===Schedule & Results=== (section empty, no dates yet)"
+        }
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {
+        "teams": 4,
+        "window": null
+      },
+      "relegation": "none",
+      "row_is": "phase",
+      "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_Puerto_Rico_Pro_season",
+      "quote": "It is the league's fifth season to be divided into two championships: the Apertura and the Clausura, each in an identical format ... The season was played in a round robin style, with the top four 4 making the playoffs.",
+      "confidence": "medium",
+      "note": "9 clubs (Guayama FC and FC Mayaguez left, nobody joined; the article still says 'eight teams' in one sentence), round robin, top 4 to the play-offs; each tournament crowns its own champion and a Supercopa pits the Apertura winner against the Clausura winner. Apertura 2026 starts 15 August and its end is only 'December 2026' (round 17 was played 18-19 November, play-offs in December). Clausura 2027 has no data at all; the league's pattern is Clausura in January-May (Clausura 2026 ran into May 2026). No promotion or relegation. The database row holds only the Apertura (15 August - 29 November)."
+    }
+  ]
+}

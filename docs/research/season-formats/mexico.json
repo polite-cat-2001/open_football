@@ -1,0 +1,148 @@
+{
+  "country": "Mexico",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "MEXA",
+      "season": "2026-27",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura",
+          "start_md": "07-16",
+          "end_md": "11-22",
+          "precision": "day",
+          "proxy": false,
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(M%C3%A9xico)",
+          "quote": "| fecha = 16 de julio de 2026<br>diciembre de 2026 … | rowspan=\"2\" |22 de noviembre"
+        },
+        {
+          "label": "Clausura",
+          "start_md": "01-09",
+          "end_md": "04-26",
+          "precision": "day",
+          "proxy": true,
+          "source": "https://es.wikipedia.org/wiki/Torneo_Clausura_2026_(M%C3%A9xico)",
+          "quote": "| fecha = 9 de enero de 2026<br>24 de mayo de 2026 … | rowspan=\"6\" |25 de abril … | rowspan=\"2\" |26 de abril"
+        }
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {
+        "teams": 8,
+        "window": "2026-11-25..2026-12-13"
+      },
+      "relegation": "none",
+      "row_is": "league",
+      "proxy": true,
+      "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(M%C3%A9xico)",
+      "quote": "Participan automáticamente por el título de Campeón de la [[Primera División de México|Liga BBVA MX]], los ocho primeros clubes de la tabla general de clasificación al término de las 17 jornadas.",
+      "confidence": "medium",
+      "note": "Two independent 17-round tables of 18 clubs; the table only seeds the liguilla, so the champion is a play-off, not the table. Top 8 straight to a two-legged liguilla (quarter-finals 25-29 November, semi-finals 2-6 December, final 10/13 December, or 24/27 December if Toluca reach it because of the FIFA Intercontinental Cup). Play-in gone for good from Apertura 2026: 'La asamblea de dueños de la liga determinó la supresión definitiva del sistema de Play-In, para volver al sistema donde únicamente los ocho primeros lugares de la tabla general avanzan de manera directa a la fase final del torneo.' Nothing carries between the two tournaments; the combined 2026 table only seeds the Leagues Cup. No relegation: art. 35 of the 2026-27 regulations says the Liga MX clubs 'no descenderán a la Liga de Expansión MX'. Clausura 2027 has no article yet, so its window is Clausura 2026 a year on (17 rounds, 9 January - 26 April regular phase, final 24 May)."
+    },
+    {
+      "id": "MEX2",
+      "season": "2026-27",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura",
+          "start_md": "07-24",
+          "end_md": "10-31",
+          "precision": "day",
+          "proxy": false,
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_Liga_de_Expansi%C3%B3n",
+          "quote": "| fecha = 24 de julio de 2026<br>28 de noviembre de 2026 … | rowspan=\"4\" |31 de octubre"
+        },
+        {
+          "label": "Clausura",
+          "start_md": "01-09",
+          "end_md": "04-19",
+          "precision": "day",
+          "proxy": true,
+          "source": "https://es.wikipedia.org/wiki/Torneo_Clausura_2026_Liga_de_Expansi%C3%B3n",
+          "quote": "| fecha = 9 de enero de 2026<br>16 de mayo de 2026 … | rowspan=\"2\" |19 de abril"
+        }
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {
+        "teams": 8,
+        "window": "2026-11-04..2026-11-28"
+      },
+      "relegation": "unknown",
+      "row_is": "league",
+      "proxy": true,
+      "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_Liga_de_Expansi%C3%B3n",
+      "quote": "Participan automáticamente por el título de Campeón de la [[Liga de Expansión MX]], los ocho primeros clubes de la tabla general de clasificación al término de las 15 jornadas.",
+      "confidence": "medium",
+      "note": "16 clubs, 15-round tables, Apertura + Clausura, top 8 to a two-legged liguilla: Apertura 2026 quarter-finals 4-8 November, semi-finals 11-15 November, final 21 and 28 November. The preliminary knockout round was already abolished in 2024-25. Closed upward in 2026-27: no promotion to Liga MX, and membership still moves by franchise sales (Piratas bought Celaya's place, Cruz Azul Hidalgo entered as an affiliate); the season article states no relegation rule, so relegation is left unknown. Clausura 2027 has no article yet, so its window is Clausura 2026 (15 clubs) a year on."
+    },
+    {
+      "id": "M191",
+      "season": "2026-27",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura",
+          "start_md": null,
+          "end_md": null,
+          "precision": "none",
+          "proxy": false,
+          "source": "https://es.wikipedia.org/wiki/Liga_de_Fuerzas_B%C3%A1sicas_de_M%C3%A9xico",
+          "quote": "Actualmente la liga cuenta con torneos de categorías Sub-15, Sub-17, Sub-19 y Sub-21."
+        },
+        {
+          "label": "Clausura",
+          "start_md": null,
+          "end_md": null,
+          "precision": "none",
+          "proxy": false,
+          "source": "https://es.wikipedia.org/wiki/Liga_de_Fuerzas_B%C3%A1sicas_de_M%C3%A9xico",
+          "quote": "Actualmente la liga cuenta con torneos de categorías Sub-15, Sub-17, Sub-19 y Sub-21."
+        }
+      ],
+      "points_carry": "unknown",
+      "champion": "unknown",
+      "relegation": "none",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Liga_de_Fuerzas_B%C3%A1sicas_de_M%C3%A9xico",
+      "quote": "La '''Liga de Fuerzas Básicas de México''' son torneos disputados por las categorías menores de los clubes de la [[Primera División de México]].",
+      "confidence": "low",
+      "note": "Liga MX Sub-19 is a Fuerzas Básicas category, one team per Liga MX club (18), run as an Apertura and a Clausura tournament every year (the per-category palmares lists A-2025 and C-2026). No 2026-27 calendar, knock-out format or dates for the category are published on Wikipedia, and sub19.ligamx.net was not readable, so both windows stay null. The row is the whole year-round category, not one tournament; the champion is decided somewhere in the youth knock-outs, about which nothing reliable was found."
+    },
+    {
+      "id": "M21A",
+      "season": "2026-27",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura",
+          "start_md": null,
+          "end_md": null,
+          "precision": "none",
+          "proxy": false,
+          "source": "https://es.wikipedia.org/wiki/Liga_de_Fuerzas_B%C3%A1sicas_de_M%C3%A9xico",
+          "quote": "Actualmente la liga cuenta con torneos de categorías Sub-15, Sub-17, Sub-19 y Sub-21."
+        },
+        {
+          "label": "Clausura",
+          "start_md": null,
+          "end_md": null,
+          "precision": "none",
+          "proxy": false,
+          "source": "https://es.wikipedia.org/wiki/Liga_de_Fuerzas_B%C3%A1sicas_de_M%C3%A9xico",
+          "quote": "Actualmente la liga cuenta con torneos de categorías Sub-15, Sub-17, Sub-19 y Sub-21."
+        }
+      ],
+      "points_carry": "unknown",
+      "champion": "unknown",
+      "relegation": "none",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Liga_de_Fuerzas_B%C3%A1sicas_de_M%C3%A9xico",
+      "quote": "La '''Liga de Fuerzas Básicas de México''' son torneos disputados por las categorías menores de los clubes de la [[Primera División de México]].",
+      "confidence": "low",
+      "note": "Liga MX Sub-21, same Fuerzas Básicas structure as Sub-19: 18 clubs, an Apertura and a Clausura every year, no promotion or relegation. No published 2026-27 calendar was found, so both windows stay null; the row is the whole year-round category."
+    }
+  ]
+}

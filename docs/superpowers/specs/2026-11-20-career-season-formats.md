@@ -1,0 +1,260 @@
+# Career season formats (slice c) — v3.1
+
+Status: v3 revised after three audits, the last one by attempting to encode all
+23 in-scope leagues. Not implemented. Order starts with the calendar slice.
+
+## Scope
+
+- 25 rows carry `phases: "apertura_clausura"`; the label is replaced by
+  `format`. Research: 10 are really Apertura/Clausura, the rest are one table,
+  zones, groups, or paths.
+- `AR3F`/`AR3R` (two paths of one 37-club tournament, clubs shared) are marked
+  `out_of_scope: true` and excluded from career creation and from the promotion
+  league list. `M191`/`M21A` stay single-table (no calendar).
+- Out: cups, continental competitions, national teams, the Costa Rica/Nicaragua
+  cross-division play-off, per-phase transfer rules.
+
+## Data model
+
+```json
+"format": {
+  "season": "2026",
+  "proxy": false,
+  "start_md": "07-16", "end_md": "05-24",
+  "champion": "aggregate",
+  "aggregate": ["apertura", "clausura"],
+  "stages": [
+    {"id": "apertura", "kind": "league", "label": "Apertura",
+     "start_md": "07-16", "end_md": "11-22", "precision": "day",
+     "rounds": 1,
+     "entrants": [{"rule": "all"}],
+     "champion": "table"},
+    {"id": "clausura", "kind": "league", "label": "Clausura",
+     "start_md": "01-09", "end_md": "04-26", "precision": "proxy",
+     "rounds": 1, "entrants": [{"rule": "all"}], "champion": "table"},
+    {"id": "title", "kind": "knockout", "label": "Liguilla",
+     "start_md": "11-25", "end_md": "12-13",
+     "entrants": [{"rule": "top", "from": "apertura", "n": 8}],
+     "rounds": [{"name": "qf", "legs": 2}, {"name": "sf", "legs": 2},
+                {"name": "final", "legs": 2}],
+     "champion": "winner"}
+  ],
+  "relegation": [{"rule": "none"}],
+  "promotion": [{"rule": "none"}]
+}
+```
+
+### Rules
+
+- **Season window**: `format.start_md`/`end_md` win over the row. `end_md <
+  start_md` means the season ends in the following year. The row's own
+  `start_md`/`end_md` are **recomputed** to equal the format window for every
+  league that has a format, and the validator asserts the equality. The note
+  says the format supersedes the row. `row_is` (`league` | `phase`) stays a
+  research fact only; it changes nothing in the engine.
+- `start_md`/`end_md` on a stage: either bound may be `null`; `precision` is
+  `day` | `month` | `none`, and `proxy: true` separately marks a previous-season
+  estimate. An undated first stage is anchored at `format.start_md`; an undated
+  stage between dated ones takes the gap; **consecutive undated stages split
+  that gap evenly**; a trailing undated stage is spread up to `format.end_md`.
+  A stage whose `start_md` is earlier in the year than its predecessor rolls
+  +1 year.
+- `format.start_md`/`end_md`: either bound may be `null` with `format.precision`
+  (`day` | `month` | `none`). A null end means the season ends at the last known
+  stage end; a null start means the season starts at the first stage's start.
+- `champion` at format level: `aggregate` | `stage:<id>` | `none`; at stage
+  level: `table` | `winner` | `none`. A `group` stage must be `none`; a `league`
+  stage's champion is its table leader; a `knockout` stage's is `winner`.
+- `aggregate`: the stages summed into the annual table; listing a group stage
+  sums all its groups. `from: "aggregate"` is a **reserved table name** usable
+  in any clause (entrants, promotion, relegation) and always means that table.
+- `out_of_scope: true` on the row (not `format: null`) marks a league that must
+  not appear in career creation or in the promotion league list. The three seams
+  are `team_catalog`'s career league listing, `CareerFactory.create` (a direct
+  create must refuse too) and the transition's `career_leagues()` walk. An
+  existing career in such a league keeps playing single-table.
+- `stages`: chronological. Each stage has `kind` (`league` | `group` |
+  `knockout`), `entrants`, `champion`, and either `rounds: 1|2|"unknown"` for
+  table stages or `rounds: [{name, legs}]` / `"unknown"` for brackets.
+- `groups: {sizes: [..], assign: "seeded"|"geographic"|"draw"|"fixed"}`: a
+  **table partition**. `sizes` may be uneven (9/9/9/10). `seeded`, `geographic`
+  and `fixed` split the resolved entrant order in order into `sizes` (geography
+  is not modelled: a documented approximation); `draw` partitions the resolved
+  order deterministically from the stage id.
+  `schedule: {kind: "merged"|"per_group", interzonal: n}` says how fixtures are
+  built: `merged` is one cross-group round-robin, `per_group` is inside groups,
+  `interzonal` adds n cross-group rounds (Argentina, Panama, Argentina-2).
+- `entrants` is an ordered list of clauses, earlier wins, duplicate clubs
+  dropped keeping the first occurrence. Clause fields: `rule` (`all`, `top`,
+  `winners`, `losers:<round name>`, `rest`), `from` (default: previous stage;
+  `"aggregate"` allowed), `n`, `rank` (start position, default 1), `per_group`
+  (evaluate the rule once per group of `from`, with `rank` inside each group),
+  `best_of: n` (with `per_group`: the best n by table position across groups).
+  Without `per_group`, `top` reads the stage's **combined** table.
+- `size` is optional: the bracket size is the resolved entrant count padded to
+  the next power of two. A bracket may shrink to 3, 1 or 0 entrants; a bracket
+  with fewer than two distinct clubs is skipped.
+- `bonus`: ordered rules `{from, rank: [..], value, per_group?, best_of?}`.
+  Signed values; `rank` is a position inside a group table; `per_group` and
+  `best_of` are mutually exclusive.
+- `carry`: `none` | `full`; points enter the receiving stage's own table and
+  are visible everywhere that table is read. Only Uruguay's Segunda uses it.
+- Conditional stages: `if: {skip_when: "shared" | "same_club", stages: [ids]}`:
+  `shared` means one club holds every named stage's champion spot; `same_club`
+  means the resolved entrants hold fewer than two distinct clubs.
+  `champion_fallback: "shared" | "stage:<id>"` says who is champion when the
+  stage is skipped.
+- `promotion`/`relegation` are ordered lists of the same clause shape, with
+  `rule`: `top`, `bottom`, `winner`, `average`, `unknown`, `none`, plus `from`
+  (a stage or `"aggregate"`), `slots` (the total across groups, even when
+  `per_group` is set), `per_group`, `rank` (start position) and
+  `among: "champions"` (restrict a top/bottom rule to the named stages'
+  champions). Rules apply in order and each takes its slots from clubs **not
+  already named**, so overlapping rules do not over-relegate. `average` is
+  simulated as the aggregate until club history exists, and the review says so.
+  `[]` is only legal when the league has **no** format; a format league states
+  `none` explicitly when nothing moves.
+- **Roster size is the invariant.** For every boundary `up == down` (the
+  pyramid asset's rule; 106 of 108 boundaries comply, the two exceptions are
+  documented one-season structural changes: Serbia's 14→12 shrink, Chinese
+  Taipei's expansion). A league's `format.promotion`/`relegation` slots must sum
+  to the boundary counts; when they disagree the boundary wins and the review
+  notes it, and `check_league_formats` asserts the sum. A league closed in a
+  direction moves nobody, whatever its format says.
+- `unknown` is legal for a champion and for a promotion/relegation rule.
+
+## Simulation contract
+
+- `round` is a season-wide matchday index; **all groups of a stage share one
+  round number and one date** (a matchday). Each fixture carries `stage`,
+  `group` (or `""`) and `stage_round` (`round - stage_first_round + 1`). Both
+  the date sweep and the round sweep depend on "one round = one date".
+- Ids: single-table leagues keep `r%02d-%02d`; a league with a format uses
+  `<stage>:<round>-<n>`.
+- `CareerFactory.standings(career, clubs, view := {})`:
+  `{stage = "", stages = [], group = "", exclude_round = -1}`. Empty view = the
+  current loop over every result (single-table leagues, byte-identical). A
+  format league always passes an explicit view; the empty view is not used for
+  them.
+- `season.standings` = the current stage's table; `season.aggregate` = the
+  annual table. The season-complete tile and `own_row` read the aggregate; the
+  hub tile and the matchday delta read the stage. For a `group` stage,
+  `season.standings` is the club's own group table and the overlay shows one tab
+  per group; the combined table exists only for clause resolution, and the two
+  matchday callers pass the club's `group`.
+- Stages are generated lazily and idempotently: `career.data["stages_generated"]`
+  stores `fixtures` | `skipped` per stage. Generation is a precondition of
+  **any** `next_fixture` read: `snapshot` (on every hub open), `advance_to`,
+  `play_next_match` and `_commit_advance` generate first. A conditional stage is
+  evaluated only once every stage named in `if.stages` is produced; until then
+  it is not recorded. A bracket that resolves to zero entrants is produced at
+  generation. A stage counts as *produced* only when it was skipped or all its
+  fixtures are played; a `champion: none` stage is produced when its last
+  fixture is played.
+- `next_fixture` returns the earliest unplayed fixture by date; the schedule is
+  sorted `(date, id)` after an append. `_season_state` does the same (it
+  currently scans in array order).
+- `advance_to` keeps the **date sweep** (`date <= target`), not a round sweep:
+  odd-club leagues skip rounds, and a round sweep strands them. `play_next_match`
+  keeps the round sweep.
+- Schedule builders: `create`, `ensure_schedule` and `next_season` all switch to
+  the stage builder when the league has a format.
+- Results: `{home, away, aet?: {home, away}, pens?: {home, away}}`; ties carry
+  `{tie, leg}` on the fixture. Extra time only in the last leg; the timeline
+  renders `aet` as 91-120 and prints the deciding line.
+- Normalisers in `Career.from_save`: fixtures gain `stage`, `group`,
+  `stage_round`, `tie`, `leg`; results gain `aet`, `pens`; every numeric field,
+  including the nested `aet`/`pens` and `tie`/`leg`, is cast to int so the
+  round-trip stays byte-equal. `stages_generated` survives as arbitrary data.
+  The store test round-trips a staged career.
+- Version gates: the store and `from_save` accept `version <= SAVE_VERSION` and
+  reject only newer saves; the message about migrations applies to newer saves.
+  `from_save` must not stamp the current version before the migration runs —
+  the migration is keyed on `schedule_version` only. `ensure_schedule` sets
+  `data["version"] = SAVE_VERSION` once the migration succeeds.
+- Migration resets results **only when the fixture-id set changes**; single-table
+  leagues keep `r%02d-%02d`, so their results survive a date migration. The
+  store keeps the `.bak` for exactly one save after loading an older version:
+  `load_career` sets a one-shot flag, `save` skips both backup removals for that
+  call and clears the flag, and `delete()` removes the `.bak` as well.
+- `season_end` stays window-derived (day before the next boundary).
+- `transition` reads the format's promotion/relegation rules; the constants are
+  a fallback only for leagues without a format. `none` means no movement;
+  `unknown` means no movement and a note in the review. **The roster size is
+  preserved**: the clubs that leave a league equal the clubs that join it, taken
+  from the boundary counts, not from the constants.
+- `review` gains `champion` (`{id, name, logo}`) and `stages`
+  (`[{id, label, champion, final}]`); `next_season` journals `review.champion`,
+  not `table[0]`.
+- `_played_fixtures` (form, last result) filters to table-producing stages.
+  `matchday_state` lists the last **played** fixture's own round (a knockout leg
+  shows that leg's result); only the round *label* falls back to the last table
+  round.
+- Matchday delta: suppressed per row when that club has `played == 0` in the
+  "before" table (covers round 1 and byes).
+- Skip rule: only a **next-stage** gap longer than 30 days jumps to that stage's
+  first matchday; the off-season reel is untouched, and the jump commits without
+  `_sim_start` so the tile re-renders from the new date.
+
+## UI
+
+- Table tile: current stage's table, labelled; aggregate when the season is
+  complete.
+- Overlay: tabs for top-level stages (all stages are top-level now: `parent` was
+  dropped) plus an aggregate tab when a rule or the champion uses it.
+- Review: league champion, one line per stage with a champion (or `none` /
+  `unknown`), then the relegation table.
+- One `stage_label`/`stage_round` formatter replaces the six literal
+  `ROUND %d`, the `Round` info row and the lowercase `round %d`.
+- `next` in the hub model gains `home_id`, `away_id` and `stage`; the three hub
+  sites resolve the fixture by `fixture_id` from `career.schedule`.
+
+## Migration, tests, goldens
+
+- Phase 0 = the calendar slice agreed earlier; nothing below starts before it is
+  green.
+- `SAVE_VERSION` +1; `check_career_save_store` uses computed versions and loads
+  the old fixture successfully (that is the point of the gate change).
+- `check_career_creation._fixtures` gains `stage`/`group`/`stage_round`, with
+  `stage_round` defaulting to `round`.
+- `career_match_golden` is not regenerated (the test builds its fixture by hand).
+  `career_creation`, `career_advance`, `career_hub` change only because of the
+  calendar dates and the new fixture fields; ids for single-table leagues stay.
+- `check_league_regulations` loses its `PHASES` assertions in the same commit as
+  the data.
+- New tests: `check_league_formats.gd` (parse; `row window == format window`;
+  null/crossing windows; clauses resolve on a synthetic league; group sizes,
+  draws and combined tables; promotion/relegation slots sum to the boundary
+  counts; ids unique) and `check_career_stages.gd` (two phases, three phases,
+  group + knockout, a skipped conditional stage, a `none` relegation league with
+  zero movement, aggregate relegation, per-row delta suppression, determinism).
+- Wiki: career season page gains a stage section.
+
+## Implementation phases
+
+0. **Calendar**: boundary-based season start (mid-gap), season end before the
+   next boundary, tests and the two date-bearing goldens green, commit.
+1. **Data**: schema, the 21 encodable formats (`AR3F`/`AR3R` out of scope,
+   `M191`/`M21A` single), row windows recomputed, loader, validation test,
+   `check_league_regulations` updated.
+2. **Schedule and tables**: stage/group builders and the three call sites, the
+   round index and `stage_round`, `standings(view)` with `group`, `season.
+   standings` vs `season.aggregate`, next-fixture by date.
+3. **Persistence**: version gates, id-set migration, `.bak` retention,
+   normalisers, `stages_generated`.
+4. **Brackets**: lazy generation, produced-gate, knockouts, extra time and
+   penalties, ties, promotion/relegation rules.
+5. **UI**: labels, tiles, tabs, review, skip rule.
+6. **Tests, goldens, wiki.**
+
+## Open decisions
+
+- `CO22` promotion (three conditional branches): `unknown`; the game promotes
+  the aggregate top two until the rule is modelled.
+- `ARGC` relegation combines the average bottom and the aggregate penultimate;
+  the ordered "not already named" rule takes the overlap out.
+- `ARG2`'s reducido field is not enumerated in the research; the stage is
+  encoded as `entrants: [{"rule": "unknown"}]` until a source line is added.
+- Cross-division relegation play-offs: out of scope.
+- Average/coefficient relegation is simulated as the aggregate until club
+  history exists.

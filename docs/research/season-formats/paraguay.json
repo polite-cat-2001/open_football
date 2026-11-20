@@ -1,0 +1,39 @@
+{
+  "country": "Paraguay",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "PR1C",
+      "season": "2026",
+      "structure": "two_phases",
+      "phases": [
+        {"label": "Torneo Apertura", "start_md": "01-23", "end_md": "05-24", "precision": "day"},
+        {"label": "Torneo Clausura", "start_md": "07-24", "end_md": "11-29", "precision": "day"}
+      ],
+      "points_carry": "full",
+      "champion": "table",
+      "relegation": "average",
+      "row_is": "league",
+      "source": "https://en.wikipedia.org/wiki/2026_Copa_de_Primera",
+      "quote": "The Torneo Apertura was the 133rd official División de Honor championship and the first tournament of the 2026 season. It began on 23 January and ended on 24 May 2026.",
+      "confidence": "high",
+      "note": "12 clubs; each tournament is a separate championship (Apertura won by Olimpia, 48th title) with its own table and no annual final. Clausura: 'It began on 24 July and is scheduled to end on 29 November 2026'. Points from both tournaments are combined into an aggregate table used only for the remaining Libertadores/Sudamericana berths. Relegation is a three-season points-per-game average, bottom two (Rubio Ñu, San Lorenzo)."
+    },
+    {
+      "id": "PAR2",
+      "season": "2026",
+      "structure": "single",
+      "phases": [
+        {"label": "Temporada", "start_md": "04-04", "end_md": "10-26", "precision": "day"}
+      ],
+      "points_carry": "none",
+      "champion": "table",
+      "relegation": "average",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Divisi%C3%B3n_Intermedia_2026",
+      "quote": "El certamen se desarrolló del 4 de abril al 26 de octubre. ... Es campeón el equipo que acumula la mayor cantidad de puntos al término de las 30 fechas.",
+      "confidence": "high",
+      "note": "No Apertura/Clausura: 16 clubs, one double round-robin of 30 rounds in two 15-round halves, with a break in mid-June/early July for the 2026 World Cup. Champion and runner-up are promoted (Deportivo Santaní, General Caballero JLM). Three teams are relegated on the three-season points average (3 de Noviembre, Tacuary, Fernando de la Mora); Asunción-area clubs drop to Primera B, the rest to Primera B Nacional."
+    }
+  ]
+}

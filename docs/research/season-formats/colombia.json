@@ -1,0 +1,80 @@
+{
+  "country": "Colombia",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "COL1",
+      "season": "2026",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura",
+          "start_md": "01-16",
+          "end_md": "05-03",
+          "precision": "day",
+          "proxy": false,
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Colombia)",
+          "quote": "Inició el 16 de enero y culminó el 8 de junio de 2026. … El sorteo de las llaves de cuartos de final se llevó a cabo el 3 de mayo de 2026, al finalizar la última fecha de la fase todos contra todos."
+        },
+        {
+          "label": "Finalización",
+          "start_md": "07-24",
+          "end_md": "11-14",
+          "precision": "day",
+          "proxy": false,
+          "source": "https://es.wikipedia.org/wiki/Torneo_Finalizaci%C3%B3n_2026_(Colombia)",
+          "quote": "Inició el 24 de julio, con su finalización prevista para el 22 de diciembre de 2026. … El sorteo de los cuadrangulares semifinales se llevó a cabo el 14 de noviembre de 2026, una vez finalizada la última fecha de la fase todos contra todos."
+        }
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {
+        "teams": 8,
+        "window": "2026-11-20..2026-12-22"
+      },
+      "relegation": "average",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Torneo_Finalizaci%C3%B3n_2026_(Colombia)",
+      "quote": "En la fase todos contra todos se jugaron 19 fechas, sin fecha de clásicos, donde los ocho primeros equipos de la tabla de posiciones al final de la primera fase del torneo clasificaron a los cuadrangulares semifinales, disputando la final a partidos de ida y vuelta los ganadores de cada cuadrangular.",
+      "confidence": "high",
+      "note": "Apertura and Finalización are independent championships and the cuadrangulares restart from zero, so nothing carries. The two 2026 tournaments did NOT share a knock-out: Apertura 2026 dropped the cuadrangulares for the World Cup and went straight to two-legged quarter-finals (9-13 May), semi-finals (16 and 23 May) and final (2 and 8 June) among the top 8, 25 matchdays in all; Finalización 2026 kept the usual shape - top 8 into two groups of four over 6 matchdays (first round 20-21 November), group winners to a two-legged final, tournament ending 22 December. Relegation is the three-season promedio (a separate table sums first-stage points of 2024-I to 2026-II, bottom two go down); Boyacá Chicó and Jaguares went down in 2026."
+    },
+    {
+      "id": "CO22",
+      "season": "2026",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura",
+          "start_md": "01-23",
+          "end_md": "04-19",
+          "precision": "day",
+          "proxy": false,
+          "source": "https://es.wikipedia.org/wiki/Primera_B_2026_(Colombia)",
+          "quote": "El torneo inició el día 23 de enero. … El sorteo para conformar los grupos se llevó a cabo el día 19 de abril de 2026."
+        },
+        {
+          "label": "Finalización",
+          "start_md": "07-24",
+          "end_md": "10-25",
+          "precision": "day",
+          "proxy": false,
+          "source": "https://es.wikipedia.org/wiki/Primera_B_2026_(Colombia)",
+          "quote": "|rowspan=2|24 de julio … El sorteo para conformar los grupos se realizó el día 25 de octubre de 2026."
+        }
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {
+        "teams": 8,
+        "window": null
+      },
+      "relegation": "none",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Primera_B_2026_(Colombia)",
+      "quote": "Al finalizar la primera fase del campeonato —también denominada «Todos contra todos»—, los ocho equipos con mayor puntaje disputaron la segunda fase, los cuadrangulares semifinales.",
+      "confidence": "medium",
+      "note": "16 clubs, two championships; each is 15 matchdays + two groups of four (6 matchdays) + a two-legged final, so each tournament's champion comes out of the knock-out rather than the table (Apertura final 25 and 29 May 2026). The 19 April and 25 October dates are the cuadrangulares draws held after the last first-stage matchday; the article dates no jornada-15 match. Finalización 2026 knock-out dates are not published yet (window null); the season closes in December 2026, month only. No relegation: 'descenso = Sin descenso'. Promotion runs off the reclasificación table (points of both tournaments): a club in its top two that won no tournament goes to a repechaje for the second promotion place, a club that wins both tournaments sends the next two to that repechaje, and if both champions are the top two the repechaje is cancelled and both go up."
+    }
+  ]
+}

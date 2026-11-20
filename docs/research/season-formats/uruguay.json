@@ -1,0 +1,84 @@
+{
+  "country": "Uruguay",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "URUC",
+      "season": "2026",
+      "structure": "three_phases",
+      "phases": [
+        {
+          "label": "Torneo Apertura",
+          "start_md": "02-06",
+          "end_md": "05-11",
+          "precision": "day",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Uruguay)",
+          "quote": "fecha de inicio = 6 de febrero de 2026; fecha de cierre = 11 de mayo de 2026 (infobox)"
+        },
+        {
+          "label": "Torneo Intermedio",
+          "start_md": "05-15",
+          "end_md": "08-05",
+          "precision": "day",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Intermedio_2026",
+          "quote": "Se jugó entre el 15 de mayo y el 5 de agosto de 2026."
+        },
+        {
+          "label": "Torneo Clausura",
+          "start_md": "08-07",
+          "end_md": "11-23",
+          "precision": "day",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Clausura_2026_(Uruguay)",
+          "quote": "fecha de inicio = 7 de agosto; fecha de cierre = 23 de noviembre (infobox)"
+        }
+      ],
+      "points_carry": "none",
+      "champion": "phase_final",
+      "playoff": {
+        "teams": 3,
+        "window": "2026-11-27..2026-12-06"
+      },
+      "relegation": "average",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Campeonato_Uruguayo_de_Primera_Divisi%C3%B3n_2026",
+      "quote": "Para determinar al campeón de la temporada, se jugará una semifinal entre los campeones del Apertura y Clausura, accediendo el ganador a la final contra el club que más puntos sumó en la tabla anual.",
+      "confidence": "high",
+      "note": "Three short tournaments of 16 clubs, each table starting from zero: Apertura (single round-robin, champion Racing), Intermedio (two series of 8 + final, champion Peñarol, separate Sudamericana ticket, not part of the title race), Clausura (single round-robin, champion Liverpool). Title: semifinal between the Apertura and Clausura champions on 27 November, winner meets the Tabla Anual leader in a two-legged final on 3 and 6 December (if that leader is one of the two champions it goes straight to the final; if one club wins both short tournaments it is champion outright). Relegation: 3 clubs on the two-season promedio. Row id/name says Clausura but the 16 clubs and the February-November window are the whole season."
+    },
+    {
+      "id": "UR2T",
+      "season": "2026",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Torneo Competencia",
+          "start_md": "03-13",
+          "end_md": "05-02",
+          "precision": "day",
+          "source": "https://es.wikipedia.org/wiki/Campeonato_Uruguayo_de_Segunda_Divisi%C3%B3n_2026",
+          "quote": "fecha = 2 de mayo; 20:30 (final del Torneo Competencia)"
+        },
+        {
+          "label": "Fase regular",
+          "start_md": "05-08",
+          "end_md": "11-12",
+          "precision": "day",
+          "source": "https://es.wikipedia.org/wiki/Campeonato_Uruguayo_de_Segunda_Divisi%C3%B3n_2026",
+          "quote": "Fecha 1 [...] Atenas 2:1 Uruguay Montevideo [...] 8 de mayo"
+        }
+      ],
+      "points_carry": "full",
+      "champion": "table",
+      "playoff": {
+        "teams": 4,
+        "window": null
+      },
+      "relegation": "average",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Campeonato_Uruguayo_de_Segunda_Divisi%C3%B3n_2026",
+      "quote": "La tabla acumulada definirá al campeón y al subcampeón de la temporada, que ascenderán de manera directa a Primera División, mientras que el tercer ascenso se definirá mediante play-offs entre los siguientes 4 equipos mejor posicionados.",
+      "confidence": "high",
+      "note": "Not Apertura/Clausura: a pre-season Torneo Competencia (13 March - 2 May, two series of 7, single round-robin, plus a final) then one double round-robin of 14 clubs (8 May - 12 November). The Torneo Competencia points are added to the fase regular table ('Los equipos acumulan el puntaje que obtuvieron en el Torneo Competencia'), and that accumulated table crowns the champion and runner-up (Plaza Colonia, Rentistas - both promoted). The play-offs (places 3-6, semifinals 15 and 18 November, final not yet dated) only decide the third promotion. Relegation: 2 clubs on the two-season promedio. Row id/name says Torneo Competencia but the 14 clubs are the whole Segunda División."
+    }
+  ]
+}

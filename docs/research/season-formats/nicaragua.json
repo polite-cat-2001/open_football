@@ -1,0 +1,79 @@
+{
+  "country": "Nicaragua",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "NC1A",
+      "season": "2026-27",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura 2026",
+          "start_md": "07-17",
+          "end_md": null,
+          "precision": "month",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua)",
+          "quote": "|fecha de inicio=17 de julio de 2026 ... |fecha de cierre=diciembre de 2026"
+        },
+        {
+          "label": "Clausura 2027",
+          "start_md": "01-17",
+          "end_md": "05-16",
+          "precision": "day",
+          "proxy": true,
+          "source": "https://es.wikipedia.org/wiki/Torneo_Clausura_2026_(Nicaragua)",
+          "quote": "|fecha         = 17 de enero de 2026<br />16 de mayo de 2026 (proxy: Clausura 2026, the 2027 edition has no article yet)"
+        }
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {
+        "teams": 6,
+        "window": null
+      },
+      "relegation": "aggregate",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua)",
+      "quote": "10 equipos juegan todos contra todos a dos vueltas durante 18 jornadas. Primer y segundo lugar clasifican directamente a semifinales. Del tercero al sexto lugar disputan repechaje. ... El penúltimo lugar de la tabla acumulada del torneo ... juega un repechaje por permanecer en Primera División",
+      "proxy": true,
+      "confidence": "medium",
+      "note": "10 clubs, 18 rounds per tournament, 1st-2nd straight to the semi-finals and 3rd-6th in a single-match repechaje, so each phase has its own champion (playoff). Apertura 2026 starts 17 July exactly; the close is only given as 'diciembre de 2026' and the final was reported for 26-27 December outside Wikipedia, so the end day stays null. Clausura 2027 is unpublished: its window is the proxy of Clausura 2026 (17 Jan - 16 May 2026, final second leg 16 May). Points do not carry between the two tables, but the season aggregate table decides relegation: last place relegated, 9th plays the promotion/relegation playoff against the Segunda runner-up. Row spans the whole annual cycle with the same 10 clubs, not one phase."
+    },
+    {
+      "id": "NC2A",
+      "season": "2026-27",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura 2026",
+          "start_md": null,
+          "end_md": null,
+          "precision": "month",
+          "source": "https://es.wikipedia.org/wiki/Segunda_Divisi%C3%B3n_de_Nicaragua",
+          "quote": "El formato de eliminación se hace a través de la tabla general donde se juegan 13 partidos, los primeros 8 puestos clasifican a cuartos de final (no calendar dates in the article)"
+        },
+        {
+          "label": "Clausura 2027",
+          "start_md": null,
+          "end_md": null,
+          "precision": "month",
+          "source": "https://es.wikipedia.org/wiki/Segunda_Divisi%C3%B3n_de_Nicaragua",
+          "quote": "Apertura 2026: Por Definir (palmarés); no 2026-27 calendar published"
+        }
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {
+        "teams": 8,
+        "window": null
+      },
+      "relegation": "unknown",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Segunda_Divisi%C3%B3n_de_Nicaragua",
+      "quote": "el campeón con más puntos en la tabla general de los 2 torneos (Apertura y Clausura) asciende directamente a Primera División, y el campeón con menos puntos en la tabla general de los 2 torneos va al repechaje con el penúltimo de la Liga Primera",
+      "proxy": true,
+      "confidence": "low",
+      "note": "Liga Ascenso: 14 clubs, Apertura and Clausura, each a 13-round single round-robin plus a top-8 knockout (quarter-finals to final), so each phase has its own champion. Promotion is decided on the aggregate table of both phases per the Spanish article (the English article instead says the Apertura champion plays the Clausura champion). No 2026-27 calendar exists in any source I could reach: the 07-17/05-16 window in the database is inherited from Liga Primera and unverified for this division, and the real rounds are unknown. Relegation to Tercera División exists (infobox) but its rule is not stated. Row covers the whole annual cycle, both phases."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "country": "Peru",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "TDeC",
+      "season": "2026",
+      "structure": "two_phases",
+      "phases": [
+        {"label": "Torneo Apertura", "start_md": "01-30", "end_md": "05-31", "precision": "day"},
+        {"label": "Torneo Clausura", "start_md": "07-17", "end_md": "11-22", "precision": "day"}
+      ],
+      "points_carry": "full",
+      "champion": "playoff",
+      "playoff": {"teams": 4, "window": null},
+      "relegation": "aggregate",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Liga1_2026_(Per%C3%BA)",
+      "quote": "El Torneo Apertura 2026 fue el primero de los dos torneos cortos que conformaron la Liga1 2026. Comenzó el 30 de enero y finalizó el 31 de mayo. (https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Per%C3%BA))",
+      "confidence": "high",
+      "note": "18 clubs; Apertura and Clausura are 17-round single round-robins and their points sum into the Tabla Acumulada. Clausura, English Wikipedia: 'being held from 17 July to 22 November 2026'. Title play-off: Apertura winner + Clausura winner + the top two of the aggregate table (other than those winners) play two-legged semi-finals and final; the bracket shrinks when a winner is also top-two and is skipped when one club wins both tournaments. Play-off dates are not published (Clausura winner only registered on 22 November, so the final is in late November/December). Bottom two of the aggregate table (17th, 18th) are relegated."
+    },
+    {
+      "id": "PER2",
+      "season": "2026",
+      "structure": "split",
+      "phases": [
+        {"label": "Fase Regional", "start_md": "03-27", "end_md": "09-13", "precision": "day"},
+        {"label": "Fase Final", "start_md": "09-25", "end_md": "10-31", "precision": "day"},
+        {"label": "Play-offs", "start_md": "11-14", "end_md": "12-09", "precision": "day"}
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {"teams": 4, "window": "2026-11-14..2026-12-09"},
+      "relegation": "per_phase",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Liga2_2026_(Per%C3%BA)",
+      "quote": "Los seis primeros equipos del Grupo 1 y del Grupo 2 clasificarán a la siguiente etapa, denominada Fase Final. En esta instancia se conformarán tres Grupos Campeonato, cada uno integrado por cuatro equipos.",
+      "confidence": "high",
+      "note": "No Apertura/Clausura. 18 clubs in two geographic groups of 9 (18 rounds, 27 Mar - 13 Sep 2026); top 6 of each go to three championship groups of 4 (6 rounds, 25 Sep - 31 Oct) and the rest to two relegation trios. Points do not carry: the Final stage starts with bonus points (+2 for group winners and the best runner-up, +1 for the other runner-up and third places, -1 for ninth places). Play-offs: the three group winners plus the best runner-up (4 teams), two-legged semi-finals 14-15 and 21-22 Nov, final and repechaje 28-29 Nov / 5-6 Dec, single-match subcampeonato 9 Dec (2 promotions). Relegation: last of each relegation trio (2 down)."
+    },
+    {
+      "id": "PLI3",
+      "season": "2026",
+      "structure": "split",
+      "phases": [
+        {"label": "Fase Regional", "start_md": "05-30", "end_md": "10-17", "precision": "day"},
+        {"label": "Fase Final", "start_md": "10-24", "end_md": "11-21", "precision": "day"},
+        {"label": "Play-offs", "start_md": null, "end_md": null, "precision": "month"}
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {"teams": 8, "window": "2026-11..2026-12"},
+      "relegation": "per_phase",
+      "row_is": "league",
+      "source": "https://es.wikipedia.org/wiki/Liga3_2026_(Per%C3%BA)",
+      "quote": "Los 37 equipos serán divididos en 4 grupos (Grupo 1, Grupo 2, Grupo 3, Grupo 4), de 9 o 10 integrantes, dependiendo la distribución geográfica y la conectividad donde se ubique cada club.",
+      "confidence": "high",
+      "note": "The real third tier is regional, which is why the database row holds 37 clubs (all four groups). Regional stage: 4 geographic groups of 9-10, double round-robin, 30 May - 17 Oct 2026, top 4 of each (16) advance. Final stage: 4 groups of 4 (24 Oct - 21 Nov) with +2/+1 bonus points instead of carried points, top 2 of each (8) advance. Play-offs: two-legged quarter-finals, semi-finals and final; the winner is champion and is promoted. Play-off dates are not published; the season closes in November per the infobox. Relegation: bottom two of each regional group (8 teams) drop to Copa Perú."
+    }
+  ]
+}

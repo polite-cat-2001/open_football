@@ -1,0 +1,41 @@
+{
+  "country": "Panama",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "PN1A",
+      "season": "2026-27",
+      "structure": "two_phases",
+      "phases": [
+        {
+          "label": "Apertura 2026",
+          "start_md": "07-24",
+          "end_md": "12-05",
+          "precision": "day",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1)",
+          "quote": "|fecha de inicio     = 24 de julio ... |fecha de cierre     = 5 de diciembre ... | RD1= Play-Offs <br> 17 y 18 de noviembre ... | RD3= Final Clausura <br> 5 de diciembre"
+        },
+        {
+          "label": "Clausura 2027",
+          "start_md": null,
+          "end_md": null,
+          "precision": "month",
+          "source": "https://lpf.com.pa/comunicado-oficial-torneo-clausura-2026/",
+          "quote": "El torneo Apertura se desarrollará de julio a diciembre, y el torneo Clausura se disputará de enero a mayo."
+        }
+      ],
+      "points_carry": "none",
+      "champion": "playoff",
+      "playoff": {
+        "teams": 6,
+        "window": "2026-11-17..2026-12-05"
+      },
+      "relegation": "aggregate",
+      "row_is": "phase",
+      "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1)",
+      "quote": "Se integra por dos conferencias de seis equipos por 16 jornadas del torneo ... Los seis clubes mejor ubicados en la tabla de posiciones clasifican a la fase eliminatoria. Los dos primeros tienen derecho a jugar semifinales directamente y los otros cuatro jugarán a partido único un play-off. ... El peor equipo de la Liga Panameña de Fútbol sumado el torneo Apertura y Clausura desciende",
+      "confidence": "high",
+      "note": "12 clubs in two 6-team conferences, 16 rounds; the top 6 of the combined table reach the play-offs (17-18 November), the two conference winners go straight to the semi-finals and the final is a single match at the Rommel Fernandez on 5 December. 2026-27 is the first season on the July-December / January-May cycle (the previous Clausura 2026, 16 Jan - 23 May, was a transition tournament with no promotion or relegation), so the second phase is Clausura 2027, January-May, with no dates published yet. Relegation is on the combined Apertura + Clausura table. The database row holds only the Apertura (24 July - 5 December)."
+    }
+  ]
+}
