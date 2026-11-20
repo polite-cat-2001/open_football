@@ -1,0 +1,38 @@
+{
+  "country": "Venezuela",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "VZ1C",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": "11-29",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Clausura_2026_(Venezuela)",
+          "quote": "Fecha 31 de julio – 29 de noviembre",
+          "note": "Phase row: the Clausura, the second of the two 2026 short tournaments; 29 November 2026 is the scheduled single-match final (Deportivo Táchira v Carabobo, Pueblo Nuevo). The found day coincides with the calendar default the asset held, but this is the real date. The Grand Final between the Apertura and Clausura winners follows in December."
+        }
+      ]
+    },
+    {
+      "id": "VN2A",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "low",
+          "source": "https://es.wikipedia.org/wiki/Segunda_Divisi%C3%B3n_de_Venezuela_2026",
+          "quote": "Fecha de inicio 21 de febrero",
+          "note": "Liga FUTVE 2 is a calendar-year second division (Apertura + Clausura + Final Absoluta), not a phase of the top flight; the record was inherited from the Primera División article and never described it. The 2026 article is current only through the Apertura (start 21 February) and publishes neither a Clausura window nor a season closing date, so no day and no month can be sourced."
+        }
+      ]
+    }
+  ]
+}

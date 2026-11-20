@@ -1,0 +1,54 @@
+{
+  "country": "Slovakia",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "SLO1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-15",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://sk.wikipedia.org/wiki/Nik%C3%A9_liga_2026/2027",
+          "quote": "|koniec                 = 15. máj 2027",
+          "note": "Exact closing day of the 2026-27 season (round 32, last of the 10-round championship group). Corroborated by the league calendar summary: 'Jarná časť odštartuje 6. februára 2027 ... Následná desaťkolová nadstavba začne 6. marca a celá sezóna vyvrcholí 15. mája 2027.' (hetrik.sk, quoting nikeliga.sk's 'Termínová listina jar 2027'). Previous season ended 16 May 2026, consistent."
+        }
+      ]
+    },
+    {
+      "id": "SK2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-15",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://sk.wikipedia.org/wiki/2._slovensk%C3%A1_futbalov%C3%A1_liga_2025/2026",
+          "quote": "|koniec               = 15. máj 2026",
+          "note": "Record inherited from SLO1 in the asset. No day for 2026-27: the sk 2026/2027 article does not exist (redlink from 'Niké liga 2026/2027'); en infobox 'July 2026 – May 2027' only. Value is the previous season's last day (15 May 2026) used as a proxy. MONACObet liga (2. liga) is the senior second tier, 16 clubs."
+        }
+      ]
+    },
+    {
+      "id": "SK19",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://sk.wikipedia.org/wiki/Nik%C3%A9_liga_2026/2027",
+          "quote": "|koniec                 = 15. máj 2027",
+          "note": "SK19 is the Slovak national under-19 championship of the professional clubs' youth sides, not a senior league. No season or competition article exists ('1. liga dorastu', 'Dorastenecká liga', 'Slovak U19 League' all missing on sk/en Wikipedia) and no published season window was found. The quoted line is the SLO1 window the asset's 07-25 start and end were inherited from, not this competition's own window. No proxy used."
+        }
+      ]
+    }
+  ]
+}

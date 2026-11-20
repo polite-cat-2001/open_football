@@ -1,0 +1,22 @@
+{
+  "country": "Tunisia",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "TUN1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-22",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://fr.wikipedia.org/wiki/Championnat_de_Tunisie_de_football_2026-2027",
+          "quote": "Date | Du 22 août 2026 au 22 mai 2027",
+          "note": "National-language (fr) article: infobox 'Du 22 août 2026 au 22 mai 2027', body 'La saison débute le 22 août 2026 et se termine le 22 mai 2027.' English Wikipedia only says 'Dates | 22 August 2026 – 2027'. 22 May 2027 = 05-22; the asset's 05-23 was a class default."
+        }
+      ]
+    }
+  ]
+}

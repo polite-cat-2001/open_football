@@ -1,0 +1,54 @@
+{
+  "country": "Serbia",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "SER1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-24",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Serbian_SuperLiga",
+          "quote": "| dates = 19 July 2025 – 24 May 2026",
+          "note": "No day for 2026-27: sr infobox 'сезона_почела = 17. јула 2026.' with 'сезона_завршена = 2027.'; en infobox '17 July 2026 –' (start only). Rounds 27-31 (championship/relegation round after the split) carry no date in the sr article either. Value is the previous season's last day (24 May 2026) used as a proxy."
+        }
+      ]
+    },
+    {
+      "id": "SER2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-29",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://sr.wikipedia.org/wiki/%D0%9F%D1%80%D0%B2%D0%B0_%D0%BB%D0%B8%D0%B3%D0%B0_%D0%A1%D1%80%D0%B1%D0%B8%D1%98%D0%B5_%D1%83_%D1%84%D1%83%D0%B4%D0%B1%D0%B0%D0%BB%D1%83_2025/26.",
+          "quote": "| '''Сезона завршена''' || 29. маја 2026.",
+          "note": "Record inherited from SER1 in the asset. No day for 2026-27: sr infobox 'сезона_почела = 31. јул 2026.' with 'сезона_завршена = 2027.'; en infobox 'dates = 31 July 2026 –'. Proxy is the previous season's *season* end, which includes the promotion play-off (last league round 17 May 2026, play-off matches 22/24 and 29 May 2026)."
+        }
+      ]
+    },
+    {
+      "id": "SB19",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serbian_SuperLiga",
+          "quote": "| dates = 17 July 2026 –",
+          "note": "SB19 is the Serbian national under-19 championship of SuperLiga and First League youth sides, not a senior league. No season article exists for it ('Омладинска лига Србије', 'Омладинска лига Србије 2026/27.', 'Serbian U19 League' all missing on sr/en Wikipedia) and no fixture list was found. The quoted line is the SER1 window that the asset's 07-17 start was inherited from, not this competition's own window. No proxy used - a youth competition's calendar is not derivable from the senior one."
+        }
+      ]
+    }
+  ]
+}

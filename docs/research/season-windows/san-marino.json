@@ -1,0 +1,22 @@
+{
+  "country": "San Marino",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "SMR1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "month",
+          "proxy": false,
+          "confidence": "low",
+          "source": "https://it.wikipedia.org/wiki/Campionato_Sammarinese_2026-2027",
+          "quote": "|data inizio = 28 agosto 2026 |data fine = maggio 2027 ... iniziato il 28 agosto 2026 e con termine previsto nel maggio successivo",
+          "note": "The 2026-27 article now exists (the asset note said 404) and supersedes the 2025-26 fallback, but it still gives only 'May 2027' for the finish, so no day can be filled. The 2025-26 season did end on an exact day (26 April 2026, per Campionato Sammarinese 2025-2026), but that is April and contradicts the published month, so it is not used as a proxy. Format is unchanged: 16 teams, single 30-round table, then title/European play-offs."
+        }
+      ]
+    }
+  ]
+}

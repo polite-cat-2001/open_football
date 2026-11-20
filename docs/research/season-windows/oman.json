@@ -1,0 +1,33 @@
+{
+  "country": "Oman",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "OM1L",
+      "fields": [
+        {
+          "field": "start_md",
+          "current": "08-18",
+          "found": "08-30",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://omannews.gov.om/topics/ar/8/show/472745/",
+          "quote": "مسقط في 29 أغسطس 2026 /العُمانية/ تنطلق غدًا الأحد منافسات الجولة الأولى من دوري جندال لكرة القدم للموسم الرياضي 2026/2027، بإقامة 3 مباريات",
+          "note": "OM1L is the Oman Professional League, now the Jindal League. No 2026-27 season article exists on English or Arabic Wikipedia (the latest is 2024-25, the asset's proxy), so this comes from the state news agency's round-1 report dated 29 August 2026 ('tomorrow, Sunday' = 30 August 2026); a match-schedule roundup states the same day outright ('انطلق دوري جندال ... يوم الأحد 30 أغسطس 2026') and puts round 1 across 30-31 August. The Oman League Association's June 2026 calendar had announced a 27 August start, which the opener did not keep - the actual first match day was 30 August."
+        },
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-31",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://alwatan.om/article/42717/%D8%B1%D8%A7%D8%A8%D8%B7%D8%A9-%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D9%8A-%D8%A7%D9%84%D8%B9%D9%85%D8%A7%D9%86%D9%8A-%D8%AA%D9%83%D8%B4%D9%81-%D8%B9%D9%86-%D8%A7%D9%84%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC-%D8%A7%D9%84%D8%B2%D9%85%D9%86%D9%8A-%D9%84%D9%85%D8%B3%D8%A7%D8%A8%D9%82%D8%A7%D8%AA-%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%85-%D8%A7%D9%84%D9%83%D8%B1%D9%88%D9%8A-2026-2027",
+          "quote": "فسينطلق دوري جندال في 27 أغسطس من هذا العام وسينتهي في 31 مايو 2027",
+          "note": "Al-Watan (15 June 2026) reports the Oman League Association's season calendar: the Jindal League ends 31 May 2027, the association's whole competition year running 13 August 2026 - 31 May 2027. It is a scheduled finish, not a played one - the league was only at round 3 when it broke for the Gulf Cup - so medium confidence. No fixture list with the last round's day was reachable."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "country": "Romania",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "RO1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "month",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://www.gsp.ro/fotbal/liga-1/lpf-program-etapa-21-superliga-2027-993536.html",
+          "quote": "Sezonul se va încheia, odată cu a zecea etapă de play-off, în weekendul 29-30 mai 2027.",
+          "note": "Season end is announced as a weekend (play-off round 10, 29-30 May 2027), not a single day, so no MM-DD is recorded. Wikipedia gives only the month: ro infobox '17 iulie 2026 - mai 2027', en infobox '18 July 2026 – May 2027'. LPF's own fixture list confirms the regular season ends on 13 March 2027 (etapa 30, all matches Saturday) but the play-off calendar is drawn after the split. No proxy used: the target season's own announced range (29-30 May) contradicts the previous season's last day (25 May 2026), so a proxy would be less accurate than the note itself."
+        }
+      ]
+    },
+    {
+      "id": "RO2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-16",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://ro.wikipedia.org/wiki/Liga_a_II-a_2025-2026",
+          "quote": "| dates                      = {{nobreak|2 august 2025 - 16 mai 2026}}",
+          "note": "Record inherited from RO1 in the asset. No day for 2026-27: ro infobox '1 august 2026 - mai 2027'; en 2026–27 Liga II infobox '1 August 2026 – May 2027'. Value is the previous season's last day (16 May 2026) used as a proxy. Liga II (22 clubs, 21-round regular season plus play-off/play-out groups) has no published 2026-27 end date."
+        }
+      ]
+    }
+  ]
+}

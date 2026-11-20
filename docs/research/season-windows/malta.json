@@ -1,0 +1,54 @@
+{
+  "country": "Malta",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "MT1N",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-16",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Maltese_Premier_League",
+          "quote": "|dates = 16 August 2025 – 16 May 2026",
+          "note": "The league is played in phases (an Opening Round of 11 games, then Closing Round split into Top Six / Bottom Six), and the season end is the Closing Round final. Nothing is published for 2026-27: that article's infobox reads 'dates = 17 August 2026 –' and the Malta Premier League / MFA Match Centre release fixtures in matchday blocks (1-6, then 1-11, then 12-16 in November 2026), so no end day exists. Value is a proxy from the previous season (same 12-team, two-phase format)."
+        }
+      ]
+    },
+    {
+      "id": "MAL2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "04-23",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Maltese_Challenge_League",
+          "quote": "| dates = 13 September 2025 – 23 April 2026",
+          "note": "MAL2 is the second-tier Challenge League, not the Premier League whose window it inherits in the asset. Its own 2026-27 article gives 'dates = 11 September 2026 – April 2027' (month only, so no day). Value is a proxy from the same competition's previous season, which also finished in April; the inherited 05-23 (a May Premier League default) is wrong for this league."
+        }
+      ]
+    },
+    {
+      "id": "MAL3",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-11",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_National_League_I_(Malta)",
+          "quote": "| dates = 18 September 2026 – 11 May 2027",
+          "note": "MAL3 is the third-tier amateur competition (Maltese National League / BOV National League 1), currently carrying the Premier League window from MT1N. Its own 2026-27 article gives an exact closing day, 11 May 2027; the prose only says 'between 18 September 2026 and May 2027', so the infobox day is taken at medium confidence."
+        }
+      ]
+    }
+  ]
+}

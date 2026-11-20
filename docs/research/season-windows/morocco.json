@@ -1,0 +1,22 @@
+{
+  "country": "Morocco",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "MAR1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Botola_Pro",
+          "quote": "dates = 24 September 2026 – TBD 2027",
+          "note": "The infobox end is literally 'TBD 2027'. Fixtures were released on 28 August 2026 and the article body states no closing date, so no month or day exists; the 05-23 default stays."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "country": "Nicaragua",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "NC1A",
+      "fields": [
+        {
+          "field": "start_md",
+          "current": "03-06",
+          "found": "07-17",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua)",
+          "quote": "Fecha de inicio | 17 de julio de 2026",
+          "note": "This row is one phase: the Apertura of the split season (the Clausura sits in a separate row). The Apertura 2026 article (107th edition, opening the 2026-27 season) gives 17 July 2026; matchday 1 was played on 17-18 July (Diriangén-San Marcos and Real Estelí-UNAN on 17 July). 17 July 2026 = 07-17; the asset's 03-06 was a class default. The article's closing entry is only 'diciembre de 2026', so the phase final has no exact day."
+        },
+        {
+          "field": "end_md",
+          "current": "05-16",
+          "found": null,
+          "precision": "month",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua)",
+          "quote": "Fecha de cierre | diciembre de 2026",
+          "note": "Not in 'filled' — recorded because the row mixes phases: its 05-16 is the Clausura 2026 final (first half of 2026, see the asset note), while this Apertura row closes in December 2026. The Apertura article gives only the month, so no day can replace it; the value is left alone."
+        }
+      ]
+    },
+    {
+      "id": "NC2A",
+      "fields": [
+        {
+          "field": "start_md",
+          "current": "03-06",
+          "found": "07-17",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua)",
+          "quote": "Fecha de inicio | 17 de julio de 2026",
+          "note": "Second-tier row inherited from NC1A, same phase: the Apertura 2026 of the split season (the Clausura sits in a separate row). Start = 17 July 2026 (matchday 1). The Apertura's close is given only as 'diciembre de 2026', so no exact final date exists. 17 July 2026 = 07-17; the asset's 03-06 was a class default."
+        },
+        {
+          "field": "end_md",
+          "current": "05-16",
+          "found": null,
+          "precision": "month",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua)",
+          "quote": "Fecha de cierre | diciembre de 2026",
+          "note": "Not in 'filled' — recorded because the row mixes phases: 05-16 is the Clausura 2026 final, not the Apertura's; the Apertura closes in December 2026 and the article gives only the month."
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
- "_comment": "Season regulation per league, keyed by database league id. Window/transfer months are MM-DD and recur every year. Collected from Wikipedia season articles on 2026-11-20; 'filled' marks values replaced by the class default because the source did not state them, 'confidence' marks proxy seasons.",
+ "_comment": "Season regulation per league, keyed by database league id. Window/transfer months are MM-DD and recur every year. Collected from Wikipedia season articles on 2026-11-20; 'filled' marks values replaced by the class default because the source did not state them, 'confidence' marks proxy seasons, 'inherited_from' marks a lower division that copies the country's top-division window without its own source.",
  "_generated": "2026-11-20",
  "_defaults": {
   "autumn": {
@@ -29,7 +29,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Russian_Premier_League",
-   "note": "16 teams, single round-robin (30 matches each). 15th-16th relegated directly; 13th-14th play home-and-away play-offs vs 3rd-4th of the First League. Article does not publish the classification tiebreak order (only 'points' confirmed). No transfer window dates.",
+   "note": "Window inherited from RU1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "RU1"
   },
   "510": {
@@ -55,7 +55,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Eredivisie",
-   "note": "Prose: games scheduled between 7 August 2026 and 23 May 2027. Tiebreak copied verbatim from class_rules, including the source's odd '2) Less loss points' and its duplicated '9)' numbering. 18-team single table with European competition play-offs; bottom two relegated directly and 16th enters the promotion/relegation play-offs (2025-26: Volendam, NAC Breda and Heracles went down, i.e. two direct plus the play-off loser).",
+   "note": "Window inherited from NL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NL1"
   },
   "A1": {
@@ -108,7 +108,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_A-League_Men",
-   "note": "Infobox dates 16 October 2026 – 5/6 June 2027 (grand final weekend); end recorded as 6 June 2027. 12 clubs, 26-match regular season then top-six finals series (no table split). Closed league: no promotion/relegation. Article lists no transfer-window dates.",
+   "note": "Window inherited from AUS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "AUS1"
   },
   "A2VI": {
@@ -138,7 +138,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_A-League_Men",
-   "note": "Infobox dates 16 October 2026 – 5/6 June 2027 (grand final weekend); end recorded as 6 June 2027. 12 clubs, 26-match regular season then top-six finals series (no table split). Closed league: no promotion/relegation. Article lists no transfer-window dates.",
+   "note": "Window inherited from AUS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "AUS1"
   },
   "ALB1": {
@@ -185,7 +185,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Kategoria_Superiore",
-   "note": "10 teams split into championship round (1-6) and relegation round (7-10); article mentions a relegation play-out but does not state how many go down. Count taken from 2025-26 (9th play-out, 10th relegated) - treat as inferred. No transfer window dates.",
+   "note": "Window inherited from ALB1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ALB1"
   },
   "ALG1": {
@@ -252,7 +252,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
-   "note": "Season = Torneo Apertura + Torneo Clausura (30 teams in two zones of 15, single round-robin plus two interzonal games, top 8 per zone to single-leg knockout). Two relegated: one by the coefficients table, one as last of the 2026 aggregate table (extra matches if level on points). Tiebreak order taken from the aggregate-table class_rules. No transfer-window dates in the article.",
+   "note": "Window inherited from ARGC; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ARGC"
   },
   "AR3R": {
@@ -274,7 +274,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
-   "note": "Season = Torneo Apertura + Torneo Clausura (30 teams in two zones of 15, single round-robin plus two interzonal games, top 8 per zone to single-leg knockout). Two relegated: one by the coefficients table, one as last of the 2026 aggregate table (extra matches if level on points). Tiebreak order taken from the aggregate-table class_rules. No transfer-window dates in the article.",
+   "note": "Window inherited from ARGC; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ARGC"
   },
   "ARG2": {
@@ -296,7 +296,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
-   "note": "Season = Torneo Apertura + Torneo Clausura (30 teams in two zones of 15, single round-robin plus two interzonal games, top 8 per zone to single-leg knockout). Two relegated: one by the coefficients table, one as last of the 2026 aggregate table (extra matches if level on points). Tiebreak order taken from the aggregate-table class_rules. No transfer-window dates in the article.",
+   "note": "Window inherited from ARGC; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ARGC"
   },
   "ARGC": {
@@ -370,7 +370,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Armenian_Premier_League",
-   "note": "Infobox 'dates = 31 July 2026 - 2027' gives only the year for the finish, so end is null. League expanded from 10 to 12 teams (FFA vote, 8 June 2026). Table marks only 12th place as relegation, no play-off row. No transfer-window dates stated.",
+   "note": "Window inherited from ARM1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ARM1"
   },
   "AUS1": {
@@ -454,7 +454,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Belgian_Pro_League",
-   "note": "Infobox '7 August 2026 – 23 May 2027'. First season after the reform: 18 teams, plain round-robin, play-offs abolished after 17 seasons, bottom two relegated to the Challenger Pro League, no relegation play-off. No tiebreak order and no transfer-window dates in the article.",
+   "note": "Window inherited from BE1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "BE1"
   },
   "BE21": {
@@ -470,7 +470,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Belgian_Pro_League",
-   "note": "Infobox '7 August 2026 – 23 May 2027'. First season after the reform: 18 teams, plain round-robin, play-offs abolished after 17 seasons, bottom two relegated to the Challenger Pro League, no relegation play-off. No tiebreak order and no transfer-window dates in the article.",
+   "note": "Window inherited from BE1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "BE1"
   },
   "BE3A": {
@@ -486,7 +486,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Belgian_Pro_League",
-   "note": "Infobox '7 August 2026 – 23 May 2027'. First season after the reform: 18 teams, plain round-robin, play-offs abolished after 17 seasons, bottom two relegated to the Challenger Pro League, no relegation play-off. No tiebreak order and no transfer-window dates in the article.",
+   "note": "Window inherited from BE1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "BE1"
   },
   "BE3V": {
@@ -502,7 +502,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Belgian_Pro_League",
-   "note": "Infobox '7 August 2026 – 23 May 2027'. First season after the reform: 18 teams, plain round-robin, play-offs abolished after 17 seasons, bottom two relegated to the Challenger Pro League, no relegation play-off. No tiebreak order and no transfer-window dates in the article.",
+   "note": "Window inherited from BE1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "BE1"
   },
   "BEY1": {
@@ -518,7 +518,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Belgian_Pro_League",
-   "note": "Infobox '7 August 2026 – 23 May 2027'. First season after the reform: 18 teams, plain round-robin, play-offs abolished after 17 seasons, bottom two relegated to the Challenger Pro League, no relegation play-off. No tiebreak order and no transfer-window dates in the article.",
+   "note": "Window inherited from BE1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "BE1"
   },
   "BO1A": {
@@ -590,7 +590,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Campeonato_Brasileiro_S%C3%A9rie_A",
-   "note": "Single double round-robin, 20 teams, with a month-and-a-half break for the 2026 FIFA World Cup. Last four relegated to Série B. Article mentions a mid-season transfer window only in passing (foreign-player table), with no dates.",
+   "note": "Window inherited from BRA1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "BRA1"
   },
   "BU1": {
@@ -641,7 +641,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_First_Professional_Football_League_(Bulgaria)",
-   "note": "14 teams (reduced from 16 this season), split into championship group (1-4), Conference League group (5-8) and relegation group (9-14). Article does not state how many drop from the relegation group in 2026-27; 14-team league with two promoted sides implies 1 direct + 1 play-off (2025-26 had 13th play-off, 14th-16th direct). Treat relegation count as inferred. No transfer window dates.",
+   "note": "Window inherited from BU1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "BU1"
   },
   "C1": {
@@ -688,7 +688,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Swiss_Super_League",
-   "note": "Dates from infobox; the article's format section has internally inconsistent years (writes '2026' where 2027 is meant). 12 teams play 3 rounds (33 matchdays), then split into championship group and relegation group of 6 (5 more matches, 38 total) with points carried over. Last in the relegation group relegated; second-to-last plays the relegation play-off (legs 1 and 4 June 2027, i.e. after the stated final day). No transfer-window dates in the article.",
+   "note": "Window inherited from C1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "C1"
   },
   "CDN1": {
@@ -741,7 +741,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Chinese_Super_League",
-   "note": "Article lists separate during-season and after-season orders; after-season order given here (during season: points, H2H points, H2H GD, H2H goals, GD, goals, previous-season ranking). 16 teams, positions 15-16 relegated. Transfer-window dates not stated (only 'pre-season'/'mid-season' windows mentioned).",
+   "note": "Window inherited from CSL; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "CSL"
   },
   "CHPR": {
@@ -765,7 +765,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Swiss_Super_League",
-   "note": "Dates from infobox; the article's format section has internally inconsistent years (writes '2026' where 2027 is meant). 12 teams play 3 rounds (33 matchdays), then split into championship group and relegation group of 6 (5 more matches, 38 total) with points carried over. Last in the relegation group relegated; second-to-last plays the relegation play-off (legs 1 and 4 June 2027, i.e. after the stated final day). No transfer-window dates in the article.",
+   "note": "Window inherited from C1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "C1"
   },
   "CL2B": {
@@ -791,7 +791,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_de_Primera",
-   "note": "Single double round-robin, 16 teams, 30 matchdays. Relegation count derived from the standings table (two-row 'Relegation to Liga de Ascenso' cell); the prose does not restate it. No transfer-window dates in the article.",
+   "note": "Window inherited from CLPD; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "CLPD"
   },
   "CL2F": {
@@ -817,7 +817,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_de_Primera",
-   "note": "Single double round-robin, 16 teams, 30 matchdays. Relegation count derived from the standings table (two-row 'Relegation to Liga de Ascenso' cell); the prose does not restate it. No transfer-window dates in the article.",
+   "note": "Window inherited from CLPD; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "CLPD"
   },
   "CL2Z": {
@@ -843,7 +843,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_de_Primera",
-   "note": "Single double round-robin, 16 teams, 30 matchdays. Relegation count derived from the standings table (two-row 'Relegation to Liga de Ascenso' cell); the prose does not restate it. No transfer-window dates in the article.",
+   "note": "Window inherited from CLPD; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "CLPD"
   },
   "CL3S": {
@@ -868,7 +868,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Chinese_Super_League",
-   "note": "Article lists separate during-season and after-season orders; after-season order given here (during season: points, H2H points, H2H GD, H2H goals, GD, goals, previous-season ranking). 16 teams, positions 15-16 relegated. Transfer-window dates not stated (only 'pre-season'/'mid-season' windows mentioned).",
+   "note": "Window inherited from CSL; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "CSL"
   },
   "CLO": {
@@ -893,7 +893,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Chinese_Super_League",
-   "note": "Article lists separate during-season and after-season orders; after-season order given here (during season: points, H2H points, H2H GD, H2H goals, GD, goals, previous-season ranking). 16 teams, positions 15-16 relegated. Transfer-window dates not stated (only 'pre-season'/'mid-season' windows mentioned).",
+   "note": "Window inherited from CSL; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "CSL"
   },
   "CLPD": {
@@ -950,7 +950,7 @@
    ],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Premier_League",
-   "note": "Infobox dates 21 Aug 2026 – 30 May 2027. Summer window 15 Jun–1 Sep 2026 (23:00 BST), winter 1 Jan–1 Feb 2027 (23:00 GMT), stated in prose. Tiebreak from class_rules: 1-3 points/GD/GF, then (only if champion/relegation/UEFA places undecided) 4.1 H2H points, 4.2 H2H away goals, 4.3 play-off at a neutral venue. Opening and final matchweeks were pushed a week later than usual because of the 2026 World Cup.",
+   "note": "Window inherited from GB1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GB1"
   },
   "CO22": {
@@ -974,7 +974,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_DIMAYOR",
-   "note": "Torneo Apertura (2026-I) and Torneo Finalización (2026-II), each with a first stage and knockout stage. Two relegated on the three-season average (relegation table covering 2024-I to 2026-II). No transfer-window dates in the article.",
+   "note": "Window inherited from COL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "COL1"
   },
   "COL1": {
@@ -1021,7 +1021,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Primeira_Liga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays a two-leg relegation play-off against the 3rd-placed team of Liga Portugal 2 (first leg 29 May 2027). No transfer-window dates in the article.",
+   "note": "Window inherited from PO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PO1"
   },
   "CPSB": {
@@ -1045,7 +1045,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Primeira_Liga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays a two-leg relegation play-off against the 3rd-placed team of Liga Portugal 2 (first leg 29 May 2027). No transfer-window dates in the article.",
+   "note": "Window inherited from PO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PO1"
   },
   "CPSC": {
@@ -1069,7 +1069,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Primeira_Liga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays a two-leg relegation play-off against the 3rd-placed team of Liga Portugal 2 (first leg 29 May 2027). No transfer-window dates in the article.",
+   "note": "Window inherited from PO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PO1"
   },
   "CPSD": {
@@ -1093,7 +1093,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Primeira_Liga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays a two-leg relegation play-off against the 3rd-placed team of Liga Portugal 2 (first leg 29 May 2027). No transfer-window dates in the article.",
+   "note": "Window inherited from PO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PO1"
   },
   "CRPD": {
@@ -1165,7 +1165,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Cypriot_First_Division",
-   "note": "14 teams: 26-round regular season, then championship round (1-6) and relegation round (7-14). Number of relegation places not restated for 2026-27; 2025-26 table relegates 12th-14th. Inferred. No transfer window dates.",
+   "note": "Window inherited from ZYP1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ZYP1"
   },
   "CZ3C": {
@@ -1190,7 +1190,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Czech_First_League",
-   "note": "16 teams, split after regular season into championship (1-6), middle (7-10) and relegation (11-16) groups. Lowest-ranked team relegated directly; 14th and 15th play a home-and-away play-out against 2nd and 3rd of the FNL. No transfer window dates in article.",
+   "note": "Window inherited from TS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "TS1"
   },
   "CZ3M": {
@@ -1215,7 +1215,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Czech_First_League",
-   "note": "16 teams, split after regular season into championship (1-6), middle (7-10) and relegation (11-16) groups. Lowest-ranked team relegated directly; 14th and 15th play a home-and-away play-out against 2nd and 3rd of the FNL. No transfer window dates in article.",
+   "note": "Window inherited from TS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "TS1"
   },
   "DK1": {
@@ -1260,7 +1260,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Danish_Superliga",
-   "note": "Dates from infobox (season ends after the championship and relegation rounds). 12 teams: 22-round regular season, then championship round (top 6) and relegation round (bottom 6) with points carried over in full; 11th and 12th of the relegation round are relegated, no relegation play-off (the separate European play-off is for Conference League qualification). No transfer-window dates in the article.",
+   "note": "Window inherited from DK1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "DK1"
   },
   "DK3O": {
@@ -1283,7 +1283,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Danish_Superliga",
-   "note": "Dates from infobox (season ends after the championship and relegation rounds). 12 teams: 22-round regular season, then championship round (top 6) and relegation round (bottom 6) with points carried over in full; 11th and 12th of the relegation round are relegated, no relegation play-off (the separate European play-off is for Conference League qualification). No transfer-window dates in the article.",
+   "note": "Window inherited from DK1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "DK1"
   },
   "DK4L": {
@@ -1306,7 +1306,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Danish_Superliga",
-   "note": "Dates from infobox (season ends after the championship and relegation rounds). 12 teams: 22-round regular season, then championship round (top 6) and relegation round (bottom 6) with points carried over in full; 11th and 12th of the relegation round are relegated, no relegation play-off (the separate European play-off is for Conference League qualification). No transfer-window dates in the article.",
+   "note": "Window inherited from DK1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "DK1"
   },
   "E3G1": {
@@ -1330,7 +1330,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_La_Liga",
-   "note": "Dates from infobox. Tiebreak taken from the transcluded league-table template's class_rules (article body has no separate rules section); head-to-head only after all matches between the tied teams are played. 20 teams, bottom 3 relegated directly, no relegation play-off. No transfer-window dates stated in the article.",
+   "note": "Window inherited from ES1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ES1"
   },
   "E3G2": {
@@ -1354,7 +1354,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_La_Liga",
-   "note": "Dates from infobox. Tiebreak taken from the transcluded league-table template's class_rules (article body has no separate rules section); head-to-head only after all matches between the tied teams are played. 20 teams, bottom 3 relegated directly, no relegation play-off. No transfer-window dates stated in the article.",
+   "note": "Window inherited from ES1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ES1"
   },
   "E4G2": {
@@ -1378,7 +1378,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_La_Liga",
-   "note": "Dates from infobox. Tiebreak taken from the transcluded league-table template's class_rules (article body has no separate rules section); head-to-head only after all matches between the tied teams are played. 20 teams, bottom 3 relegated directly, no relegation play-off. No transfer-window dates stated in the article.",
+   "note": "Window inherited from ES1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ES1"
   },
   "E4G3": {
@@ -1402,7 +1402,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_La_Liga",
-   "note": "Dates from infobox. Tiebreak taken from the transcluded league-table template's class_rules (article body has no separate rules section); head-to-head only after all matches between the tied teams are played. 20 teams, bottom 3 relegated directly, no relegation play-off. No transfer-window dates stated in the article.",
+   "note": "Window inherited from ES1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ES1"
   },
   "E4G4": {
@@ -1426,7 +1426,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_La_Liga",
-   "note": "Dates from infobox. Tiebreak taken from the transcluded league-table template's class_rules (article body has no separate rules section); head-to-head only after all matches between the tied teams are played. 20 teams, bottom 3 relegated directly, no relegation play-off. No transfer-window dates stated in the article.",
+   "note": "Window inherited from ES1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ES1"
   },
   "E4G5": {
@@ -1450,7 +1450,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_La_Liga",
-   "note": "Dates from infobox. Tiebreak taken from the transcluded league-table template's class_rules (article body has no separate rules section); head-to-head only after all matches between the tied teams are played. 20 teams, bottom 3 relegated directly, no relegation play-off. No transfer-window dates stated in the article.",
+   "note": "Window inherited from ES1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ES1"
   },
   "EC1N": {
@@ -1495,7 +1495,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_LigaPro_Serie_A",
-   "note": "16 teams play a 30-match first stage, then split by placement into a championship hexagonal (top 6), a Copa Sudamericana quadrangular (7th-10th) and a relegation hexagonal (bottom 6) that decides the two relegated teams. Not Apertura/Clausura. No transfer-window dates in the article.",
+   "note": "Window inherited from EC1N; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "EC1N"
   },
   "EE19": {
@@ -1522,13 +1522,13 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Meistriliiga",
-   "note": "Calendar-year season: 7 March – 7 November 2026. 10 teams, single table; 9th to two-legged Meistriliiga play-off vs Esiliiga runners-up, 10th relegated directly. No transfer window dates.",
+   "note": "Window inherited from EST1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "EST1"
   },
   "EGY1": {
    "start_md": "08-21",
-   "end_md": "05-23",
-   "filled": "end",
+   "end_md": "05-28",
+   "filled": "",
    "phases": "split",
    "relegation": {
     "slots": 4,
@@ -1542,7 +1542,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Egyptian_Premier_League",
-   "note": "Infobox dates field is '21 August 2026 –' with no end date. 20 teams; phase 1 single-leg round robin, then split into a championship group (1-6) and relegation group (7-20); four teams in the relegation group are relegated. No end date or transfer windows stated."
+   "note": "Infobox dates field is '21 August 2026 –' with no end date. 20 teams; phase 1 single-leg round robin, then split into a championship group (1-6) and relegation group (7-20); four teams in the relegation group are relegated. No end date or transfer windows stated. end_md from https://news.22bet.com/news/egypt-premier-league-2026-27-season-guide-betting-preview/: \"28 May 2027 | Season Concludes\"."
   },
   "ELME": {
    "start_md": "03-07",
@@ -1568,7 +1568,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Meistriliiga",
-   "note": "Calendar-year season: 7 March – 7 November 2026. 10 teams, single table; 9th to two-legged Meistriliiga play-off vs Esiliiga runners-up, 10th relegated directly. No transfer window dates.",
+   "note": "Window inherited from EST1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "EST1"
   },
   "ES1": {
@@ -1615,7 +1615,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_La_Liga",
-   "note": "Dates from infobox. Tiebreak taken from the transcluded league-table template's class_rules (article body has no separate rules section); head-to-head only after all matches between the tied teams are played. 20 teams, bottom 3 relegated directly, no relegation play-off. No transfer-window dates stated in the article.",
+   "note": "Window inherited from ES1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ES1"
   },
   "EST1": {
@@ -1668,7 +1668,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Meistriliiga",
-   "note": "Calendar-year season: 7 March – 7 November 2026. 10 teams, single table; 9th to two-legged Meistriliiga play-off vs Esiliiga runners-up, 10th relegated directly. No transfer window dates.",
+   "note": "Window inherited from EST1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "EST1"
   },
   "EST3": {
@@ -1695,7 +1695,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Meistriliiga",
-   "note": "Calendar-year season: 7 March – 7 November 2026. 10 teams, single table; 9th to two-legged Meistriliiga play-off vs Esiliiga runners-up, 10th relegated directly. No transfer window dates.",
+   "note": "Window inherited from EST1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "EST1"
   },
   "ETP1": {
@@ -1730,7 +1730,7 @@
    "transfer_windows": [],
    "confidence": "low",
    "source": "https://en.wikipedia.org/wiki/2025_Faroe_Islands_Premier_League",
-   "note": "No 2026 season article exists on English Wikipedia (league renamed Meistaradeildin menn from 2026). Dates and rules shown are from the 2025 season (7 March - 25 October 2025), the closest available proxy: 10 teams, single table, bottom two relegated (Suðuroy, TB), no play-off. Treat the 2026 dates as unknown. No transfer-window dates in the article.",
+   "note": "Window inherited from FARO; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FARO"
   },
   "FARO": {
@@ -1796,7 +1796,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Veikkausliiga",
-   "note": "Dates from infobox. 12 teams: regular season then championship round (top 6) and relegation round (bottom 6). Last-placed team of the relegation round is relegated to Ykkösliiga, second-to-last plays the Veikkausliiga play-off; infobox lists one relegated club (IFK Mariehamn). No transfer-window dates in the article.",
+   "note": "Window inherited from FI1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FI1"
   },
   "FIYK": {
@@ -1820,7 +1820,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Veikkausliiga",
-   "note": "Dates from infobox. 12 teams: regular season then championship round (top 6) and relegation round (bottom 6). Last-placed team of the relegation round is relegated to Ykkösliiga, second-to-last plays the Veikkausliiga play-off; infobox lists one relegated club (IFK Mariehamn). No transfer-window dates in the article.",
+   "note": "Window inherited from FI1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FI1"
   },
   "FR1": {
@@ -1851,7 +1851,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Ligue_1",
-   "note": "Infobox '21 August 2026 – 29 May 2027'. 18 teams, single table. The article is still sparse: no tiebreak order and no transfer-window dates (league table not populated yet). 2 direct relegations + 16th-place relegation play-off vs the Ligue 2 play-off winner, as documented in the 2025-26 article's 'Relegation play-offs' section (Nice, 16th, v the Ligue 2 play-off winner).",
+   "note": "Window inherited from FR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FR1"
   },
   "FR3": {
@@ -1867,7 +1867,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Ligue_1",
-   "note": "Infobox '21 August 2026 – 29 May 2027'. 18 teams, single table. The article is still sparse: no tiebreak order and no transfer-window dates (league table not populated yet). 2 direct relegations + 16th-place relegation play-off vs the Ligue 2 play-off winner, as documented in the 2025-26 article's 'Relegation play-offs' section (Nice, 16th, v the Ligue 2 play-off winner).",
+   "note": "Window inherited from FR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FR1"
   },
   "FR4A": {
@@ -1883,7 +1883,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Ligue_1",
-   "note": "Infobox '21 August 2026 – 29 May 2027'. 18 teams, single table. The article is still sparse: no tiebreak order and no transfer-window dates (league table not populated yet). 2 direct relegations + 16th-place relegation play-off vs the Ligue 2 play-off winner, as documented in the 2025-26 article's 'Relegation play-offs' section (Nice, 16th, v the Ligue 2 play-off winner).",
+   "note": "Window inherited from FR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FR1"
   },
   "FR4B": {
@@ -1899,7 +1899,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Ligue_1",
-   "note": "Infobox '21 August 2026 – 29 May 2027'. 18 teams, single table. The article is still sparse: no tiebreak order and no transfer-window dates (league table not populated yet). 2 direct relegations + 16th-place relegation play-off vs the Ligue 2 play-off winner, as documented in the 2025-26 article's 'Relegation play-offs' section (Nice, 16th, v the Ligue 2 play-off winner).",
+   "note": "Window inherited from FR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FR1"
   },
   "FR4C": {
@@ -1915,7 +1915,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Ligue_1",
-   "note": "Infobox '21 August 2026 – 29 May 2027'. 18 teams, single table. The article is still sparse: no tiebreak order and no transfer-window dates (league table not populated yet). 2 direct relegations + 16th-place relegation play-off vs the Ligue 2 play-off winner, as documented in the 2025-26 article's 'Relegation play-offs' section (Nice, 16th, v the Ligue 2 play-off winner).",
+   "note": "Window inherited from FR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FR1"
   },
   "FR5E": {
@@ -1931,7 +1931,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Ligue_1",
-   "note": "Infobox '21 August 2026 – 29 May 2027'. 18 teams, single table. The article is still sparse: no tiebreak order and no transfer-window dates (league table not populated yet). 2 direct relegations + 16th-place relegation play-off vs the Ligue 2 play-off winner, as documented in the 2025-26 article's 'Relegation play-offs' section (Nice, 16th, v the Ligue 2 play-off winner).",
+   "note": "Window inherited from FR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FR1"
   },
   "FR5F": {
@@ -1947,7 +1947,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Ligue_1",
-   "note": "Infobox '21 August 2026 – 29 May 2027'. 18 teams, single table. The article is still sparse: no tiebreak order and no transfer-window dates (league table not populated yet). 2 direct relegations + 16th-place relegation play-off vs the Ligue 2 play-off winner, as documented in the 2025-26 article's 'Relegation play-offs' section (Nice, 16th, v the Ligue 2 play-off winner).",
+   "note": "Window inherited from FR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FR1"
   },
   "FR5G": {
@@ -1963,7 +1963,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Ligue_1",
-   "note": "Infobox '21 August 2026 – 29 May 2027'. 18 teams, single table. The article is still sparse: no tiebreak order and no transfer-window dates (league table not populated yet). 2 direct relegations + 16th-place relegation play-off vs the Ligue 2 play-off winner, as documented in the 2025-26 article's 'Relegation play-offs' section (Nice, 16th, v the Ligue 2 play-off winner).",
+   "note": "Window inherited from FR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FR1"
   },
   "GB1": {
@@ -2026,7 +2026,7 @@
    ],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Premier_League",
-   "note": "Infobox dates 21 Aug 2026 – 30 May 2027. Summer window 15 Jun–1 Sep 2026 (23:00 BST), winter 1 Jan–1 Feb 2027 (23:00 GMT), stated in prose. Tiebreak from class_rules: 1-3 points/GD/GF, then (only if champion/relegation/UEFA places undecided) 4.1 H2H points, 4.2 H2H away goals, 4.3 play-off at a neutral venue. Opening and final matchweeks were pushed a week later than usual because of the 2026 World Cup.",
+   "note": "Window inherited from GB1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GB1"
   },
   "GB21": {
@@ -2058,7 +2058,7 @@
    ],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Premier_League",
-   "note": "Infobox dates 21 Aug 2026 – 30 May 2027. Summer window 15 Jun–1 Sep 2026 (23:00 BST), winter 1 Jan–1 Feb 2027 (23:00 GMT), stated in prose. Tiebreak from class_rules: 1-3 points/GD/GF, then (only if champion/relegation/UEFA places undecided) 4.1 H2H points, 4.2 H2H away goals, 4.3 play-off at a neutral venue. Opening and final matchweeks were pushed a week later than usual because of the 2026 World Cup.",
+   "note": "Window inherited from GB1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GB1"
   },
   "GB3": {
@@ -2090,7 +2090,7 @@
    ],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Premier_League",
-   "note": "Infobox dates 21 Aug 2026 – 30 May 2027. Summer window 15 Jun–1 Sep 2026 (23:00 BST), winter 1 Jan–1 Feb 2027 (23:00 GMT), stated in prose. Tiebreak from class_rules: 1-3 points/GD/GF, then (only if champion/relegation/UEFA places undecided) 4.1 H2H points, 4.2 H2H away goals, 4.3 play-off at a neutral venue. Opening and final matchweeks were pushed a week later than usual because of the 2026 World Cup.",
+   "note": "Window inherited from GB1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GB1"
   },
   "GB4": {
@@ -2122,7 +2122,7 @@
    ],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Premier_League",
-   "note": "Infobox dates 21 Aug 2026 – 30 May 2027. Summer window 15 Jun–1 Sep 2026 (23:00 BST), winter 1 Jan–1 Feb 2027 (23:00 GMT), stated in prose. Tiebreak from class_rules: 1-3 points/GD/GF, then (only if champion/relegation/UEFA places undecided) 4.1 H2H points, 4.2 H2H away goals, 4.3 play-off at a neutral venue. Opening and final matchweeks were pushed a week later than usual because of the 2026 World Cup.",
+   "note": "Window inherited from GB1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GB1"
   },
   "GE1N": {
@@ -2169,7 +2169,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Erovnuli_Liga",
-   "note": "Article is 2026 (calendar year, spring-autumn), not 2026-27: infobox 'dates = 28 February - 5 December 2026'. 10 teams, 36 rounds (results split only as 'Round 1-18'/'Round 19-36' tables, no phase split). League table: 10th directly relegated, 8th and 9th enter two-legged relegation play-offs. relegation_slots counts direct relegations only. No transfer-window dates stated in the article.",
+   "note": "Window inherited from GE1N; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GE1N"
   },
   "GHPL": {
@@ -2233,7 +2233,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Gibraltar_Football_League",
-   "note": "Infobox '21 August 2026 – 25 April 2027'. 11 teams: double round-robin (20 games), then top six into the GFL Championship Group. Tiebreak verbatim from class_rules - note there is no goal-difference rung and fair play is last. Neither the 2026-27 nor the 2025-26 article states a relegation count (no 'relegated' infobox field), so relegation_slots is null. No transfer-window dates.",
+   "note": "Window inherited from GI1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GI1"
   },
   "GR1": {
@@ -2274,7 +2274,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Super_League_Greece",
-   "note": "14 teams, two phases: regular season (ends 21 March 2027) then championship play-offs (top 4), Europe play-offs (5-8) and relegation play-outs (bottom 6, from 3 April 2027). Two teams are relegated after the play-outs (2025-26 pattern; 2026-27 article does not restate the count). No transfer window dates.",
+   "note": "Window inherited from GR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GR1"
   },
   "HGKG": {
@@ -2323,7 +2323,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Hong_Kong_Premier_League",
-   "note": "League table marks position 11 (last) as REL to First Division League. A play-off is used only if the title has to be decided. Transfer windows not stated.",
+   "note": "Window inherited from HGKG; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "HGKG"
   },
   "HK2L": {
@@ -2348,7 +2348,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Hong_Kong_Premier_League",
-   "note": "League table marks position 11 (last) as REL to First Division League. A play-off is used only if the title has to be decided. Transfer windows not stated.",
+   "note": "Window inherited from HGKG; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "HGKG"
   },
   "HK3L": {
@@ -2373,7 +2373,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Hong_Kong_Premier_League",
-   "note": "League table marks position 11 (last) as REL to First Division League. A play-off is used only if the title has to be decided. Transfer windows not stated.",
+   "note": "Window inherited from HGKG; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "HGKG"
   },
   "IJ1": {
@@ -2396,13 +2396,13 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serie_A",
-   "note": "Dates from infobox. 20 teams, 18th-20th relegated directly. End-of-season ties on points for 1st or 17th are decided by a one-/two-leg play-off (title or survival decider, not a promotion/relegation play-off). No transfer-window dates in the article.",
+   "note": "Window inherited from IT1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IT1"
   },
   "ILI2": {
    "start_md": "09-04",
-   "end_md": "05-23",
-   "filled": "end",
+   "end_md": "05-09",
+   "filled": "",
    "phases": "single",
    "relegation": {
     "slots": null,
@@ -2419,15 +2419,15 @@
     "draw"
    ],
    "transfer_windows": [],
-   "confidence": "medium",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Super_League_(Indonesia)",
-   "note": "Article gives only '4 September 2026 – May 2027' (no exact closing date), so end is null. 18 teams; standings template marks positions 16-18 as REL. Transfer windows not stated.",
+   "note": "Window inherited from IN1L; the season facts in that division's note were not re-checked for this league. end_md from https://id.wikipedia.org/wiki/Kejuaraan_(Indonesia)_2026%E2%80%932027: \"Musim ini berlangsung sejak 11 September 2026 dan dijadwalkan akan berakhir pada 9 Mei 2027.\".",
    "inherited_from": "IN1L"
   },
   "IN1L": {
    "start_md": "09-04",
-   "end_md": "05-23",
-   "filled": "end",
+   "end_md": "06-05",
+   "filled": "",
    "phases": "single",
    "relegation": {
     "slots": 3,
@@ -2444,9 +2444,9 @@
     "draw"
    ],
    "transfer_windows": [],
-   "confidence": "medium",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Super_League_(Indonesia)",
-   "note": "Article gives only '4 September 2026 – May 2027' (no exact closing date), so end is null. 18 teams; standings template marks positions 16-18 as REL. Transfer windows not stated."
+   "note": "Article gives only '4 September 2026 – May 2027' (no exact closing date), so end is null. 18 teams; standings template marks positions 16-18 as REL. Transfer windows not stated. end_md from https://id.wikipedia.org/wiki/Liga_Super_(Indonesia)_2026%E2%80%932027: \"Musim ini berlangsung sejak 4 September 2026 dan dijadwalkan akan berakhir pada 5 Juni 2027.\"."
   },
   "IN3L": {
    "start_md": "09-04",
@@ -2470,7 +2470,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Super_League_(Indonesia)",
-   "note": "Article gives only '4 September 2026 – May 2027' (no exact closing date), so end is null. 18 teams; standings template marks positions 16-18 as REL. Transfer windows not stated.",
+   "note": "Window inherited from IN1L; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IN1L"
   },
   "IND1": {
@@ -2519,7 +2519,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Indian_Super_League",
-   "note": "13 clubs; last place (14th slot) 'barred and relegated' to 2027–28 IFL (Diamond Harbour). Head-to-head only after all matches between the tied teams are played. Top 6 enter the knockouts (ISL Cup playoffs) - a playoff, not a table split. Transfer windows not stated.",
+   "note": "Window inherited from IND1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IND1"
   },
   "INIL": {
@@ -2544,7 +2544,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Indian_Super_League",
-   "note": "13 clubs; last place (14th slot) 'barred and relegated' to 2027–28 IFL (Diamond Harbour). Head-to-head only after all matches between the tied teams are played. Top 6 enter the knockouts (ISL Cup playoffs) - a playoff, not a table split. Transfer windows not stated.",
+   "note": "Window inherited from IND1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IND1"
   },
   "IR1": {
@@ -2604,7 +2604,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Persian_Gulf_Pro_League",
-   "note": "Infobox 'dates = 18 August 2026 -' has no finish date, so end is null. 18 teams (expanded from 16). Tiebreak and relegation colours come from the transcluded template '2026-27 Persian Gulf Pro League table' (15th-18th relegated, no play-off). Head-to-head only applies once all matches between tied teams are played. No transfer-window dates stated.",
+   "note": "Window inherited from IRN1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IRN1"
   },
   "IRN3": {
@@ -2627,7 +2627,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Persian_Gulf_Pro_League",
-   "note": "Infobox 'dates = 18 August 2026 -' has no finish date, so end is null. 18 teams (expanded from 16). Tiebreak and relegation colours come from the transcluded template '2026-27 Persian Gulf Pro League table' (15th-18th relegated, no play-off). Head-to-head only applies once all matches between tied teams are played. No transfer-window dates stated.",
+   "note": "Window inherited from IRN1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IRN1"
   },
   "IRQ1": {
@@ -2704,7 +2704,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Besta_deild_karla",
-   "note": "Dates from infobox. 12 teams: regular season then championship round and relegation round; bottom two of the relegation round are relegated (KA and ÍBV per infobox), no relegation play-off. Play-off in the tiebreak applies only to decide the champion. No transfer-window dates in the article.",
+   "note": "Window inherited from IS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IS1"
   },
   "ISL3": {
@@ -2730,7 +2730,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Besta_deild_karla",
-   "note": "Dates from infobox. 12 teams: regular season then championship round and relegation round; bottom two of the relegation round are relegated (KA and ÍBV per infobox), no relegation play-off. Play-off in the tiebreak applies only to decide the champion. No transfer-window dates in the article.",
+   "note": "Window inherited from IS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IS1"
   },
   "ISR1": {
@@ -2779,7 +2779,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Israeli_Premier_League",
-   "note": "14 teams. Regular-season table colours 1st-6th as championship round and 7th-14th as 'Qualification for the Relegation round' (section exists in the article), i.e. a split season, but the number of teams actually relegated after the relegation round is not stated, so relegation_slots is null. No transfer-window dates stated (only a note that contracts run to 30 June and a January window exists).",
+   "note": "Window inherited from ISR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ISR1"
   },
   "IT1": {
@@ -2824,7 +2824,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serie_A",
-   "note": "Dates from infobox. 20 teams, 18th-20th relegated directly. End-of-season ties on points for 1st or 17th are decided by a one-/two-leg play-off (title or survival decider, not a promotion/relegation play-off). No transfer-window dates in the article.",
+   "note": "Window inherited from IT1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IT1"
   },
   "IT3A": {
@@ -2847,7 +2847,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serie_A",
-   "note": "Dates from infobox. 20 teams, 18th-20th relegated directly. End-of-season ties on points for 1st or 17th are decided by a one-/two-leg play-off (title or survival decider, not a promotion/relegation play-off). No transfer-window dates in the article.",
+   "note": "Window inherited from IT1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IT1"
   },
   "IT3B": {
@@ -2870,7 +2870,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serie_A",
-   "note": "Dates from infobox. 20 teams, 18th-20th relegated directly. End-of-season ties on points for 1st or 17th are decided by a one-/two-leg play-off (title or survival decider, not a promotion/relegation play-off). No transfer-window dates in the article.",
+   "note": "Window inherited from IT1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IT1"
   },
   "IT3C": {
@@ -2893,7 +2893,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serie_A",
-   "note": "Dates from infobox. 20 teams, 18th-20th relegated directly. End-of-season ties on points for 1st or 17th are decided by a one-/two-leg play-off (title or survival decider, not a promotion/relegation play-off). No transfer-window dates in the article.",
+   "note": "Window inherited from IT1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IT1"
   },
   "ITJ7": {
@@ -2916,7 +2916,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Serie_A",
-   "note": "Dates from infobox. 20 teams, 18th-20th relegated directly. End-of-season ties on points for 1st or 17th are decided by a one-/two-leg play-off (title or survival decider, not a promotion/relegation play-off). No transfer-window dates in the article.",
+   "note": "Window inherited from IT1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "IT1"
   },
   "JAP1": {
@@ -2963,7 +2963,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_J1_League",
-   "note": "First J.League season on the autumn-spring calendar (20 clubs); positions 18-20 relegated to J2. The separate one-off 'J1 100 Year Vision League' (6 Feb – 7 Jun 2026) is not the 2026-27 championship. Transfer windows not stated.",
+   "note": "Window inherited from JAP1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "JAP1"
   },
   "JAP3": {
@@ -2987,7 +2987,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_J1_League",
-   "note": "First J.League season on the autumn-spring calendar (20 clubs); positions 18-20 relegated to J2. The separate one-off 'J1 100 Year Vision League' (6 Feb – 7 Jun 2026) is not the 2026-27 championship. Transfer windows not stated.",
+   "note": "Window inherited from JAP1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "JAP1"
   },
   "JFL": {
@@ -3011,7 +3011,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_J1_League",
-   "note": "First J.League season on the autumn-spring calendar (20 clubs); positions 18-20 relegated to J2. The separate one-off 'J1 100 Year Vision League' (6 Feb – 7 Jun 2026) is not the 2026-27 championship. Transfer windows not stated.",
+   "note": "Window inherited from JAP1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "JAP1"
   },
   "JO1L": {
@@ -3037,9 +3037,9 @@
    "note": "10 teams, 9th and 10th relegated (Al-Arabi and Doqara replaced Al-Sarhan and Al-Ahli), no play-off row in the table. No transfer-window dates stated."
   },
   "JPL1": {
-   "start_md": "08-18",
+   "start_md": "09-13",
    "end_md": "05-23",
-   "filled": "start+end",
+   "filled": "end",
    "phases": "single",
    "relegation": {
     "slots": 2,
@@ -3049,7 +3049,7 @@
    "transfer_windows": [],
    "confidence": "low",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Jamaica_Premier_League",
-   "note": "Not a calendar-year league: the article gives only 'Dates: September 2026 - May 2027', with no exact kickoff or final date, so start/end are null. Single 14-team table, 39 regular-season matches (three rounds), then playoffs; no Apertura/Clausura split. No 'Rules for classification' line and no transfer-window dates in the article, so tiebreak is empty. Relegation: bottom two (13th and 14th) to the JFF Championship per the league table."
+   "note": "Not a calendar-year league: the article gives only 'Dates: September 2026 - May 2027', with no exact kickoff or final date, so start/end are null. Single 14-team table, 39 regular-season matches (three rounds), then playoffs; no Apertura/Clausura split. No 'Rules for classification' line and no transfer-window dates in the article, so tiebreak is empty. Relegation: bottom two (13th and 14th) to the JFF Championship per the league table. start_md from https://www.jamaicafootball.org/2026/09/14/tru-juice-fc-stun-mount-pleasant-4-0-as-goals-and-early-statements-mark-opening-day-of-2026-27-jamaica-premier-league/: \"SUNDAY, SEPTEMBER 13, 2026 — CONFIRMED RESULTS ... Four matches were played on Sunday as the new campaign got underway\"."
   },
   "KAS1": {
    "start_md": "03-07",
@@ -3103,7 +3103,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Kazakhstan_Premier_League",
-   "note": "Calendar-year season; infobox 'dates = 7 March - 31 October 2026'. 16 teams after expansion from 14. Zhetysu and Kaisar relegated (15th-16th), no play-off. Article labels the only table 'Regular season' but describes no split/second phase.",
+   "note": "Window inherited from KAS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "KAS1"
   },
   "KHM1": {
@@ -3170,7 +3170,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Veikkausliiga",
-   "note": "Dates from infobox. 12 teams: regular season then championship round (top 6) and relegation round (bottom 6). Last-placed team of the relegation round is relegated to Ykkösliiga, second-to-last plays the Veikkausliiga play-off; infobox lists one relegated club (IFK Mariehamn). No transfer-window dates in the article.",
+   "note": "Window inherited from FI1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "FI1"
   },
   "KR1": {
@@ -3217,7 +3217,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Croatian_Football_League",
-   "note": "10 teams, single table (36 rounds); only 10th place marked REL, no relegation play-off position. No transfer window dates.",
+   "note": "Window inherited from KR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "KR1"
   },
   "L1": {
@@ -3264,7 +3264,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Bundesliga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays the relegation play-off (27 and 31 May 2027) against the 3rd-placed 2. Bundesliga club. Tiebreak taken from the transcluded league-table template (article body has no rules section). No transfer-window dates in the article.",
+   "note": "Window inherited from L1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "L1"
   },
   "L3": {
@@ -3288,7 +3288,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Bundesliga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays the relegation play-off (27 and 31 May 2027) against the 3rd-placed 2. Bundesliga club. Tiebreak taken from the transcluded league-table template (article body has no rules section). No transfer-window dates in the article.",
+   "note": "Window inherited from L1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "L1"
   },
   "LET1": {
@@ -3335,13 +3335,13 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Latvian_Higher_League",
-   "note": "Calendar-year season: 6 March – 8 November 2026 (year from article reference to LFF announcement). 10 teams, single table; 9th to Latvian Higher League play-off, 10th relegated. No transfer window dates.",
+   "note": "Window inherited from LET1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "LET1"
   },
   "LI1": {
    "start_md": "02-21",
-   "end_md": "11-29",
-   "filled": "end",
+   "end_md": "11-08",
+   "filled": "",
    "phases": "single",
    "relegation": {
     "slots": 1,
@@ -3361,9 +3361,9 @@
     "draw"
    ],
    "transfer_windows": [],
-   "confidence": "medium",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Toplyga",
-   "note": "League renamed A Lyga -> TOPLYGA; '2026 A Lyga' is a redirect. Infobox only '21 February – November 2026', so exact end date unknown. 10 teams, single table; 9th to two-legged TOPLYGA play-off vs LFF I Lyga runners-up, 10th relegated. No transfer window dates."
+   "note": "League renamed A Lyga -> TOPLYGA; '2026 A Lyga' is a redirect. Infobox only '21 February – November 2026', so exact end date unknown. 10 teams, single table; 9th to two-legged TOPLYGA play-off vs LFF I Lyga runners-up, 10th relegated. No transfer window dates. end_md from https://lt.wikipedia.org/wiki/2026_m._TOPLYGA: \"|dates = 2026 m. vasario 21 – lapkričio 8 d. ... vykęs tarp 2026 m. vasario 21 ir lapkričio 8 d.\"."
   },
   "LIB1": {
    "start_md": "10-08",
@@ -3427,7 +3427,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026_Toplyga",
-   "note": "League renamed A Lyga -> TOPLYGA; '2026 A Lyga' is a redirect. Infobox only '21 February – November 2026', so exact end date unknown. 10 teams, single table; 9th to two-legged TOPLYGA play-off vs LFF I Lyga runners-up, 10th relegated. No transfer window dates.",
+   "note": "Window inherited from LI1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "LI1"
   },
   "LUX1": {
@@ -3474,7 +3474,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Luxembourg_National_Division",
-   "note": "Infobox and prose: 1 August 2026 – 23 May 2027. Tiebreak from class_rules. Single 16-team table; the 'Luxembourg National Division play-offs' in the table are the European qualification play-offs, not relegation. The 4 relegation slots come from the 2025-26 season (Petange, Rodange 91, Jeunesse Canach, Mamer 32 all relegated); the 2026-27 article does not state its own number. No transfer-window dates.",
+   "note": "Window inherited from LUX1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "LUX1"
   },
   "M191": {
@@ -3498,7 +3498,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_MX_season",
-   "note": "Full 2026 calendar-year span assembled from both halves of the split season: Clausura 2026 (part of the 2025-26 season, see https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_MX_season) began January 9 2026 and ended with the final on May 24 2026; Apertura 2026 (part of the 2026-27 season) began July 16 2026 and its final phase runs November 25 - December 13 2026, so the year's last match is December 13 (if Toluca reach the final, the legs move to December 24 and 27 because of the FIFA Intercontinental Cup). No transfer-window dates in either article. No relegation: Liga MX relegation is suspended and the Mazatlan/Atlante change was a registration transfer, not a sporting relegation. Tiebreak is the per-tournament regular-phase rule; the play-in round was abolished for Apertura 2026 (top 8 to the liguilla).",
+   "note": "Window inherited from MEXA; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "MEXA"
   },
   "M21A": {
@@ -3522,7 +3522,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_MX_season",
-   "note": "Full 2026 calendar-year span assembled from both halves of the split season: Clausura 2026 (part of the 2025-26 season, see https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_MX_season) began January 9 2026 and ended with the final on May 24 2026; Apertura 2026 (part of the 2026-27 season) began July 16 2026 and its final phase runs November 25 - December 13 2026, so the year's last match is December 13 (if Toluca reach the final, the legs move to December 24 and 27 because of the FIFA Intercontinental Cup). No transfer-window dates in either article. No relegation: Liga MX relegation is suspended and the Mazatlan/Atlante change was a registration transfer, not a sporting relegation. Tiebreak is the per-tournament regular-phase rule; the play-in round was abolished for Apertura 2026 (top 8 to the liguilla).",
+   "note": "Window inherited from MEXA; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "MEXA"
   },
   "MAL2": {
@@ -3546,13 +3546,13 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Maltese_Premier_League",
-   "note": "Infobox reads 'dates = 17 August 2026 –' with no end date and the prose only says the season began 17 August 2026, so end = null. 12 teams split into an Opening Round (11 games) then Top Six / Bottom Six - modelled as 'split'. Tiebreak verbatim from class_rules. 2 direct relegations inferred from 2025-26 (Naxxar Lions, Tarxien Rainbows); no relegation play-off documented in either article. No transfer-window dates.",
+   "note": "Window inherited from MT1N; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "MT1N"
   },
   "MAL3": {
    "start_md": "08-17",
-   "end_md": "05-23",
-   "filled": "end",
+   "end_md": "05-11",
+   "filled": "",
    "phases": "split",
    "relegation": {
     "slots": null,
@@ -3570,7 +3570,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Maltese_Premier_League",
-   "note": "Infobox reads 'dates = 17 August 2026 –' with no end date and the prose only says the season began 17 August 2026, so end = null. 12 teams split into an Opening Round (11 games) then Top Six / Bottom Six - modelled as 'split'. Tiebreak verbatim from class_rules. 2 direct relegations inferred from 2025-26 (Naxxar Lions, Tarxien Rainbows); no relegation play-off documented in either article. No transfer-window dates.",
+   "note": "Window inherited from MT1N; the season facts in that division's note were not re-checked for this league. end_md from https://en.wikipedia.org/wiki/2026%E2%80%9327_National_League_I_(Malta): \"| dates = 18 September 2026 – 11 May 2027\".",
    "inherited_from": "MT1N"
   },
   "MAR1": {
@@ -3596,9 +3596,9 @@
    "note": "Infobox dates '24 September 2026 – TBD 2027'; fixtures released 28 August 2026, exact end date not stated. 16 teams; 15-16 relegated directly, 13-14 enter relegation play-offs. Tiebreak rule 2 is conditional: head-to-head goal difference when exactly two teams are level, goal difference when more than two. No transfer windows stated."
   },
   "MAY2": {
-   "start_md": "08-18",
-   "end_md": "05-23",
-   "filled": "start+end",
+   "start_md": "08-28",
+   "end_md": "05-15",
+   "filled": "",
    "phases": "single",
    "relegation": {
     "slots": null,
@@ -3610,9 +3610,9 @@
     "goals_scored"
    ],
    "transfer_windows": [],
-   "confidence": "low",
+   "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Malaysia_Super_League",
-   "note": "Infobox 'dates' field is empty and the body never states start/finish dates; the season is in progress (last update 2 Nov 2026), so both dates are null. 12 teams. No relegation markers or relegation text for this season. Transfer windows not stated.",
+   "note": "Window inherited from MYS1; the season facts in that division's note were not re-checked for this league. end_md from https://aflplus-ifs.my/schedule/: \"Gameweek 26 14 May — 15 May\". start_md from https://aflplus-ifs.my/schedule/: \"Gameweek 1 28 Aug — 30 Aug\".",
    "inherited_from": "MYS1"
   },
   "MAZ1": {
@@ -3663,7 +3663,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Moldovan_Liga",
-   "note": "League now titled 'Moldovan Liga' (sponsored Liga 7777); no article exists under the old 'Moldovan Super Liga' name. 8 teams, two phases (Phase I round-robin, Phase II split top 6 / bottom 2 with points earned among the top 6 halved and rounded down); 7th and 8th relegated directly, no play-off. No transfer window dates.",
+   "note": "Window inherited from MO1N; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "MO1N"
   },
   "MEX2": {
@@ -3687,7 +3687,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_MX_season",
-   "note": "Full 2026 calendar-year span assembled from both halves of the split season: Clausura 2026 (part of the 2025-26 season, see https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_MX_season) began January 9 2026 and ended with the final on May 24 2026; Apertura 2026 (part of the 2026-27 season) began July 16 2026 and its final phase runs November 25 - December 13 2026, so the year's last match is December 13 (if Toluca reach the final, the legs move to December 24 and 27 because of the FIFA Intercontinental Cup). No transfer-window dates in either article. No relegation: Liga MX relegation is suspended and the Mazatlan/Atlante change was a registration transfer, not a sporting relegation. Tiebreak is the per-tournament regular-phase rule; the play-in round was abolished for Apertura 2026 (top 8 to the liguilla).",
+   "note": "Window inherited from MEXA; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "MEXA"
   },
   "MEXA": {
@@ -3781,7 +3781,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026–27_Montenegrin_First_League",
-   "note": "Start 1 August 2026, end only 'May 2027'. 10 teams, single table; 10th relegated directly and both 8th and 9th marked for the play-off (two play-off places). No transfer window dates.",
+   "note": "Window inherited from MNE1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "MNE1"
   },
   "MNP3": {
@@ -3808,7 +3808,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season",
-   "note": "Regular season February 21 - November 7 2026 (34 matches per team, six-week break May 25 - July 16 for the 2026 FIFA World Cup); playoffs November 19 - December 18 2026, MLS Cup on December 18. No transfer-window dates in the article (MLS primary/secondary windows are not stated). No relegation; final full season under the spring-autumn format.",
+   "note": "Window inherited from MLS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "MLS1"
   },
   "MO1N": {
@@ -3879,9 +3879,9 @@
    "note": "League rebranded as M League for 2026-27. Class rules differ: in-season points/GD/GF, end-of-season points/H2H points/H2H GD/GF. Positions 11-12 relegated to MNL-2. Transfer windows not stated."
   },
   "MYS1": {
-   "start_md": "08-18",
+   "start_md": "08-21",
    "end_md": "05-23",
-   "filled": "start+end",
+   "filled": "end",
    "phases": "single",
    "relegation": {
     "slots": null,
@@ -3895,12 +3895,12 @@
    "transfer_windows": [],
    "confidence": "low",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Malaysia_Super_League",
-   "note": "Infobox 'dates' field is empty and the body never states start/finish dates; the season is in progress (last update 2 Nov 2026), so both dates are null. 12 teams. No relegation markers or relegation text for this season. Transfer windows not stated."
+   "note": "Infobox 'dates' field is empty and the body never states start/finish dates; the season is in progress (last update 2 Nov 2026), so both dates are null. 12 teams. No relegation markers or relegation text for this season. Transfer windows not stated. start_md from https://ms.wikipedia.org/wiki/Liga_Super_Malaysia_2026%E2%80%9327: \"dates = 21 Ogos 2026 – 2027\"."
   },
   "NC1A": {
-   "start_md": "03-06",
+   "start_md": "07-17",
    "end_md": "05-16",
-   "filled": "start",
+   "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
     "slots": 1,
@@ -3916,14 +3916,14 @@
     "draw"
    ],
    "transfer_windows": [],
-   "confidence": "low",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_Primera",
-   "note": "Apertura/Clausura league. The only part of 2026 covered by an article is Clausura 2026 (first half of 2026): its start date is not stated anywhere in the article (null), and its last match was the final second leg on May 16 2026 (first leg May 9; Real Esteli champions). The Apertura 2026 (July-December 2026) belongs to 2026-27, which has no English Wikipedia article. Relegation: 1 automatic (Real Madriz, aggregate table) plus a relegation/promotion playoff for the 9th-placed team against the Segunda Division runner-up (Rancho Santana won it 2-1 in the previous cycle). No transfer-window dates in the article."
+   "note": "Apertura/Clausura league. The only part of 2026 covered by an article is Clausura 2026 (first half of 2026): its start date is not stated anywhere in the article (null), and its last match was the final second leg on May 16 2026 (first leg May 9; Real Esteli champions). The Apertura 2026 (July-December 2026) belongs to 2026-27, which has no English Wikipedia article. Relegation: 1 automatic (Real Madriz, aggregate table) plus a relegation/promotion playoff for the 9th-placed team against the Segunda Division runner-up (Rancho Santana won it 2-1 in the previous cycle). No transfer-window dates in the article. start_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua): \"Fecha de inicio | 17 de julio de 2026\"."
   },
   "NC2A": {
-   "start_md": "03-06",
+   "start_md": "07-17",
    "end_md": "05-16",
-   "filled": "start",
+   "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
     "slots": null,
@@ -3939,9 +3939,9 @@
     "draw"
    ],
    "transfer_windows": [],
-   "confidence": "low",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_Primera",
-   "note": "Apertura/Clausura league. The only part of 2026 covered by an article is Clausura 2026 (first half of 2026): its start date is not stated anywhere in the article (null), and its last match was the final second leg on May 16 2026 (first leg May 9; Real Esteli champions). The Apertura 2026 (July-December 2026) belongs to 2026-27, which has no English Wikipedia article. Relegation: 1 automatic (Real Madriz, aggregate table) plus a relegation/promotion playoff for the 9th-placed team against the Segunda Division runner-up (Rancho Santana won it 2-1 in the previous cycle). No transfer-window dates in the article.",
+   "note": "Window inherited from NC1A; the season facts in that division's note were not re-checked for this league. start_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua): \"Fecha de inicio | 17 de julio de 2026\".",
    "inherited_from": "NC1A"
   },
   "NCL1": {
@@ -4009,7 +4009,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_NIFL_Premiership",
-   "note": "Infobox dates 7 Aug 2026 – 24 Apr 2027; tiebreak from the NIFL 2026-27 rules document cited in the article. 12 teams: 33 matches, then Section A/B split for matches 34-38. The article states neither the relegation count nor a play-off; 1 direct + 11th-place play-off is the NIFL standard (2025-26 shows only the bottom club, Glenavon, as relegated) - verify before relying on it.",
+   "note": "Window inherited from NIR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NIR1"
   },
   "NL1": {
@@ -4060,7 +4060,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Eredivisie",
-   "note": "Prose: games scheduled between 7 August 2026 and 23 May 2027. Tiebreak copied verbatim from class_rules, including the source's odd '2) Less loss points' and its duplicated '9)' numbering. 18-team single table with European competition play-offs; bottom two relegated directly and 16th enters the promotion/relegation play-offs (2025-26: Volendam, NAC Breda and Heracles went down, i.e. two direct plus the play-off loser).",
+   "note": "Window inherited from NL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NL1"
   },
   "NLN6": {
@@ -4092,7 +4092,7 @@
    ],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Premier_League",
-   "note": "Infobox dates 21 Aug 2026 – 30 May 2027. Summer window 15 Jun–1 Sep 2026 (23:00 BST), winter 1 Jan–1 Feb 2027 (23:00 GMT), stated in prose. Tiebreak from class_rules: 1-3 points/GD/GF, then (only if champion/relegation/UEFA places undecided) 4.1 H2H points, 4.2 H2H away goals, 4.3 play-off at a neutral venue. Opening and final matchweeks were pushed a week later than usual because of the 2026 World Cup.",
+   "note": "Window inherited from GB1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GB1"
   },
   "NLS6": {
@@ -4124,7 +4124,7 @@
    ],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Premier_League",
-   "note": "Infobox dates 21 Aug 2026 – 30 May 2027. Summer window 15 Jun–1 Sep 2026 (23:00 BST), winter 1 Jan–1 Feb 2027 (23:00 GMT), stated in prose. Tiebreak from class_rules: 1-3 points/GD/GF, then (only if champion/relegation/UEFA places undecided) 4.1 H2H points, 4.2 H2H away goals, 4.3 play-off at a neutral venue. Opening and final matchweeks were pushed a week later than usual because of the 2026 World Cup.",
+   "note": "Window inherited from GB1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "GB1"
   },
   "NNL1": {
@@ -4193,7 +4193,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Eliteserien",
-   "note": "Dates from infobox; article states the season ends 13 December 2026 'not including playoff matches'. 16 teams, single table (30 rounds): 15th and 16th relegated, 14th plays a two-leg relegation play-off against the First Division promotion play-off winner. Article only links to transfer list pages - no transfer-window dates.",
+   "note": "Window inherited from NO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NO1"
   },
   "NO31": {
@@ -4216,7 +4216,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Eliteserien",
-   "note": "Dates from infobox; article states the season ends 13 December 2026 'not including playoff matches'. 16 teams, single table (30 rounds): 15th and 16th relegated, 14th plays a two-leg relegation play-off against the First Division promotion play-off winner. Article only links to transfer list pages - no transfer-window dates.",
+   "note": "Window inherited from NO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NO1"
   },
   "NO32": {
@@ -4239,7 +4239,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Eliteserien",
-   "note": "Dates from infobox; article states the season ends 13 December 2026 'not including playoff matches'. 16 teams, single table (30 rounds): 15th and 16th relegated, 14th plays a two-leg relegation play-off against the First Division promotion play-off winner. Article only links to transfer list pages - no transfer-window dates.",
+   "note": "Window inherited from NO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NO1"
   },
   "NO41": {
@@ -4262,7 +4262,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Eliteserien",
-   "note": "Dates from infobox; article states the season ends 13 December 2026 'not including playoff matches'. 16 teams, single table (30 rounds): 15th and 16th relegated, 14th plays a two-leg relegation play-off against the First Division promotion play-off winner. Article only links to transfer list pages - no transfer-window dates.",
+   "note": "Window inherited from NO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NO1"
   },
   "NO42": {
@@ -4285,7 +4285,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Eliteserien",
-   "note": "Dates from infobox; article states the season ends 13 December 2026 'not including playoff matches'. 16 teams, single table (30 rounds): 15th and 16th relegated, 14th plays a two-leg relegation play-off against the First Division promotion play-off winner. Article only links to transfer list pages - no transfer-window dates.",
+   "note": "Window inherited from NO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NO1"
   },
   "NO43": {
@@ -4308,7 +4308,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Eliteserien",
-   "note": "Dates from infobox; article states the season ends 13 December 2026 'not including playoff matches'. 16 teams, single table (30 rounds): 15th and 16th relegated, 14th plays a two-leg relegation play-off against the First Division promotion play-off winner. Article only links to transfer list pages - no transfer-window dates.",
+   "note": "Window inherited from NO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NO1"
   },
   "NO44": {
@@ -4331,7 +4331,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Eliteserien",
-   "note": "Dates from infobox; article states the season ends 13 December 2026 'not including playoff matches'. 16 teams, single table (30 rounds): 15th and 16th relegated, 14th plays a two-leg relegation play-off against the First Division promotion play-off winner. Article only links to transfer list pages - no transfer-window dates.",
+   "note": "Window inherited from NO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NO1"
   },
   "NO45": {
@@ -4354,7 +4354,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Eliteserien",
-   "note": "Dates from infobox; article states the season ends 13 December 2026 'not including playoff matches'. 16 teams, single table (30 rounds): 15th and 16th relegated, 14th plays a two-leg relegation play-off against the First Division promotion play-off winner. Article only links to transfer list pages - no transfer-window dates.",
+   "note": "Window inherited from NO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NO1"
   },
   "NO46": {
@@ -4377,7 +4377,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Eliteserien",
-   "note": "Dates from infobox; article states the season ends 13 December 2026 'not including playoff matches'. 16 teams, single table (30 rounds): 15th and 16th relegated, 14th plays a two-leg relegation play-off against the First Division promotion play-off winner. Article only links to transfer list pages - no transfer-window dates.",
+   "note": "Window inherited from NO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NO1"
   },
   "NPFL": {
@@ -4450,13 +4450,13 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Eredivisie",
-   "note": "Prose: games scheduled between 7 August 2026 and 23 May 2027. Tiebreak copied verbatim from class_rules, including the source's odd '2) Less loss points' and its duplicated '9)' numbering. 18-team single table with European competition play-offs; bottom two relegated directly and 16th enters the promotion/relegation play-offs (2025-26: Volendam, NAC Breda and Heracles went down, i.e. two direct plus the play-off loser).",
+   "note": "Window inherited from NL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "NL1"
   },
   "OM1L": {
-   "start_md": "08-18",
-   "end_md": "05-23",
-   "filled": "start+end",
+   "start_md": "08-30",
+   "end_md": "05-31",
+   "filled": "",
    "phases": "other",
    "relegation": {
     "slots": null,
@@ -4468,9 +4468,9 @@
     "goals_scored"
    ],
    "transfer_windows": [],
-   "confidence": "low",
+   "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2024%E2%80%9325_Oman_Professional_League",
-   "note": "No 2026-27 (and no 2025-26) Oman Professional League article exists; the latest is 2024-25, used as a proxy: it started 15 August 2024 and was scheduled to conclude in May 2025, 12 teams, 12th relegated directly, tiebreak points/goal difference/goals scored. All 2026-27-specific values are unknown, so dates and relegation fields are null."
+   "note": "No 2026-27 (and no 2025-26) Oman Professional League article exists; the latest is 2024-25, used as a proxy: it started 15 August 2024 and was scheduled to conclude in May 2025, 12 teams, 12th relegated directly, tiebreak points/goal difference/goals scored. All 2026-27-specific values are unknown, so dates and relegation fields are null. end_md from https://alwatan.om/article/42717/%D8%B1%D8%A7%D8%A8%D8%B7%D8%A9-%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D9%8A-%D8%A7%D9%84%D8%B9%D9%85%D8%A7%D9%86%D9%8A-%D8%AA%D9%83%D8%B4%D9%81-%D8%B9%D9%86-%D8%A7%D9%84%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC-%D8%A7%D9%84%D8%B2%D9%85%D9%86%D9%8A-%D9%84%D9%85%D8%B3%D8%A7%D8%A8%D9%82%D8%A7%D8%AA-%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%85-%D8%A7%D9%84%D9%83%D8%B1%D9%88%D9%8A-2026-2027: \"فسينطلق دوري جندال في 27 أغسطس من هذا العام وسينتهي في 31 مايو 2027\". start_md from https://omannews.gov.om/topics/ar/8/show/472745/: \"مسقط في 29 أغسطس 2026 /العُمانية/ تنطلق غدًا الأحد منافسات الجولة الأولى من دوري جندال لكرة القدم للموسم الرياضي 2026/2027، بإقامة 3 مباريات\"."
   },
   "PAR2": {
    "start_md": "01-23",
@@ -4492,7 +4492,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Copa_de_Primera",
-   "note": "Torneo Apertura and Torneo Clausura, 12 teams, plus an aggregate table. Relegation by three-season points-per-game average; the two lowest averages go down to División Intermedia. No transfer-window dates in the article.",
+   "note": "Window inherited from PR1C; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PR1C"
   },
   "PER2": {
@@ -4517,7 +4517,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_1_(Peru)",
-   "note": "Article infobox gives only '30 January – December 2026'; no exact end date is stated, so end is null. Torneo Apertura + Torneo Clausura (18 teams) feed a single aggregate table, plus playoffs for the title; bottom two of the aggregate table are relegated. Tiebreak order taken from the aggregate-table class_rules.",
+   "note": "Window inherited from TDeC; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "TDeC"
   },
   "PFL1": {
@@ -4585,7 +4585,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Ekstraklasa",
-   "note": "Infobox: 24 July 2026 – 22 May 2027. 18 teams, 34 rounds, no split; positions 16-18 relegated directly to I liga. Article does not list transfer window dates.",
+   "note": "Window inherited from PL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PL1"
   },
   "PL2L": {
@@ -4612,7 +4612,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Ekstraklasa",
-   "note": "Infobox: 24 July 2026 – 22 May 2027. 18 teams, 34 rounds, no split; positions 16-18 relegated directly to I liga. Article does not list transfer window dates.",
+   "note": "Window inherited from PL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PL1"
   },
   "PL31": {
@@ -4639,7 +4639,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Ekstraklasa",
-   "note": "Infobox: 24 July 2026 – 22 May 2027. 18 teams, 34 rounds, no split; positions 16-18 relegated directly to I liga. Article does not list transfer window dates.",
+   "note": "Window inherited from PL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PL1"
   },
   "PL32": {
@@ -4666,7 +4666,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Ekstraklasa",
-   "note": "Infobox: 24 July 2026 – 22 May 2027. 18 teams, 34 rounds, no split; positions 16-18 relegated directly to I liga. Article does not list transfer window dates.",
+   "note": "Window inherited from PL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PL1"
   },
   "PL33": {
@@ -4693,7 +4693,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Ekstraklasa",
-   "note": "Infobox: 24 July 2026 – 22 May 2027. 18 teams, 34 rounds, no split; positions 16-18 relegated directly to I liga. Article does not list transfer window dates.",
+   "note": "Window inherited from PL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PL1"
   },
   "PL34": {
@@ -4720,7 +4720,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Ekstraklasa",
-   "note": "Infobox: 24 July 2026 – 22 May 2027. 18 teams, 34 rounds, no split; positions 16-18 relegated directly to I liga. Article does not list transfer window dates.",
+   "note": "Window inherited from PL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PL1"
   },
   "PLI3": {
@@ -4745,13 +4745,13 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_1_(Peru)",
-   "note": "Article infobox gives only '30 January – December 2026'; no exact end date is stated, so end is null. Torneo Apertura + Torneo Clausura (18 teams) feed a single aggregate table, plus playoffs for the title; bottom two of the aggregate table are relegated. Tiebreak order taken from the aggregate-table class_rules.",
+   "note": "Window inherited from TDeC; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "TDeC"
   },
   "PN1A": {
-   "start_md": "03-06",
-   "end_md": "11-29",
-   "filled": "start+end",
+   "start_md": "07-24",
+   "end_md": "12-05",
+   "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
     "slots": 1,
@@ -4759,9 +4759,9 @@
    },
    "tiebreak": [],
    "transfer_windows": [],
-   "confidence": "low",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/Liga_LPF",
-   "note": "No English Wikipedia article exists for the 2026 season ('2026 Liga Panameña de Fútbol' is a redlink; the newest season articles stop at 2023), so no 2026 dates, tiebreak order or transfer windows could be sourced and start/end are null. The league article confirms the format: 12 teams in two conferences, season split into Apertura and Clausura, aggregate table used for relegation (fewest points relegated to the second tier), which is why relegation_slots is 1; note the article also says the 2021 expansion to 12 franchises came 'with no relegation', so the relegation figure is uncertain. Liga LPF lists Plaza Amador as Clausura 2026 champions."
+   "note": "No English Wikipedia article exists for the 2026 season ('2026 Liga Panameña de Fútbol' is a redlink; the newest season articles stop at 2023), so no 2026 dates, tiebreak order or transfer windows could be sourced and start/end are null. The league article confirms the format: 12 teams in two conferences, season split into Apertura and Clausura, aggregate table used for relegation (fewest points relegated to the second tier), which is why relegation_slots is 1; note the article also says the 2021 expansion to 12 franchises came 'with no relegation', so the relegation figure is uncertain. Liga LPF lists Plaza Amador as Clausura 2026 champions. end_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1): \"Fecha de cierre 5 de diciembre\". start_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1): \"Fecha de inicio 24 de julio\"."
   },
   "PO1": {
    "start_md": "08-07",
@@ -4807,7 +4807,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Primeira_Liga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays a two-leg relegation play-off against the 3rd-placed team of Liga Portugal 2 (first leg 29 May 2027). No transfer-window dates in the article.",
+   "note": "Window inherited from PO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PO1"
   },
   "PR1C": {
@@ -4868,7 +4868,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Primeira_Liga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays a two-leg relegation play-off against the 3rd-placed team of Liga Portugal 2 (first leg 29 May 2027). No transfer-window dates in the article.",
+   "note": "Window inherited from PO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PO1"
   },
   "PT3A": {
@@ -4892,7 +4892,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Primeira_Liga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays a two-leg relegation play-off against the 3rd-placed team of Liga Portugal 2 (first leg 29 May 2027). No transfer-window dates in the article.",
+   "note": "Window inherited from PO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "PO1"
   },
   "QSL": {
@@ -4935,7 +4935,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Qatar_Stars_League",
-   "note": "Infobox 'dates = 20 August 2026 - May 2027' gives only the month for the finish, so end is null. 12 teams; 11th plays the relegation play-off, 12th relegated directly. relegation_slots counts direct relegations only. No transfer-window dates stated.",
+   "note": "Window inherited from QSL; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "QSL"
   },
   "R3D1": {
@@ -4953,7 +4953,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Russian_Premier_League",
-   "note": "16 teams, single round-robin (30 matches each). 15th-16th relegated directly; 13th-14th play home-and-away play-offs vs 3rd-4th of the First League. Article does not publish the classification tiebreak order (only 'points' confirmed). No transfer window dates.",
+   "note": "Window inherited from RU1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "RU1"
   },
   "RLB3": {
@@ -4977,7 +4977,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Bundesliga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays the relegation play-off (27 and 31 May 2027) against the 3rd-placed 2. Bundesliga club. Tiebreak taken from the transcluded league-table template (article body has no rules section). No transfer-window dates in the article.",
+   "note": "Window inherited from L1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "L1"
   },
   "RLN4": {
@@ -5001,7 +5001,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Bundesliga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays the relegation play-off (27 and 31 May 2027) against the 3rd-placed 2. Bundesliga club. Tiebreak taken from the transcluded league-table template (article body has no rules section). No transfer-window dates in the article.",
+   "note": "Window inherited from L1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "L1"
   },
   "RLSW": {
@@ -5025,7 +5025,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Bundesliga",
-   "note": "Dates from infobox. 18 teams: 17th and 18th relegated directly; 16th plays the relegation play-off (27 and 31 May 2027) against the 3rd-placed 2. Bundesliga club. Tiebreak taken from the transcluded league-table template (article body has no rules section). No transfer-window dates in the article.",
+   "note": "Window inherited from L1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "L1"
   },
   "RO1": {
@@ -5072,7 +5072,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026–27_Liga_I",
-   "note": "Start 18 July 2026; article says season 'is scheduled to end in May 2027' - no exact date. 16 teams: regular season then play-off (1-6) and play-out (7-16). Final table results: 15th-16th relegated directly, 13th-14th to promotion/relegation play-offs. No transfer window dates.",
+   "note": "Window inherited from RO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "RO1"
   },
   "RU1": {
@@ -5107,7 +5107,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Russian_Premier_League",
-   "note": "16 teams, single round-robin (30 matches each). 15th-16th relegated directly; 13th-14th play home-and-away play-offs vs 3rd-4th of the First League. Article does not publish the classification tiebreak order (only 'points' confirmed). No transfer window dates.",
+   "note": "Window inherited from RU1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "RU1"
   },
   "SA1": {
@@ -5138,7 +5138,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Saudi_Pro_League",
-   "note": "18 teams; the transcluded '2026-27 Saudi Pro League table' colours 16th-18th as relegation, no play-off. That template's class_rules field is empty and the season article states no tiebreak order, so tiebreak is an empty array rather than a guess. No transfer-window dates stated.",
+   "note": "Window inherited from SA1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SA1"
   },
   "SB19": {
@@ -5160,7 +5160,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026–27_Serbian_SuperLiga",
-   "note": "Infobox has start only ('17 July 2026 –'); no end date given. 14 teams, split into championship round (1-6) and relegation round (7-14). League shrinks to 12 for 2027-28, so four teams are relegated this season; no play-off. No transfer window dates.",
+   "note": "Window inherited from SER1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SER1"
   },
   "SC1": {
@@ -5205,7 +5205,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Premiership",
-   "note": "Infobox 'Dates: 31 July 2026 – 16 May 2027'. No transfer windows stated anywhere in the article. 12 teams: 33 matches, then split into top/bottom six for 5 more. 12th relegated directly, 11th enters the Premiership play-off final. The play-off tiebreak applies only if champion/UEFA/second-stage/relegation places are undecided.",
+   "note": "Window inherited from SC1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SC1"
   },
   "SC3": {
@@ -5228,7 +5228,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Premiership",
-   "note": "Infobox 'Dates: 31 July 2026 – 16 May 2027'. No transfer windows stated anywhere in the article. 12 teams: 33 matches, then split into top/bottom six for 5 more. 12th relegated directly, 11th enters the Premiership play-off final. The play-off tiebreak applies only if champion/UEFA/second-stage/relegation places are undecided.",
+   "note": "Window inherited from SC1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SC1"
   },
   "SC4": {
@@ -5251,7 +5251,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Premiership",
-   "note": "Infobox 'Dates: 31 July 2026 – 16 May 2027'. No transfer windows stated anywhere in the article. 12 teams: 33 matches, then split into top/bottom six for 5 more. 12th relegated directly, 11th enters the Premiership play-off final. The play-off tiebreak applies only if champion/UEFA/second-stage/relegation places are undecided.",
+   "note": "Window inherited from SC1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SC1"
   },
   "SE1": {
@@ -5298,7 +5298,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Allsvenskan",
-   "note": "Dates from infobox. 16 teams, single table (30 rounds): 15th and 16th relegated to Superettan, 14th plays the two-legged Allsvenskan play-off (Superettan 3rd vs 4th, then winner vs 14th). No transfer-window dates in the article.",
+   "note": "Window inherited from SE1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SE1"
   },
   "SE3N": {
@@ -5322,7 +5322,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Allsvenskan",
-   "note": "Dates from infobox. 16 teams, single table (30 rounds): 15th and 16th relegated to Superettan, 14th plays the two-legged Allsvenskan play-off (Superettan 3rd vs 4th, then winner vs 14th). No transfer-window dates in the article.",
+   "note": "Window inherited from SE1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SE1"
   },
   "SE3S": {
@@ -5346,7 +5346,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Allsvenskan",
-   "note": "Dates from infobox. 16 teams, single table (30 rounds): 15th and 16th relegated to Superettan, 14th plays the two-legged Allsvenskan play-off (Superettan 3rd vs 4th, then winner vs 14th). No transfer-window dates in the article.",
+   "note": "Window inherited from SE1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SE1"
   },
   "SEN1": {
@@ -5385,7 +5385,7 @@
    "transfer_windows": [],
    "confidence": "low",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Ligue_1_(Senegal)",
-   "note": "No 2026–27 Ligue 1 (Senegal) article exists; data is from 2025–26, which is NOT the 2026-27 calendar (Senegal runs an Oct-Jun season, so 2026-27 would start around October 2026). 16 teams; positions 15-16 relegated. No transfer windows stated.",
+   "note": "Window inherited from SEN1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SEN1"
   },
   "SER1": {
@@ -5428,7 +5428,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026–27_Serbian_SuperLiga",
-   "note": "Infobox has start only ('17 July 2026 –'); no end date given. 14 teams, split into championship round (1-6) and relegation round (7-14). League shrinks to 12 for 2027-28, so four teams are relegated this season; no play-off. No transfer window dates.",
+   "note": "Window inherited from SER1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SER1"
   },
   "SFA1": {
@@ -5484,7 +5484,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Singapore_Premier_League",
-   "note": "8 teams, no relegation field or markers (closed league). Young Lions are ineligible for AFC slots. Transfer windows not stated.",
+   "note": "Window inherited from SIN1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SIN1"
   },
   "SK19": {
@@ -5506,7 +5506,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026–27_Slovak_First_Football_League",
-   "note": "Start stated as '25–26 July 2026' (first matchday), end only as 'May 2027' - exact closing date not stated. 12 teams, split into championship (1-6) and relegation (7-12) groups. Relegation structure not spelled out for 2026-27; 2025-26 article has 11th -> relegation play-offs, 12th -> direct relegation, and the 2026-27 article states the competition model is unchanged. No transfer window dates.",
+   "note": "Window inherited from SLO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SLO1"
   },
   "SK2": {
@@ -5528,7 +5528,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026–27_Slovak_First_Football_League",
-   "note": "Start stated as '25–26 July 2026' (first matchday), end only as 'May 2027' - exact closing date not stated. 12 teams, split into championship (1-6) and relegation (7-12) groups. Relegation structure not spelled out for 2026-27; 2025-26 article has 11th -> relegation play-offs, 12th -> direct relegation, and the 2026-27 article states the competition model is unchanged. No transfer window dates.",
+   "note": "Window inherited from SLO1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SLO1"
   },
   "SL1": {
@@ -5573,7 +5573,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Slovenian_PrvaLiga",
-   "note": "10 teams, single table; 9th to relegation play-offs, 10th relegated directly. No transfer window dates.",
+   "note": "Window inherited from SL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SL1"
   },
   "SL2": {
@@ -5596,13 +5596,13 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Slovenian_PrvaLiga",
-   "note": "10 teams, single table; 9th to relegation play-offs, 10th relegated directly. No transfer window dates.",
+   "note": "Window inherited from SL1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "SL1"
   },
   "SLO1": {
    "start_md": "07-25",
-   "end_md": "05-23",
-   "filled": "end",
+   "end_md": "05-15",
+   "filled": "",
    "phases": "split",
    "relegation": {
     "slots": 1,
@@ -5616,9 +5616,9 @@
     "playoff"
    ],
    "transfer_windows": [],
-   "confidence": "medium",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Slovak_First_Football_League",
-   "note": "Start stated as '25–26 July 2026' (first matchday), end only as 'May 2027' - exact closing date not stated. 12 teams, split into championship (1-6) and relegation (7-12) groups. Relegation structure not spelled out for 2026-27; 2025-26 article has 11th -> relegation play-offs, 12th -> direct relegation, and the 2026-27 article states the competition model is unchanged. No transfer window dates."
+   "note": "Start stated as '25–26 July 2026' (first matchday), end only as 'May 2027' - exact closing date not stated. 12 teams, split into championship (1-6) and relegation (7-12) groups. Relegation structure not spelled out for 2026-27; 2025-26 article has 11th -> relegation play-offs, 12th -> direct relegation, and the 2026-27 article states the competition model is unchanged. No transfer window dates. end_md from https://sk.wikipedia.org/wiki/Nik%C3%A9_liga_2026/2027: \"|koniec                 = 15. máj 2027\"."
   },
   "SMR1": {
    "start_md": "08-29",
@@ -5663,13 +5663,13 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Süper_Lig",
-   "note": "18 teams, single table; 16th-18th relegated. Article mentions pre-season and mid-season transfer windows only in statistics notes, without dates.",
+   "note": "Window inherited from TR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "TR1"
   },
   "TDeC": {
    "start_md": "01-30",
-   "end_md": "11-29",
-   "filled": "end",
+   "end_md": "11-22",
+   "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
     "slots": 2,
@@ -5686,9 +5686,9 @@
     "drawing_of_lots"
    ],
    "transfer_windows": [],
-   "confidence": "medium",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_1_(Peru)",
-   "note": "Article infobox gives only '30 January – December 2026'; no exact end date is stated, so end is null. Torneo Apertura + Torneo Clausura (18 teams) feed a single aggregate table, plus playoffs for the title; bottom two of the aggregate table are relegated. Tiebreak order taken from the aggregate-table class_rules."
+   "note": "Article infobox gives only '30 January – December 2026'; no exact end date is stated, so end is null. Torneo Apertura + Torneo Clausura (18 teams) feed a single aggregate table, plus playoffs for the title; bottom two of the aggregate table are relegated. Tiebreak order taken from the aggregate-table class_rules. end_md from https://en.wikipedia.org/wiki/2026_Liga_1_(Peru): \"The Torneo Clausura is the second and final tournament of the 2026 season, being held from 17 July to 22 November 2026.\"."
   },
   "TFL2": {
    "start_md": "09-13",
@@ -5712,7 +5712,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Taiwan_Football_Premier_League",
-   "note": "Article: 'There will be no relegations for this season due to the upcoming league expansion for the 2027–28 season.' 8 teams. Transfer windows not stated.",
+   "note": "Window inherited from TFPL; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "TFPL"
   },
   "TFPL": {
@@ -5775,7 +5775,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Thai_League_1",
-   "note": "16 teams; positions 14-16 relegated to Thai League 2. Transfer windows not stated.",
+   "note": "Window inherited from THA1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "THA1"
   },
   "TR1": {
@@ -5847,13 +5847,13 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Czech_First_League",
-   "note": "16 teams, split after regular season into championship (1-6), middle (7-10) and relegation (11-16) groups. Lowest-ranked team relegated directly; 14th and 15th play a home-and-away play-out against 2nd and 3rd of the FNL. No transfer window dates in article.",
+   "note": "Window inherited from TS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "TS1"
   },
   "TUN1": {
    "start_md": "08-22",
-   "end_md": "05-23",
-   "filled": "end",
+   "end_md": "05-22",
+   "filled": "",
    "phases": "single",
    "relegation": {
     "slots": 3,
@@ -5869,9 +5869,9 @@
     "playoff"
    ],
    "transfer_windows": [],
-   "confidence": "medium",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Tunisian_Ligue_Professionnelle_1",
-   "note": "Infobox dates '22 August 2026 – 2027', no exact end date. 16 teams in a single table; positions 14-16 relegated to Ligue 2. No transfer windows stated."
+   "note": "Infobox dates '22 August 2026 – 2027', no exact end date. 16 teams in a single table; positions 14-16 relegated to Ligue 2. No transfer windows stated. end_md from https://fr.wikipedia.org/wiki/Championnat_de_Tunisie_de_football_2026-2027: \"Date | Du 22 août 2026 au 22 mai 2027\"."
   },
   "UA2P": {
    "start_md": "07-31",
@@ -5894,7 +5894,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Ukrainian_Premier_League",
-   "note": "Infobox: 31 July 2026 – 4 June 2027, winter break December 2026 – February 2027. 16 teams, single table; 13th-14th to relegation play-offs, 15th-16th relegated directly. Tiebreak criterion 7 is a 'golden match' only for the title. No transfer window dates.",
+   "note": "Window inherited from UKR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "UKR1"
   },
   "UA3L": {
@@ -5918,7 +5918,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Ukrainian_Premier_League",
-   "note": "Infobox: 31 July 2026 – 4 June 2027, winter break December 2026 – February 2027. 16 teams, single table; 13th-14th to relegation play-offs, 15th-16th relegated directly. Tiebreak criterion 7 is a 'golden match' only for the title. No transfer window dates.",
+   "note": "Window inherited from UKR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "UKR1"
   },
   "UAE1": {
@@ -5967,7 +5967,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UAE_Pro_League",
-   "note": "Infobox 'dates = 14 August 2026 - TBC': finish date unknown, so end is null. 14 teams, 13th and 14th relegated, no play-off. No transfer-window dates stated.",
+   "note": "Window inherited from UAE1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "UAE1"
   },
   "UGL1": {
@@ -6037,7 +6037,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Ukrainian_Premier_League",
-   "note": "Infobox: 31 July 2026 – 4 June 2027, winter break December 2026 – February 2027. 16 teams, single table; 13th-14th to relegation play-offs, 15th-16th relegated directly. Tiebreak criterion 7 is a 'golden match' only for the title. No transfer window dates.",
+   "note": "Window inherited from UKR1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "UKR1"
   },
   "UN2": {
@@ -6062,7 +6062,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Nemzeti_Bajnokság_I",
-   "note": "12 teams, single table. New from 2026-27: last place relegated automatically, 11th plays a one-legged relegation play-off vs NB II runners-up at a neutral venue (scheduled 29 May 2027). No transfer window dates in article.",
+   "note": "Window inherited from UNG1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "UNG1"
   },
   "UNG1": {
@@ -6090,7 +6090,7 @@
    "note": "12 teams, single table. New from 2026-27: last place relegated automatically, 11th plays a one-legged relegation play-off vs NB II runners-up at a neutral venue (scheduled 29 May 2027). No transfer window dates in article."
   },
   "UR2T": {
-   "start_md": "02-06",
+   "start_md": "03-13",
    "end_md": "11-29",
    "filled": "end",
    "phases": "apertura_clausura",
@@ -6108,9 +6108,8 @@
    ],
    "transfer_windows": [],
    "confidence": "medium",
-   "source": "https://en.wikipedia.org/wiki/2026_Liga_AUF_Uruguaya",
-   "note": "Infobox gives only '6 February – December 2026'; no exact end date, so end is null. Clausura is scheduled to end 23 November 2026, then a championship playoff (semi-final + two-legged final) follows in December. Season = Apertura + Torneo Intermedio + Clausura. Three teams relegated on a two-season points-per-game average (2025 and 2026). No transfer-window dates in the article.",
-   "inherited_from": "URUC"
+   "source": "https://es.wikipedia.org/wiki/Campeonato_Uruguayo_de_Segunda_Divisi%C3%B3n_2026",
+   "note": "Segunda División Profesional 2026. Infobox: 'fecha de inicio = 13 de marzo de 2026', 'fecha de cierre = diciembre de 2026' (month only, so the end keeps the class default and stays marked filled). One double round-robin, 14 teams, 230 matches: this competition has no Apertura/Clausura phases, unlike the Primera. The earlier '05-02' was the final of the Torneo Competencia, a pre-season tournament, and was rejected."
   },
   "URL3": {
    "start_md": "01-22",
@@ -6131,13 +6130,13 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
-   "note": "Season = Torneo Apertura + Torneo Clausura (30 teams in two zones of 15, single round-robin plus two interzonal games, top 8 per zone to single-leg knockout). Two relegated: one by the coefficients table, one as last of the 2026 aggregate table (extra matches if level on points). Tiebreak order taken from the aggregate-table class_rules. No transfer-window dates in the article.",
+   "note": "Window inherited from ARGC; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "ARGC"
   },
   "URUC": {
    "start_md": "02-06",
-   "end_md": "11-29",
-   "filled": "end",
+   "end_md": "11-23",
+   "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
     "slots": 3,
@@ -6152,9 +6151,9 @@
     "drawing_of_lots"
    ],
    "transfer_windows": [],
-   "confidence": "medium",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_AUF_Uruguaya",
-   "note": "Infobox gives only '6 February – December 2026'; no exact end date, so end is null. Clausura is scheduled to end 23 November 2026, then a championship playoff (semi-final + two-legged final) follows in December. Season = Apertura + Torneo Intermedio + Clausura. Three teams relegated on a two-season points-per-game average (2025 and 2026). No transfer-window dates in the article."
+   "note": "Infobox gives only '6 February – December 2026'; no exact end date, so end is null. Clausura is scheduled to end 23 November 2026, then a championship playoff (semi-final + two-legged final) follows in December. Season = Apertura + Torneo Intermedio + Clausura. Three teams relegated on a two-season points-per-game average (2025 and 2026). No transfer-window dates in the article. end_md from https://en.wikipedia.org/wiki/2026_Liga_AUF_Uruguaya: \"It began on 7 August and is scheduled to end on 23 November 2026.\"."
   },
   "USC3": {
    "start_md": "02-21",
@@ -6180,7 +6179,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season",
-   "note": "Regular season February 21 - November 7 2026 (34 matches per team, six-week break May 25 - July 16 for the 2026 FIFA World Cup); playoffs November 19 - December 18 2026, MLS Cup on December 18. No transfer-window dates in the article (MLS primary/secondary windows are not stated). No relegation; final full season under the spring-autumn format.",
+   "note": "Window inherited from MLS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "MLS1"
   },
   "USL": {
@@ -6207,13 +6206,13 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season",
-   "note": "Regular season February 21 - November 7 2026 (34 matches per team, six-week break May 25 - July 16 for the 2026 FIFA World Cup); playoffs November 19 - December 18 2026, MLS Cup on December 18. No transfer-window dates in the article (MLS primary/secondary windows are not stated). No relegation; final full season under the spring-autumn format.",
+   "note": "Window inherited from MLS1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "MLS1"
   },
   "UZ1": {
    "start_md": "02-27",
-   "end_md": "11-29",
-   "filled": "end",
+   "end_md": "12-03",
+   "filled": "",
    "phases": "single",
    "relegation": {
     "slots": 1,
@@ -6228,14 +6227,14 @@
     "goals_scored"
    ],
    "transfer_windows": [],
-   "confidence": "medium",
+   "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Uzbekistan_Super_League",
-   "note": "Infobox 'dates = 27 February - till now': end not stated, so null. 16 teams. Table colours 12th-15th as relegation play-off and 16th as direct relegation (unusual 4 play-off places; as printed in the article). relegation_slots counts direct relegations only. No transfer-window dates stated."
+   "note": "Infobox 'dates = 27 February - till now': end not stated, so null. 16 teams. Table colours 12th-15th as relegation play-off and 16th as direct relegation (unusual 4 play-off places; as printed in the article). relegation_slots counts direct relegations only. No transfer-window dates stated. end_md from https://uz.wikipedia.org/wiki/Futbol_bo%CA%BByicha_2026-yilgi_O%CA%BBzbekiston_Superligasi: \"dates = 2026-yil 27-fevral – 2026-yil 3-dekabr\"."
   },
   "UZ2L": {
    "start_md": "02-27",
-   "end_md": "11-29",
-   "filled": "end",
+   "end_md": "11-30",
+   "filled": "",
    "phases": "single",
    "relegation": {
     "slots": null,
@@ -6252,7 +6251,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026_Uzbekistan_Super_League",
-   "note": "Infobox 'dates = 27 February - till now': end not stated, so null. 16 teams. Table colours 12th-15th as relegation play-off and 16th as direct relegation (unusual 4 play-off places; as printed in the article). relegation_slots counts direct relegations only. No transfer-window dates stated.",
+   "note": "Window inherited from UZ1; the season facts in that division's note were not re-checked for this league. end_md from https://uz.wikipedia.org/wiki/Futbol_bo%CA%BByicha_2026-yilgi_O%CA%BBzbekiston_Pro_ligasi: \"season = 2026-yil 5-aprel — 30-noyabr\".",
    "inherited_from": "UZ1"
   },
   "VIE1": {
@@ -6303,7 +6302,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_FUTVE",
-   "note": "Infobox gives only '29 January – December 2026'; no exact end date, so end is null. Torneo Apertura + Torneo Clausura (14 teams, each with a regular stage and group/final stages) plus a two-legged Grand Final for the absolute champion. Only the last-placed team in the aggregate table is relegated to Liga FUTVE 2. No transfer-window dates in the article.",
+   "note": "Window inherited from VZ1C; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "VZ1C"
   },
   "VZ1C": {
@@ -6334,8 +6333,8 @@
   },
   "WA2S": {
    "start_md": "07-31",
-   "end_md": "05-23",
-   "filled": "end",
+   "end_md": "04-17",
+   "filled": "",
    "phases": "split",
    "relegation": {
     "slots": null,
@@ -6354,13 +6353,13 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Cymru_Premier",
-   "note": "Infobox literally reads 'dates = 31 July 2026 – TBD 2027', so end is null (not published). No transfer windows stated. 16 teams: 30-match regular season, then Championship Race (top 6) / European Challenger (7th-10th) / Survival Zone (bottom 6), points carried over. Bottom two relegated; 14th plays the Cymru Premier play-off against the Cymru North/South play-off winners.",
+   "note": "Window inherited from WAL1; the season facts in that division's note were not re-checked for this league. end_md from https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/: \"JD Cymru North & JD Cymru South ... Final round of fixtures: 16-17 April 2027\".",
    "inherited_from": "WAL1"
   },
   "WAL1": {
    "start_md": "07-31",
-   "end_md": "05-23",
-   "filled": "end",
+   "end_md": "04-25",
+   "filled": "",
    "phases": "split",
    "relegation": {
     "slots": 2,
@@ -6379,12 +6378,12 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Cymru_Premier",
-   "note": "Infobox literally reads 'dates = 31 July 2026 – TBD 2027', so end is null (not published). No transfer windows stated. 16 teams: 30-match regular season, then Championship Race (top 6) / European Challenger (7th-10th) / Survival Zone (bottom 6), points carried over. Bottom two relegated; 14th plays the Cymru Premier play-off against the Cymru North/South play-off winners."
+   "note": "Infobox literally reads 'dates = 31 July 2026 – TBD 2027', so end is null (not published). No transfer windows stated. 16 teams: 30-match regular season, then Championship Race (top 6) / European Challenger (7th-10th) / Survival Zone (bottom 6), points carried over. Bottom two relegated; 14th plays the Cymru Premier play-off against the Cymru North/South play-off winners. end_md from https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/: \"Final round of Phase Two fixtures: 23 – 25 April 2027\"."
   },
   "WAL2": {
    "start_md": "07-31",
-   "end_md": "05-23",
-   "filled": "end",
+   "end_md": "04-17",
+   "filled": "",
    "phases": "split",
    "relegation": {
     "slots": null,
@@ -6403,7 +6402,7 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Cymru_Premier",
-   "note": "Infobox literally reads 'dates = 31 July 2026 – TBD 2027', so end is null (not published). No transfer windows stated. 16 teams: 30-match regular season, then Championship Race (top 6) / European Challenger (7th-10th) / Survival Zone (bottom 6), points carried over. Bottom two relegated; 14th plays the Cymru Premier play-off against the Cymru North/South play-off winners.",
+   "note": "Window inherited from WAL1; the season facts in that division's note were not re-checked for this league. end_md from https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/: \"JD Cymru North & JD Cymru South ... Final round of fixtures: 16-17 April 2027\".",
    "inherited_from": "WAL1"
   },
   "WER1": {
@@ -6450,7 +6449,7 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Belarusian_Premier_League",
-   "note": "Calendar-year season: 20 March – 29 November 2026. 16 teams, single table; 14th to relegation play-off, 15th-16th relegated directly. No transfer window dates.",
+   "note": "Window inherited from WER1; the season facts in that division's note were not re-checked for this league.",
    "inherited_from": "WER1"
   },
   "ZYP1": {

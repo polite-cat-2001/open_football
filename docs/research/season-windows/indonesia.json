@@ -1,0 +1,54 @@
+{
+  "country": "Indonesia",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "IN1L",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "06-05",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://id.wikipedia.org/wiki/Liga_Super_(Indonesia)_2026%E2%80%932027",
+          "quote": "Musim ini berlangsung sejak 4 September 2026 dan dijadwalkan akan berakhir pada 5 Juni 2027.",
+          "note": "Liga Super 2026-27 infobox: 'dates = 4 September 2026 – 5 Juni 2027'. The sentence is cited to the official I-League calendar PDF (kalender-kompetisi-202627, 5 August 2026), so the day is the league's own scheduled final date. 5 June 2027 = 06-05; the asset's 05-23 was a class default."
+        }
+      ]
+    },
+    {
+      "id": "ILI2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-09",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://id.wikipedia.org/wiki/Kejuaraan_(Indonesia)_2026%E2%80%932027",
+          "quote": "Musim ini berlangsung sejak 11 September 2026 dan dijadwalkan akan berakhir pada 9 Mei 2027.",
+          "note": "ILI2 is the Championship (Kejuaraan, 2nd tier). Infobox: 'dates = 11 September 2026 – 9 Mei 2027', cited to the same official I-League calendar. 9 May 2027 = 05-09. Note the asset's start (09-04) is still inherited from the Super League, while this league actually kicks off on 11 September 2026 — that field is not in 'filled', so it was left alone here."
+        }
+      ]
+    },
+    {
+      "id": "IN3L",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://id.wikipedia.org/wiki/Liga_Nusantara_2026%E2%80%932027",
+          "quote": "dates = 13 November 2026 – ADT (Akan ditentukan)",
+          "note": "IN3L is Liga Nusantara (3rd tier). The 2026-27 infobox ends with 'ADT' (akan ditentukan = to be determined), so no closing date exists. The asset's 05-23 is inherited from IN1L. Kick-off itself slipped to 13 November 2026 (postponed from an earlier plan)."
+        }
+      ]
+    }
+  ]
+}

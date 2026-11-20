@@ -37,8 +37,18 @@ func _run() -> void:
 	_check(LeagueRegulations.tiebreak("GB1").has("goal_difference"), "England breaks ties on goal difference")
 	_check(LeagueRegulations.record("GB1").get("transfer_windows", []).size() == 2,
 		"England has two transfer windows")
-	_check(LeagueRegulations.record("JPL1").get("filled") == "start+end",
-		"a league without dates is filled from the class default")
+	var bad_default: Array = []
+	for league_id in leagues:
+		var entry: Dictionary = leagues[league_id]
+		var filled := str(entry.get("filled", ""))
+		if filled.contains("start") \
+				and not ["08-18", "03-06"].has(str(entry.get("start_md", ""))):
+			bad_default.append(league_id + ":start")
+		if filled.contains("end") \
+				and not ["05-23", "11-29"].has(str(entry.get("end_md", ""))):
+			bad_default.append(league_id + ":end")
+	_check(bad_default.is_empty(),
+		"a league without dates keeps the class default: " + str(bad_default))
 
 	var england := LeagueRegulations.window("GB1", 2026)
 	_check(england.get("start") == "2026-08-21" and england.get("end") == "2027-05-30",

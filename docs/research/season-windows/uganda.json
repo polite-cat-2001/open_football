@@ -1,0 +1,22 @@
+{
+  "country": "Uganda",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "UGL1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Uganda_Premier_League",
+          "quote": "The season started on 28 August 2026.",
+          "note": "The article has no dates infobox field and no closing date; the season is 34 rounds for 18 teams. Only the first round has been published — the UPL secretariat released first-round fixtures and 'The first round of the League will run up to Thursday 24th December 2026' (kawowo.com, 22 August 2026). Second-round fixtures are not out, so not even a month is known; the 05-23 default stays."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "country": "Armenia",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "ARM1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-27",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Armenian_Premier_League",
+          "quote": "dates            = {{nowrap|1 August 2025 – 27 May 2026}}",
+          "note": "No day exists for 2026-27: that season's infobox reads 'dates = 31 July 2026 – 2027' (year only) and hy.wikipedia has no 2026-27 season article (search returns only World Cup qualifiers), while the FFA site (premierleague.ffa.am/hy/games) publishes only the current round. Value is a proxy: the league's own previous season ended 27 May 2026."
+        }
+      ]
+    },
+    {
+      "id": "ARM2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Armenian_Premier_League",
+          "quote": "dates = 31 July 2026 – 2027",
+          "note": "ARM2 (second tier, Armenian First League) carries ARM1's window via 'inherited_from', so the quoted infobox is the Premier League's, not the First League's. There is no '2026-27 Armenian First League' (or 2025-26) article on en.wikipedia and no First League date on the FFA site, so no day exists. Proxying from the Premier League would be another league, which the rules forbid."
+        }
+      ]
+    }
+  ]
+}

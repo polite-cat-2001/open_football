@@ -1,0 +1,60 @@
+{
+  "country": "Malaysia",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "MYS1",
+      "fields": [
+        {
+          "field": "start_md",
+          "current": "08-18",
+          "found": "08-21",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://ms.wikipedia.org/wiki/Liga_Super_Malaysia_2026%E2%80%9327",
+          "quote": "dates = 21 Ogos 2026 – 2027",
+          "note": "The Malay season infobox carries the start day the English article omits (its 'dates' field is empty). Corroborated by the MFL squad announcement reported on 10 July 2026, which has the league starting 21 August 2026, and by the article's own first-round results dated 26 August 2026."
+        },
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://ms.wikipedia.org/wiki/Liga_Super_Malaysia_2026%E2%80%9327",
+          "quote": "dates = 21 Ogos 2026 – 2027",
+          "note": "The same infobox gives the finish only as the year '2027' - not even a month - so there is no day (and nothing better than the 05-23 default) to record. The English article states no dates at all."
+        }
+      ]
+    },
+    {
+      "id": "MAY2",
+      "fields": [
+        {
+          "field": "start_md",
+          "current": "08-18",
+          "found": "08-28",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://aflplus-ifs.my/schedule/",
+          "quote": "Gameweek 1 28 Aug — 30 Aug",
+          "note": "MAY2 is the Liga A1 Semi-Pro, Malaysia's second tier. The AFL's own schedule platform (the league's official PPV/fixtures site) opens the 26-gameweek, 182-fixture season on 28 August 2026; the club preview published on 4 August 2026 agrees ('akan membuka tirai pada 28 Ogos 2026 (Jumaat)'). The Malay Wikipedia article for 2026-27 has no dates field at all."
+        },
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-15",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://aflplus-ifs.my/schedule/",
+          "quote": "Gameweek 26 14 May — 15 May",
+          "note": "The official AFL schedule dates the final gameweek to the window 14-15 May 2027, so the last match day - the season end - is 15 May 2027; the summary line on the same page only says 'through May 2027'. Recorded 05-15 on the strength of the round window rather than an explicit closing sentence."
+        }
+      ]
+    }
+  ]
+}

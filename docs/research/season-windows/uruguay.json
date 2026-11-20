@@ -1,0 +1,49 @@
+{
+  "country": "Uruguay",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "URUC",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": "11-23",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2026_Liga_AUF_Uruguaya",
+          "quote": "It began on 7 August and is scheduled to end on 23 November 2026.",
+          "note": "Phase row: the Clausura, the third and final phase of the 2026 season (Apertura, Intermedio, Clausura); 23 November 2026 is its scheduled last matchday. Liverpool already won it with a match to spare. The championship play-off (semi-final, then a two-legged final) follows in December, outside this phase."
+        }
+      ]
+    },
+    {
+      "id": "UR2T",
+      "fields": [
+        {
+          "field": "start_md",
+          "current": "02-06",
+          "found": "03-13",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://es.wikipedia.org/wiki/Campeonato_Uruguayo_de_Segunda_Divisi%C3%B3n_2026",
+          "quote": "fecha de inicio = 13 de marzo de 2026",
+          "note": "The row is the whole Segunda División (14 clubs), not a phase, even though the database name says 'Torneo Competencia': the season article has one double round-robin of 230 matches. The earlier start (02-06) was wrong."
+        },
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": null,
+          "precision": "month",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://es.wikipedia.org/wiki/Campeonato_Uruguayo_de_Segunda_Divisi%C3%B3n_2026",
+          "quote": "fecha de cierre = diciembre de 2026",
+          "note": "Month only, so the class default stays. A previous pass recorded 05-02 from the Torneo Competencia final (an opening tournament); that is not the end of the championship and was rejected."
+        }
+      ]
+    }
+  ]
+}

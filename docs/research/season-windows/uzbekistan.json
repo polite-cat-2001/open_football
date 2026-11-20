@@ -1,0 +1,38 @@
+{
+  "country": "Uzbekistan",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "UZ1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": "12-03",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://uz.wikipedia.org/wiki/Futbol_bo%CA%BByicha_2026-yilgi_O%CA%BBzbekiston_Superligasi",
+          "quote": "dates = 2026-yil 27-fevral – 2026-yil 3-dekabr",
+          "note": "The Uzbek season article states the closing day outright: 3 December 2026 (the English article still shows 'Dates 27 February – till now', which is why the asset left the end null). Its table is updated to 15 November 2026 with all 16 teams on 27 matches of 30 rounds, so a 3 December finish is consistent."
+        }
+      ]
+    },
+    {
+      "id": "UZ2L",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": "11-30",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://uz.wikipedia.org/wiki/Futbol_bo%CA%BByicha_2026-yilgi_O%CA%BBzbekiston_Pro_ligasi",
+          "quote": "season = 2026-yil 5-aprel — 30-noyabr",
+          "note": "UZ2L is the Pro League (second tier); the asset's 11-29 came from the Super League, not this page. The Uzbek article dates the season 5 April - 30 November 2026, which is the day recorded. Caveat: its table already looks final (182 matches, 14 teams, 26 rounds, winners Aral, updated 9 November 2026), and round 26 fixture boxes are dated 9 November 2026 with one box carrying 2026-12-31, so the stated 30 November close may not be the actual last match day - hence medium, not high."
+        }
+      ]
+    }
+  ]
+}

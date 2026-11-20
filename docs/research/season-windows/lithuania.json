@@ -1,0 +1,38 @@
+{
+  "country": "Lithuania",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "LI1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": "11-08",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://lt.wikipedia.org/wiki/2026_m._TOPLYGA",
+          "quote": "|dates = 2026 m. vasario 21 – lapkričio 8 d. ... vykęs tarp 2026 m. vasario 21 ir lapkričio 8 d.",
+          "note": "Season is complete (Kauno Žalgiris champions); the lt.wikipedia season article gives the last day of play as 8 November 2026, replacing the year-only 'November 2026' in the asset note."
+        }
+      ]
+    },
+    {
+      "id": "LTU2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": "11-09",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://lt.wikipedia.org/wiki/2025_m._LFF_I_lyga",
+          "quote": "|dates = 2025 m. kovo 7 – lapkričio 9 d.",
+          "note": "LTU2 carries LI1's (TOPLYGA) window via 'inherited_from', but it is a different competition: LFF I lyga 2026. Its own 2026 article gives only the month ('2026 m. kovas – lapkritis', title decided by 'golden matches' in mid-November), so no day exists for 2026-27; the value is a proxy from the same league's 2025 season, which ended on 9 November 2025 and matches that mid-November statement. The inherited 11-29 (a TOPLYGA default) is wrong for this league."
+        }
+      ]
+    }
+  ]
+}

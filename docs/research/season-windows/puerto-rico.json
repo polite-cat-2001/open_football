@@ -1,0 +1,22 @@
+{
+  "country": "Puerto Rico",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "PRA1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": null,
+          "precision": "month",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_Puerto_Rico_Pro_season",
+          "quote": "Dates Apertura: August 15, 2026 - December 2026",
+          "note": "As expected, the end is a default: the article gives the Apertura's close as 'December 2026' only. The 17-round regular season is played out to mid/late November (last listed matchday 18-19 November) and the top four go to playoffs with no published final date, so no exact day exists and the default stays."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "country": "Philippines",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "PFL1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Philippines_Football_League",
+          "quote": "dates = August 31, 2026 – TBA",
+          "note": "Infobox end is 'TBA', so no exact day exists. No Philippine-language Wikipedia edition covers this league, and the article body only discusses the (already past) start, postponed one day to 31 August 2026 by monsoon rains. The 05-23 default stays."
+        }
+      ]
+    }
+  ]
+}

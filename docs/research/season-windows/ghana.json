@@ -1,0 +1,22 @@
+{
+  "country": "Ghana",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "GHPL",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "month",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://ghanafa.org/dates-for-2026-27-premier-league-season-released",
+          "quote": "conclude on the weekend of May 28–31, 2027",
+          "note": "The GFA calendar gives a four-day weekend window for the last round, not a single day, and the Wikipedia infobox says only 'Dates | 5 September 2026 – May 2027'. Month is May 2027; no exact day exists in either source, so the 05-23 default stays."
+        }
+      ]
+    }
+  ]
+}

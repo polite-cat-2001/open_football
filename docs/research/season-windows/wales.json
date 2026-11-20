@@ -1,0 +1,54 @@
+{
+  "country": "Wales",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "WAL1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "04-25",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/",
+          "quote": "Final round of Phase Two fixtures: 23 – 25 April 2027",
+          "note": "Official FAW season-dates release (1 June 2026). The 16-team league runs a 30-game Phase One (last round 26 March 2027), splits into Championship Race / European Challenger / Survival Zone from 2 April, and the final Phase Two round is played across 23-25 April 2027; 25 April is therefore the last day of league football. The post-season European play-off final (7-8 May) and promotion/relegation final (7-9 May) are excluded as separate matches. The en.wikipedia infobox still says 'TBD 2027'."
+        }
+      ]
+    },
+    {
+      "id": "WAL2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "04-17",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/",
+          "quote": "JD Cymru North & JD Cymru South ... Final round of fixtures: 16-17 April 2027",
+          "note": "WAL2 (tier 2, Cymru North) carries the Cymru Premier window in the asset; the same FAW release gives the tier-2 final round as 16-17 April 2027, so 17 April is the last day. Promotion play-off legs (23-25 April, 30 April-2 May) and the promotion/relegation final (7-9 May) are separate matches."
+        }
+      ]
+    },
+    {
+      "id": "WA2S",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "04-17",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/",
+          "quote": "JD Cymru North & JD Cymru South ... Final round of fixtures: 16-17 April 2027",
+          "note": "WA2S (tier 2, Cymru South) carries the Cymru Premier window in the asset; the FAW release lists Cymru South with the same final round of 16-17 April 2027, so 17 April is the last day. Play-off dates excluded as separate matches."
+        }
+      ]
+    }
+  ]
+}

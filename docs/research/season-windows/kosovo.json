@@ -1,0 +1,22 @@
+{
+  "country": "Kosovo",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "KO1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-31",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Football_Superleague_of_Kosovo",
+          "quote": "| dates              = 17 August 2025 – 31 May 2026",
+          "note": "No day for 2026-27: en infobox '15 August 2026 – May 2027'; no Albanian Wikipedia season article exists (sq 'Superliga e Kosovës 2026/27' and variants missing), and FFK's site is a JavaScript app with no server-rendered calendar. Value is the previous season's last day (31 May 2026) used as a proxy - note it is a full week later than the class default, so this field is the one most worth re-checking once FFK publishes the spring calendar."
+        }
+      ]
+    }
+  ]
+}

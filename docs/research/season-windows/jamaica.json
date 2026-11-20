@@ -1,0 +1,33 @@
+{
+  "country": "Jamaica",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "JPL1",
+      "fields": [
+        {
+          "field": "start_md",
+          "current": "08-18",
+          "found": "09-13",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://www.jamaicafootball.org/2026/09/14/tru-juice-fc-stun-mount-pleasant-4-0-as-goals-and-early-statements-mark-opening-day-of-2026-27-jamaica-premier-league/",
+          "quote": "SUNDAY, SEPTEMBER 13, 2026 — CONFIRMED RESULTS ... Four matches were played on Sunday as the new campaign got underway",
+          "note": "The season article gives only 'Dates: September 2026 – May 2027', so the day comes from the league's own press release: opening day was Sunday 13 September 2026. The kickoff had been moved twice (23 August, then mid-September), which is why the earlier August date found in news is stale. Single 14-team table, no Apertura/Clausura split."
+        },
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "month",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Jamaica_Premier_League",
+          "quote": "Dates September 2026 – May 2027",
+          "note": "Infobox gives the closing month only (May 2027); no exact last round or final date is published. 39 regular-season matches then playoffs, so the season does not end on a fixed league date."
+        }
+      ]
+    }
+  ]
+}

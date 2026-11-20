@@ -1,0 +1,38 @@
+{
+  "country": "Montenegro",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "MNE1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-24",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Montenegrin_First_League",
+          "quote": "| dates = 4 August 2025 – 24 May 2026",
+          "note": "No day for 2026-27: en infobox '1 August 2026 – May 2027'. FSCG only fixed the autumn half: 'Komisija za takmičenje ... obavila je žrijeb za predstojeći jesenji dio sezone' and 'Kompletan raspored jesenjeg dijela sezone možete pogledati OVDJE' (fscg.me news, 18 June 2026); the spring calendar (rounds 19-36) is drawn in winter, so the closing round has no date yet. Value is the previous season's last day (24 May 2026) used as a proxy."
+        }
+      ]
+    },
+    {
+      "id": "MNE2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-23",
+          "precision": "day",
+          "proxy": true,
+          "confidence": "low",
+          "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Montenegrin_Second_League",
+          "quote": "| dates = {{nowrap|18 August 2025 – 23 May 2026}}",
+          "note": "Record inherited from MNE1 in the asset. No 2026-27 article exists for Meridianbet 2. CFL (en '2026–27 Montenegrin Second League' missing); FSCG announced the fixture draw for both CFLs together on 18 June 2026 but published only the autumn half. Value is the previous season's last day (23 May 2026) and equals the current default, so the merge is a no-op for this field."
+        }
+      ]
+    }
+  ]
+}

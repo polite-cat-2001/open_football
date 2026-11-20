@@ -1,0 +1,54 @@
+{
+  "country": "Peru",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "TDeC",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": "11-22",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2026_Liga_1_(Peru)",
+          "quote": "The Torneo Clausura is the second and final tournament of the 2026 season, being held from 17 July to 22 November 2026.",
+          "note": "Phase row: this is the Clausura, one half of the split Apertura/Clausura season; 22 November 2026 is the last Clausura matchday. The season infobox still says only '30 January – December 2026' because the title play-offs follow in December, outside this phase."
+        }
+      ]
+    },
+    {
+      "id": "PER2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": null,
+          "precision": "month",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://es.wikipedia.org/wiki/Liga2_2026_(Per%C3%BA)",
+          "quote": "Fecha de inicio 27 de marzo ... Fecha de cierre noviembre de 2026",
+          "note": "Liga 2 is a calendar-year league with no Apertura/Clausura split; the record was inherited from the Liga 1 article and never described this competition. Closing is given as a month only. Play-off rounds are ranges (14–15 and 21–22 November, 28–29 November and 5–6 December) with the subcampeonato on 9 December, so there is no single exact end day."
+        }
+      ]
+    },
+    {
+      "id": "PLI3",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": null,
+          "precision": "month",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://es.wikipedia.org/wiki/Liga3_2026_(Per%C3%BA)",
+          "quote": "Fecha de inicio 30 de mayo ... Fecha de cierre noviembre de 2026",
+          "note": "Liga 3 is a calendar-year league with no Apertura/Clausura split; the record was inherited from the Liga 1 article and never described this competition. Only the closing month is published; the regional/final phases and play-offs (cuartos, semifinal, final) carry no single exact end day."
+        }
+      ]
+    }
+  ]
+}

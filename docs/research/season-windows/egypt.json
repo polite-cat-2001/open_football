@@ -1,0 +1,22 @@
+{
+  "country": "Egypt",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "EGY1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": "05-28",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "medium",
+          "source": "https://news.22bet.com/news/egypt-premier-league-2026-27-season-guide-betting-preview/",
+          "quote": "28 May 2027 | Season Concludes",
+          "note": "The season article has no end date: en.wikipedia infobox says 'Dates | 21 August 2026 –' and ar.wikipedia says '21 أغسطس 2026- 2027', so neither national- nor English-language Wikipedia supplies a day. The 28 May 2027 conclusion comes from a season-guide key-dates table; other outlets describe the same date as provisional because of the continental finals. 28 May 2027 = 05-28; the asset's 05-23 was a class default."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "country": "Panama",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "PN1A",
+      "fields": [
+        {
+          "field": "start_md",
+          "current": "03-06",
+          "found": "07-24",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1)",
+          "quote": "Fecha de inicio 24 de julio",
+          "note": "Phase row: the Apertura, one half of the split season. After CONCACAF asked the LPF to return to the European calendar, the 2026 Apertura (24 July – 5 December) opens the 2026–27 season; the previous 'Clausura 2025' was a transition tournament. Not a calendar-year January start."
+        },
+        {
+          "field": "end_md",
+          "current": "11-29",
+          "found": "12-05",
+          "precision": "day",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1)",
+          "quote": "Fecha de cierre 5 de diciembre",
+          "note": "Phase row: the Apertura final is played on 5 December 2026 (single match at the Rommel Fernández). The Clausura is a separate phase in 2027."
+        }
+      ]
+    }
+  ]
+}

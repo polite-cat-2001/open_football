@@ -1,0 +1,38 @@
+{
+  "country": "United Arab Emirates",
+  "checked": "2026-11-20",
+  "leagues": [
+    {
+      "id": "UAE1",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UAE_Pro_League",
+          "quote": "dates = 14 August 2026 – TBC",
+          "note": "The season article states the start day (14 August 2026, and its results confirm 15 August fixtures) but gives the finish as 'TBC'; the body does not mention a closing date either. No UAE Pro League article exists in Arabic Wikipedia, and the official site (uaeproleague.ae) did not respond to a read. No exact day, so the 05-23 default stays."
+        }
+      ]
+    },
+    {
+      "id": "UAE2",
+      "fields": [
+        {
+          "field": "end_md",
+          "current": "05-23",
+          "found": null,
+          "precision": "none",
+          "proxy": false,
+          "confidence": "high",
+          "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UAE_First_Division_League",
+          "quote": "Wikipedia does not have an article with this exact name.",
+          "note": "UAE2 is the UAE First Division League (second tier). There is no 2026-27 season article on English or Arabic Wikipedia (the Arabic search returns only the top-flight and general league pages), and no official fixture list with a closing round was found - only third-party aggregator tables, which are not a source for this pass. Nothing to replace the 05-23 default with; the record's note and dates were inherited from UAE1."
+        }
+      ]
+    }
+  ]
+}
