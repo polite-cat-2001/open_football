@@ -1,5 +1,5 @@
 {
- "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league. AR3R merged into AR3F as one 37-club Torneo Federal A; a database rebuilt from the canon must move its 19 clubs into AR3F and drop the AR3R league. RLN3 (Regionalliga Nord) and RLW3 (Regionalliga West) were added from Transfermarkt (18 clubs each) to complete the five German fourth-tier leagues; the clubs, squads, logos and kits are in the database build of 2026-11-21.",
+ "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league. AR3R merged into AR3F as one 37-club Torneo Federal A; a database rebuilt from the canon must move its 19 clubs into AR3F and drop the AR3R league. RLN3 (Regionalliga Nord) and RLW3 (Regionalliga West) were added from Transfermarkt (18 clubs each) to complete the five German fourth-tier leagues; the clubs, squads, logos and kits are in the database build of 2026-11-21. FR5A, FR5B, FR5C, FR5D and FR5H (the missing National 2 groups) were added from Transfermarkt on 2026-11-21; the level now has all eight groups in the database.",
  "_generated": "2026-11-20",
  "leagues": {
   "2DVB": {
@@ -5553,6 +5553,76 @@
    },
    "playoff": null,
    "country": "Germany",
+   "confidence": "high"
+  },
+  "FR5A": {
+   "level": 5,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "groups",
+    "groups": 8,
+    "rounds": 26
+   },
+   "playoff": null,
+   "country": "France",
+   "confidence": "high"
+  },
+  "FR5B": {
+   "level": 5,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "groups",
+    "groups": 8,
+    "rounds": 26
+   },
+   "playoff": null,
+   "country": "France",
+   "confidence": "high"
+  },
+  "FR5C": {
+   "level": 5,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "groups",
+    "groups": 8,
+    "rounds": 26
+   },
+   "playoff": null,
+   "country": "France",
+   "confidence": "high"
+  },
+  "FR5D": {
+   "level": 5,
+   "size": 14,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "groups",
+    "groups": 8,
+    "rounds": 26
+   },
+   "playoff": null,
+   "country": "France",
+   "confidence": "high"
+  },
+  "FR5H": {
+   "level": 5,
+   "size": 13,
+   "closed_up": false,
+   "closed_down": true,
+   "format": {
+    "kind": "groups",
+    "groups": 8,
+    "rounds": 26
+   },
+   "playoff": null,
+   "country": "France",
    "confidence": "high"
   }
  },

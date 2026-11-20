@@ -6473,6 +6473,81 @@
    "confidence": "medium",
    "source": "https://www.transfermarkt.com/regionalliga-west/startseite/wettbewerb/rlw3",
    "note": "Regionalliga fourth tier, 18 clubs; the season window follows the German 3. Liga calendar (August to May). Added to the database on 2026-11-21 from Transfermarkt (clubs, squads, logos, kits); the club list is in the pyramid and the fixtures follow the German winter break only through the calendar blackout rule."
+  },
+  "FR5A": {
+   "start_md": "08-21",
+   "end_md": "05-29",
+   "filled": "",
+   "phases": "single",
+   "relegation": {
+    "slots": null,
+    "playoff": true
+   },
+   "tiebreak": [],
+   "transfer_windows": [],
+   "confidence": "medium",
+   "source": "https://www.transfermarkt.com/x/startseite/wettbewerb/FR5A",
+   "note": "Championnat National 2 group, 14 clubs; the season window follows the French calendar (August to May). Added from Transfermarkt on 2026-11-21 (clubs, squads, logos, kits)."
+  },
+  "FR5B": {
+   "start_md": "08-21",
+   "end_md": "05-29",
+   "filled": "",
+   "phases": "single",
+   "relegation": {
+    "slots": null,
+    "playoff": true
+   },
+   "tiebreak": [],
+   "transfer_windows": [],
+   "confidence": "medium",
+   "source": "https://www.transfermarkt.com/x/startseite/wettbewerb/FR5B",
+   "note": "Championnat National 2 group, 14 clubs; the season window follows the French calendar (August to May). Added from Transfermarkt on 2026-11-21 (clubs, squads, logos, kits)."
+  },
+  "FR5C": {
+   "start_md": "08-21",
+   "end_md": "05-29",
+   "filled": "",
+   "phases": "single",
+   "relegation": {
+    "slots": null,
+    "playoff": true
+   },
+   "tiebreak": [],
+   "transfer_windows": [],
+   "confidence": "medium",
+   "source": "https://www.transfermarkt.com/x/startseite/wettbewerb/FR5C",
+   "note": "Championnat National 2 group, 14 clubs; the season window follows the French calendar (August to May). Added from Transfermarkt on 2026-11-21 (clubs, squads, logos, kits)."
+  },
+  "FR5D": {
+   "start_md": "08-21",
+   "end_md": "05-29",
+   "filled": "",
+   "phases": "single",
+   "relegation": {
+    "slots": null,
+    "playoff": true
+   },
+   "tiebreak": [],
+   "transfer_windows": [],
+   "confidence": "medium",
+   "source": "https://www.transfermarkt.com/x/startseite/wettbewerb/FR5D",
+   "note": "Championnat National 2 group, 14 clubs; the season window follows the French calendar (August to May). Added from Transfermarkt on 2026-11-21 (clubs, squads, logos, kits)."
+  },
+  "FR5H": {
+   "start_md": "08-21",
+   "end_md": "05-29",
+   "filled": "",
+   "phases": "single",
+   "relegation": {
+    "slots": null,
+    "playoff": true
+   },
+   "tiebreak": [],
+   "transfer_windows": [],
+   "confidence": "medium",
+   "source": "https://www.transfermarkt.com/x/startseite/wettbewerb/FR5H",
+   "note": "Championnat National 2 group, 13 clubs; the season window follows the French calendar (August to May). Added from Transfermarkt on 2026-11-21 (clubs, squads, logos, kits)."
   }
  }
 }
