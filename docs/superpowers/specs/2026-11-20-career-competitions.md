@@ -43,7 +43,10 @@ only one with promotion and relegation.
   relegation, the one the hub tile shows by default).
 - `participants` rules: `league` (its clubs), `country` + `tiers` (every club of
   those tiers), `from` (winners/runners-up of named competitions), `berths`
-  (the qualification graph, below).
+  (the qualification graph, below). The resolved set is the **first stage's**
+  `entrants`, so a competition may state one or the other, never both.
+- `kind` extension: `fixture_list` is a stage kind, not a competition kind (see
+  below), so the two enums do not collide.
 - `format` is the same stage model as the league formats: `league`/`group`/
   `knockout` stages, clauses, `legs`, conditional stages. Two additions:
   - `kind: "fixture_list"`: a fixed pairing list (the UEFA league phase). The
@@ -52,27 +55,34 @@ only one with promotion and relegation.
     builder cannot produce it.
   - `legs` per round is already there; a two-legged **final** (Brazil) is just
     `{"name": "final", "legs": 2}`.
-- Calendar: each competition has its own window; fixtures interleave. A
-  competition may run across the career season boundary (the UEFA qualifiers
-  start in July): it belongs to the season whose window contains its start.
+- Calendar: each competition has its own window; fixtures interleave. The
+  career season window is the **union** of the primary league and every
+  competition the club enters (formats spec), so a UCL qualifier in early July
+  widens the season instead of falling outside it.
 
 ## Engine
 
 - Every fixture gains `competition` (the id above) besides `stage`, `group`,
-  `stage_round`. Ids: `<competition>:<stage>:<round>-<n>`.
+  `stage_round`. Ids: `<competition>:<stage>:<round>-<n>`, except a primary
+  league with no `format`, which keeps `r%02d-%02d` so its results survive the
+  migration.
 - `career.schedule` becomes the union of the competitions the career club is
   in. Other clubs' fixtures of those competitions are generated too, because a
   bracket needs their results.
-- Tables are per competition (`standings(view)` gains `competition`), and the
-  hub shows the primary league by default with a tab per other competition.
+- Tables are per competition: the view becomes `{competition, stage, stages,
+  group, exclude_round}`, `competition` defaulting to the primary league. The
+  hub shows the primary league by default with a tab per other competition, and
+  each competition's tab contains that competition's stage tabs (the aggregate
+  sits inside the primary league).
 - "Next fixture" is the earliest unplayed fixture across all competitions.
   `season.next` carries `competition` and the competition's label.
 - The season review: primary league (table, promotion/relegation) plus one
   block per other competition (winner, final score).
 - Promotion and relegation read the primary league only.
-- A competition the club leaves (eliminated from a cup) keeps simulating its
-  remaining fixtures for the other clubs, but drops out of the hub tabs after
-  the club's last fixture in it.
+- When the club is eliminated from a cup or continental competition, the rest
+  of that bracket is **generated and simulated immediately**, so the winner
+  exists for next season's berths; the competition then drops out of the hub
+  tabs.
 
 ## Qualification (the hard part)
 
@@ -80,12 +90,15 @@ Next season's berths depend on results across **many** leagues: the top N of
 each league enters the continental competition, cup winners enter another.
 
 **Decision: a background world season.** Once per season the engine simulates
-every league it needs (all 106 countries) in bulk and stores each final table.
-The Poisson sim is cheap (~40k fixtures), and the stored tables also give the
-transfer market a real world instead of a strength guess. The world season runs
-at the career season boundary, after the domestic review and before the next
-season's berths are allocated, so the berths read real tables. The player's own
-league is not re-simulated: its table is the one the career played.
+every league it needs (all 106 countries) in bulk and stores each final table in
+`career.data["world_seasons"]`, keyed by the career season, so the run happens
+once and survives a save. The Poisson sim is cheap (~40k fixtures), and the
+stored tables also give the transfer market a real world instead of a strength
+guess. The run is anchored to the **career club's** boundary (one date for every
+league, read as of that date), happens after the domestic review and before the
+next season's berths are allocated, and produces **tables only**: other leagues'
+membership is frozen for the save. The player's own league is not re-simulated:
+its table is the one the career played.
 
 Cups add a smaller version of the same problem: their fields include clubs from
 tiers we do not fully have in the database. The cup field is therefore built
@@ -119,8 +132,9 @@ only.
   the title-holder berths. The coefficients and the rules are a new asset
   (`assets/data/access_lists.json`), a snapshot with the season it belongs to.
   The list is pinned to the coefficient ranking **finished at the end of the
-  previous season**, not the live table. Three special cases: Russia is ranked
-  with zero clubs under the current ban; Liechtenstein has no league and sends
+  previous season**, not the live table. Three special cases: Russia keeps its
+  coefficient rank and the zero-club ban lives only in the suspension list, so
+  `kind` mode can hand it its berths; Liechtenstein has no league and sends
   only its cup winner (UECL Q2); England is the only association whose second
   cup earns a berth (EFL Cup → UECL play-off round).
 - **Paths**: Champions Path and League Path, Q1–Q3 and the play-off round,
@@ -182,8 +196,8 @@ only.
 - Cup fields are built from the clubs in the database; early amateur rounds are
   not modelled.
 - A cup or super cup that does not exist in the snapshot (Mexico) stays absent.
-- Two-legged finals are supported; away goals and extra time follow the league
-  format rules.
+- Two-legged finals are supported; **no away-goals rule**, and extra time only in
+  the last leg (penalties after it).
 - The background world season is a simulation, not a real table.
 - Brazilian state championships are out of scope for now (the club plays the
   national league only).

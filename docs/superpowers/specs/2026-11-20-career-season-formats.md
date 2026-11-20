@@ -1,11 +1,11 @@
-# Career season formats (slice c) — v3.1
+# Career season formats (slice c) — v3.3
 
-Status: v3 revised after three audits, the last one by attempting to encode all
-23 in-scope leagues. Not implemented. Order starts with the calendar slice.
+Status: revised after four data audits and one cross-spec audit. Not
+implemented. Order starts with the calendar slice.
 
 ## Scope
 
-- 25 rows carry `phases: "apertura_clausura"`; the label is replaced by
+- 24 rows carry `phases: "apertura_clausura"`; the label is replaced by
   `format`. Research: 10 are really Apertura/Clausura, the rest are one table,
   zones, groups, or paths.
 - `AR3F` is now the merged **Torneo Federal A**: one 37-club competition (the
@@ -37,7 +37,7 @@ Status: v3 revised after three audits, the last one by attempting to encode all
      "entrants": [{"rule": "all"}],
      "champion": "table"},
     {"id": "clausura", "kind": "league", "label": "Clausura",
-     "start_md": "01-09", "end_md": "04-26", "precision": "proxy",
+     "start_md": "01-09", "end_md": "04-26", "precision": "month", "proxy": true,
      "rounds": 1, "entrants": [{"rule": "all"}], "champion": "table"},
     {"id": "title", "kind": "knockout", "label": "Liguilla",
      "start_md": "11-25", "end_md": "12-13",
@@ -59,6 +59,12 @@ Status: v3 revised after three audits, the last one by attempting to encode all
   league that has a format, and the validator asserts the equality. The note
   says the format supersedes the row. `row_is` (`league` | `phase`) stays a
   research fact only; it changes nothing in the engine.
+- **Career season window**: the **union** of the primary league's window and the
+  windows of every competition the club enters. A UCL qualifier in early July
+  widens a league season that starts in August; `season_start` is the mid-gap
+  boundary before the earliest of them and `season_end` is the day before the
+  next season's start, so `advance_days` and the off-season reel use the union,
+  never the league alone.
 - `start_md`/`end_md` on a stage: either bound may be `null`; `precision` is
   `day` | `month` | `none`, and `proxy: true` separately marks a previous-season
   estimate. An undated first stage is anchored at `format.start_md`; an undated
@@ -148,14 +154,15 @@ Status: v3 revised after three audits, the last one by attempting to encode all
 
 ## Simulation contract
 
-- `round` is a season-wide matchday index; all groups of a stage share one round
-  number. **A round is a date window, not one date**: every fixture carries its
-  own date inside it (Friday–Monday normally), and a fixture may be postponed
-  to a free midweek when its club plays a cup or continental match. Each fixture
-  also carries `stage`, `group` (or `""`) and `stage_round`
-  (`round - stage_first_round + 1`).
-- Ids: single-table leagues keep `r%02d-%02d`; a league with a format uses
-  `<stage>:<round>-<n>`.
+- `round` is a **competition-wide** matchday index: each competition counts its
+  own rounds, and all groups of a stage share one round number. **A round is a
+  date window, not one date**: every fixture carries its own date inside it
+  (Friday–Monday normally), and a fixture may be postponed when its club plays
+  another competition. Each fixture also carries `stage`, `group` (or `""`) and
+  `stage_round` (`round - stage_first_round + 1`).
+- Ids: `<competition>:<stage>:<round>-<n>`. The **exception** is a primary league
+  with no `format`: it keeps `r%02d-%02d`, so existing careers keep their
+  results when the calendar migrates.
 - `CareerFactory.standings(career, clubs, view := {})`:
   `{stage = "", stages = [], group = "", exclude_round = -1}`. Empty view = the
   current loop over every result (single-table leagues, byte-identical). A
@@ -183,16 +190,21 @@ Status: v3 revised after three audits, the last one by attempting to encode all
   odd-club leagues skip rounds, and a round sweep strands them. `play_next_match`
   simulates the round's other fixtures whose date is on or before the club's own
   fixture date.
-- **Fixture congestion**: a club never plays twice within two days. A fixture
-  that clashes with a cup or continental match keeps its `round` and is re-dated
-  to the nearest free midweek before the season end; every postponed fixture is
-  played before the last round. The scheduler is per club, not per round.
+- **Fixture congestion**: a club never plays twice within two days, but the rest
+  rule yields to the calendar. A fixture that clashes with a cup or continental
+  match keeps its `round` and is re-dated to the nearest free midweek before the
+  last round, inside the season window; if no day is free, it is played on the
+  nearest free day even though the two-day rest is broken (congested real
+  calendars do exactly this). Every postponed fixture is played before
+  `season_end`. The scheduler is per club, not per round.
 - Schedule builders: `create`, `ensure_schedule` and `next_season` all switch to
   the stage builder when the league has a format.
 - **Calendar blackouts**: a new asset `assets/data/intl_calendar.json` holds the
   FIFA international windows and the tournament dates per year (a snapshot with
-  sources). Rounds are spread inside the league window **around** the blackouts:
-  no fixture falls inside a window or a tournament, and the last round still
+  sources), each with an `applies_to` scope (`world`, a confederation, or a
+  country). Rounds are spread inside the season window **around** the blackouts:
+  no fixture falls inside a window or tournament that applies to its competition
+  (an AFCON pause blanks African leagues, not Europe), and the last round still
   ends on the real final matchday, so rounds compress around the pauses. A pause
   longer than 30 days advances in one step (the stage-gap skip rule).
 - Results: `{home, away, aet?: {home, away}, pens?: {home, away}}`; ties carry
@@ -271,18 +283,16 @@ Status: v3 revised after three audits, the last one by attempting to encode all
 0. **Calendar** (the open work on the branch): boundary-based season start,
    season end before the next boundary, tests and the two date-bearing goldens
    green, commit.
-1. **Data**: schema, the 22 formats encoded (`AR3F` among them as the merged
-   two-path tournament, then `out_of_scope` removed; `M191`/`M21A` single), row
-   windows recomputed, loader, validation test, `check_league_regulations`
-   updated — this lands in `assets/data/competitions.json`, one `format` per
-   competition.
+1. **League format data** lands as phase 2 of the competitions spec, in
+   `assets/data/league_regulations.json` (one `format` per league row), not in
+   `competitions.json`.
 
-Phases 2–6 of this slice are executed as the container phases in
-`2026-11-20-career-competitions.md` (stage engine, schedule, persistence,
-brackets, UI), because the container owns the data model: a league is one
-`kind: "league"` competition and shares the stage engine with cups. This spec
-owns the league-format semantics (entrants, bonus, carry, aggregate,
-promotion/relegation, conditional stages); that one owns the container.
+The stage engine, schedule, persistence, brackets and UI are executed as the
+container phases in `2026-11-20-career-competitions.md`, because the container
+owns the data model: a league is one `kind: "league"` competition and shares the
+stage engine with cups. This spec owns the league-format semantics (entrants,
+bonus, carry, aggregate, promotion/relegation, conditional stages); that one
+owns the container.
 
 ## Open decisions
 

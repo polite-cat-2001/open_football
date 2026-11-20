@@ -1,8 +1,8 @@
 # Career data assets — v1
 
 Status: draft, 2026-11-20. Ties the research in `docs/research/` to the files the
-game reads. Three specs own the semantics (season formats, competitions,
-calendar); this one owns the **files**.
+game reads. Two specs own the semantics (season formats — including the
+calendar — and competitions); this one owns the **files**.
 
 ## Principle
 
@@ -20,8 +20,8 @@ a guess.
 | `assets/data/league_pyramids.json` | 277 leagues: level, size, closed directions, format note; 108 boundaries with `up == down`, playoff counts, allocation | pyramid research + database topology | manual, when the DB changes |
 | `assets/data/competitions.json` *(new)* | cups, super cups, internationals: id, kind, country/confederation, participants rule, `format` (same stage model), calendar, `out_of_scope` | cups + international research; TM ids from the canon | manual, yearly |
 | `assets/data/access_lists.json` *(new)* | per confederation: association coefficients, rank bands with entry rounds, cup slots (`add`/`consume`/`none`), drop-down map, suspended associations | access-list research | manual, yearly (pinned to the previous season's ranking) |
-| `assets/data/intl_calendar.json` *(new)* | FIFA windows and tournament dates per year | FIFA calendar research | manual, yearly |
-| `assets/data/team_links.json` *(new)* | `reserve` flags, `parent_club_id` by id, `berth_via` overrides (Vaduz, Toronto, Vancouver, Wellington) | database names + manual review | when the DB changes |
+| `assets/data/intl_calendar.json` *(new)* | FIFA windows and tournament dates per year, each with `applies_to` (`world` \| confederation \| country list) | FIFA calendar research | manual, yearly |
+| `assets/data/team_links.json` *(new)* | `reserve` flags, `parent_club_id` by id, the per-country promotion ceiling for reserve teams, `berth_via` overrides (Vaduz, Toronto, Vancouver, Wellington; `null` means "no continental berth") | database names + manual review | when the DB changes |
 
 The database itself (`data/databases/default/open_football.sqlite`) stays the
 source for leagues, clubs, players, squads and formations; the assets only
@@ -33,6 +33,13 @@ reference its ids.
   A missing value is `null` with `"precision": "day|month|none"`.
 - A league row's `format` wins over its own `start_md`/`end_md`; the row window
   is recomputed from the format and the loader asserts equality.
+- `phases` is **retained unread** after `format` lands, purely as the research
+  audit trail; the engine never reads it.
+- `out_of_scope` on a competition means it exists for berths but is never
+  scheduled (the Brazilian regional cups, when added).
+- Domestic→domestic berths (a regional cup winner entering another cup's round)
+  live in `competitions.json` under the competition's `participants.berths`, not
+  in `access_lists.json`, which is per confederation.
 - Competitions that do not exist in a season are absent from that season's list
   (Wales' League Cup 2026-27, Peru's cup since 2021, Indonesia's since 2018-19).
 - `up == down` on every boundary; a one-season structural change is recorded in
@@ -50,14 +57,16 @@ reference its ids.
   `Competitions`, `AccessLists`, `IntlCalendar`, `TeamLinks` follow), each with
   a static cache and a `last_error`.
 - A validation test per asset, run headless:
-  - windows: `MM-DD`, stage windows inside the format window, row == format,
-    no fixture falls inside a FIFA blackout (runtime check, not a data check);
+  - windows: `MM-DD`, stage windows inside the format window **after inference**
+    (null bounds and year rolls allowed), row == format;
   - boundaries: `up == down`, sizes equal the database team counts;
+  - calendar: windows within one confederation don't overlap, every window and
+    tournament has an `applies_to`, and a fixture never falls inside one that
+    applies to its competition (runtime check);
   - forms: every `format` parses, entrant clauses resolve on a synthetic
     league, promotion/relegation slots sum to the boundary counts;
   - access lists: 55 coefficients, bands cover ranks 1–55 with no gap, every cup
     slot has a `mode`, every drop-down points at an existing stage;
-  - calendar: windows don't overlap, tournaments have a confederation;
   - team links: the parent exists, is in the same country, is not itself a
     reserve team; `berth_via` clubs exist.
 - The merge scripts that build the assets from `docs/research/` are **not** in
