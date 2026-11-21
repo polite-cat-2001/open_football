@@ -1850,8 +1850,8 @@
    "inherited_from": "PO1"
   },
   "CRPD": {
-   "start_md": "01-13",
-   "end_md": "05-24",
+   "start_md": "07-26",
+   "end_md": "05-16",
    "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
@@ -1870,7 +1870,179 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_FPD",
-   "note": "Only the Clausura half of 2026 is documented: Clausura 2026 began January 13 2026 and the article's body says it was scheduled to end May 24 2026, while the infobox says 'Clausura: 13 January - 16 May 2026' (conflict inside the article; the later date is used). The Apertura 2026 (July-December 2026) belongs to the 2026-27 season, which has no English Wikipedia article ('2026-27 Liga FPD' is a redlink), so the second half of the 2026 year is unknown here. 10 teams. Relegation: one team (San Carlos, last in the aggregate table). No transfer-window dates in the article."
+   "note": "Only the Clausura half of 2026 is documented: Clausura 2026 began January 13 2026 and the article's body says it was scheduled to end May 24 2026, while the infobox says 'Clausura: 13 January - 16 May 2026' (conflict inside the article; the later date is used). The Apertura 2026 (July-December 2026) belongs to the 2026-27 season, which has no English Wikipedia article ('2026-27 Liga FPD' is a redlink), so the second half of the 2026 year is unknown here. 10 teams. Relegation: one team (San Carlos, last in the aggregate table). No transfer-window dates in the article.",
+   "format": {
+    "season": "2026-27",
+    "proxy": true,
+    "proxy_season": "Clausura 2026",
+    "confidence": "medium",
+    "start_md": "07-26",
+    "end_md": "05-16",
+    "champion": "none",
+    "aggregate": [
+     "apertura_regular",
+     "clausura_regular"
+    ],
+    "stages": [
+     {
+      "id": "apertura_regular",
+      "kind": "league",
+      "label": "Apertura 2026 regular",
+      "start_md": "07-26",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 18,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "apertura_playoff",
+      "kind": "knockout",
+      "label": "Apertura 2026 play-off",
+      "start_md": null,
+      "end_md": "12-20",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_regular",
+        "n": 4
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "apertura_grand",
+      "kind": "knockout",
+      "label": "Apertura 2026 Gran Final",
+      "start_md": null,
+      "end_md": "12-27",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_regular",
+        "n": 1
+       },
+       {
+        "rule": "winner",
+        "from": "apertura_playoff"
+       }
+      ],
+      "champion": "winner",
+      "if": {
+       "skip_when": "same_club",
+       "stages": [
+        "apertura_grand"
+       ]
+      }
+     },
+     {
+      "id": "clausura_regular",
+      "kind": "league",
+      "label": "Clausura 2027 regular",
+      "start_md": "01-13",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 18,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "clausura_playoff",
+      "kind": "knockout",
+      "label": "Clausura 2027 play-off",
+      "start_md": null,
+      "end_md": "05-16",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "clausura_regular",
+        "n": 4
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "clausura_grand",
+      "kind": "knockout",
+      "label": "Clausura 2027 Gran Final",
+      "start_md": null,
+      "end_md": "05-16",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "clausura_regular",
+        "n": 1
+       },
+       {
+        "rule": "winner",
+        "from": "clausura_playoff"
+       }
+      ],
+      "champion": "winner",
+      "if": {
+       "skip_when": "same_club",
+       "stages": [
+        "clausura_grand"
+       ]
+      }
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "unknown"
+     }
+    ],
+    "note": "Costa Rica 2026-27: two 18-round tournaments, each with a top-four two-legged semi-final and final; a two-legged Gran Final is added only when the regular-phase leader is not the play-off winner. Two champions, no annual champion. The row held only the Clausura half and is corrected to the full season; Clausura 2027 is a proxy. The pyramid closes the bottom, so the researched last-place relegation is marked unknown rather than applied."
+   }
   },
   "CSL": {
    "start_md": "03-06",
