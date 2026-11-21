@@ -3177,10 +3177,15 @@
    "closed_up": false,
    "closed_down": true,
    "format": {
-    "kind": "groups",
-    "groups": 2,
-    "stages": 2,
-    "points_carry": "keep"
+    "kind": "split",
+    "rounds": 15,
+    "split_after": 10,
+    "groups": [
+     6,
+     5
+    ],
+    "points_carry": true,
+    "note": "Transfermarkt 2026-27: 11 clubs, 10 rounds, then top six (5 more) and bottom five (4 more); 15 matchdays, 31 July - late November."
    },
    "playoff": {
     "kind": "promotion",
@@ -3189,7 +3194,8 @@
     "note": "Phase II Group 1 decides the promoted clubs; the official Liga 1 summary states the top two go up."
    },
    "country": "Moldova",
-   "confidence": "high"
+   "confidence": "high",
+   "note": "The 2026-27 season is a short 11-club split, not the 2025-26 14-club Phase I competition. Transfermarkt lists all 11 clubs with squads (271 players)."
   },
   "MEX2": {
    "level": 2,

@@ -5323,8 +5323,8 @@
    "note": "12 teams, single table. Article defines play-off (RPO) and relegation (REL) positions but does not say how many each covers; 3 direct + 2 play-off places follows the 2025-26 table (8th-9th play-off, 10th-12th relegated). Inferred. No transfer window dates."
   },
   "MDL2": {
-   "start_md": "06-27",
-   "end_md": "05-22",
+   "start_md": "07-31",
+   "end_md": "11-29",
    "filled": "",
    "phases": "split",
    "relegation": {
@@ -5345,8 +5345,106 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Moldovan_Liga",
-   "note": "Window inherited from MO1N; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "MO1N"
+   "note": "Liga 1 2026-27 from Transfermarkt: 11 clubs, a 10-round regular season, then a 6/5 split (top six play five more, bottom five four more), 15 matchdays in all, 31 July - late November 2026. The earlier 14-club two-group Phase I research was the 2025-26 season and is replaced.",
+   "inherited_from": "MO1N",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-31",
+    "end_md": "11-29",
+    "champion": "stage:top",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "07-31",
+      "end_md": "10-17",
+      "precision": "day",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "top",
+      "kind": "group",
+      "label": "Top six",
+      "start_md": "10-23",
+      "end_md": "11-29",
+      "precision": "day",
+      "rounds": 5,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "carry": {
+       "points": "full",
+       "goals": "carry"
+      }
+     },
+     {
+      "id": "bottom",
+      "kind": "group",
+      "label": "Bottom five",
+      "start_md": "10-23",
+      "end_md": "11-29",
+      "precision": "day",
+      "rounds": 4,
+      "groups": {
+       "sizes": [
+        5
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "carry": {
+       "points": "full",
+       "goals": "carry"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "top",
+      "from": "top",
+      "slots": 2
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "none"
+     }
+    ]
+   }
   },
   "MEX2": {
    "start_md": "01-09",
