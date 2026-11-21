@@ -5756,8 +5756,8 @@
    "inherited_from": "MEXA"
   },
   "MEXA": {
-   "start_md": "01-09",
-   "end_md": "12-13",
+   "start_md": "07-16",
+   "end_md": "04-26",
    "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
@@ -5776,7 +5776,116 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_MX_season",
-   "note": "Full 2026 calendar-year span assembled from both halves of the split season: Clausura 2026 (part of the 2025-26 season, see https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_MX_season) began January 9 2026 and ended with the final on May 24 2026; Apertura 2026 (part of the 2026-27 season) began July 16 2026 and its final phase runs November 25 - December 13 2026, so the year's last match is December 13 (if Toluca reach the final, the legs move to December 24 and 27 because of the FIFA Intercontinental Cup). No transfer-window dates in either article. No relegation: Liga MX relegation is suspended and the Mazatlan/Atlante change was a registration transfer, not a sporting relegation. Tiebreak is the per-tournament regular-phase rule; the play-in round was abolished for Apertura 2026 (top 8 to the liguilla)."
+   "note": "Full 2026 calendar-year span assembled from both halves of the split season: Clausura 2026 (part of the 2025-26 season, see https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_MX_season) began January 9 2026 and ended with the final on May 24 2026; Apertura 2026 (part of the 2026-27 season) began July 16 2026 and its final phase runs November 25 - December 13 2026, so the year's last match is December 13 (if Toluca reach the final, the legs move to December 24 and 27 because of the FIFA Intercontinental Cup). No transfer-window dates in either article. No relegation: Liga MX relegation is suspended and the Mazatlan/Atlante change was a registration transfer, not a sporting relegation. Tiebreak is the per-tournament regular-phase rule; the play-in round was abolished for Apertura 2026 (top 8 to the liguilla).",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-16",
+    "end_md": "04-26",
+    "champion": "none",
+    "stages": [
+     {
+      "id": "apertura_regular",
+      "kind": "league",
+      "label": "Apertura 2026 regular",
+      "start_md": "07-16",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 17,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "apertura_liguilla",
+      "kind": "knockout",
+      "label": "Apertura 2026 liguilla",
+      "start_md": null,
+      "end_md": "11-22",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "qf",
+        "legs": 2
+       },
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_regular",
+        "n": 8
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "clausura_regular",
+      "kind": "league",
+      "label": "Clausura 2027 regular",
+      "start_md": "01-09",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 17,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "clausura_liguilla",
+      "kind": "knockout",
+      "label": "Clausura 2027 liguilla",
+      "start_md": null,
+      "end_md": "04-26",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "qf",
+        "legs": 2
+       },
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "clausura_regular",
+        "n": 8
+       }
+      ],
+      "champion": "winner"
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "none"
+     }
+    ],
+    "note": "2026-27 (row corrected from the mixed 2026 calendar): Apertura 2026 and Clausura 2027, each 17 rounds plus a two-legged top-eight liguilla with no play-in. Two champions, no annual champion. The league is closed: promotion and relegation were suspended in 2020 and the 16 July 2026 regulations kept it closed, so nothing moves."
+   }
   },
   "MLS1": {
    "start_md": "02-21",
