@@ -7782,7 +7782,61 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Copa_de_Primera",
-   "note": "Torneo Apertura and Torneo Clausura, 12 teams, plus an aggregate table. Relegation by three-season points-per-game average; the two lowest averages go down to División Intermedia. No transfer-window dates in the article."
+   "note": "Torneo Apertura and Torneo Clausura, 12 teams, plus an aggregate table. Relegation by three-season points-per-game average; the two lowest averages go down to División Intermedia. No transfer-window dates in the article.",
+   "format": {
+    "season": "2026",
+    "start_md": "01-23",
+    "end_md": "11-29",
+    "champion": "none",
+    "aggregate": [
+     "apertura",
+     "clausura"
+    ],
+    "stages": [
+     {
+      "id": "apertura",
+      "kind": "league",
+      "label": "Torneo Apertura",
+      "start_md": "01-23",
+      "end_md": "05-24",
+      "precision": "day",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "clausura",
+      "kind": "league",
+      "label": "Torneo Clausura",
+      "start_md": "07-24",
+      "end_md": "11-29",
+      "precision": "day",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "average",
+      "slots": 2
+     }
+    ],
+    "note": "Paraguay 2026: Apertura and Clausura are separate 22-round championships, each with its own table and champion; their points form an aggregate used for the continental berths, not for a title. Relegation is the three-season points-per-game average, bottom two. The first two career seasons fall back to the annual aggregate (two bottom clubs), then the average uses the career's own seasons."
+   }
   },
   "PRA1": {
    "start_md": "08-15",
