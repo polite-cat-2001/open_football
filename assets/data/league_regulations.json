@@ -234,7 +234,7 @@
    "start_md": "08-21",
    "end_md": "05-09",
    "filled": "",
-   "phases": "split",
+   "phases": "single",
    "relegation": {
     "slots": 2,
     "playoff": true
@@ -251,7 +251,50 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Kategoria_Superiore",
-   "note": "10 teams split into championship round (1-6) and relegation round (7-10); article mentions a relegation play-out but does not state how many go down. Count taken from 2025-26 (9th play-out, 10th relegated) - treat as inferred. No transfer window dates."
+   "note": "10 teams split into championship round (1-6) and relegation round (7-10); article mentions a relegation play-out but does not state how many go down. Count taken from 2025-26 (9th play-out, 10th relegated) - treat as inferred. No transfer window dates.",
+   "format": {
+    "season": "2026-27",
+    "start_md": "08-21",
+    "end_md": "05-09",
+    "champion": "stage:regular",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-21",
+      "end_md": "05-09",
+      "precision": "day",
+      "rounds": 36,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "regular",
+      "slots": 1
+     },
+     {
+      "rule": "bottom",
+      "from": "regular",
+      "slots": 1,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "note": "2026-27 is treated as one 36-round table, as the pyramid states: the 21 Aug - 9 May calendar cannot hold the 2025-26 top-four Final Four, and the 2026-27 source does not confirm it. The 10th is relegated directly and the 9th plays a one-off against the promotion play-off final loser, matching the balanced boundary (2 down, 1 conditional)."
+   }
   },
   "ALB2": {
    "start_md": "08-21",
