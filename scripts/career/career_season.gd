@@ -391,7 +391,7 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 	var next_window := LeagueRegulations.window_for_season(career.league_id, new_start)
 	var next_schedule_start := str(next_window.get("start", new_start))
 	career.data["schedule"] = CareerFactory.build_schedule(next_ids_unique, next_schedule_start,
-		str(next_window.get("end", "")))
+		str(next_window.get("end", "")), IntlCalendar.rules(), "world")
 	career.data["schedule_version"] = CareerFactory.SCHEDULE_VERSION
 	career.data["results"] = {}
 	CareerSquad.rollover_values(career, CareerSquad.roster(

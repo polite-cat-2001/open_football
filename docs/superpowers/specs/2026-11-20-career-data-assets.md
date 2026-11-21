@@ -20,7 +20,7 @@ a guess.
 | `assets/data/league_pyramids.json` | 284 leagues: level, size, closed directions, format note; 108 boundaries with `up == down`, playoff counts, allocation | pyramid research + database topology | manual, when the DB changes |
 | `assets/data/competitions.json` *(new)* | cups, super cups, confederation internationals and the global/secondary club competitions: id, kind, country/confederation, participants rule, `format` (same stage model), calendar, `out_of_scope` | cups + international research; TM ids from the canon | manual, yearly |
 | `assets/data/access_lists.json` *(new)* | per confederation: association coefficients, rank bands with entry rounds, cup slots (`add`/`consume`/`none`), drop-down map, suspended associations | access-list research | manual, yearly (pinned to the previous season's ranking) |
-| `assets/data/intl_calendar.json` *(new)* | **recurring rules, not a fixed list**: annual FIFA windows and multi-year tournaments (`every_years`, `anchor_year`, `start_md`/`end_md`, `applies_to`: `world` \| confederation \| country list) | FIFA calendar research (2026–2028) + the recurrence rule | manual, yearly |
+| `assets/data/intl_calendar.json` *(new)* | **explicit editions plus recurring rules**: annual FIFA windows and multi-year tournaments (`start`/`end` for a known edition, `start_md`/`end_md` + `every_years`/`anchor_year` for the repeat, `applies_to`: `world` \| confederation, `pauses_club_football`) | FIFA calendar research (2026–2028) + the recurrence rule | manual, yearly |
 | `assets/data/team_links.json` *(new)* | `reserve` flags, `parent_club_id` by id, the per-country promotion ceiling for reserve teams, `berth_via` overrides (Vaduz, Toronto, Vancouver, Wellington; `null` means "no continental berth") | database names + manual review | when the DB changes |
 
 The database itself (`data/databases/default/open_football.sqlite`) stays the
@@ -71,6 +71,19 @@ reference its ids.
   database disagree (seven leagues as of 2026-11-21), `size` and the teams come
   from the database; the note records the research figure and that the seasons
   differ. The reports are not rewritten.
+
+### `intl_calendar.json`
+
+- A rule is either an **explicit edition** (`start`/`end`, ISO dates) or a
+  **recurring rule** (`start_md`/`end_md`, `every_years`, `anchor_year`).
+  `start_md > end_md` crosses New Year. Both carry `applies_to` and
+  `pauses_club_football` (default true).
+- 2026–2028 are copied exactly from the research (the annual windows drift by a
+  day or two between years). From 2029 the annual windows and the quadrennial
+  World Cup repeat from the 2026 pattern and are marked `approximate`.
+- `pauses_club_football: false` releases players but never blocks a fixture.
+- Only `applies_to: "world"` is wired before the competitions container; a
+  continental rule is added with the country→confederation map.
 
 ## Loaders and validation
 

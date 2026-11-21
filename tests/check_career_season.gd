@@ -183,6 +183,12 @@ func _run() -> void:
 	_check(not career.schedule.is_empty(), "the new schedule exists")
 	_check(str(career.schedule[0].get("date", "")) == str(expected_window.get("start", "")),
 		"the new schedule opens on the window's first day")
+	var pause_rules := IntlCalendar.rules()
+	var in_pause: Array = []
+	for fixture in career.schedule:
+		if IntlCalendar.is_blocked(pause_rules, str(fixture.get("date", "")), "world"):
+			in_pause.append(str(fixture.get("date", "")))
+	_check(in_pause.is_empty(), "the new season avoids the FIFA windows: " + str(in_pause))
 	_check(career.incoming_market_date == career.date
 		and career.world_market_date == career.date,
 		"the off-season gap is not replayed by the market")

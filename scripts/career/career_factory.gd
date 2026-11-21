@@ -79,7 +79,8 @@ static func create(
 		"league_club_ids": league_ids,
 		"formation": Career.DEFAULT_FORMATION,
 		"hub_tab": "centre",
-		"schedule": build_schedule(league_ids, schedule_start, schedule_end),
+		"schedule": build_schedule(league_ids, schedule_start, schedule_end,
+			IntlCalendar.rules(), "world"),
 		"schedule_version": SCHEDULE_VERSION,
 		"incoming_market_date": season_start,
 		"last_tick_date": season_start,
@@ -202,13 +203,15 @@ static func ensure_schedule(career: Career, league_club_ids: Array) -> void:
 	var schedule_start := str(window.get("start", career.season_start))
 	var schedule_end := str(window.get("end", ""))
 	if not career.data.has("schedule") or career.data.get("schedule") == null:
-		career.data["schedule"] = build_schedule(club_ids, schedule_start, schedule_end)
+		career.data["schedule"] = build_schedule(club_ids, schedule_start, schedule_end,
+			IntlCalendar.rules(), "world")
 		career.data["schedule_version"] = SCHEDULE_VERSION
 		return
 	if career.schedule_version >= SCHEDULE_VERSION:
 		return
 	var corrected := {}
-	for fixture in build_schedule(club_ids, schedule_start, schedule_end):
+	for fixture in build_schedule(club_ids, schedule_start, schedule_end,
+			IntlCalendar.rules(), "world"):
 		corrected[str(fixture["id"])] = fixture
 	for fixture in career.schedule:
 		if career.results.has(str(fixture.get("id", ""))):
