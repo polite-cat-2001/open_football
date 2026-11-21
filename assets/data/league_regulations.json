@@ -388,8 +388,8 @@
    "inherited_from": "ARGC"
   },
   "ARG2": {
-   "start_md": "01-22",
-   "end_md": "12-12",
+   "start_md": "02-13",
+   "end_md": "12-19",
    "filled": "",
    "phases": "other",
    "relegation": {
@@ -407,7 +407,167 @@
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
    "note": "Primera Nacional: two parallel zones of 18 (double round-robin plus interzonal rounds), zone winners meet in a single final for the title and the first promotion; the beaten finalist is seed 1 of the 15-club Torneo reducido (2nd-8th of each zone plus the finalist), which decides the second promotion. Bottom two of each zone (4 clubs) go down to Primera B Metropolitana or Torneo Federal A. Window inherited from ARGC.",
-   "inherited_from": "ARGC"
+   "format": {
+    "season": "2026",
+    "start_md": "02-13",
+    "end_md": "12-19",
+    "champion": "stage:final",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "group",
+      "label": "Regular season",
+      "start_md": "02-13",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 36,
+      "groups": {
+       "sizes": [
+        18,
+        18
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "interzonal",
+       "interzonal": 2
+      },
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "final",
+      "kind": "knockout",
+      "label": "Zone winners final",
+      "start_md": null,
+      "end_md": "11-15",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 1,
+        "per_group": true
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "reducido",
+      "kind": "knockout",
+      "label": "Torneo Reducido",
+      "start_md": "11-21",
+      "end_md": "12-19",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "r16",
+        "legs": 1
+       },
+       {
+        "name": "qf",
+        "legs": 2
+       },
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "losers:final",
+        "from": "final"
+       },
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 1,
+        "per_group": true,
+        "rank": 2
+       },
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 1,
+        "per_group": true,
+        "rank": 3
+       },
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 1,
+        "per_group": true,
+        "rank": 4
+       },
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 1,
+        "per_group": true,
+        "rank": 5
+       },
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 1,
+        "per_group": true,
+        "rank": 6
+       },
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 1,
+        "per_group": true,
+        "rank": 7
+       },
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 1,
+        "per_group": true,
+        "rank": 8
+       }
+      ],
+      "champion": "winner"
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "winner",
+      "from": "final",
+      "slots": 1
+     },
+     {
+      "rule": "winner",
+      "from": "reducido",
+      "slots": 1,
+      "playoff": true
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "regular",
+      "slots": 4,
+      "per_group": true
+     }
+    ],
+    "note": "2026: two zones of 18, a 36-round regular season with interzonal rounds. The zone winners play a single final for the title and the first promotion; the beaten finalist is seed 1 of the 15-club Torneo Reducido (2nd-8th of each zone plus the finalist), whose first phase is the cross-zone single match and then two-legged rounds; its winner takes the second promotion. The bottom two of each zone go down (4). The row window was inherited from ARGC and is corrected to the researched 13 Feb - 19 Dec."
+   }
   },
   "ARGC": {
    "start_md": "01-22",
