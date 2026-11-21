@@ -683,7 +683,132 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_First_Professional_Football_League_(Bulgaria)",
-   "note": "14 teams (reduced from 16 this season), split into championship group (1-4), Conference League group (5-8) and relegation group (9-14). Article does not state how many drop from the relegation group in 2026-27; 14-team league with two promoted sides implies 1 direct + 1 play-off (2025-26 had 13th play-off, 14th-16th direct). Treat relegation count as inferred. No transfer window dates."
+   "note": "14 teams (reduced from 16 this season), split into championship group (1-4), Conference League group (5-8) and relegation group (9-14). Article does not state how many drop from the relegation group in 2026-27; 14-team league with two promoted sides implies 1 direct + 1 play-off (2025-26 had 13th play-off, 14th-16th direct). Treat relegation count as inferred. No transfer window dates.",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-17",
+    "end_md": "05-29",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "07-17",
+      "end_md": "04-01",
+      "precision": "day",
+      "rounds": 26,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship group",
+      "start_md": "04-01",
+      "end_md": "05-29",
+      "precision": "day",
+      "rounds": 6,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 4
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        4
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "conference",
+      "kind": "group",
+      "label": "Conference League group",
+      "start_md": "04-01",
+      "end_md": "05-29",
+      "precision": "day",
+      "rounds": 6,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 5,
+        "n": 4
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        4
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation group",
+      "start_md": "04-01",
+      "end_md": "05-29",
+      "precision": "day",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1
+     },
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 2,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "note": "2026-27: the league is cut to 14 clubs; 26 rounds, then 4/4/6 groups. The 14th is relegated directly; the 12th and 13th play the Second League 2nd and 3rd in single matches, so two slots are conditional. The Conference League group winner's European play-off is not a league move."
+   }
   },
   "BU2": {
    "start_md": "07-17",
@@ -5449,9 +5574,9 @@
    "inherited_from": "L1"
   },
   "RO1": {
-   "start_md": "07-18",
-   "end_md": "05-23",
-   "filled": "end",
+   "start_md": "07-17",
+   "end_md": "05-30",
+   "filled": "",
    "phases": "split",
    "relegation": {
     "slots": 2,
@@ -5469,7 +5594,106 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026–27_Liga_I",
-   "note": "Start 18 July 2026; article says season 'is scheduled to end in May 2027' - no exact date. 16 teams: regular season then play-off (1-6) and play-out (7-16). Final table results: 15th-16th relegated directly, 13th-14th to promotion/relegation play-offs. No transfer window dates."
+   "note": "Start 18 July 2026; article says season 'is scheduled to end in May 2027' - no exact date. 16 teams: regular season then play-off (1-6) and play-out (7-16). Final table results: 15th-16th relegated directly, 13th-14th to promotion/relegation play-offs. No transfer window dates.",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-17",
+    "end_md": "05-30",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "07-17",
+      "end_md": "03-01",
+      "precision": "day",
+      "rounds": 30,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship play-off",
+      "start_md": "03-20",
+      "end_md": "05-30",
+      "precision": "day",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "playout",
+      "kind": "group",
+      "label": "Relegation play-out",
+      "start_md": "03-20",
+      "end_md": "05-30",
+      "precision": "day",
+      "rounds": 9,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        10
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "half",
+     "goals": "reset",
+     "rounding": "up"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "playout",
+      "slots": 2
+     },
+     {
+      "rule": "bottom",
+      "from": "playout",
+      "slots": 2,
+      "rank": 3,
+      "playoff": true
+     }
+    ],
+    "note": "2026-27: 30 rounds, then a 6-club play-off and a 10-club play-out. Points are halved with rounding up and goal difference is reset at the split. The bottom two of the play-out go down; the next two play the Liga II 3rd and 4th, so two slots are conditional."
+   }
   },
   "RO2": {
    "start_md": "07-18",
@@ -6021,7 +6245,7 @@
   },
   "SLO1": {
    "start_md": "07-25",
-   "end_md": "05-15",
+   "end_md": "05-31",
    "filled": "",
    "phases": "split",
    "relegation": {
@@ -6038,7 +6262,105 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Slovak_First_Football_League",
-   "note": "Start stated as '25–26 July 2026' (first matchday), end only as 'May 2027' - exact closing date not stated. 12 teams, split into championship (1-6) and relegation (7-12) groups. Relegation structure not spelled out for 2026-27; 2025-26 article has 11th -> relegation play-offs, 12th -> direct relegation, and the 2026-27 article states the competition model is unchanged. No transfer window dates. end_md from https://sk.wikipedia.org/wiki/Nik%C3%A9_liga_2026/2027: \"|koniec                 = 15. máj 2027\"."
+   "note": "Start stated as '25–26 July 2026' (first matchday), end only as 'May 2027' - exact closing date not stated. 12 teams, split into championship (1-6) and relegation (7-12) groups. Relegation structure not spelled out for 2026-27; 2025-26 article has 11th -> relegation play-offs, 12th -> direct relegation, and the 2026-27 article states the competition model is unchanged. No transfer window dates. end_md from https://sk.wikipedia.org/wiki/Nik%C3%A9_liga_2026/2027: \"|koniec                 = 15. máj 2027\".",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-25",
+    "end_md": "05-31",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "07-25",
+      "end_md": "03-01",
+      "precision": "day",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship group",
+      "start_md": "03-01",
+      "end_md": "05-31",
+      "precision": "day",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation group",
+      "start_md": "03-01",
+      "end_md": "05-31",
+      "precision": "day",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1
+     },
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "note": "2026-27: 22 rounds, then 6+6 with a double round-robin; the 12th is relegated directly and the 11th plays the II. Liga runner-up, so the second slot is conditional."
+   }
   },
   "SMR1": {
    "start_md": "08-29",
