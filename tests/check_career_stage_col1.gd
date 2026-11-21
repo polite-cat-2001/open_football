@@ -107,6 +107,23 @@ func _run() -> void:
 	_check(CareerSeason.next_fixture(career).is_empty(),
 		"the knockout rounds complete the Colombian season")
 
+	var transition := CareerSeason.transition(catalog, career)
+	_check(not transition.is_empty(),
+		"the Colombian season transitions: " + CareerSeason.last_error)
+	if not transition.is_empty():
+		var review: Dictionary = transition.get("review", {})
+		_check(review.get("relegated", []).size() == 2,
+			"the aggregate bottom two are relegated")
+		var next_ids: Array = transition.get("league_club_ids", [])
+		_check(next_ids.size() == career.league_club_ids.size(),
+			"the Colombian league keeps its size: %d" % next_ids.size())
+		_check(review.get("next", {}).get("from_below", []).size() == 2,
+			"two promoted clubs replace them")
+		_check(CareerSeason.next_season(career, catalog, transition),
+			"the next Colombian season starts: " + CareerSeason.last_error)
+		_check(career.schedule.size() == 342,
+			"the next season rebuilds both regular phases: %d" % career.schedule.size())
+
 	_finish()
 
 

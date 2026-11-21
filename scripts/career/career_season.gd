@@ -212,7 +212,7 @@ static func transition(catalog: TeamCatalog, career: Career) -> Dictionary:
 
 	if format is Dictionary and _has_format_relegation(format):
 		return _format_league_transition(catalog, career, league, current_ids,
-			table, format)
+			clubs, table, format)
 
 	var rank := _rank_of(league)
 	var same_country: Array = []
@@ -475,53 +475,91 @@ static func _has_format_relegation(format: Dictionary) -> bool:
 
 
 static func _format_league_transition(catalog: TeamCatalog, career: Career,
-		league: Dictionary, current_ids: Array, table: Array,
+		league: Dictionary, current_ids: Array, clubs: Dictionary, table: Array,
 		format: Dictionary) -> Dictionary:
 	var completed := int(career.data.get("seasons_completed", 0))
-	var relegated := _format_relegated(career, table, format, completed)
+	var promoted := _format_promoted(career, catalog, clubs, table, format)
+	var relegated := _format_relegated(career, catalog, clubs, table, format, completed)
+	var above := _above_league(catalog, league)
 	var below := _below_league(catalog, league)
 	var incoming: Array = []
-	if str(below.get("id", "")) == "ARG2":
-		incoming = CareerWorld.arg2_promoted(catalog,
-			career.seed + int(CareerSearch.date_parts(career.season_start)[0]),
-			career.season_start)
+	if not relegated.is_empty():
+		incoming = _movement_in(catalog, career, below,
+			maxi(1, relegated.size()))
+	var above_relegated: Array = []
+	if not promoted.is_empty():
+		above_relegated = _movement_out(catalog, career, above,
+			maxi(1, promoted.size()))
+	var promoted_ids := {}
+	for row in promoted:
+		promoted_ids[str(row.get("club_id", row.get("id", "")))] = true
 	var relegated_ids := {}
 	for row in relegated:
-		relegated_ids[str(row.get("club_id", ""))] = true
+		relegated_ids[str(row.get("club_id", row.get("id", "")))] = true
 	var incoming_ids := {}
-	for club_id in incoming:
-		incoming_ids[str(club_id)] = true
-	var next_ids: Array = []
+	for club in incoming:
+		incoming_ids[str(club.get("id", ""))] = true
+	var above_ids := {}
+	for club in above_relegated:
+		above_ids[str(club.get("id", ""))] = true
+
+	var movement = null
+	if promoted_ids.has(career.club_id):
+		movement = "up"
+	elif relegated_ids.has(career.club_id):
+		movement = "down"
+
 	var next_league := league
-	if relegated_ids.has(career.club_id) and not below.is_empty():
-		next_league = below
-		for team in catalog.all_teams_for_league(str(below.get("id", ""))):
-			var team_id := str(team.get("id", ""))
-			if not incoming_ids.has(team_id):
-				next_ids.append(team_id)
-		for row in relegated:
-			var club_id := str(row.get("club_id", ""))
+	var next_ids: Array = []
+	var from_above: Array = []
+	var from_below: Array = []
+	if movement == "up" and not above.is_empty():
+		next_league = above
+		for club in _clubs_of(catalog, above):
+			var club_id := str(club.get("id", ""))
+			if not above_ids.has(club_id):
+				next_ids.append(club_id)
+		for row in promoted:
+			var club_id := str(row.get("club_id", row.get("id", "")))
 			if not next_ids.has(club_id):
 				next_ids.append(club_id)
-		if not next_ids.has(career.club_id):
-			next_ids.append(career.club_id)
+		for club in above_relegated:
+			from_above.append({"club": _club_ref(club),
+				"league": _league_ref(above)})
+		for row in relegated:
+			from_below.append({"club": _row_ref(row),
+				"league": _league_ref(below)})
+	elif movement == "down" and not below.is_empty():
+		next_league = below
+		for club in _clubs_of(catalog, below):
+			var club_id := str(club.get("id", ""))
+			if not incoming_ids.has(club_id):
+				next_ids.append(club_id)
+		for row in relegated:
+			var club_id := str(row.get("club_id", row.get("id", "")))
+			if not next_ids.has(club_id):
+				next_ids.append(club_id)
+		for club in incoming:
+			from_below.append({"club": _club_ref(club),
+				"league": _league_ref(below)})
 	else:
 		for club_id in current_ids:
-			if not relegated_ids.has(str(club_id)) \
-					and not incoming_ids.has(str(club_id)):
+			if not promoted_ids.has(str(club_id)) \
+					and not relegated_ids.has(str(club_id)):
 				next_ids.append(str(club_id))
-		for club_id in incoming:
-			if not next_ids.has(str(club_id)):
-				next_ids.append(str(club_id))
+		for club in above_relegated:
+			var club_id := str(club.get("id", ""))
+			if not next_ids.has(club_id):
+				next_ids.append(club_id)
+			from_above.append({"club": _club_ref(club),
+				"league": _league_ref(above)})
+		for club in incoming:
+			var club_id := str(club.get("id", ""))
+			if not next_ids.has(club_id):
+				next_ids.append(club_id)
+			from_below.append({"club": _club_ref(club),
+				"league": _league_ref(below)})
 
-	var from_below: Array = []
-	for club_id in incoming:
-		var club := catalog.career_club(int(club_id))
-		from_below.append({"club": _club_ref(club), "league": _league_ref(below)})
-	var from_above: Array = []
-	if next_league.get("id", "") == str(below.get("id", "")):
-		for row in relegated:
-			from_above.append({"club": _row_ref(row), "league": _league_ref(league)})
 	var history: Array = career.data.get("season_history") \
 		if career.data.get("season_history") is Array else []
 	history.append({"season_start": career.season_start, "rows": table})
@@ -529,15 +567,15 @@ static func _format_league_transition(catalog: TeamCatalog, career: Career,
 	var review: Dictionary = {
 		"league": _league_ref(league),
 		"standings": table,
-		"promoted": [],
+		"promoted": promoted,
 		"relegated": relegated,
-		"promoted_to": null,
-		"relegated_to": _league_ref(below) if not relegated.is_empty() else null,
-		"movement": "down" if relegated_ids.has(career.club_id) else null,
+		"promoted_to": _league_ref(above) if movement == "up" else null,
+		"relegated_to": _league_ref(below) if movement == "down" else null,
+		"movement": movement,
 		"next": {
 			"league": _league_ref(next_league),
-			"above": _league_ref(league) if next_league.get("id", "") != league.get("id", "") else null,
-			"below": _league_ref(below) if next_league.get("id", "") == league.get("id", "") else null,
+			"above": _league_ref(league) if movement == "up" else null,
+			"below": _league_ref(below) if movement == "down" else null,
 			"from_above": from_above,
 			"from_below": from_below,
 		},
@@ -549,7 +587,112 @@ static func _format_league_transition(catalog: TeamCatalog, career: Career,
 	}
 
 
-static func _format_relegated(career: Career, table: Array, format: Dictionary,
+static func _format_promoted(career: Career, catalog: TeamCatalog,
+		clubs: Dictionary, table: Array, format: Dictionary) -> Array:
+	var result: Array = []
+	var named := {}
+	for clause in format.get("promotion", []):
+		var rule := str(clause.get("rule", ""))
+		var source := str(clause.get("from", ""))
+		var slots := int(clause.get("slots", 1))
+		if slots <= 0:
+			continue
+		if rule == "top":
+			var rows := _source_rows(career, clubs, table, source)
+			_take_top(rows, slots, int(clause.get("rank", 1)), named, result)
+		elif rule == "winner" or rule.begins_with("losers"):
+			var decided := CareerFactory.stage_decided(career, source)
+			var key := "winner" if rule == "winner" else "loser"
+			var club_id := str(decided.get(key, ""))
+			if club_id.is_empty() or named.has(club_id):
+				continue
+			var club := catalog.career_club(int(club_id))
+			result.append({
+				"club_id": club_id,
+				"club_name": str(club.get("name", club_id)),
+				"club_logo": _club_logo(club),
+			})
+			named[club_id] = true
+	return result
+
+
+static func _source_rows(career: Career, clubs: Dictionary, table: Array,
+		source: String) -> Array:
+	if source.is_empty() or source == "aggregate":
+		return table
+	var rows := CareerFactory.stage_table(career, clubs, source)
+	return rows if not rows.is_empty() else table
+
+
+static func _movement_in(catalog: TeamCatalog, career: Career,
+		below: Dictionary, slots: int) -> Array:
+	if below.is_empty():
+		return []
+	var club_ids := CareerWorld.promoted_clubs(catalog, str(below.get("id", "")),
+		career.season_start, career.seed + int(CareerSearch.date_parts(career.season_start)[0]))
+	var clubs: Array = []
+	for club_id in club_ids:
+		var club := catalog.career_club(int(club_id))
+		if not club.is_empty():
+			clubs.append(club)
+	if not clubs.is_empty():
+		return clubs
+	return _rated_movement(catalog, career, below, slots, false)
+
+
+static func _movement_out(catalog: TeamCatalog, career: Career,
+		above: Dictionary, slots: int) -> Array:
+	if above.is_empty():
+		return []
+	var club_ids := CareerWorld.relegated_clubs(catalog, str(above.get("id", "")),
+		career.season_start, career.seed + int(CareerSearch.date_parts(career.season_start)[0]))
+	var clubs: Array = []
+	for club_id in club_ids:
+		var club := catalog.career_club(int(club_id))
+		if not club.is_empty():
+			clubs.append(club)
+	if not clubs.is_empty():
+		return clubs
+	return _rated_movement(catalog, career, above, slots, true)
+
+
+static func _rated_movement(catalog: TeamCatalog, career: Career,
+		league: Dictionary, slots: int, from_bottom: bool) -> Array:
+	# A league without a finished table of its own falls back to the rating
+	# order, the same approximation the legacy pyramid transition uses.
+	var ranked := _ranked_clubs(_clubs_of(catalog, league), catalog, career, {})
+	if ranked.is_empty():
+		return []
+	if from_bottom:
+		return ranked.slice(maxi(0, ranked.size() - slots), ranked.size())
+	return ranked.slice(0, mini(slots, ranked.size()))
+
+
+static func _above_league(catalog: TeamCatalog, league: Dictionary) -> Dictionary:
+	var rank := _rank_of(league)
+	for item in catalog.career_leagues():
+		if int(item.get("country_id", 0)) == int(league.get("country_id", 0)) \
+				and _rank_of(item) == rank - 1:
+			return item
+	return {}
+
+
+static func _take_top(table: Array, slots: int, rank: int, named: Dictionary,
+		result: Array) -> void:
+	var index := rank - 1
+	var added := 0
+	while index < table.size() and added < slots:
+		var row: Dictionary = table[index]
+		var club_id := str(row.get("club_id", row.get("id", "")))
+		if not named.has(club_id):
+			result.append(row)
+			named[club_id] = true
+			added += 1
+		index += 1
+
+
+static func _format_relegated(career: Career, catalog: TeamCatalog,
+		clubs: Dictionary, table: Array, format: Dictionary,
 		completed: int) -> Array:
 	var result: Array = []
 	var named := {}
@@ -559,14 +702,15 @@ static func _format_relegated(career: Career, table: Array, format: Dictionary,
 		var rank := int(clause.get("rank", 1))
 		if slots <= 0:
 			continue
+		var rows := _source_rows(career, clubs, table, str(clause.get("from", "")))
 		if rule == "average":
 			if completed < 2:
-				result.append_array(_take_bottom(table, slots, 1, named))
+				result.append_array(_take_bottom(rows, slots, 1, named))
 			else:
-				var order := _average_order(career, table)
+				var order := _average_order(career, rows)
 				result.append_array(_take_bottom(order, slots, 1, named))
 		elif rule == "bottom":
-			result.append_array(_take_bottom(table, slots, rank, named))
+			result.append_array(_take_bottom(rows, slots, rank, named))
 	return result
 
 

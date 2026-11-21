@@ -28,12 +28,12 @@ func _run() -> void:
 	var league_ids := {}
 	for team in catalog.all_teams_for_league("ARG2"):
 		league_ids[str(team.get("id", ""))] = true
-	var promoted := CareerWorld.arg2_promoted(catalog, 42, "2026-01-01")
+	var promoted := CareerWorld.promoted_clubs(catalog, "ARG2", "2026-01-01", 42)
 	_check(promoted.size() == 2, "ARG2 promotes two clubs")
 	_check(str(promoted[0]) != str(promoted[1]), "the two clubs are distinct")
 	_check(league_ids.has(str(promoted[0])) and league_ids.has(str(promoted[1])),
 		"both clubs belong to ARG2")
-	var again := CareerWorld.arg2_promoted(catalog, 42, "2026-01-01")
+	var again := CareerWorld.promoted_clubs(catalog, "ARG2", "2026-01-01", 42)
 	_check(again == promoted, "the same seed gives the same pair")
 	_finish()
 

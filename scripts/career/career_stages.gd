@@ -84,16 +84,30 @@ static func stages(format: Dictionary) -> Array:
 
 
 static func resolve_entrants(stage: Dictionary, table: Array,
-		taken: Dictionary = {}, groups: Array = []) -> Array:
-	# `top` takes a rank range from the passed table; `rest` takes the clubs not
-	# already named (the sibling group's top six, for a split). With `per_group`
-	# the same range is taken from every group table of the source stage.
+		taken: Dictionary = {}, groups: Array = [],
+		sources: Dictionary = {}) -> Array:
+	# `top` takes a rank range from the clause's source table; `rest` takes the
+	# clubs not already named; `winner`/`losers` take the decided knockout tie.
+	# With `per_group` the range is taken from every group of that source.
 	var result: Array = []
 	var named := taken.duplicate()
 	for clause in stage.get("entrants", []):
 		var rule := str(clause.get("rule", ""))
-		if rule == "all":
-			for row in table:
+		var from_stage := str(clause.get("from", ""))
+		var rows := table
+		var clause_groups := groups
+		var decided := {}
+		if sources.has(from_stage):
+			var source: Dictionary = sources[from_stage]
+			rows = source.get("table", table)
+			clause_groups = source.get("groups", [])
+			decided = source.get("decided", {})
+		if rule.begins_with("losers"):
+			_append_one(str(decided.get("loser", "")), result, named)
+		elif rule == "winner":
+			_append_one(str(decided.get("winner", "")), result, named)
+		elif rule == "all":
+			for row in rows:
 				var id := str(row.id)
 				if not named.has(id):
 					result.append(id)
@@ -101,18 +115,25 @@ static func resolve_entrants(stage: Dictionary, table: Array,
 		elif rule == "top":
 			var count := int(clause.get("n", 0))
 			var rank := int(clause.get("rank", 1))
-			if bool(clause.get("per_group", false)) and not groups.is_empty():
-				for group in groups:
+			if bool(clause.get("per_group", false)) and not clause_groups.is_empty():
+				for group in clause_groups:
 					_take_top(group, count, rank, result, named)
 			else:
-				_take_top(table, count, rank, result, named)
+				_take_top(rows, count, rank, result, named)
 		elif rule == "rest":
-			for row in table:
+			for row in rows:
 				var id := str(row.id)
 				if not named.has(id):
 					result.append(id)
 					named[id] = true
 	return result
+
+
+static func _append_one(club_id: String, result: Array, named: Dictionary) -> void:
+	if club_id.is_empty() or named.has(club_id):
+		return
+	result.append(club_id)
+	named[club_id] = true
 
 
 static func _take_top(table: Array, count: int, rank: int, result: Array,

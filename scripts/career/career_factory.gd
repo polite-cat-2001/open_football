@@ -240,11 +240,11 @@ static func _stage_windows(format: Dictionary, season_start: String,
 		if ends[index].is_empty():
 			ends[index] = season_end
 	for index in range(stages.size()):
-		if not starts[index].is_empty():
-			continue
 		if index > 0 and not str(ends[index - 1]).is_empty():
-			starts[index] = CareerSeason.add_days(str(ends[index - 1]), 1)
-		else:
+			var previous_end := str(ends[index - 1])
+			if starts[index].is_empty() or str(starts[index]) <= previous_end:
+				starts[index] = CareerSeason.add_days(previous_end, 1)
+		if starts[index].is_empty():
 			starts[index] = season_start_default
 	var windows: Array = []
 	for index in range(stages.size()):
@@ -305,7 +305,7 @@ static func ensure_stages(career: Career) -> void:
 		var source_table := stage_table(career, {}, source)
 		var taken: Dictionary = taken_by_source.get(source, {})
 		var entrants := CareerStages.resolve_entrants(stage, source_table, taken,
-			_source_group_tables(career, source))
+			_source_group_tables(career, source), _entrant_sources(career, stage))
 		if entrants.is_empty():
 			continue
 		for club_id in entrants:
@@ -338,18 +338,20 @@ static func ensure_stages(career: Career) -> void:
 
 static func _ensure_knockout(career: Career, format: Dictionary, stages: Array,
 		index: int, windows: Array, generated: Dictionary) -> void:
-	# Rounds appear one at a time: the first from the source table, every later
-	# one from the previous round's winners. A round is created only when the
-	# round before it is fully played.
+	# Rounds appear one at a time: the first from the source tables, every later
+	# one from the previous round's winners. A round is created only when every
+	# stage it draws from is fully played.
 	var stage: Dictionary = stages[index]
 	var stage_id := str(stage.get("id", ""))
 	var rounds = stage.get("rounds", [])
 	if not (rounds is Array) or (rounds as Array).is_empty():
 		return
-	var source := _stage_source(format, stage_id)
-	if source.is_empty() or source == stage_id:
+	var sources := _stage_sources(format, stage_id)
+	if sources.is_empty():
 		return
-	var source_fixtures := _stage_fixtures(career, source)
+	var source_fixtures: Array = []
+	for source in sources:
+		source_fixtures.append_array(_stage_fixtures(career, str(source)))
 	if source_fixtures.is_empty():
 		return
 	var stage_window: Dictionary = windows[index]
@@ -376,6 +378,10 @@ static func _ensure_knockout(career: Career, format: Dictionary, stages: Array,
 			continue
 		if round_index == 0 and not _all_played(career, source_fixtures):
 			return
+		if round_index > 0:
+			var previous := _stage_round_fixtures(career, stage_id, round_index)
+			if previous.is_empty() or not _all_played(career, previous):
+				return
 		var entrants := _knockout_entrants(career, format, stage, round_index)
 		if entrants.is_empty():
 			return
@@ -397,14 +403,75 @@ static func _ensure_knockout(career: Career, format: Dictionary, stages: Array,
 static func _knockout_entrants(career: Career, format: Dictionary,
 		stage: Dictionary, round_index: int) -> Array:
 	if round_index == 0:
-		var source := _stage_source(format, str(stage.get("id", "")))
-		return CareerStages.resolve_entrants(stage, stage_table(career, {}, source), {},
-			_source_group_tables(career, source))
+		var sources := _entrant_sources(career, stage)
+		var fallback: Array = []
+		for source in sources.values():
+			fallback = source.get("table", [])
+			break
+		return CareerStages.resolve_entrants(stage, fallback, {}, [], sources)
 	var previous := round_index - 1
 	var entrants := _knockout_entrants(career, format, stage, previous)
 	return CareerBrackets.round_winners(entrants,
 		_stage_round_fixtures(career, str(stage.get("id", "")), previous + 1),
 		career.results)
+
+
+static func stage_decided(career: Career, stage_id: String) -> Dictionary:
+	var format = LeagueRegulations.record(career.league_id).get("format")
+	if not (format is Dictionary):
+		return {}
+	for stage in CareerStages.stages(format):
+		if str(stage.get("id", "")) != stage_id:
+			continue
+		var rounds = stage.get("rounds", [])
+		if str(stage.get("kind", "")) != "knockout" \
+				or not (rounds is Array) or (rounds as Array).is_empty():
+			return {}
+		var last := (rounds as Array).size() - 1
+		var entrants := _knockout_entrants(career, format, stage, last)
+		var fixtures := _stage_round_fixtures(career, stage_id, last + 1)
+		var winners := CareerBrackets.round_winners(entrants, fixtures, career.results)
+		if winners.is_empty():
+			return {}
+		var winner_id := str(winners[0])
+		var loser_id := ""
+		for fixture in fixtures:
+			var home := str(fixture.get("home", ""))
+			var away := str(fixture.get("away", ""))
+			if home == winner_id or away == winner_id:
+				loser_id = away if home == winner_id else home
+				break
+		return {"winner": winner_id, "loser": loser_id}
+	return {}
+
+
+static func _entrant_sources(career: Career, stage: Dictionary) -> Dictionary:
+	var sources := {}
+	for clause in stage.get("entrants", []):
+		var source := str(clause.get("from", ""))
+		if source.is_empty() or source == "aggregate" or sources.has(source):
+			continue
+		sources[source] = {
+			"table": stage_table(career, {}, source),
+			"groups": _source_group_tables(career, source),
+			"decided": stage_decided(career, source),
+		}
+	return sources
+
+
+static func _stage_sources(format: Dictionary, stage_id: String) -> Array:
+	var sources: Array = []
+	for stage in CareerStages.stages(format):
+		if str(stage.get("id", "")) != stage_id:
+			continue
+		for clause in stage.get("entrants", []):
+			var source := str(clause.get("from", ""))
+			if source.is_empty() or source == "aggregate":
+				continue
+			if not sources.has(source):
+				sources.append(source)
+		break
+	return sources
 
 
 static func _all_played(career: Career, fixtures: Array) -> bool:

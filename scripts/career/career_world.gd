@@ -1,123 +1,118 @@
 class_name CareerWorld
 extends RefCounted
-# Background simulation of another league's season. The first user is ARG2:
-# two zones, a zone-winners final and the 15-club Torneo Reducido. It returns
-# the two promoted clubs, so the career league's transition can replace its
-# relegated clubs with real ones.
+# Background simulation of another league's season. The format drives it: the
+# same stage engine builds every phase and bracket, the fixtures are simulated
+# with one seed, and the promotion clauses pick the clubs that go up. The
+# career transition uses it so a league keeps its size with real promoted clubs
+# instead of guessing by rating.
 
-static func arg2_promoted(catalog: TeamCatalog, seed: int,
-		season_start: String) -> Array:
-	var teams := catalog.all_teams_for_league("ARG2")
+static func league_season(catalog: TeamCatalog, league_id: String,
+		season_start: String, seed: int) -> Dictionary:
+	var format = LeagueRegulations.record(league_id).get("format")
+	if not (format is Dictionary):
+		return {}
 	var ids: Array = []
-	for team in teams:
+	for team in catalog.all_teams_for_league(league_id):
 		ids.append(str(team.get("id", "")))
-	if ids.size() < 16:
-		return []
+	if ids.is_empty():
+		return {}
 	ids.sort()
-	var format = LeagueRegulations.record("ARG2").get("format")
-	var stages := CareerStages.stages(format)
-	if stages.is_empty():
+	var built := CareerFactory.season_schedule(league_id, ids, season_start)
+	if not (built.get("schedule") is Array) or (built["schedule"] as Array).is_empty():
+		return {}
+	var world := Career.new({
+		"seed": seed, "club_id": "", "league_id": league_id,
+		"season_start": season_start, "league_club_ids": ids,
+		"schedule": built["schedule"],
+		"stages_generated": built.get("stages_generated", {}),
+		"results": {},
+	})
+	for guard in range(64):
+		CareerFactory.ensure_stages(world)
+		var pending: Array = []
+		for fixture in world.schedule:
+			if not world.results.has(str(fixture.get("id", ""))):
+				pending.append(fixture)
+		if pending.is_empty():
+			break
+		for fixture in pending:
+			world.data["results"][str(fixture.get("id", ""))] = \
+				CareerSeason.simulate(seed, fixture, {})
+	var stages := {}
+	var decided := {}
+	for stage in CareerStages.stages(format):
+		var stage_id := str(stage.get("id", ""))
+		if str(stage.get("kind", "")) == "knockout":
+			decided[stage_id] = CareerFactory.stage_decided(world, stage_id)
+		else:
+			stages[stage_id] = CareerFactory.stage_table(world, {}, stage_id)
+	return {
+		"table": CareerFactory.season_table(world, {}),
+		"stages": stages,
+		"decided": decided,
+	}
+
+
+static func promoted_clubs(catalog: TeamCatalog, league_id: String,
+		season_start: String, seed: int) -> Array:
+	var format = LeagueRegulations.record(league_id).get("format")
+	if not (format is Dictionary):
 		return []
-	var window := LeagueRegulations.window_for_season("ARG2", season_start)
-	var year := int(CareerSearch.date_parts(season_start)[0])
-	var format_start := str(format.get("start_md", ""))
-	var stage_start := CareerCalendar.stage_date(year,
-		str(stages[0].get("start_md", "")), format_start)
-	var stage_end := CareerCalendar.stage_date(year,
-		str(stages[0].get("end_md", "")), format_start)
-	if stage_start.is_empty():
-		stage_start = str(window.get("start", season_start))
-	if stage_end.is_empty():
-		stage_end = str(window.get("end", ""))
-	var regular := CareerStages.build_stage(stages[0], ids, stage_start, stage_end,
-		IntlCalendar.rules(), "world")
-	var results := {}
-	for fixture in regular:
-		results[str(fixture.get("id", ""))] = CareerSeason.simulate(
-			seed, fixture, {})
-	var zones: Array = []
-	for group in [0, 1]:
-		var group_fixtures: Array = []
-		for fixture in regular:
-			if int(fixture.get("group", -1)) == group:
-				group_fixtures.append(fixture)
-		var group_ids := _ids(group_fixtures)
-		zones.append(CareerStages.table(group_fixtures, results, group_ids))
-	if zones[0].is_empty() or zones[1].is_empty():
+	var season := league_season(catalog, league_id, season_start, seed)
+	if season.is_empty():
 		return []
-	var zone_a: Array = zones[0]
-	var zone_b: Array = zones[1]
-
-	var first := str(zone_a[0].id)
-	var second := str(zone_b[0].id)
-	var final := _match(seed + 1, first, second)
-	var champion := first if int(final.get("home", 0)) > int(final.get("away", 0)) else second
-	var runner_up := second if champion == first else first
-
-	var winners: Array = []
-	var pairs := [[1, 7], [1, 7], [2, 6], [2, 6], [3, 5], [3, 5], [4, 4]]
-	for index in range(pairs.size()):
-		var a_index := int(pairs[index][0])
-		var b_index := int(pairs[index][1])
-		var home := str(zone_a[a_index].id) if index % 2 == 0 else str(zone_b[a_index].id)
-		var away := str(zone_b[b_index].id) if index % 2 == 0 else str(zone_a[b_index].id)
-		var result := _match(seed + 10 + index, home, away)
-		var home_won := int(result.get("home", 0)) > int(result.get("away", 0))
-		var draw := int(result.get("home", 0)) == int(result.get("away", 0))
-		var winner := home
-		if not home_won and not draw:
-			winner = away
-		elif draw:
-			winner = home if a_index < b_index else away
-		winners.append({"id": winner, "rank": a_index if winner == home else b_index})
-
-	winners.sort_custom(func(x: Dictionary, y: Dictionary) -> bool:
-		if int(x.rank) != int(y.rank):
-			return int(x.rank) < int(y.rank)
-		return str(x.id) < str(y.id))
-	var seeds: Array = [runner_up]
-	for winner in winners:
-		seeds.append(str(winner.id))
-	if seeds.size() < 8:
-		return [champion, str(seeds[0]) if seeds.size() > 0 else champion]
-
-	var quarter: Array = []
-	for index in range(4):
-		var high := str(seeds[index])
-		var low := str(seeds[7 - index])
-		quarter.append(_two_legs(seed + 30 + index, high, low, high))
-	var semi: Array = [
-		_two_legs(seed + 40, str(quarter[0]), str(quarter[3]), str(quarter[0])),
-		_two_legs(seed + 41, str(quarter[1]), str(quarter[2]), str(quarter[1])),
-	]
-	var reducido := _two_legs(seed + 50, str(semi[0]), str(semi[1]), str(semi[0]))
-	return [champion, reducido]
+	var promoted: Array = []
+	for clause in format.get("promotion", []):
+		var rule := str(clause.get("rule", ""))
+		var source := str(clause.get("from", ""))
+		var slots := maxi(1, int(clause.get("slots", 1)))
+		if rule == "top":
+			var table: Array = season.get("stages", {}).get(source, season.get("table", []))
+			take_top(table, int(clause.get("rank", 1)), slots, promoted)
+		elif rule == "winner" or rule.begins_with("losers"):
+			var decided: Dictionary = season.get("decided", {}).get(source, {})
+			var key := "winner" if rule == "winner" else "loser"
+			var club_id := str(decided.get(key, ""))
+			if not club_id.is_empty() and not promoted.has(club_id):
+				promoted.append(club_id)
+	return promoted
 
 
-static func _match(seed: int, home: String, away: String) -> Dictionary:
-	return CareerSeason.simulate(seed, {
-		"id": "world:%s:%s" % [home, away], "home": home, "away": away,
-	}, {})
+static func relegated_clubs(catalog: TeamCatalog, league_id: String,
+		season_start: String, seed: int) -> Array:
+	var format = LeagueRegulations.record(league_id).get("format")
+	if not (format is Dictionary):
+		return []
+	var season := league_season(catalog, league_id, season_start, seed)
+	if season.is_empty():
+		return []
+	var relegated: Array = []
+	var named := {}
+	for clause in format.get("relegation", []):
+		var rule := str(clause.get("rule", ""))
+		if rule in ["none", "unknown"]:
+			continue
+		var slots := maxi(1, int(clause.get("slots", 1)))
+		var source := str(clause.get("from", ""))
+		var table: Array = season.get("stages", {}).get(source, season.get("table", []))
+		var index := table.size() - maxi(1, int(clause.get("rank", 1)))
+		var added := 0
+		while index >= 0 and added < slots:
+			var club_id := str((table[index] as Dictionary).get("id", ""))
+			if not named.has(club_id):
+				relegated.append(club_id)
+				named[club_id] = true
+				added += 1
+			index -= 1
+	return relegated
 
 
-static func _two_legs(seed: int, first: String, second: String,
-		better: String) -> String:
-	var leg_one := _match(seed, first, second)
-	var leg_two := _match(seed + 1, second, first)
-	var first_goals := int(leg_one.get("home", 0)) + int(leg_two.get("away", 0))
-	var second_goals := int(leg_one.get("away", 0)) + int(leg_two.get("home", 0))
-	if first_goals > second_goals:
-		return first
-	if second_goals > first_goals:
-		return second
-	return better
-
-
-static func _ids(fixtures: Array) -> Array:
-	var ids := {}
-	for fixture in fixtures:
-		ids[str(fixture.get("home", ""))] = true
-		ids[str(fixture.get("away", ""))] = true
-	var result := ids.keys()
-	result.sort()
-	return result
+static func take_top(table: Array, rank: int, count: int, into: Array) -> void:
+	var index := rank - 1
+	var added := 0
+	while index < table.size() and added < count:
+		var club_id := str((table[index] as Dictionary).get("id", ""))
+		if not club_id.is_empty() and not into.has(club_id):
+			into.append(club_id)
+			added += 1
+		index += 1
