@@ -9083,7 +9083,103 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_1_(Peru)",
-   "note": "Article infobox gives only '30 January – December 2026'; no exact end date is stated, so end is null. Torneo Apertura + Torneo Clausura (18 teams) feed a single aggregate table, plus playoffs for the title; bottom two of the aggregate table are relegated. Tiebreak order taken from the aggregate-table class_rules. end_md from https://en.wikipedia.org/wiki/2026_Liga_1_(Peru): \"The Torneo Clausura is the second and final tournament of the 2026 season, being held from 17 July to 22 November 2026.\"."
+   "note": "Article infobox gives only '30 January – December 2026'; no exact end date is stated, so end is null. Torneo Apertura + Torneo Clausura (18 teams) feed a single aggregate table, plus playoffs for the title; bottom two of the aggregate table are relegated. Tiebreak order taken from the aggregate-table class_rules. end_md from https://en.wikipedia.org/wiki/2026_Liga_1_(Peru): \"The Torneo Clausura is the second and final tournament of the 2026 season, being held from 17 July to 22 November 2026.\".",
+   "format": {
+    "season": "2026",
+    "start_md": "01-30",
+    "end_md": "11-22",
+    "champion": "stage:playoff",
+    "champion_fallback": "shared",
+    "aggregate": [
+     "apertura",
+     "clausura"
+    ],
+    "stages": [
+     {
+      "id": "apertura",
+      "kind": "league",
+      "label": "Torneo Apertura",
+      "start_md": "01-30",
+      "end_md": "05-31",
+      "precision": "day",
+      "rounds": 17,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "clausura",
+      "kind": "league",
+      "label": "Torneo Clausura",
+      "start_md": "07-17",
+      "end_md": "11-22",
+      "precision": "day",
+      "rounds": 17,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "playoff",
+      "kind": "knockout",
+      "label": "Title play-off",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "winner",
+        "from": "apertura"
+       },
+       {
+        "rule": "winner",
+        "from": "clausura"
+       },
+       {
+        "rule": "top",
+        "from": "aggregate",
+        "n": 2
+       }
+      ],
+      "champion": "winner",
+      "if": {
+       "skip_when": "shared",
+       "stages": [
+        "playoff"
+       ]
+      }
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "aggregate",
+      "slots": 2
+     }
+    ],
+    "note": "Peru 2026: Apertura and Clausura are 17-round single round-robin tournaments; their points form the Tabla Acumulada. The title play-off takes both tournament winners plus the top two of the aggregate (duplicates dropped), so it shrinks when a winner is also top-two and is skipped when one club wins both. The bottom two of the aggregate are relegated. Play-off dates are unpublished and inferred."
+   }
   },
   "TFL2": {
    "start_md": "09-13",
