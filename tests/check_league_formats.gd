@@ -83,6 +83,8 @@ func _run() -> void:
 			var kind := str(stage.get("kind", ""))
 			if not KINDS.has(kind):
 				bad.append("%s/%s: unknown stage kind %s" % [league_id, stage_id, kind])
+			if stage.has("carry") and not (stage.get("carry") is Dictionary):
+				bad.append("%s/%s: stage carry is not an object" % [league_id, stage_id])
 			if kind == "group":
 				has_group = true
 				var groups = stage.get("groups")
@@ -118,6 +120,11 @@ func _run() -> void:
 			bad.append("%s: promotion is not a list" % league_id)
 		if not (format.get("relegation") is Array):
 			bad.append("%s: relegation is not a list" % league_id)
+		for key in ["promotion", "relegation"]:
+			for clause in format.get(key, []):
+				if str(clause.get("rule", "")) == "losers" \
+						and (not clause.has("from") or not clause.has("round")):
+					bad.append("%s: losers clause without from/round" % league_id)
 		var champion := str(format.get("champion", ""))
 		if not (CHAMPIONS.has(champion) or champion.begins_with("stage:")):
 			bad.append("%s: champion is %s" % [league_id, champion])

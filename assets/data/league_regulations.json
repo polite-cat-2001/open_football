@@ -5471,7 +5471,250 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Maltese_Premier_League",
-   "note": "Infobox reads 'dates = 17 August 2026 –' with no end date and the prose only says the season began 17 August 2026, so end = null. 12 teams split into an Opening Round (11 games) then Top Six / Bottom Six - modelled as 'split'. Tiebreak verbatim from class_rules. 2 direct relegations inferred from 2025-26 (Naxxar Lions, Tarxien Rainbows); no relegation play-off documented in either article. No transfer-window dates."
+   "note": "Infobox reads 'dates = 17 August 2026 –' with no end date and the prose only says the season began 17 August 2026, so end = null. 12 teams split into an Opening Round (11 games) then Top Six / Bottom Six - modelled as 'split'. Tiebreak verbatim from class_rules. 2 direct relegations inferred from 2025-26 (Naxxar Lions, Tarxien Rainbows); no relegation play-off documented in either article. No transfer-window dates.",
+   "format": {
+    "season": "2026-27",
+    "proxy": true,
+    "proxy_season": "2025-26",
+    "confidence": "low",
+    "start_md": "08-17",
+    "end_md": "05-23",
+    "champion": "stage:title",
+    "champion_fallback": "shared",
+    "stages": [
+     {
+      "id": "opening_regular",
+      "kind": "league",
+      "label": "Opening Round",
+      "start_md": "08-17",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 11,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "opening_top",
+      "kind": "group",
+      "label": "Opening Round - Top Six",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "opening_regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "carry": {
+       "points": "full",
+       "goals": "carry"
+      }
+     },
+     {
+      "id": "opening_bottom",
+      "kind": "group",
+      "label": "Opening Round - Bottom Six",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "opening_regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "carry": {
+       "points": "full",
+       "goals": "carry"
+      }
+     },
+     {
+      "id": "closing_regular",
+      "kind": "league",
+      "label": "Closing Round",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 11,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "closing_top",
+      "kind": "group",
+      "label": "Closing Round - Top Six",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "closing_regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "carry": {
+       "points": "full",
+       "goals": "carry"
+      }
+     },
+     {
+      "id": "closing_bottom",
+      "kind": "group",
+      "label": "Closing Round - Bottom Six",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "closing_regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "carry": {
+       "points": "full",
+       "goals": "carry"
+      }
+     },
+     {
+      "id": "title",
+      "kind": "knockout",
+      "label": "Final Four",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "sf",
+        "legs": 1
+       },
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "opening_top",
+        "n": 2
+       },
+       {
+        "rule": "top",
+        "from": "closing_top",
+        "n": 2
+       }
+      ],
+      "champion": "winner",
+      "if": {
+       "skip_when": "same_club",
+       "stages": [
+        "title"
+       ]
+      }
+     },
+     {
+      "id": "relegation_playoff",
+      "kind": "knockout",
+      "label": "Relegation play-out",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "sf",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "bottom",
+        "from": "opening_bottom",
+        "n": 2
+       },
+       {
+        "rule": "bottom",
+        "from": "closing_bottom",
+        "n": 2
+       }
+      ],
+      "champion": "none"
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "losers",
+      "from": "relegation_playoff",
+      "round": "sf",
+      "slots": 2,
+      "playoff": true
+     }
+    ],
+    "note": "Proxy 2025-26: Malta plays two full championships, each 11 rounds + 6/6 split with five more, with points reset between them. The title is shared by a club that wins both; otherwise the top two of each round play a Final Four. Relegation is a four-team knockout of the bottom two of each round, and its two semi-final losers go down (rule losers). Closing dates are not published, so all stages are undated inside the sourced 2026-27 window."
+   }
   },
   "MYA1": {
    "start_md": "08-28",

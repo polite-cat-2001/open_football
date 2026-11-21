@@ -134,7 +134,9 @@ implemented. Order starts with the calendar slice.
   that table is read. Splits usually carry points and **keep goals** (Ecuador,
   Greece, Denmark); Egypt and Romania reset them, and the `half` rounding is a
   field (`rounding: "up" | "down"`, Romania up, Albania and Moldova down).
-  Uruguay's Segunda carries both.
+  Uruguay's Segunda carries both. **A stage may set its own `carry`**, overriding
+  the format value: this covers a double competition that resets between rounds
+  and a split whose groups carry different amounts.
 - A split is expressed as several `group` stages, each fed by a rank range of
   the regular stage (`from: "regular", rank: 1, n: 6`; `rank: 7, n: 4`; ...).
   Ecuador's three groups (championship 6, Sudamericana 4, relegation 6) are the
@@ -145,15 +147,17 @@ implemented. Order starts with the calendar slice.
   `champion_fallback: "shared" | "stage:<id>"` says who is champion when the
   stage is skipped.
 - `promotion`/`relegation` are ordered lists of the same clause shape, with
-  `rule`: `top`, `bottom`, `winner`, `average`, `unknown`, `none`, plus `from`
-  (a stage or `"aggregate"`), `slots` (the total across groups, even when
-  `per_group` is set), `per_group`, `rank` (start position) and
+  `rule`: `top`, `bottom`, `winner`, `average`, `losers`, `unknown`, `none`,
+  plus `from` (a stage or `"aggregate"`), `slots` (the total across groups, even
+  when `per_group` is set), `per_group`, `rank` (start position),
   `among: "champions"` (restrict a top/bottom rule to the named stages'
-  champions). A clause may also set `playoff: true`: the club enters a
-  two-legged tie instead of moving directly, and the boundary's
-  `up_playoff`/`down_playoff` counts these conditional slots. Rules apply in
-  order and each takes its slots from clubs **not already named**, so
-  overlapping rules do not over-relegate. `average` is
+  champions) and `round` (the knockout round for `losers`, default the final).
+  `losers` takes the clubs that lost that round, so a four-team relegation
+  play-off sends its two semi-final losers down. A clause may also set
+  `playoff: true`: the club enters a two-legged tie instead of moving directly,
+  and the boundary's `up_playoff`/`down_playoff` counts these conditional slots.
+  Rules apply in order and each takes its slots from clubs **not already
+  named**, so overlapping rules do not over-relegate. `average` is
   simulated as the aggregate until club history exists, and the review says so.
   `[]` is only legal when the league has **no** format; a format league states
   `none` explicitly when nothing moves.
