@@ -7999,7 +7999,7 @@
   },
   "PN1A": {
    "start_md": "07-24",
-   "end_md": "12-05",
+   "end_md": "05-31",
    "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
@@ -8010,7 +8010,145 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/Liga_LPF",
-   "note": "No English Wikipedia article exists for the 2026 season ('2026 Liga Panameña de Fútbol' is a redlink; the newest season articles stop at 2023), so no 2026 dates, tiebreak order or transfer windows could be sourced and start/end are null. The league article confirms the format: 12 teams in two conferences, season split into Apertura and Clausura, aggregate table used for relegation (fewest points relegated to the second tier), which is why relegation_slots is 1; note the article also says the 2021 expansion to 12 franchises came 'with no relegation', so the relegation figure is uncertain. Liga LPF lists Plaza Amador as Clausura 2026 champions. end_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1): \"Fecha de cierre 5 de diciembre\". start_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1): \"Fecha de inicio 24 de julio\"."
+   "note": "No English Wikipedia article exists for the 2026 season ('2026 Liga Panameña de Fútbol' is a redlink; the newest season articles stop at 2023), so no 2026 dates, tiebreak order or transfer windows could be sourced and start/end are null. The league article confirms the format: 12 teams in two conferences, season split into Apertura and Clausura, aggregate table used for relegation (fewest points relegated to the second tier), which is why relegation_slots is 1; note the article also says the 2021 expansion to 12 franchises came 'with no relegation', so the relegation figure is uncertain. Liga LPF lists Plaza Amador as Clausura 2026 champions. end_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1): \"Fecha de cierre 5 de diciembre\". start_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Panam%C3%A1): \"Fecha de inicio 24 de julio\".",
+   "format": {
+    "season": "2026-27",
+    "proxy": true,
+    "proxy_season": "Clausura 2026",
+    "confidence": "medium",
+    "start_md": "07-24",
+    "end_md": "05-31",
+    "champion": "none",
+    "aggregate": [
+     "apertura_regular",
+     "clausura_regular"
+    ],
+    "stages": [
+     {
+      "id": "apertura_regular",
+      "kind": "group",
+      "label": "Apertura 2026 regular",
+      "start_md": "07-24",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 16,
+      "groups": {
+       "sizes": [
+        6,
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "interzonal",
+       "interzonal": 6
+      },
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "apertura_playoff",
+      "kind": "knockout",
+      "label": "Apertura 2026 play-off",
+      "start_md": null,
+      "end_md": "12-05",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "qf",
+        "legs": 1
+       },
+       {
+        "name": "sf",
+        "legs": 1
+       },
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_regular",
+        "n": 6
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "clausura_regular",
+      "kind": "group",
+      "label": "Clausura 2027 regular",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 16,
+      "groups": {
+       "sizes": [
+        6,
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "interzonal",
+       "interzonal": 6
+      },
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "clausura_playoff",
+      "kind": "knockout",
+      "label": "Clausura 2027 play-off",
+      "start_md": null,
+      "end_md": "05-31",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "qf",
+        "legs": 1
+       },
+       {
+        "name": "sf",
+        "legs": 1
+       },
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "clausura_regular",
+        "n": 6
+       }
+      ],
+      "champion": "winner"
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "unknown"
+     }
+    ],
+    "note": "Panama 2026-27: two 12-club tournaments, each in two conferences of six (10 inside matches plus 6 cross-conference rounds). The top six of the combined table reach a single-match play-off; the conference winners go straight to the semi-finals and the final is one match. Two phase champions, no annual champion. The row held only the Apertura; it is corrected to the full season, and Clausura 2027 is a proxy. The pyramid closes the bottom, so the researched aggregate relegation is marked unknown."
+   }
   },
   "PO1": {
    "start_md": "08-07",
