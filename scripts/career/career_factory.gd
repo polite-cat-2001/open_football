@@ -156,31 +156,8 @@ static func build_schedule(club_ids: Array, start_date := Career.START_DATE,
 
 static func _round_dates(start_date: String, end_date: String, total_rounds: int,
 		rules: Array, scope: String) -> Array:
-	# A round is a date window, but one league round is one day. Pick the
-	# evenly spaced free days so no round lands inside an international pause;
-	# when the free days are too few, the old even spread is the fallback.
-	if end_date.is_empty() or total_rounds <= 0:
-		return []
-	var span := CareerSeason.days_between(start_date, end_date)
-	if span < 0:
-		return []
-	var free: Array = []
-	for offset in range(span + 1):
-		var date := _add_days(start_date, offset)
-		if rules.is_empty() or not IntlCalendar.is_blocked(rules, date, scope):
-			free.append(date)
-	var dates: Array = []
-	if free.size() >= total_rounds:
-		for index in range(total_rounds):
-			var position := 0
-			if total_rounds > 1:
-				position = int(round(float(index) * float(free.size() - 1) \
-					/ float(total_rounds - 1)))
-			dates.append(free[position])
-		return dates
-	for index in range(total_rounds):
-		dates.append(_round_date(start_date, span, index + 1, total_rounds))
-	return dates
+	return CareerCalendar.round_dates(start_date, end_date, total_rounds, rules,
+		scope)
 
 
 static func _round_date(start_date: String, span: int, round_no: int,
@@ -219,7 +196,8 @@ static func season_schedule(league_id: String, club_ids: Array,
 				stage_start = schedule_start
 			if stage_end.is_empty():
 				stage_end = schedule_end
-			var fixtures := CareerStages.build_stage(stage, club_ids, stage_start, stage_end)
+			var fixtures := CareerStages.build_stage(stage, club_ids, stage_start,
+				stage_end, IntlCalendar.rules(), "world")
 			var max_round := 0
 			for fixture in fixtures:
 				var raw_round := int(fixture.get("round", 0))
@@ -303,7 +281,8 @@ static func ensure_stages(career: Career) -> void:
 				else str(window.get("start", career.season_start))
 		if end.is_empty():
 			end = str(window.get("end", ""))
-		var fixtures := CareerStages.build_stage(stage, entrants, start, end)
+		var fixtures := CareerStages.build_stage(stage, entrants, start, end,
+			IntlCalendar.rules(), "world")
 		for fixture in fixtures:
 			var stage_round := int(fixture.get("round", 0))
 			fixture["stage"] = stage_id
@@ -415,12 +394,7 @@ static func _stage_source(format: Dictionary, stage_id: String) -> String:
 
 
 static func _stage_date(year: int, md: String, reference_md: String) -> String:
-	if md.length() != 5:
-		return ""
-	var stage_year := year
-	if not reference_md.is_empty() and md < reference_md:
-		stage_year += 1
-	return "%04d-%s" % [stage_year, md]
+	return CareerCalendar.stage_date(year, md, reference_md)
 
 
 static func ensure_schedule(career: Career, league_club_ids: Array) -> void:

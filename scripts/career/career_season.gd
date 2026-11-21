@@ -483,7 +483,8 @@ static func _format_league_transition(catalog: TeamCatalog, career: Career,
 	var incoming: Array = []
 	if str(below.get("id", "")) == "ARG2":
 		incoming = CareerWorld.arg2_promoted(catalog,
-			career.seed + int(CareerSearch.date_parts(career.season_start)[0]))
+			career.seed + int(CareerSearch.date_parts(career.season_start)[0]),
+			career.season_start)
 	var relegated_ids := {}
 	for row in relegated:
 		relegated_ids[str(row.get("club_id", ""))] = true

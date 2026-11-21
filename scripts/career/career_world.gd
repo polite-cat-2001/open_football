@@ -5,7 +5,8 @@ extends RefCounted
 # the two promoted clubs, so the career league's transition can replace its
 # relegated clubs with real ones.
 
-static func arg2_promoted(catalog: TeamCatalog, seed: int) -> Array:
+static func arg2_promoted(catalog: TeamCatalog, seed: int,
+		season_start: String) -> Array:
 	var teams := catalog.all_teams_for_league("ARG2")
 	var ids: Array = []
 	for team in teams:
@@ -17,7 +18,19 @@ static func arg2_promoted(catalog: TeamCatalog, seed: int) -> Array:
 	var stages := CareerStages.stages(format)
 	if stages.is_empty():
 		return []
-	var regular := CareerStages.build_stage(stages[0], ids, "2026-02-13", "2026-11-08")
+	var window := LeagueRegulations.window_for_season("ARG2", season_start)
+	var year := int(CareerSearch.date_parts(season_start)[0])
+	var format_start := str(format.get("start_md", ""))
+	var stage_start := CareerCalendar.stage_date(year,
+		str(stages[0].get("start_md", "")), format_start)
+	var stage_end := CareerCalendar.stage_date(year,
+		str(stages[0].get("end_md", "")), format_start)
+	if stage_start.is_empty():
+		stage_start = str(window.get("start", season_start))
+	if stage_end.is_empty():
+		stage_end = str(window.get("end", ""))
+	var regular := CareerStages.build_stage(stages[0], ids, stage_start, stage_end,
+		IntlCalendar.rules(), "world")
 	var results := {}
 	for fixture in regular:
 		results[str(fixture.get("id", ""))] = CareerSeason.simulate(
