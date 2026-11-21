@@ -2318,7 +2318,106 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Veikkausliiga",
-   "note": "Dates from infobox. 12 teams: regular season then championship round (top 6) and relegation round (bottom 6). Last-placed team of the relegation round is relegated to Ykkösliiga, second-to-last plays the Veikkausliiga play-off; infobox lists one relegated club (IFK Mariehamn). No transfer-window dates in the article."
+   "note": "Dates from infobox. 12 teams: regular season then championship round (top 6) and relegation round (bottom 6). Last-placed team of the relegation round is relegated to Ykkösliiga, second-to-last plays the Veikkausliiga play-off; infobox lists one relegated club (IFK Mariehamn). No transfer-window dates in the article.",
+   "format": {
+    "season": "2026",
+    "start_md": "04-04",
+    "end_md": "11-01",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "04-04",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship round",
+      "start_md": null,
+      "end_md": "11-01",
+      "precision": "none",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 1,
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation round",
+      "start_md": null,
+      "end_md": "11-01",
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1
+     },
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "note": "Finland 2026: 22 rounds, then the top six play a double round-robin (10) and the bottom six a single one (5), as the published tables show. The 12th is relegated directly and the 11th plays the Ykkösliiga 2nd, so the second slot is conditional."
+   }
   },
   "FI2": {
    "start_md": "04-04",
@@ -2366,7 +2465,106 @@
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Veikkausliiga",
    "note": "Window inherited from FI1; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "FI1"
+   "inherited_from": "FI1",
+   "format": {
+    "season": "2026",
+    "start_md": "04-04",
+    "end_md": "11-01",
+    "champion": "none",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "04-04",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "promotion",
+      "kind": "group",
+      "label": "Promotion round",
+      "start_md": null,
+      "end_md": "10-18",
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 1,
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation round",
+      "start_md": null,
+      "end_md": "10-18",
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "top",
+      "from": "promotion",
+      "slots": 1
+     },
+     {
+      "rule": "top",
+      "from": "promotion",
+      "slots": 1,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "unknown"
+     }
+    ],
+    "note": "Finland level 3, 2026: 22 rounds, then 6+6 with five more. The promotion-round winner goes up directly and the runner-up plays the Ykkösliiga 9th. The pyramid has no level 4, so the researched bottom-two relegation cannot be applied and is marked unknown."
+   }
   },
   "FR1": {
    "start_md": "08-21",
@@ -3224,7 +3422,99 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Besta_deild_karla",
-   "note": "Dates from infobox. 12 teams: regular season then championship round and relegation round; bottom two of the relegation round are relegated (KA and ÍBV per infobox), no relegation play-off. Play-off in the tiebreak applies only to decide the champion. No transfer-window dates in the article."
+   "note": "Dates from infobox. 12 teams: regular season then championship round and relegation round; bottom two of the relegation round are relegated (KA and ÍBV per infobox), no relegation play-off. Play-off in the tiebreak applies only to decide the champion. No transfer-window dates in the article.",
+   "format": {
+    "season": "2026",
+    "start_md": "04-10",
+    "end_md": "10-24",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "04-10",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship round",
+      "start_md": null,
+      "end_md": "10-24",
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 1,
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation round",
+      "start_md": null,
+      "end_md": "10-24",
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 2
+     }
+    ],
+    "note": "Iceland 2026: 22 rounds, then 6+6 with five more matches; the bottom two of the relegation round go down directly. The split dates are not published and are inferred."
+   }
   },
   "IS2": {
    "start_md": "04-10",
@@ -5974,7 +6264,106 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Scottish_Premiership",
-   "note": "Infobox 'Dates: 31 July 2026 – 16 May 2027'. No transfer windows stated anywhere in the article. 12 teams: 33 matches, then split into top/bottom six for 5 more. 12th relegated directly, 11th enters the Premiership play-off final. The play-off tiebreak applies only if champion/UEFA/second-stage/relegation places are undecided."
+   "note": "Infobox 'Dates: 31 July 2026 – 16 May 2027'. No transfer windows stated anywhere in the article. 12 teams: 33 matches, then split into top/bottom six for 5 more. 12th relegated directly, 11th enters the Premiership play-off final. The play-off tiebreak applies only if champion/UEFA/second-stage/relegation places are undecided.",
+   "format": {
+    "season": "2026",
+    "start_md": "07-31",
+    "end_md": "05-16",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-01",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 33,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship group",
+      "start_md": "04-17",
+      "end_md": "05-16",
+      "precision": "day",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 1,
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation group",
+      "start_md": "04-17",
+      "end_md": "05-16",
+      "precision": "day",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1
+     },
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "note": "Scotland 2026-27: 33 rounds, then 6+6 with five more. The 12th is relegated directly; the 11th plays the Championship ladder winner over two legs, so the second slot is conditional."
+   }
   },
   "SC2": {
    "start_md": "07-31",

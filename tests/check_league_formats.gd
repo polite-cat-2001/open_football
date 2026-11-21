@@ -98,8 +98,10 @@ func _run() -> void:
 							if (order[group_index] as Array).size() != int(sizes[group_index]):
 								bad.append("%s/%s: pattern group %d size mismatch" % [
 									league_id, stage_id, group_index])
-			var start := str(stage.get("start_md", ""))
-			var end := str(stage.get("end_md", ""))
+			var raw_start = stage.get("start_md")
+			var raw_end = stage.get("end_md")
+			var start := "" if raw_start == null else str(raw_start)
+			var end := "" if raw_end == null else str(raw_end)
 			if start.is_empty() or end.is_empty():
 				if str(stage.get("precision", "day")) != "none":
 					bad.append("%s/%s: no stage date" % [league_id, stage_id])
