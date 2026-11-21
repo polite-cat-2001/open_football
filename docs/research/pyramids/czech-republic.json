@@ -1,63 +1,196 @@
 {
-  "country": "Czech Republic",
-  "season": "2026-27",
-  "sources": [
-    "https://cs.wikipedia.org/wiki/1._%C4%8Desk%C3%A1_fotbalov%C3%A1_liga",
-    "https://cs.wikipedia.org/wiki/Chance_Liga_2026/2027",
-    "https://cs.wikipedia.org/wiki/2._%C4%8Desk%C3%A1_fotbalov%C3%A1_liga",
-    "https://cs.wikipedia.org/wiki/Chance_N%C3%A1rodn%C3%AD_liga_2026/2027",
-    "https://cs.wikipedia.org/wiki/%C4%8Cesk%C3%A1_fotbalov%C3%A1_liga",
-    "https://cs.wikipedia.org/wiki/%C4%8Cesk%C3%A1_fotbalov%C3%A1_liga_2026/2027",
-    "https://cs.wikipedia.org/wiki/Moravskoslezsk%C3%A1_fotbalov%C3%A1_liga",
-    "https://cs.wikipedia.org/wiki/Moravskoslezsk%C3%A1_fotbalov%C3%A1_liga_2026/2027",
-    "https://en.wikipedia.org/wiki/2025%E2%80%9326_Czech_First_League"
-  ],
-  "leagues": [
-    {"id": "TS1", "name": "Chance Liga", "level": 1, "size": 16, "closed_up": true, "closed_down": false,
-     "format": {"kind": "split", "rounds": 30, "split_after": 30,
-      "groups": {"championship": 6, "placement_playoff": 4, "relegation": 6},
-      "points_carry": "full",
-      "stages": [
-        {"name": "regular", "teams": 16, "rounds": 30, "kind": "double_round_robin"},
-        {"name": "championship_group", "teams": 6, "rounds": 5, "kind": "single_round_robin", "note": "places 1-6; title decided on total points including the regular season"},
-        {"name": "placement_playoff", "teams": 4, "kind": "two_legged_knockout", "note": "places 7-10: 7v10, 8v9, final; winner gets CZK 3m and a better Czech Cup seed, no European place since 2023-24"},
-        {"name": "relegation_group", "teams": 6, "rounds": 5, "kind": "single_round_robin", "note": "places 11-16"}]},
-     "playoff": {"kind": "relegation", "entries": "15th and 14th of the Chance Liga vs 2nd and 3rd of the Chance Národní liga", "legs": 2,
-      "note": "two separate two-leg ties; 16th is relegated directly, 13th is always safe"}},
-    {"id": "TS2", "name": "Chance Národní liga", "level": 2, "size": 16, "closed_up": false, "closed_down": false,
-     "format": {"kind": "single", "rounds": 30},
-     "playoff": {"kind": "promotion", "entries": "2nd and 3rd of the Chance Národní liga vs 15th and 14th of the Chance Liga", "legs": 2,
-      "note": "champion is promoted directly; only the two play-off winners go up"}},
-    {"id": "CZ3C", "name": "Česká fotbalová liga", "level": 3, "size": 32, "closed_up": false, "closed_down": false,
-     "format": {"kind": "groups", "groups": 2, "rounds": 30,
-      "stages": [
-        {"name": "group_a", "teams": 16, "rounds": 30, "kind": "double_round_robin"},
-        {"name": "group_b", "teams": 16, "rounds": 30, "kind": "double_round_robin"},
-        {"name": "promotion_baraz", "teams": 2, "kind": "two_legged_knockout", "note": "winners of groups A and B play for the single promotion place"}]},
-     "playoff": {"kind": "promotion", "entries": "winner of group A vs winner of group B", "legs": 2,
-      "note": "one promotion place; the loser stays at level 3. In 2025-26 both group winners went up because the Národní liga had extra vacancies"}},
-    {"id": "CZ3M", "name": "Moravskoslezská fotbalová liga", "level": 3, "size": 18, "closed_up": false, "closed_down": false,
-     "format": {"kind": "single", "rounds": 34},
-     "playoff": null}
-  ],
-  "boundaries": [
-    {"upper": 1, "lower": 2, "up": 1, "up_playoff": 2, "down": 1, "down_playoff": 2,
-     "allocation": "free", "selection": "playoff",
-     "note": "Národní liga: champion up, 2nd and 3rd into two-leg play-outs. Chance Liga: 16th down, 15th and 14th into the same play-outs, 13th safe. Both ties two legs, no away-goals rule."},
-    {"upper": 2, "lower": 3, "up": 2, "up_playoff": 1, "down": 2, "down_playoff": 0,
-     "allocation": "by_geography", "selection": "other",
-     "note": "Národní liga sends its bottom 2 down, each to ČFL or MSFL by regional affiliation (0-2 to either). Up: MSFL champion directly, ČFL only through a two-leg baráž between its group A and B winners. Net level-3 size is fixed at 32 + 18."}
-  ],
-  "conflicts": [
-    {"league": "CZ3C", "field": "membership", "ours": "one 32-team league", "real": "ČFL = 2 groups (A and B) of 16",
-     "note": "The size is right; the shape is not. It is one division split into two 16-team groups whose winners meet in a two-leg baráž for a single promotion place."},
-    {"league": "TS1", "field": "format", "ours": "split 6 championship / 10 relegation", "real": "6 championship / 4 placement play-off / 6 relegation",
-     "note": "The split is three-way, not two-way. Places 7-10 play a two-legged placement bracket (7v10, 8v9, final), not a relegation group."},
-    {"league": "level 3", "field": "structure", "ours": "two parallel leagues: Bohemian and Moravian-Silesian", "real": "ČFL (Bohemia, groups A+B, 32) + MSFL (Moravia-Silesia, 18) = 3 groups",
-     "note": "There are two level-3 competitions but three groups. Our CZ3C row bundles the two Bohemian groups; CZ3M is the single Moravian-Silesian league."},
-    {"league": "TS1", "field": "playoff", "ours": "none encoded", "real": "13th safe, 14th/15th baráž, 16th direct",
-     "note": "Any model that relegates a flat bottom 3 from the Chance Liga is wrong for this format."}
-  ],
-  "confidence": "high",
-  "notes": "Both top divisions are 16 clubs / 30 rounds; level 3 is 32 + 18. Points are never halved at the split. Relegation counts below level 2 are not fixed numbers: ČFL drops 2-4 and MSFL 0-2 depending on where the Národní liga's two relegated clubs belong, and both are fed by Divize winners (level 4, outside this model). 2026-27 movement shows the rules in action but is not the rule: Dukla Praha was the only direct relegation from the Chance Liga (16th), Karviná was administratively moved down for the 2022-24 corruption case (Ethics Committee, no appeal) and its spot was offered to Táborsko (refused) then Artis Brno; Zbrojovka Brno went up as Národní liga champion, and the Národní liga lost Sparta B plus České Budějovice and Chrudim for failing licensing, so three level-3 clubs came up (Kladno and Arsenal Česká Lípa from ČFL, Třinec from MSFL) instead of the usual two."
+ "country": "Czech Republic",
+ "season": "2026-27",
+ "sources": [
+  "https://cs.wikipedia.org/wiki/1._%C4%8Desk%C3%A1_fotbalov%C3%A1_liga",
+  "https://cs.wikipedia.org/wiki/Chance_Liga_2026/2027",
+  "https://cs.wikipedia.org/wiki/2._%C4%8Desk%C3%A1_fotbalov%C3%A1_liga",
+  "https://cs.wikipedia.org/wiki/Chance_N%C3%A1rodn%C3%AD_liga_2026/2027",
+  "https://cs.wikipedia.org/wiki/%C4%8Cesk%C3%A1_fotbalov%C3%A1_liga",
+  "https://cs.wikipedia.org/wiki/%C4%8Cesk%C3%A1_fotbalov%C3%A1_liga_2026/2027",
+  "https://cs.wikipedia.org/wiki/Moravskoslezsk%C3%A1_fotbalov%C3%A1_liga",
+  "https://cs.wikipedia.org/wiki/Moravskoslezsk%C3%A1_fotbalov%C3%A1_liga_2026/2027",
+  "https://en.wikipedia.org/wiki/2025%E2%80%9326_Czech_First_League"
+ ],
+ "leagues": [
+  {
+   "id": "TS1",
+   "name": "Chance Liga",
+   "level": 1,
+   "size": 16,
+   "closed_up": true,
+   "closed_down": false,
+   "format": {
+    "kind": "split",
+    "rounds": 30,
+    "split_after": 30,
+    "groups": {
+     "championship": 6,
+     "placement_playoff": 4,
+     "relegation": 6
+    },
+    "points_carry": "full",
+    "stages": [
+     {
+      "name": "regular",
+      "teams": 16,
+      "rounds": 30,
+      "kind": "double_round_robin"
+     },
+     {
+      "name": "championship_group",
+      "teams": 6,
+      "rounds": 5,
+      "kind": "single_round_robin",
+      "note": "places 1-6; title decided on total points including the regular season"
+     },
+     {
+      "name": "placement_playoff",
+      "teams": 4,
+      "kind": "two_legged_knockout",
+      "note": "places 7-10: 7v10, 8v9, final; winner gets CZK 3m and a better Czech Cup seed, no European place since 2023-24"
+     },
+     {
+      "name": "relegation_group",
+      "teams": 6,
+      "rounds": 5,
+      "kind": "single_round_robin",
+      "note": "places 11-16"
+     }
+    ]
+   },
+   "playoff": {
+    "kind": "relegation",
+    "entries": "15th and 14th of the Chance Liga vs 2nd and 3rd of the Chance Národní liga",
+    "legs": 2,
+    "note": "two separate two-leg ties; 16th is relegated directly, 13th is always safe"
+   }
+  },
+  {
+   "id": "TS2",
+   "name": "Chance Národní liga",
+   "level": 2,
+   "size": 16,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 30
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "2nd and 3rd of the Chance Národní liga vs 15th and 14th of the Chance Liga",
+    "legs": 2,
+    "note": "champion is promoted directly; only the two play-off winners go up"
+   }
+  },
+  {
+   "id": "CZ3C",
+   "name": "Česká fotbalová liga",
+   "level": 3,
+   "size": 32,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "groups",
+    "groups": 2,
+    "rounds": 30,
+    "stages": [
+     {
+      "name": "group_a",
+      "teams": 16,
+      "rounds": 30,
+      "kind": "double_round_robin"
+     },
+     {
+      "name": "group_b",
+      "teams": 16,
+      "rounds": 30,
+      "kind": "double_round_robin"
+     },
+     {
+      "name": "promotion_baraz",
+      "teams": 2,
+      "kind": "two_legged_knockout",
+      "note": "winners of groups A and B play for the single promotion place"
+     }
+    ]
+   },
+   "playoff": {
+    "kind": "promotion",
+    "entries": "winner of group A vs winner of group B",
+    "legs": 2,
+    "note": "one promotion place; the loser stays at level 3. In 2025-26 both group winners went up because the Národní liga had extra vacancies"
+   }
+  },
+  {
+   "id": "CZ3M",
+   "name": "Moravskoslezská fotbalová liga",
+   "level": 3,
+   "size": 18,
+   "closed_up": false,
+   "closed_down": false,
+   "format": {
+    "kind": "single",
+    "rounds": 34
+   },
+   "playoff": null
+  }
+ ],
+ "boundaries": [
+  {
+   "upper": 1,
+   "lower": 2,
+   "up": 3,
+   "up_playoff": 2,
+   "down": 3,
+   "down_playoff": 2,
+   "allocation": "free",
+   "selection": "playoff",
+   "note": "Totals include the play-off places: 1 direct + 2 two-legged ties each way (Národní champion; 2nd and 3rd into the ties). Národní liga: champion up, 2nd and 3rd into two-leg play-outs. Chance Liga: 16th down, 15th and 14th into the same play-outs, 13th safe. Both ties two legs, no away-goals rule."
+  },
+  {
+   "upper": 2,
+   "lower": 3,
+   "up": 2,
+   "up_playoff": 1,
+   "down": 2,
+   "down_playoff": 0,
+   "allocation": "by_geography",
+   "selection": "other",
+   "note": "Národní liga sends its bottom 2 down, each to ČFL or MSFL by regional affiliation (0-2 to either). Up: MSFL champion directly, ČFL only through a two-leg baráž between its group A and B winners. Net level-3 size is fixed at 32 + 18."
+  }
+ ],
+ "conflicts": [
+  {
+   "league": "CZ3C",
+   "field": "membership",
+   "ours": "one 32-team league",
+   "real": "ČFL = 2 groups (A and B) of 16",
+   "note": "The size is right; the shape is not. It is one division split into two 16-team groups whose winners meet in a two-leg baráž for a single promotion place."
+  },
+  {
+   "league": "TS1",
+   "field": "format",
+   "ours": "split 6 championship / 10 relegation",
+   "real": "6 championship / 4 placement play-off / 6 relegation",
+   "note": "The split is three-way, not two-way. Places 7-10 play a two-legged placement bracket (7v10, 8v9, final), not a relegation group."
+  },
+  {
+   "league": "level 3",
+   "field": "structure",
+   "ours": "two parallel leagues: Bohemian and Moravian-Silesian",
+   "real": "ČFL (Bohemia, groups A+B, 32) + MSFL (Moravia-Silesia, 18) = 3 groups",
+   "note": "There are two level-3 competitions but three groups. Our CZ3C row bundles the two Bohemian groups; CZ3M is the single Moravian-Silesian league."
+  },
+  {
+   "league": "TS1",
+   "field": "playoff",
+   "ours": "none encoded",
+   "real": "13th safe, 14th/15th baráž, 16th direct",
+   "note": "Any model that relegates a flat bottom 3 from the Chance Liga is wrong for this format."
+  }
+ ],
+ "confidence": "high",
+ "notes": "Both top divisions are 16 clubs / 30 rounds; level 3 is 32 + 18. Points are never halved at the split. Relegation counts below level 2 are not fixed numbers: ČFL drops 2-4 and MSFL 0-2 depending on where the Národní liga's two relegated clubs belong, and both are fed by Divize winners (level 4, outside this model). 2026-27 movement shows the rules in action but is not the rule: Dukla Praha was the only direct relegation from the Chance Liga (16th), Karviná was administratively moved down for the 2022-24 corruption case (Ethics Committee, no appeal) and its spot was offered to Táborsko (refused) then Artis Brno; Zbrojovka Brno went up as Národní liga champion, and the Národní liga lost Sparta B plus České Budějovice and Chrudim for failing licensing, so three level-3 clubs came up (Kladno and Arsenal Česká Lípa from ČFL, Třinec from MSFL) instead of the usual two."
 }

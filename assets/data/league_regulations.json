@@ -5717,7 +5717,154 @@
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026–27_Liga_I",
    "note": "Window inherited from RO1; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "RO1"
+   "inherited_from": "RO1",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-18",
+    "end_md": "05-23",
+    "champion": "none",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "07-18",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 21,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "promotion",
+      "kind": "group",
+      "label": "Promotion play-off",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "playout_a",
+      "kind": "group",
+      "label": "Relegation play-out A",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 7,
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "pattern",
+       "order": [
+        [
+         7,
+         10,
+         11,
+         14,
+         15,
+         18,
+         19,
+         22
+        ]
+       ]
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "playout_b",
+      "kind": "group",
+      "label": "Relegation play-out B",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 7,
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "pattern",
+       "order": [
+        [
+         8,
+         9,
+         12,
+         13,
+         16,
+         17,
+         20,
+         21
+        ]
+       ]
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none"
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "top",
+      "from": "promotion",
+      "slots": 2
+     },
+     {
+      "rule": "top",
+      "from": "promotion",
+      "slots": 2,
+      "rank": 3,
+      "playoff": true
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "none"
+     }
+    ],
+    "note": "2026-27: 21-round single round-robin, then 6 + 8 + 8. The play-out groups are seeded by the alternating pattern 7/10/11/14/15/18/19/22 and 8/9/12/13/16/17/20/21. The split dates are not published, so they are inferred. The pyramid closes the bottom, so the researched relegation is not applied; 12 of the 22 clubs cannot be promoted on licence grounds, which is a note until eligibility is modelled."
+   }
   },
   "RU1": {
    "start_md": "07-24",
@@ -6565,7 +6712,132 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Czech_First_League",
-   "note": "16 teams, split after regular season into championship (1-6), middle (7-10) and relegation (11-16) groups. Lowest-ranked team relegated directly; 14th and 15th play a home-and-away play-out against 2nd and 3rd of the FNL. No transfer window dates in article."
+   "note": "16 teams, split after regular season into championship (1-6), middle (7-10) and relegation (11-16) groups. Lowest-ranked team relegated directly; 14th and 15th play a home-and-away play-out against 2nd and 3rd of the FNL. No transfer window dates in article.",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-25",
+    "end_md": "05-29",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "07-25",
+      "end_md": "04-24",
+      "precision": "day",
+      "rounds": 30,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship group (o titul)",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 5,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "placement",
+      "kind": "knockout",
+      "label": "Placement play-off (places 7-10)",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 7,
+        "n": 4
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation group (o sestup)",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 5,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none"
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1
+     },
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 2,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "note": "2026-27: 30 rounds, then a three-way split 6/4/6. The split dates are not published, so the stages are undated and inferred between the regular season and the season end. Places 7-10 play a two-legged placement knockout; the 16th is relegated directly and the 15th/14th play the Národní liga 2nd/3rd, so two slots are conditional."
+   }
   },
   "TS2": {
    "start_md": "07-25",

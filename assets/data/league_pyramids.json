@@ -5835,13 +5835,13 @@
    "country": "Czech Republic",
    "upper": 1,
    "lower": 2,
-   "up": 1,
+   "up": 3,
    "up_playoff": 2,
-   "down": 1,
+   "down": 3,
    "down_playoff": 2,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Národní liga: champion up, 2nd and 3rd into two-leg play-outs. Chance Liga: 16th down, 15th and 14th into the same play-outs, 13th safe. Both ties two legs, no away-goals rule."
+   "note": "Totals include the play-off places: 1 direct + 2 two-legged ties each way (Národní champion; 2nd and 3rd into the ties). Národní liga: champion up, 2nd and 3rd into two-leg play-outs. Chance Liga: 16th down, 15th and 14th into the same play-outs, 13th safe. Both ties two legs, no away-goals rule."
   },
   {
    "country": "Czech Republic",

@@ -101,11 +101,13 @@ implemented. Order starts with the calendar slice.
 - `stages`: chronological. Each stage has `kind` (`league` | `group` |
   `knockout`), `entrants`, `champion`, and either `rounds: 1|2|"unknown"` for
   table stages or `rounds: [{name, legs}]` / `"unknown"` for brackets.
-- `groups: {sizes: [..], assign: "seeded"|"geographic"|"draw"|"fixed"}`: a
+- `groups: {sizes: [..], assign: "seeded"|"geographic"|"draw"|"fixed"|"pattern"}`: a
   **table partition**. `sizes` may be uneven (9/9/9/10). `seeded`, `geographic`
   and `fixed` split the resolved entrant order in order into `sizes` (geography
   is not modelled: a documented approximation); `draw` partitions the resolved
-  order deterministically from the stage id.
+  order deterministically from the stage id. `pattern` carries an explicit
+  `order` of rank positions per group (Romania's alternating play-outs:
+  `[[7,10,11,14,15,18,19,22],[8,9,12,13,16,17,20,21]]`).
   `schedule: {kind: "merged"|"per_group", interzonal: n}` says how fixtures are
   built: `merged` is one cross-group round-robin, `per_group` is inside groups,
   `interzonal` adds n cross-group rounds (Argentina, Panama, Argentina-2).

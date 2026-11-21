@@ -88,10 +88,21 @@ func _run() -> void:
 				var groups = stage.get("groups")
 				if not (groups is Dictionary) or not (groups.get("sizes") is Array):
 					bad.append("%s/%s: group stage without sizes" % [league_id, stage_id])
+				elif str(groups.get("assign", "")) == "pattern":
+					var order = groups.get("order")
+					var sizes: Array = groups.get("sizes", [])
+					if not (order is Array) or (order as Array).size() != sizes.size():
+						bad.append("%s/%s: pattern without one order per group" % [league_id, stage_id])
+					else:
+						for group_index in range(sizes.size()):
+							if (order[group_index] as Array).size() != int(sizes[group_index]):
+								bad.append("%s/%s: pattern group %d size mismatch" % [
+									league_id, stage_id, group_index])
 			var start := str(stage.get("start_md", ""))
 			var end := str(stage.get("end_md", ""))
 			if start.is_empty() or end.is_empty():
-				bad.append("%s/%s: no stage date" % [league_id, stage_id])
+				if str(stage.get("precision", "day")) != "none":
+					bad.append("%s/%s: no stage date" % [league_id, stage_id])
 			elif not _inside_season(start, str(format.get("start_md", "")),
 					str(format.get("end_md", ""))) \
 					or not _inside_season(end, str(format.get("start_md", "")),
