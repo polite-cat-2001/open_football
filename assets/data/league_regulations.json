@@ -4570,9 +4570,9 @@
    "inherited_from": "MEXA"
   },
   "MAL2": {
-   "start_md": "08-17",
-   "end_md": "05-23",
-   "filled": "end",
+   "start_md": "09-13",
+   "end_md": "04-23",
+   "filled": "",
    "phases": "split",
    "relegation": {
     "slots": null,
@@ -4591,7 +4591,103 @@
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Maltese_Premier_League",
    "note": "Window inherited from MT1N; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "MT1N"
+   "inherited_from": "MT1N",
+   "format": {
+    "season": "2026-27",
+    "proxy": true,
+    "proxy_season": "2025-26",
+    "confidence": "low",
+    "start_md": "09-13",
+    "end_md": "04-23",
+    "champion": "stage:top",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "09-13",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 15,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "top",
+      "kind": "group",
+      "label": "Top Eight",
+      "start_md": null,
+      "end_md": "04-23",
+      "precision": "none",
+      "rounds": 7,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 8
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "playout",
+      "kind": "group",
+      "label": "Play-Out",
+      "start_md": null,
+      "end_md": "04-23",
+      "precision": "none",
+      "rounds": 7,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "top",
+      "from": "top",
+      "slots": 2
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "playout",
+      "slots": 2
+     }
+    ],
+    "note": "Malta level 2, proxy 2025-26: 15 rounds, then 8+8 with seven more. The top two are promoted (a one-off tie-break only if level on points and goal difference) and the bottom two go down. The 2026-27 window was not sourced, so the proxy window is used and the format is marked proxy."
+   }
   },
   "MAL3": {
    "start_md": "08-17",
@@ -8309,7 +8405,101 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Cypriot_First_Division",
-   "note": "14 teams: 26-round regular season, then championship round (1-6) and relegation round (7-14). Number of relegation places not restated for 2026-27; 2025-26 table relegates 12th-14th. Inferred. No transfer window dates."
+   "note": "14 teams: 26-round regular season, then championship round (1-6) and relegation round (7-14). Number of relegation places not restated for 2026-27; 2025-26 table relegates 12th-14th. Inferred. No transfer window dates.",
+   "format": {
+    "season": "2026-27",
+    "proxy": true,
+    "proxy_season": "2025-26",
+    "confidence": "low",
+    "start_md": "08-28",
+    "end_md": "05-23",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-28",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 26,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship play-offs",
+      "start_md": null,
+      "end_md": "05-23",
+      "precision": "none",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation play-offs",
+      "start_md": null,
+      "end_md": "05-23",
+      "precision": "none",
+      "rounds": 7,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 3
+     }
+    ],
+    "note": "2026-27 repeats the 2025-26 shape: 26 rounds, then 6+8 with 10/7 more. The 2025-26 article supplies the structure and the bottom-three relegation; the 2026-27 split dates are not published, so they sit inside the sourced 2026-27 window and stay undated."
+   }
   },
   "RLN3": {
    "start_md": "08-28",

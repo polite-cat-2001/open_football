@@ -77,6 +77,11 @@ implemented. Order starts with the calendar slice.
   `first_window_on_or_after`). The boundary is the midpoint between the row's
   `end_md` (or `format.end_md`) and the next season's `start_md`; a tie goes to
   the upcoming boundary. The creation screen shows the chosen date.
+- **Proxy seasons.** A different season may supply a format with `proxy: true`,
+  `confidence: low` and a note naming the season. A sourced 2026-27 row window
+  wins: place the proxy stages inside it and leave the undated bounds null. When
+  the row window itself is a class default (`filled`), use the proxy season's
+  window, update the row to it and mark the format `proxy: true`.
 - `start_md`/`end_md` on a stage: either bound may be `null`; `precision` is
   `day` | `month` | `none`, and `proxy: true` separately marks a previous-season
   estimate. An undated first stage is anchored at `format.start_md`; an undated
