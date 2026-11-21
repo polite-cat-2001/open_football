@@ -249,23 +249,10 @@ static func ensure_stages(career: Career) -> void:
 	if not (generated is Dictionary):
 		generated = {}
 		career.data["stages_generated"] = generated
-	var first_id := str(stages[0].get("id", ""))
-	if not generated.has(first_id):
-		generated[first_id] = "fixtures"
-	var regular := _stage_fixtures(career, first_id)
-	if regular.is_empty():
-		return
-	for fixture in regular:
-		if not career.results.has(str(fixture.get("id", ""))):
-			return
-	var regular_table := stage_table(career, {}, first_id)
 	var window := LeagueRegulations.window_for_season(career.league_id, career.season_start)
 	var year := int(CareerSearch.date_parts(career.season_start)[0])
 	var format_start := str(format.get("start_md", ""))
-	var taken := {}
-	var round_offset := 0
-	for fixture in regular:
-		round_offset = maxi(round_offset, int(fixture.get("round", 0)))
+	var taken_by_source := {}
 	for index in range(1, stages.size()):
 		var stage: Dictionary = stages[index]
 		var stage_id := str(stage.get("id", ""))
@@ -273,20 +260,47 @@ static func ensure_stages(career: Career) -> void:
 			# The bracket builder lands with the knockout slice; the regular
 			# stages and the aggregate must not wait for it.
 			continue
+		var source := _stage_source(format, stage_id)
+		if source.is_empty() or source == stage_id:
+			continue
 		if generated.has(stage_id):
 			for fixture in _stage_fixtures(career, stage_id):
-				taken[str(fixture.get("home", ""))] = true
-				taken[str(fixture.get("away", ""))] = true
+				var taken_rows: Dictionary = taken_by_source.get(source, {})
+				taken_rows[str(fixture.get("home", ""))] = true
+				taken_rows[str(fixture.get("away", ""))] = true
+				taken_by_source[source] = taken_rows
 			continue
-		var entrants := CareerStages.resolve_entrants(stage, regular_table, taken)
+		var source_fixtures := _stage_fixtures(career, source)
+		if source_fixtures.is_empty():
+			continue
+		var source_complete := true
+		for fixture in source_fixtures:
+			if not career.results.has(str(fixture.get("id", ""))):
+				source_complete = false
+				break
+		if not source_complete:
+			continue
+		var source_table := stage_table(career, {}, source)
+		var taken: Dictionary = taken_by_source.get(source, {})
+		var entrants := CareerStages.resolve_entrants(stage, source_table, taken)
 		if entrants.is_empty():
 			continue
 		for club_id in entrants:
 			taken[str(club_id)] = true
+		taken_by_source[source] = taken
+		var round_offset := 0
+		for fixture in source_fixtures:
+			round_offset = maxi(round_offset, int(fixture.get("round", 0)))
 		var start := _stage_date(year, str(stage.get("start_md", "")), format_start)
 		var end := _stage_date(year, str(stage.get("end_md", "")), format_start)
 		if start.is_empty():
-			start = str(window.get("start", career.season_start))
+			var last_date := ""
+			for fixture in source_fixtures:
+				var fixture_date := str(fixture.get("date", ""))
+				if fixture_date > last_date:
+					last_date = fixture_date
+			start = last_date if not last_date.is_empty() \
+				else str(window.get("start", career.season_start))
 		if end.is_empty():
 			end = str(window.get("end", ""))
 		var fixtures := CareerStages.build_stage(stage, entrants, start, end)

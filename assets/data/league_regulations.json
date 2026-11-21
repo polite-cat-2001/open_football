@@ -1633,7 +1633,7 @@
       "kind": "league",
       "label": "Torneo Apertura regular",
       "start_md": "01-16",
-      "end_md": null,
+      "end_md": "05-31",
       "precision": "none",
       "rounds": 19,
       "entrants": [
@@ -1678,7 +1678,7 @@
       "kind": "league",
       "label": "Torneo Finalización regular",
       "start_md": "07-24",
-      "end_md": null,
+      "end_md": "11-15",
       "precision": "none",
       "rounds": 19,
       "entrants": [

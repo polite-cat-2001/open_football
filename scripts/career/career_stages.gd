@@ -53,6 +53,8 @@ static func split(table: Array, sizes: Array) -> Array:
 
 static func carry(table: Array, mode: Dictionary) -> Dictionary:
 	var points_mode := str(mode.get("points", "none"))
+	if points_mode == "none":
+		return {}
 	var goals_mode := str(mode.get("goals", "reset"))
 	var rounding := str(mode.get("rounding", "down"))
 	var carried := {}
