@@ -418,9 +418,12 @@ static func _knockout_entrants(career: Career, format: Dictionary,
 		return CareerStages.resolve_entrants(stage, fallback, {}, [], sources)
 	var previous := round_index - 1
 	var entrants := _knockout_entrants(career, format, stage, previous)
-	return CareerBrackets.round_winners(entrants,
-		_stage_round_fixtures(career, str(stage.get("id", "")), previous + 1),
-		career.results)
+	var fixtures := _stage_round_fixtures(career, str(stage.get("id", "")), previous + 1)
+	if not (career.data.get("results") is Dictionary):
+		career.data["results"] = {}
+	career.data["results"] = CareerBrackets.settle_ties(entrants, fixtures,
+		career.results, career.seed)
+	return CareerBrackets.round_winners(entrants, fixtures, career.results)
 
 
 static func stage_decided(career: Career, stage_id: String) -> Dictionary:
@@ -437,6 +440,10 @@ static func stage_decided(career: Career, stage_id: String) -> Dictionary:
 		var last := (rounds as Array).size() - 1
 		var entrants := _knockout_entrants(career, format, stage, last)
 		var fixtures := _stage_round_fixtures(career, stage_id, last + 1)
+		if not (career.data.get("results") is Dictionary):
+			career.data["results"] = {}
+		career.data["results"] = CareerBrackets.settle_ties(entrants, fixtures,
+			career.results, career.seed)
 		var winners := CareerBrackets.round_winners(entrants, fixtures, career.results)
 		if winners.is_empty():
 			return {}

@@ -186,8 +186,12 @@ static func _entrants(career: Career, entry: Dictionary, index: int) -> Array:
 	if index == 0:
 		var field = entry.get("entrants", [])
 		return field if field is Array else []
+	if not (career.data.get("results") is Dictionary):
+		career.data["results"] = {}
 	var previous := _entrants(career, entry, index - 1)
 	var fixtures := _round_fixtures(career, str(entry.get("id", "")), index)
+	career.data["results"] = CareerBrackets.settle_ties(previous, fixtures,
+		career.results, career.seed)
 	return CareerBrackets.round_winners(previous, fixtures, career.results)
 
 
@@ -199,8 +203,10 @@ static func _set_winner(career: Career, entry: Dictionary) -> void:
 	var fixtures := _round_fixtures(career, str(entry.get("id", "")), last + 1)
 	if fixtures.is_empty() or not _all_played(career, fixtures):
 		return
-	var winners := CareerBrackets.round_winners(
-		_entrants(career, entry, last), fixtures, career.results)
+	var entrants := _entrants(career, entry, last)
+	career.data["results"] = CareerBrackets.settle_ties(entrants, fixtures,
+		career.results, career.seed)
+	var winners := CareerBrackets.round_winners(entrants, fixtures, career.results)
 	if not winners.is_empty():
 		entry["winner"] = str(winners[0])
 
@@ -275,16 +281,28 @@ static func _field(catalog: TeamCatalog, league: Dictionary, tiers: Array) -> Ar
 	var allowed := {}
 	for tier in tiers:
 		allowed[int(tier)] = true
-	var ids := {}
+	var clubs := {}
 	for item in catalog.career_leagues():
 		if int(item.get("country_id", 0)) != int(league.get("country_id", 0)):
 			continue
 		if not allowed.is_empty() and not allowed.has(int(item.get("tier", 0))):
 			continue
 		for team in catalog.all_teams_for_league(str(item.get("id", ""))):
-			ids[str(team.get("id", ""))] = true
-	var field := ids.keys()
-	field.sort()
+			var team_id := str(team.get("id", ""))
+			clubs[team_id] = {
+				"id": team_id, "tier": int(item.get("tier", 0)),
+				"rating": float(catalog.load_team_rating(int(team_id)).get("average", 0.0)),
+			}
+	var rows: Array = clubs.values()
+	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if int(a.tier) != int(b.tier):
+			return int(a.tier) < int(b.tier)
+		if not is_equal_approx(float(a.rating), float(b.rating)):
+			return float(a.rating) > float(b.rating)
+		return str(a.id) < str(b.id))
+	var field: Array = []
+	for row in rows:
+		field.append(str(row.id))
 	return field
 
 

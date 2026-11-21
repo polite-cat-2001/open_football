@@ -57,10 +57,11 @@ func _run() -> void:
 	var league_clubs := _league_clubs(catalog, career)
 	var strengths := _strengths(catalog, career, league_clubs)
 	var rounds := 0
+	var steps := 0
 	var expected_rounds := 0
 	if league_clubs.size() > 1:
 		expected_rounds = (league_clubs.size() - 1) * 2
-	while not CareerSeason.next_fixture(career).is_empty() and rounds < 60:
+	while not CareerSeason.next_fixture(career).is_empty() and steps < 90:
 		var fixture := CareerSeason.next_fixture(career)
 		if not CareerSeason.advance_to(career, str(fixture.get("date", "")),
 				league_clubs, strengths):
@@ -69,7 +70,9 @@ func _run() -> void:
 		if CareerSeason.play_next_match(career, league_clubs, strengths).is_empty():
 			_check(false, "match day failed: " + CareerSeason.last_error)
 			break
-		rounds += 1
+		if str(fixture.get("competition", career.league_id)) == career.league_id:
+			rounds += 1
+		steps += 1
 	_check(rounds == expected_rounds, "the season plays every round (%d)" % expected_rounds)
 	_check(CareerSeason.next_fixture(career).is_empty(),
 		"the last round leaves no fixture")
@@ -181,7 +184,12 @@ func _run() -> void:
 		"the career moves to the reviewed league")
 	_check(career.league_club_ids == next_ids, "the league composition is stored")
 	_check(not career.schedule.is_empty(), "the new schedule exists")
-	_check(str(career.schedule[0].get("date", "")) == str(expected_window.get("start", "")),
+	var first_league_date := ""
+	for fixture in career.schedule:
+		if str(fixture.get("competition", career.league_id)) == career.league_id:
+			first_league_date = str(fixture.get("date", ""))
+			break
+	_check(first_league_date == str(expected_window.get("start", "")),
 		"the new schedule opens on the window's first day")
 	var pause_rules := IntlCalendar.rules()
 	var in_pause: Array = []
@@ -271,20 +279,29 @@ func _fill_results(career: Career, own_wins: bool) -> void:
 	if not (career.data.get("results") is Dictionary):
 		career.data["results"] = {}
 	var results: Dictionary = career.data["results"]
-	var own_index := 0
-	for fixture in career.schedule:
-		var fixture_id := str(fixture.get("id", ""))
-		var home := str(fixture.get("home", ""))
-		var away := str(fixture.get("away", ""))
-		if career.club_id == home or career.club_id == away:
-			var win := own_wins or own_index % 2 == 0
-			var score := {"home": 5, "away": 0} if win else {"home": 0, "away": 5}
-			if career.club_id == away:
-				score = {"home": 0, "away": 5} if win else {"home": 5, "away": 0}
-			results[fixture_id] = score
-			own_index += 1
-		else:
-			results[fixture_id] = {"home": 0, "away": 0}
+	for guard in range(12):
+		CareerFactory.ensure_stages(career)
+		CareerCompetitions.ensure(career)
+		var missing := false
+		var own_index := 0
+		for fixture in career.schedule:
+			var fixture_id := str(fixture.get("id", ""))
+			if results.has(fixture_id):
+				continue
+			missing = true
+			var home := str(fixture.get("home", ""))
+			var away := str(fixture.get("away", ""))
+			if career.club_id == home or career.club_id == away:
+				var win := own_wins or own_index % 2 == 0
+				var score := {"home": 5, "away": 0} if win else {"home": 0, "away": 5}
+				if career.club_id == away:
+					score = {"home": 0, "away": 5} if win else {"home": 5, "away": 0}
+				results[fixture_id] = score
+				own_index += 1
+			else:
+				results[fixture_id] = {"home": 0, "away": 0}
+		if not missing:
+			break
 
 
 func _from_contains_current(review: Dictionary, current_ids: Array) -> bool:

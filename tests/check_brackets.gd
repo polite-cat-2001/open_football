@@ -78,6 +78,37 @@ func _run() -> void:
 	_check(six_winners == ["a", "b", "c", "d"], "byes advance without a fixture")
 	_check(CareerBrackets.round_winners([], [], {}) == [], "an empty bracket has no winners")
 
+	var final_id := str(one_fixture[0].get("id", ""))
+	var drawn := {final_id: {"home": 2, "away": 2}}
+	var settled := CareerBrackets.settle_ties(["a", "b"], one_fixture, drawn, 7)
+	var pens = (settled[final_id] as Dictionary).get("pens")
+	_check(pens is Dictionary and int(pens.get("home", 0)) != int(pens.get("away", 0)),
+		"a drawn single-leg tie gets a shootout")
+	if pens is Dictionary:
+		var drawn_winner := str(CareerBrackets.round_winners(["a", "b"], one_fixture,
+			settled)[0])
+		var expected := "a" if int(pens.get("home", 0)) > int(pens.get("away", 0)) else "b"
+		_check(drawn_winner == expected, "the shootout decides the drawn tie")
+	var fresh := {final_id: {"home": 2, "away": 2}}
+	var again := CareerBrackets.settle_ties(["a", "b"], one_fixture, fresh, 7)
+	_check((again[final_id] as Dictionary).get("pens") == pens,
+		"the shootout is deterministic for the same seed")
+	var decided := {final_id: {"home": 3, "away": 0}}
+	CareerBrackets.settle_ties(["a", "b"], one_fixture, decided, 7)
+	_check(not ((decided[final_id] as Dictionary).get("pens") is Dictionary),
+		"a decided tie gets no shootout")
+
+	var level := {
+		"semis:00:0": {"home": 1, "away": 1},
+		"semis:00:1": {"home": 1, "away": 1},
+		"semis:01:0": {"home": 2, "away": 0},
+		"semis:01:1": {"home": 0, "away": 1},
+	}
+	var level_winners := CareerBrackets.round_winners(["a", "b", "c", "d"], two_leg,
+		level)
+	_check(level_winners == ["a", "b"],
+		"a level two-leg aggregate falls to the higher seed without pens")
+
 	print("== check_brackets: ", "PASS" if failures.is_empty() else "FAIL",
 		" (", failures.size(), " failures) ==")
 	quit(0 if failures.is_empty() else 1)

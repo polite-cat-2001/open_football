@@ -61,44 +61,106 @@ static func round_fixtures(stage: Dictionary, round_index: int, entrants: Array,
 
 static func round_winners(entrants: Array, fixtures: Array,
 		results: Dictionary) -> Array:
+	var winners: Array = []
+	for row in tie_results(entrants, fixtures, results):
+		if bool(row.get("bye", false)):
+			winners.append(str(row.first))
+			continue
+		var first_goals := int(row.get("first_goals", 0))
+		var second_goals := int(row.get("second_goals", 0))
+		var winner := str(row.first)
+		if second_goals > first_goals:
+			winner = str(row.second)
+		elif second_goals == first_goals:
+			var last_result: Dictionary = row.get("last_result", {})
+			var pens = last_result.get("pens")
+			if pens is Dictionary:
+				var home_pens := int(pens.get("home", 0))
+				var away_pens := int(pens.get("away", 0))
+				winner = str(row.last_home) if home_pens > away_pens else str(row.last_away)
+		winners.append(winner)
+	return winners
+
+
+static func settle_ties(entrants: Array, fixtures: Array, results: Dictionary,
+		seed: int) -> Dictionary:
+	# A level tie after its last leg is decided by a shootout. Single-leg cup
+	# ties and level two-leg aggregates both end here, so the higher seed never
+	# advances on a draw. The pens are written into the last leg's result.
+	for row in tie_results(entrants, fixtures, results):
+		if bool(row.get("bye", false)):
+			continue
+		if int(row.get("played", 0)) < (row.get("legs", []) as Array).size():
+			continue
+		if int(row.get("first_goals", 0)) != int(row.get("second_goals", 0)):
+			continue
+		var last_result: Dictionary = row.get("last_result", {})
+		if last_result.get("pens") is Dictionary:
+			continue
+		last_result["pens"] = shootout(("%d:%s" % [seed, str(row.get("last_id", ""))]).hash())
+	return results
+
+
+static func shootout(seed: int) -> Dictionary:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	var home := 0
+	var away := 0
+	for kick in range(5):
+		if rng.randf() < 0.75:
+			home += 1
+		if rng.randf() < 0.75:
+			away += 1
+	while home == away:
+		var home_scored := rng.randf() < 0.75
+		var away_scored := rng.randf() < 0.75
+		if home_scored and not away_scored:
+			home += 1
+		elif away_scored and not home_scored:
+			away += 1
+	return {"home": home, "away": away}
+
+
+static func tie_results(entrants: Array, fixtures: Array,
+		results: Dictionary) -> Array:
 	if entrants.is_empty():
 		return []
 	var size := bracket_size(entrants.size())
 	var ties := pairs(entrants, size)
-	var winners: Array = []
+	var rows: Array = []
 	for tie_index in range(ties.size()):
 		var first = ties[tie_index][0]
 		var second = ties[tie_index][1]
 		if first == null:
 			continue
 		if second == null:
-			winners.append(str(first))
+			rows.append({"first": str(first), "second": null, "bye": true})
 			continue
-		var tie_id := ""
 		var legs: Array = []
 		for fixture in fixtures:
-			if str(fixture.get("home", "")) == str(first) \
-					or str(fixture.get("home", "")) == str(second):
-				if str(fixture.get("away", "")) == str(first) \
-						or str(fixture.get("away", "")) == str(second):
-					legs.append(fixture)
+			var home := str(fixture.get("home", ""))
+			var away := str(fixture.get("away", ""))
+			if (home == str(first) and away == str(second)) \
+					or (home == str(second) and away == str(first)):
+				legs.append(fixture)
 		if legs.is_empty():
-			continue
-		tie_id = str(legs[0].get("tie", ""))
-		if tie_id.is_empty():
 			continue
 		var first_goals := 0
 		var second_goals := 0
+		var played := 0
 		var last_result: Dictionary = {}
 		var last_home := ""
 		var last_away := ""
+		var last_id := ""
 		for fixture in legs:
 			var result = results.get(str(fixture.get("id", "")))
 			if not (result is Dictionary):
 				continue
+			played += 1
 			last_result = result
 			last_home = str(fixture.get("home", ""))
 			last_away = str(fixture.get("away", ""))
+			last_id = str(fixture.get("id", ""))
 			var home_goals := int(result.get("home", 0))
 			var away_goals := int(result.get("away", 0))
 			if last_home == str(first):
@@ -107,14 +169,11 @@ static func round_winners(entrants: Array, fixtures: Array,
 			else:
 				first_goals += away_goals
 				second_goals += home_goals
-		var winner := str(first)
-		if second_goals > first_goals:
-			winner = str(second)
-		elif second_goals == first_goals:
-			var pens = last_result.get("pens")
-			if pens is Dictionary:
-				var home_pens := int(pens.get("home", 0))
-				var away_pens := int(pens.get("away", 0))
-				winner = last_home if home_pens > away_pens else last_away
-		winners.append(winner)
-	return winners
+		rows.append({
+			"first": str(first), "second": str(second), "bye": false,
+			"legs": legs, "played": played,
+			"first_goals": first_goals, "second_goals": second_goals,
+			"last_result": last_result, "last_home": last_home,
+			"last_away": last_away, "last_id": last_id,
+		})
+	return rows
