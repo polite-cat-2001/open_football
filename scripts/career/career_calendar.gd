@@ -42,6 +42,55 @@ static func round_dates(start_date: String, end_date: String, rounds: int,
 	return dates
 
 
+static func joint_plan(requests: Array, rules: Array = [], scope := "world",
+		rest := 3) -> Dictionary:
+	# Every competition of the club is planned together. Higher priority picks
+	# its ideal days first; the rest shift to the nearest free day inside their
+	# window, keeping `rest` days from every match already placed. The league is
+	# the backbone; a cup therefore lands in the midweek gaps.
+	var ordered := requests.duplicate()
+	ordered.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if int(a.get("priority", 0)) != int(b.get("priority", 0)):
+			return int(a.get("priority", 0)) > int(b.get("priority", 0))
+		return str(a.get("id", "")) < str(b.get("id", "")))
+	var reserved: Array = []
+	var used := {}
+	var plan := {}
+	for request in ordered:
+		var ideal := round_dates(str(request.get("start", "")),
+			str(request.get("end", "")), int(request.get("days", 0)), rules, scope)
+		var dates: Array = []
+		for date in ideal:
+			var slot := _free_slot(str(date), request, used, reserved, rest)
+			dates.append(slot)
+			used[slot] = true
+			reserved.append(slot)
+		plan[str(request.get("id", ""))] = dates
+	return plan
+
+
+static func _free_slot(ideal: String, request: Dictionary, used: Dictionary,
+		reserved: Array, rest: int) -> String:
+	for step in range(0, 29):
+		for offset in ([0] if step == 0 else [step, -step]):
+			var candidate := CareerSeason.add_days(ideal, offset)
+			if candidate < str(request.get("start", "")) \
+					or candidate > str(request.get("end", "")):
+				continue
+			if used.has(candidate):
+				continue
+			var ok := true
+			for other in reserved:
+				if absi(CareerSeason.days_between(candidate, str(other))) < rest:
+					ok = false
+					break
+			if ok:
+				return candidate
+	# The window has no free day left: keep the ideal so the fixture still
+	# exists and the caller can report the compressed calendar.
+	return ideal
+
+
 static func stage_date(year: int, md: String, reference_md: String) -> String:
 	if md.length() != 5:
 		return ""

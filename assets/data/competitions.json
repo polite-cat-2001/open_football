@@ -1,0 +1,20 @@
+{
+ "checked": "2026-11-21",
+ "_comment": "Non-league competitions. The field is every club of the named tiers that exists in the database; amateur rounds outside the snapshot are not modelled. Round names and legs are derived from the field size: the last three rounds are quarter-final, semi and final, and `two_legged` names the rounds played over two legs.",
+ "competitions": {
+  "ESCUP": {
+   "kind": "cup",
+   "label": "Copa del Rey",
+   "country": "Spain",
+   "tiers": [1, 2, 3, 4],
+   "start_md": "09-27",
+   "end_md": "04-18",
+   "two_legged": ["semi"],
+   "final_legs": 1,
+   "champion": "winner",
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Copa_del_Rey",
+   "confidence": "high",
+   "note": "126 clubs in the real 2025-26 edition; the field here is the Spanish clubs present in the snapshot. The four Supercopa clubs' round-of-32 entry and the two-legged preliminary round are not modelled separately."
+  }
+ }
+}

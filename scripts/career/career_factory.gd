@@ -54,9 +54,11 @@ static func create(
 	var season_start := LeagueRegulations.nearest_boundary(league_id, Career.START_DATE)
 	if season_start.is_empty():
 		season_start = Career.START_DATE
-	var built := season_schedule(league_id, league_ids, season_start)
+	var built := CareerCompetitions.build_season(catalog, league_id, league_ids,
+		season_start)
 	var schedule: Array = built.get("schedule", [])
 	var stages_generated: Dictionary = built.get("stages_generated", {})
+	var competitions: Array = built.get("competitions", [])
 
 	var now := Career.utc_now()
 	var career := Career.new({
@@ -81,6 +83,7 @@ static func create(
 		"hub_tab": "centre",
 		"schedule": schedule,
 		"stages_generated": stages_generated,
+		"competitions": competitions,
 		"seasons_completed": 0,
 		"schedule_version": SCHEDULE_VERSION,
 		"incoming_market_date": season_start,
@@ -91,7 +94,8 @@ static func create(
 
 
 static func build_schedule(club_ids: Array, start_date := Career.START_DATE,
-		end_date := "", rules: Array = [], scope := "world") -> Array:
+		end_date := "", rules: Array = [], scope := "world",
+		dates: Array = []) -> Array:
 	var teams: Array = []
 	var seen := {}
 	for club_id in club_ids:
@@ -129,13 +133,15 @@ static func build_schedule(club_ids: Array, start_date := Career.START_DATE,
 	var span := 0
 	if not str(end_date).is_empty():
 		span = CareerSeason.days_between(start_date, str(end_date))
-	var dates := _round_dates(start_date, str(end_date), total_rounds, rules, scope)
+	var planned := dates
+	if planned.size() < total_rounds:
+		planned = _round_dates(start_date, str(end_date), total_rounds, rules, scope)
 	for half in [0, 1]:
 		for round_index in range(rounds.size()):
 			var round_no: int = int(half) * rounds.size() + round_index + 1
 			var match_date := _round_date(start_date, span, round_no, total_rounds)
-			if round_no <= dates.size():
-				match_date = str(dates[round_no - 1])
+			if round_no <= planned.size():
+				match_date = str(planned[round_no - 1])
 			var pairs: Array = rounds[round_index]
 			for match_index in range(pairs.size()):
 				var home: String = str(pairs[match_index][0])
@@ -172,7 +178,7 @@ static func _round_date(start_date: String, span: int, round_no: int,
 
 
 static func season_schedule(league_id: String, club_ids: Array,
-		season_start: String) -> Dictionary:
+		season_start: String, plan: Dictionary = {}) -> Dictionary:
 	var window := LeagueRegulations.window_for_season(league_id, season_start)
 	var schedule_start := str(window.get("start", season_start))
 	var schedule_end := str(window.get("end", ""))
@@ -191,10 +197,11 @@ static func season_schedule(league_id: String, club_ids: Array,
 			if not is_all:
 				continue
 			var stage_window: Dictionary = windows[index]
+			var stage_dates = plan.get(str(stage.get("id", "")), [])
 			var fixtures := CareerStages.build_stage(stage, club_ids,
 				str(stage_window.get("start", schedule_start)),
 				str(stage_window.get("end", schedule_end)),
-				IntlCalendar.rules(), "world")
+				IntlCalendar.rules(), "world", {}, stage_dates)
 			var max_round := 0
 			for fixture in fixtures:
 				var raw_round := int(fixture.get("round", 0))
@@ -209,7 +216,7 @@ static func season_schedule(league_id: String, club_ids: Array,
 			stage_offset += max_round
 	if schedule.is_empty():
 		schedule = build_schedule(club_ids, schedule_start, schedule_end,
-			IntlCalendar.rules(), "world")
+			IntlCalendar.rules(), "world", plan.get("league", []))
 	return {"schedule": schedule, "stages_generated": generated}
 
 
@@ -574,6 +581,19 @@ static func _enrich_rows(rows: Array, clubs: Dictionary) -> Array:
 	return rows
 
 
+static func _is_league_fixture(career: Career, fixture: Dictionary) -> bool:
+	return str(fixture.get("competition", career.league_id)) == career.league_id
+
+
+static func _competition_label(career: Career, competition_id: String) -> String:
+	var entries = career.data.get("competitions")
+	if entries is Array:
+		for entry in entries:
+			if str(entry.get("id", "")) == competition_id:
+				return str(entry.get("label", competition_id))
+	return competition_id
+
+
 static func _stage_fixtures(career: Career, stage_id: String, group := -1) -> Array:
 	var fixtures: Array = []
 	for fixture in career.schedule:
@@ -784,6 +804,8 @@ static func _season_state(career: Career, clubs: Dictionary) -> Dictionary:
 			break
 	var rounds_total := 0
 	for fixture in fixtures:
+		if not _is_league_fixture(career, fixture):
+			continue
 		rounds_total = maxi(rounds_total, int(fixture.get("round", 0)))
 	var next_match = null
 	if not next_fixture.is_empty():
@@ -791,13 +813,17 @@ static func _season_state(career: Career, clubs: Dictionary) -> Dictionary:
 		var opponent_id := str(next_fixture.get("away", "")) if home \
 			else str(next_fixture.get("home", ""))
 		var opponent: Dictionary = clubs.get(opponent_id, {})
+		var competition_id := str(next_fixture.get("competition", career.league_id))
+		var competition := _competition_label(career, competition_id)
+		if competition_id == career.league_id:
+			competition = str(clubs.get(career.club_id, {}).get("league_name", competition))
 		next_match = {
 			"fixture_id": str(next_fixture.get("id", "")),
 			"date": str(next_fixture.get("date", "")),
 			"round": int(next_fixture.get("round", 0)),
 			"home": home,
-			"competition": str(clubs.get(career.club_id, {}).get("league_name", "")),
-			"competition_id": career.league_id,
+			"competition": competition,
+			"competition_id": competition_id,
 			"opponent": {
 				"id": opponent_id,
 				"name": str(opponent.get("name", opponent_id)),
@@ -825,6 +851,8 @@ static func _played_fixtures(career: Career) -> Array:
 	for fixture in career.schedule:
 		var fixture_id := str(fixture.get("id", ""))
 		if not career.results.has(fixture_id):
+			continue
+		if not _is_league_fixture(career, fixture):
 			continue
 		if career.club_id not in [str(fixture.get("home", "")), str(fixture.get("away", ""))]:
 			continue
@@ -897,6 +925,8 @@ static func standings(career: Career, clubs: Dictionary, exclude_round := -1) ->
 			"goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0,
 		}
 	for fixture in career.schedule:
+		if not _is_league_fixture(career, fixture):
+			continue
 		if exclude_round >= 0 and int(fixture.get("round", 0)) == exclude_round:
 			continue
 		var score = career.results.get(str(fixture.get("id", "")))

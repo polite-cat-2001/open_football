@@ -65,6 +65,7 @@ static func days_between(start_date: String, end_date: String) -> int:
 
 static func next_fixture(career: Career) -> Dictionary:
 	CareerFactory.ensure_stages(career)
+	CareerCompetitions.ensure(career)
 	for fixture in career.schedule:
 		var fixture_id := str(fixture.get("id", ""))
 		if career.results.has(fixture_id):
@@ -417,9 +418,11 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 	career.data["seasons_completed"] = int(career.data.get("seasons_completed", 0)) + 1
 	var next_ids_unique := _unique_ids(next_ids)
 	career.data["league_club_ids"] = next_ids_unique
-	var built := CareerFactory.season_schedule(career.league_id, next_ids_unique, new_start)
+	var built := CareerCompetitions.build_season(catalog, career.league_id,
+		next_ids_unique, new_start)
 	career.data["schedule"] = built.get("schedule", [])
 	career.data["stages_generated"] = built.get("stages_generated", {})
+	career.data["competitions"] = built.get("competitions", [])
 	career.data["schedule_version"] = CareerFactory.SCHEDULE_VERSION
 	career.data["results"] = {}
 	CareerSquad.rollover_values(career, CareerSquad.roster(

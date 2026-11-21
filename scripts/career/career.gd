@@ -401,25 +401,72 @@ static func from_save(raw: Dictionary) -> Career:
 		for item in payload["schedule"]:
 			if not (item is Dictionary):
 				continue
-			fixtures.append({
+			var fixture := {
 				"id": str(item.get("id", "")),
 				"round": _as_int(item.get("round"), 0),
 				"date": str(item.get("date", "")),
 				"home": str(item.get("home", "")),
 				"away": str(item.get("away", "")),
-			})
+			}
+			if item.has("stage_round"):
+				fixture["stage_round"] = _as_int(item.get("stage_round"), 0)
+			if item.has("stage"):
+				fixture["stage"] = str(item.get("stage", ""))
+			if item.has("competition"):
+				fixture["competition"] = str(item.get("competition", ""))
+			if item.has("group"):
+				fixture["group"] = _as_int(item.get("group"), -1)
+			if item.has("tie"):
+				fixture["tie"] = str(item.get("tie", ""))
+			if item.has("leg"):
+				fixture["leg"] = _as_int(item.get("leg"), 0)
+			fixtures.append(fixture)
 		payload["schedule"] = fixtures
 		payload["schedule_version"] = _as_int(payload.get("schedule_version"), 0)
+
+	if payload.has("seasons_completed"):
+		payload["seasons_completed"] = _as_int(payload["seasons_completed"], 0)
+
+	if payload.has("competitions") and payload["competitions"] is Array:
+		var competitions: Array = []
+		for item in payload["competitions"]:
+			if not (item is Dictionary):
+				continue
+			var entry: Dictionary = item.duplicate(true)
+			entry["id"] = str(entry.get("id", ""))
+			entry["kind"] = str(entry.get("kind", ""))
+			entry["label"] = str(entry.get("label", ""))
+			if entry.has("country"):
+				entry["country"] = str(entry.get("country", ""))
+			if entry.has("entrants"):
+				entry["entrants"] = _string_array(entry.get("entrants"))
+			if entry.has("dates"):
+				entry["dates"] = _string_array(entry.get("dates"))
+			if entry.get("rounds") is Array:
+				for spec in entry["rounds"]:
+					if spec is Dictionary:
+						spec["name"] = str(spec.get("name", ""))
+						spec["legs"] = _as_int(spec.get("legs"), 1)
+			if entry.get("winner") != null:
+				entry["winner"] = str(entry["winner"])
+			competitions.append(entry)
+		payload["competitions"] = competitions
 
 	if payload.has("results") and payload["results"] is Dictionary:
 		var normalized := {}
 		for fixture_id in payload["results"]:
 			var score = payload["results"][fixture_id]
 			if score is Dictionary:
-				normalized[str(fixture_id)] = {
+				var result := {
 					"home": _as_int(score.get("home"), 0),
 					"away": _as_int(score.get("away"), 0),
 				}
+				if score.get("pens") is Dictionary:
+					result["pens"] = {
+						"home": _as_int(score["pens"].get("home"), 0),
+						"away": _as_int(score["pens"].get("away"), 0),
+					}
+				normalized[str(fixture_id)] = result
 		payload["results"] = normalized
 
 	return Career.new(payload)

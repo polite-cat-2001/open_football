@@ -73,7 +73,7 @@ func _run() -> void:
 				"the saved JSON round-trips exactly")
 			_check(read_back.seed == 7 and read_back.club_id == "131",
 				"the seed and club survive the round-trip")
-			_check(read_back.schedule.size() == 380, "the schedule survives the round-trip")
+			_check(read_back.schedule.size() == 406, "the schedule survives the round-trip")
 
 		var wrong_version := career.to_save()
 		wrong_version["version"] = 2

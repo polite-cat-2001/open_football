@@ -82,11 +82,15 @@ func _run() -> void:
 		"the starting squad is the sorted canon squad")
 	_check(career.league_club_ids == golden["league_club_ids"],
 		"the league clubs match the fixture")
-	_check(career.schedule.size() == int(golden["schedule_count"]),
+	var league_schedule: Array = []
+	for fixture in career.schedule:
+		if str(fixture.get("competition", career.league_id)) == career.league_id:
+			league_schedule.append(fixture)
+	_check(league_schedule.size() == int(golden["schedule_count"]),
 		"the double round-robin schedule is built")
-	_check(career.schedule.slice(0, 4) == _fixtures(golden["schedule_first"]),
+	_check(league_schedule.slice(0, 4) == _fixtures(golden["schedule_first"]),
 		"the first fixtures match the golden schedule")
-	_check(career.schedule.slice(career.schedule.size() - 3)
+	_check(league_schedule.slice(league_schedule.size() - 3)
 		== _fixtures(golden["schedule_last"]),
 		"the last fixtures match the golden schedule")
 	_check(career.data.get("schedule_version", 0) == CareerFactory.SCHEDULE_VERSION,

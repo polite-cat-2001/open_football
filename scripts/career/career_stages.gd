@@ -151,17 +151,20 @@ static func _take_top(table: Array, count: int, rank: int, result: Array,
 
 static func build_stage(stage: Dictionary, entrants: Array, start_date: String,
 		end_date := "", rules: Array = [], scope := "world",
-		busy: Dictionary = {}) -> Array:
+		busy: Dictionary = {}, dates: Array = []) -> Array:
 	var kind := str(stage.get("kind", ""))
 	if kind == "league":
-		return _schedule(entrants, start_date, end_date, stage, "", rules, scope)
+		return _schedule(entrants, start_date, end_date, stage, "", rules, scope,
+			dates)
 	if kind != "group":
 		return []
-	return _group_schedule(stage, entrants, start_date, end_date, rules, scope, busy)
+	return _group_schedule(stage, entrants, start_date, end_date, rules, scope,
+		busy, dates)
 
 
 static func _group_schedule(stage: Dictionary, entrants: Array, start_date: String,
-		end_date: String, rules: Array, scope: String, busy: Dictionary) -> Array:
+		end_date: String, rules: Array, scope: String, busy: Dictionary,
+		dates: Array = []) -> Array:
 	var sizes: Array = stage.get("groups", {}).get("sizes", [])
 	var groups: Array = []
 	var index := 0
@@ -177,8 +180,9 @@ static func _group_schedule(stage: Dictionary, entrants: Array, start_date: Stri
 	var zone_rounds := rounds
 	if interzonal > 0 and rounds > interzonal:
 		zone_rounds = rounds - interzonal
-	var dates := CareerCalendar.round_dates(start_date, end_date, rounds, rules,
-		scope, busy)
+	if dates.is_empty():
+		dates = CareerCalendar.round_dates(start_date, end_date, rounds, rules,
+			scope, busy)
 	var stage_prefix := "%s:g" % str(stage.get("id", ""))
 	var fixtures: Array = []
 	for group_index in range(groups.size()):
@@ -264,8 +268,10 @@ static func _interzonal(group_a: Array, group_b: Array, rounds: int,
 
 
 static func _schedule(ids: Array, start_date: String, end_date: String,
-		stage: Dictionary, prefix: String, rules: Array, scope: String) -> Array:
-	var fixtures := CareerFactory.build_schedule(ids, start_date, end_date, rules, scope)
+		stage: Dictionary, prefix: String, rules: Array, scope: String,
+		dates: Array = []) -> Array:
+	var fixtures := CareerFactory.build_schedule(ids, start_date, end_date, rules,
+		scope, dates)
 	var rounds = stage.get("rounds")
 	if rounds is int or rounds is float:
 		var limit := int(rounds)
