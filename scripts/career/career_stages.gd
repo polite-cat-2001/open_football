@@ -122,19 +122,121 @@ static func build_stage(stage: Dictionary, entrants: Array, start_date: String,
 		return _schedule(entrants, start_date, end_date, stage, "")
 	if kind != "group":
 		return []
+	return _group_schedule(stage, entrants, start_date, end_date)
+
+
+static func _group_schedule(stage: Dictionary, entrants: Array, start_date: String,
+		end_date: String) -> Array:
 	var sizes: Array = stage.get("groups", {}).get("sizes", [])
-	var fixtures: Array = []
+	var groups: Array = []
 	var index := 0
-	for group_index in range(sizes.size()):
-		var size := int(sizes[group_index])
-		var ids := entrants.slice(index, index + size)
-		var group_fixtures := _schedule(ids, start_date, end_date, stage,
-			"%s:g%d:" % [str(stage.get("id", "")), group_index])
-		for fixture in group_fixtures:
-			fixture["group"] = group_index
-			fixtures.append(fixture)
-		index += size
+	for size in sizes:
+		var count := int(size)
+		groups.append(entrants.slice(index, index + count))
+		index += count
+	var rounds := int(stage.get("rounds", 0))
+	var schedule = stage.get("schedule", {})
+	var interzonal := 0
+	if schedule is Dictionary:
+		interzonal = int(schedule.get("interzonal", 0))
+	var zone_rounds := rounds
+	if interzonal > 0 and rounds > interzonal:
+		zone_rounds = rounds - interzonal
+	var stage_prefix := "%s:g" % str(stage.get("id", ""))
+	var fixtures: Array = []
+	for group_index in range(groups.size()):
+		fixtures.append_array(_round_robin(groups[group_index], zone_rounds,
+			start_date, end_date, "%s%d:" % [stage_prefix, group_index],
+			group_index, rounds))
+	if interzonal > 0 and groups.size() >= 2:
+		fixtures.append_array(_interzonal(groups[0], groups[1], interzonal,
+			zone_rounds, rounds, start_date, end_date, stage_prefix))
 	return fixtures
+
+
+static func _round_robin(ids: Array, rounds: int, start_date: String,
+		end_date: String, prefix: String, group_index: int,
+		total_rounds: int) -> Array:
+	if ids.size() < 2 or rounds <= 0:
+		return []
+	var teams: Array = []
+	for club_id in ids:
+		teams.append(str(club_id))
+	if teams.size() % 2 == 1:
+		teams.append("")
+	var rotation := teams.duplicate()
+	var base: Array = []
+	for base_index in range(rotation.size() - 1):
+		var pairs: Array = []
+		for index in range(rotation.size() / 2):
+			var home = rotation[index]
+			var away = rotation[rotation.size() - 1 - index]
+			if home == "" or away == "":
+				continue
+			pairs.append([home, away])
+		base.append(pairs)
+		var next_rotation: Array = [rotation[0], rotation[-1]]
+		next_rotation.append_array(rotation.slice(1, rotation.size() - 1))
+		rotation = next_rotation
+	var fixtures: Array = []
+	for round_index in range(rounds):
+		var base_index := round_index % base.size()
+		var cycle := round_index / base.size()
+		var date := _date_for(start_date, end_date, round_index + 1, total_rounds)
+		var pairs: Array = base[base_index]
+		for match_index in range(pairs.size()):
+			var home := str(pairs[match_index][0])
+			var away := str(pairs[match_index][1])
+			if cycle % 2 == 1:
+				var swap = home
+				home = away
+				away = swap
+			fixtures.append({
+				"id": "%sr%02d-%02d" % [prefix, round_index + 1, match_index],
+				"round": round_index + 1, "date": date,
+				"home": home, "away": away, "group": group_index,
+			})
+	return fixtures
+
+
+static func _interzonal(group_a: Array, group_b: Array, rounds: int,
+		zone_rounds: int, total_rounds: int, start_date: String,
+		end_date: String, prefix: String) -> Array:
+	var first: Array = []
+	var second: Array = []
+	for club_id in group_a:
+		first.append(str(club_id))
+	for club_id in group_b:
+		second.append(str(club_id))
+	if first.is_empty() or second.is_empty():
+		return []
+	var fixtures: Array = []
+	for cross in range(rounds):
+		var round_no := zone_rounds + cross + 1
+		var date := _date_for(start_date, end_date, round_no, total_rounds)
+		for index in range(mini(first.size(), second.size())):
+			var home: String = str(first[index])
+			var away: String = str(second[(index + cross) % second.size()])
+			if cross % 2 == 1:
+				var swap = home
+				home = away
+				away = swap
+			fixtures.append({
+				"id": "%sx%02d-%02d" % [prefix, round_no, index],
+				"round": round_no, "date": date,
+				"home": home, "away": away, "group": -1,
+			})
+	return fixtures
+
+
+static func _date_for(start_date: String, end_date: String, round_no: int,
+		total_rounds: int) -> String:
+	if start_date.is_empty() or end_date.is_empty() or total_rounds < 2:
+		return start_date
+	var span := CareerSeason.days_between(start_date, end_date)
+	var offset := int(round(float(round_no - 1) * float(span)
+		/ float(total_rounds - 1)))
+	return CareerSeason.add_days(start_date, offset)
 
 
 static func _schedule(ids: Array, start_date: String, end_date: String,

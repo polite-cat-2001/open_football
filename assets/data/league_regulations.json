@@ -606,7 +606,7 @@
       "start_md": "01-22",
       "end_md": null,
       "precision": "none",
-      "rounds": 16,
+      "rounds": 17,
       "groups": {
        "sizes": [
         15,
@@ -667,7 +667,7 @@
       "start_md": "07-23",
       "end_md": null,
       "precision": "none",
-      "rounds": 16,
+      "rounds": 17,
       "groups": {
        "sizes": [
         15,
@@ -738,7 +738,7 @@
       "slots": 1
      }
     ],
-    "note": "2026: two independent 30-club tournaments, each in two zones of 15 (single round-robin plus two interzonal games), then a single-leg knockout of the top eight of each zone. The aggregate of the two regular tables crowns the Campeón de Liga. Relegation is the last of the three-season promedio plus the last of the annual aggregate; if the same club is last in both, the second slot goes to the 29th. The first two career seasons use the annual table (two bottom clubs) because 2024-2025 history is absent; from the third season the average uses the career's own three seasons."
+    "note": "2026: two independent 30-club tournaments, each in two zones of 15. Each club plays 14 zone matches plus 2 interzonal matches (16 in all) over 17 rounds (15 zone rounds + 2 interzonal). The top eight of each zone play a single-leg knockout. The aggregate of the two regular tables crowns the Campeón de Liga. Relegation is the last of the three-season promedio plus the last of the annual aggregate; if the same club is last in both, the second slot goes to the 29th. The first two career seasons use the annual table (two bottom clubs) because 2024-2025 history is absent; from the third season the average uses the career's own three seasons."
    }
   },
   "ARM1": {
