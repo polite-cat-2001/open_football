@@ -129,7 +129,7 @@ static func build_stage(stage: Dictionary, entrants: Array, start_date: String,
 		var size := int(sizes[group_index])
 		var ids := entrants.slice(index, index + size)
 		var group_fixtures := _schedule(ids, start_date, end_date, stage,
-			"g%d:" % group_index)
+			"%s:g%d:" % [str(stage.get("id", "")), group_index])
 		for fixture in group_fixtures:
 			fixture["group"] = group_index
 			fixtures.append(fixture)
