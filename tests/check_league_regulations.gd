@@ -64,8 +64,16 @@ func _run() -> void:
 		"a July career in Brazil starts with next year's window")
 	_check(LeagueRegulations.next_window_start("GB1", "2026-08-21") == "2027-08-21",
 		"the next season keeps the day and month")
-	_check(LeagueRegulations.season_end("GB1", "2026-08-21") == "2027-08-20",
-		"the season year ends the day before the next window")
+	_check(LeagueRegulations.season_end("GB1", "2026-07-10") == "2027-07-09",
+		"the season year ends the day before the next boundary")
+	_check(LeagueRegulations.boundary("GB1", 2026) == "2026-07-10",
+		"the boundary before 2026-27 is the mid-gap day")
+	_check(LeagueRegulations.boundary("PRA1", 2026) == "2026-08-15",
+		"a short window is a phase: its own start is the boundary")
+	_check(LeagueRegulations.nearest_boundary("BRA1", "2026-07-01") == "2026-12-30",
+		"Brazil starts at the upcoming boundary nearest to the snapshot")
+	_check(LeagueRegulations.nearest_boundary("ARGC", "2026-07-01") == "2026-01-01",
+		"Argentina starts at the past boundary nearest to the snapshot")
 
 	var bad_phase: Array = []
 	var bad_months: Array = []

@@ -49,7 +49,7 @@ func _run() -> void:
 	if career == null:
 		_finish()
 		return
-	_check(career.date == "2026-07-01", "a new career starts on 2026-07-01")
+	_check(career.date == "2026-07-07", "a new career starts on 2026-07-07")
 
 	var before := CareerFactory.snapshot(catalog, career)
 	var next = before.get("season", {}).get("next")
@@ -57,8 +57,8 @@ func _run() -> void:
 	if not (next is Dictionary):
 		_finish()
 		return
-	_check(str(next.get("date", "")) == "2026-07-08",
-		"the first match day is 2026-07-08")
+	_check(str(next.get("date", "")) == "2026-08-15",
+		"the first match day is 2026-08-15")
 	var round_no := int(next.get("round", 0))
 
 	var league_clubs := catalog.all_teams_for_league(career.league_id)
@@ -81,9 +81,9 @@ func _run() -> void:
 	_check(others.size() == round_fixtures.size() - 1,
 		"round %d has nine other fixtures" % round_no)
 
-	_check(CareerSeason.advance_to(career, "2026-07-08", league_clubs, strengths),
+	_check(CareerSeason.advance_to(career, "2026-08-15", league_clubs, strengths),
 		"the calendar advances to the match day: " + CareerSeason.last_error)
-	_check(career.date == "2026-07-08", "the career date moves to the match day")
+	_check(career.date == "2026-08-15", "the career date moves to the match day")
 	_check(not career.results.has(str(own_fixture.get("id", ""))),
 		"the career club's own fixture waits for the matchday screen")
 	var played_others := 0
@@ -100,7 +100,7 @@ func _run() -> void:
 	_check(scores_ok, "every result is a non-negative {home, away} score")
 
 	var fresh := CareerFactory.create(catalog, 131, "Golden Manager", 189, 42)
-	_check(CareerSeason.advance_to(fresh, "2026-07-08", league_clubs, strengths),
+	_check(CareerSeason.advance_to(fresh, "2026-08-15", league_clubs, strengths),
 		"a second career with the same seed advances")
 	var deterministic := true
 	for fixture_id in others:
@@ -137,7 +137,7 @@ func _run() -> void:
 	var table_tile := CareerHubModel.table_tile(after)
 	_check((table_tile.get("rows", []) as Array).size() > 0, "the overview tile has rows")
 
-	var sim_tile := CareerHubModel.next_tile(before, "2026-07-04", "2026-07-01")
+	var sim_tile := CareerHubModel.next_tile(before, "2026-08-11", "2026-08-08")
 	_check(bool(sim_tile.get("simulating", false)), "the calendar marks a running simulation")
 	_check(str(sim_tile.get("eyebrow", "")) == "SIMULATING",
 		"the tile eyebrow switches to SIMULATING")
@@ -146,10 +146,10 @@ func _run() -> void:
 	_check(int(sim_tile.get("day_offset", -1)) == 3,
 		"the track offset follows the display date")
 	var sim_days: Array = sim_tile.get("days", [])
-	_check(str(sim_days[3].get("key", "")) == "2026-07-04"
+	_check(str(sim_days[3].get("key", "")) == "2026-08-11"
 		and bool(sim_days[3].get("today", false)),
 		"the today marker moves with the display date")
-	_check(str(sim_days[7].get("key", "")) == "2026-07-08"
+	_check(str(sim_days[7].get("key", "")) == "2026-08-15"
 		and bool(sim_days[7].get("match", false)),
 		"the match day is marked inside the track")
 	_check(str(sim_tile.get("opponent_logo", ""))
@@ -161,18 +161,18 @@ func _run() -> void:
 	var reloaded := store.load_career(career.id)
 	_check(reloaded != null, "the advanced career loads: " + store.last_error)
 	if reloaded != null:
-		_check(reloaded.date == "2026-07-08", "the reloaded career keeps the new date")
+		_check(reloaded.date == "2026-08-15", "the reloaded career keeps the new date")
 		var kept := true
 		for fixture_id in others:
 			kept = kept and _same_score(
 				reloaded.results.get(fixture_id), career.results.get(fixture_id))
 		_check(kept, "the reloaded career keeps the round results")
 
-	_check(not CareerSeason.advance_to(career, "2026-07-01", league_clubs, strengths),
+	_check(not CareerSeason.advance_to(career, "2026-07-07", league_clubs, strengths),
 		"time cannot move backwards")
 	_check(CareerSeason.last_error == "cannot move time backwards",
 		"the backwards error matches the prototype")
-	_check(not CareerSeason.advance_to(career, "2026-07-09", league_clubs, strengths),
+	_check(not CareerSeason.advance_to(career, "2026-08-16", league_clubs, strengths),
 		"time cannot pass the next match day")
 	_check(CareerSeason.last_error == "cannot pass the next match day",
 		"the match-day error matches the prototype")
@@ -208,11 +208,11 @@ func _check_hub_advance(catalog: TeamCatalog) -> void:
 	next_tile.pressed.emit()
 	for _index in range(6):
 		await process_frame
-	_check(ui_career.date == "2026-07-08", "NEXT advances the career to the match day")
+	_check(ui_career.date == "2026-08-15", "NEXT advances the career to the match day")
 	var hints = hub.get_node("Design/PanelWrap/Hints")
 	_check(hints.status_text().begins_with("Advanced to"),
 		"the hub reports the advance: " + hints.status_text())
-	_check(str(hub.get("_snapshot").get("date", "")) == "2026-07-08",
+	_check(str(hub.get("_snapshot").get("date", "")) == "2026-08-15",
 		"the hub snapshot is rebuilt for the new date")
 	next_tile.pressed.emit()
 	for _index in range(3):
@@ -220,13 +220,13 @@ func _check_hub_advance(catalog: TeamCatalog) -> void:
 	_check(hints.status_text().begins_with("Match day"),
 		"on the match day NEXT stays a stub: " + hints.status_text())
 	var saved := store.load_career(ui_career.id)
-	_check(saved != null and saved.date == "2026-07-08",
+	_check(saved != null and saved.date == "2026-08-15",
 		"the hub saves the advanced career")
 	CareerSession.clear()
 
 
 func _check_timeline() -> void:
-	var fixture := {"id": "r01-00", "round": 1, "date": "2026-07-08"}
+	var fixture := {"id": "r01-00", "round": 1, "date": "2026-08-15"}
 	var setup := {
 		"home": true,
 		"home_lineup": _lineup("h"),

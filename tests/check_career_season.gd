@@ -168,18 +168,21 @@ func _run() -> void:
 	_check(ui_career != null, "the finished season clones for the review UI")
 	if ui_career != null:
 		ui_career.data["date"] = str(snapshot.get("date", ""))
+	var start_parts := CareerSearch.date_parts(career.season_start)
+	var expected_start := LeagueRegulations.boundary(career.league_id, int(start_parts[0]) + 1)
+	var expected_window := LeagueRegulations.window_for_season(career.league_id, expected_start)
 	_check(CareerSeason.next_season(career, catalog, transition),
 		"the next season starts: " + CareerSeason.last_error)
-	_check(career.season_start == "2027-07-01",
-		"the calendar shifts a year: " + career.season_start)
+	_check(career.season_start == expected_start,
+		"the calendar shifts to the league's next boundary: " + career.season_start)
 	_check(career.date == career.season_start, "the career lands on the new season start")
 	_check(career.results.is_empty(), "the new season starts with no results")
 	_check(str(career.league_id) == str(transition.get("league_id", "")),
 		"the career moves to the reviewed league")
 	_check(career.league_club_ids == next_ids, "the league composition is stored")
 	_check(not career.schedule.is_empty(), "the new schedule exists")
-	_check(str(career.schedule[0].get("date", "")) == "2027-07-08",
-		"the new schedule starts a week after the season start")
+	_check(str(career.schedule[0].get("date", "")) == str(expected_window.get("start", "")),
+		"the new schedule opens on the window's first day")
 	_check(career.incoming_market_date == career.date
 		and career.world_market_date == career.date,
 		"the off-season gap is not replayed by the market")
@@ -334,19 +337,20 @@ func _check_hub_review(catalog: TeamCatalog, career: Career) -> void:
 	_check(hub.get("_review_step") == 0, "back returns to the table")
 	hub.call("_match_action")
 	await process_frame
+	var next_start := CareerSeason.next_season_start(career)
 	hub.call("_match_action")
 	var guard := 0
 	while overlay.is_open() and guard < 200:
 		await process_frame
 		guard += 1
 	_check(not overlay.is_open(), "starting the season closes the review")
-	_check(career.date == "2027-07-01",
+	_check(career.date == next_start,
 		"the next day is already the new season: " + career.date)
-	_check(career.season_start == "2027-07-01",
+	_check(career.season_start == next_start,
 		"the hub starts the new season: " + career.season_start)
 	_check(career.results.is_empty(), "the hub resets the results")
 	var saved := CareerSession.store.load_career(career.id)
-	_check(saved != null and saved.season_start == "2027-07-01",
+	_check(saved != null and saved.season_start == next_start,
 		"the hub saves the new season")
 	CareerSession.clear()
 

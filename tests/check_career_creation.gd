@@ -75,8 +75,8 @@ func _run() -> void:
 		"the manager nationality is stored")
 	_check(career.manager.nationality_id == str(golden["manager_nationality_id"]),
 		"the manager nationality id is stored")
-	_check(career.date == Career.START_DATE and career.season_start == Career.START_DATE,
-		"the career starts on the prototype date")
+	_check(career.date == "2026-07-07" and career.season_start == "2026-07-07",
+		"the career starts on the league boundary")
 
 	_check(career.player_ids == golden["player_ids"],
 		"the starting squad is the sorted canon squad")

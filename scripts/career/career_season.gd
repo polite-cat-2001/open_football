@@ -116,8 +116,15 @@ static func advance_to(career: Career, target: String, league_clubs: Array,
 
 
 static func next_season_start(career: Career) -> String:
-	# The prototype shifts season_start by a year (Feb 29 falls back to the 28th).
+	# The league regulation owns the calendar: the next season opens on the
+	# next boundary, not on the window's first matchday.
 	var parts := CareerSearch.date_parts(career.season_start)
+	if not parts.is_empty():
+		var next := LeagueRegulations.boundary(career.league_id, int(parts[0]) + 1)
+		if not next.is_empty():
+			return next
+	# Fallback for a league without a regulation: shift the year (Feb 29 falls
+	# back to the 28th), like the prototype.
 	if parts.is_empty():
 		return career.season_start
 	var year := int(parts[0]) + 1
@@ -381,7 +388,10 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 	career.data["league_id"] = str(transition_data.get("league_id", career.league_id))
 	var next_ids_unique := _unique_ids(next_ids)
 	career.data["league_club_ids"] = next_ids_unique
-	career.data["schedule"] = CareerFactory.build_schedule(next_ids_unique, new_start)
+	var next_window := LeagueRegulations.window_for_season(career.league_id, new_start)
+	var next_schedule_start := str(next_window.get("start", new_start))
+	career.data["schedule"] = CareerFactory.build_schedule(next_ids_unique, next_schedule_start,
+		str(next_window.get("end", "")))
 	career.data["schedule_version"] = CareerFactory.SCHEDULE_VERSION
 	career.data["results"] = {}
 	CareerSquad.rollover_values(career, CareerSquad.roster(

@@ -8,6 +8,7 @@ extends RefCounted
 const PATH := "res://assets/data/league_regulations.json"
 const AUTUMN := "autumn"
 const CALENDAR := "calendar"
+const SHORT_WINDOW_DAYS := 150
 
 static var _data: Dictionary = {}
 static var _error := ""
@@ -100,10 +101,58 @@ static func next_window_start(league_id: String, season_start: String) -> String
 
 
 static func season_end(league_id: String, season_start: String) -> String:
-	# The season year ends the day before the next window opens, which is the
+	# The season year ends the day before the next boundary, which is the
 	# off-season the hub reels through before the review.
-	var next_start := next_window_start(league_id, season_start)
+	var parts := CareerSearch.date_parts(str(season_start))
+	if parts.is_empty():
+		return str(season_start)
+	var next_start := boundary(league_id, int(parts[0]) + 1)
+	if next_start.is_empty():
+		return str(season_start)
 	return CareerSeason.add_days(next_start, -1)
+
+
+static func boundary(league_id: String, year: int) -> String:
+	# The boundary before the season that starts in `year`: the midpoint of the
+	# gap between the previous season's last day and this season's first day.
+	# Rounded down, so the career gets the earlier day of an odd gap.
+	var current := window(league_id, year)
+	var previous := window(league_id, year - 1)
+	if current.is_empty() or previous.is_empty():
+		return ""
+	var prev_end := str(previous["end"])
+	var start := str(current["start"])
+	# A window shorter than five months is one phase of a longer championship,
+	# not a season: taking the midpoint of its gap would put the boundary in the
+	# middle of the other phase. Use the phase start until a format is known.
+	var length := CareerSeason.days_between(start, str(current["end"]))
+	if length < SHORT_WINDOW_DAYS:
+		return start
+	var gap := CareerSeason.days_between(prev_end, start)
+	if gap <= 0:
+		return ""
+	return CareerSeason.add_days(prev_end, gap / 2)
+
+
+static func nearest_boundary(league_id: String, date: String) -> String:
+	# The career epoch: the boundary closest to a fixed date, in either
+	# direction. A tie goes to the upcoming boundary.
+	var parts := CareerSearch.date_parts(str(date))
+	if parts.is_empty():
+		return ""
+	var year := int(parts[0])
+	var best := ""
+	var best_distance := -1
+	for candidate in range(year - 1, year + 2):
+		var value := boundary(league_id, candidate)
+		if value.is_empty():
+			continue
+		var distance := absi(CareerSeason.days_between(value, date))
+		if best_distance < 0 or distance < best_distance \
+				or (distance == best_distance and value > best):
+			best = value
+			best_distance = distance
+	return best
 
 
 static func phase(league_id: String) -> String:

@@ -3,7 +3,7 @@ extends RefCounted
 # Career creation and read models ported from server/career/{core,season,snapshot}.py.
 # Only the data the career shell needs today is built; later tickets extend it.
 
-const SCHEDULE_VERSION := 2
+const SCHEDULE_VERSION := 3
 const PROMOTION_PLACES := 3
 const RELEGATION_PLACES := 3
 static var last_error := ""
@@ -46,13 +46,25 @@ static func create(
 	for player in squad:
 		player_ids.append(str(player.get("id", "")))
 
+	# The league calendar decides the season: the career opens on the boundary
+	# nearest to the data snapshot, and the fixtures run inside the league's own
+	# window. A club in an early cup or qualifier will widen this later with the
+	# competition container.
+	var league_id := str(club.get("league_id", ""))
+	var season_start := LeagueRegulations.nearest_boundary(league_id, Career.START_DATE)
+	if season_start.is_empty():
+		season_start = Career.START_DATE
+	var window := LeagueRegulations.window_for_season(league_id, season_start)
+	var schedule_start := str(window.get("start", season_start))
+	var schedule_end := str(window.get("end", ""))
+
 	var now := Career.utc_now()
 	var career := Career.new({
 		"version": Career.SAVE_VERSION,
 		"id": Career.random_id(),
 		"seed": seed if seed >= 0 else Career.random_seed(),
-		"date": Career.START_DATE,
-		"season_start": Career.START_DATE,
+		"date": season_start,
+		"season_start": season_start,
 		"created_at": now,
 		"updated_at": now,
 		"manager": {
@@ -63,20 +75,21 @@ static func create(
 		"club_id": str(club_id),
 		"player_ids": player_ids,
 		"journal": [],
-		"league_id": str(club.get("league_id", "")),
+		"league_id": league_id,
 		"league_club_ids": league_ids,
 		"formation": Career.DEFAULT_FORMATION,
 		"hub_tab": "centre",
-		"schedule": build_schedule(league_ids, Career.START_DATE),
+		"schedule": build_schedule(league_ids, schedule_start, schedule_end),
 		"schedule_version": SCHEDULE_VERSION,
-		"incoming_market_date": Career.START_DATE,
-		"last_tick_date": Career.START_DATE,
+		"incoming_market_date": season_start,
+		"last_tick_date": season_start,
 	})
 	CareerSquad.ensure_finances(career, squad)
 	return career
 
 
-static func build_schedule(club_ids: Array, start_date := Career.START_DATE) -> Array:
+static func build_schedule(club_ids: Array, start_date := Career.START_DATE,
+		end_date := "", rules: Array = [], scope := "world") -> Array:
 	var teams: Array = []
 	var seen := {}
 	for club_id in club_ids:
@@ -110,10 +123,17 @@ static func build_schedule(club_ids: Array, start_date := Career.START_DATE) -> 
 		rotation = next_rotation
 
 	var fixtures: Array = []
+	var total_rounds: int = rounds.size() * 2
+	var span := 0
+	if not str(end_date).is_empty():
+		span = CareerSeason.days_between(start_date, str(end_date))
+	var dates := _round_dates(start_date, str(end_date), total_rounds, rules, scope)
 	for half in [0, 1]:
 		for round_index in range(rounds.size()):
 			var round_no: int = int(half) * rounds.size() + round_index + 1
-			var match_date := _add_days(start_date, 7 * round_no)
+			var match_date := _round_date(start_date, span, round_no, total_rounds)
+			if round_no <= dates.size():
+				match_date = str(dates[round_no - 1])
 			var pairs: Array = rounds[round_index]
 			for match_index in range(pairs.size()):
 				var home: String = str(pairs[match_index][0])
@@ -132,20 +152,63 @@ static func build_schedule(club_ids: Array, start_date := Career.START_DATE) -> 
 	return fixtures
 
 
+static func _round_dates(start_date: String, end_date: String, total_rounds: int,
+		rules: Array, scope: String) -> Array:
+	# A round is a date window, but one league round is one day. Pick the
+	# evenly spaced free days so no round lands inside an international pause;
+	# when the free days are too few, the old even spread is the fallback.
+	if end_date.is_empty() or total_rounds <= 0:
+		return []
+	var span := CareerSeason.days_between(start_date, end_date)
+	if span < 0:
+		return []
+	var free: Array = []
+	for offset in range(span + 1):
+		var date := _add_days(start_date, offset)
+		if rules.is_empty() or not IntlCalendar.is_blocked(rules, date, scope):
+			free.append(date)
+	var dates: Array = []
+	if free.size() >= total_rounds:
+		for index in range(total_rounds):
+			var position := 0
+			if total_rounds > 1:
+				position = int(round(float(index) * float(free.size() - 1) \
+					/ float(total_rounds - 1)))
+			dates.append(free[position])
+		return dates
+	for index in range(total_rounds):
+		dates.append(_round_date(start_date, span, index + 1, total_rounds))
+	return dates
+
+
+static func _round_date(start_date: String, span: int, round_no: int,
+		total_rounds: int) -> String:
+	# Rounds run evenly from the window start to its end, so every league
+	# finishes inside its own calendar; without a window the old weekly pace
+	# stays (one round every seven days).
+	if span <= 0 or total_rounds < 2:
+		return _add_days(start_date, 7 * round_no)
+	var offset := int(round(float(round_no - 1) * float(span) / float(total_rounds - 1)))
+	return _add_days(start_date, offset)
+
+
 static func ensure_schedule(career: Career, league_club_ids: Array) -> void:
 	var club_ids: Array = []
 	for club_id in league_club_ids:
 		club_ids.append(str(club_id))
 	if not club_ids.has(career.club_id):
 		club_ids.append(career.club_id)
+	var window := LeagueRegulations.window_for_season(career.league_id, career.season_start)
+	var schedule_start := str(window.get("start", career.season_start))
+	var schedule_end := str(window.get("end", ""))
 	if not career.data.has("schedule") or career.data.get("schedule") == null:
-		career.data["schedule"] = build_schedule(club_ids, career.season_start)
+		career.data["schedule"] = build_schedule(club_ids, schedule_start, schedule_end)
 		career.data["schedule_version"] = SCHEDULE_VERSION
 		return
 	if career.schedule_version >= SCHEDULE_VERSION:
 		return
 	var corrected := {}
-	for fixture in build_schedule(club_ids, career.season_start):
+	for fixture in build_schedule(club_ids, schedule_start, schedule_end):
 		corrected[str(fixture["id"])] = fixture
 	for fixture in career.schedule:
 		if career.results.has(str(fixture.get("id", ""))):
