@@ -732,7 +732,106 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Swiss_Super_League",
-   "note": "Dates from infobox; the article's format section has internally inconsistent years (writes '2026' where 2027 is meant). 12 teams play 3 rounds (33 matchdays), then split into championship group and relegation group of 6 (5 more matches, 38 total) with points carried over. Last in the relegation group relegated; second-to-last plays the relegation play-off (legs 1 and 4 June 2027, i.e. after the stated final day). No transfer-window dates in the article."
+   "note": "Dates from infobox; the article's format section has internally inconsistent years (writes '2026' where 2027 is meant). 12 teams play 3 rounds (33 matchdays), then split into championship group and relegation group of 6 (5 more matches, 38 total) with points carried over. Last in the relegation group relegated; second-to-last plays the relegation play-off (legs 1 and 4 June 2027, i.e. after the stated final day). No transfer-window dates in the article.",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-24",
+    "end_md": "05-30",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "07-24",
+      "end_md": "04-12",
+      "precision": "day",
+      "rounds": 33,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship group",
+      "start_md": "07-24",
+      "end_md": "05-30",
+      "precision": "day",
+      "rounds": 5,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 1,
+        "n": 6
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation group",
+      "start_md": "07-24",
+      "end_md": "05-30",
+      "precision": "day",
+      "rounds": 5,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none"
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1
+     },
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "note": "Swiss Super League 2026-27: 33-round regular season, then 6+6 with a single round-robin (5 matches). The 12th is relegated directly; the 11th plays the Challenge League runner-up over two legs, so the second slot is conditional."
+   }
   },
   "C2": {
    "start_md": "07-24",
@@ -1279,11 +1378,103 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Danish_Superliga",
-   "note": "Dates from infobox (season ends after the championship and relegation rounds). 12 teams: 22-round regular season, then championship round (top 6) and relegation round (bottom 6) with points carried over in full; 11th and 12th of the relegation round are relegated, no relegation play-off (the separate European play-off is for Conference League qualification). No transfer-window dates in the article."
+   "note": "Dates from infobox (season ends after the championship and relegation rounds). 12 teams: 22-round regular season, then championship round (top 6) and relegation round (bottom 6) with points carried over in full; 11th and 12th of the relegation round are relegated, no relegation play-off (the separate European play-off is for Conference League qualification). No transfer-window dates in the article.",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-24",
+    "end_md": "05-30",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "07-24",
+      "end_md": "03-01",
+      "precision": "day",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship round",
+      "start_md": "07-24",
+      "end_md": "05-30",
+      "precision": "day",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 1,
+        "n": 6
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "qualifying",
+      "kind": "group",
+      "label": "Qualifying round",
+      "start_md": "07-24",
+      "end_md": "05-30",
+      "precision": "day",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none"
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "qualifying",
+      "slots": 2
+     }
+    ],
+    "note": "Danish Superliga 2026-27: 22 rounds, then 6+6 with a double round-robin. The bottom two of the qualifying round are relegated directly; the European play-off is not a league movement."
+   }
   },
   "DK2": {
    "start_md": "07-24",
-   "end_md": "05-30",
+   "end_md": "05-31",
    "filled": "",
    "phases": "split",
    "relegation": {
@@ -1302,11 +1493,105 @@
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Danish_Superliga",
    "note": "Window inherited from DK1; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "DK1"
+   "inherited_from": "DK1",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-24",
+    "end_md": "05-31",
+    "champion": "none",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "07-24",
+      "end_md": "03-01",
+      "precision": "day",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "promotion",
+      "kind": "group",
+      "label": "Promotion group",
+      "start_md": "07-24",
+      "end_md": "05-31",
+      "precision": "day",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 1,
+        "n": 6
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation group",
+      "start_md": "07-24",
+      "end_md": "05-31",
+      "precision": "day",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none"
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "top",
+      "from": "promotion",
+      "slots": 2
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 2
+     }
+    ],
+    "note": "1. Division 2026-27: 22 rounds, then 6+6 with points and goals carried. The top two of the promotion group go up, the bottom two of the relegation group go down; there is no annual champion."
+   }
   },
   "DK3O": {
    "start_md": "07-24",
-   "end_md": "05-30",
+   "end_md": "06-30",
    "filled": "",
    "phases": "split",
    "relegation": {
@@ -1325,7 +1610,101 @@
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Danish_Superliga",
    "note": "Window inherited from DK1; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "DK1"
+   "inherited_from": "DK1",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-24",
+    "end_md": "06-30",
+    "champion": "none",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "07-24",
+      "end_md": "03-01",
+      "precision": "day",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "promotion",
+      "kind": "group",
+      "label": "Promotion group",
+      "start_md": "07-24",
+      "end_md": "06-30",
+      "precision": "day",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 1,
+        "n": 6
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation group",
+      "start_md": "07-24",
+      "end_md": "06-30",
+      "precision": "day",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none"
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "top",
+      "from": "promotion",
+      "slots": 2
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 2
+     }
+    ],
+    "note": "2. Division 2026-27: 22 rounds, then 6+6 with points and goals carried. The top two of the promotion group go up, the bottom two of the relegation group go down; there is no annual champion."
+   }
   },
   "DK4L": {
    "start_md": "07-24",

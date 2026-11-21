@@ -142,8 +142,11 @@ implemented. Order starts with the calendar slice.
   (a stage or `"aggregate"`), `slots` (the total across groups, even when
   `per_group` is set), `per_group`, `rank` (start position) and
   `among: "champions"` (restrict a top/bottom rule to the named stages'
-  champions). Rules apply in order and each takes its slots from clubs **not
-  already named**, so overlapping rules do not over-relegate. `average` is
+  champions). A clause may also set `playoff: true`: the club enters a
+  two-legged tie instead of moving directly, and the boundary's
+  `up_playoff`/`down_playoff` counts these conditional slots. Rules apply in
+  order and each takes its slots from clubs **not already named**, so
+  overlapping rules do not over-relegate. `average` is
   simulated as the aggregate until club history exists, and the review says so.
   `[]` is only legal when the league has **no** format; a format league states
   `none` explicitly when nothing moves.

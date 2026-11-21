@@ -31,6 +31,24 @@ func _inside_season(date: String, start: String, end: String) -> bool:
 	return date >= start or date <= end
 
 
+func _slot_sum(format: Dictionary, key: String) -> int:
+	var total := 0
+	for clause in format.get(key, []):
+		var rule := str(clause.get("rule", ""))
+		if rule == "none" or rule == "unknown":
+			continue
+		total += int(clause.get("slots", 0))
+	return total
+
+
+func _playoff_slots(format: Dictionary, key: String) -> int:
+	var total := 0
+	for clause in format.get(key, []):
+		if bool(clause.get("playoff", false)):
+			total += int(clause.get("slots", 0))
+	return total
+
+
 func _run() -> void:
 	var data := LeagueRegulations.load_all()
 	_check(not data.is_empty(), "the regulations load")
@@ -95,6 +113,42 @@ func _run() -> void:
 	_check(with_groups > 0, "at least one group stage is encoded")
 	_check(with_carry > 0, "at least one split carries points")
 	_check(bad.is_empty(), "every format is well formed: " + str(bad))
+
+	var pyramid = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://assets/data/league_pyramids.json"))
+	var levels: Dictionary = pyramid.get("leagues", {}) if pyramid is Dictionary else {}
+	var by_key := {}
+	for boundary in pyramid.get("boundaries", []) if pyramid is Dictionary else []:
+		by_key["%s|%d" % [boundary.get("country", ""), int(boundary.get("upper", 0))]] = boundary
+	var slot_bad: Array[String] = []
+	for league_id in leagues:
+		var format = leagues[league_id].get("format")
+		if not (format is Dictionary):
+			continue
+		var info: Dictionary = levels.get(league_id, {})
+		if info.is_empty():
+			continue
+		var country := str(info.get("country", ""))
+		var level := int(info.get("level", 0))
+		var expected_up := 0
+		if not bool(info.get("closed_up", false)) and level > 1:
+			expected_up = int(by_key.get("%s|%d" % [country, level - 1], {}).get("up", 0))
+		var expected_down := 0
+		if not bool(info.get("closed_down", false)):
+			expected_down = int(by_key.get("%s|%d" % [country, level], {}).get("down", 0))
+		var actual_up := _slot_sum(format, "promotion")
+		var actual_down := _slot_sum(format, "relegation")
+		if actual_up != expected_up:
+			slot_bad.append("%s: promotion %d != boundary %d" % [league_id, actual_up, expected_up])
+		if actual_down != expected_down:
+			slot_bad.append("%s: relegation %d != boundary %d" % [league_id, actual_down, expected_down])
+		var boundary_down: Dictionary = by_key.get("%s|%d" % [country, level], {})
+		var expected_playoff := int(boundary_down.get("down_playoff", 0))
+		var actual_playoff := _playoff_slots(format, "relegation")
+		if actual_playoff != expected_playoff:
+			slot_bad.append("%s: playoff slots %d != boundary %d" % [
+				league_id, actual_playoff, expected_playoff])
+	_check(slot_bad.is_empty(), "movement slots match the pyramid: " + str(slot_bad))
 
 	var austria: Dictionary = LeagueRegulations.record("A1").get("format", {})
 	_check(str(austria.get("champion", "")) == "stage:championship",
