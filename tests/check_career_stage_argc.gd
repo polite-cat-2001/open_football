@@ -91,6 +91,16 @@ func _run() -> void:
 		_check(arg2_ids.has(club_id), "the incoming club belongs to ARG2")
 		_check(next_ids.has(club_id), "the incoming club joins the league")
 
+	_check(CareerSeason.next_season(career, catalog, transition),
+		"the next ARGC season starts: " + CareerSeason.last_error)
+	_check(career.schedule.size() == 480,
+		"the next season rebuilds both 240-fixture regular phases")
+	_check(career.data.get("stages_generated", {}).has("apertura_regular")
+		and career.data.get("stages_generated", {}).has("clausura_regular"),
+		"the next season marks both regular phases")
+	_check(int(career.data.get("seasons_completed", 0)) == 1,
+		"the completed season is counted")
+
 	_finish()
 
 
