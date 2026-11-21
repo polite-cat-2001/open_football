@@ -76,6 +76,84 @@ static func champion(table: Array) -> Dictionary:
 	return table[0] if not table.is_empty() else {}
 
 
+static func stages(format: Dictionary) -> Array:
+	var value = format.get("stages", [])
+	return value if value is Array else []
+
+
+static func resolve_entrants(stage: Dictionary, table: Array,
+		taken: Dictionary = {}) -> Array:
+	# `top` takes a rank range from the passed table; `rest` takes the clubs not
+	# already named (the sibling group's top six, for a split).
+	var result: Array = []
+	var named := taken.duplicate()
+	for clause in stage.get("entrants", []):
+		var rule := str(clause.get("rule", ""))
+		if rule == "all":
+			for row in table:
+				var id := str(row.id)
+				if not named.has(id):
+					result.append(id)
+					named[id] = true
+		elif rule == "top":
+			var count := int(clause.get("n", 0))
+			var index := int(clause.get("rank", 1)) - 1
+			var added := 0
+			while index < table.size() and added < count:
+				var id := str(table[index].id)
+				if not named.has(id):
+					result.append(id)
+					named[id] = true
+					added += 1
+				index += 1
+		elif rule == "rest":
+			for row in table:
+				var id := str(row.id)
+				if not named.has(id):
+					result.append(id)
+					named[id] = true
+	return result
+
+
+static func build_stage(stage: Dictionary, entrants: Array, start_date: String,
+		end_date := "") -> Array:
+	var kind := str(stage.get("kind", ""))
+	if kind == "league":
+		return _schedule(entrants, start_date, end_date, stage, "")
+	if kind != "group":
+		return []
+	var sizes: Array = stage.get("groups", {}).get("sizes", [])
+	var fixtures: Array = []
+	var index := 0
+	for group_index in range(sizes.size()):
+		var size := int(sizes[group_index])
+		var ids := entrants.slice(index, index + size)
+		var group_fixtures := _schedule(ids, start_date, end_date, stage,
+			"g%d:" % group_index)
+		for fixture in group_fixtures:
+			fixture["group"] = group_index
+			fixtures.append(fixture)
+		index += size
+	return fixtures
+
+
+static func _schedule(ids: Array, start_date: String, end_date: String,
+		stage: Dictionary, prefix: String) -> Array:
+	var fixtures := CareerFactory.build_schedule(ids, start_date, end_date)
+	var rounds = stage.get("rounds")
+	if rounds is int or rounds is float:
+		var limit := int(rounds)
+		var filtered: Array = []
+		for fixture in fixtures:
+			if int(fixture.get("round", 0)) <= limit:
+				fixture["id"] = prefix + str(fixture.get("id", ""))
+				filtered.append(fixture)
+		return filtered
+	for fixture in fixtures:
+		fixture["id"] = prefix + str(fixture.get("id", ""))
+	return fixtures
+
+
 static func _add(row: Dictionary, goals_for: int, goals_against: int) -> void:
 	row["played"] = int(row.played) + 1
 	row["goals_for"] = int(row.goals_for) + goals_for
