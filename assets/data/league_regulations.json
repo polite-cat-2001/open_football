@@ -6846,7 +6846,132 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_Primera",
-   "note": "Apertura/Clausura league. The only part of 2026 covered by an article is Clausura 2026 (first half of 2026): its start date is not stated anywhere in the article (null), and its last match was the final second leg on May 16 2026 (first leg May 9; Real Esteli champions). The Apertura 2026 (July-December 2026) belongs to 2026-27, which has no English Wikipedia article. Relegation: 1 automatic (Real Madriz, aggregate table) plus a relegation/promotion playoff for the 9th-placed team against the Segunda Division runner-up (Rancho Santana won it 2-1 in the previous cycle). No transfer-window dates in the article. start_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua): \"Fecha de inicio | 17 de julio de 2026\"."
+   "note": "Apertura/Clausura league. The only part of 2026 covered by an article is Clausura 2026 (first half of 2026): its start date is not stated anywhere in the article (null), and its last match was the final second leg on May 16 2026 (first leg May 9; Real Esteli champions). The Apertura 2026 (July-December 2026) belongs to 2026-27, which has no English Wikipedia article. Relegation: 1 automatic (Real Madriz, aggregate table) plus a relegation/promotion playoff for the 9th-placed team against the Segunda Division runner-up (Rancho Santana won it 2-1 in the previous cycle). No transfer-window dates in the article. start_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua): \"Fecha de inicio | 17 de julio de 2026\".",
+   "format": {
+    "season": "2026-27",
+    "proxy": true,
+    "proxy_season": "Clausura 2026",
+    "confidence": "medium",
+    "start_md": "07-17",
+    "end_md": "05-16",
+    "champion": "none",
+    "aggregate": [
+     "apertura_regular",
+     "clausura_regular"
+    ],
+    "stages": [
+     {
+      "id": "apertura_regular",
+      "kind": "league",
+      "label": "Apertura 2026 regular",
+      "start_md": "07-17",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 18,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "apertura_playoff",
+      "kind": "knockout",
+      "label": "Apertura 2026 play-off",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "qf",
+        "legs": 1
+       },
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_regular",
+        "n": 6
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "clausura_regular",
+      "kind": "league",
+      "label": "Clausura 2027 regular",
+      "start_md": "01-17",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 18,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "clausura_playoff",
+      "kind": "knockout",
+      "label": "Clausura 2027 play-off",
+      "start_md": null,
+      "end_md": "05-16",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "qf",
+        "legs": 1
+       },
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "clausura_regular",
+        "n": 6
+       }
+      ],
+      "champion": "winner"
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "aggregate",
+      "slots": 1
+     },
+     {
+      "rule": "bottom",
+      "from": "aggregate",
+      "slots": 1,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "note": "Nicaragua 2026-27: two 18-round tournaments, each with the top two straight into the semi-finals and 3rd-6th in a single-match repechaje. Two phase champions, no annual champion. The season aggregate (both regular tables) decides relegation: the last goes down and the 9th plays the Segunda runner-up. Apertura's close is only given as December, so its play-off end stays null; Clausura 2027 is a proxy."
+   }
   },
   "NC2A": {
    "start_md": "07-17",
