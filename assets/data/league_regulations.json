@@ -1457,7 +1457,141 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_DIMAYOR",
-   "note": "Torneo Apertura (2026-I) and Torneo Finalización (2026-II), each with a first stage and knockout stage. Two relegated on the three-season average (relegation table covering 2024-I to 2026-II). No transfer-window dates in the article."
+   "note": "Torneo Apertura (2026-I) and Torneo Finalización (2026-II), each with a first stage and knockout stage. Two relegated on the three-season average (relegation table covering 2024-I to 2026-II). No transfer-window dates in the article.",
+   "format": {
+    "season": "2026",
+    "start_md": "01-16",
+    "end_md": "12-22",
+    "champion": "none",
+    "aggregate": [
+     "apertura_regular",
+     "finalizacion_regular"
+    ],
+    "stages": [
+     {
+      "id": "apertura_regular",
+      "kind": "league",
+      "label": "Torneo Apertura regular",
+      "start_md": "01-16",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 19,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "apertura_final",
+      "kind": "knockout",
+      "label": "Torneo Apertura knockout",
+      "start_md": null,
+      "end_md": "06-08",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "qf",
+        "legs": 2
+       },
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_regular",
+        "n": 8
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "finalizacion_regular",
+      "kind": "league",
+      "label": "Torneo Finalización regular",
+      "start_md": "07-24",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 19,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "finalizacion_groups",
+      "kind": "group",
+      "label": "Cuadrangulares semifinales",
+      "start_md": null,
+      "end_md": "12-22",
+      "precision": "none",
+      "rounds": 6,
+      "groups": {
+       "sizes": [
+        4,
+        4
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "finalizacion_regular",
+        "n": 8
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "finalizacion_final",
+      "kind": "knockout",
+      "label": "Torneo Finalización final",
+      "start_md": null,
+      "end_md": "12-22",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "finalizacion_groups",
+        "n": 1,
+        "per_group": true
+       }
+      ],
+      "champion": "winner"
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "average",
+      "slots": 2
+     }
+    ],
+    "note": "2026: two independent tournaments with two champions. Apertura 2026 dropped the cuadrangulares for the World Cup: the top eight played two-legged quarter-finals, semi-finals and final. Finalización kept the usual two groups of four and a two-legged final. Relegation is the six-tournament three-season promedio (regular phases only), bottom two; the first two career seasons fall back to the annual table, then the average uses the career's own six tournaments."
+   }
   },
   "CPSA": {
    "start_md": "08-07",
