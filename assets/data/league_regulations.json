@@ -6995,7 +6995,166 @@
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Liga_Primera",
    "note": "Window inherited from NC1A; the season facts in that division's note were not re-checked for this league. start_md from https://es.wikipedia.org/wiki/Torneo_Apertura_2026_(Nicaragua): \"Fecha de inicio | 17 de julio de 2026\".",
-   "inherited_from": "NC1A"
+   "inherited_from": "NC1A",
+   "format": {
+    "season": "2026-27",
+    "proxy": true,
+    "proxy_season": "pyramid 2026-27",
+    "confidence": "low",
+    "start_md": "07-17",
+    "end_md": "05-16",
+    "champion": "stage:season_final",
+    "champion_fallback": "shared",
+    "stages": [
+     {
+      "id": "apertura_groups",
+      "kind": "group",
+      "label": "Apertura 2026 groups",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6,
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "apertura_final",
+      "kind": "knockout",
+      "label": "Apertura 2026 final",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_groups",
+        "n": 1,
+        "per_group": true
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "clausura_groups",
+      "kind": "group",
+      "label": "Clausura 2027 groups",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6,
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "clausura_final",
+      "kind": "knockout",
+      "label": "Clausura 2027 final",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "clausura_groups",
+        "n": 1,
+        "per_group": true
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "season_final",
+      "kind": "knockout",
+      "label": "Promotion final",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "winner",
+        "from": "apertura_final"
+       },
+       {
+        "rule": "winner",
+        "from": "clausura_final"
+       }
+      ],
+      "champion": "winner",
+      "if": {
+       "skip_when": "shared",
+       "stages": [
+        "season_final"
+       ]
+      }
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "winner",
+      "from": "season_final",
+      "slots": 1
+     },
+     {
+      "rule": "losers",
+      "from": "season_final",
+      "round": "final",
+      "slots": 1,
+      "playoff": true
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "unknown"
+     }
+    ],
+    "note": "Low-confidence pyramid proxy: 12 current clubs (Transfermarkt, all with squads), two groups of six over 10 rounds in each of two phases; the group winners play a phase final, the phase winners a promotion final, whose winner goes up and loser plays the 9th-placed Liga Primera club. The research describes an older 14-club, 13-round top-eight format and no 2026-27 calendar exists; the row window is the inherited, unverified Liga Primera one, so every stage date is left null and the low confidence is explicit."
+   }
   },
   "NCL1": {
    "start_md": "03-21",
@@ -10412,8 +10571,8 @@
   },
   "VZ1C": {
    "start_md": "01-29",
-   "end_md": "11-29",
-   "filled": "end",
+   "end_md": "12-13",
+   "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
     "slots": 1,
@@ -10434,7 +10593,196 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026_Liga_FUTVE",
-   "note": "Infobox gives only '29 January – December 2026'; no exact end date, so end is null. Torneo Apertura + Torneo Clausura (14 teams, each with a regular stage and group/final stages) plus a two-legged Grand Final for the absolute champion. Only the last-placed team in the aggregate table is relegated to Liga FUTVE 2. No transfer-window dates in the article."
+   "note": "Infobox gives only '29 January – December 2026'; no exact end date, so end is null. Torneo Apertura + Torneo Clausura (14 teams, each with a regular stage and group/final stages) plus a two-legged Grand Final for the absolute champion. Only the last-placed team in the aggregate table is relegated to Liga FUTVE 2. No transfer-window dates in the article.",
+   "format": {
+    "season": "2026",
+    "start_md": "01-29",
+    "end_md": "12-13",
+    "champion": "stage:final_absoluta",
+    "champion_fallback": "shared",
+    "aggregate": [
+     "apertura_regular",
+     "apertura_groups",
+     "clausura_regular",
+     "clausura_groups"
+    ],
+    "stages": [
+     {
+      "id": "apertura_regular",
+      "kind": "league",
+      "label": "Torneo Apertura regular",
+      "start_md": "01-29",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 13,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "apertura_groups",
+      "kind": "group",
+      "label": "Torneo Apertura semifinal groups",
+      "start_md": null,
+      "end_md": "06-07",
+      "precision": "none",
+      "rounds": 6,
+      "groups": {
+       "sizes": [
+        4,
+        4
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_regular",
+        "n": 8
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "apertura_final",
+      "kind": "knockout",
+      "label": "Torneo Apertura final",
+      "start_md": null,
+      "end_md": "06-07",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_groups",
+        "n": 1,
+        "per_group": true
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "clausura_regular",
+      "kind": "league",
+      "label": "Torneo Clausura regular",
+      "start_md": "07-31",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 13,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "clausura_groups",
+      "kind": "group",
+      "label": "Torneo Clausura semifinal groups",
+      "start_md": null,
+      "end_md": "11-29",
+      "precision": "none",
+      "rounds": 6,
+      "groups": {
+       "sizes": [
+        4,
+        4
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "clausura_regular",
+        "n": 8
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "clausura_final",
+      "kind": "knockout",
+      "label": "Torneo Clausura final",
+      "start_md": null,
+      "end_md": "11-29",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "clausura_groups",
+        "n": 1,
+        "per_group": true
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "final_absoluta",
+      "kind": "knockout",
+      "label": "Final Absoluta",
+      "start_md": "12-13",
+      "end_md": "12-13",
+      "precision": "day",
+      "rounds": [
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "winner",
+        "from": "apertura_final"
+       },
+       {
+        "rule": "winner",
+        "from": "clausura_final"
+       }
+      ],
+      "champion": "winner",
+      "if": {
+       "skip_when": "shared",
+       "stages": [
+        "final_absoluta"
+       ]
+      }
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "aggregate",
+      "slots": 1
+     }
+    ],
+    "note": "Venezuela 2026: two 13-round short tournaments, each with the top eight in two groups of four and a single-match final. The two tournament winners meet in a single Final Absoluta for the season title; it is skipped when one club wins both. The accumulated table (both regular and group stages) decides the single relegation. The row end is corrected from the Clausura end to the Final Absoluta date."
+   }
   },
   "WA2S": {
    "start_md": "07-31",
