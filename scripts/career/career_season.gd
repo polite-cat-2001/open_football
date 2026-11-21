@@ -636,7 +636,7 @@ static func _movement_in(catalog: TeamCatalog, career: Career,
 		if not club.is_empty():
 			clubs.append(club)
 	if not clubs.is_empty():
-		return clubs
+		return clubs.slice(0, slots)
 	return _rated_movement(catalog, career, below, slots, false)
 
 
@@ -652,7 +652,7 @@ static func _movement_out(catalog: TeamCatalog, career: Career,
 		if not club.is_empty():
 			clubs.append(club)
 	if not clubs.is_empty():
-		return clubs
+		return clubs.slice(0, slots)
 	return _rated_movement(catalog, career, above, slots, true)
 
 
