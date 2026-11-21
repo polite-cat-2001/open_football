@@ -78,12 +78,27 @@ func _run() -> void:
 
 	for fixture in championship:
 		career.data["results"][str(fixture.get("id", ""))] = _result(fixture)
+	for fixture in relegation:
+		career.data["results"][str(fixture.get("id", ""))] = _result(fixture)
 	var table := CareerFactory.stage_table(career, {}, "championship")
 	_check(table.size() == 6, "the championship table has six rows")
 	_check(int(table[0].get("played", 0)) == 32,
 		"the group table carries the 22 regular matches")
 	_check(int(table[0].get("points", 0)) == 96,
 		"the full points and the group wins are carried")
+
+	var final_table := CareerFactory.season_table(career, {})
+	_check(final_table.size() == 6 and str(final_table[0].get("id", "")) == str(table[0].get("id", "")),
+		"the season table is the championship group")
+
+	var transition := CareerSeason.transition(catalog, career)
+	_check(not transition.is_empty(), "the finished A1 season transitions: " + CareerSeason.last_error)
+	var review: Dictionary = transition.get("review", {})
+	_check((review.get("promoted", []) as Array).is_empty()
+		and (review.get("relegated", []) as Array).is_empty(),
+		"the closed Austrian league moves nobody")
+	_check((transition.get("league_club_ids", []) as Array).size() == 12,
+		"the league keeps its 12 clubs")
 
 	_finish()
 

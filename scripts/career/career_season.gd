@@ -182,10 +182,33 @@ static func transition(catalog: TeamCatalog, career: Career) -> Dictionary:
 		var club := catalog.career_club(int(club_id))
 		if not club.is_empty():
 			clubs[club_id] = club
-	var table := CareerFactory.standings(career, clubs)
+	var table := CareerFactory.season_table(career, clubs)
 	if table.is_empty():
 		last_error = "the season table is empty"
 		return {}
+	var format = LeagueRegulations.record(career.league_id).get("format")
+	if format is Dictionary and _no_format_movement(format):
+		var stay_review := {
+			"league": _league_ref(league),
+			"standings": table,
+			"promoted": [],
+			"relegated": [],
+			"promoted_to": null,
+			"relegated_to": null,
+			"movement": null,
+			"next": {
+				"league": _league_ref(league),
+				"above": null,
+				"below": null,
+				"from_above": [],
+				"from_below": [],
+			},
+		}
+		return {
+			"review": stay_review,
+			"league_id": career.league_id,
+			"league_club_ids": current_ids,
+		}
 
 	var rank := _rank_of(league)
 	var same_country: Array = []
@@ -435,6 +458,17 @@ static func _league_at(leagues: Array, rank: int) -> Dictionary:
 		if _rank_of(league) == rank:
 			return league
 	return {}
+
+
+static func _no_format_movement(format: Dictionary) -> bool:
+	for key in ["promotion", "relegation"]:
+		var clauses = format.get(key)
+		if not (clauses is Array) or (clauses as Array).is_empty():
+			return false
+		for clause in clauses:
+			if str(clause.get("rule", "")) not in ["none", "unknown"]:
+				return false
+	return true
 
 
 static func _rank_of(league: Dictionary) -> int:

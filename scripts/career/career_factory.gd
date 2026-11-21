@@ -242,6 +242,9 @@ static func ensure_stages(career: Career) -> void:
 	var year := int(CareerSearch.date_parts(career.season_start)[0])
 	var format_start := str(format.get("start_md", ""))
 	var taken := {}
+	var round_offset := 0
+	for fixture in regular:
+		round_offset = maxi(round_offset, int(fixture.get("round", 0)))
 	for index in range(1, stages.size()):
 		var stage: Dictionary = stages[index]
 		var stage_id := str(stage.get("id", ""))
@@ -263,8 +266,10 @@ static func ensure_stages(career: Career) -> void:
 			end = str(window.get("end", ""))
 		var fixtures := CareerStages.build_stage(stage, entrants, start, end)
 		for fixture in fixtures:
+			var stage_round := int(fixture.get("round", 0))
 			fixture["stage"] = stage_id
-			fixture["stage_round"] = int(fixture.get("round", 0))
+			fixture["stage_round"] = stage_round
+			fixture["round"] = round_offset + stage_round
 			if not fixture.has("group"):
 				fixture["group"] = -1
 			career.schedule.append(fixture)
@@ -304,6 +309,38 @@ static func stage_table(career: Career, clubs: Dictionary, stage_id: String,
 					stage_carry = stage.get("carry")
 			carried = CareerStages.carry(source_rows, stage_carry)
 	var rows := CareerStages.table(fixtures, career.results, club_ids, carried)
+	return _enrich_rows(rows, clubs)
+
+
+static func season_table(career: Career, clubs: Dictionary) -> Array:
+	var format = LeagueRegulations.record(career.league_id).get("format")
+	if format is Dictionary:
+		var champion := str(format.get("champion", ""))
+		if champion.begins_with("stage:"):
+			return stage_table(career, clubs, champion.substr(6))
+		if format.get("aggregate") is Array:
+			return _aggregate_table(career, clubs, format)
+	return standings(career, clubs)
+
+
+static func _aggregate_table(career: Career, clubs: Dictionary,
+		format: Dictionary) -> Array:
+	var fixtures: Array = []
+	for stage_id in format.get("aggregate", []):
+		fixtures.append_array(_stage_fixtures(career, str(stage_id)))
+	if fixtures.is_empty():
+		return standings(career, clubs)
+	var ids := {}
+	for fixture in fixtures:
+		ids[str(fixture.get("home", ""))] = true
+		ids[str(fixture.get("away", ""))] = true
+	var club_ids := ids.keys()
+	club_ids.sort()
+	var rows := CareerStages.table(fixtures, career.results, club_ids)
+	return _enrich_rows(rows, clubs)
+
+
+static func _enrich_rows(rows: Array, clubs: Dictionary) -> Array:
 	for index in range(rows.size()):
 		var row: Dictionary = rows[index]
 		row["club_id"] = str(row.get("id", ""))
@@ -559,7 +596,7 @@ static func _season_state(career: Career, clubs: Dictionary) -> Dictionary:
 		"next": next_match,
 		"last_result": _last_result(career, clubs),
 		"form": _recent_form(career, clubs),
-		"standings": standings(career, clubs),
+		"standings": season_table(career, clubs),
 		"promotion_places": PROMOTION_PLACES,
 		"relegation_places": RELEGATION_PLACES,
 	}
