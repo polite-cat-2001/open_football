@@ -2018,7 +2018,125 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_LigaPro_Serie_A",
-   "note": "16 teams play a 30-match first stage, then split by placement into a championship hexagonal (top 6), a Copa Sudamericana quadrangular (7th-10th) and a relegation hexagonal (bottom 6) that decides the two relegated teams. Not Apertura/Clausura. No transfer-window dates in the article."
+   "note": "16 teams play a 30-match first stage, then split by placement into a championship hexagonal (top 6), a Copa Sudamericana quadrangular (7th-10th) and a relegation hexagonal (bottom 6) that decides the two relegated teams. Not Apertura/Clausura. No transfer-window dates in the article.",
+   "format": {
+    "season": "2026",
+    "start_md": "02-20",
+    "end_md": "12-13",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "02-20",
+      "end_md": "09-14",
+      "precision": "day",
+      "rounds": 30,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship hexagonal",
+      "start_md": "09-18",
+      "end_md": "12-13",
+      "precision": "day",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "sudamericana",
+      "kind": "group",
+      "label": "Copa Sudamericana quadrangular",
+      "start_md": "09-18",
+      "end_md": "12-13",
+      "precision": "day",
+      "rounds": 6,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 7,
+        "n": 4
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        4
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation hexagonal",
+      "start_md": "09-18",
+      "end_md": "12-13",
+      "precision": "day",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 2
+     }
+    ],
+    "note": "Ecuador 2026: one 30-round table, then a 6/4/6 split. The champion is the top of the championship hexagonal, with no final. The bottom two of the relegation hexagonal go down directly."
+   }
   },
   "EC2L": {
    "start_md": "02-20",
@@ -3590,7 +3708,98 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Israeli_Premier_League",
-   "note": "14 teams. Regular-season table colours 1st-6th as championship round and 7th-14th as 'Qualification for the Relegation round' (section exists in the article), i.e. a split season, but the number of teams actually relegated after the relegation round is not stated, so relegation_slots is null. No transfer-window dates stated (only a note that contracts run to 30 June and a January window exists)."
+   "note": "14 teams. Regular-season table colours 1st-6th as championship round and 7th-14th as 'Qualification for the Relegation round' (section exists in the article), i.e. a split season, but the number of teams actually relegated after the relegation round is not stated, so relegation_slots is null. No transfer-window dates stated (only a note that contracts run to 30 June and a January window exists).",
+   "format": {
+    "season": "2026",
+    "start_md": "08-22",
+    "end_md": "05-22",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-22",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 26,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship round (top six)",
+      "start_md": null,
+      "end_md": "05-22",
+      "precision": "none",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation round (bottom eight)",
+      "start_md": null,
+      "end_md": "05-22",
+      "precision": "none",
+      "rounds": 7,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 2
+     }
+    ],
+    "note": "Israel 2026-27: 26 rounds, then the top six play 10 more and the bottom eight 7. The bottom two of the relegation round go down directly. The regular end and split start are not published and are inferred."
+   }
   },
   "ISR2": {
    "start_md": "08-22",
@@ -4822,7 +5031,105 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_NIFL_Premiership",
-   "note": "Infobox dates 7 Aug 2026 – 24 Apr 2027; tiebreak from the NIFL 2026-27 rules document cited in the article. 12 teams: 33 matches, then Section A/B split for matches 34-38. The article states neither the relegation count nor a play-off; 1 direct + 11th-place play-off is the NIFL standard (2025-26 shows only the bottom club, Glenavon, as relegated) - verify before relying on it."
+   "note": "Infobox dates 7 Aug 2026 – 24 Apr 2027; tiebreak from the NIFL 2026-27 rules document cited in the article. 12 teams: 33 matches, then Section A/B split for matches 34-38. The article states neither the relegation count nor a play-off; 1 direct + 11th-place play-off is the NIFL standard (2025-26 shows only the bottom club, Glenavon, as relegated) - verify before relying on it.",
+   "format": {
+    "season": "2026",
+    "start_md": "08-07",
+    "end_md": "04-24",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-07",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 33,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Section A (top six)",
+      "start_md": null,
+      "end_md": "04-24",
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Section B (bottom six)",
+      "start_md": null,
+      "end_md": "04-24",
+      "precision": "none",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1
+     },
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 1,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "note": "Northern Ireland 2026-27: 33 rounds, then 5 sectional rounds. The 12th is relegated directly and the 11th plays the Championship runner-up, so the second slot is conditional. The regular end and split start are not published and are inferred."
+   }
   },
   "NIR2": {
    "start_md": "08-07",
@@ -7781,7 +8088,132 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Cymru_Premier",
-   "note": "Infobox literally reads 'dates = 31 July 2026 – TBD 2027', so end is null (not published). No transfer windows stated. 16 teams: 30-match regular season, then Championship Race (top 6) / European Challenger (7th-10th) / Survival Zone (bottom 6), points carried over. Bottom two relegated; 14th plays the Cymru Premier play-off against the Cymru North/South play-off winners. end_md from https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/: \"Final round of Phase Two fixtures: 23 – 25 April 2027\"."
+   "note": "Infobox literally reads 'dates = 31 July 2026 – TBD 2027', so end is null (not published). No transfer windows stated. 16 teams: 30-match regular season, then Championship Race (top 6) / European Challenger (7th-10th) / Survival Zone (bottom 6), points carried over. Bottom two relegated; 14th plays the Cymru Premier play-off against the Cymru North/South play-off winners. end_md from https://faw.cymru/cymru-leagues/news/jd-cymru-leagues-2026-27-season-dates-confirmed/: \"Final round of Phase Two fixtures: 23 – 25 April 2027\".",
+   "format": {
+    "season": "2026",
+    "start_md": "07-31",
+    "end_md": "04-25",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Phase One",
+      "start_md": "07-31",
+      "end_md": "03-26",
+      "precision": "day",
+      "rounds": 30,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship Race (top six)",
+      "start_md": "04-02",
+      "end_md": "04-25",
+      "precision": "day",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "european",
+      "kind": "group",
+      "label": "European Challenger (7th-10th)",
+      "start_md": "04-02",
+      "end_md": "04-25",
+      "precision": "day",
+      "rounds": 3,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 7,
+        "n": 4
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        4
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "survival",
+      "kind": "group",
+      "label": "Survival Zone (bottom six)",
+      "start_md": "04-02",
+      "end_md": "04-25",
+      "precision": "day",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "survival",
+      "slots": 2
+     },
+     {
+      "rule": "bottom",
+      "from": "survival",
+      "slots": 1,
+      "rank": 3,
+      "playoff": true
+     }
+    ],
+    "note": "Wales 2026-27: 30 rounds, then 5/3/5. The 15th and 16th are relegated directly; the 14th plays the tier-2 play-off winner over one match, so the third slot is conditional. The European play-offs are not league movement."
+   }
   },
   "WAL2": {
    "start_md": "07-31",
