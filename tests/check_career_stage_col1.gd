@@ -75,6 +75,38 @@ func _run() -> void:
 	_check(int(table[0].get("played", 0)) == 6,
 		"the cuadrangulares start from zero and play six matches")
 
+	CareerFactory.ensure_stages(career)
+	var final_legs := []
+	for fixture in career.schedule:
+		if str(fixture.get("stage", "")) == "finalizacion_final":
+			final_legs.append(fixture)
+	_check(final_legs.size() == 2, "the Finalización final is two legs")
+	if final_legs.size() == 2:
+		_check(str(final_legs[0].get("date", "")) != str(final_legs[1].get("date", "")),
+			"the two final legs have different dates")
+		_check(str(final_legs[0].get("home", "")) == str(final_legs[1].get("away", "")),
+			"the final legs swap home and away")
+	var apertura_knockout := 0
+	for fixture in career.schedule:
+		if str(fixture.get("stage", "")) == "apertura_final" \
+				and int(fixture.get("stage_round", 0)) == 1:
+			apertura_knockout += 1
+	_check(apertura_knockout == 8,
+		"the Apertura top eight start four two-legged quarter-finals: %d" % apertura_knockout)
+	for guard in range(12):
+		CareerFactory.ensure_stages(career)
+		var pending := []
+		for fixture in career.schedule:
+			if str(fixture.get("stage", "")) in ["apertura_final", "finalizacion_final"] \
+					and not career.results.has(str(fixture.get("id", ""))):
+				pending.append(fixture)
+		if pending.is_empty():
+			break
+		for fixture in pending:
+			career.data["results"][str(fixture.get("id", ""))] = _result(fixture)
+	_check(CareerSeason.next_fixture(career).is_empty(),
+		"the knockout rounds complete the Colombian season")
+
 	_finish()
 
 

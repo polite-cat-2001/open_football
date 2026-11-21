@@ -84,9 +84,10 @@ static func stages(format: Dictionary) -> Array:
 
 
 static func resolve_entrants(stage: Dictionary, table: Array,
-		taken: Dictionary = {}) -> Array:
+		taken: Dictionary = {}, groups: Array = []) -> Array:
 	# `top` takes a rank range from the passed table; `rest` takes the clubs not
-	# already named (the sibling group's top six, for a split).
+	# already named (the sibling group's top six, for a split). With `per_group`
+	# the same range is taken from every group table of the source stage.
 	var result: Array = []
 	var named := taken.duplicate()
 	for clause in stage.get("entrants", []):
@@ -99,15 +100,12 @@ static func resolve_entrants(stage: Dictionary, table: Array,
 					named[id] = true
 		elif rule == "top":
 			var count := int(clause.get("n", 0))
-			var index := int(clause.get("rank", 1)) - 1
-			var added := 0
-			while index < table.size() and added < count:
-				var id := str(table[index].id)
-				if not named.has(id):
-					result.append(id)
-					named[id] = true
-					added += 1
-				index += 1
+			var rank := int(clause.get("rank", 1))
+			if bool(clause.get("per_group", false)) and not groups.is_empty():
+				for group in groups:
+					_take_top(group, count, rank, result, named)
+			else:
+				_take_top(table, count, rank, result, named)
 		elif rule == "rest":
 			for row in table:
 				var id := str(row.id)
@@ -115,6 +113,19 @@ static func resolve_entrants(stage: Dictionary, table: Array,
 					result.append(id)
 					named[id] = true
 	return result
+
+
+static func _take_top(table: Array, count: int, rank: int, result: Array,
+		named: Dictionary) -> void:
+	var index := rank - 1
+	var added := 0
+	while index < table.size() and added < count:
+		var id := str(table[index].id)
+		if not named.has(id):
+			result.append(id)
+			named[id] = true
+			added += 1
+		index += 1
 
 
 static func build_stage(stage: Dictionary, entrants: Array, start_date: String,

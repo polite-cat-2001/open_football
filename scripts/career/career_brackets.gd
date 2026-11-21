@@ -26,7 +26,7 @@ static func pairs(entrants: Array, size: int) -> Array:
 
 
 static func round_fixtures(stage: Dictionary, round_index: int, entrants: Array,
-		date: String, prefix := "") -> Array:
+		dates: Array, prefix := "") -> Array:
 	var rounds = stage.get("rounds", [])
 	if round_index < 0 or round_index >= (rounds as Array).size():
 		return []
@@ -44,6 +44,11 @@ static func round_fixtures(stage: Dictionary, round_index: int, entrants: Array,
 		for leg in range(legs):
 			var home := str(first) if leg % 2 == 0 else str(second)
 			var away := str(second) if leg % 2 == 0 else str(first)
+			var date := ""
+			if leg < dates.size():
+				date = str(dates[leg])
+			elif not dates.is_empty():
+				date = str(dates[-1])
 			fixtures.append({
 				"id": "%s%s:%02d:%d" % [prefix, name, tie_index, leg],
 				"round": round_index + 1, "date": date,

@@ -181,23 +181,20 @@ static func season_schedule(league_id: String, club_ids: Array,
 	var generated := {}
 	if format is Dictionary:
 		var stages := CareerStages.stages(format)
-		var year := int(CareerSearch.date_parts(season_start)[0])
-		var format_start := str(format.get("start_md", ""))
+		var windows := _stage_windows(format, season_start, schedule_start, schedule_end)
 		var stage_offset := 0
-		for stage in stages:
+		for index in range(stages.size()):
+			var stage: Dictionary = stages[index]
 			var clauses = stage.get("entrants", [])
 			var is_all := clauses is Array and (clauses as Array).size() == 1 \
 				and str((clauses as Array)[0].get("rule", "")) == "all"
 			if not is_all:
 				continue
-			var stage_start := _stage_date(year, str(stage.get("start_md", "")), format_start)
-			var stage_end := _stage_date(year, str(stage.get("end_md", "")), format_start)
-			if stage_start.is_empty():
-				stage_start = schedule_start
-			if stage_end.is_empty():
-				stage_end = schedule_end
-			var fixtures := CareerStages.build_stage(stage, club_ids, stage_start,
-				stage_end, IntlCalendar.rules(), "world")
+			var stage_window: Dictionary = windows[index]
+			var fixtures := CareerStages.build_stage(stage, club_ids,
+				str(stage_window.get("start", schedule_start)),
+				str(stage_window.get("end", schedule_end)),
+				IntlCalendar.rules(), "world")
 			var max_round := 0
 			for fixture in fixtures:
 				var raw_round := int(fixture.get("round", 0))
@@ -216,6 +213,54 @@ static func season_schedule(league_id: String, club_ids: Array,
 	return {"schedule": schedule, "stages_generated": generated}
 
 
+static func _stage_windows(format: Dictionary, season_start: String,
+		season_start_default: String, season_end: String) -> Array:
+	# A stage's window is curated when the asset knows it. A missing end is
+	# derived from the next stage (a week per match day), so a regular phase
+	# cannot run through its own playoffs; a missing start follows the previous
+	# stage. Nothing here names a league.
+	var stages := CareerStages.stages(format)
+	var year := int(CareerSearch.date_parts(season_start)[0])
+	var format_start := str(format.get("start_md", ""))
+	var starts: Array = []
+	var ends: Array = []
+	for stage in stages:
+		starts.append(_stage_date(year, str(stage.get("start_md", "")), format_start))
+		ends.append(_stage_date(year, str(stage.get("end_md", "")), format_start))
+	for index in range(stages.size() - 1, -1, -1):
+		if not ends[index].is_empty():
+			continue
+		if index + 1 < stages.size():
+			var next_start := str(starts[index + 1])
+			if next_start.is_empty() and not str(ends[index + 1]).is_empty():
+				next_start = CareerSeason.add_days(str(ends[index + 1]),
+					-7 * maxi(0, _match_days(stages[index + 1]) - 1))
+			if not next_start.is_empty():
+				ends[index] = CareerSeason.add_days(next_start, -1)
+		if ends[index].is_empty():
+			ends[index] = season_end
+	for index in range(stages.size()):
+		if not starts[index].is_empty():
+			continue
+		if index > 0 and not str(ends[index - 1]).is_empty():
+			starts[index] = CareerSeason.add_days(str(ends[index - 1]), 1)
+		else:
+			starts[index] = season_start_default
+	var windows: Array = []
+	for index in range(stages.size()):
+		windows.append({"start": starts[index], "end": ends[index]})
+	return windows
+
+
+static func _match_days(stage: Dictionary) -> int:
+	if str(stage.get("kind", "")) == "knockout":
+		var days := 0
+		for spec in stage.get("rounds", []):
+			days += maxi(1, int((spec as Dictionary).get("legs", 1)))
+		return days
+	return maxi(1, int(stage.get("rounds", 1)))
+
+
 static func ensure_stages(career: Career) -> void:
 	var format = LeagueRegulations.record(career.league_id).get("format")
 	if not (format is Dictionary):
@@ -228,15 +273,14 @@ static func ensure_stages(career: Career) -> void:
 		generated = {}
 		career.data["stages_generated"] = generated
 	var window := LeagueRegulations.window_for_season(career.league_id, career.season_start)
-	var year := int(CareerSearch.date_parts(career.season_start)[0])
-	var format_start := str(format.get("start_md", ""))
 	var taken_by_source := {}
+	var windows := _stage_windows(format, career.season_start,
+		str(window.get("start", career.season_start)), str(window.get("end", "")))
 	for index in range(1, stages.size()):
 		var stage: Dictionary = stages[index]
 		var stage_id := str(stage.get("id", ""))
 		if str(stage.get("kind", "")) == "knockout":
-			# The bracket builder lands with the knockout slice; the regular
-			# stages and the aggregate must not wait for it.
+			_ensure_knockout(career, format, stages, index, windows, generated)
 			continue
 		var source := _stage_source(format, stage_id)
 		if source.is_empty() or source == stage_id:
@@ -260,7 +304,8 @@ static func ensure_stages(career: Career) -> void:
 			continue
 		var source_table := stage_table(career, {}, source)
 		var taken: Dictionary = taken_by_source.get(source, {})
-		var entrants := CareerStages.resolve_entrants(stage, source_table, taken)
+		var entrants := CareerStages.resolve_entrants(stage, source_table, taken,
+			_source_group_tables(career, source))
 		if entrants.is_empty():
 			continue
 		for club_id in entrants:
@@ -269,18 +314,9 @@ static func ensure_stages(career: Career) -> void:
 		var round_offset := 0
 		for fixture in source_fixtures:
 			round_offset = maxi(round_offset, int(fixture.get("round", 0)))
-		var start := _stage_date(year, str(stage.get("start_md", "")), format_start)
-		var end := _stage_date(year, str(stage.get("end_md", "")), format_start)
-		if start.is_empty():
-			var last_date := ""
-			for fixture in source_fixtures:
-				var fixture_date := str(fixture.get("date", ""))
-				if fixture_date > last_date:
-					last_date = fixture_date
-			start = last_date if not last_date.is_empty() \
-				else str(window.get("start", career.season_start))
-		if end.is_empty():
-			end = str(window.get("end", ""))
+		var stage_window: Dictionary = windows[index]
+		var start := str(stage_window.get("start", career.season_start))
+		var end := str(stage_window.get("end", ""))
 		var fixtures := CareerStages.build_stage(stage, entrants, start, end,
 			IntlCalendar.rules(), "world")
 		for fixture in fixtures:
@@ -298,6 +334,108 @@ static func ensure_stages(career: Career) -> void:
 		if left != right:
 			return left < right
 		return str(a.get("id", "")) < str(b.get("id", "")))
+
+
+static func _ensure_knockout(career: Career, format: Dictionary, stages: Array,
+		index: int, windows: Array, generated: Dictionary) -> void:
+	# Rounds appear one at a time: the first from the source table, every later
+	# one from the previous round's winners. A round is created only when the
+	# round before it is fully played.
+	var stage: Dictionary = stages[index]
+	var stage_id := str(stage.get("id", ""))
+	var rounds = stage.get("rounds", [])
+	if not (rounds is Array) or (rounds as Array).is_empty():
+		return
+	var source := _stage_source(format, stage_id)
+	if source.is_empty() or source == stage_id:
+		return
+	var source_fixtures := _stage_fixtures(career, source)
+	if source_fixtures.is_empty():
+		return
+	var stage_window: Dictionary = windows[index]
+	var start := str(stage_window.get("start", career.season_start))
+	var end := str(stage_window.get("end", ""))
+	var match_days := _match_days(stage)
+	var needed := CareerSeason.add_days(start, 7 * maxi(0, match_days - 1))
+	if end.is_empty() or end < needed:
+		end = needed
+	var dates := CareerCalendar.round_dates(start, end, match_days,
+		IntlCalendar.rules(), "world")
+	var base := 0
+	for fixture in source_fixtures:
+		base = maxi(base, int(fixture.get("round", 0)))
+	var offset := 0
+	for round_index in range((rounds as Array).size()):
+		var spec: Dictionary = rounds[round_index]
+		var legs := maxi(1, int(spec.get("legs", 1)))
+		var existing := _stage_round_fixtures(career, stage_id, round_index + 1)
+		if not existing.is_empty():
+			if not _all_played(career, existing):
+				return
+			offset += legs
+			continue
+		if round_index == 0 and not _all_played(career, source_fixtures):
+			return
+		var entrants := _knockout_entrants(career, format, stage, round_index)
+		if entrants.is_empty():
+			return
+		var round_dates: Array = []
+		for leg in range(legs):
+			if offset + leg < dates.size():
+				round_dates.append(dates[offset + leg])
+		var fixtures := CareerBrackets.round_fixtures(stage, round_index, entrants,
+			round_dates, "%s:" % stage_id)
+		for fixture in fixtures:
+			fixture["stage"] = stage_id
+			fixture["stage_round"] = round_index + 1
+			fixture["round"] = base + round_index + 1
+			career.schedule.append(fixture)
+		generated[stage_id] = "fixtures"
+		offset += legs
+
+
+static func _knockout_entrants(career: Career, format: Dictionary,
+		stage: Dictionary, round_index: int) -> Array:
+	if round_index == 0:
+		var source := _stage_source(format, str(stage.get("id", "")))
+		return CareerStages.resolve_entrants(stage, stage_table(career, {}, source), {},
+			_source_group_tables(career, source))
+	var previous := round_index - 1
+	var entrants := _knockout_entrants(career, format, stage, previous)
+	return CareerBrackets.round_winners(entrants,
+		_stage_round_fixtures(career, str(stage.get("id", "")), previous + 1),
+		career.results)
+
+
+static func _all_played(career: Career, fixtures: Array) -> bool:
+	for fixture in fixtures:
+		if not career.results.has(str(fixture.get("id", ""))):
+			return false
+	return true
+
+
+static func _stage_round_fixtures(career: Career, stage_id: String,
+		stage_round: int) -> Array:
+	var fixtures: Array = []
+	for fixture in career.schedule:
+		if str(fixture.get("stage", "")) == stage_id \
+				and int(fixture.get("stage_round", 0)) == stage_round:
+			fixtures.append(fixture)
+	return fixtures
+
+
+static func _source_group_tables(career: Career, stage_id: String) -> Array:
+	var numbers := {}
+	for fixture in _stage_fixtures(career, stage_id):
+		var group := int(fixture.get("group", -1))
+		if group >= 0:
+			numbers[group] = true
+	var keys := numbers.keys()
+	keys.sort()
+	var tables: Array = []
+	for group in keys:
+		tables.append(stage_table(career, {}, stage_id, int(group)))
+	return tables
 
 
 static func stage_table(career: Career, clubs: Dictionary, stage_id: String,

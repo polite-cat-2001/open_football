@@ -70,6 +70,34 @@ func _run() -> void:
 	_check(int(aggregate[0].get("points", 0)) == 96,
 		"the top club wins both phases")
 
+	CareerFactory.ensure_stages(career)
+	var r16 := 0
+	for fixture in career.schedule:
+		if str(fixture.get("stage", "")) == "apertura_final" \
+				and int(fixture.get("stage_round", 0)) == 1:
+			r16 += 1
+	_check(r16 == 8, "the Apertura final starts with eight ties from both zones")
+	for guard in range(12):
+		CareerFactory.ensure_stages(career)
+		var pending := []
+		for fixture in career.schedule:
+			var stage_id := str(fixture.get("stage", ""))
+			if stage_id in ["apertura_final", "clausura_final"] \
+					and not career.results.has(str(fixture.get("id", ""))):
+				pending.append(fixture)
+		if pending.is_empty():
+			break
+		for fixture in pending:
+			career.data["results"][str(fixture.get("id", ""))] = _result(fixture)
+	var finals := 0
+	for fixture in career.schedule:
+		if str(fixture.get("stage", "")) == "clausura_final" \
+				and int(fixture.get("stage_round", 0)) == 4:
+			finals += 1
+	_check(finals == 1, "the Clausura bracket reaches a single final")
+	_check(CareerSeason.next_fixture(career).is_empty(),
+		"the bracket rounds complete the season")
+
 	var arg2_ids := {}
 	for team in catalog.all_teams_for_league("ARG2"):
 		arg2_ids[str(team.get("id", ""))] = true

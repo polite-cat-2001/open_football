@@ -33,7 +33,7 @@ func _run() -> void:
 
 	var final_stage := {"rounds": [{"name": "final", "legs": 1}]}
 	var one_fixture := CareerBrackets.round_fixtures(final_stage, 0, ["a", "b"],
-		"2026-07-01", "x:")
+		["2026-07-01"], "x:")
 	_check(one_fixture.size() == 1, "a single-leg final is one fixture")
 	_check(str(one_fixture[0].get("id", "")) == "x:final:00:0", "the fixture id names round and leg")
 	_check(str(one_fixture[0].get("date", "")) == "2026-07-01", "the caller supplies the date")
@@ -43,8 +43,10 @@ func _run() -> void:
 
 	var first_round := {"rounds": [{"name": "semis", "legs": 2}]}
 	var two_leg := CareerBrackets.round_fixtures(first_round, 0, ["a", "b", "c", "d"],
-		"2026-07-01", "")
+		["2026-07-01", "2026-07-05"], "")
 	_check(two_leg.size() == 4, "two semi-finals with two legs make four fixtures")
+	_check(str(two_leg[1].get("date", "")) == "2026-07-05",
+		"the second leg gets its own date")
 	_check(str(two_leg[0].get("home", "")) == "a" and str(two_leg[1].get("home", "")) == "d",
 		"the second leg swaps home and away")
 	var results := {
@@ -69,7 +71,7 @@ func _run() -> void:
 
 	var six := CareerBrackets.round_fixtures(
 		{"rounds": [{"name": "quarter", "legs": 1}]}, 0,
-		["a", "b", "c", "d", "e", "f"], "2026-07-01", "")
+		["a", "b", "c", "d", "e", "f"], ["2026-07-01"], "")
 	_check(six.size() == 2, "six entrants leave two ties and two byes")
 	var six_winners := CareerBrackets.round_winners(["a", "b", "c", "d", "e", "f"], six,
 		{"quarter:02:0": {"home": 1, "away": 0}, "quarter:03:0": {"home": 2, "away": 1}})
