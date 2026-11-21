@@ -5732,8 +5732,8 @@
    }
   },
   "MEX2": {
-   "start_md": "01-09",
-   "end_md": "12-13",
+   "start_md": "07-24",
+   "end_md": "04-19",
    "filled": "",
    "phases": "apertura_clausura",
    "relegation": {
@@ -5753,7 +5753,119 @@
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_MX_season",
    "note": "Window inherited from MEXA; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "MEXA"
+   "inherited_from": "MEXA",
+   "format": {
+    "season": "2026-27",
+    "proxy": true,
+    "proxy_season": "Clausura 2026",
+    "confidence": "medium",
+    "start_md": "07-24",
+    "end_md": "04-19",
+    "champion": "none",
+    "stages": [
+     {
+      "id": "apertura_regular",
+      "kind": "league",
+      "label": "Apertura 2026 regular",
+      "start_md": "07-24",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 15,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "apertura_liguilla",
+      "kind": "knockout",
+      "label": "Apertura 2026 liguilla",
+      "start_md": null,
+      "end_md": "11-28",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "qf",
+        "legs": 2
+       },
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_regular",
+        "n": 8
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "clausura_regular",
+      "kind": "league",
+      "label": "Clausura 2027 regular",
+      "start_md": "01-09",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 15,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "clausura_liguilla",
+      "kind": "knockout",
+      "label": "Clausura 2027 liguilla",
+      "start_md": null,
+      "end_md": "04-19",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "qf",
+        "legs": 2
+       },
+       {
+        "name": "sf",
+        "legs": 2
+       },
+       {
+        "name": "final",
+        "legs": 2
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "clausura_regular",
+        "n": 8
+       }
+      ],
+      "champion": "winner"
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "none"
+     }
+    ],
+    "note": "2026-27 (row corrected from the mixed 2026 calendar): two 15-round tournaments, each with a two-legged top-eight liguilla. The Clausura 2027 article does not exist yet, so its window and 15-club field are proxied from Clausura 2026; the current league has 16 clubs. The league is closed both ways and membership moves by franchise, so nothing moves."
+   }
   },
   "MEXA": {
    "start_md": "07-16",
