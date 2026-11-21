@@ -1474,7 +1474,101 @@
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Cypriot_First_Division",
    "note": "Window inherited from ZYP1; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "ZYP1"
+   "inherited_from": "ZYP1",
+   "format": {
+    "season": "2026-27",
+    "proxy": true,
+    "proxy_season": "2025-26",
+    "confidence": "low",
+    "start_md": "08-28",
+    "end_md": "05-23",
+    "champion": "stage:promotion",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-28",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 15,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "promotion",
+      "kind": "group",
+      "label": "Promotion Round",
+      "start_md": null,
+      "end_md": "05-23",
+      "precision": "none",
+      "rounds": 14,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 8
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation Round",
+      "start_md": null,
+      "end_md": "05-23",
+      "precision": "none",
+      "rounds": 14,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "top",
+      "from": "promotion",
+      "slots": 3
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "none"
+     }
+    ],
+    "note": "Proxy 2025-26: 15-round single round-robin, then 8+8 with 14 more. The top three of the promotion round go up; the pyramid closes the bottom, so the researched bottom-three relegation is not applied. The opening points (41/29/24/26 for the top four) are not reproduced; the table uses a normal full carry, and the 2026-27 window is sourced while the split dates are inferred."
+   }
   },
   "CZ3C": {
    "start_md": "07-25",
