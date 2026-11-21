@@ -2139,8 +2139,8 @@
    }
   },
   "EC2L": {
-   "start_md": "02-20",
-   "end_md": "12-13",
+   "start_md": "03-18",
+   "end_md": "10-28",
    "filled": "",
    "phases": "split",
    "relegation": {
@@ -2159,7 +2159,97 @@
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_LigaPro_Serie_A",
    "note": "Window inherited from EC1N; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "EC1N"
+   "format": {
+    "season": "2026",
+    "start_md": "03-18",
+    "end_md": "10-28",
+    "champion": "stage:promotion",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "03-18",
+      "end_md": "08-21",
+      "precision": "day",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "promotion",
+      "kind": "group",
+      "label": "Ascenso (promotion group)",
+      "start_md": "08-27",
+      "end_md": "10-28",
+      "precision": "day",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Descenso (relegation group)",
+      "start_md": "08-27",
+      "end_md": "10-28",
+      "precision": "day",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "top",
+      "from": "promotion",
+      "slots": 2
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "none"
+     }
+    ],
+    "note": "Ecuador Serie B 2026: 22 rounds (18 Mar - 21 Aug), then 6+6 with 10 more. The top two of the promotion group go up. Reserve sides are ineligible. The pyramid closes the bottom, so the researched bottom-two relegation is not applied."
+   }
   },
   "EE19": {
    "start_md": "03-07",
@@ -3074,7 +3164,96 @@
    "transfer_windows": [],
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Gibraltar_Football_League",
-   "note": "Infobox '21 August 2026 – 25 April 2027'. 11 teams: double round-robin (20 games), then top six into the GFL Championship Group. Tiebreak verbatim from class_rules - note there is no goal-difference rung and fair play is last. Neither the 2026-27 nor the 2025-26 article states a relegation count (no 'relegated' infobox field), so relegation_slots is null. No transfer-window dates."
+   "note": "Infobox '21 August 2026 – 25 April 2027'. 11 teams: double round-robin (20 games), then top six into the GFL Championship Group. Tiebreak verbatim from class_rules - note there is no goal-difference rung and fair play is last. Neither the 2026-27 nor the 2025-26 article states a relegation count (no 'relegated' infobox field), so relegation_slots is null. No transfer-window dates.",
+   "format": {
+    "season": "2026",
+    "start_md": "08-21",
+    "end_md": "04-25",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-21",
+      "end_md": "03-14",
+      "precision": "day",
+      "rounds": 20,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship Group (top six)",
+      "start_md": "03-19",
+      "end_md": "04-25",
+      "precision": "day",
+      "rounds": 5,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "challenge",
+      "kind": "group",
+      "label": "Challenge Group (bottom five)",
+      "start_md": "03-19",
+      "end_md": "04-25",
+      "precision": "day",
+      "rounds": 4,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        5
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "none"
+     }
+    ],
+    "note": "Gibraltar 2026-27: 20 rounds over 22 matchdays, then 6+5 with 5/4 more. The league is closed at both ends, so nothing moves; the European play-off is not a league movement."
+   }
   },
   "GIIL": {
    "start_md": "08-21",
@@ -3824,7 +4003,98 @@
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Israeli_Premier_League",
    "note": "Window inherited from ISR1; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "ISR1"
+   "inherited_from": "ISR1",
+   "format": {
+    "season": "2026",
+    "start_md": "08-22",
+    "end_md": "05-22",
+    "champion": "stage:promotion",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-22",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 30,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "promotion",
+      "kind": "group",
+      "label": "Promotion group (top eight)",
+      "start_md": null,
+      "end_md": "05-07",
+      "precision": "none",
+      "rounds": 7,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 8
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation group (bottom eight)",
+      "start_md": null,
+      "end_md": "05-07",
+      "precision": "none",
+      "rounds": 7,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "top",
+      "from": "promotion",
+      "slots": 2
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "none"
+     }
+    ],
+    "note": "Israel level 2, 2026-27: 30 rounds, then 8+8 with seven more. The top two of the promotion group go up. The pyramid closes the bottom, so the researched bottom-two relegation cannot be applied; the regular end and split start are inferred."
+   }
   },
   "IT1": {
    "start_md": "08-22",
@@ -4974,7 +5244,74 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Moldovan_Liga",
-   "note": "League now titled 'Moldovan Liga' (sponsored Liga 7777); no article exists under the old 'Moldovan Super Liga' name. 8 teams, two phases (Phase I round-robin, Phase II split top 6 / bottom 2 with points earned among the top 6 halved and rounded down); 7th and 8th relegated directly, no play-off. No transfer window dates."
+   "note": "League now titled 'Moldovan Liga' (sponsored Liga 7777); no article exists under the old 'Moldovan Super Liga' name. 8 teams, two phases (Phase I round-robin, Phase II split top 6 / bottom 2 with points earned among the top 6 halved and rounded down); 7th and 8th relegated directly, no play-off. No transfer window dates.",
+   "format": {
+    "season": "2026-27",
+    "start_md": "06-27",
+    "end_md": "05-22",
+    "champion": "stage:phase2",
+    "stages": [
+     {
+      "id": "phase1",
+      "kind": "league",
+      "label": "Phase I",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 14,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "phase2",
+      "kind": "group",
+      "label": "Phase II (top six)",
+      "start_md": null,
+      "end_md": null,
+      "precision": "none",
+      "rounds": 10,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "phase1",
+        "n": 6
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "half",
+     "goals": "reset",
+     "rounding": "down"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "phase1",
+      "slots": 2
+     }
+    ],
+    "note": "Moldova 2026-27: 8 clubs, 14 rounds in Phase I, then only the top six play 10 more; points are halved and rounded down, goals reset. The bottom two of Phase I go down. No season dates are published, so the stages are undated inside the row window."
+   }
   },
   "MT1N": {
    "start_md": "08-17",
@@ -5248,7 +5585,105 @@
    "confidence": "medium",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_NIFL_Premiership",
    "note": "Window inherited from NIR1; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "NIR1"
+   "inherited_from": "NIR1",
+   "format": {
+    "season": "2026",
+    "start_md": "08-07",
+    "end_md": "04-24",
+    "champion": "stage:section_a",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-08",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 30,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "section_a",
+      "kind": "group",
+      "label": "Section A (top eight)",
+      "start_md": null,
+      "end_md": "04-24",
+      "precision": "none",
+      "rounds": 7,
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 8
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     },
+     {
+      "id": "section_b",
+      "kind": "group",
+      "label": "Section B (bottom eight)",
+      "start_md": null,
+      "end_md": "04-24",
+      "precision": "none",
+      "rounds": 7,
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "groups": {
+       "sizes": [
+        8
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "top",
+      "from": "section_a",
+      "slots": 1
+     },
+     {
+      "rule": "top",
+      "from": "section_a",
+      "slots": 1,
+      "rank": 2,
+      "playoff": true
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "none"
+     }
+    ],
+    "note": "Northern Ireland level 2, 2026-27: the first 16-club season, 30 rounds then 8+8 with seven more. The Section A winner goes up and the runner-up plays the Premiership 11th. The pyramid closes the bottom, so the 15th-place tie is not applied. The regular end and split start are inferred."
+   }
   },
   "NL1": {
    "start_md": "08-07",
