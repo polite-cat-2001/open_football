@@ -79,7 +79,96 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_Austrian_Football_Bundesliga",
-   "note": "Dates from infobox. 12 teams: 22-round regular season then championship round and relegation round of 6 (32 games); from 2026-27 points are carried over in full (no halving, first time since 2018-19). Only the last-placed team of the relegation round is relegated; no relegation play-off (format per Austrian Bundesliga article). No transfer-window dates in the article."
+   "note": "Dates from infobox. 12 teams: 22-round regular season then championship round and relegation round of 6 (32 games); from 2026-27 points are carried over in full (no halving, first time since 2018-19). Only the last-placed team of the relegation round is relegated; no relegation play-off (format per Austrian Bundesliga article). No transfer-window dates in the article.",
+   "format": {
+    "season": "2026-27",
+    "start_md": "08-01",
+    "end_md": "05-17",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-01",
+      "end_md": "03-01",
+      "precision": "month",
+      "rounds": 22,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship group",
+      "start_md": "03-01",
+      "end_md": "05-17",
+      "precision": "month",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 6
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation group",
+      "start_md": "03-01",
+      "end_md": "05-17",
+      "precision": "month",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none"
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "none"
+     }
+    ],
+    "note": "2026-27 research: the 22-round regular season is followed by a 6+6 split with a double round-robin in each group; point halving was abolished, so the full points carry with the goals. The pyramid marks the league closed at both ends, so the real one-club relegation is not applied until the second tier is modelled."
+   }
   },
   "A2SW": {
    "start_md": "10-16",
