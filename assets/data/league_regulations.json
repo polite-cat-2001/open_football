@@ -428,7 +428,158 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026_AFA_Liga_Profesional_de_F%C3%BAtbol",
-   "note": "Season = Torneo Apertura + Torneo Clausura (30 teams in two zones of 15, single round-robin plus two interzonal games, top 8 per zone to single-leg knockout). Two relegated: the last of the 2024-2026 promedio and the last of the 2026 annual table (Apertura + Clausura regular phases only); if the same club is last in both, it goes down by promedio and the annual slot passes to the 29th. Ties in a relegation place are settled by play-off matches, not goal difference. Tiebreak order taken from the aggregate-table class_rules. No transfer-window dates in the article."
+   "note": "Season = Torneo Apertura + Torneo Clausura (30 teams in two zones of 15, single round-robin plus two interzonal games, top 8 per zone to single-leg knockout). Two relegated: the last of the 2024-2026 promedio and the last of the 2026 annual table (Apertura + Clausura regular phases only); if the same club is last in both, it goes down by promedio and the annual slot passes to the 29th. Ties in a relegation place are settled by play-off matches, not goal difference. Tiebreak order taken from the aggregate-table class_rules. No transfer-window dates in the article.",
+   "format": {
+    "season": "2026",
+    "start_md": "01-22",
+    "end_md": "12-12",
+    "champion": "aggregate",
+    "aggregate": [
+     "apertura_regular",
+     "clausura_regular"
+    ],
+    "stages": [
+     {
+      "id": "apertura_regular",
+      "kind": "group",
+      "label": "Torneo Apertura regular",
+      "start_md": "01-22",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 16,
+      "groups": {
+       "sizes": [
+        15,
+        15
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "interzonal",
+       "interzonal": 2
+      },
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "apertura_final",
+      "kind": "knockout",
+      "label": "Torneo Apertura knockout",
+      "start_md": null,
+      "end_md": "05-24",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "r16",
+        "legs": 1
+       },
+       {
+        "name": "qf",
+        "legs": 1
+       },
+       {
+        "name": "sf",
+        "legs": 1
+       },
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "apertura_regular",
+        "n": 8,
+        "per_group": true
+       }
+      ],
+      "champion": "winner"
+     },
+     {
+      "id": "clausura_regular",
+      "kind": "group",
+      "label": "Torneo Clausura regular",
+      "start_md": "07-23",
+      "end_md": null,
+      "precision": "none",
+      "rounds": 16,
+      "groups": {
+       "sizes": [
+        15,
+        15
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "interzonal",
+       "interzonal": 2
+      },
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "none"
+     },
+     {
+      "id": "clausura_final",
+      "kind": "knockout",
+      "label": "Torneo Clausura knockout",
+      "start_md": null,
+      "end_md": "12-12",
+      "precision": "none",
+      "rounds": [
+       {
+        "name": "r16",
+        "legs": 1
+       },
+       {
+        "name": "qf",
+        "legs": 1
+       },
+       {
+        "name": "sf",
+        "legs": 1
+       },
+       {
+        "name": "final",
+        "legs": 1
+       }
+      ],
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "clausura_regular",
+        "n": 8,
+        "per_group": true
+       }
+      ],
+      "champion": "winner"
+     }
+    ],
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "average",
+      "slots": 1
+     },
+     {
+      "rule": "bottom",
+      "from": "aggregate",
+      "slots": 1
+     }
+    ],
+    "note": "2026: two independent 30-club tournaments, each in two zones of 15 (single round-robin plus two interzonal games), then a single-leg knockout of the top eight of each zone. The aggregate of the two regular tables crowns the Campeón de Liga. Relegation is the last of the three-season promedio plus the last of the annual aggregate; if the same club is last in both, the second slot goes to the 29th. The first two career seasons use the annual table (two bottom clubs) because 2024-2025 history is absent; from the third season the average uses the career's own three seasons."
+   }
   },
   "ARM1": {
    "start_md": "07-31",
