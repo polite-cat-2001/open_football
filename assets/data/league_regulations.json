@@ -3431,7 +3431,142 @@
    "transfer_windows": [],
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Super_League_Greece",
-   "note": "14 teams, two phases: regular season (ends 21 March 2027) then championship play-offs (top 4), Europe play-offs (5-8) and relegation play-outs (bottom 6, from 3 April 2027). Two teams are relegated after the play-outs (2025-26 pattern; 2026-27 article does not restate the count). No transfer window dates."
+   "note": "14 teams, two phases: regular season (ends 21 March 2027) then championship play-offs (top 4), Europe play-offs (5-8) and relegation play-outs (bottom 6, from 3 April 2027). Two teams are relegated after the play-outs (2025-26 pattern; 2026-27 article does not restate the count). No transfer window dates.",
+   "format": {
+    "season": "2026-27",
+    "proxy": true,
+    "proxy_season": "2025-26",
+    "confidence": "medium",
+    "start_md": "08-22",
+    "end_md": "05-23",
+    "champion": "stage:championship",
+    "stages": [
+     {
+      "id": "regular",
+      "kind": "league",
+      "label": "Regular season",
+      "start_md": "08-22",
+      "end_md": "03-22",
+      "precision": "day",
+      "rounds": 26,
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "champion": "table"
+     },
+     {
+      "id": "championship",
+      "kind": "group",
+      "label": "Championship play-offs",
+      "start_md": "04-04",
+      "end_md": "05-23",
+      "precision": "day",
+      "rounds": 6,
+      "groups": {
+       "sizes": [
+        4
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "n": 4
+       }
+      ],
+      "champion": "none",
+      "carry": {
+       "points": "full",
+       "goals": "carry"
+      }
+     },
+     {
+      "id": "europe",
+      "kind": "group",
+      "label": "Europe play-offs",
+      "start_md": "04-04",
+      "end_md": "05-23",
+      "precision": "day",
+      "rounds": 6,
+      "groups": {
+       "sizes": [
+        4
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "top",
+        "from": "regular",
+        "rank": 5,
+        "n": 4
+       }
+      ],
+      "champion": "none",
+      "carry": {
+       "points": "half",
+       "goals": "carry",
+       "rounding": "up"
+      }
+     },
+     {
+      "id": "relegation",
+      "kind": "group",
+      "label": "Relegation play-outs",
+      "start_md": "04-04",
+      "end_md": "05-23",
+      "precision": "day",
+      "rounds": 10,
+      "groups": {
+       "sizes": [
+        6
+       ],
+       "assign": "seeded"
+      },
+      "schedule": {
+       "kind": "per_group"
+      },
+      "entrants": [
+       {
+        "rule": "rest",
+        "from": "regular"
+       }
+      ],
+      "champion": "none",
+      "carry": {
+       "points": "full",
+       "goals": "carry"
+      }
+     }
+    ],
+    "carry": {
+     "points": "full",
+     "goals": "carry"
+    },
+    "promotion": [
+     {
+      "rule": "none"
+     }
+    ],
+    "relegation": [
+     {
+      "rule": "bottom",
+      "from": "relegation",
+      "slots": 2,
+      "playoff": true
+     }
+    ],
+    "note": "Greece 2026-27 repeats the 2025-26 4/4/6 split: 26 rounds, then the championship and relegation groups carry all points, while the Europe group starts from half. The bottom two of the relegation play-out go down; the pyramid calls both places conditional because they are decided in the play-out, not by the regular table. Exact 2026-27 split dates are not published, so the 2025-26 day pattern is used as a proxy."
+   }
   },
   "GRS2": {
    "start_md": "08-22",
