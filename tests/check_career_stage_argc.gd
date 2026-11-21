@@ -33,11 +33,12 @@ func _run() -> void:
 		_finish()
 		return
 	var career: Career = null
+	var best_id := 0
 	for team in catalog.all_teams_for_league("ARGC"):
-		career = CareerFactory.create(catalog, int(team.get("id", 0)),
-			"Stage Manager", 189, 42)
-		if career != null:
-			break
+		var team_id := int(team.get("id", 0))
+		if best_id == 0 or team_id < best_id:
+			best_id = team_id
+	career = CareerFactory.create(catalog, best_id, "Stage Manager", 189, 42)
 	_check(career != null, "an ARGC career is created: " + CareerFactory.last_error)
 	if career == null:
 		_finish()
@@ -68,6 +69,27 @@ func _run() -> void:
 		"the aggregate counts both 16-match phases")
 	_check(int(aggregate[0].get("points", 0)) == 96,
 		"the top club wins both phases")
+
+	var arg2_ids := {}
+	for team in catalog.all_teams_for_league("ARG2"):
+		arg2_ids[str(team.get("id", ""))] = true
+	var transition := CareerSeason.transition(catalog, career)
+	_check(not transition.is_empty(), "the ARGC season transitions: " + CareerSeason.last_error)
+	var review: Dictionary = transition.get("review", {})
+	var relegated: Array = review.get("relegated", [])
+	_check(relegated.size() == 2, "the aggregate bottom two are relegated")
+	var next_ids: Array = transition.get("league_club_ids", [])
+	_check(next_ids.size() == 30, "the league keeps its 30 clubs")
+	var relegated_ids := {}
+	for row in relegated:
+		relegated_ids[str(row.get("id", ""))] = true
+		_check(not next_ids.has(str(row.get("id", ""))), "a relegated club leaves the league")
+	var incoming: Array = review.get("next", {}).get("from_below", [])
+	_check(incoming.size() == 2, "two ARG2 clubs come up")
+	for entry in incoming:
+		var club_id := str(entry.get("club", {}).get("id", ""))
+		_check(arg2_ids.has(club_id), "the incoming club belongs to ARG2")
+		_check(next_ids.has(club_id), "the incoming club joins the league")
 
 	_finish()
 

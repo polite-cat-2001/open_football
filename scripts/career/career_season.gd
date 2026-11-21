@@ -210,6 +210,10 @@ static func transition(catalog: TeamCatalog, career: Career) -> Dictionary:
 			"league_club_ids": current_ids,
 		}
 
+	if format is Dictionary and _has_format_relegation(format):
+		return _format_league_transition(catalog, career, league, current_ids,
+			table, format)
+
 	var rank := _rank_of(league)
 	var same_country: Array = []
 	for item in catalog.career_leagues():
@@ -410,6 +414,7 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 	career.data["season_start"] = new_start
 	career.data["date"] = new_start
 	career.data["league_id"] = str(transition_data.get("league_id", career.league_id))
+	career.data["seasons_completed"] = int(career.data.get("seasons_completed", 0)) + 1
 	var next_ids_unique := _unique_ids(next_ids)
 	career.data["league_club_ids"] = next_ids_unique
 	var next_window := LeagueRegulations.window_for_season(career.league_id, new_start)
@@ -457,6 +462,176 @@ static func _league_at(leagues: Array, rank: int) -> Dictionary:
 	for league in leagues:
 		if _rank_of(league) == rank:
 			return league
+	return {}
+
+
+static func _has_format_relegation(format: Dictionary) -> bool:
+	var clauses = format.get("relegation")
+	if not (clauses is Array):
+		return false
+	for clause in clauses:
+		if str(clause.get("rule", "")) not in ["none", "unknown"]:
+			return true
+	return false
+
+
+static func _format_league_transition(catalog: TeamCatalog, career: Career,
+		league: Dictionary, current_ids: Array, table: Array,
+		format: Dictionary) -> Dictionary:
+	var completed := int(career.data.get("seasons_completed", 0))
+	var relegated := _format_relegated(career, table, format, completed)
+	var below := _below_league(catalog, league)
+	var incoming: Array = []
+	if str(below.get("id", "")) == "ARG2":
+		incoming = CareerWorld.arg2_promoted(catalog,
+			career.seed + int(CareerSearch.date_parts(career.season_start)[0]))
+	var relegated_ids := {}
+	for row in relegated:
+		relegated_ids[str(row.get("club_id", ""))] = true
+	var incoming_ids := {}
+	for club_id in incoming:
+		incoming_ids[str(club_id)] = true
+	var next_ids: Array = []
+	var next_league := league
+	if relegated_ids.has(career.club_id) and not below.is_empty():
+		next_league = below
+		for team in catalog.all_teams_for_league(str(below.get("id", ""))):
+			var team_id := str(team.get("id", ""))
+			if not incoming_ids.has(team_id):
+				next_ids.append(team_id)
+		for row in relegated:
+			var club_id := str(row.get("club_id", ""))
+			if not next_ids.has(club_id):
+				next_ids.append(club_id)
+		if not next_ids.has(career.club_id):
+			next_ids.append(career.club_id)
+	else:
+		for club_id in current_ids:
+			if not relegated_ids.has(str(club_id)) \
+					and not incoming_ids.has(str(club_id)):
+				next_ids.append(str(club_id))
+		for club_id in incoming:
+			if not next_ids.has(str(club_id)):
+				next_ids.append(str(club_id))
+
+	var from_below: Array = []
+	for club_id in incoming:
+		var club := catalog.career_club(int(club_id))
+		from_below.append({"club": _club_ref(club), "league": _league_ref(below)})
+	var from_above: Array = []
+	if next_league.get("id", "") == str(below.get("id", "")):
+		for row in relegated:
+			from_above.append({"club": _row_ref(row), "league": _league_ref(league)})
+	var history: Array = career.data.get("season_history") \
+		if career.data.get("season_history") is Array else []
+	history.append({"season_start": career.season_start, "rows": table})
+	career.data["season_history"] = history
+	var review: Dictionary = {
+		"league": _league_ref(league),
+		"standings": table,
+		"promoted": [],
+		"relegated": relegated,
+		"promoted_to": null,
+		"relegated_to": _league_ref(below) if not relegated.is_empty() else null,
+		"movement": "down" if relegated_ids.has(career.club_id) else null,
+		"next": {
+			"league": _league_ref(next_league),
+			"above": _league_ref(league) if next_league.get("id", "") != league.get("id", "") else null,
+			"below": _league_ref(below) if next_league.get("id", "") == league.get("id", "") else null,
+			"from_above": from_above,
+			"from_below": from_below,
+		},
+	}
+	return {
+		"review": review,
+		"league_id": str(next_league.get("id", career.league_id)),
+		"league_club_ids": next_ids,
+	}
+
+
+static func _format_relegated(career: Career, table: Array, format: Dictionary,
+		completed: int) -> Array:
+	var result: Array = []
+	var named := {}
+	for clause in format.get("relegation", []):
+		var rule := str(clause.get("rule", ""))
+		var slots := int(clause.get("slots", 0))
+		var rank := int(clause.get("rank", 1))
+		if slots <= 0:
+			continue
+		if rule == "average":
+			if completed < 2:
+				result.append_array(_take_bottom(table, slots, 1, named))
+			else:
+				var order := _average_order(career, table)
+				result.append_array(_take_bottom(order, slots, 1, named))
+		elif rule == "bottom":
+			result.append_array(_take_bottom(table, slots, rank, named))
+	return result
+
+
+static func _take_bottom(table: Array, slots: int, rank: int,
+		named: Dictionary) -> Array:
+	var result: Array = []
+	var index := table.size() - rank
+	while index >= 0 and result.size() < slots:
+		var row: Dictionary = table[index]
+		var club_id := str(row.get("club_id", row.get("id", "")))
+		if not named.has(club_id):
+			result.append(row)
+			named[club_id] = true
+		index -= 1
+	return result
+
+
+static func _average_order(career: Career, current: Array) -> Array:
+	var stats := {}
+	for row in current:
+		stats[str(row.get("club_id", ""))] = {
+			"points": 0, "played": 0,
+			"club_name": str(row.get("club_name", "")),
+			"club_logo": str(row.get("club_logo", "")),
+		}
+	var history: Array = career.data.get("season_history") \
+		if career.data.get("season_history") is Array else []
+	var tables: Array = [current]
+	for entry in history:
+		if entry.get("rows") is Array:
+			tables.append(entry.get("rows"))
+	for rows in tables:
+		for row in rows:
+			var club_id := str(row.get("club_id", ""))
+			if not stats.has(club_id):
+				continue
+			stats[club_id]["points"] += int(row.get("points", 0))
+			stats[club_id]["played"] += int(row.get("played", 0))
+	var order: Array = []
+	for club_id in stats:
+		var row: Dictionary = stats[club_id]
+		var played := maxi(1, int(row.get("played", 0)))
+		order.append({
+			"club_id": club_id,
+			"club_name": row.get("club_name", club_id),
+			"club_logo": row.get("club_logo", ""),
+			"points": row.get("points", 0),
+			"played": row.get("played", 0),
+			"average": float(row.get("points", 0)) / float(played),
+		})
+	order.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if not is_equal_approx(float(a.average), float(b.average)):
+			return float(a.average) < float(b.average)
+		return str(a.club_id) < str(b.club_id))
+	for index in range(order.size()):
+		order[index]["position"] = index + 1
+	return order
+
+
+static func _below_league(catalog: TeamCatalog, league: Dictionary) -> Dictionary:
+	var rank := _rank_of(league)
+	for item in catalog.career_leagues():
+		if int(item.get("country_id", 0)) == int(league.get("country_id", 0)) \
+				and _rank_of(item) == rank + 1:
+			return item
 	return {}
 
 

@@ -117,6 +117,7 @@ static func create(
 		"hub_tab": "centre",
 		"schedule": schedule,
 		"stages_generated": stages_generated,
+		"seasons_completed": 0,
 		"schedule_version": SCHEDULE_VERSION,
 		"incoming_market_date": season_start,
 		"last_tick_date": season_start,
