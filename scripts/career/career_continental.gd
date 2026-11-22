@@ -308,6 +308,11 @@ static func finish(catalog: TeamCatalog, career: Career, block: Dictionary,
 	var runners_up := {}
 	for comp in COMPETITIONS:
 		var competition: Dictionary = block.get("competitions", {}).get(comp, {})
+		if competition.has("champion"):
+			champions[comp] = str(competition["champion"])
+			if competition.has("runner_up"):
+				runners_up[comp] = str(competition["runner_up"])
+			continue
 		var field: Array = competition.get("league_phase", [])
 		if field.size() != LEAGUE_SIZE:
 			continue

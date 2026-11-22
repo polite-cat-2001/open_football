@@ -66,6 +66,7 @@ static func days_between(start_date: String, end_date: String) -> int:
 static func next_fixture(career: Career) -> Dictionary:
 	CareerFactory.ensure_stages(career)
 	CareerCompetitions.ensure(career)
+	CareerEurope.ensure_knockout(career)
 	for fixture in career.schedule:
 		var fixture_id := str(fixture.get("id", ""))
 		if career.results.has(fixture_id):

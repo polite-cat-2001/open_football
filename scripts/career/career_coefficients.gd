@@ -78,6 +78,59 @@ static func total(table_data: Dictionary, club_id: String) -> float:
 	return total_points
 
 
+static func season_points(competition: String, league_rank: int, wins: int,
+		draws: int, reached: Dictionary) -> float:
+	# UEFA 2024-27 club points: 2 per win and 1 per draw from the league phase
+	# onwards (the knockout play-off is excluded), a league-phase ranking bonus,
+	# and a participation bonus for each knockout round reached. UEL and UECL
+	# league phases also have a minimum.
+	var match_points := 2.0 * float(wins) + float(draws)
+	var bonus := _rank_bonus(competition, league_rank)
+	var per_round := 0.5
+	if competition == "ucl":
+		per_round = 1.5
+	elif competition == "uel":
+		per_round = 1.0
+	var knockout := 0.0
+	for round in ["r16", "qf", "semi", "final"]:
+		if bool(reached.get(round, false)):
+			knockout += per_round
+	var total_points := match_points + bonus + knockout
+	var minimum := 0.0
+	if competition == "uel":
+		minimum = 3.0
+	elif competition == "uecl":
+		minimum = 2.5
+	return maxf(total_points, minimum)
+
+
+static func _rank_bonus(competition: String, rank: int) -> float:
+	var position := clampi(rank, 1, 36)
+	if competition == "ucl":
+		if position < 9:
+			return 12.0 - 0.25 * float(position - 1)
+		if position < 17:
+			return 10.0 - 0.25 * float(position - 9)
+		if position < 25:
+			return 8.0 - 0.25 * float(position - 17)
+		return 6.0
+	if competition == "uel":
+		if position < 9:
+			return 6.0 - 0.25 * float(position - 1)
+		if position < 17:
+			return 4.0 - 0.25 * float(position - 9)
+		if position < 25:
+			return 2.0 - 0.25 * float(position - 17)
+		return 0.0
+	if position < 9:
+		return 4.0 - 0.25 * float(position - 1)
+	if position < 17:
+		return 2.0 - 0.125 * float(position - 9)
+	if position < 25:
+		return 1.0 - 0.125 * float(position - 17)
+	return 0.0
+
+
 static func coefficient(club_id: String) -> float:
 	var clubs = data().get("clubs", {})
 	if not (clubs is Dictionary):

@@ -89,6 +89,176 @@ static func draw(comp: String) -> Array:
 	return result
 
 
+static func ensure_knockout(career: Career) -> void:
+	# Add the knockout rounds of the career club's competition after its league
+	# phase is complete. One round is added at a time; the next one waits for the
+	# previous round's results. A competition already resolved at season end is
+	# left alone.
+	var blocks: Dictionary = career.data.get("continental", {})
+	var block = blocks.get(career.season_start, {})
+	if not (block is Dictionary) or block.is_empty():
+		return
+	var comp := CareerCompetitions._focus_competition(block, career.club_id)
+	if comp.is_empty():
+		return
+	var competition: Dictionary = block.get("competitions", {}).get(comp, {})
+	if competition.has("knockout"):
+		return
+	var league_fixtures: Array = []
+	for fixture in career.schedule:
+		if str(fixture.get("competition", "")) == comp \
+				and str(fixture.get("stage", "")) == comp:
+			league_fixtures.append(fixture)
+	if league_fixtures.is_empty() or not _all_played(career, league_fixtures):
+		return
+	var table := CareerContinental.table(career, comp)
+	if table.size() < 24:
+		return
+	var dates = competition.get("knockout_dates", [])
+	if not (dates is Array) or (dates as Array).is_empty():
+		dates = _knockout_dates(career)
+		competition["knockout_dates"] = dates
+	var entrants: Array = []
+	for row in table.slice(0, 24):
+		entrants.append(str(row.get("id", "")))
+	var stored: Dictionary = competition.get("knockout_entrants", {})
+	stored["0"] = entrants
+	competition["knockout_entrants"] = stored
+	var stage := {"rounds": CareerKnockout.ROUNDS}
+	var base := 0
+	for fixture in career.schedule:
+		base = maxi(base, int(fixture.get("round", 0)))
+	var offset := 0
+	for round_index in range(CareerKnockout.ROUNDS.size()):
+		var spec: Dictionary = CareerKnockout.ROUNDS[round_index]
+		var legs := maxi(1, int(spec.get("legs", 1)))
+		var existing := _round_fixtures(career, comp, round_index + 1)
+		if not existing.is_empty():
+			if not _all_played(career, existing):
+				return
+			if round_index == CareerKnockout.ROUNDS.size() - 1:
+				_store_champion(career, competition,
+					stored.get(str(round_index), []), existing)
+			offset += legs
+			continue
+		if round_index > 0:
+			var previous := _round_fixtures(career, comp, round_index)
+			if previous.is_empty() or not _all_played(career, previous):
+				return
+			var previous_entrants: Array = stored.get(str(round_index - 1), [])
+			career.data["results"] = CareerBrackets.settle_ties(
+				previous_entrants, previous, career.results, career.seed,
+				{"method": "extra_time_pens", "away_goals": false})
+			entrants = CareerBrackets.round_winners(previous_entrants, previous,
+				career.results)
+			stored[str(round_index)] = entrants
+			competition["knockout_entrants"] = stored
+		if entrants.is_empty():
+			return
+		var round_dates: Array = []
+		for leg in range(legs):
+			if offset + leg < (dates as Array).size():
+				round_dates.append(str(dates[offset + leg]))
+		var fixtures := CareerBrackets.round_fixtures(stage, round_index, entrants,
+			round_dates, "euro:%s:" % comp)
+		if legs == 2:
+			_flip_legs(fixtures)
+		for fixture in fixtures:
+			fixture["competition"] = comp
+			fixture["stage"] = "euro:" + comp
+			fixture["stage_round"] = round_index + 1
+			fixture["round"] = base + offset + int(fixture.get("leg", 0)) + 1
+			career.schedule.append(fixture)
+		_sort_schedule(career)
+		return
+
+
+static func _round_fixtures(career: Career, comp: String, stage_round: int) -> Array:
+	var rows: Array = []
+	for fixture in career.schedule:
+		if str(fixture.get("stage", "")) == "euro:" + comp \
+				and int(fixture.get("stage_round", 0)) == stage_round:
+			rows.append(fixture)
+	return rows
+
+
+static func _all_played(career: Career, fixtures: Array) -> bool:
+	for fixture in fixtures:
+		if not career.results.has(str(fixture.get("id", ""))):
+			return false
+	return true
+
+
+static func _store_champion(career: Career, competition: Dictionary,
+		entrants: Array, fixtures: Array) -> void:
+	if entrants.is_empty() or fixtures.is_empty():
+		return
+	career.data["results"] = CareerBrackets.settle_ties(entrants, fixtures,
+		career.results, career.seed,
+		{"method": "extra_time_pens", "away_goals": false})
+	var winners := CareerBrackets.round_winners(entrants, fixtures, career.results)
+	if winners.is_empty():
+		return
+	var winner := str(winners[0])
+	var runner := ""
+	for club_id in entrants:
+		if str(club_id) != winner:
+			runner = str(club_id)
+	competition["champion"] = winner
+	competition["runner_up"] = runner
+
+
+static func _flip_legs(fixtures: Array) -> void:
+	for fixture in fixtures:
+		var home := str(fixture.get("home", ""))
+		var away := str(fixture.get("away", ""))
+		fixture["home"] = away
+		fixture["away"] = home
+
+
+static func _sort_schedule(career: Career) -> void:
+	career.schedule.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var left := str(a.get("date", ""))
+		var right := str(b.get("date", ""))
+		if left != right:
+			return left < right
+		return str(a.get("id", "")) < str(b.get("id", "")))
+
+
+static func _knockout_dates(career: Career) -> Array:
+	var year := int(str(career.season_start).substr(0, 4)) + 1
+	var start := "%04d-02-15" % year
+	var end := "%04d-05-31" % year
+	var busy := {}
+	for fixture in career.schedule:
+		busy[str(fixture.get("date", ""))] = true
+	var ideal := CareerCalendar.round_dates(start, end, 9,
+		IntlCalendar.rules(), "world", busy)
+	var dates: Array = []
+	for date in ideal:
+		var chosen := str(date)
+		for step in range(0, 29):
+			var found := false
+			for offset in ([0] if step == 0 else [step, -step]):
+				var candidate := CareerSeason.add_days(str(date), offset)
+				if candidate < start or candidate > end or busy.has(candidate):
+					continue
+				var ok := true
+				for other in busy:
+					if absi(CareerSeason.days_between(candidate, str(other))) < 3:
+						ok = false
+						break
+				if ok:
+					chosen = candidate
+					found = true
+					break
+			if found:
+				break
+		dates.append(chosen)
+		busy[chosen] = true
+	return dates
+
+
 static func first_season(mode: String, focus_club: String) -> Dictionary:
 	last_error = ""
 	if not MODES.has(mode):
