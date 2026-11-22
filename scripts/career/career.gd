@@ -466,6 +466,13 @@ static func from_save(raw: Dictionary) -> Career:
 						"home": _as_int(score["pens"].get("home"), 0),
 						"away": _as_int(score["pens"].get("away"), 0),
 					}
+				if score.get("et") is Dictionary:
+					result["et"] = {
+						"home": _as_int(score["et"].get("home"), 0),
+						"away": _as_int(score["et"].get("away"), 0),
+					}
+				if score.has("decided_by"):
+					result["decided_by"] = str(score.get("decided_by", ""))
 				normalized[str(fixture_id)] = result
 		payload["results"] = normalized
 

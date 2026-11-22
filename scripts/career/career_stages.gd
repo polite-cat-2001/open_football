@@ -149,6 +149,27 @@ static func _take_top(table: Array, count: int, rank: int, result: Array,
 		index += 1
 
 
+static func tiebreak(stage: Dictionary, format: Dictionary) -> Dictionary:
+	# Competition default, stage override. Missing keys keep the classic rule:
+	# extra time and penalties, away goals off, away goals counted in extra time.
+	var rules := {
+		"method": "extra_time_pens",
+		"away_goals": false,
+		"away_goals_extra_time": true,
+	}
+	_merge_tiebreak(rules, format.get("tiebreak"))
+	_merge_tiebreak(rules, stage.get("tiebreak"))
+	return rules
+
+
+static func _merge_tiebreak(rules: Dictionary, value) -> void:
+	if not (value is Dictionary):
+		return
+	for key in ["method", "away_goals", "away_goals_extra_time"]:
+		if value.has(key):
+			rules[key] = value[key]
+
+
 static func build_stage(stage: Dictionary, entrants: Array, start_date: String,
 		end_date := "", rules: Array = [], scope := "world",
 		busy: Dictionary = {}, dates: Array = []) -> Array:

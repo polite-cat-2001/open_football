@@ -418,8 +418,43 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 	career.data["seasons_completed"] = int(career.data.get("seasons_completed", 0)) + 1
 	var next_ids_unique := _unique_ids(next_ids)
 	career.data["league_club_ids"] = next_ids_unique
+	var history := {}
+	history["league_id"] = str(review.get("league", {}).get("id", ""))
+	var season_history = career.data.get("season_history")
+	if season_history is Array and not (season_history as Array).is_empty():
+		var last: Dictionary = (season_history as Array)[-1]
+		history["league_rows"] = last.get("rows", [])
+		history["season_start"] = str(last.get("season_start", career.season_start))
+	if not (history.get("league_rows") is Array) or (history["league_rows"] as Array).is_empty():
+		history["league_rows"] = table
+		history["season_start"] = career.season_start
+	var archive: Array = career.data.get("competition_history") \
+		if career.data.get("competition_history") is Array else []
+	for entry in career.data.get("competitions", []):
+		if not (entry is Dictionary):
+			continue
+		if str(entry.get("kind", "")) not in ["cup", "super_cup"]:
+			continue
+		if str(entry.get("winner", "")).is_empty():
+			continue
+		var archived := false
+		for item in archive:
+			if str(item.get("season_start", "")) == career.season_start \
+					and str(item.get("id", "")) == str(entry.get("id", "")):
+				archived = true
+				break
+		if archived:
+			continue
+		archive.append({
+			"season_start": career.season_start,
+			"id": str(entry.get("id", "")),
+			"winner": str(entry.get("winner", "")),
+			"runner_up": str(entry.get("runner_up", "")),
+		})
+	career.data["competition_history"] = archive
+	history["cups"] = archive
 	var built := CareerCompetitions.build_season(catalog, career.league_id,
-		next_ids_unique, new_start)
+		next_ids_unique, new_start, history)
 	career.data["schedule"] = built.get("schedule", [])
 	career.data["stages_generated"] = built.get("stages_generated", {})
 	career.data["competitions"] = built.get("competitions", [])

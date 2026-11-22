@@ -140,8 +140,44 @@ func _run() -> void:
 			if str(fixture.get("competition", "")) == "ESCUP":
 				next_cup += 1
 		_check(next_cup == 26, "the next season installs a fresh cup: %d" % next_cup)
-		_check(career.data.get("competitions", []).size() == 2,
-			"the next season keeps the competition list")
+		_check(career.data.get("competitions", []).size() == 3,
+			"the next season keeps the list and adds the super cup")
+		var super_cup: Dictionary = {}
+		for item in career.data.get("competitions", []):
+			if str(item.get("id", "")) == "ESPSC":
+				super_cup = item
+		_check(not super_cup.is_empty(), "the Supercopa is installed in the second season")
+		if not super_cup.is_empty():
+			_check(super_cup.get("entrants", []).size() == 4,
+				"the Supercopa has four clubs")
+			_check(super_cup.get("rounds", []).size() == 2,
+				"the Supercopa has a semi-final and a final")
+			_check(super_cup.get("entrants", []).has(str(table[0].get("club_id", ""))),
+				"the league champion enters the Supercopa")
+			_check(super_cup.get("entrants", []).has(str(cup.get("winner", ""))),
+				"the cup winner enters the Supercopa")
+		for guard in range(4):
+			CareerCompetitions.ensure(career)
+			var pending := []
+			for fixture in career.schedule:
+				if str(fixture.get("competition", "")) == "ESPSC" \
+						and not career.results.has(str(fixture.get("id", ""))):
+					pending.append(fixture)
+			if pending.is_empty():
+				break
+			for fixture in pending:
+				career.data["results"][str(fixture.get("id", ""))] = \
+					CareerSeason.simulate(42, fixture, {})
+		_check(not CareerCompetitions.winner_of(career, "ESPSC").is_empty(),
+			"the Supercopa has a winner")
+		var reloaded := Career.from_save(career.to_save())
+		_check(reloaded != null, "the season with a super cup saves and loads")
+		if reloaded != null:
+			_check(CareerCompetitions.winner_of(reloaded, "ESPSC")
+				== CareerCompetitions.winner_of(career, "ESPSC"),
+				"the super cup winner survives the save")
+			_check(reloaded.data.get("competition_history", []).size() >= 1,
+				"the competition history survives the save")
 
 	_finish()
 

@@ -1,26 +1,42 @@
 {
  "checked": "2026-11-21",
- "_comment": "Non-league competitions. The field is every club of the named tiers that exists in the database; early amateur rounds outside the snapshot are not modelled. Round names and legs are derived from the field size: the last three rounds are quarter-final, semi and final, and `two_legged` names the rounds played over two legs. Starts are the first round the snapshot clubs can play, not the amateur preliminary date.",
+ "_comment": "Non-league competitions. The field is every club of the named tiers that exists in the database; early amateur rounds outside the snapshot are not modelled. Round names and legs are derived from the field size: the last three rounds are quarter-final, semi and final, and `two_legged` names the rounds played over two legs. Starts are the first round the snapshot clubs can play, not the amateur preliminary date. Super cups take last season's league and cup winners from the career history and are skipped in the first season.",
  "competitions": {
   "ESCUP": {
    "kind": "cup",
    "label": "Copa del Rey",
    "country": "Spain",
-   "tiers": [1, 2, 3, 4],
+   "tiers": [
+    1,
+    2,
+    3,
+    4
+   ],
    "start_md": "09-27",
    "end_md": "04-18",
-   "two_legged": ["semi"],
+   "two_legged": [
+    "semi"
+   ],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Copa_del_Rey",
    "confidence": "high",
-   "note": "126 clubs in the real 2025-26 edition; the field here is the Spanish clubs present in the snapshot. The four Supercopa clubs' round-of-32 entry and the two-legged preliminary round are not modelled separately."
+   "note": "126 clubs in the real 2025-26 edition; the field here is the Spanish clubs present in the snapshot. The four Supercopa clubs' round-of-32 entry and the two-legged preliminary round are not modelled separately.",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   }
   },
   "ENGFA": {
    "kind": "cup",
    "label": "FA Cup",
    "country": "England",
-   "tiers": [1, 2, 3, 4],
+   "tiers": [
+    1,
+    2,
+    3,
+    4
+   ],
    "start_md": "11-01",
    "end_md": "05-16",
    "two_legged": [],
@@ -28,27 +44,46 @@
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_FA_Cup",
    "confidence": "high",
-   "note": "124 clubs in the real first round proper; the field here is the 92 English clubs of tiers 1-4. Premier League and Championship clubs' third-round entry and the qualifying rounds are not modelled."
+   "note": "124 clubs in the real first round proper; the field here is the 92 English clubs of tiers 1-4. Premier League and Championship clubs' third-round entry and the qualifying rounds are not modelled.",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   }
   },
   "ENGLC": {
    "kind": "cup",
    "label": "EFL Cup",
    "country": "England",
-   "tiers": [1, 2, 3, 4],
+   "tiers": [
+    1,
+    2,
+    3,
+    4
+   ],
    "start_md": "08-15",
    "end_md": "03-22",
-   "two_legged": ["semi"],
+   "two_legged": [
+    "semi"
+   ],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_EFL_Cup",
    "confidence": "high",
-   "note": "The start is the league start; the 4-club preliminary round is not modelled. Semi-finals are the only two-legged round."
+   "note": "The start is the league start; the 4-club preliminary round is not modelled. Semi-finals are the only two-legged round.",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   }
   },
   "GERPOK": {
    "kind": "cup",
    "label": "DFB-Pokal",
    "country": "Germany",
-   "tiers": [1, 2, 3],
+   "tiers": [
+    1,
+    2,
+    3
+   ],
    "start_md": "08-15",
    "end_md": "05-23",
    "two_legged": [],
@@ -56,27 +91,43 @@
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_DFB-Pokal",
    "confidence": "high",
-   "note": "64 clubs in the real edition; the field here is the 56 German clubs of tiers 1-3. The regional cup winners' slots are not modelled."
+   "note": "64 clubs in the real edition; the field here is the 56 German clubs of tiers 1-3. The regional cup winners' slots are not modelled.",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   }
   },
   "ITACOP": {
    "kind": "cup",
    "label": "Coppa Italia",
    "country": "Italy",
-   "tiers": [1, 2],
+   "tiers": [
+    1,
+    2
+   ],
    "start_md": "08-23",
    "end_md": "05-13",
-   "two_legged": ["semi"],
+   "two_legged": [
+    "semi"
+   ],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Coppa_Italia",
    "confidence": "high",
-   "note": "44 clubs in the real edition (20 Serie A, 20 Serie B, 4 Serie C); the field here is the 40 clubs of tiers 1-2. The top eight Serie A clubs' round-of-16 entry is not modelled separately."
+   "note": "44 clubs in the real edition (20 Serie A, 20 Serie B, 4 Serie C); the field here is the 40 clubs of tiers 1-2. The top eight Serie A clubs' round-of-16 entry is not modelled separately.",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   }
   },
   "FRACOP": {
    "kind": "cup",
    "label": "Coupe de France",
    "country": "France",
-   "tiers": [1, 2],
+   "tiers": [
+    1,
+    2
+   ],
    "start_md": "11-01",
    "end_md": "05-22",
    "two_legged": [],
@@ -84,7 +135,96 @@
    "champion": "winner",
    "source": "https://fr.wikipedia.org/wiki/Coupe_de_France_de_football_2025-2026",
    "confidence": "high",
-   "note": "The real competition opens in May at regional level and the 18 Ligue 1 clubs enter at the round of 64. The start here is a proxy for the first round the snapshot clubs play; amateur rounds are not modelled."
+   "note": "The real competition opens in May at regional level and the 18 Ligue 1 clubs enter at the round of 64. The start here is a proxy for the first round the snapshot clubs play; amateur rounds are not modelled.",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   }
+  },
+  "ESPSC": {
+   "kind": "super_cup",
+   "label": "Supercopa de España",
+   "country": "Spain",
+   "league_tier": 1,
+   "cup": "ESCUP",
+   "teams": 4,
+   "start_md": "01-07",
+   "end_md": "01-11",
+   "neutral": true,
+   "source": "https://en.wikipedia.org/wiki/2026_Supercopa_de_Espa%C3%B1a",
+   "confidence": "high",
+   "note": "League winners and runners-up plus cup winners and runners-up; the next league club fills an overlap. Installed from the second career season.",
+   "tiebreak": {
+    "method": "extra_time_pens"
+   }
+  },
+  "ENGCS": {
+   "kind": "super_cup",
+   "label": "FA Community Shield",
+   "country": "England",
+   "league_tier": 1,
+   "cup": "ENGFA",
+   "teams": 2,
+   "start_md": "08-15",
+   "end_md": "08-18",
+   "neutral": true,
+   "source": "https://en.wikipedia.org/wiki/2025_FA_Community_Shield",
+   "confidence": "high",
+   "note": "League champions vs FA Cup winners; the league runner-up fills an overlap. The start is the league boundary, because the career calendar opens there.",
+   "tiebreak": {
+    "method": "pens"
+   }
+  },
+  "GERSC": {
+   "kind": "super_cup",
+   "label": "DFL-Supercup",
+   "country": "Germany",
+   "league_tier": 1,
+   "cup": "GERPOK",
+   "teams": 2,
+   "start_md": "08-16",
+   "end_md": "08-19",
+   "neutral": false,
+   "source": "https://en.wikipedia.org/wiki/2025_Franz_Beckenbauer_Supercup",
+   "confidence": "high",
+   "note": "League champions vs DFB-Pokal winners; the league runner-up fills an overlap.",
+   "tiebreak": {
+    "method": "extra_time_pens"
+   }
+  },
+  "ITASC": {
+   "kind": "super_cup",
+   "label": "Supercoppa Italiana",
+   "country": "Italy",
+   "league_tier": 1,
+   "cup": "ITACOP",
+   "teams": 4,
+   "start_md": "12-18",
+   "end_md": "12-22",
+   "neutral": true,
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Supercoppa_Italiana",
+   "confidence": "high",
+   "note": "League winners and runners-up plus cup winners and runners-up; the next league club fills an overlap.",
+   "tiebreak": {
+    "method": "extra_time_pens"
+   }
+  },
+  "FRASC": {
+   "kind": "super_cup",
+   "label": "Trophée des Champions",
+   "country": "France",
+   "league_tier": 1,
+   "cup": "FRACOP",
+   "teams": 2,
+   "start_md": "01-08",
+   "end_md": "01-11",
+   "neutral": true,
+   "source": "https://en.wikipedia.org/wiki/2025_Troph%C3%A9e_des_Champions",
+   "confidence": "high",
+   "note": "League champions vs Coupe de France winners; the league runner-up fills an overlap.",
+   "tiebreak": {
+    "method": "pens"
+   }
   }
  }
 }

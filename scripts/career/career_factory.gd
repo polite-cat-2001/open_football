@@ -422,7 +422,7 @@ static func _knockout_entrants(career: Career, format: Dictionary,
 	if not (career.data.get("results") is Dictionary):
 		career.data["results"] = {}
 	career.data["results"] = CareerBrackets.settle_ties(entrants, fixtures,
-		career.results, career.seed)
+		career.results, career.seed, CareerStages.tiebreak(stage, format))
 	return CareerBrackets.round_winners(entrants, fixtures, career.results)
 
 
@@ -443,7 +443,7 @@ static func stage_decided(career: Career, stage_id: String) -> Dictionary:
 		if not (career.data.get("results") is Dictionary):
 			career.data["results"] = {}
 		career.data["results"] = CareerBrackets.settle_ties(entrants, fixtures,
-			career.results, career.seed)
+			career.results, career.seed, CareerStages.tiebreak(stage, format))
 		var winners := CareerBrackets.round_winners(entrants, fixtures, career.results)
 		if winners.is_empty():
 			return {}

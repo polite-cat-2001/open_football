@@ -73,20 +73,29 @@ static func round_winners(entrants: Array, fixtures: Array,
 			winner = str(row.second)
 		elif second_goals == first_goals:
 			var last_result: Dictionary = row.get("last_result", {})
-			var pens = last_result.get("pens")
-			if pens is Dictionary:
-				var home_pens := int(pens.get("home", 0))
-				var away_pens := int(pens.get("away", 0))
-				winner = str(row.last_home) if home_pens > away_pens else str(row.last_away)
+			var decided := str(last_result.get("decided_by", ""))
+			if decided == "away_goals":
+				winner = str(row.first) \
+					if int(row.get("first_away", 0)) > int(row.get("second_away", 0)) \
+					else str(row.second)
+			else:
+				var pens = last_result.get("pens")
+				if pens is Dictionary:
+					var home_pens := int(pens.get("home", 0))
+					var away_pens := int(pens.get("away", 0))
+					winner = str(row.last_home) if home_pens > away_pens else str(row.last_away)
 		winners.append(winner)
 	return winners
 
 
 static func settle_ties(entrants: Array, fixtures: Array, results: Dictionary,
-		seed: int) -> Dictionary:
-	# A level tie after its last leg is decided by a shootout. Single-leg cup
-	# ties and level two-leg aggregates both end here, so the higher seed never
-	# advances on a draw. The pens are written into the last leg's result.
+		seed: int, rules: Dictionary = {}) -> Dictionary:
+	# A level tie is decided by the competition's tie-break: away goals first
+	# (two-legged ties only), then the extra-time method, then penalties. The
+	# extra time and shootout are written into the last leg's result.
+	var method := str(rules.get("method", "extra_time_pens"))
+	var away_goals := bool(rules.get("away_goals", false))
+	var away_extra := bool(rules.get("away_goals_extra_time", true))
 	for row in tie_results(entrants, fixtures, results):
 		if bool(row.get("bye", false)):
 			continue
@@ -95,10 +104,66 @@ static func settle_ties(entrants: Array, fixtures: Array, results: Dictionary,
 		if int(row.get("first_goals", 0)) != int(row.get("second_goals", 0)):
 			continue
 		var last_result: Dictionary = row.get("last_result", {})
-		if last_result.get("pens") is Dictionary:
+		if not str(last_result.get("decided_by", "")).is_empty() \
+				or last_result.get("pens") is Dictionary:
 			continue
-		last_result["pens"] = shootout(("%d:%s" % [seed, str(row.get("last_id", ""))]).hash())
+		var two_legged := (row.get("legs", []) as Array).size() >= 2
+		if away_goals and two_legged:
+			var first_away := int(row.get("first_away", 0))
+			var second_away := int(row.get("second_away", 0))
+			if first_away != second_away:
+				last_result["decided_by"] = "away_goals"
+				continue
+		if method == "pens":
+			last_result["pens"] = shootout(_seed(seed, "pens",
+				str(row.get("last_id", ""))))
+			last_result["decided_by"] = "pens"
+			continue
+		var extra := extra_time(_seed(seed, "et", str(row.get("last_id", ""))), method)
+		var first_home := str(row.get("last_home", "")) == str(row.get("first", ""))
+		var et_first := int(extra.get("home", 0)) if first_home else int(extra.get("away", 0))
+		var et_second := int(extra.get("away", 0)) if first_home else int(extra.get("home", 0))
+		last_result["home"] = int(last_result.get("home", 0)) + int(extra.get("home", 0))
+		last_result["away"] = int(last_result.get("away", 0)) + int(extra.get("away", 0))
+		last_result["et"] = extra
+		if method == "golden_goal" and (et_first > 0 or et_second > 0):
+			last_result["decided_by"] = "golden_goal"
+			continue
+		if int(row.get("first_goals", 0)) + et_first \
+				!= int(row.get("second_goals", 0)) + et_second:
+			last_result["decided_by"] = "extra_time"
+			continue
+		if away_goals and two_legged and away_extra:
+			var first_extra_away := 0 if first_home else int(extra.get("away", 0))
+			var second_extra_away := int(extra.get("away", 0)) if first_home else 0
+			if int(row.get("first_away", 0)) + first_extra_away \
+					!= int(row.get("second_away", 0)) + second_extra_away:
+				last_result["decided_by"] = "away_goals"
+				continue
+		last_result["pens"] = shootout(_seed(seed, "pens",
+			str(row.get("last_id", ""))))
+		last_result["decided_by"] = "pens"
 	return results
+
+
+static func extra_time(seed: int, method := "extra_time_pens") -> Dictionary:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	if method == "golden_goal":
+		for minute in range(30):
+			if rng.randf() < 0.5 / 30.0:
+				return {"home": 1, "away": 0}
+			if rng.randf() < 0.5 / 30.0:
+				return {"home": 0, "away": 1}
+		return {"home": 0, "away": 0}
+	return {
+		"home": CareerSeason.poisson(rng, 0.5),
+		"away": CareerSeason.poisson(rng, 0.5),
+	}
+
+
+static func _seed(seed: int, kind: String, fixture_id: String) -> int:
+	return ("%d:%s:%s" % [seed, kind, fixture_id]).hash()
 
 
 static func shootout(seed: int) -> Dictionary:
@@ -147,6 +212,8 @@ static func tie_results(entrants: Array, fixtures: Array,
 			continue
 		var first_goals := 0
 		var second_goals := 0
+		var first_away := 0
+		var second_away := 0
 		var played := 0
 		var last_result: Dictionary = {}
 		var last_home := ""
@@ -166,13 +233,16 @@ static func tie_results(entrants: Array, fixtures: Array,
 			if last_home == str(first):
 				first_goals += home_goals
 				second_goals += away_goals
+				second_away += away_goals
 			else:
 				first_goals += away_goals
 				second_goals += home_goals
+				first_away += away_goals
 		rows.append({
 			"first": str(first), "second": str(second), "bye": false,
 			"legs": legs, "played": played,
 			"first_goals": first_goals, "second_goals": second_goals,
+			"first_away": first_away, "second_away": second_away,
 			"last_result": last_result, "last_home": last_home,
 			"last_away": last_away, "last_id": last_id,
 		})

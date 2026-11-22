@@ -81,18 +81,21 @@ func _run() -> void:
 	var final_id := str(one_fixture[0].get("id", ""))
 	var drawn := {final_id: {"home": 2, "away": 2}}
 	var settled := CareerBrackets.settle_ties(["a", "b"], one_fixture, drawn, 7)
-	var pens = (settled[final_id] as Dictionary).get("pens")
-	_check(pens is Dictionary and int(pens.get("home", 0)) != int(pens.get("away", 0)),
-		"a drawn single-leg tie gets a shootout")
+	var pen_result: Dictionary = settled[final_id]
+	var pens = pen_result.get("pens")
+	_check(int(pen_result.get("home", 0)) != int(pen_result.get("away", 0))
+		or pens is Dictionary,
+		"extra time or a shootout decides the drawn single-leg tie")
+	var drawn_winner := str(CareerBrackets.round_winners(["a", "b"], one_fixture,
+		settled)[0])
+	var expected := "a" if int(pen_result.get("home", 0)) > int(pen_result.get("away", 0)) else "b"
 	if pens is Dictionary:
-		var drawn_winner := str(CareerBrackets.round_winners(["a", "b"], one_fixture,
-			settled)[0])
-		var expected := "a" if int(pens.get("home", 0)) > int(pens.get("away", 0)) else "b"
-		_check(drawn_winner == expected, "the shootout decides the drawn tie")
+		expected = "a" if int(pens.get("home", 0)) > int(pens.get("away", 0)) else "b"
+	_check(drawn_winner == expected, "the extra time or shootout decides the drawn tie")
 	var fresh := {final_id: {"home": 2, "away": 2}}
 	var again := CareerBrackets.settle_ties(["a", "b"], one_fixture, fresh, 7)
-	_check((again[final_id] as Dictionary).get("pens") == pens,
-		"the shootout is deterministic for the same seed")
+	_check(again[final_id] == pen_result,
+		"the extra time and shootout are deterministic for the same seed")
 	var decided := {final_id: {"home": 3, "away": 0}}
 	CareerBrackets.settle_ties(["a", "b"], one_fixture, decided, 7)
 	_check(not ((decided[final_id] as Dictionary).get("pens") is Dictionary),
@@ -108,6 +111,54 @@ func _run() -> void:
 		level)
 	_check(level_winners == ["a", "b"],
 		"a level two-leg aggregate falls to the higher seed without pens")
+
+	var pens_only := {final_id: {"home": 1, "away": 1}}
+	CareerBrackets.settle_ties(["a", "b"], one_fixture, pens_only, 7,
+		{"method": "pens"})
+	var pens_result: Dictionary = pens_only[final_id]
+	_check(not (pens_result.get("et") is Dictionary) \
+		and pens_result.get("pens") is Dictionary \
+		and str(pens_result.get("decided_by", "")) == "pens",
+		"the pens method skips extra time")
+
+	var away := {
+		"semis:00:0": {"home": 1, "away": 1},
+		"semis:00:1": {"home": 0, "away": 0},
+		"semis:01:0": {"home": 2, "away": 0},
+		"semis:01:1": {"home": 0, "away": 1},
+	}
+	CareerBrackets.settle_ties(["a", "b", "c", "d"], two_leg, away, 7,
+		{"method": "extra_time_pens", "away_goals": true})
+	var away_winners := CareerBrackets.round_winners(["a", "b", "c", "d"], two_leg,
+		away)
+	_check(away_winners == ["d", "b"], "away goals decide a level two-leg tie")
+	_check(str((away["semis:00:1"] as Dictionary).get("decided_by", "")) == "away_goals",
+		"the away-goals decision is recorded")
+	_check(not ((away["semis:00:1"] as Dictionary).get("et") is Dictionary),
+		"away goals skip extra time")
+
+	var golden_a := CareerBrackets.extra_time(11, "golden_goal")
+	var golden_b := CareerBrackets.extra_time(11, "golden_goal")
+	_check(golden_a == golden_b, "the golden goal is deterministic")
+	_check(int(golden_a.get("home", 0)) + int(golden_a.get("away", 0)) <= 1,
+		"a golden goal period ends on the first goal")
+	var golden_result := {final_id: {"home": 0, "away": 0}}
+	CareerBrackets.settle_ties(["a", "b"], one_fixture, golden_result, 7,
+		{"method": "golden_goal"})
+	var golden_decided := str((golden_result[final_id] as Dictionary).get("decided_by", ""))
+	_check(golden_decided in ["golden_goal", "pens"],
+		"a golden-goal tie ends in a goal or penalties: " + golden_decided)
+
+	var default_rules := CareerStages.tiebreak({}, {})
+	_check(str(default_rules.get("method", "")) == "extra_time_pens"
+		and not bool(default_rules.get("away_goals", true)),
+		"the default tiebreak is classic with away goals off")
+	var override := CareerStages.tiebreak(
+		{"tiebreak": {"away_goals": true}},
+		{"tiebreak": {"method": "pens"}})
+	_check(str(override.get("method", "")) == "pens"
+		and bool(override.get("away_goals", false)),
+		"a stage overrides only the keys it names")
 
 	print("== check_brackets: ", "PASS" if failures.is_empty() else "FAIL",
 		" (", failures.size(), " failures) ==")

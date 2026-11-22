@@ -8,6 +8,7 @@ const RECORDS_PATH := "res://assets/data/competitions.json"
 const REST_DAYS := 3
 const LEAGUE_PRIORITY := 3
 const CUP_PRIORITY := 1
+const SUPER_PRIORITY := 4
 
 static var last_error := ""
 static var _records: Dictionary = {}
@@ -24,7 +25,7 @@ static func records() -> Dictionary:
 
 
 static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Array,
-		season_start: String) -> Dictionary:
+		season_start: String, history: Dictionary = {}) -> Dictionary:
 	# The league is planned first, cups after it; both obey the rest rule, so a
 	# cup never lands next to a league round. A country without cup data keeps
 	# the old league-only schedule untouched.
@@ -68,6 +69,23 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 		var record: Dictionary = records()[competition_id]
 		if str(record.get("country", "")) != country_name:
 			continue
+		var kind := str(record.get("kind", "cup"))
+		if kind == "super_cup":
+			var super_entry := _super_entry(record, competition_id, history, league)
+			if super_entry.is_empty():
+				continue
+			entries.append(super_entry)
+			requests.append({
+				"id": str(competition_id), "priority": SUPER_PRIORITY,
+				"start": CareerCalendar.stage_date(year,
+					str(record.get("start_md", "")), str(season_start).substr(5)),
+				"end": CareerCalendar.stage_date(year,
+					str(record.get("end_md", "")), str(season_start).substr(5)),
+				"days": _total_days(super_entry.get("rounds", [])),
+			})
+			continue
+		if kind != "cup":
+			continue
 		if not _tier_allowed(league, record.get("tiers", [])):
 			continue
 		var field := _field(catalog, league, record.get("tiers", []))
@@ -82,7 +100,8 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 			"id": str(competition_id), "kind": "cup",
 			"label": str(record.get("label", competition_id)),
 			"country": str(record.get("country", "")),
-			"entrants": field, "rounds": rounds, "winner": null, "dates": [],
+			"entrants": field, "rounds": rounds, "winner": null,
+			"runner_up": null, "tiebreak": record.get("tiebreak", {}), "dates": [],
 		}
 		entries.append(entry)
 		requests.append({
@@ -98,7 +117,7 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 	var schedule: Array = built.get("schedule", [])
 	var base := _round_base(schedule, league_id)
 	for entry in entries:
-		if str(entry.get("kind", "")) != "cup":
+		if str(entry.get("kind", "")) == "league":
 			continue
 		entry["dates"] = plan.get(str(entry.get("id", "")), [])
 		_append_round(schedule, entry, 0, entry.get("entrants", []), base)
@@ -116,7 +135,9 @@ static func ensure(career: Career) -> void:
 		return
 	var changed := false
 	for entry in entries:
-		if not (entry is Dictionary) or str(entry.get("kind", "")) != "cup":
+		if not (entry is Dictionary):
+			continue
+		if str(entry.get("kind", "")) not in ["cup", "super_cup"]:
 			continue
 		if _ensure_cup(career, entry):
 			changed = true
@@ -157,6 +178,70 @@ static func _ensure_cup(career: Career, entry: Dictionary) -> bool:
 	return true
 
 
+static func _super_entry(record: Dictionary, competition_id: String,
+		history: Dictionary, league: Dictionary) -> Dictionary:
+	if int(league.get("tier", 0)) != int(record.get("league_tier", 1)):
+		return {}
+	if not str(history.get("league_id", "")).is_empty() \
+			and str(history.get("league_id", "")) != str(league.get("id", "")):
+		return {}
+	var teams := int(record.get("teams", 2))
+	var entrants := _super_entrants(record, history)
+	if entrants.size() < teams:
+		return {}
+	var rounds: Array = [{"name": "final", "legs": 1}]
+	if teams >= 4:
+		rounds = [{"name": "semi", "legs": 1}, {"name": "final", "legs": 1}]
+	return {
+		"id": str(competition_id), "kind": "super_cup",
+		"label": str(record.get("label", competition_id)),
+		"country": str(record.get("country", "")),
+		"entrants": entrants, "rounds": rounds, "winner": null,
+		"runner_up": null, "tiebreak": record.get("tiebreak", {}), "dates": [],
+	}
+
+
+static func _super_entrants(record: Dictionary, history: Dictionary) -> Array:
+	var teams := int(record.get("teams", 2))
+	var rows = history.get("league_rows", [])
+	var cups = history.get("cups", [])
+	var season_start := str(history.get("season_start", ""))
+	var cup: Dictionary = {}
+	if cups is Array:
+		for item in cups:
+			if not (item is Dictionary):
+				continue
+			if str(item.get("id", "")) != str(record.get("cup", "")):
+				continue
+			if not season_start.is_empty() \
+					and str(item.get("season_start", "")) != season_start:
+				continue
+			cup = item
+			break
+	var result: Array = []
+	if rows is Array and not rows.is_empty():
+		_append_id(result, str((rows[0] as Dictionary).get("club_id", "")))
+	if teams >= 4 and rows is Array and rows.size() >= 2:
+		_append_id(result, str((rows[1] as Dictionary).get("club_id", "")))
+	if not cup.is_empty():
+		_append_id(result, str(cup.get("winner", "")))
+		_append_id(result, str(cup.get("runner_up", "")))
+	if rows is Array:
+		for row in rows:
+			if result.size() >= teams:
+				break
+			_append_id(result, str((row as Dictionary).get("club_id", "")))
+	if result.size() < teams:
+		return []
+	return result.slice(0, teams)
+
+
+static func _append_id(result: Array, club_id: String) -> void:
+	if club_id.is_empty() or result.has(club_id):
+		return
+	result.append(club_id)
+
+
 static func _append_round(schedule: Array, entry: Dictionary, index: int,
 		entrants: Array, base: int) -> void:
 	var stage := {"rounds": entry.get("rounds", [])}
@@ -191,7 +276,7 @@ static func _entrants(career: Career, entry: Dictionary, index: int) -> Array:
 	var previous := _entrants(career, entry, index - 1)
 	var fixtures := _round_fixtures(career, str(entry.get("id", "")), index)
 	career.data["results"] = CareerBrackets.settle_ties(previous, fixtures,
-		career.results, career.seed)
+		career.results, career.seed, entry.get("tiebreak", {}))
 	return CareerBrackets.round_winners(previous, fixtures, career.results)
 
 
@@ -205,10 +290,14 @@ static func _set_winner(career: Career, entry: Dictionary) -> void:
 		return
 	var entrants := _entrants(career, entry, last)
 	career.data["results"] = CareerBrackets.settle_ties(entrants, fixtures,
-		career.results, career.seed)
+		career.results, career.seed, entry.get("tiebreak", {}))
 	var winners := CareerBrackets.round_winners(entrants, fixtures, career.results)
 	if not winners.is_empty():
 		entry["winner"] = str(winners[0])
+		for club_id in entrants:
+			if str(club_id) != str(winners[0]):
+				entry["runner_up"] = str(club_id)
+				break
 
 
 static func _round_fixtures(career: Career, competition_id: String,
