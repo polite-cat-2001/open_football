@@ -14,7 +14,8 @@ static func create(
 	club_id: int,
 	manager_name: String,
 	nationality_id: int,
-	seed := -1
+	seed := -1,
+	europe_mode := "none"
 ) -> Career:
 	last_error = ""
 	var manager := manager_name.strip_edges()
@@ -54,8 +55,19 @@ static func create(
 	var season_start := LeagueRegulations.nearest_boundary(league_id, Career.START_DATE)
 	if season_start.is_empty():
 		season_start = Career.START_DATE
+	var continental := {}
+	if europe_mode != "none":
+		var country_name := str(catalog.country_by_id(
+			int(catalog.league_by_id(league_id).get("country_id", 0))).get("name", ""))
+		if CareerEurope.uefa_association(country_name):
+			continental = CareerEurope.first_season(europe_mode, str(club_id))
+			if not CareerEurope.last_error.is_empty():
+				last_error = CareerEurope.last_error
+				return null
+		else:
+			europe_mode = "none"
 	var built := CareerCompetitions.build_season(catalog, league_id, league_ids,
-		season_start)
+		season_start, {}, continental, str(club_id))
 	var schedule: Array = built.get("schedule", [])
 	var stages_generated: Dictionary = built.get("stages_generated", {})
 	var competitions: Array = built.get("competitions", [])
@@ -84,6 +96,8 @@ static func create(
 		"schedule": schedule,
 		"stages_generated": stages_generated,
 		"competitions": competitions,
+		"europe_mode": europe_mode,
+		"continental": {season_start: continental} if not continental.is_empty() else {},
 		"seasons_completed": 0,
 		"schedule_version": SCHEDULE_VERSION,
 		"incoming_market_date": season_start,

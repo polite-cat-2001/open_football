@@ -28,14 +28,14 @@ func _run() -> void:
 	var clubs = data.get("clubs", {})
 	_check(clubs is Dictionary and clubs.size() >= 300,
 		"the snapshot has the club table: %d" % clubs.size())
-	_check(is_equal_approx(CareerCoefficients.coefficient("2864"), 147.5),
+	_check(is_equal_approx(CareerCoefficients.coefficient("27"), 147.5),
 		"Bayern Munich carries the published total")
-	_check(is_equal_approx(CareerCoefficients.coefficient("1864"), 113.25),
+	_check(is_equal_approx(CareerCoefficients.coefficient("131"), 113.25),
 		"Barcelona carries the published total")
 	_check(is_equal_approx(CareerCoefficients.coefficient("999999999"), 0.0),
 		"an unknown club starts at zero")
-	var sorted := CareerCoefficients.sorted_clubs(["1864", "2864", "999999999"])
-	_check(sorted == ["2864", "1864", "999999999"],
+	var sorted := CareerCoefficients.sorted_clubs(["131", "27", "999999999"])
+	_check(sorted == ["27", "131", "999999999"],
 		"the sort puts the higher coefficient first")
 
 	print("== check_club_coefficients: ",
