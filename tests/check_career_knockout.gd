@@ -65,6 +65,17 @@ func _run() -> void:
 		if top_eight.has(club_id):
 			top_in_playoff.append(club_id)
 	_check(top_in_playoff.is_empty(), "the top eight skip the play-off")
+	var r16_winners: Array = rounds[1].get("winners", [])
+	var expected_qf: Array = [
+		r16_winners[0], r16_winners[3], r16_winners[2], r16_winners[1],
+		r16_winners[6], r16_winners[5], r16_winners[4], r16_winners[7],
+	]
+	_check(rounds[2].get("entrants", []) == expected_qf,
+		"the quarter-finals follow the official path")
+	var qf_winners: Array = rounds[2].get("winners", [])
+	_check(rounds[3].get("entrants", []) == [
+		qf_winners[0], qf_winners[2], qf_winners[3], qf_winners[1]],
+		"the semi-finals follow the official path")
 	var seed_order := {}
 	for index in range(table.size()):
 		seed_order[str(table[index])] = index

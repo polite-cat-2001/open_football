@@ -37,6 +37,14 @@ static func play(catalog: TeamCatalog, table: Array, seed: int,
 	var played: Array = []
 	var current := entrants.slice(0, PLAYOFF_CLUBS)
 	for round_index in range(ROUNDS.size()):
+		if round_index == 2 and current.size() == 8:
+			# Official path: 1/8 winner vs 8/9 winner, 4/5 vs 5/12,
+			# 3/6 vs 6/11, 2/7 vs 7/10.
+			current = [current[0], current[3], current[2], current[1],
+				current[6], current[5], current[4], current[7]]
+		elif round_index == 3 and current.size() == 4:
+			# The two semi-finals: 1/8 vs 4/5 and 3/6 vs 2/7.
+			current = [current[0], current[2], current[3], current[1]]
 		var fixtures := CareerBrackets.round_fixtures(stage, round_index, current,
 			[], "ko:")
 		if int((ROUNDS[round_index] as Dictionary).get("legs", 1)) == 2:
