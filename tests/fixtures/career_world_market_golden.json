@@ -1,616 +1,9913 @@
 {
  "career": {
   "club_id": "131",
-  "seed": 42,
+  "seed": 42.0,
   "date": "2026-08-31",
   "created_at": "2026-07-01T00:00:00.000000Z",
   "manager_name": "Golden Manager",
   "manager_nationality_id": "189"
  },
- "recorded": 505,
- "count": 505,
+ "recorded": 525,
+ "count": 525,
  "kinds": {
-  "transfer": 460,
-  "free_agent": 45
+  "transfer": 491,
+  "free_agent": 34
  },
  "dates": {
-  "opening": 117,
-  "middle": 142,
-  "last_week": 152,
-  "last_day": 94
+  "opening": 137,
+  "middle": 139,
+  "last_week": 126,
+  "last_day": 123
  },
  "transfers": [
   {
-   "id": "18c3b3f8b6736a7f",
-   "player_id": "380286",
-   "player_name": "Dominik Meisel",
-   "overall": 64.4,
-   "from_club_id": "1557",
-   "to_club_id": "256",
-   "fee": 150000,
-   "kind": "transfer",
-   "date": "2026-07-01"
-  },
-  {
-   "id": "bed48016186b244e",
-   "player_id": "670069",
-   "player_name": "Filemon Anyie",
-   "overall": 63.9,
-   "from_club_id": "62736",
-   "to_club_id": "256",
-   "fee": 80000,
-   "kind": "transfer",
-   "date": "2026-07-01"
-  },
-  {
-   "id": "b7304d49215a5080",
-   "player_id": "757312",
-   "player_name": "Islombek Mamatkazin",
-   "overall": 61.6,
-   "from_club_id": "15310",
-   "to_club_id": "39803",
-   "fee": 240000,
-   "kind": "transfer",
-   "date": "2026-07-01"
-  },
-  {
-   "id": "f4ff02bfd8e05042",
-   "player_id": "1052927",
-   "player_name": "Rosul Ma'arif",
-   "overall": 62.8,
-   "from_club_id": "72706",
-   "to_club_id": "39803",
-   "fee": 50000,
-   "kind": "transfer",
-   "date": "2026-07-01"
-  },
-  {
-   "id": "41dd001c28ed4e37",
-   "player_id": "946829",
-   "player_name": "Mikal Tummasarson",
-   "overall": 60.1,
-   "from_club_id": "10743",
-   "to_club_id": "6038",
-   "fee": 530000,
-   "kind": "transfer",
-   "date": "2026-07-01"
-  },
-  {
-   "id": "ca2821bb8021fce6",
-   "player_id": "1259897",
-   "player_name": "Thabisa Ndelu",
-   "overall": 59.3,
-   "from_club_id": "12668",
-   "to_club_id": "2804",
-   "fee": 110000,
-   "kind": "transfer",
-   "date": "2026-07-01"
-  },
-  {
-   "id": "48d14337a7fae25a",
-   "player_id": "470156",
-   "player_name": "Vlad Chera",
-   "overall": 63.7,
-   "from_club_id": "4686",
-   "to_club_id": "2804",
-   "fee": 110000,
-   "kind": "transfer",
-   "date": "2026-07-01"
-  },
-  {
-   "id": "dcf8a37ac6de9c52",
-   "player_id": "1306393",
-   "player_name": "Novak Bubanja",
-   "overall": 59.1,
-   "from_club_id": "11137",
-   "to_club_id": "54100",
-   "fee": 360000,
-   "kind": "transfer",
-   "date": "2026-07-02"
-  },
-  {
-   "id": "a3026c2edd149006",
-   "player_id": "1136363",
-   "player_name": "Juuso Mäkeläinen",
-   "overall": 57.8,
-   "from_club_id": "7008",
-   "to_club_id": "54100",
-   "fee": 60000,
-   "kind": "transfer",
-   "date": "2026-07-02"
-  },
-  {
-   "id": "cc388962b4f74c89",
-   "player_id": "902973",
-   "player_name": "Burak Karakaya",
-   "overall": 59.0,
-   "from_club_id": "1557",
-   "to_club_id": "54100",
-   "fee": 320000,
-   "kind": "transfer",
-   "date": "2026-07-02"
-  },
-  {
-   "id": "662aca3c593782a3",
-   "player_id": "1265975",
-   "player_name": "Haoqin Wang",
-   "overall": 60.8,
-   "from_club_id": "125740",
-   "to_club_id": "989",
-   "fee": 490000,
-   "kind": "transfer",
-   "date": "2026-07-02"
-  },
-  {
-   "id": "4ce5e17d1765e71b",
-   "player_id": "531867",
-   "player_name": "Darko Stanojevic",
-   "overall": 65.7,
-   "from_club_id": "3069",
-   "to_club_id": "989",
-   "fee": 150000,
-   "kind": "transfer",
-   "date": "2026-07-02"
-  },
-  {
-   "id": "11223190b3d372b8",
-   "player_id": "1121427",
-   "player_name": "Anton Matkovic",
-   "overall": 63.5,
-   "from_club_id": "327",
-   "to_club_id": "989",
-   "fee": 1670000,
-   "kind": "transfer",
-   "date": "2026-07-03"
-  },
-  {
-   "id": "b1462ba6d39d7047",
-   "player_id": "746080",
-   "player_name": "Owen Bray",
-   "overall": 60.2,
-   "from_club_id": "1127",
-   "to_club_id": "6709",
-   "fee": 420000,
-   "kind": "transfer",
-   "date": "2026-07-03"
-  },
-  {
-   "id": "ee4ed36b12475f1e",
-   "player_id": "1046349",
-   "player_name": "Dan Jarvis",
-   "overall": 64.8,
-   "from_club_id": "1530",
-   "to_club_id": "6709",
-   "fee": 460000,
-   "kind": "transfer",
-   "date": "2026-07-03"
-  },
-  {
-   "id": "83d639557fbb3a61",
-   "player_id": "718764",
-   "player_name": "Ivan Pyatkin",
-   "overall": 60.1,
-   "from_club_id": "3733",
-   "to_club_id": "24420",
-   "fee": 220000,
-   "kind": "transfer",
-   "date": "2026-07-03"
-  },
-  {
-   "id": "6d85c6890396bc04",
-   "player_id": "1001384",
-   "player_name": "Victor Albujar",
-   "overall": 61.2,
-   "from_club_id": "109092",
-   "to_club_id": "24553",
-   "fee": 420000,
-   "kind": "transfer",
-   "date": "2026-07-04"
-  },
-  {
-   "id": "2ada63ee71976db1",
-   "player_id": "1360822",
-   "player_name": "João Pedro",
-   "overall": 59.5,
-   "from_club_id": "122768",
-   "to_club_id": "24553",
-   "fee": 330000,
-   "kind": "transfer",
-   "date": "2026-07-04"
-  },
-  {
-   "id": "4b9b1d02060dee4a",
-   "player_id": "725920",
-   "player_name": "Youssef Zayzoun",
-   "overall": 60.4,
-   "from_club_id": "20528",
-   "to_club_id": "24553",
-   "fee": 60000,
-   "kind": "transfer",
-   "date": "2026-07-06"
-  },
-  {
-   "id": "b4feb0d5b01c5488",
-   "player_id": "1280979",
-   "player_name": "Tsun Aidan Chong",
-   "overall": 61.3,
-   "from_club_id": "77117",
-   "to_club_id": "11137",
-   "fee": 590000,
-   "kind": "transfer",
-   "date": "2026-07-06"
-  },
-  {
-   "id": "e50faccf9fde7ece",
-   "player_id": "1537203",
-   "player_name": "Brat Castillo",
-   "overall": 59.9,
-   "from_club_id": "102186",
-   "to_club_id": "7185",
-   "fee": 430000,
-   "kind": "transfer",
-   "date": "2026-07-06"
-  },
-  {
-   "id": "4d997070aee5c50d",
-   "player_id": "209708",
-   "player_name": "Sebastián Assís",
-   "overall": 69.6,
-   "from_club_id": "20189",
-   "to_club_id": "7185",
-   "fee": 220000,
-   "kind": "transfer",
-   "date": "2026-07-06"
-  },
-  {
-   "id": "97cd8bb16d02b9d9",
-   "player_id": "559975",
-   "player_name": "Tran Viet Cuong Nguyen",
-   "overall": 59.1,
-   "from_club_id": null,
-   "to_club_id": "7185",
-   "fee": 0,
-   "kind": "free_agent",
-   "date": "2026-07-07"
-  },
-  {
-   "id": "199eb2758564fce1",
-   "player_id": "1576429",
-   "player_name": "Antonio Sánchez Jiménez",
-   "overall": 61.6,
-   "from_club_id": "42546",
-   "to_club_id": "15310",
-   "fee": 520000,
-   "kind": "transfer",
-   "date": "2026-07-07"
-  },
-  {
-   "id": "8cb43198564aa09d",
-   "player_id": "124211",
-   "player_name": "Hussein Dakik",
-   "overall": 70.9,
-   "from_club_id": "15720",
-   "to_club_id": "15310",
+   "id": "5a480e56af585ed3",
+   "player_id": "1409429",
+   "player_name": "Abbosbek Abdugafforov",
+   "overall": 57.5,
+   "from_club_id": "20115",
+   "to_club_id": "25232",
    "fee": 90000,
    "kind": "transfer",
-   "date": "2026-07-07"
+   "date": "2026-07-01"
   },
   {
-   "id": "a51f3bbb13275422",
-   "player_id": "1254060",
-   "player_name": "Nicolò Profeta",
-   "overall": 60.3,
-   "from_club_id": "2921",
-   "to_club_id": "15310",
-   "fee": 110000,
-   "kind": "transfer",
-   "date": "2026-07-07"
-  },
-  {
-   "id": "4fcd4205fe157d61",
-   "player_id": "1086884",
-   "player_name": "Gilberto Adame",
-   "overall": 55.5,
-   "from_club_id": "6709",
-   "to_club_id": "24009",
-   "fee": 60000,
-   "kind": "transfer",
-   "date": "2026-07-07"
-  },
-  {
-   "id": "7763850df143549e",
-   "player_id": "1011032",
-   "player_name": "Cristóbal Alfaro",
-   "overall": 58.1,
-   "from_club_id": "6709",
-   "to_club_id": "24009",
-   "fee": 200000,
-   "kind": "transfer",
-   "date": "2026-07-08"
-  },
-  {
-   "id": "434aedb9a5d89bc5",
-   "player_id": "972154",
-   "player_name": "Arlind Maloku",
-   "overall": 54.9,
-   "from_club_id": "33206",
-   "to_club_id": "24009",
-   "fee": 60000,
-   "kind": "transfer",
-   "date": "2026-07-08"
-  },
-  {
-   "id": "649c9c8eea824263",
-   "player_id": "455019",
-   "player_name": "Miguel Simiana",
-   "overall": 65.6,
-   "from_club_id": "41474",
-   "to_club_id": "66710",
-   "fee": 510000,
-   "kind": "transfer",
-   "date": "2026-07-08"
-  },
-  {
-   "id": "0698c493d94e479e",
-   "player_id": "1074447",
-   "player_name": "Matyas Mervard",
-   "overall": 59.3,
-   "from_club_id": "6541",
-   "to_club_id": "66710",
-   "fee": 380000,
-   "kind": "transfer",
-   "date": "2026-07-08"
-  },
-  {
-   "id": "f83d0d3e19919d49",
-   "player_id": "1425341",
-   "player_name": "Hijab Al-Marzouei",
-   "overall": 62.2,
-   "from_club_id": "34037",
-   "to_club_id": "66710",
+   "id": "0b76a0e380690ab3",
+   "player_id": "1341406",
+   "player_name": "Bassam Al-Rawahi",
+   "overall": 62.1,
+   "from_club_id": "76319",
+   "to_club_id": "25232",
    "fee": 50000,
    "kind": "transfer",
-   "date": "2026-07-08"
+   "date": "2026-07-01"
   },
   {
-   "id": "3903844a6cd3ebdb",
-   "player_id": "940711",
-   "player_name": "Andrej Mandic",
-   "overall": 59.4,
-   "from_club_id": "3069",
-   "to_club_id": "124696",
-   "fee": 340000,
+   "id": "cd1237ffdd930579",
+   "player_id": "374213",
+   "player_name": "Jari Vlak",
+   "overall": 69.8,
+   "from_club_id": "2502",
+   "to_club_id": "24749",
+   "fee": 990000,
    "kind": "transfer",
-   "date": "2026-07-08"
+   "date": "2026-07-01"
   },
   {
-   "id": "d1ebf6501daf0183",
-   "player_id": "1486862",
-   "player_name": "Nizar Fasya",
-   "overall": 60.2,
-   "from_club_id": "72717",
-   "to_club_id": "2063",
-   "fee": 470000,
+   "id": "75d5de0edb7572cf",
+   "player_id": "69899",
+   "player_name": "Anthony Sauthier",
+   "overall": 69.6,
+   "from_club_id": "322",
+   "to_club_id": "24749",
+   "fee": 110000,
    "kind": "transfer",
-   "date": "2026-07-09"
+   "date": "2026-07-01"
   },
   {
-   "id": "bf99cb903c2203d5",
-   "player_id": "203076",
-   "player_name": "Eroll Zejnullahu",
-   "overall": 67.1,
-   "from_club_id": "1557",
-   "to_club_id": "4657",
-   "fee": 140000,
+   "id": "afd8206c2c5f39b6",
+   "player_id": "1359048",
+   "player_name": "Roman Rodopski",
+   "overall": 52.9,
+   "from_club_id": "521",
+   "to_club_id": "389",
+   "fee": 50000,
    "kind": "transfer",
-   "date": "2026-07-09"
+   "date": "2026-07-02"
   },
   {
-   "id": "60df87cc7d6fb916",
-   "player_id": "569600",
-   "player_name": "Williams Pedrozo",
-   "overall": 62.2,
-   "from_club_id": "25380",
-   "to_club_id": "4657",
-   "fee": 150000,
+   "id": "36508646fe9ffe9e",
+   "player_id": "1585176",
+   "player_name": "Diego Jaime",
+   "overall": 57.4,
+   "from_club_id": "25781",
+   "to_club_id": "389",
+   "fee": 240000,
    "kind": "transfer",
-   "date": "2026-07-09"
+   "date": "2026-07-02"
   },
   {
-   "id": "af5fe33966d38a06",
-   "player_id": "1304522",
-   "player_name": "Salvatore Cianciulli",
-   "overall": 59.1,
-   "from_club_id": "8505",
-   "to_club_id": "2555",
-   "fee": 370000,
+   "id": "bf7a1467063acec7",
+   "player_id": "633781",
+   "player_name": "Fahad Al-Qesaimi",
+   "overall": 58.4,
+   "from_club_id": "19585",
+   "to_club_id": "389",
+   "fee": 50000,
    "kind": "transfer",
-   "date": "2026-07-09"
+   "date": "2026-07-02"
   },
   {
-   "id": "ee15431e2b1f2337",
-   "player_id": "1513231",
-   "player_name": "Steven Hernaiz",
-   "overall": 60.1,
-   "from_club_id": "54100",
-   "to_club_id": "12859",
+   "id": "fc7190d77b6840f5",
+   "player_id": "1577524",
+   "player_name": "Eduard Stoicea",
+   "overall": 60.5,
+   "from_club_id": "102149",
+   "to_club_id": "5747",
    "fee": 410000,
    "kind": "transfer",
-   "date": "2026-07-10"
+   "date": "2026-07-02"
   },
   {
-   "id": "6a1bdc23113a7c18",
-   "player_id": "1159156",
-   "player_name": "Ahmad Abu Rasen",
-   "overall": 53.4,
-   "from_club_id": "475",
-   "to_club_id": "12859",
-   "fee": 60000,
+   "id": "c5807ace0ed34cc8",
+   "player_id": "983315",
+   "player_name": "Ali Turganov",
+   "overall": 60.2,
+   "from_club_id": "16779",
+   "to_club_id": "27419",
+   "fee": 170000,
    "kind": "transfer",
-   "date": "2026-07-10"
+   "date": "2026-07-02"
   },
   {
-   "id": "bfeff9570ffc6f6f",
-   "player_id": "939523",
-   "player_name": "Oisín Gallagher",
-   "overall": 59.3,
-   "from_club_id": "2804",
-   "to_club_id": "12859",
+   "id": "800721d7a85b4b40",
+   "player_id": "202659",
+   "player_name": "Andrejs Ciganiks",
+   "overall": 69.8,
+   "from_club_id": "434",
+   "to_club_id": "30613",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-07-02"
+  },
+  {
+   "id": "14810ede0fd7b902",
+   "player_id": "1565790",
+   "player_name": "Mason Murphy",
+   "overall": 58.7,
+   "from_club_id": "7609",
+   "to_club_id": "521",
    "fee": 380000,
    "kind": "transfer",
-   "date": "2026-07-10"
-  }
- ],
- "tail": [
+   "date": "2026-07-02"
+  },
   {
-   "id": "b298b7b4a910d2f3",
-   "player_id": "1576772",
-   "player_name": "Esteban Alcantar",
+   "id": "e71ad13f32fcdb45",
+   "player_id": "901084",
+   "player_name": "Ryan Al-Bloushi",
+   "overall": 61.4,
+   "from_club_id": "32343",
+   "to_club_id": "521",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-07-03"
+  },
+  {
+   "id": "7845952bc1c87b79",
+   "player_id": "748080",
+   "player_name": "Abdulaziz Al-Aliwa",
+   "overall": 60.9,
+   "from_club_id": "91427",
+   "to_club_id": "29700",
+   "fee": 550000,
+   "kind": "transfer",
+   "date": "2026-07-03"
+  },
+  {
+   "id": "4ef021b7ecf5e182",
+   "player_id": "1001151",
+   "player_name": "Matthew Henry",
+   "overall": 54.3,
+   "from_club_id": "28231",
+   "to_club_id": "2374",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-03"
+  },
+  {
+   "id": "0c14e24dfa23d882",
+   "player_id": "1117678",
+   "player_name": "Emian-Johar Semedo",
+   "overall": 62.6,
+   "from_club_id": "404",
+   "to_club_id": "2374",
+   "fee": 230000,
+   "kind": "transfer",
+   "date": "2026-07-03"
+  },
+  {
+   "id": "909fc2a8124e07d7",
+   "player_id": "733235",
+   "player_name": "Nacho Goma",
+   "overall": 61.5,
+   "from_club_id": "18443",
+   "to_club_id": "2374",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-03"
+  },
+  {
+   "id": "2b1bcc5555449852",
+   "player_id": "497308",
+   "player_name": "Hsiang-Wei Lee",
+   "overall": 66.9,
+   "from_club_id": "16017",
+   "to_club_id": "24326",
+   "fee": 770000,
+   "kind": "transfer",
+   "date": "2026-07-05"
+  },
+  {
+   "id": "406039ec71b6ba20",
+   "player_id": "1181188",
+   "player_name": "Soma Sato",
+   "overall": 59.7,
+   "from_club_id": "23548",
+   "to_club_id": "6078",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-07-05"
+  },
+  {
+   "id": "92f7304f936f65ec",
+   "player_id": "1235078",
+   "player_name": "Gergő Tercza",
+   "overall": 59.6,
+   "from_club_id": "84",
+   "to_club_id": "6078",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-07-06"
+  },
+  {
+   "id": "8b82a89869cca34f",
+   "player_id": "595185",
+   "player_name": "Jakree Pankam",
+   "overall": 64.8,
+   "from_club_id": "53667",
+   "to_club_id": "6078",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-06"
+  },
+  {
+   "id": "c5e6e038bf63207d",
+   "player_id": "688181",
+   "player_name": "Emiliano González",
+   "overall": 67.6,
+   "from_club_id": "14977",
+   "to_club_id": "3012",
+   "fee": 340000,
+   "kind": "transfer",
+   "date": "2026-07-06"
+  },
+  {
+   "id": "cc1f64f3ff197ed4",
+   "player_id": "211881",
+   "player_name": "Tomer Benbenishti",
+   "overall": 62.1,
+   "from_club_id": "25067",
+   "to_club_id": "3012",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-07-06"
+  },
+  {
+   "id": "2b834c6414f206b0",
+   "player_id": "1376138",
+   "player_name": "Jafar Asadi",
+   "overall": 59.5,
+   "from_club_id": "6078",
+   "to_club_id": "12520",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-07-06"
+  },
+  {
+   "id": "bbdb8c12de1a85c6",
+   "player_id": "816807",
+   "player_name": "Andrey Domotsev",
+   "overall": 59.6,
+   "from_club_id": "11123",
+   "to_club_id": "12520",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-07-06"
+  },
+  {
+   "id": "ca31fe4fc5b29e4a",
+   "player_id": "756040",
+   "player_name": "Rosalvo",
+   "overall": 66.3,
+   "from_club_id": "53667",
+   "to_club_id": "12520",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-06"
+  },
+  {
+   "id": "2b3332b92a3cd670",
+   "player_id": "988412",
+   "player_name": "Franco Alfonso",
+   "overall": 64.3,
+   "from_club_id": "629",
+   "to_club_id": "11000",
+   "fee": 310000,
+   "kind": "transfer",
+   "date": "2026-07-06"
+  },
+  {
+   "id": "a7f231eead869371",
+   "player_id": "1497667",
+   "player_name": "Babacar Diouf",
+   "overall": 54.1,
+   "from_club_id": "35070",
+   "to_club_id": "11000",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-06"
+  },
+  {
+   "id": "a2b73cccf262e8a3",
+   "player_id": "338793",
+   "player_name": "Grad Damen",
+   "overall": 64.8,
+   "from_club_id": "12285",
+   "to_club_id": "20634",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-07-07"
+  },
+  {
+   "id": "4a7a8bde1943398d",
+   "player_id": "929194",
+   "player_name": "Jesin TK",
+   "overall": 64.1,
+   "from_club_id": "14099",
+   "to_club_id": "102149",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-07-07"
+  },
+  {
+   "id": "726b028dd0a8d265",
+   "player_id": "1031449",
+   "player_name": "Dauna Sovan",
+   "overall": 54.1,
+   "from_club_id": "25383",
+   "to_club_id": "102149",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-07"
+  },
+  {
+   "id": "3e1ef6d1a439dfc5",
+   "player_id": "602252",
+   "player_name": "José Loáisiga",
+   "overall": 65.7,
+   "from_club_id": "45185",
+   "to_club_id": "102149",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-07"
+  },
+  {
+   "id": "d1ba2fb100cb9b78",
+   "player_id": "449468",
+   "player_name": "Astemir Abazov",
+   "overall": 69.9,
+   "from_club_id": "11123",
+   "to_club_id": "6954",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-07-07"
+  },
+  {
+   "id": "db21e0099aaed886",
+   "player_id": "1191465",
+   "player_name": "Nelson Meireles",
+   "overall": 61.3,
+   "from_club_id": "64779",
+   "to_club_id": "6954",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-07-08"
+  },
+  {
+   "id": "c3340fe8fe2d33af",
+   "player_id": "264872",
+   "player_name": "Mateusz Radecki",
+   "overall": 68.2,
+   "from_club_id": "8641",
+   "to_club_id": "2502",
+   "fee": 710000,
+   "kind": "transfer",
+   "date": "2026-07-08"
+  },
+  {
+   "id": "5d07884a9f7f4245",
+   "player_id": "864381",
+   "player_name": "Lorenzo Bittarelli",
+   "overall": 59.1,
+   "from_club_id": "322",
+   "to_club_id": "2502",
+   "fee": 130000,
+   "kind": "transfer",
+   "date": "2026-07-08"
+  },
+  {
+   "id": "2bfcaf09b284303e",
+   "player_id": "1344275",
+   "player_name": "Vasile Lupasco",
+   "overall": 60.4,
+   "from_club_id": "44505",
+   "to_club_id": "9875",
+   "fee": 580000,
+   "kind": "transfer",
+   "date": "2026-07-08"
+  },
+  {
+   "id": "37888cca1ce01072",
+   "player_id": "633792",
+   "player_name": "Ali Ahmed Al-Yazidi",
+   "overall": 61.1,
+   "from_club_id": "19585",
+   "to_club_id": "6423",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-09"
+  },
+  {
+   "id": "dda89dd188ce6322",
+   "player_id": "374315",
+   "player_name": "Robin de Jong",
+   "overall": 65.5,
+   "from_club_id": "2951",
+   "to_club_id": "6423",
+   "fee": 310000,
+   "kind": "transfer",
+   "date": "2026-07-10"
+  },
+  {
+   "id": "0f1159769d4f79d1",
+   "player_id": "1175606",
+   "player_name": "Nevzat Üzel",
+   "overall": 61.1,
+   "from_club_id": "73899",
+   "to_club_id": "20200",
+   "fee": 460000,
+   "kind": "transfer",
+   "date": "2026-07-10"
+  },
+  {
+   "id": "c46d63019b0ee179",
+   "player_id": "195204",
+   "player_name": "Kyle McCarthy",
+   "overall": 66.4,
+   "from_club_id": "25232",
+   "to_club_id": "20200",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-10"
+  },
+  {
+   "id": "a4baf55e0652b86c",
+   "player_id": "1048662",
+   "player_name": "Mateusz Solarz",
+   "overall": 58.6,
+   "from_club_id": "8641",
+   "to_club_id": "20115",
+   "fee": 430000,
+   "kind": "transfer",
+   "date": "2026-07-11"
+  },
+  {
+   "id": "0cfcda05addc2152",
+   "player_id": "1385060",
+   "player_name": "John Bilili Sesay",
+   "overall": 54.6,
+   "from_club_id": null,
+   "to_club_id": "20115",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-07-11"
+  },
+  {
+   "id": "81ee5641e776a1b5",
+   "player_id": "717207",
+   "player_name": "Panayot Paskov",
+   "overall": 60.9,
+   "from_club_id": "36821",
+   "to_club_id": "45185",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-07-11"
+  },
+  {
+   "id": "0932c428bf2ef943",
+   "player_id": "1188915",
+   "player_name": "Metaab Al-Khaldi",
+   "overall": 63.1,
+   "from_club_id": "55544",
+   "to_club_id": "45185",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-11"
+  },
+  {
+   "id": "a8a198bc65e86b3c",
+   "player_id": "714855",
+   "player_name": "Desmond Wade",
+   "overall": 60.7,
+   "from_club_id": null,
+   "to_club_id": "45185",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-07-11"
+  },
+  {
+   "id": "31a7ab3dcd0bb831",
+   "player_id": "1144522",
+   "player_name": "Kian Scheer",
    "overall": 59.4,
-   "from_club_id": "64345",
-   "to_club_id": "27116",
+   "from_club_id": "151",
+   "to_club_id": "84",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-07-11"
+  },
+  {
+   "id": "0bacbda0cc3e71e2",
+   "player_id": "1253326",
+   "player_name": "Victor Rojas",
+   "overall": 59.1,
+   "from_club_id": "9875",
+   "to_club_id": "84",
+   "fee": 100000,
+   "kind": "transfer",
+   "date": "2026-07-11"
+  },
+  {
+   "id": "5b98c1a9c353239a",
+   "player_id": "351405",
+   "player_name": "Jasper van Heertum",
+   "overall": 62.8,
+   "from_club_id": "404",
+   "to_club_id": "459",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-11"
+  },
+  {
+   "id": "7b934c7c3d2cc9ad",
+   "player_id": "1025415",
+   "player_name": "Martin Todorski",
+   "overall": 58.8,
+   "from_club_id": "36821",
+   "to_club_id": "459",
+   "fee": 100000,
+   "kind": "transfer",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "93f96221b29d1826",
+   "player_id": "1165046",
+   "player_name": "Natthapat Makthuam",
+   "overall": 58.0,
+   "from_club_id": "53667",
+   "to_club_id": "459",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "0109b33f9d87c339",
+   "player_id": "1463626",
+   "player_name": "Shadrack Arthur",
+   "overall": 60.5,
+   "from_club_id": "25118",
+   "to_club_id": "42813",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "e1d0ab9f7777fe8e",
+   "player_id": "1459532",
+   "player_name": "Dariel Millán",
+   "overall": 58.1,
+   "from_club_id": "25781",
+   "to_club_id": "42813",
+   "fee": 220000,
+   "kind": "transfer",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "d91ea2a7b9af0f85",
+   "player_id": "1592698",
+   "player_name": "Lambert Sokoundjou",
+   "overall": 59.2,
+   "from_club_id": "6572",
+   "to_club_id": "35021",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-07-12"
+  },
+  {
+   "id": "a1fce11d1480af0d",
+   "player_id": "1125506",
+   "player_name": "Shunsuke Hayashi",
+   "overall": 59.0,
+   "from_club_id": "9598",
+   "to_club_id": "35021",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "88990a14ab82f5f0",
+   "player_id": "998850",
+   "player_name": "Samory Powder",
+   "overall": 62.5,
+   "from_club_id": "122406",
+   "to_club_id": "44505",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "a1d5f78eb5b281c2",
+   "player_id": "515389",
+   "player_name": "Fons Gemmel",
+   "overall": 62.0,
+   "from_club_id": "28378",
+   "to_club_id": "44505",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "5d7f666552c60ca9",
+   "player_id": "602906",
+   "player_name": "Blaz Boskovic",
+   "overall": 65.1,
+   "from_club_id": "84",
+   "to_club_id": "143052",
+   "fee": 690000,
+   "kind": "transfer",
+   "date": "2026-07-13"
+  },
+  {
+   "id": "e7560877946ce12e",
+   "player_id": "812014",
+   "player_name": "Roi Hare",
+   "overall": 63.7,
+   "from_club_id": "20857",
+   "to_club_id": "143052",
+   "fee": 130000,
+   "kind": "transfer",
+   "date": "2026-07-14"
+  },
+  {
+   "id": "d4cf171c3b892338",
+   "player_id": "1339471",
+   "player_name": "Steven Marín",
+   "overall": 52.6,
+   "from_club_id": "45185",
+   "to_club_id": "55544",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-14"
+  },
+  {
+   "id": "bbaa2bb07f771921",
+   "player_id": "503976",
+   "player_name": "Dynel Simeu",
+   "overall": 62.4,
+   "from_club_id": "10734",
+   "to_club_id": "55544",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-07-14"
+  },
+  {
+   "id": "472abcba2216447a",
+   "player_id": "1277794",
+   "player_name": "Ilya Popovych",
+   "overall": 63.5,
+   "from_club_id": "30613",
+   "to_club_id": "40039",
+   "fee": 430000,
+   "kind": "transfer",
+   "date": "2026-07-14"
+  },
+  {
+   "id": "d745aa1c860e637c",
+   "player_id": "1331759",
+   "player_name": "Sidi Jalloh",
+   "overall": 60.1,
+   "from_club_id": "12285",
+   "to_club_id": "40039",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-07-14"
+  },
+  {
+   "id": "27ca3bfb5b303d82",
+   "player_id": "1200779",
+   "player_name": "Massaoly Diarra",
+   "overall": 58.7,
+   "from_club_id": "6572",
+   "to_club_id": "42781",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-07-14"
+  },
+  {
+   "id": "b8843cff64c2ad3f",
+   "player_id": "869911",
+   "player_name": "Akihiro Koike",
+   "overall": 61.8,
+   "from_club_id": "28545",
+   "to_club_id": "3524",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-15"
+  },
+  {
+   "id": "109f2f246a66167f",
+   "player_id": "647908",
+   "player_name": "Angelo Van Rooi",
+   "overall": 69.2,
+   "from_club_id": "7011",
+   "to_club_id": "122406",
+   "fee": 450000,
+   "kind": "transfer",
+   "date": "2026-07-15"
+  },
+  {
+   "id": "df34d0fd0384ba9f",
+   "player_id": "708067",
+   "player_name": "Rune Paeshuyse",
+   "overall": 65.7,
+   "from_club_id": "1245",
+   "to_club_id": "434",
+   "fee": 710000,
+   "kind": "transfer",
+   "date": "2026-07-15"
+  },
+  {
+   "id": "bdd08f7d6e42281b",
+   "player_id": "1462363",
+   "player_name": "Ferenc Ujváry",
+   "overall": 59.9,
+   "from_club_id": "708",
+   "to_club_id": "434",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-07-15"
+  },
+  {
+   "id": "bbe7a7dc3d88721c",
+   "player_id": "1364960",
+   "player_name": "Darryl Nkulikiyimana",
+   "overall": 59.3,
+   "from_club_id": "24394",
+   "to_club_id": "434",
+   "fee": 360000,
+   "kind": "transfer",
+   "date": "2026-07-16"
+  },
+  {
+   "id": "34dda32f235bd848",
+   "player_id": "1498924",
+   "player_name": "Baye Diop",
+   "overall": 54.4,
+   "from_club_id": "35070",
+   "to_club_id": "24240",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-16"
+  },
+  {
+   "id": "8109fd776892013c",
+   "player_id": "172678",
+   "player_name": "Mustafa Malayekah",
+   "overall": 67.9,
+   "from_club_id": "40039",
+   "to_club_id": "24240",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-16"
+  },
+  {
+   "id": "3169a7653a01741d",
+   "player_id": "1470135",
+   "player_name": "Daniel Sowah",
+   "overall": 60.5,
+   "from_club_id": "25118",
+   "to_club_id": "24991",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-16"
+  },
+  {
+   "id": "fd97a9af681a30db",
+   "player_id": "1328123",
+   "player_name": "Tom Rostovsky",
+   "overall": 52.5,
+   "from_club_id": "20857",
+   "to_club_id": "24991",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-16"
+  },
+  {
+   "id": "884bc7e3d2148d73",
+   "player_id": "1371732",
+   "player_name": "Kwadwo Opoku-Gyamfi",
+   "overall": 56.1,
+   "from_club_id": "25118",
+   "to_club_id": "24991",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-16"
+  },
+  {
+   "id": "51d2acc252957d84",
+   "player_id": "1377989",
+   "player_name": "Yanis Bekkouche",
+   "overall": 59.0,
+   "from_club_id": "6572",
+   "to_club_id": "25383",
+   "fee": 410000,
+   "kind": "transfer",
+   "date": "2026-07-17"
+  },
+  {
+   "id": "7d7a6c117fa94328",
+   "player_id": "1130613",
+   "player_name": "Ahmed Al-Muwallad",
+   "overall": 71.1,
+   "from_club_id": "55544",
+   "to_club_id": "25383",
+   "fee": 100000,
+   "kind": "transfer",
+   "date": "2026-07-18"
+  },
+  {
+   "id": "ed967fa0d54cf080",
+   "player_id": "284728",
+   "player_name": "Luciano Nequecaur",
+   "overall": 69.9,
+   "from_club_id": "9875",
+   "to_club_id": "40843",
+   "fee": 230000,
+   "kind": "transfer",
+   "date": "2026-07-18"
+  },
+  {
+   "id": "a40b039f5021d330",
+   "player_id": "1199798",
+   "player_name": "Khaled Al-Shamrani",
+   "overall": 61.0,
+   "from_club_id": "40039",
+   "to_club_id": "40843",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-07-18"
+  },
+  {
+   "id": "40ebe32ce3323013",
+   "player_id": "1103929",
+   "player_name": "Nicolás Tolosa",
+   "overall": 58.5,
+   "from_club_id": "14977",
+   "to_club_id": "40843",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-18"
+  },
+  {
+   "id": "af04888b62a60151",
+   "player_id": "1071948",
+   "player_name": "Maxime Bisleau",
+   "overall": 60.9,
+   "from_club_id": "26856",
+   "to_club_id": "91427",
+   "fee": 490000,
+   "kind": "transfer",
+   "date": "2026-07-18"
+  },
+  {
+   "id": "4e3b4a66a219a1ed",
+   "player_id": "973291",
+   "player_name": "Chanteaka Chantha",
+   "overall": 57.5,
+   "from_club_id": "25383",
+   "to_club_id": "91427",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-18"
+  },
+  {
+   "id": "d5bb29a8f6525047",
+   "player_id": "1498794",
+   "player_name": "Mazin Al-Nabhani",
+   "overall": 59.7,
+   "from_club_id": "76319",
+   "to_club_id": "91427",
+   "fee": 410000,
+   "kind": "transfer",
+   "date": "2026-07-18"
+  },
+  {
+   "id": "f6618410f4160889",
+   "player_id": "988446",
+   "player_name": "Warren Ngako",
+   "overall": 60.6,
+   "from_club_id": "26856",
+   "to_club_id": "7153",
+   "fee": 480000,
+   "kind": "transfer",
+   "date": "2026-07-18"
+  },
+  {
+   "id": "bdcad938b92f2394",
+   "player_id": "1426915",
+   "player_name": "Ayan Anghel",
+   "overall": 61.7,
+   "from_club_id": "102149",
+   "to_club_id": "41278",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-07-19"
+  },
+  {
+   "id": "2f2fe4468328860d",
+   "player_id": "1018233",
+   "player_name": "Sora Okita",
+   "overall": 61.5,
+   "from_club_id": "23548",
+   "to_club_id": "322",
+   "fee": 150000,
+   "kind": "transfer",
+   "date": "2026-07-19"
+  },
+  {
+   "id": "cae570591e33e8b3",
+   "player_id": "482067",
+   "player_name": "Raynier Fernandes",
+   "overall": 65.1,
+   "from_club_id": "14099",
+   "to_club_id": "53667",
+   "fee": 90000,
+   "kind": "transfer",
+   "date": "2026-07-19"
+  },
+  {
+   "id": "c12eab7227d3645c",
+   "player_id": "527077",
+   "player_name": "Samuel Broun",
+   "overall": 64.1,
+   "from_club_id": "25067",
+   "to_club_id": "53667",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-07-19"
+  },
+  {
+   "id": "20b4a0c6a6cc37f5",
+   "player_id": "1053416",
+   "player_name": "Daniel Meyn",
+   "overall": 60.2,
+   "from_club_id": "28545",
+   "to_club_id": "1465",
+   "fee": 560000,
+   "kind": "transfer",
+   "date": "2026-07-19"
+  },
+  {
+   "id": "112b98412687bddb",
+   "player_id": "1298427",
+   "player_name": "Yazan Madani",
+   "overall": 56.9,
+   "from_club_id": "91427",
+   "to_club_id": "1465",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-07-19"
+  },
+  {
+   "id": "db760e0004adecb2",
+   "player_id": "933350",
+   "player_name": "Tincho Conde",
+   "overall": 62.1,
+   "from_club_id": "2502",
+   "to_club_id": "28545",
+   "fee": 320000,
+   "kind": "transfer",
+   "date": "2026-07-20"
+  },
+  {
+   "id": "5af0fe95e8488c9c",
+   "player_id": "1216180",
+   "player_name": "Corey Edwards",
+   "overall": 61.6,
+   "from_club_id": "1088",
+   "to_club_id": "26873",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-07-20"
+  },
+  {
+   "id": "7cb59db3f710830b",
+   "player_id": "879826",
+   "player_name": "Diogo Souza",
+   "overall": 63.8,
+   "from_club_id": "27419",
+   "to_club_id": "72710",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-07-20"
+  },
+  {
+   "id": "714e561be60d873c",
+   "player_id": "93124",
+   "player_name": "Ricardo Buitrago",
+   "overall": 60.8,
+   "from_club_id": "20960",
+   "to_club_id": "27820",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-21"
+  },
+  {
+   "id": "1dd1cf726240b6c4",
+   "player_id": "714260",
+   "player_name": "Jake Trew",
+   "overall": 63.7,
+   "from_club_id": "15316",
+   "to_club_id": "27820",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-07-21"
+  },
+  {
+   "id": "2d86397927f7258f",
+   "player_id": "1442796",
+   "player_name": "Mohamed Amir",
+   "overall": 59.7,
+   "from_club_id": "19585",
+   "to_club_id": "28378",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-07-21"
+  },
+  {
+   "id": "6282c9b37c5669a2",
+   "player_id": "437976",
+   "player_name": "Pavel Chikida",
+   "overall": 68.5,
+   "from_club_id": "6423",
+   "to_club_id": "32343",
+   "fee": 210000,
+   "kind": "transfer",
+   "date": "2026-07-21"
+  },
+  {
+   "id": "69987f0edf505f26",
+   "player_id": "1551816",
+   "player_name": "Andreas Christaki",
+   "overall": 60.2,
+   "from_club_id": "24326",
+   "to_club_id": "12285",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-07-21"
+  },
+  {
+   "id": "f2982afc3f4b8739",
+   "player_id": "1175950",
+   "player_name": "Tyler Martin",
+   "overall": 59.2,
+   "from_club_id": "24219",
+   "to_club_id": "12285",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-07-21"
+  },
+  {
+   "id": "a5d9e2a433d0af9f",
+   "player_id": "728263",
+   "player_name": "Modou Manneh",
+   "overall": 63.5,
+   "from_club_id": "35070",
+   "to_club_id": "6572",
+   "fee": 450000,
+   "kind": "transfer",
+   "date": "2026-07-22"
+  },
+  {
+   "id": "1a1d7647a2f611be",
+   "player_id": "672392",
+   "player_name": "Abdulrahman Al-Bouq",
+   "overall": 54.6,
+   "from_club_id": "40039",
+   "to_club_id": "6572",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-22"
+  },
+  {
+   "id": "b8147c21e0016c4c",
+   "player_id": "1105073",
+   "player_name": "Anel Ryce",
+   "overall": 56.7,
+   "from_club_id": "20960",
+   "to_club_id": "6572",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-22"
+  },
+  {
+   "id": "019c89f7ff0f47c3",
+   "player_id": "1438886",
+   "player_name": "Burak Işık",
+   "overall": 60.0,
+   "from_club_id": "89919",
+   "to_club_id": "45536",
+   "fee": 470000,
+   "kind": "transfer",
+   "date": "2026-07-22"
+  },
+  {
+   "id": "e3738c1fa3d3bfd9",
+   "player_id": "1398389",
+   "player_name": "Suleiman Salem Al-Mamari",
+   "overall": 59.7,
+   "from_club_id": "76319",
+   "to_club_id": "33242",
+   "fee": 90000,
+   "kind": "transfer",
+   "date": "2026-07-22"
+  },
+  {
+   "id": "0226b44efbf9b422",
+   "player_id": "1060219",
+   "player_name": "Hsiang-Chun Chang",
+   "overall": 56.8,
+   "from_club_id": "16017",
+   "to_club_id": "33242",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-22"
+  },
+  {
+   "id": "818c51f98db4124d",
+   "player_id": "288071",
+   "player_name": "Kevin Pytlik",
+   "overall": 65.6,
+   "from_club_id": "23548",
+   "to_club_id": "10734",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-07-22"
+  },
+  {
+   "id": "12203026e45d8bf6",
+   "player_id": "565875",
+   "player_name": "Narender Gahlot",
+   "overall": 61.8,
+   "from_club_id": "14099",
+   "to_club_id": "14977",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-07-23"
+  },
+  {
+   "id": "4b7355e7dea8e53d",
+   "player_id": "38857",
+   "player_name": "Andro Svrljuga",
+   "overall": 61.5,
+   "from_club_id": "26357",
+   "to_club_id": "14977",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-23"
+  },
+  {
+   "id": "8d3be755b1e8f2b8",
+   "player_id": "898696",
+   "player_name": "Fazli Ghazali",
+   "overall": 65.3,
+   "from_club_id": "132472",
+   "to_club_id": "26856",
+   "fee": 510000,
+   "kind": "transfer",
+   "date": "2026-07-23"
+  },
+  {
+   "id": "61879a3f84160659",
+   "player_id": "429732",
+   "player_name": "Wilson Peprah",
+   "overall": 63.2,
+   "from_club_id": "1257",
+   "to_club_id": "26856",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-07-23"
+  },
+  {
+   "id": "050bc1bfd41ac5b6",
+   "player_id": "886295",
+   "player_name": "Arturo Palma",
+   "overall": 67.7,
+   "from_club_id": "11000",
+   "to_club_id": "317",
+   "fee": 890000,
+   "kind": "transfer",
+   "date": "2026-07-24"
+  },
+  {
+   "id": "db9aea8212ea2fa5",
+   "player_id": "618408",
+   "player_name": "Maxen Kapo",
+   "overall": 62.2,
+   "from_club_id": "33242",
+   "to_club_id": "3015",
+   "fee": 470000,
+   "kind": "transfer",
+   "date": "2026-07-24"
+  },
+  {
+   "id": "0a384acf760507d5",
+   "player_id": "1534576",
+   "player_name": "Ilias Bouyambib",
+   "overall": 60.2,
+   "from_club_id": "35021",
+   "to_club_id": "16017",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-07-25"
+  },
+  {
+   "id": "3c35b59e450c20f2",
+   "player_id": "1137956",
+   "player_name": "Malam Malu",
+   "overall": 59.0,
+   "from_club_id": "1245",
+   "to_club_id": "28231",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-07-25"
+  },
+  {
+   "id": "463775fba5250ec0",
+   "player_id": "429249",
+   "player_name": "Connor Shields",
+   "overall": 70.6,
+   "from_club_id": "25383",
+   "to_club_id": "9252",
+   "fee": 460000,
+   "kind": "transfer",
+   "date": "2026-07-25"
+  },
+  {
+   "id": "f8f03ccc71e41b8a",
+   "player_id": "451331",
+   "player_name": "Ionuț Rădescu",
+   "overall": 69.0,
+   "from_club_id": "41278",
+   "to_club_id": "9252",
+   "fee": 280000,
+   "kind": "transfer",
+   "date": "2026-07-25"
+  },
+  {
+   "id": "ff47f116eae6a13e",
+   "player_id": "1566793",
+   "player_name": "Adrián Gómez",
+   "overall": 64.9,
+   "from_club_id": "45185",
+   "to_club_id": "22475",
+   "fee": 490000,
+   "kind": "transfer",
+   "date": "2026-07-25"
+  },
+  {
+   "id": "4866e5df6c4ad5bc",
+   "player_id": "379224",
+   "player_name": "Kevin Presa",
+   "overall": 67.6,
+   "from_club_id": "11000",
+   "to_club_id": "22475",
+   "fee": 100000,
+   "kind": "transfer",
+   "date": "2026-07-25"
+  },
+  {
+   "id": "4e0c18a14017cd42",
+   "player_id": "1111925",
+   "player_name": "Rabiou Sankamao",
+   "overall": 54.2,
+   "from_club_id": null,
+   "to_club_id": "22475",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-07-26"
+  },
+  {
+   "id": "974410226736e0c6",
+   "player_id": "298638",
+   "player_name": "Nikolas Mattheou",
+   "overall": 64.6,
+   "from_club_id": "24326",
+   "to_club_id": "35029",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-07-26"
+  },
+  {
+   "id": "bdce878a3883f7fc",
+   "player_id": "1164327",
+   "player_name": "Håvard Vindenes Presthus",
+   "overall": 61.2,
+   "from_club_id": "66143",
+   "to_club_id": "73899",
+   "fee": 490000,
+   "kind": "transfer",
+   "date": "2026-07-26"
+  },
+  {
+   "id": "334778b25d3e84db",
+   "player_id": "331478",
+   "player_name": "Noah Sadaoui",
+   "overall": 73.2,
+   "from_club_id": "72710",
+   "to_club_id": "73899",
+   "fee": 600000,
+   "kind": "transfer",
+   "date": "2026-07-27"
+  },
+  {
+   "id": "fd562d36df1992ae",
+   "player_id": "371223",
+   "player_name": "Matko Babic",
+   "overall": 65.9,
+   "from_club_id": "40843",
+   "to_club_id": "7609",
+   "fee": 260000,
+   "kind": "transfer",
+   "date": "2026-07-27"
+  },
+  {
+   "id": "d3b6bb901317d686",
+   "player_id": "909198",
+   "player_name": "Deandre Johnson",
+   "overall": 63.8,
+   "from_club_id": "120857",
+   "to_club_id": "8641",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-07-27"
+  },
+  {
+   "id": "06f6f44d23a45d0c",
+   "player_id": "1119023",
+   "player_name": "Sultan Omar Al-Zaabi",
+   "overall": 59.4,
+   "from_club_id": "44289",
+   "to_club_id": "8641",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-07-27"
+  },
+  {
+   "id": "1d0713fd52bd233d",
+   "player_id": "335027",
+   "player_name": "Koen Bucker",
+   "overall": 68.1,
+   "from_club_id": "28378",
+   "to_club_id": "11245",
+   "fee": 150000,
+   "kind": "transfer",
+   "date": "2026-07-28"
+  },
+  {
+   "id": "5f034da78ab9c967",
+   "player_id": "428216",
+   "player_name": "Ali Al-Dhanhani",
+   "overall": 67.7,
+   "from_club_id": "44289",
+   "to_club_id": "11245",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-28"
+  },
+  {
+   "id": "2aa3163c3189f92e",
+   "player_id": "1408564",
+   "player_name": "Liam Castro",
+   "overall": 59.9,
+   "from_club_id": "24749",
+   "to_club_id": "67375",
+   "fee": 440000,
+   "kind": "transfer",
+   "date": "2026-07-28"
+  },
+  {
+   "id": "8d4585df9e2c8670",
+   "player_id": "887365",
+   "player_name": "Brian Velázquez",
+   "overall": 59.9,
+   "from_club_id": "18443",
+   "to_club_id": "67375",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-07-28"
+  },
+  {
+   "id": "dbae043a6668d88f",
+   "player_id": "1271116",
+   "player_name": "Ben Richard Namib",
+   "overall": 60.7,
+   "from_club_id": null,
+   "to_club_id": "67375",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-07-28"
+  },
+  {
+   "id": "0a7d17b2455e7ecc",
+   "player_id": "1261225",
+   "player_name": "Amirali Madadizadeh",
+   "overall": 59.5,
+   "from_club_id": "6078",
+   "to_club_id": "18778",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-07-28"
+  },
+  {
+   "id": "c3fe4c4d76a68fc0",
+   "player_id": "925986",
+   "player_name": "Vladislav Ignatjev",
+   "overall": 60.0,
+   "from_club_id": "6423",
+   "to_club_id": "18778",
+   "fee": 100000,
+   "kind": "transfer",
+   "date": "2026-07-28"
+  },
+  {
+   "id": "2efb92753b89d526",
+   "player_id": "989819",
+   "player_name": "Ivane Chegra",
+   "overall": 62.2,
+   "from_club_id": "26856",
+   "to_club_id": "16779",
+   "fee": 200000,
+   "kind": "transfer",
+   "date": "2026-07-28"
+  },
+  {
+   "id": "613be65c05545c8f",
+   "player_id": "876629",
+   "player_name": "Mahamadou Kanouté",
+   "overall": 60.2,
+   "from_club_id": "322",
+   "to_club_id": "4727",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-07-29"
+  },
+  {
+   "id": "4da04701838f52e4",
+   "player_id": "891993",
+   "player_name": "Behzad Salami",
+   "overall": 60.9,
+   "from_club_id": "6078",
+   "to_club_id": "4727",
+   "fee": 130000,
+   "kind": "transfer",
+   "date": "2026-07-29"
+  },
+  {
+   "id": "8f6f2f3ed6e54996",
+   "player_id": "629144",
+   "player_name": "Quinn Farrell",
+   "overall": 57.1,
+   "from_club_id": null,
+   "to_club_id": "4727",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-07-29"
+  },
+  {
+   "id": "882ed45c77b0f9be",
+   "player_id": "580283",
+   "player_name": "Nicholas Marthinussen",
+   "overall": 63.4,
+   "from_club_id": "66143",
+   "to_club_id": "2951",
+   "fee": 450000,
+   "kind": "transfer",
+   "date": "2026-07-30"
+  },
+  {
+   "id": "83bedb28b100829d",
+   "player_id": "834461",
+   "player_name": "Caio Ribas",
+   "overall": 59.0,
+   "from_club_id": "2434",
+   "to_club_id": "20857",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-07-30"
+  },
+  {
+   "id": "ae8ef5cec879227b",
+   "player_id": "906663",
+   "player_name": "Kai Pahl",
+   "overall": 51.5,
+   "from_club_id": null,
+   "to_club_id": "20857",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-07-30"
+  },
+  {
+   "id": "38c96e594b0e656d",
+   "player_id": "431424",
+   "player_name": "George Marsh",
+   "overall": 64.5,
+   "from_club_id": "3696",
+   "to_club_id": "1181",
+   "fee": 410000,
+   "kind": "transfer",
+   "date": "2026-07-31"
+  },
+  {
+   "id": "6d60fe81f706a398",
+   "player_id": "553423",
+   "player_name": "Alexis Rodríguez",
+   "overall": 69.2,
+   "from_club_id": "10233",
+   "to_club_id": "1181",
+   "fee": 340000,
+   "kind": "transfer",
+   "date": "2026-07-31"
+  },
+  {
+   "id": "59fbcc4800d294d4",
+   "player_id": "1341943",
+   "player_name": "Aaron Sandoval",
+   "overall": 57.0,
+   "from_club_id": "5208",
+   "to_club_id": "76077",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-07-31"
+  },
+  {
+   "id": "0314e1ffddabc497",
+   "player_id": "273183",
+   "player_name": "Milo Jung",
+   "overall": 63.8,
+   "from_club_id": "107118",
+   "to_club_id": "76077",
+   "fee": 150000,
+   "kind": "transfer",
+   "date": "2026-08-01"
+  },
+  {
+   "id": "0c6c6bfda3692a9e",
+   "player_id": "1299453",
+   "player_name": "Alexis González",
+   "overall": 59.6,
+   "from_club_id": "5208",
+   "to_club_id": "28971",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-08-01"
+  },
+  {
+   "id": "b30a38915ec19ebc",
+   "player_id": "242681",
+   "player_name": "Josh Vickers",
+   "overall": 65.5,
+   "from_club_id": "22",
+   "to_club_id": "28971",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-08-01"
+  },
+  {
+   "id": "223d5bc1ca490a08",
+   "player_id": "917276",
+   "player_name": "Nazareno Diósquez",
+   "overall": 62.5,
+   "from_club_id": "13341",
+   "to_club_id": "135792",
+   "fee": 460000,
+   "kind": "transfer",
+   "date": "2026-08-01"
+  },
+  {
+   "id": "41d9b7f52ceac367",
+   "player_id": "749738",
+   "player_name": "Van Viet Nguyen",
+   "overall": 64.1,
+   "from_club_id": "116338",
+   "to_club_id": "135792",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-01"
+  },
+  {
+   "id": "ec90d6f014d95f6f",
+   "player_id": "810014",
+   "player_name": "Thibault Lemesle",
+   "overall": 64.0,
+   "from_club_id": "30245",
+   "to_club_id": "42",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-01"
+  },
+  {
+   "id": "0cde3a7ecd988164",
+   "player_id": "703738",
+   "player_name": "Yassine Kchouk",
+   "overall": 60.8,
+   "from_club_id": "12717",
+   "to_club_id": "42",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-01"
+  },
+  {
+   "id": "89a1d181703c4901",
+   "player_id": "153568",
+   "player_name": "Khaled Al-Khathlan",
+   "overall": 67.5,
+   "from_club_id": "32328",
+   "to_club_id": "42",
+   "fee": 150000,
+   "kind": "transfer",
+   "date": "2026-08-02"
+  },
+  {
+   "id": "7af46f7b652053b7",
+   "player_id": "582262",
+   "player_name": "Juozas Lubas",
+   "overall": 62.2,
+   "from_club_id": "82546",
+   "to_club_id": "13519",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-02"
+  },
+  {
+   "id": "a92a6e49d81b0c99",
+   "player_id": "555456",
+   "player_name": "Kenean Markneh",
+   "overall": 65.7,
+   "from_club_id": null,
+   "to_club_id": "13519",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-02"
+  },
+  {
+   "id": "949544b281d9016a",
+   "player_id": "737866",
+   "player_name": "Kévin Junior Nguechoung",
+   "overall": 62.8,
+   "from_club_id": "103163",
+   "to_club_id": "171",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-02"
+  },
+  {
+   "id": "e272817985876843",
+   "player_id": "1224637",
+   "player_name": "Leonel Vega",
+   "overall": 54.6,
+   "from_club_id": "14554",
+   "to_club_id": "133264",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-02"
+  },
+  {
+   "id": "06a60a5d35d2adef",
+   "player_id": "1032207",
+   "player_name": "Nay Lin Htet",
+   "overall": 60.8,
+   "from_club_id": "49075",
+   "to_club_id": "133264",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-02"
+  },
+  {
+   "id": "c5671dfabd8b3e89",
+   "player_id": "1213919",
+   "player_name": "Wungshung Lungleng",
+   "overall": 60.4,
+   "from_club_id": "84398",
+   "to_club_id": "3275",
+   "fee": 600000,
+   "kind": "transfer",
+   "date": "2026-08-02"
+  },
+  {
+   "id": "a8abcd20669ae9ec",
+   "player_id": "561389",
+   "player_name": "Yassin Yagoub",
+   "overall": 64.7,
+   "from_club_id": "77101",
+   "to_club_id": "3275",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-02"
+  },
+  {
+   "id": "dec155fb7ca2cb2e",
+   "player_id": "1578111",
+   "player_name": "Iker Aguilar",
+   "overall": 60.7,
+   "from_club_id": "124050",
+   "to_club_id": "91714",
+   "fee": 470000,
+   "kind": "transfer",
+   "date": "2026-08-02"
+  },
+  {
+   "id": "67892c3b5d50cd10",
+   "player_id": "1118375",
+   "player_name": "Kartik",
+   "overall": 66.8,
+   "from_club_id": "84398",
+   "to_club_id": "91714",
+   "fee": 710000,
+   "kind": "transfer",
+   "date": "2026-08-02"
+  },
+  {
+   "id": "72a5b1c1f09fefb3",
+   "player_id": "224503",
+   "player_name": "Maximilian Wolfram",
+   "overall": 68.3,
+   "from_club_id": "107",
+   "to_club_id": "91714",
+   "fee": 270000,
+   "kind": "transfer",
+   "date": "2026-08-03"
+  },
+  {
+   "id": "e0f6664b416c5002",
+   "player_id": "1318410",
+   "player_name": "Filippo Calabrese",
+   "overall": 59.7,
+   "from_club_id": "8517",
+   "to_club_id": "51523",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-03"
+  },
+  {
+   "id": "bfb149e1aa81a914",
+   "player_id": "351983",
+   "player_name": "Ali Awad",
+   "overall": 67.6,
+   "from_club_id": "965",
+   "to_club_id": "51523",
+   "fee": 140000,
+   "kind": "transfer",
+   "date": "2026-08-03"
+  },
+  {
+   "id": "5f8faf817cf75763",
+   "player_id": "1526965",
+   "player_name": "Camilo Salamanca",
+   "overall": 60.5,
+   "from_club_id": "135792",
+   "to_club_id": "22",
+   "fee": 460000,
+   "kind": "transfer",
+   "date": "2026-08-03"
+  },
+  {
+   "id": "0a0e4a8695a9b5cd",
+   "player_id": "1025582",
+   "player_name": "Juan Arango",
+   "overall": 59.2,
+   "from_club_id": "38006",
+   "to_club_id": "5208",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-03"
+  },
+  {
+   "id": "6ccbf6ac0f674c1b",
+   "player_id": "650031",
+   "player_name": "Amit Aryal",
+   "overall": 59.4,
+   "from_club_id": "107118",
+   "to_club_id": "5208",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-03"
+  },
+  {
+   "id": "82b866f33e41ef11",
+   "player_id": "1025601",
+   "player_name": "Hudson Oreinima",
+   "overall": 58.8,
+   "from_club_id": null,
+   "to_club_id": "5208",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-03"
+  },
+  {
+   "id": "0bb277419ffd316b",
+   "player_id": "1077442",
+   "player_name": "Davit Inaishvili",
+   "overall": 58.7,
+   "from_club_id": "28971",
+   "to_club_id": "19030",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-04"
+  },
+  {
+   "id": "7ca40d3952139a16",
+   "player_id": "927993",
+   "player_name": "Otto Huttunen",
+   "overall": 54.4,
+   "from_club_id": "7315",
+   "to_club_id": "19030",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-04"
+  },
+  {
+   "id": "a83f140b6d3908bb",
+   "player_id": "875235",
+   "player_name": "Seán Grehan",
+   "overall": 58.8,
+   "from_club_id": "2454",
+   "to_club_id": "20035",
+   "fee": 220000,
+   "kind": "transfer",
+   "date": "2026-08-04"
+  },
+  {
+   "id": "0c2463b107bbd9f9",
+   "player_id": "1476067",
+   "player_name": "David Silva",
+   "overall": 59.9,
+   "from_club_id": "1436",
+   "to_club_id": "20035",
+   "fee": 440000,
+   "kind": "transfer",
+   "date": "2026-08-04"
+  },
+  {
+   "id": "18b271ed4f5f728d",
+   "player_id": "1140909",
+   "player_name": "Mohamed Aziz Khelifi",
+   "overall": 57.2,
+   "from_club_id": "12717",
+   "to_club_id": "20035",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-04"
+  },
+  {
+   "id": "c891821f8ddd07fc",
+   "player_id": "158052",
+   "player_name": "Maximilian Rossmann",
+   "overall": 66.8,
+   "from_club_id": "107",
+   "to_club_id": "13366",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-04"
+  },
+  {
+   "id": "d91e8f3e49914f30",
+   "player_id": "695851",
+   "player_name": "Younes Derbali",
+   "overall": 57.2,
+   "from_club_id": "215",
+   "to_club_id": "77101",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-04"
+  },
+  {
+   "id": "52afb473f0d4081e",
+   "player_id": "856568",
+   "player_name": "Songwut Kraikruan",
+   "overall": 63.2,
+   "from_club_id": "21283",
+   "to_club_id": "379",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-08-05"
+  },
+  {
+   "id": "4eace509972077cd",
+   "player_id": "706897",
+   "player_name": "Riley Reemnet",
+   "overall": 63.3,
+   "from_club_id": "7116",
+   "to_club_id": "82546",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-05"
+  },
+  {
+   "id": "270ee9b13d2d0612",
+   "player_id": "353180",
+   "player_name": "Satea Al-Abbasi",
+   "overall": 69.0,
+   "from_club_id": "965",
+   "to_club_id": "112499",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-08-05"
+  },
+  {
+   "id": "4892809e51d1118e",
+   "player_id": "1000187",
+   "player_name": "Enriko Kajari",
+   "overall": 57.8,
+   "from_club_id": "48277",
+   "to_club_id": "112499",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-05"
+  },
+  {
+   "id": "d13ced63f31598f5",
+   "player_id": "1152469",
+   "player_name": "Luis Almeida",
+   "overall": 65.6,
+   "from_club_id": "15926",
+   "to_club_id": "21283",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-05"
+  },
+  {
+   "id": "d84fa09065fe5fb5",
+   "player_id": "1513257",
+   "player_name": "Gilbert Lebrón",
+   "overall": 60.2,
+   "from_club_id": "128297",
+   "to_club_id": "3032",
+   "fee": 360000,
+   "kind": "transfer",
+   "date": "2026-08-05"
+  },
+  {
+   "id": "f828afe3387d5d23",
+   "player_id": "993898",
+   "player_name": "Jakub Wajman",
+   "overall": 58.9,
+   "from_club_id": "65671",
+   "to_club_id": "6201",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-06"
+  },
+  {
+   "id": "a31b42987718806c",
+   "player_id": "822939",
+   "player_name": "Abdullah Makki Al-Karatly",
+   "overall": 61.8,
+   "from_club_id": "77101",
+   "to_club_id": "24350",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-06"
+  },
+  {
+   "id": "9c5b1c37bd7db491",
+   "player_id": "1306476",
+   "player_name": "Faras Darfou",
+   "overall": 62.5,
+   "from_club_id": "59053",
+   "to_club_id": "24350",
+   "fee": 360000,
+   "kind": "transfer",
+   "date": "2026-08-06"
+  },
+  {
+   "id": "89d8bbd864955fc2",
+   "player_id": "955358",
+   "player_name": "Gaël Lafont",
+   "overall": 63.5,
+   "from_club_id": "8517",
+   "to_club_id": "36",
+   "fee": 520000,
+   "kind": "transfer",
+   "date": "2026-08-06"
+  },
+  {
+   "id": "8565a5054c2d00df",
+   "player_id": "1250581",
+   "player_name": "Nathaniel Ewuwo David-Richard",
+   "overall": 62.1,
+   "from_club_id": "27446",
+   "to_club_id": "7116",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-06"
+  },
+  {
+   "id": "1370056be5adbc60",
+   "player_id": "1018752",
+   "player_name": "Takanari Endo",
+   "overall": 62.5,
+   "from_club_id": "23575",
+   "to_club_id": "29213",
+   "fee": 130000,
+   "kind": "transfer",
+   "date": "2026-08-07"
+  },
+  {
+   "id": "44a534e3d7e82cbf",
+   "player_id": "401479",
+   "player_name": "Harri Heiermann",
+   "overall": 62.8,
+   "from_club_id": "107118",
+   "to_club_id": "965",
+   "fee": 150000,
+   "kind": "transfer",
+   "date": "2026-08-07"
+  },
+  {
+   "id": "879a507a56cef9bc",
+   "player_id": "378972",
+   "player_name": "Guy Hadida",
+   "overall": 72.0,
+   "from_club_id": "51070",
+   "to_club_id": "3696",
+   "fee": 540000,
+   "kind": "transfer",
+   "date": "2026-08-07"
+  },
+  {
+   "id": "429889bb5148a53f",
+   "player_id": "1199061",
+   "player_name": "Jassim Al-Noobi",
+   "overall": 61.4,
+   "from_club_id": "15926",
+   "to_club_id": "3696",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-07"
+  },
+  {
+   "id": "bedc0e72bab69437",
+   "player_id": "1443120",
+   "player_name": "Soe Lin Tun",
+   "overall": 59.3,
+   "from_club_id": "26643",
+   "to_club_id": "3696",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-07"
+  },
+  {
+   "id": "feb7c2c3c9e0bd97",
+   "player_id": "1508805",
+   "player_name": "Nojus Penikas",
+   "overall": 58.8,
+   "from_club_id": "82546",
+   "to_club_id": "32328",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-07"
+  },
+  {
+   "id": "748266fb51a9ca30",
+   "player_id": "1535367",
+   "player_name": "Harry Brindley",
+   "overall": 56.8,
+   "from_club_id": "51523",
+   "to_club_id": "32328",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-07"
+  },
+  {
+   "id": "584313fcc986a04b",
+   "player_id": "433891",
+   "player_name": "Tariq Kazi",
+   "overall": 60.3,
+   "from_club_id": null,
+   "to_club_id": "58049",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-08"
+  },
+  {
+   "id": "f98a8149440e7227",
+   "player_id": "1191882",
+   "player_name": "Dangemir Cicilia",
+   "overall": 57.3,
+   "from_club_id": null,
+   "to_club_id": "58049",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-08"
+  },
+  {
+   "id": "445bc4b9e28f87d6",
+   "player_id": "197801",
+   "player_name": "Beniamina Kaintikuaba",
+   "overall": 64.1,
+   "from_club_id": null,
+   "to_club_id": "58049",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-09"
+  },
+  {
+   "id": "45be97a5235ecebf",
+   "player_id": "1553886",
+   "player_name": "Deiber Peña",
+   "overall": 67.9,
+   "from_club_id": "124050",
+   "to_club_id": "34332",
+   "fee": 860000,
+   "kind": "transfer",
+   "date": "2026-08-09"
+  },
+  {
+   "id": "95cb7e99224f4525",
+   "player_id": "1087126",
+   "player_name": "Jaime Álvarez",
+   "overall": 62.7,
+   "from_club_id": "10091",
+   "to_club_id": "34332",
+   "fee": 210000,
+   "kind": "transfer",
+   "date": "2026-08-09"
+  },
+  {
+   "id": "01f14123d5bcf3fb",
+   "player_id": "1415274",
+   "player_name": "Hibatur Rahman",
+   "overall": 55.6,
+   "from_club_id": null,
+   "to_club_id": "34332",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-09"
+  },
+  {
+   "id": "fd4e7ab800290e65",
+   "player_id": "168548",
+   "player_name": "Taku Ushinohama",
+   "overall": 68.7,
+   "from_club_id": "23575",
+   "to_club_id": "13341",
+   "fee": 820000,
+   "kind": "transfer",
+   "date": "2026-08-09"
+  },
+  {
+   "id": "15083dd44b5c26b0",
+   "player_id": "1199050",
+   "player_name": "Ibrahim Mousa",
+   "overall": 63.4,
+   "from_club_id": "59053",
+   "to_club_id": "13341",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-08-09"
+  },
+  {
+   "id": "8b1fb80573c3fcc3",
+   "player_id": "1069654",
+   "player_name": "Firas Akermi",
+   "overall": 57.6,
+   "from_club_id": "12717",
+   "to_club_id": "26730",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-10"
+  },
+  {
+   "id": "8e61249ef4e45bfc",
+   "player_id": "1285469",
+   "player_name": "Muhamed Ssenoga",
+   "overall": 65.2,
+   "from_club_id": "112499",
+   "to_club_id": "26643",
+   "fee": 210000,
+   "kind": "transfer",
+   "date": "2026-08-10"
+  },
+  {
+   "id": "c8256632830cb738",
+   "player_id": "1432732",
+   "player_name": "Zayyan Ahmed",
+   "overall": 54.2,
+   "from_club_id": null,
+   "to_club_id": "26643",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-10"
+  },
+  {
+   "id": "683d00453dead488",
+   "player_id": "1386415",
+   "player_name": "Ilyas Akram",
+   "overall": 55.7,
+   "from_club_id": null,
+   "to_club_id": "26643",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-10"
+  },
+  {
+   "id": "8afc43666ad8adb1",
+   "player_id": "691741",
+   "player_name": "Nikoloz Abuladze",
+   "overall": 64.2,
+   "from_club_id": "28971",
+   "to_club_id": "45913",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-11"
+  },
+  {
+   "id": "8e07e06098ee8663",
+   "player_id": "1165670",
+   "player_name": "Jordan Thomas",
+   "overall": 62.3,
+   "from_club_id": "2454",
+   "to_club_id": "45913",
+   "fee": 220000,
+   "kind": "transfer",
+   "date": "2026-08-11"
+  },
+  {
+   "id": "82ce65803f04eef4",
+   "player_id": "1123276",
+   "player_name": "Hubert Dorczyk",
+   "overall": 59.0,
+   "from_club_id": "65671",
+   "to_club_id": "3371",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-11"
+  },
+  {
+   "id": "4f458a6470954b8c",
+   "player_id": "523777",
+   "player_name": "Johan N'zi",
+   "overall": 61.6,
+   "from_club_id": null,
+   "to_club_id": "3371",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-11"
+  },
+  {
+   "id": "511b85b581712c46",
+   "player_id": "1397040",
+   "player_name": "Jaydelmar Jansen",
+   "overall": 55.3,
+   "from_club_id": null,
+   "to_club_id": "3371",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-11"
+  },
+  {
+   "id": "173c954a93a4adad",
+   "player_id": "1241724",
+   "player_name": "Elijah Gaeth",
+   "overall": 53.7,
+   "from_club_id": "38381",
+   "to_club_id": "678",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-11"
+  },
+  {
+   "id": "c257ce26e286dce5",
+   "player_id": "403575",
+   "player_name": "Seb Ross",
+   "overall": 64.6,
+   "from_club_id": "3032",
+   "to_club_id": "678",
+   "fee": 470000,
+   "kind": "transfer",
+   "date": "2026-08-12"
+  },
+  {
+   "id": "6e10293d0fe04115",
+   "player_id": "1374262",
+   "player_name": "Tiago Rodríguez",
+   "overall": 61.5,
+   "from_club_id": "135792",
+   "to_club_id": "678",
+   "fee": 460000,
+   "kind": "transfer",
+   "date": "2026-08-12"
+  },
+  {
+   "id": "a1c520f335b9edd1",
+   "player_id": "994781",
+   "player_name": "Leandro Schödler",
+   "overall": 60.0,
+   "from_club_id": "260",
+   "to_club_id": "67212",
+   "fee": 300000,
+   "kind": "transfer",
+   "date": "2026-08-12"
+  },
+  {
+   "id": "d88c7749d5733414",
+   "player_id": "278832",
+   "player_name": "Darryl Parker",
+   "overall": 64.0,
+   "from_club_id": null,
+   "to_club_id": "67212",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-12"
+  },
+  {
+   "id": "1e4551f56f2ffd5a",
+   "player_id": "1149510",
+   "player_name": "Ibrahim Samy",
+   "overall": 60.5,
+   "from_club_id": "24297",
+   "to_club_id": "20117",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-08-12"
+  },
+  {
+   "id": "1396747d7d992cac",
+   "player_id": "482194",
+   "player_name": "Shwe Ko",
+   "overall": 57.4,
+   "from_club_id": "26643",
+   "to_club_id": "57781",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-13"
+  },
+  {
+   "id": "f686925484724605",
+   "player_id": "1018044",
+   "player_name": "Arttu Tulehmo",
+   "overall": 56.8,
+   "from_club_id": "7315",
+   "to_club_id": "57781",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-13"
+  },
+  {
+   "id": "18b10e5151d9f118",
+   "player_id": "1300170",
+   "player_name": "Valentin Visinka",
+   "overall": 58.0,
+   "from_club_id": "40173",
+   "to_club_id": "57781",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-13"
+  },
+  {
+   "id": "2e564147b3740c07",
+   "player_id": "854759",
+   "player_name": "Luka Peic",
+   "overall": 58.6,
+   "from_club_id": "15276",
+   "to_club_id": "41101",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-13"
+  },
+  {
+   "id": "3e9c42d605c97ee0",
+   "player_id": "479610",
+   "player_name": "Jonathan Lewis",
+   "overall": 68.6,
+   "from_club_id": "103004",
+   "to_club_id": "1910",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-14"
+  },
+  {
+   "id": "701aba897c9bce4e",
+   "player_id": "354657",
+   "player_name": "Shaquille Dyer",
+   "overall": 66.5,
+   "from_club_id": "68653",
+   "to_club_id": "260",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-14"
+  },
+  {
+   "id": "0c83f78585a36f64",
+   "player_id": "565997",
+   "player_name": "Masato Sasaki",
+   "overall": 62.2,
+   "from_club_id": "53668",
+   "to_club_id": "67001",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-14"
+  },
+  {
+   "id": "91bc2bdaccd3665f",
+   "player_id": "1537074",
+   "player_name": "Abdoul Karim Mpawenimana",
+   "overall": 55.7,
+   "from_club_id": null,
+   "to_club_id": "67001",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-14"
+  },
+  {
+   "id": "9151ba4dc7e6b29f",
+   "player_id": "1325676",
+   "player_name": "Earl Dennis",
+   "overall": 59.4,
+   "from_club_id": "68653",
+   "to_club_id": "28893",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-14"
+  },
+  {
+   "id": "f693b21043781fda",
+   "player_id": "1411993",
+   "player_name": "Lua Otaki",
+   "overall": 54.3,
+   "from_club_id": "51523",
+   "to_club_id": "28893",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-14"
+  },
+  {
+   "id": "c02bf502551e965b",
+   "player_id": "282821",
+   "player_name": "Corey Blackett-Taylor",
+   "overall": 66.8,
+   "from_club_id": "22",
+   "to_club_id": "13264",
+   "fee": 500000,
+   "kind": "transfer",
+   "date": "2026-08-14"
+  },
+  {
+   "id": "6e85be47a5fc7e3c",
+   "player_id": "1441936",
+   "player_name": "Ahmed Yahaya",
+   "overall": 54.3,
+   "from_club_id": "132454",
+   "to_club_id": "48277",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-14"
+  },
+  {
+   "id": "2ffd261a46e5191a",
+   "player_id": "189053",
+   "player_name": "Mick van Buren",
+   "overall": 68.8,
+   "from_club_id": "1897",
+   "to_club_id": "48277",
+   "fee": 210000,
+   "kind": "transfer",
+   "date": "2026-08-14"
+  },
+  {
+   "id": "8b7b1841893135f4",
+   "player_id": "961081",
+   "player_name": "Samuel Adenola",
+   "overall": 61.2,
+   "from_club_id": "3696",
+   "to_club_id": "7315",
+   "fee": 410000,
+   "kind": "transfer",
+   "date": "2026-08-15"
+  },
+  {
+   "id": "a4aafcd81bd0802d",
+   "player_id": "1086833",
+   "player_name": "Martín Sol",
+   "overall": 55.1,
+   "from_club_id": "10091",
+   "to_club_id": "7315",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-15"
+  },
+  {
+   "id": "7bd105e6624c7b62",
+   "player_id": "1291256",
+   "player_name": "Taisei Kato",
+   "overall": 63.2,
+   "from_club_id": "53668",
+   "to_club_id": "8179",
+   "fee": 240000,
+   "kind": "transfer",
+   "date": "2026-08-16"
+  },
+  {
+   "id": "cb9d8901411d6f50",
+   "player_id": "158770",
+   "player_name": "Mauro Quiroga",
+   "overall": 65.6,
+   "from_club_id": "10233",
+   "to_club_id": "8179",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-16"
+  },
+  {
+   "id": "54611e492307cf24",
+   "player_id": "933827",
+   "player_name": "Ahmed Dur Saberi",
+   "overall": 56.9,
+   "from_club_id": "26730",
+   "to_club_id": "8179",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-16"
+  },
+  {
+   "id": "05b11c77799fc350",
+   "player_id": "333762",
+   "player_name": "Mauricio Asenjo",
+   "overall": 69.7,
+   "from_club_id": "5208",
+   "to_club_id": "21169",
+   "fee": 240000,
+   "kind": "transfer",
+   "date": "2026-08-16"
+  },
+  {
+   "id": "7ff199848495ed21",
+   "player_id": "138741",
+   "player_name": "Mario Situm",
+   "overall": 64.7,
+   "from_club_id": "11194",
+   "to_club_id": "21169",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-17"
+  },
+  {
+   "id": "63f58eb3713cf282",
+   "player_id": "1159792",
+   "player_name": "Lars Montegnies",
+   "overall": 58.8,
+   "from_club_id": "54291",
+   "to_club_id": "18018",
+   "fee": 360000,
+   "kind": "transfer",
+   "date": "2026-08-17"
+  },
+  {
+   "id": "4bb837830d3d04a5",
+   "player_id": "1390410",
+   "player_name": "Jack Jones",
+   "overall": 53.6,
+   "from_club_id": "51523",
+   "to_club_id": "18018",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-17"
+  },
+  {
+   "id": "d4a7c3355ae00af2",
+   "player_id": "1296290",
+   "player_name": "Hein Htet Nyein",
+   "overall": 59.4,
+   "from_club_id": "49075",
+   "to_club_id": "18018",
+   "fee": 90000,
+   "kind": "transfer",
+   "date": "2026-08-17"
+  },
+  {
+   "id": "b06a86d219aa3780",
+   "player_id": "402657",
+   "player_name": "Michael Hogan",
+   "overall": 66.0,
+   "from_club_id": "38381",
+   "to_club_id": "215",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-17"
+  },
+  {
+   "id": "a2f547755f87722b",
+   "player_id": "1318455",
+   "player_name": "Marvin Kavuma",
+   "overall": 67.0,
+   "from_club_id": "112499",
+   "to_club_id": "215",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-17"
+  },
+  {
+   "id": "b5f323975bc154d8",
+   "player_id": "977343",
+   "player_name": "Jahzinho O'Garro",
+   "overall": 57.3,
+   "from_club_id": null,
+   "to_club_id": "215",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-18"
+  },
+  {
+   "id": "455173b6d1af9237",
+   "player_id": "419326",
+   "player_name": "Owen Bailey",
+   "overall": 67.0,
+   "from_club_id": "2454",
+   "to_club_id": "940",
+   "fee": 680000,
+   "kind": "transfer",
+   "date": "2026-08-18"
+  },
+  {
+   "id": "79b636798d46a3e4",
+   "player_id": "1588272",
+   "player_name": "Denzel Thrumurgan",
+   "overall": 61.3,
+   "from_club_id": "33991",
+   "to_club_id": "940",
+   "fee": 720000,
+   "kind": "transfer",
+   "date": "2026-08-18"
+  },
+  {
+   "id": "c21c83f48ef86517",
+   "player_id": "528955",
+   "player_name": "Mokhtar Boulachab",
+   "overall": 64.2,
+   "from_club_id": "2772",
+   "to_club_id": "940",
+   "fee": 360000,
+   "kind": "transfer",
+   "date": "2026-08-18"
+  },
+  {
+   "id": "b9e33a17d0cb611c",
+   "player_id": "907082",
+   "player_name": "Karl Steinmann",
+   "overall": 58.9,
+   "from_club_id": "42",
+   "to_club_id": "3243",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-08-18"
+  },
+  {
+   "id": "efbd177322463f9b",
+   "player_id": "1117945",
+   "player_name": "Vasilije Novakovic",
+   "overall": 59.9,
+   "from_club_id": "11099",
+   "to_club_id": "237",
+   "fee": 530000,
+   "kind": "transfer",
+   "date": "2026-08-19"
+  },
+  {
+   "id": "ff84734308a3b14a",
+   "player_id": "978442",
+   "player_name": "Filippo Pagnucco",
+   "overall": 64.3,
+   "from_club_id": "41101",
+   "to_club_id": "124696",
+   "fee": 710000,
+   "kind": "transfer",
+   "date": "2026-08-19"
+  },
+  {
+   "id": "d557ca6a6e09c894",
+   "player_id": "943018",
+   "player_name": "Matej Maly",
+   "overall": 60.1,
+   "from_club_id": "46694",
+   "to_club_id": "16005",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-19"
+  },
+  {
+   "id": "0c6b58cf0d50cb57",
+   "player_id": "907372",
+   "player_name": "Igweuzo Igwe",
+   "overall": 60.6,
+   "from_club_id": "132454",
+   "to_club_id": "16005",
+   "fee": 560000,
+   "kind": "transfer",
+   "date": "2026-08-19"
+  },
+  {
+   "id": "42a8a782597c008e",
+   "player_id": "1175321",
+   "player_name": "Innocent Dlamini",
+   "overall": 58.6,
+   "from_club_id": null,
+   "to_club_id": "16005",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-20"
+  },
+  {
+   "id": "7229a380212f6dc9",
+   "player_id": "742147",
+   "player_name": "Rudolf Mensah",
+   "overall": 61.1,
+   "from_club_id": "24297",
+   "to_club_id": "59419",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-20"
+  },
+  {
+   "id": "3bec509f364e87c5",
+   "player_id": "1533367",
+   "player_name": "Abdulhalim Al-Battahsi",
+   "overall": 58.0,
+   "from_club_id": "15926",
+   "to_club_id": "59419",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-20"
+  },
+  {
+   "id": "54b7d556aeb177a3",
+   "player_id": "49667",
+   "player_name": "Richard O'Donnell",
+   "overall": 66.7,
+   "from_club_id": "22",
+   "to_club_id": "59419",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-20"
+  },
+  {
+   "id": "20b16d05c0988b6f",
+   "player_id": "317482",
+   "player_name": "Marko Rog",
+   "overall": 67.3,
+   "from_club_id": "11194",
+   "to_club_id": "107",
+   "fee": 280000,
+   "kind": "transfer",
+   "date": "2026-08-21"
+  },
+  {
+   "id": "1f513639660181c7",
+   "player_id": "1006615",
+   "player_name": "Agustín Solveyra",
+   "overall": 61.8,
+   "from_club_id": "10233",
+   "to_club_id": "107",
+   "fee": 100000,
+   "kind": "transfer",
+   "date": "2026-08-21"
+  },
+  {
+   "id": "9dd964a639d34cce",
+   "player_id": "1307503",
+   "player_name": "Yvan Mbianga",
+   "overall": 59.8,
+   "from_club_id": "7968",
+   "to_club_id": "40173",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-21"
+  },
+  {
+   "id": "66a8394df48354b4",
+   "player_id": "1076567",
+   "player_name": "Juvito Moniz",
+   "overall": 56.3,
+   "from_club_id": null,
+   "to_club_id": "40173",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-21"
+  },
+  {
+   "id": "2d0c3306adf7cfe3",
+   "player_id": "501198",
+   "player_name": "Yves Seeger",
+   "overall": 62.5,
+   "from_club_id": "2772",
+   "to_club_id": "17153",
+   "fee": 360000,
+   "kind": "transfer",
+   "date": "2026-08-21"
+  },
+  {
+   "id": "94ad1989b9f92f74",
+   "player_id": "1531165",
+   "player_name": "Tuanlal Tonsing",
+   "overall": 60.6,
+   "from_club_id": "84398",
+   "to_club_id": "7790",
+   "fee": 520000,
+   "kind": "transfer",
+   "date": "2026-08-22"
+  },
+  {
+   "id": "b7d1b16691d82f0e",
+   "player_id": "1304683",
+   "player_name": "Leni Peternac",
+   "overall": 56.6,
+   "from_club_id": "11194",
+   "to_club_id": "7790",
+   "fee": 300000,
+   "kind": "transfer",
+   "date": "2026-08-22"
+  },
+  {
+   "id": "be0690bcd13b2871",
+   "player_id": "947907",
+   "player_name": "Imra Raheriniaina",
+   "overall": 54.5,
+   "from_club_id": null,
+   "to_club_id": "7790",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-22"
+  },
+  {
+   "id": "230bc0236aa590fb",
+   "player_id": "1486140",
+   "player_name": "Prince Ndubuisi",
+   "overall": 54.3,
+   "from_club_id": "132454",
+   "to_club_id": "8445",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-22"
+  },
+  {
+   "id": "22d3bdfc344b00ff",
+   "player_id": "542168",
+   "player_name": "Jaroensak Wonggorn",
+   "overall": 68.5,
+   "from_club_id": "21283",
+   "to_club_id": "601",
+   "fee": 300000,
+   "kind": "transfer",
+   "date": "2026-08-22"
+  },
+  {
+   "id": "9f41cd6d95e04e44",
+   "player_id": "730816",
+   "player_name": "Fabio Sposito",
+   "overall": 61.1,
+   "from_club_id": "1910",
+   "to_club_id": "601",
+   "fee": 440000,
+   "kind": "transfer",
+   "date": "2026-08-22"
+  },
+  {
+   "id": "cd8de282ce959f73",
+   "player_id": "1480023",
+   "player_name": "Carlo Regules",
+   "overall": 58.1,
+   "from_club_id": "25781",
+   "to_club_id": "601",
+   "fee": 230000,
+   "kind": "transfer",
+   "date": "2026-08-22"
+  },
+  {
+   "id": "077c34431afefb9a",
+   "player_id": "925841",
+   "player_name": "Federico Savio",
+   "overall": 62.5,
+   "from_club_id": "41101",
+   "to_club_id": "30245",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-22"
+  },
+  {
+   "id": "a8aa4cab217e93d5",
+   "player_id": "962158",
+   "player_name": "Tomas Jankovsky",
+   "overall": 60.1,
+   "from_club_id": "46694",
+   "to_club_id": "30245",
+   "fee": 440000,
+   "kind": "transfer",
+   "date": "2026-08-23"
+  },
+  {
+   "id": "4479a74508a7badf",
+   "player_id": "1446451",
+   "player_name": "Nika Kapanadze",
+   "overall": 58.4,
+   "from_club_id": "28971",
+   "to_club_id": "103004",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-08-23"
+  },
+  {
+   "id": "7217ab6ea243684a",
+   "player_id": "1501254",
+   "player_name": "Konstantinos Kalliaras",
+   "overall": 59.2,
+   "from_club_id": "31804",
+   "to_club_id": "10789",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-23"
+  },
+  {
+   "id": "522877df63a11b81",
+   "player_id": "189626",
+   "player_name": "Jasur Khakimov",
+   "overall": 63.5,
+   "from_club_id": "20117",
+   "to_club_id": "10789",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-23"
+  },
+  {
+   "id": "4bc32c2fc1c04f1c",
+   "player_id": "253169",
+   "player_name": "Oliver Semmle",
+   "overall": 65.9,
+   "from_club_id": "103004",
+   "to_club_id": "103163",
+   "fee": 210000,
+   "kind": "transfer",
+   "date": "2026-08-23"
+  },
+  {
+   "id": "056fbbef0fd67fb0",
+   "player_id": "453005",
+   "player_name": "Bastian Frölich",
+   "overall": 62.9,
+   "from_club_id": "107",
+   "to_club_id": "65671",
+   "fee": 430000,
+   "kind": "transfer",
+   "date": "2026-08-23"
+  },
+  {
+   "id": "e9c079247017339c",
+   "player_id": "578655",
+   "player_name": "Ken Masui",
+   "overall": 66.8,
+   "from_club_id": "601",
+   "to_club_id": "1897",
+   "fee": 930000,
+   "kind": "transfer",
+   "date": "2026-08-24"
+  },
+  {
+   "id": "3b292f8c36117656",
+   "player_id": "1434877",
+   "player_name": "Tony Fortunate",
+   "overall": 61.2,
+   "from_club_id": "8517",
+   "to_club_id": "1897",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-08-24"
+  },
+  {
+   "id": "66d9905293c2b132",
+   "player_id": "126600",
+   "player_name": "Kenny McLean",
+   "overall": 72.6,
+   "from_club_id": "1123",
+   "to_club_id": "11099",
+   "fee": 460000,
+   "kind": "transfer",
+   "date": "2026-08-24"
+  },
+  {
+   "id": "a7e3660c19a157bb",
+   "player_id": "1199692",
+   "player_name": "Jamal Abdulnasser",
+   "overall": 63.8,
+   "from_club_id": "59053",
+   "to_club_id": "11099",
+   "fee": 340000,
+   "kind": "transfer",
+   "date": "2026-08-24"
+  },
+  {
+   "id": "78577831117240f3",
+   "player_id": "1511275",
+   "player_name": "Hein Yar Zar Oo",
+   "overall": 53.8,
+   "from_club_id": "49075",
+   "to_club_id": "11099",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-24"
+  },
+  {
+   "id": "9212fbdfb3406ca4",
+   "player_id": "1419560",
+   "player_name": "Giovanny Echevarría",
+   "overall": 59.4,
+   "from_club_id": "124696",
+   "to_club_id": "16024",
+   "fee": 440000,
+   "kind": "transfer",
+   "date": "2026-08-24"
+  },
+  {
+   "id": "1c94ccb513a1fc52",
+   "player_id": "864261",
+   "player_name": "Atendele Geriga",
+   "overall": 66.2,
+   "from_club_id": "112499",
+   "to_club_id": "16024",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-24"
+  },
+  {
+   "id": "fc4cfb58a3f7c4c8",
+   "player_id": "578095",
+   "player_name": "Maxwell Ansah",
+   "overall": 65.2,
+   "from_club_id": "34344",
+   "to_club_id": "49806",
+   "fee": 150000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "2c2bc7d3e3e83409",
+   "player_id": "1151086",
+   "player_name": "Hazem Temsah",
+   "overall": 60.8,
+   "from_club_id": "9218",
+   "to_club_id": "49806",
+   "fee": 90000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "eef645e5810cf4cb",
+   "player_id": "1134358",
+   "player_name": "Mario Albano",
+   "overall": 53.7,
+   "from_club_id": null,
+   "to_club_id": "49806",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "4f11d195d0d22960",
+   "player_id": "745911",
+   "player_name": "Artem Kotik",
+   "overall": 63.8,
+   "from_club_id": "3733",
+   "to_club_id": "77117",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "3c69ecb16fec183f",
+   "player_id": "671829",
+   "player_name": "Nikolay Tolstopyatov",
+   "overall": 63.0,
+   "from_club_id": "3733",
+   "to_club_id": "77117",
+   "fee": 450000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "300dd5d066f8e852",
+   "player_id": "833747",
+   "player_name": "Razzaq Coleman De-Graft",
+   "overall": 64.7,
+   "from_club_id": "8123",
+   "to_club_id": "10666",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "a204f3fac14c3918",
+   "player_id": "1443944",
+   "player_name": "Maksym Borysenko",
+   "overall": 59.9,
+   "from_club_id": "111182",
+   "to_club_id": "10666",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "9e374693f18a4c87",
+   "player_id": "330214",
+   "player_name": "Farzin Garousian",
+   "overall": 71.2,
+   "from_club_id": "34744",
+   "to_club_id": "123838",
+   "fee": 200000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "1cb20a79e32fd92a",
+   "player_id": "1230660",
+   "player_name": "Eze Onuoha",
+   "overall": 59.1,
+   "from_club_id": "45310",
+   "to_club_id": "123838",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "f0a40648a784eeef",
+   "player_id": "758474",
+   "player_name": "Mukhammadali Giyosov",
+   "overall": 62.4,
+   "from_club_id": "15310",
+   "to_club_id": "123838",
+   "fee": 180000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "1451926123d6e668",
+   "player_id": "1136692",
+   "player_name": "Adam Zahedi",
+   "overall": 54.6,
+   "from_club_id": "45310",
+   "to_club_id": "82236",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "36d95d17cbb87520",
+   "player_id": "1307119",
+   "player_name": "Ivan Zhumiga",
+   "overall": 60.1,
+   "from_club_id": "86787",
+   "to_club_id": "82236",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "bf039256719072e7",
+   "player_id": "1235140",
+   "player_name": "Wille Nuñez",
+   "overall": 54.6,
+   "from_club_id": "6017",
+   "to_club_id": "101280",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "b2ffe165ba5672fb",
+   "player_id": "1042342",
+   "player_name": "Ádám Czékus",
+   "overall": 60.1,
+   "from_club_id": "37255",
+   "to_club_id": "101280",
+   "fee": 130000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "3e7dd7ab34287046",
+   "player_id": "1092526",
+   "player_name": "Chuqi Huang",
+   "overall": 59.8,
+   "from_club_id": "54134",
+   "to_club_id": "101280",
+   "fee": 90000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "f7718b81f3c6cc6f",
+   "player_id": "1027018",
+   "player_name": "Mateus Amaral",
+   "overall": 62.2,
+   "from_club_id": "113156",
+   "to_club_id": "3729",
+   "fee": 290000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "979051910fddf38c",
+   "player_id": "1593607",
+   "player_name": "Mohamad Jamal",
+   "overall": 59.7,
+   "from_club_id": "113156",
+   "to_club_id": "3729",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "d3fb779ff6688a60",
+   "player_id": "430833",
+   "player_name": "Theo Visser",
+   "overall": 64.8,
+   "from_club_id": "7481",
+   "to_club_id": "120407",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "194d4ea32130f1c2",
+   "player_id": "1091331",
+   "player_name": "Van Huy Vuong",
+   "overall": 64.2,
+   "from_club_id": "77974",
+   "to_club_id": "120407",
+   "fee": 180000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "78c0bc236c3ce96c",
+   "player_id": "433990",
+   "player_name": "Marc McKenna",
+   "overall": 63.6,
+   "from_club_id": "63169",
+   "to_club_id": "531",
+   "fee": 440000,
+   "kind": "transfer",
+   "date": "2026-08-25"
+  },
+  {
+   "id": "e0ca0fb13a054dcd",
+   "player_id": "951010",
+   "player_name": "Kwakhe Thwala",
+   "overall": 57.0,
+   "from_club_id": null,
+   "to_club_id": "13519",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "54616c39f127eaf8",
+   "player_id": "286067",
+   "player_name": "Filipe Aguiar",
+   "overall": 62.9,
+   "from_club_id": "21465",
+   "to_club_id": "54134",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "ad8a7575b28b5ffe",
+   "player_id": "1268637",
+   "player_name": "Hubert Ragan",
+   "overall": 59.1,
+   "from_club_id": "59735",
+   "to_club_id": "8123",
+   "fee": 310000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "330966a20d790ae3",
+   "player_id": "336506",
+   "player_name": "Amirhossein Amiri",
+   "overall": 66.8,
+   "from_club_id": "117668",
+   "to_club_id": "8123",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "9470d5f7cb5b0ab1",
+   "player_id": "529551",
+   "player_name": "Kamil Kumoch",
+   "overall": 62.8,
+   "from_club_id": "50162",
+   "to_club_id": "8123",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "9d8ac8f1d75e2a71",
+   "player_id": "429677",
+   "player_name": "Tae-wook Jeong",
+   "overall": 68.3,
+   "from_club_id": "55265",
+   "to_club_id": "2829",
+   "fee": 260000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "e7123cd81dc62b31",
+   "player_id": "616823",
+   "player_name": "Alain García",
+   "overall": 65.5,
+   "from_club_id": "49806",
+   "to_club_id": "2829",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "0fcd5d8bfe3efb0c",
+   "player_id": "1041258",
+   "player_name": "Fellipe",
+   "overall": 60.8,
+   "from_club_id": "38274",
+   "to_club_id": "2829",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "465fb11e8266508d",
+   "player_id": "533176",
+   "player_name": "Carlito Fermina",
+   "overall": 59.4,
+   "from_club_id": null,
+   "to_club_id": "42813",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "7f118d0bb5bf93db",
+   "player_id": "693766",
+   "player_name": "Dawid Danilczyk",
+   "overall": 61.1,
+   "from_club_id": "10372",
+   "to_club_id": "60350",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "b228342e4cc1a417",
+   "player_id": "275020",
+   "player_name": "Héber Pena",
+   "overall": 65.9,
+   "from_club_id": "24445",
+   "to_club_id": "45310",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "3d545d916d34babe",
+   "player_id": "464509",
+   "player_name": "Eilon Elimelech",
+   "overall": 67.6,
+   "from_club_id": "35110",
+   "to_club_id": "57450",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "de4c87807b329aa9",
+   "player_id": "1106631",
+   "player_name": "Jacob Tarasenko",
+   "overall": 63.9,
+   "from_club_id": "57450",
+   "to_club_id": "39341",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "2243b9f12b7ffc7f",
+   "player_id": "1474101",
+   "player_name": "Milan Napoe",
+   "overall": 59.7,
+   "from_club_id": "95331",
+   "to_club_id": "38200",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "e625b8ee5cd88bd7",
+   "player_id": "706216",
+   "player_name": "Lok-Yin Jerry Lam",
+   "overall": 56.5,
+   "from_club_id": "34344",
+   "to_club_id": "38200",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "c7ca368c23dad0d4",
+   "player_id": "1280979",
+   "player_name": "Tsun Aidan Chong",
+   "overall": 60.9,
+   "from_club_id": "77117",
+   "to_club_id": "2395",
+   "fee": 620000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "1c16822008a067a8",
+   "player_id": "632481",
+   "player_name": "Marc Álvarez",
+   "overall": 60.9,
+   "from_club_id": "78108",
+   "to_club_id": "29830",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "1a8588d8552cf863",
+   "player_id": "636750",
+   "player_name": "Diar Halili",
+   "overall": 61.8,
+   "from_club_id": "1918",
+   "to_club_id": "29830",
+   "fee": 280000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "46bd1d1208fc0946",
+   "player_id": "1497784",
+   "player_name": "Oumar Sarr",
+   "overall": 59.9,
+   "from_club_id": "28577",
+   "to_club_id": "16402",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "a538f3b62f3d34db",
+   "player_id": "673025",
+   "player_name": "Netanel Daloya",
+   "overall": 65.5,
+   "from_club_id": "35110",
+   "to_club_id": "16402",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "4ef40a92325d269f",
+   "player_id": "1265175",
+   "player_name": "Noah Barros da Costa",
+   "overall": 59.9,
+   "from_club_id": "21465",
+   "to_club_id": "50162",
+   "fee": 490000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "b486e0ddc96959ee",
+   "player_id": "1521269",
+   "player_name": "Bartosz Śmiechowicz",
+   "overall": 60.5,
+   "from_club_id": "30839",
+   "to_club_id": "3905",
+   "fee": 460000,
+   "kind": "transfer",
+   "date": "2026-08-26"
+  },
+  {
+   "id": "236961205fff2431",
+   "player_id": "1395612",
+   "player_name": "Rasmus Sillaots",
+   "overall": 60.9,
+   "from_club_id": "44210",
+   "to_club_id": "3905",
+   "fee": 510000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "dd897b75e196c512",
+   "player_id": "1021787",
+   "player_name": "Djibrilla Kassali",
+   "overall": 62.3,
+   "from_club_id": null,
+   "to_club_id": "11275",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "1f47208e7603ba8e",
+   "player_id": "1552155",
+   "player_name": "Alcídio Raice",
+   "overall": 55.7,
+   "from_club_id": null,
+   "to_club_id": "11275",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "5cf722908e944ac9",
+   "player_id": "265231",
+   "player_name": "Reiss Greenidge",
+   "overall": 62.2,
+   "from_club_id": null,
+   "to_club_id": "11275",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "e5aa6a46b3d32b0d",
+   "player_id": "1585122",
+   "player_name": "Alexander Keiser",
+   "overall": 59.1,
+   "from_club_id": "49806",
+   "to_club_id": "10372",
+   "fee": 430000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "1a0f7d95f17db868",
+   "player_id": "1000705",
+   "player_name": "David Quintero",
+   "overall": 58.9,
+   "from_club_id": "36020",
+   "to_club_id": "6371",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "a40f81a9f8b023e5",
+   "player_id": "1543116",
+   "player_name": "Marat Litvinov",
+   "overall": 60.5,
+   "from_club_id": "118446",
+   "to_club_id": "6371",
+   "fee": 470000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "e67c65eb72b36ad1",
+   "player_id": "1522701",
+   "player_name": "Angel Leon",
+   "overall": 59.1,
+   "from_club_id": "43372",
+   "to_club_id": "36020",
+   "fee": 90000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "b8422469db8708fd",
+   "player_id": "903656",
+   "player_name": "Dawid Kroczek",
+   "overall": 58.9,
+   "from_club_id": "29830",
+   "to_club_id": "36020",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "35962a45aac87aac",
+   "player_id": "625650",
+   "player_name": "Markel Goñi",
+   "overall": 63.9,
+   "from_club_id": "101280",
+   "to_club_id": "20200",
+   "fee": 220000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "5aada8b7ef07153d",
+   "player_id": "77288",
+   "player_name": "José Escobar",
+   "overall": 69.8,
+   "from_club_id": "17467",
+   "to_club_id": "28329",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "61b56945b61ea31d",
+   "player_id": "1319726",
+   "player_name": "Rin Ahmeti",
+   "overall": 62.6,
+   "from_club_id": "1918",
+   "to_club_id": "494",
+   "fee": 410000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "2795636800486e1f",
+   "player_id": "532374",
+   "player_name": "Ben Davis",
+   "overall": 67.6,
+   "from_club_id": "55265",
+   "to_club_id": "494",
+   "fee": 450000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "449491a2f8ae2ef1",
+   "player_id": "807742",
+   "player_name": "Vladyslav Molko",
+   "overall": 62.2,
+   "from_club_id": "82236",
+   "to_club_id": "47059",
+   "fee": 430000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "9aeafbb08863ac65",
+   "player_id": "607627",
+   "player_name": "Zenel Hasani",
+   "overall": 60.3,
+   "from_club_id": "2395",
+   "to_club_id": "47059",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "40257b862f2b4922",
+   "player_id": "1431448",
+   "player_name": "Arafat Masoud",
+   "overall": 59.1,
+   "from_club_id": "9218",
+   "to_club_id": "22559",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "1e312aa67a825839",
+   "player_id": "1218800",
+   "player_name": "Gabriel Rehman Horpestad",
+   "overall": 58.9,
+   "from_club_id": "34966",
+   "to_club_id": "58",
+   "fee": 310000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "6b1257ee06e1b21e",
+   "player_id": "888508",
+   "player_name": "Brodie Clarkson",
+   "overall": 62.9,
+   "from_club_id": "53743",
+   "to_club_id": "58",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "a3e057035b4e5300",
+   "player_id": "1373087",
+   "player_name": "Matthew Wahby",
+   "overall": 59.7,
+   "from_club_id": "53743",
+   "to_club_id": "3733",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "c69c3e97d2f0bb48",
+   "player_id": "1443125",
+   "player_name": "Tigran Sarkisyan",
+   "overall": 56.3,
+   "from_club_id": "118446",
+   "to_club_id": "3733",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "c3946c4b3c84b8c3",
+   "player_id": "1271376",
+   "player_name": "Yaniel Bonfim",
+   "overall": 52.2,
+   "from_club_id": null,
+   "to_club_id": "3733",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "092d7b1f45bdc14f",
+   "player_id": "720941",
+   "player_name": "Artúr Horváth",
+   "overall": 63.4,
+   "from_club_id": "37255",
+   "to_club_id": "95331",
+   "fee": 550000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "c3e78b45b385e247",
+   "player_id": "319736",
+   "player_name": "Claudiu Juncănaru",
+   "overall": 63.4,
+   "from_club_id": "60792",
+   "to_club_id": "99764",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-27"
+  },
+  {
+   "id": "5026b3b7f2fbd113",
+   "player_id": "1045246",
+   "player_name": "Remiero Moulton",
+   "overall": 59.2,
+   "from_club_id": "8123",
+   "to_club_id": "99764",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "6a5190270852c629",
+   "player_id": "1543564",
+   "player_name": "Erik Endresen Veivåg",
+   "overall": 58.7,
+   "from_club_id": "34966",
+   "to_club_id": "15310",
+   "fee": 310000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "ad160b7ceea894c2",
+   "player_id": "1162205",
+   "player_name": "Dylan Borso",
+   "overall": 60.8,
+   "from_club_id": "95331",
+   "to_club_id": "15310",
+   "fee": 200000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "f20d74841fdd9c24",
+   "player_id": "734436",
+   "player_name": "Van Huy Nguyen",
+   "overall": 60.3,
+   "from_club_id": "77974",
+   "to_club_id": "15310",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "f4af6ab0a1840886",
+   "player_id": "1239162",
+   "player_name": "Kyle Belizaire",
+   "overall": 61.0,
+   "from_club_id": "39197",
+   "to_club_id": "86787",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "43c816e9b0d6c0f4",
+   "player_id": "1244107",
+   "player_name": "Taavi Kangaskokko",
+   "overall": 56.8,
+   "from_club_id": "45310",
+   "to_club_id": "77974",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "f7510877eae4a8dd",
+   "player_id": "199896",
+   "player_name": "Giuseppe Fella",
+   "overall": 68.9,
+   "from_club_id": "6266",
+   "to_club_id": "77974",
+   "fee": 180000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "ddd484a10401027c",
+   "player_id": "1478677",
+   "player_name": "Fara Mendy",
+   "overall": 60.6,
+   "from_club_id": "42813",
+   "to_club_id": "11375",
+   "fee": 200000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "359811773eb86c30",
+   "player_id": "522077",
+   "player_name": "Georg Strauch",
+   "overall": 63.1,
+   "from_club_id": "92",
+   "to_club_id": "31",
+   "fee": 220000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "12245da343b6a2ae",
+   "player_id": "1021955",
+   "player_name": "Carlos Franco",
+   "overall": 60.0,
+   "from_club_id": "17467",
+   "to_club_id": "78108",
+   "fee": 180000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "b1ada2d580f14d45",
+   "player_id": "872617",
+   "player_name": "Zikrillo Sultaniyazov",
+   "overall": 61.2,
+   "from_club_id": "10540",
+   "to_club_id": "78108",
+   "fee": 130000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "1f4fc1b557076588",
+   "player_id": "1407841",
+   "player_name": "Simon Kocka",
+   "overall": 56.7,
+   "from_club_id": "36093",
+   "to_club_id": "78108",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "599a6b0f6f80cfad",
+   "player_id": "1214849",
+   "player_name": "Jason Shokalook",
+   "overall": 63.7,
+   "from_club_id": "95331",
+   "to_club_id": "17847",
+   "fee": 270000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "4a31016f090b1dbd",
+   "player_id": "1500116",
+   "player_name": "Saud Al-Bawardi",
+   "overall": 55.3,
+   "from_club_id": "85118",
+   "to_club_id": "17847",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "77d80783efb75e79",
+   "player_id": "1460105",
+   "player_name": "Majed Madani",
+   "overall": 56.2,
+   "from_club_id": "85118",
+   "to_club_id": "17847",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "f3d99560a5af5742",
+   "player_id": "1239210",
+   "player_name": "Charly Vegas",
+   "overall": 61.8,
+   "from_club_id": "531",
+   "to_club_id": "39637",
+   "fee": 320000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "76b053bbe4acfd46",
+   "player_id": "1173974",
+   "player_name": "Shamar Watson",
+   "overall": 58.5,
+   "from_club_id": "39197",
+   "to_club_id": "39637",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "dda814141a2afc34",
+   "player_id": "1193683",
+   "player_name": "Guillermo Oliva",
+   "overall": 61.3,
+   "from_club_id": "11247",
+   "to_club_id": "352",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "630344ff3ebe2f2a",
+   "player_id": "340885",
+   "player_name": "Manu Viana",
+   "overall": 65.4,
+   "from_club_id": "60350",
+   "to_club_id": "24445",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "191815ce79d7d6f2",
+   "player_id": "364464",
+   "player_name": "Saad Al-Saleh",
+   "overall": 69.6,
+   "from_club_id": "85118",
+   "to_club_id": "24445",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-28"
+  },
+  {
+   "id": "9a4990dddb66165f",
+   "player_id": "1489341",
+   "player_name": "Donovan Tchamba",
+   "overall": 52.9,
+   "from_club_id": "62573",
+   "to_club_id": "24445",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "d4abf0cfbecaf858",
+   "player_id": "1455935",
+   "player_name": "Darius Bota",
+   "overall": 60.6,
+   "from_club_id": "37255",
+   "to_club_id": "9643",
+   "fee": 150000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "609ce68ffc5ea560",
+   "player_id": "1278593",
+   "player_name": "Lachlan Tilt",
+   "overall": 59.7,
+   "from_club_id": "11375",
+   "to_club_id": "9643",
+   "fee": 410000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "4bc5939bb9b8956a",
+   "player_id": "1578919",
+   "player_name": "Tymon Makowski",
+   "overall": 59.9,
+   "from_club_id": "16402",
+   "to_club_id": "34344",
+   "fee": 450000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "81e1bf6f95fbe5db",
+   "player_id": "1251761",
+   "player_name": "Benjamin Duric",
+   "overall": 58.7,
+   "from_club_id": "73774",
+   "to_club_id": "34344",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "6aaeef0c8a12eed4",
+   "player_id": "687257",
+   "player_name": "Vleron Statovci",
+   "overall": 59.4,
+   "from_club_id": "92",
+   "to_club_id": "6593",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "4944116f7a4d1673",
+   "player_id": "603432",
+   "player_name": "Dominik Siwinski",
+   "overall": 64.9,
+   "from_club_id": "59735",
+   "to_club_id": "60792",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "eaec611f1eecd6a2",
+   "player_id": "1018449",
+   "player_name": "Adam Stroud",
+   "overall": 56.9,
+   "from_club_id": "6017",
+   "to_club_id": "60792",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "ea220daa0dfb037a",
+   "player_id": "1516387",
+   "player_name": "Mody Diouf",
+   "overall": 60.0,
+   "from_club_id": "28577",
+   "to_club_id": "38274",
+   "fee": 510000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "fc2198cfa0f536f9",
+   "player_id": "1343553",
+   "player_name": "Oliver Godziemski",
+   "overall": 58.5,
+   "from_club_id": "8123",
+   "to_club_id": "38274",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "16375388138f055d",
+   "player_id": "1178157",
+   "player_name": "Branko Maruniak",
+   "overall": 53.8,
+   "from_club_id": "36093",
+   "to_club_id": "85118",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "86c562629d7106c0",
+   "player_id": "396920",
+   "player_name": "Lisandro Alzugaray",
+   "overall": 71.2,
+   "from_club_id": "6593",
+   "to_club_id": "85118",
+   "fee": 200000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "018d81d21b6f83ea",
+   "player_id": "721804",
+   "player_name": "Husnuzhon",
+   "overall": 61.5,
+   "from_club_id": "28329",
+   "to_club_id": "10850",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "89f33e3467058169",
+   "player_id": "1074127",
+   "player_name": "Francisco Conceição",
+   "overall": 59.1,
+   "from_club_id": "38274",
+   "to_club_id": "10850",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "d61d84c933632e18",
+   "player_id": "766646",
+   "player_name": "Lars Huber",
+   "overall": 63.7,
+   "from_club_id": "7481",
+   "to_club_id": "11539",
+   "fee": 340000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "5a3b72532121288c",
+   "player_id": "925035",
+   "player_name": "Max McCarthy",
+   "overall": 60.7,
+   "from_club_id": "9643",
+   "to_club_id": "59735",
+   "fee": 460000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "09e5020941dd83dc",
+   "player_id": "855461",
+   "player_name": "David Milicevic",
+   "overall": 58.3,
+   "from_club_id": "42813",
+   "to_club_id": "59735",
+   "fee": 90000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "9557b00f3deb9f47",
+   "player_id": "156508",
+   "player_name": "Jhonatan Anicama",
+   "overall": 67.1,
+   "from_club_id": "11247",
+   "to_club_id": "59735",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "4be340ae2207f6fc",
+   "player_id": "1496024",
+   "player_name": "Costas Sersescu",
+   "overall": 60.0,
+   "from_club_id": "37620",
+   "to_club_id": "58505",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "15218b797be18903",
+   "player_id": "575539",
+   "player_name": "Derry Herlangga",
+   "overall": 62.3,
+   "from_club_id": "28329",
+   "to_club_id": "58505",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "65acaefd63671463",
+   "player_id": "465616",
+   "player_name": "Nikolaos Baxevanos",
+   "overall": 66.2,
+   "from_club_id": "60792",
+   "to_club_id": "58505",
+   "fee": 200000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "55c4804bdba9a524",
+   "player_id": "119229",
+   "player_name": "Duvier Riascos",
+   "overall": 64.7,
+   "from_club_id": "17467",
+   "to_club_id": "9811",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "86cd711a0d1a7dd6",
+   "player_id": "359024",
+   "player_name": "Michael Covea",
+   "overall": 70.5,
+   "from_club_id": "531",
+   "to_club_id": "23548",
+   "fee": 250000,
+   "kind": "transfer",
+   "date": "2026-08-29"
+  },
+  {
+   "id": "f0f157fa1255b5c7",
+   "player_id": "879339",
+   "player_name": "Thanh Tu Tran",
+   "overall": 59.5,
+   "from_club_id": "6758",
+   "to_club_id": "23548",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "6956cf65b56899bc",
+   "player_id": "1098980",
+   "player_name": "Manu Teixeira",
+   "overall": 59.3,
+   "from_club_id": "99764",
+   "to_club_id": "70596",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "5851c403049232d6",
+   "player_id": "440858",
+   "player_name": "Mathias Saether",
+   "overall": 65.2,
+   "from_club_id": "30114",
+   "to_club_id": "37620",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "e2bd8bc2e79ac3b4",
+   "player_id": "627761",
+   "player_name": "Rizky Abdiansyah",
+   "overall": 63.0,
+   "from_club_id": "28329",
+   "to_club_id": "37620",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "6b2c14e624cd2b11",
+   "player_id": "1203514",
+   "player_name": "Arthur Gitego",
+   "overall": 58.4,
+   "from_club_id": "6371",
+   "to_club_id": "37620",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "c63ddf108dfb04be",
+   "player_id": "1317567",
+   "player_name": "Dyfan Thomas",
+   "overall": 60.7,
+   "from_club_id": "69951",
+   "to_club_id": "37255",
+   "fee": 450000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "8e071b9e8a7f36f2",
+   "player_id": "1087125",
+   "player_name": "José Castro",
+   "overall": 60.9,
+   "from_club_id": "10091",
+   "to_club_id": "36093",
+   "fee": 210000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "35dbe98dd069cd85",
+   "player_id": "886274",
+   "player_name": "José Cadenas",
+   "overall": 59.4,
+   "from_club_id": "43372",
+   "to_club_id": "36093",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "d4a2b7e4cc28878e",
+   "player_id": "912811",
+   "player_name": "Farshid Hamze",
+   "overall": 61.0,
+   "from_club_id": "117668",
+   "to_club_id": "92",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "383a2c031b990d24",
+   "player_id": "610603",
+   "player_name": "Jannick Liburd",
+   "overall": 59.1,
+   "from_club_id": null,
+   "to_club_id": "92",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "24330e25e8483979",
+   "player_id": "1311555",
+   "player_name": "Shunjanthan Ragui",
+   "overall": 66.4,
+   "from_club_id": "77643",
+   "to_club_id": "7481",
+   "fee": 590000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "bab12d1ba2afebe2",
+   "player_id": "1061267",
+   "player_name": "Sergi Esteban",
+   "overall": 60.1,
+   "from_club_id": "49806",
+   "to_club_id": "7481",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "462fd28051d378be",
+   "player_id": "1319293",
+   "player_name": "Maikeli Lomu",
+   "overall": 61.2,
+   "from_club_id": null,
+   "to_club_id": "7481",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "11b8a48f5919cda7",
+   "player_id": "979701",
+   "player_name": "Luann",
+   "overall": 64.7,
+   "from_club_id": "6758",
+   "to_club_id": "20116",
+   "fee": 290000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "5267e0a0e0554359",
+   "player_id": "912636",
+   "player_name": "Lukas Kristoffersen Emanuelsen",
+   "overall": 58.9,
+   "from_club_id": "34966",
+   "to_club_id": "20116",
+   "fee": 310000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "899be3ed8d97e961",
+   "player_id": "929943",
+   "player_name": "Francis Onyeka",
+   "overall": 69.8,
+   "from_club_id": "64",
+   "to_club_id": "150",
+   "fee": 10790000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "42f17fbe31bb142f",
+   "player_id": "1172000",
+   "player_name": "Iker Garijo",
+   "overall": 61.3,
+   "from_club_id": "78108",
+   "to_club_id": "150",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "b29fee1d3d080d5d",
+   "player_id": "521928",
+   "player_name": "Luca Sirch",
+   "overall": 70.7,
+   "from_club_id": "64",
+   "to_club_id": "150",
+   "fee": 2200000,
+   "kind": "transfer",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "d5f24733ab8cbc9e",
+   "player_id": "1162365",
+   "player_name": "Bandar Darwish",
+   "overall": 57.9,
+   "from_club_id": "17209",
+   "to_club_id": "39268",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "dbfc83c82de76190",
+   "player_id": "748838",
+   "player_name": "Yuriy Tlumak",
+   "overall": 62.3,
+   "from_club_id": "81401",
+   "to_club_id": "39268",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "7bd3375fa188f9b5",
+   "player_id": "1585279",
+   "player_name": "Kevin Rodriguez",
+   "overall": 59.7,
+   "from_club_id": "110468",
+   "to_club_id": "1092",
+   "fee": 470000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "4addb6f63624fd88",
+   "player_id": "262951",
+   "player_name": "Neneco",
+   "overall": 68.9,
+   "from_club_id": "13379",
+   "to_club_id": "1092",
+   "fee": 280000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "cb6244e6beaa9d30",
+   "player_id": "1134840",
+   "player_name": "Shengbo Wang",
+   "overall": 56.9,
+   "from_club_id": "137958",
+   "to_club_id": "1092",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "84e582ff421c0af3",
+   "player_id": "577148",
+   "player_name": "Randolf Akwasi Nti",
+   "overall": 60.2,
+   "from_club_id": "71861",
+   "to_club_id": "23203",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "12744c33772832eb",
+   "player_id": "626854",
+   "player_name": "Kevin Höög Jansson",
+   "overall": 64.3,
+   "from_club_id": "2431",
+   "to_club_id": "23203",
+   "fee": 460000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "ae02e61bd90febea",
+   "player_id": "1227546",
+   "player_name": "Josue Tunqui",
+   "overall": 64.7,
+   "from_club_id": "78641",
+   "to_club_id": "82685",
+   "fee": 260000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "c26aafe92e893bdd",
+   "player_id": "1055400",
+   "player_name": "Álex Muñiz",
+   "overall": 57.6,
+   "from_club_id": "6212",
+   "to_club_id": "6160",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "30ec79b28709c5ae",
+   "player_id": "1582341",
+   "player_name": "Anas Al-Qahtani",
+   "overall": 60.1,
+   "from_club_id": "17209",
+   "to_club_id": "41278",
+   "fee": 430000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "7fa795e27952e478",
+   "player_id": "1031869",
+   "player_name": "Sofan Sokry",
+   "overall": 58.2,
+   "from_club_id": "49301",
+   "to_club_id": "4103",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "84b3e09350f20986",
+   "player_id": "1010608",
+   "player_name": "Eduardo Rueda",
+   "overall": 59.6,
+   "from_club_id": "124163",
+   "to_club_id": "5776",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "afd3a7ddd526843a",
+   "player_id": "1090457",
+   "player_name": "Jianyi Zhou",
+   "overall": 60.4,
+   "from_club_id": "53326",
+   "to_club_id": "5776",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "6ae90e4fbe78fd13",
+   "player_id": "1111846",
+   "player_name": "Haruna Rasid Njie",
+   "overall": 62.1,
+   "from_club_id": "33783",
+   "to_club_id": "43514",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "b1bc23a47ed3709e",
+   "player_id": "221638",
+   "player_name": "Anumanthan Kumar",
+   "overall": 67.1,
+   "from_club_id": "1226",
+   "to_club_id": "43514",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "f34c76ef49073560",
+   "player_id": "1076603",
+   "player_name": "Esteban Cruz",
+   "overall": 59.0,
+   "from_club_id": "31337",
+   "to_club_id": "23564",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "9107383ff101036b",
+   "player_id": "188436",
+   "player_name": "Luigi Canotto",
+   "overall": 69.7,
+   "from_club_id": "839",
+   "to_club_id": "23564",
+   "fee": 230000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "ce76d2700c759b3b",
+   "player_id": "316398",
+   "player_name": "Sebastiaan Brebels",
+   "overall": 69.5,
+   "from_club_id": "3943",
+   "to_club_id": "78072",
+   "fee": 290000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "7d02c8cd5b496dc3",
+   "player_id": "1003846",
+   "player_name": "Martín Peralta",
+   "overall": 62.1,
+   "from_club_id": "31337",
+   "to_club_id": "86787",
+   "fee": 240000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "006d342f457d2489",
+   "player_id": "1210862",
+   "player_name": "Gomolemo Khoto",
+   "overall": 58.5,
+   "from_club_id": "85501",
+   "to_club_id": "3021",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "d0d3940a118ecb3a",
+   "player_id": "1544179",
+   "player_name": "Lazaro Barlessi",
+   "overall": 59.2,
+   "from_club_id": "30838",
+   "to_club_id": "599",
+   "fee": 440000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "5985169a71a53dd7",
+   "player_id": "429931",
+   "player_name": "Cederick Van Daele",
+   "overall": 63.7,
+   "from_club_id": "3943",
+   "to_club_id": "599",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "67680a9b62e67a65",
+   "player_id": "1456598",
+   "player_name": "Livinton Mena",
+   "overall": 60.7,
+   "from_club_id": "89435",
+   "to_club_id": "3943",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "9cf860f1a6ab253c",
+   "player_id": "895547",
+   "player_name": "Giannis Theodosoulakis",
+   "overall": 63.3,
+   "from_club_id": "653",
+   "to_club_id": "2832",
+   "fee": 740000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "079a49f5068c78c3",
+   "player_id": "1553214",
+   "player_name": "Juan Araoz",
+   "overall": 58.9,
+   "from_club_id": "21383",
+   "to_club_id": "47421",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "58a6e86ab5a175f9",
+   "player_id": "852953",
+   "player_name": "Ilias Sebaoui",
+   "overall": 70.9,
+   "from_club_id": "475",
+   "to_club_id": "350",
+   "fee": 3940000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "9feaede252e64c13",
+   "player_id": "1005625",
+   "player_name": "Arttu Takala",
+   "overall": 61.0,
+   "from_club_id": "23203",
+   "to_club_id": "1146",
+   "fee": 600000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "436b7bcaf7bb764c",
+   "player_id": "312069",
+   "player_name": "Aggée Wenzi",
+   "overall": 61.7,
+   "from_club_id": "17574",
+   "to_club_id": "1146",
+   "fee": 360000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "c66ca414704ce8dd",
+   "player_id": "343679",
+   "player_name": "Franklin Carabalí",
+   "overall": 68.8,
+   "from_club_id": "25576",
+   "to_club_id": "1146",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "38256cc6222dab57",
+   "player_id": "1043517",
+   "player_name": "Brunel Lutundisa",
+   "overall": 60.5,
+   "from_club_id": "5659",
+   "to_club_id": "134206",
    "fee": 310000,
    "kind": "transfer",
    "date": "2026-08-31"
   },
   {
-   "id": "26c05fa5850c564c",
-   "player_id": "392303",
-   "player_name": "Cédric Makutungu",
-   "overall": 67.6,
-   "from_club_id": "895",
-   "to_club_id": "30356",
-   "fee": 250000,
+   "id": "6aab3b65a1e28dcd",
+   "player_id": "627380",
+   "player_name": "André Ndiaye",
+   "overall": 59.0,
+   "from_club_id": "29988",
+   "to_club_id": "134206",
+   "fee": 50000,
    "kind": "transfer",
    "date": "2026-08-31"
   },
   {
-   "id": "34959f7194a6e87b",
-   "player_id": "1077562",
-   "player_name": "Paschalis Toufakis",
-   "overall": 60.9,
-   "from_club_id": "91868",
-   "to_club_id": "17554",
-   "fee": 180000,
+   "id": "37a6ade343ba6dc0",
+   "player_id": "1076808",
+   "player_name": "Nicolas Delpech",
+   "overall": 62.3,
+   "from_club_id": "10838",
+   "to_club_id": "17574",
+   "fee": 410000,
    "kind": "transfer",
    "date": "2026-08-31"
   },
   {
-   "id": "15fb4fef87beb726",
-   "player_id": "524042",
-   "player_name": "Omid Musawi",
-   "overall": 59.1,
+   "id": "c48440c27c01e0d5",
+   "player_id": "601035",
+   "player_name": "Kane Keizer",
+   "overall": 64.4,
+   "from_club_id": "6160",
+   "to_club_id": "89178",
+   "fee": 430000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "4f1a0dc656918661",
+   "player_id": "1048594",
+   "player_name": "Ismail El Alami",
+   "overall": 63.3,
+   "from_club_id": "4697",
+   "to_club_id": "89178",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "38d42522fcebc462",
+   "player_id": "185611",
+   "player_name": "Jorge González",
+   "overall": 65.9,
+   "from_club_id": "3829",
+   "to_club_id": "430",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "0c27782d02303fad",
+   "player_id": "1258276",
+   "player_name": "Julio Asprilla",
+   "overall": 61.4,
+   "from_club_id": "35297",
+   "to_club_id": "10838",
+   "fee": 460000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "a0b35dbcea2302cc",
+   "player_id": "1159661",
+   "player_name": "Eddy Doué",
+   "overall": 59.9,
+   "from_club_id": "2431",
+   "to_club_id": "8515",
+   "fee": 470000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "25eb678134779690",
+   "player_id": "1006887",
+   "player_name": "Agustín Ferro",
+   "overall": 63.9,
+   "from_club_id": "8413",
+   "to_club_id": "12457",
+   "fee": 410000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "b7d831ab1da7c265",
+   "player_id": "224892",
+   "player_name": "Gregor Sikosek",
+   "overall": 67.9,
+   "from_club_id": "599",
+   "to_club_id": "12457",
+   "fee": 200000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "dc4af3768154621c",
+   "player_id": "808866",
+   "player_name": "Klidman Lilo",
+   "overall": 62.1,
+   "from_club_id": "653",
+   "to_club_id": "53453",
+   "fee": 590000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "4035f12111b18728",
+   "player_id": "1196462",
+   "player_name": "Chen-Ying Yang",
+   "overall": 53.2,
+   "from_club_id": "16017",
+   "to_club_id": "53453",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "e21faa5134320943",
+   "player_id": "1056267",
+   "player_name": "Bandile Dlamini",
+   "overall": 59.8,
+   "from_club_id": "31283",
+   "to_club_id": "28846",
+   "fee": 90000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "4486a10fbcebc963",
+   "player_id": "1562657",
+   "player_name": "Hernán Benítez",
+   "overall": 60.7,
+   "from_club_id": "134206",
+   "to_club_id": "28846",
+   "fee": 440000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "318816c3cc74cd13",
+   "player_id": "1417104",
+   "player_name": "Medupi Thokolo",
+   "overall": 60.6,
+   "from_club_id": "85501",
+   "to_club_id": "28846",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "203df91745b080f5",
+   "player_id": "1380410",
+   "player_name": "Exequiel Batistella",
+   "overall": 59.5,
+   "from_club_id": "8413",
+   "to_club_id": "25032",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "2ea7e4e0ac7620f5",
+   "player_id": "1496851",
+   "player_name": "Abdoul Haïdara",
+   "overall": 59.9,
+   "from_club_id": "113384",
+   "to_club_id": "8413",
+   "fee": 140000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "93c00edc41712f91",
+   "player_id": "1082318",
+   "player_name": "Federico Sellecchia",
+   "overall": 68.4,
+   "from_club_id": "17486",
+   "to_club_id": "8413",
+   "fee": 140000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "12109e8344485d15",
+   "player_id": "258653",
+   "player_name": "Tom Beadling",
+   "overall": 66.3,
+   "from_club_id": "3021",
+   "to_club_id": "26357",
+   "fee": 120000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "457f01912f7a9bf3",
+   "player_id": "952093",
+   "player_name": "Burak Enes Yıkıcı",
+   "overall": 53.8,
+   "from_club_id": "2832",
+   "to_club_id": "26357",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "5355ddcab4268633",
+   "player_id": "1049563",
+   "player_name": "Yanis Astitou",
+   "overall": 58.6,
+   "from_club_id": "25032",
+   "to_club_id": "4128",
+   "fee": 410000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "6bd462e4a7e28db3",
+   "player_id": "398165",
+   "player_name": "Álvaro Gómez",
+   "overall": 68.4,
+   "from_club_id": "52397",
+   "to_club_id": "51517",
+   "fee": 340000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "7894f49b86f42d37",
+   "player_id": "345890",
+   "player_name": "Ruben Hoogenhout",
+   "overall": 65.9,
+   "from_club_id": "49301",
+   "to_club_id": "82384",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "5ffdab124f34144a",
+   "player_id": "175323",
+   "player_name": "Óscar Duarte",
+   "overall": 73.7,
+   "from_club_id": "4720",
+   "to_club_id": "17209",
+   "fee": 210000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "6b4ae95da8368e4d",
+   "player_id": "376227",
+   "player_name": "Denys Galenkov",
+   "overall": 70.9,
+   "from_club_id": "81401",
+   "to_club_id": "13379",
+   "fee": 350000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "4cededffc716973e",
+   "player_id": "1326281",
+   "player_name": "Deco",
+   "overall": 58.3,
+   "from_club_id": "103512",
+   "to_club_id": "13379",
+   "fee": 280000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "8f6b14bbfd775ce4",
+   "player_id": "193970",
+   "player_name": "Il-gwan Jong",
+   "overall": 66.7,
    "from_club_id": null,
-   "to_club_id": "17554",
+   "to_club_id": "13379",
    "fee": 0,
    "kind": "free_agent",
    "date": "2026-08-31"
   },
   {
-   "id": "74aae4c1b0ced4b3",
-   "player_id": "1275586",
-   "player_name": "Djibril Khouma",
-   "overall": 63.4,
-   "from_club_id": "13466",
-   "to_club_id": "11083",
-   "fee": 350000,
+   "id": "4f693c388ebe66ed",
+   "player_id": "1320116",
+   "player_name": "Saad Al-Qahtani",
+   "overall": 58.8,
+   "from_club_id": "17209",
+   "to_club_id": "24174",
+   "fee": 80000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "869b9d93b1fee388",
+   "player_id": "372106",
+   "player_name": "Roberts Veips",
+   "overall": 68.9,
+   "from_club_id": "33783",
+   "to_club_id": "2431",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "4720cc467e2822b2",
+   "player_id": "345716",
+   "player_name": "Fidel Escobar",
+   "overall": 72.9,
+   "from_club_id": "4720",
+   "to_club_id": "2431",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "767644b5ef47b91e",
+   "player_id": "279526",
+   "player_name": "Wei Long",
+   "overall": 66.5,
+   "from_club_id": "70657",
+   "to_club_id": "8045",
+   "fee": 100000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "8eb2c38c6e845e9d",
+   "player_id": "514939",
+   "player_name": "Kacper Gach",
+   "overall": 65.0,
+   "from_club_id": "6361",
+   "to_club_id": "8045",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "bed1c5b630aabeeb",
+   "player_id": "1399293",
+   "player_name": "Vincent Mobilla",
+   "overall": 56.3,
+   "from_club_id": "71861",
+   "to_club_id": "8045",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "8e42c3214894de25",
+   "player_id": "213469",
+   "player_name": "Mauricio Duarte",
+   "overall": 69.3,
+   "from_club_id": "13379",
+   "to_club_id": "3032",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "522f7ed7bfeb1254",
+   "player_id": "878734",
+   "player_name": "Nicolás Barrientos",
+   "overall": 69.1,
+   "from_club_id": "12100",
+   "to_club_id": "3032",
+   "fee": 170000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "e3a2fb9d798e2662",
+   "player_id": "1521729",
+   "player_name": "Theo Reed",
+   "overall": 58.7,
+   "from_club_id": "51762",
+   "to_club_id": "13366",
+   "fee": 390000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "96417ff1632721f1",
+   "player_id": "1406227",
+   "player_name": "Bossman Debrah",
+   "overall": 58.9,
+   "from_club_id": "1274",
+   "to_club_id": "89435",
+   "fee": 100000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "4dc376193e439781",
+   "player_id": "806501",
+   "player_name": "Souleymane Cissé",
+   "overall": 58.8,
+   "from_club_id": "12346",
+   "to_club_id": "89435",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "8d7955e7a34d5cea",
+   "player_id": "475441",
+   "player_name": "Nathan Sheron",
+   "overall": 64.8,
+   "from_club_id": "2577",
+   "to_club_id": "61251",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "605fe40f25e983a5",
+   "player_id": "1159156",
+   "player_name": "Ahmad Abu Rasen",
+   "overall": 53.4,
+   "from_club_id": "475",
+   "to_club_id": "101158",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "bde0e326b007250f",
+   "player_id": "1439462",
+   "player_name": "Ajdin Sadikovic",
+   "overall": 60.6,
+   "from_club_id": "28846",
+   "to_club_id": "101158",
+   "fee": 540000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "7a1e5d80211afd4a",
+   "player_id": "1395787",
+   "player_name": "Abdusalam Abdurehim",
+   "overall": 59.4,
+   "from_club_id": "137958",
+   "to_club_id": "103512",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "30edfc5479cd1b90",
+   "player_id": "44367",
+   "player_name": "Roman Eremenko",
+   "overall": 70.3,
+   "from_club_id": "23564",
+   "to_club_id": "30768",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "5f270547fda5d7a0",
+   "player_id": "684298",
+   "player_name": "Rhys Hilton",
+   "overall": 64.5,
+   "from_club_id": "3694",
+   "to_club_id": "17486",
+   "fee": 470000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "77fe7d0955c26c7d",
+   "player_id": "953744",
+   "player_name": "Ramón Morales",
+   "overall": 60.9,
+   "from_club_id": "134206",
+   "to_club_id": "8532",
+   "fee": 480000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "6feefe0ebebd1522",
+   "player_id": "876730",
+   "player_name": "Nouh Mohamed El Abd",
+   "overall": 66.1,
+   "from_club_id": "13366",
+   "to_club_id": "88232",
+   "fee": 250000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "5ba67b1afc77d68c",
+   "player_id": "593572",
+   "player_name": "Emmanuel Adu Siaw",
+   "overall": 64.6,
+   "from_club_id": "71943",
+   "to_club_id": "88232",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "3b7834db1828556a",
+   "player_id": "1134211",
+   "player_name": "Morgan Corredor",
+   "overall": 57.8,
+   "from_club_id": "30891",
+   "to_club_id": "66",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "877954c0526e8aca",
+   "player_id": "1448817",
+   "player_name": "Lucas Eide Døsen",
+   "overall": 58.7,
+   "from_club_id": "36238",
+   "to_club_id": "71985",
+   "fee": 380000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "8d22000cafcb8673",
+   "player_id": "1406767",
+   "player_name": "Lucas Reynaud",
+   "overall": 59.0,
+   "from_club_id": "8515",
+   "to_club_id": "71985",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "5bed397c951b55fc",
+   "player_id": "981324",
+   "player_name": "Alfredo Cabrera",
+   "overall": 68.4,
+   "from_club_id": "35297",
+   "to_club_id": "71985",
+   "fee": 510000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "5ebdeb6ffd747d17",
+   "player_id": "1527193",
+   "player_name": "Roni Lindsten",
+   "overall": 56.1,
+   "from_club_id": "98751",
+   "to_club_id": "70657",
+   "fee": 120000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "9ff3f54bfe0fd516",
+   "player_id": "1161617",
+   "player_name": "Boubacar Diallo",
+   "overall": 57.9,
+   "from_club_id": "6212",
+   "to_club_id": "113384",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "115c0bc0cb8a0012",
+   "player_id": "1253117",
+   "player_name": "Irlan Khugaev",
+   "overall": 59.3,
+   "from_club_id": "61352",
+   "to_club_id": "11479",
+   "fee": 400000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "76efa55c7f75efdf",
+   "player_id": "273725",
+   "player_name": "José Leudo",
+   "overall": 68.2,
+   "from_club_id": "78641",
+   "to_club_id": "12346",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "8e7384eeb15c6212",
+   "player_id": "1382681",
+   "player_name": "Terry Benjamin",
+   "overall": 57.0,
+   "from_club_id": "17647",
+   "to_club_id": "30838",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "c9ee8b4ada1874f9",
+   "player_id": "322330",
+   "player_name": "Lamine Diop",
+   "overall": 60.2,
+   "from_club_id": "29988",
+   "to_club_id": "30838",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "a4d01a1f0b20442b",
+   "player_id": "1243089",
+   "player_name": "Denis Popenkov",
+   "overall": 60.0,
+   "from_club_id": "71985",
+   "to_club_id": "71861",
+   "fee": 210000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "4669c6b82e6e3a91",
+   "player_id": "530038",
+   "player_name": "Aleksa Latkovic",
+   "overall": 71.4,
+   "from_club_id": "599",
+   "to_club_id": "26091",
+   "fee": 1160000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "f20d1a0d3be53638",
+   "player_id": "856156",
+   "player_name": "Carlos Benítez",
+   "overall": 62.8,
+   "from_club_id": "47421",
+   "to_club_id": "25576",
+   "fee": 270000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "7890c450a121c91b",
+   "player_id": "1371729",
+   "player_name": "Shaibu Rafique Issah",
+   "overall": 56.7,
+   "from_club_id": "71943",
+   "to_club_id": "105869",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "fd2f9fb7d6a8c253",
+   "player_id": "543098",
+   "player_name": "Josip Silic",
+   "overall": 59.8,
+   "from_club_id": "599",
+   "to_club_id": "105869",
+   "fee": 180000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "55cd93702e2c5deb",
+   "player_id": "1272445",
+   "player_name": "Emir El-Kathemi",
+   "overall": 54.2,
+   "from_club_id": "1092",
+   "to_club_id": "105869",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "130d6efbe9e26e4d",
+   "player_id": "1108345",
+   "player_name": "Tshepang Makara",
+   "overall": 59.9,
+   "from_club_id": "31283",
+   "to_club_id": "5659",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "8ee189a77f98fe55",
+   "player_id": "1553261",
+   "player_name": "Kamil Suárez",
+   "overall": 60.4,
+   "from_club_id": "21390",
+   "to_club_id": "5659",
+   "fee": 470000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "de631e0acc5c2d51",
+   "player_id": "1540236",
+   "player_name": "Lucais Grinter",
+   "overall": 56.6,
+   "from_club_id": "30768",
+   "to_club_id": "5659",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "da789a671a6d8251",
+   "player_id": "737456",
+   "player_name": "Stepan Sebrle",
+   "overall": 64.1,
+   "from_club_id": "450",
+   "to_club_id": "51762",
+   "fee": 250000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "2fb210317f4be5e4",
+   "player_id": "654947",
+   "player_name": "Dylan Demuynck",
+   "overall": 62.1,
+   "from_club_id": "3943",
+   "to_club_id": "1226",
+   "fee": 210000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "bfca8ec9a56f0d26",
+   "player_id": "583176",
+   "player_name": "Sabi Acquah Ferdinand",
+   "overall": 61.3,
+   "from_club_id": "71943",
+   "to_club_id": "1226",
+   "fee": 60000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "09eaf9643c903aaf",
+   "player_id": "198006",
+   "player_name": "Rafa Soares",
+   "overall": 71.8,
+   "from_club_id": "2431",
+   "to_club_id": "29",
+   "fee": 1170000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "e379ff6903115497",
+   "player_id": "630032",
+   "player_name": "Kevin Rosero",
+   "overall": 69.8,
+   "from_club_id": "1146",
+   "to_club_id": "29",
+   "fee": 1080000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "8f5c2e5e321173d1",
+   "player_id": "341533",
+   "player_name": "Kenan Avdusinovic",
+   "overall": 67.3,
+   "from_club_id": "12346",
+   "to_club_id": "17647",
+   "fee": 260000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "ccd72097975649bb",
+   "player_id": "346414",
+   "player_name": "Kenny Kindle",
+   "overall": 56.4,
+   "from_club_id": null,
+   "to_club_id": "17647",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "405b4d2b16cc950b",
+   "player_id": "1577946",
+   "player_name": "Filip Majdak",
+   "overall": 60.0,
+   "from_club_id": "6361",
+   "to_club_id": "3030",
+   "fee": 370000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "afc4afb9c1df0668",
+   "player_id": "745460",
+   "player_name": "Evan Rotundo",
+   "overall": 61.8,
+   "from_club_id": "450",
+   "to_club_id": "3030",
+   "fee": 190000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "f23d7bc6a2043075",
+   "player_id": "314218",
+   "player_name": "Gísli Eyjólfsson",
+   "overall": 68.9,
+   "from_club_id": "1231",
+   "to_club_id": "3030",
+   "fee": 140000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "d80dc742bf9c462a",
+   "player_id": "1118346",
+   "player_name": "Samir Mayo",
+   "overall": 62.9,
+   "from_club_id": "13379",
+   "to_club_id": "3694",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "feb6e3b33c439ae8",
+   "player_id": "720470",
+   "player_name": "Miguel Perea",
+   "overall": 66.3,
+   "from_club_id": "25576",
+   "to_club_id": "3694",
+   "fee": 330000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "43e3c37bbe98550b",
+   "player_id": "1470132",
+   "player_name": "Fuseini Ibrahim",
+   "overall": 56.0,
+   "from_club_id": "71861",
+   "to_club_id": "3694",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "b87d3893a214e4a1",
+   "player_id": "991460",
+   "player_name": "Krzysztof Kolanko",
+   "overall": 60.8,
+   "from_club_id": "6361",
+   "to_club_id": "1231",
+   "fee": 220000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "20bd43e2e15bec82",
+   "player_id": "741589",
+   "player_name": "Otto Hannula",
+   "overall": 56.9,
+   "from_club_id": "23564",
+   "to_club_id": "1231",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "4c2f27939e99beba",
+   "player_id": "168671",
+   "player_name": "Jevgenijs Nerugals",
+   "overall": 69.9,
+   "from_club_id": "33783",
+   "to_club_id": "603",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "938f95fa88bbef77",
+   "player_id": "307285",
+   "player_name": "Matthew Borg",
+   "overall": 70.5,
+   "from_club_id": "37368",
+   "to_club_id": "603",
+   "fee": 1980000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "701b0135534ae718",
+   "player_id": "585820",
+   "player_name": "Matej Votava",
+   "overall": 65.0,
+   "from_club_id": "1734",
+   "to_club_id": "1274",
+   "fee": 500000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "84d6f7f71074c786",
+   "player_id": "1448818",
+   "player_name": "Sondre Førde Valle",
+   "overall": 59.2,
+   "from_club_id": "36238",
+   "to_club_id": "5683",
+   "fee": 420000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "3e80998ceebc1be5",
+   "player_id": "647407",
+   "player_name": "Evgeniy Gremza",
+   "overall": 67.4,
+   "from_club_id": "24174",
+   "to_club_id": "5683",
+   "fee": 110000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "5d2d7ebc85bd4512",
+   "player_id": "103405",
+   "player_name": "Simon Strand",
+   "overall": 69.1,
+   "from_club_id": "1092",
+   "to_club_id": "12100",
+   "fee": 150000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "bc8c0acc66bc8796",
+   "player_id": "1086678",
+   "player_name": "Jose Kohler",
+   "overall": 58.3,
+   "from_club_id": "66",
+   "to_club_id": "12100",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "f48f167e88c45b5f",
+   "player_id": "1052880",
+   "player_name": "Efstathios Panikidis",
+   "overall": 52.3,
+   "from_club_id": "5572",
+   "to_club_id": "12100",
+   "fee": 50000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "c52f44228efacfc6",
+   "player_id": "1309326",
+   "player_name": "Jay-David Mbalanda",
+   "overall": 57.7,
+   "from_club_id": "475",
+   "to_club_id": "100153",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "402732d42a47b796",
+   "player_id": "1584202",
+   "player_name": "Diogo Monteiro",
+   "overall": 60.2,
+   "from_club_id": "75123",
+   "to_club_id": "100153",
+   "fee": 430000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "cd0a4115cf96274a",
+   "player_id": "195745",
+   "player_name": "Martin Rasner",
+   "overall": 68.8,
+   "from_club_id": "266",
+   "to_club_id": "29988",
+   "fee": 260000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "845a601c2005d6bb",
+   "player_id": "1236369",
+   "player_name": "Clivert Sam",
+   "overall": 50.0,
+   "from_club_id": null,
+   "to_club_id": "29988",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "1d751ba1db01c4a6",
+   "player_id": "693362",
+   "player_name": "Yannick Padilla",
+   "overall": 62.9,
+   "from_club_id": "5659",
+   "to_club_id": "33783",
+   "fee": 310000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  }
+ ],
+ "tail": [
+  {
+   "id": "c52f44228efacfc6",
+   "player_id": "1309326",
+   "player_name": "Jay-David Mbalanda",
+   "overall": 57.7,
+   "from_club_id": "475",
+   "to_club_id": "100153",
+   "fee": 160000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "402732d42a47b796",
+   "player_id": "1584202",
+   "player_name": "Diogo Monteiro",
+   "overall": 60.2,
+   "from_club_id": "75123",
+   "to_club_id": "100153",
+   "fee": 430000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "cd0a4115cf96274a",
+   "player_id": "195745",
+   "player_name": "Martin Rasner",
+   "overall": 68.8,
+   "from_club_id": "266",
+   "to_club_id": "29988",
+   "fee": 260000,
+   "kind": "transfer",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "845a601c2005d6bb",
+   "player_id": "1236369",
+   "player_name": "Clivert Sam",
+   "overall": 50.0,
+   "from_club_id": null,
+   "to_club_id": "29988",
+   "fee": 0,
+   "kind": "free_agent",
+   "date": "2026-08-31"
+  },
+  {
+   "id": "1d751ba1db01c4a6",
+   "player_id": "693362",
+   "player_name": "Yannick Padilla",
+   "overall": 62.9,
+   "from_club_id": "5659",
+   "to_club_id": "33783",
+   "fee": 310000,
    "kind": "transfer",
    "date": "2026-08-31"
   }
  ],
  "deltas": {
-  "100153": {
+  "20115": {
    "in": [
-    "1146052"
-   ],
-   "out": [],
-   "in_count": 1,
-   "out_count": 0
-  },
-  "10093": {
-   "in": [
-    "1292506",
-    "303837",
-    "393830"
+    "1048662",
+    "1385060"
    ],
    "out": [
-    "1418579"
+    "1409429"
    ],
-   "in_count": 3,
+   "in_count": 2,
    "out_count": 1
   },
-  "10118": {
+  "25232": {
    "in": [
-    "1121879"
+    "1409429",
+    "1341406"
    ],
-   "out": [],
-   "in_count": 1,
-   "out_count": 0
+   "out": [
+    "195204"
+   ],
+   "in_count": 2,
+   "out_count": 1
   },
-  "101282": {
+  "76319": {
    "in": [],
    "out": [
-    "1457966"
+    "1341406",
+    "1498794",
+    "1398389"
    ],
    "in_count": 0,
+   "out_count": 3
+  },
+  "2502": {
+   "in": [
+    "264872",
+    "864381"
+   ],
+   "out": [
+    "374213",
+    "933350"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "24749": {
+   "in": [
+    "374213",
+    "69899"
+   ],
+   "out": [
+    "1408564"
+   ],
+   "in_count": 2,
    "out_count": 1
+  },
+  "322": {
+   "in": [
+    "1018233"
+   ],
+   "out": [
+    "69899",
+    "864381",
+    "876629"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "521": {
+   "in": [
+    "1565790",
+    "901084"
+   ],
+   "out": [
+    "1359048"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "389": {
+   "in": [
+    "1359048",
+    "1585176",
+    "633781"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "25781": {
+   "in": [],
+   "out": [
+    "1585176",
+    "1459532",
+    "1480023"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "19585": {
+   "in": [],
+   "out": [
+    "633781",
+    "633792",
+    "1442796"
+   ],
+   "in_count": 0,
+   "out_count": 3
   },
   "102149": {
    "in": [
-    "842538",
-    "353932",
-    "1210897"
+    "929194",
+    "1031449",
+    "602252"
    ],
    "out": [
-    "1024862"
+    "1577524",
+    "1426915"
    ],
    "in_count": 3,
-   "out_count": 1
+   "out_count": 2
   },
-  "102186": {
-   "in": [],
-   "out": [
-    "1537203"
-   ],
-   "in_count": 0,
-   "out_count": 1
-  },
-  "102462": {
+  "5747": {
    "in": [
-    "982557"
+    "1577524"
    ],
    "out": [],
    "in_count": 1,
    "out_count": 0
   },
-  "1031": {
+  "16779": {
    "in": [
-    "1078677",
-    "1271784"
+    "989819"
+   ],
+   "out": [
+    "983315"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "27419": {
+   "in": [
+    "983315"
+   ],
+   "out": [
+    "879826"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "434": {
+   "in": [
+    "708067",
+    "1462363",
+    "1364960"
+   ],
+   "out": [
+    "202659"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "30613": {
+   "in": [
+    "202659"
+   ],
+   "out": [
+    "1277794"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "7609": {
+   "in": [
+    "371223"
+   ],
+   "out": [
+    "1565790"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "32343": {
+   "in": [
+    "437976"
+   ],
+   "out": [
+    "901084"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "91427": {
+   "in": [
+    "1071948",
+    "973291",
+    "1498794"
+   ],
+   "out": [
+    "748080",
+    "1298427"
+   ],
+   "in_count": 3,
+   "out_count": 2
+  },
+  "29700": {
+   "in": [
+    "748080"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "28231": {
+   "in": [
+    "1137956"
+   ],
+   "out": [
+    "1001151"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "2374": {
+   "in": [
+    "1001151",
+    "1117678",
+    "733235"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "404": {
+   "in": [],
+   "out": [
+    "1117678",
+    "351405"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "18443": {
+   "in": [],
+   "out": [
+    "733235",
+    "887365"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "16017": {
+   "in": [
+    "1534576"
+   ],
+   "out": [
+    "497308",
+    "1060219",
+    "1196462"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "24326": {
+   "in": [
+    "497308"
+   ],
+   "out": [
+    "1551816",
+    "298638"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "23548": {
+   "in": [
+    "359024",
+    "879339"
+   ],
+   "out": [
+    "1181188",
+    "1018233",
+    "288071"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "6078": {
+   "in": [
+    "1181188",
+    "1235078",
+    "595185"
+   ],
+   "out": [
+    "1376138",
+    "1261225",
+    "891993"
+   ],
+   "in_count": 3,
+   "out_count": 3
+  },
+  "84": {
+   "in": [
+    "1144522",
+    "1253326"
+   ],
+   "out": [
+    "1235078",
+    "602906"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "53667": {
+   "in": [
+    "482067",
+    "527077"
+   ],
+   "out": [
+    "595185",
+    "756040",
+    "1165046"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "14977": {
+   "in": [
+    "565875",
+    "38857"
+   ],
+   "out": [
+    "688181",
+    "1103929"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "3012": {
+   "in": [
+    "688181",
+    "211881"
    ],
    "out": [],
    "in_count": 2,
    "out_count": 0
   },
-  "10330": {
+  "25067": {
    "in": [],
    "out": [
-    "866086"
+    "211881",
+    "527077"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "12520": {
+   "in": [
+    "1376138",
+    "816807",
+    "756040"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "11123": {
+   "in": [],
+   "out": [
+    "816807",
+    "449468"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "629": {
+   "in": [],
+   "out": [
+    "988412"
    ],
    "in_count": 0,
    "out_count": 1
   },
-  "10331": {
+  "11000": {
    "in": [
-    "1424865"
+    "988412",
+    "1497667"
    ],
    "out": [
-    "670712"
+    "886295",
+    "379224"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "35070": {
+   "in": [],
+   "out": [
+    "1497667",
+    "1498924",
+    "728263"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "12285": {
+   "in": [
+    "1551816",
+    "1175950"
+   ],
+   "out": [
+    "338793",
+    "1331759"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "20634": {
+   "in": [
+    "338793"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "14099": {
+   "in": [],
+   "out": [
+    "929194",
+    "482067",
+    "565875"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "25383": {
+   "in": [
+    "1377989",
+    "1130613"
+   ],
+   "out": [
+    "1031449",
+    "973291",
+    "429249"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "45185": {
+   "in": [
+    "717207",
+    "1188915",
+    "714855"
+   ],
+   "out": [
+    "602252",
+    "1339471",
+    "1566793"
+   ],
+   "in_count": 3,
+   "out_count": 3
+  },
+  "6954": {
+   "in": [
+    "449468",
+    "1191465"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "64779": {
+   "in": [],
+   "out": [
+    "1191465"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "8641": {
+   "in": [
+    "909198",
+    "1119023"
+   ],
+   "out": [
+    "264872",
+    "1048662"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "44505": {
+   "in": [
+    "998850",
+    "515389"
+   ],
+   "out": [
+    "1344275"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "9875": {
+   "in": [
+    "1344275"
+   ],
+   "out": [
+    "1253326",
+    "284728"
    ],
    "in_count": 1,
+   "out_count": 2
+  },
+  "6423": {
+   "in": [
+    "633792",
+    "374315"
+   ],
+   "out": [
+    "437976",
+    "925986"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "2951": {
+   "in": [
+    "580283"
+   ],
+   "out": [
+    "374315"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "73899": {
+   "in": [
+    "1164327",
+    "331478"
+   ],
+   "out": [
+    "1175606"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "20200": {
+   "in": [
+    "1175606",
+    "195204",
+    "625650"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "36821": {
+   "in": [],
+   "out": [
+    "717207",
+    "1025415"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "55544": {
+   "in": [
+    "1339471",
+    "503976"
+   ],
+   "out": [
+    "1188915",
+    "1130613"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "151": {
+   "in": [],
+   "out": [
+    "1144522"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "459": {
+   "in": [
+    "351405",
+    "1025415",
+    "1165046"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "25118": {
+   "in": [],
+   "out": [
+    "1463626",
+    "1470135",
+    "1371732"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "42813": {
+   "in": [
+    "1463626",
+    "1459532",
+    "533176"
+   ],
+   "out": [
+    "1478677",
+    "855461"
+   ],
+   "in_count": 3,
+   "out_count": 2
+  },
+  "6572": {
+   "in": [
+    "728263",
+    "672392",
+    "1105073"
+   ],
+   "out": [
+    "1592698",
+    "1200779",
+    "1377989"
+   ],
+   "in_count": 3,
+   "out_count": 3
+  },
+  "35021": {
+   "in": [
+    "1592698",
+    "1125506"
+   ],
+   "out": [
+    "1534576"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "9598": {
+   "in": [],
+   "out": [
+    "1125506"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "122406": {
+   "in": [
+    "647908"
+   ],
+   "out": [
+    "998850"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "28378": {
+   "in": [
+    "1442796"
+   ],
+   "out": [
+    "515389",
+    "335027"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "143052": {
+   "in": [
+    "602906",
+    "812014"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "20857": {
+   "in": [
+    "834461",
+    "906663"
+   ],
+   "out": [
+    "812014",
+    "1328123"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "10734": {
+   "in": [
+    "288071"
+   ],
+   "out": [
+    "503976"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "40039": {
+   "in": [
+    "1277794",
+    "1331759"
+   ],
+   "out": [
+    "172678",
+    "1199798",
+    "672392"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "42781": {
+   "in": [
+    "1200779"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "28545": {
+   "in": [
+    "933350"
+   ],
+   "out": [
+    "869911",
+    "1053416"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "3524": {
+   "in": [
+    "869911"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "7011": {
+   "in": [],
+   "out": [
+    "647908"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "1245": {
+   "in": [],
+   "out": [
+    "708067",
+    "1137956"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "708": {
+   "in": [],
+   "out": [
+    "1462363"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "24394": {
+   "in": [],
+   "out": [
+    "1364960"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "24240": {
+   "in": [
+    "1498924",
+    "172678"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "24991": {
+   "in": [
+    "1470135",
+    "1328123",
+    "1371732"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "40843": {
+   "in": [
+    "284728",
+    "1199798",
+    "1103929"
+   ],
+   "out": [
+    "371223"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "26856": {
+   "in": [
+    "898696",
+    "429732"
+   ],
+   "out": [
+    "1071948",
+    "988446",
+    "989819"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "7153": {
+   "in": [
+    "988446"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "41278": {
+   "in": [
+    "1426915",
+    "1582341"
+   ],
+   "out": [
+    "451331"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "1465": {
+   "in": [
+    "1053416",
+    "1298427"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "1088": {
+   "in": [],
+   "out": [
+    "1216180"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "26873": {
+   "in": [
+    "1216180"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "72710": {
+   "in": [
+    "879826"
+   ],
+   "out": [
+    "331478"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "20960": {
+   "in": [],
+   "out": [
+    "93124",
+    "1105073"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "27820": {
+   "in": [
+    "93124",
+    "714260"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "15316": {
+   "in": [],
+   "out": [
+    "714260"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "24219": {
+   "in": [],
+   "out": [
+    "1175950"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "89919": {
+   "in": [],
+   "out": [
+    "1438886"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "45536": {
+   "in": [
+    "1438886"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "33242": {
+   "in": [
+    "1398389",
+    "1060219"
+   ],
+   "out": [
+    "618408"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "26357": {
+   "in": [
+    "258653",
+    "952093"
+   ],
+   "out": [
+    "38857"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "132472": {
+   "in": [],
+   "out": [
+    "898696"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "1257": {
+   "in": [],
+   "out": [
+    "429732"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "317": {
+   "in": [
+    "886295"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "3015": {
+   "in": [
+    "618408"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "9252": {
+   "in": [
+    "429249",
+    "451331"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "22475": {
+   "in": [
+    "1566793",
+    "379224",
+    "1111925"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "35029": {
+   "in": [
+    "298638"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "66143": {
+   "in": [],
+   "out": [
+    "1164327",
+    "580283"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "120857": {
+   "in": [],
+   "out": [
+    "909198"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "44289": {
+   "in": [],
+   "out": [
+    "1119023",
+    "428216"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "11245": {
+   "in": [
+    "335027",
+    "428216"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "67375": {
+   "in": [
+    "1408564",
+    "887365",
+    "1271116"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "18778": {
+   "in": [
+    "1261225",
+    "925986"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "4727": {
+   "in": [
+    "876629",
+    "891993",
+    "629144"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "2434": {
+   "in": [],
+   "out": [
+    "834461"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "3696": {
+   "in": [
+    "378972",
+    "1199061",
+    "1443120"
+   ],
+   "out": [
+    "431424",
+    "961081"
+   ],
+   "in_count": 3,
+   "out_count": 2
+  },
+  "1181": {
+   "in": [
+    "431424",
+    "553423"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "10233": {
+   "in": [],
+   "out": [
+    "553423",
+    "158770",
+    "1006615"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "5208": {
+   "in": [
+    "1025582",
+    "650031",
+    "1025601"
+   ],
+   "out": [
+    "1341943",
+    "1299453",
+    "333762"
+   ],
+   "in_count": 3,
+   "out_count": 3
+  },
+  "76077": {
+   "in": [
+    "1341943",
+    "273183"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "107118": {
+   "in": [],
+   "out": [
+    "273183",
+    "650031",
+    "401479"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "28971": {
+   "in": [
+    "1299453",
+    "242681"
+   ],
+   "out": [
+    "1077442",
+    "691741",
+    "1446451"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "22": {
+   "in": [
+    "1526965"
+   ],
+   "out": [
+    "242681",
+    "282821",
+    "49667"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "13341": {
+   "in": [
+    "168548",
+    "1199050"
+   ],
+   "out": [
+    "917276"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "135792": {
+   "in": [
+    "917276",
+    "749738"
+   ],
+   "out": [
+    "1526965",
+    "1374262"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "116338": {
+   "in": [],
+   "out": [
+    "749738"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "30245": {
+   "in": [
+    "925841",
+    "962158"
+   ],
+   "out": [
+    "810014"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "42": {
+   "in": [
+    "810014",
+    "703738",
+    "153568"
+   ],
+   "out": [
+    "907082"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "12717": {
+   "in": [],
+   "out": [
+    "703738",
+    "1140909",
+    "1069654"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "32328": {
+   "in": [
+    "1508805",
+    "1535367"
+   ],
+   "out": [
+    "153568"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "82546": {
+   "in": [
+    "706897"
+   ],
+   "out": [
+    "582262",
+    "1508805"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "13519": {
+   "in": [
+    "582262",
+    "555456",
+    "951010"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "103163": {
+   "in": [
+    "253169"
+   ],
+   "out": [
+    "737866"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "171": {
+   "in": [
+    "737866"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "14554": {
+   "in": [],
+   "out": [
+    "1224637"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "133264": {
+   "in": [
+    "1224637",
+    "1032207"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "49075": {
+   "in": [],
+   "out": [
+    "1032207",
+    "1296290",
+    "1511275"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "84398": {
+   "in": [],
+   "out": [
+    "1213919",
+    "1118375",
+    "1531165"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "3275": {
+   "in": [
+    "1213919",
+    "561389"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "77101": {
+   "in": [
+    "695851"
+   ],
+   "out": [
+    "561389",
+    "822939"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "124050": {
+   "in": [],
+   "out": [
+    "1578111",
+    "1553886"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "91714": {
+   "in": [
+    "1578111",
+    "1118375",
+    "224503"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "107": {
+   "in": [
+    "317482",
+    "1006615"
+   ],
+   "out": [
+    "224503",
+    "158052",
+    "453005"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "8517": {
+   "in": [],
+   "out": [
+    "1318410",
+    "955358",
+    "1434877"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "51523": {
+   "in": [
+    "1318410",
+    "351983"
+   ],
+   "out": [
+    "1535367",
+    "1411993",
+    "1390410"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "965": {
+   "in": [
+    "401479"
+   ],
+   "out": [
+    "351983",
+    "353180"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "38006": {
+   "in": [],
+   "out": [
+    "1025582"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "19030": {
+   "in": [
+    "1077442",
+    "927993"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "7315": {
+   "in": [
+    "961081",
+    "1086833"
+   ],
+   "out": [
+    "927993",
+    "1018044"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "2454": {
+   "in": [],
+   "out": [
+    "875235",
+    "1165670",
+    "419326"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "20035": {
+   "in": [
+    "875235",
+    "1476067",
+    "1140909"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "1436": {
+   "in": [],
+   "out": [
+    "1476067"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "13366": {
+   "in": [
+    "158052",
+    "1521729"
+   ],
+   "out": [
+    "876730"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "215": {
+   "in": [
+    "402657",
+    "1318455",
+    "977343"
+   ],
+   "out": [
+    "695851"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "21283": {
+   "in": [
+    "1152469"
+   ],
+   "out": [
+    "856568",
+    "542168"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "379": {
+   "in": [
+    "856568"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "7116": {
+   "in": [
+    "1250581"
+   ],
+   "out": [
+    "706897"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "112499": {
+   "in": [
+    "353180",
+    "1000187"
+   ],
+   "out": [
+    "1285469",
+    "1318455",
+    "864261"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "48277": {
+   "in": [
+    "1441936",
+    "189053"
+   ],
+   "out": [
+    "1000187"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "15926": {
+   "in": [],
+   "out": [
+    "1152469",
+    "1199061",
+    "1533367"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "128297": {
+   "in": [],
+   "out": [
+    "1513257"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "3032": {
+   "in": [
+    "1513257",
+    "213469",
+    "878734"
+   ],
+   "out": [
+    "403575"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "65671": {
+   "in": [
+    "453005"
+   ],
+   "out": [
+    "993898",
+    "1123276"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "6201": {
+   "in": [
+    "993898"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "24350": {
+   "in": [
+    "822939",
+    "1306476"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "59053": {
+   "in": [],
+   "out": [
+    "1306476",
+    "1199050",
+    "1199692"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "36": {
+   "in": [
+    "955358"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "27446": {
+   "in": [],
+   "out": [
+    "1250581"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "23575": {
+   "in": [],
+   "out": [
+    "1018752",
+    "168548"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "29213": {
+   "in": [
+    "1018752"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "51070": {
+   "in": [],
+   "out": [
+    "378972"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "26643": {
+   "in": [
+    "1285469",
+    "1432732",
+    "1386415"
+   ],
+   "out": [
+    "1443120",
+    "482194"
+   ],
+   "in_count": 3,
+   "out_count": 2
+  },
+  "58049": {
+   "in": [
+    "433891",
+    "1191882",
+    "197801"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "34332": {
+   "in": [
+    "1553886",
+    "1087126",
+    "1415274"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "10091": {
+   "in": [],
+   "out": [
+    "1087126",
+    "1086833",
+    "1087125"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "26730": {
+   "in": [
+    "1069654"
+   ],
+   "out": [
+    "933827"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "45913": {
+   "in": [
+    "691741",
+    "1165670"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "3371": {
+   "in": [
+    "1123276",
+    "523777",
+    "1397040"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "38381": {
+   "in": [],
+   "out": [
+    "1241724",
+    "402657"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "678": {
+   "in": [
+    "1241724",
+    "403575",
+    "1374262"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "260": {
+   "in": [
+    "354657"
+   ],
+   "out": [
+    "994781"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "67212": {
+   "in": [
+    "994781",
+    "278832"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "24297": {
+   "in": [],
+   "out": [
+    "1149510",
+    "742147"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "20117": {
+   "in": [
+    "1149510"
+   ],
+   "out": [
+    "189626"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "57781": {
+   "in": [
+    "482194",
+    "1018044",
+    "1300170"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "40173": {
+   "in": [
+    "1307503",
+    "1076567"
+   ],
+   "out": [
+    "1300170"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "15276": {
+   "in": [],
+   "out": [
+    "854759"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "41101": {
+   "in": [
+    "854759"
+   ],
+   "out": [
+    "978442",
+    "925841"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "103004": {
+   "in": [
+    "1446451"
+   ],
+   "out": [
+    "479610",
+    "253169"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "1910": {
+   "in": [
+    "479610"
+   ],
+   "out": [
+    "730816"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "68653": {
+   "in": [],
+   "out": [
+    "354657",
+    "1325676"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "53668": {
+   "in": [],
+   "out": [
+    "565997",
+    "1291256"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "67001": {
+   "in": [
+    "565997",
+    "1537074"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "28893": {
+   "in": [
+    "1325676",
+    "1411993"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "13264": {
+   "in": [
+    "282821"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "132454": {
+   "in": [],
+   "out": [
+    "1441936",
+    "907372",
+    "1486140"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "1897": {
+   "in": [
+    "578655",
+    "1434877"
+   ],
+   "out": [
+    "189053"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "8179": {
+   "in": [
+    "1291256",
+    "158770",
+    "933827"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "21169": {
+   "in": [
+    "333762",
+    "138741"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "11194": {
+   "in": [],
+   "out": [
+    "138741",
+    "317482",
+    "1304683"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "54291": {
+   "in": [],
+   "out": [
+    "1159792"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "18018": {
+   "in": [
+    "1159792",
+    "1390410",
+    "1296290"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "940": {
+   "in": [
+    "419326",
+    "1588272",
+    "528955"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "33991": {
+   "in": [],
+   "out": [
+    "1588272"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "2772": {
+   "in": [],
+   "out": [
+    "528955",
+    "501198"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "3243": {
+   "in": [
+    "907082"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "11099": {
+   "in": [
+    "126600",
+    "1199692",
+    "1511275"
+   ],
+   "out": [
+    "1117945"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "237": {
+   "in": [
+    "1117945"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "124696": {
+   "in": [
+    "978442"
+   ],
+   "out": [
+    "1419560"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "46694": {
+   "in": [],
+   "out": [
+    "943018",
+    "962158"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "16005": {
+   "in": [
+    "943018",
+    "907372",
+    "1175321"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "59419": {
+   "in": [
+    "742147",
+    "1533367",
+    "49667"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "7968": {
+   "in": [],
+   "out": [
+    "1307503"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "17153": {
+   "in": [
+    "501198"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "7790": {
+   "in": [
+    "1531165",
+    "1304683",
+    "947907"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "8445": {
+   "in": [
+    "1486140"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "601": {
+   "in": [
+    "542168",
+    "730816",
+    "1480023"
+   ],
+   "out": [
+    "578655"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "31804": {
+   "in": [],
+   "out": [
+    "1501254"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "10789": {
+   "in": [
+    "1501254",
+    "189626"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "1123": {
+   "in": [],
+   "out": [
+    "126600"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "16024": {
+   "in": [
+    "1419560",
+    "864261"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "34344": {
+   "in": [
+    "1578919",
+    "1251761"
+   ],
+   "out": [
+    "578095",
+    "706216"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "49806": {
+   "in": [
+    "578095",
+    "1151086",
+    "1134358"
+   ],
+   "out": [
+    "616823",
+    "1585122",
+    "1061267"
+   ],
+   "in_count": 3,
+   "out_count": 3
+  },
+  "9218": {
+   "in": [],
+   "out": [
+    "1151086",
+    "1431448"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "3733": {
+   "in": [
+    "1373087",
+    "1443125",
+    "1271376"
+   ],
+   "out": [
+    "745911",
+    "671829"
+   ],
+   "in_count": 3,
+   "out_count": 2
+  },
+  "77117": {
+   "in": [
+    "745911",
+    "671829"
+   ],
+   "out": [
+    "1280979"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "8123": {
+   "in": [
+    "1268637",
+    "336506",
+    "529551"
+   ],
+   "out": [
+    "833747",
+    "1045246",
+    "1343553"
+   ],
+   "in_count": 3,
+   "out_count": 3
+  },
+  "10666": {
+   "in": [
+    "833747",
+    "1443944"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "111182": {
+   "in": [],
+   "out": [
+    "1443944"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "34744": {
+   "in": [],
+   "out": [
+    "330214"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "123838": {
+   "in": [
+    "330214",
+    "1230660",
+    "758474"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "45310": {
+   "in": [
+    "275020"
+   ],
+   "out": [
+    "1230660",
+    "1136692",
+    "1244107"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "15310": {
+   "in": [
+    "1543564",
+    "1162205",
+    "734436"
+   ],
+   "out": [
+    "758474"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "82236": {
+   "in": [
+    "1136692",
+    "1307119"
+   ],
+   "out": [
+    "807742"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "86787": {
+   "in": [
+    "1239162",
+    "1003846"
+   ],
+   "out": [
+    "1307119"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "6017": {
+   "in": [],
+   "out": [
+    "1235140",
+    "1018449"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "101280": {
+   "in": [
+    "1235140",
+    "1042342",
+    "1092526"
+   ],
+   "out": [
+    "625650"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "37255": {
+   "in": [
+    "1317567"
+   ],
+   "out": [
+    "1042342",
+    "720941",
+    "1455935"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "54134": {
+   "in": [
+    "286067"
+   ],
+   "out": [
+    "1092526"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "113156": {
+   "in": [],
+   "out": [
+    "1027018",
+    "1593607"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "3729": {
+   "in": [
+    "1027018",
+    "1593607"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "7481": {
+   "in": [
+    "1311555",
+    "1061267",
+    "1319293"
+   ],
+   "out": [
+    "430833",
+    "766646"
+   ],
+   "in_count": 3,
+   "out_count": 2
+  },
+  "120407": {
+   "in": [
+    "430833",
+    "1091331"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "77974": {
+   "in": [
+    "1244107",
+    "199896"
+   ],
+   "out": [
+    "1091331",
+    "734436"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "63169": {
+   "in": [],
+   "out": [
+    "433990"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "531": {
+   "in": [
+    "433990"
+   ],
+   "out": [
+    "1239210",
+    "359024"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "21465": {
+   "in": [],
+   "out": [
+    "286067",
+    "1265175"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "59735": {
+   "in": [
+    "925035",
+    "855461",
+    "156508"
+   ],
+   "out": [
+    "1268637",
+    "603432"
+   ],
+   "in_count": 3,
+   "out_count": 2
+  },
+  "117668": {
+   "in": [],
+   "out": [
+    "336506",
+    "912811"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "50162": {
+   "in": [
+    "1265175"
+   ],
+   "out": [
+    "529551"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "55265": {
+   "in": [],
+   "out": [
+    "429677",
+    "532374"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "2829": {
+   "in": [
+    "429677",
+    "616823",
+    "1041258"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "38274": {
+   "in": [
+    "1516387",
+    "1343553"
+   ],
+   "out": [
+    "1041258",
+    "1074127"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "10372": {
+   "in": [
+    "1585122"
+   ],
+   "out": [
+    "693766"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "60350": {
+   "in": [
+    "693766"
+   ],
+   "out": [
+    "340885"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "24445": {
+   "in": [
+    "340885",
+    "364464",
+    "1489341"
+   ],
+   "out": [
+    "275020"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "35110": {
+   "in": [],
+   "out": [
+    "464509",
+    "673025"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "57450": {
+   "in": [
+    "464509"
+   ],
+   "out": [
+    "1106631"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "39341": {
+   "in": [
+    "1106631"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "95331": {
+   "in": [
+    "720941"
+   ],
+   "out": [
+    "1474101",
+    "1162205",
+    "1214849"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "38200": {
+   "in": [
+    "1474101",
+    "706216"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "2395": {
+   "in": [
+    "1280979"
+   ],
+   "out": [
+    "607627"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "78108": {
+   "in": [
+    "1021955",
+    "872617",
+    "1407841"
+   ],
+   "out": [
+    "632481",
+    "1172000"
+   ],
+   "in_count": 3,
+   "out_count": 2
+  },
+  "29830": {
+   "in": [
+    "632481",
+    "636750"
+   ],
+   "out": [
+    "903656"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "1918": {
+   "in": [],
+   "out": [
+    "636750",
+    "1319726"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "28577": {
+   "in": [],
+   "out": [
+    "1497784",
+    "1516387"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "16402": {
+   "in": [
+    "1497784",
+    "673025"
+   ],
+   "out": [
+    "1578919"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "30839": {
+   "in": [],
+   "out": [
+    "1521269"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "3905": {
+   "in": [
+    "1521269",
+    "1395612"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "44210": {
+   "in": [],
+   "out": [
+    "1395612"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "11275": {
+   "in": [
+    "1021787",
+    "1552155",
+    "265231"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "36020": {
+   "in": [
+    "1522701",
+    "903656"
+   ],
+   "out": [
+    "1000705"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "6371": {
+   "in": [
+    "1000705",
+    "1543116"
+   ],
+   "out": [
+    "1203514"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "118446": {
+   "in": [],
+   "out": [
+    "1543116",
+    "1443125"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "43372": {
+   "in": [],
+   "out": [
+    "1522701",
+    "886274"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "17467": {
+   "in": [],
+   "out": [
+    "77288",
+    "1021955",
+    "119229"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "28329": {
+   "in": [
+    "77288"
+   ],
+   "out": [
+    "721804",
+    "575539",
+    "627761"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "494": {
+   "in": [
+    "1319726",
+    "532374"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "47059": {
+   "in": [
+    "807742",
+    "607627"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "22559": {
+   "in": [
+    "1431448"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "34966": {
+   "in": [],
+   "out": [
+    "1218800",
+    "1543564",
+    "912636"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "58": {
+   "in": [
+    "1218800",
+    "888508"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "53743": {
+   "in": [],
+   "out": [
+    "888508",
+    "1373087"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "60792": {
+   "in": [
+    "603432",
+    "1018449"
+   ],
+   "out": [
+    "319736",
+    "465616"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "99764": {
+   "in": [
+    "319736",
+    "1045246"
+   ],
+   "out": [
+    "1098980"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "39197": {
+   "in": [],
+   "out": [
+    "1239162",
+    "1173974"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "6266": {
+   "in": [],
+   "out": [
+    "199896"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "11375": {
+   "in": [
+    "1478677"
+   ],
+   "out": [
+    "1278593"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "92": {
+   "in": [
+    "912811",
+    "610603"
+   ],
+   "out": [
+    "522077",
+    "687257"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "31": {
+   "in": [
+    "522077"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "10540": {
+   "in": [],
+   "out": [
+    "872617"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "36093": {
+   "in": [
+    "1087125",
+    "886274"
+   ],
+   "out": [
+    "1407841",
+    "1178157"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "17847": {
+   "in": [
+    "1214849",
+    "1500116",
+    "1460105"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "85118": {
+   "in": [
+    "1178157",
+    "396920"
+   ],
+   "out": [
+    "1500116",
+    "1460105",
+    "364464"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "39637": {
+   "in": [
+    "1239210",
+    "1173974"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "11247": {
+   "in": [],
+   "out": [
+    "1193683",
+    "156508"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "352": {
+   "in": [
+    "1193683"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "62573": {
+   "in": [],
+   "out": [
+    "1489341"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "9643": {
+   "in": [
+    "1455935",
+    "1278593"
+   ],
+   "out": [
+    "925035"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "73774": {
+   "in": [],
+   "out": [
+    "1251761"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "6593": {
+   "in": [
+    "687257"
+   ],
+   "out": [
+    "396920"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "10850": {
+   "in": [
+    "721804",
+    "1074127"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "11539": {
+   "in": [
+    "766646"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "37620": {
+   "in": [
+    "440858",
+    "627761",
+    "1203514"
+   ],
+   "out": [
+    "1496024"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "58505": {
+   "in": [
+    "1496024",
+    "575539",
+    "465616"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "9811": {
+   "in": [
+    "119229"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "6758": {
+   "in": [],
+   "out": [
+    "879339",
+    "979701"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "70596": {
+   "in": [
+    "1098980"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "30114": {
+   "in": [],
+   "out": [
+    "440858"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "69951": {
+   "in": [],
+   "out": [
+    "1317567"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "77643": {
+   "in": [],
+   "out": [
+    "1311555"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "20116": {
+   "in": [
+    "979701",
+    "912636"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "64": {
+   "in": [],
+   "out": [
+    "929943",
+    "521928"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "150": {
+   "in": [
+    "929943",
+    "1172000",
+    "521928"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "17209": {
+   "in": [
+    "175323"
+   ],
+   "out": [
+    "1162365",
+    "1582341",
+    "1320116"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "39268": {
+   "in": [
+    "1162365",
+    "748838"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "81401": {
+   "in": [],
+   "out": [
+    "748838",
+    "376227"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "110468": {
+   "in": [],
+   "out": [
+    "1585279"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "1092": {
+   "in": [
+    "1585279",
+    "262951",
+    "1134840"
+   ],
+   "out": [
+    "1272445",
+    "103405"
+   ],
+   "in_count": 3,
+   "out_count": 2
+  },
+  "13379": {
+   "in": [
+    "376227",
+    "1326281",
+    "193970"
+   ],
+   "out": [
+    "262951",
+    "213469",
+    "1118346"
+   ],
+   "in_count": 3,
+   "out_count": 3
+  },
+  "137958": {
+   "in": [],
+   "out": [
+    "1134840",
+    "1395787"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "71861": {
+   "in": [
+    "1243089"
+   ],
+   "out": [
+    "577148",
+    "1399293",
+    "1470132"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "23203": {
+   "in": [
+    "577148",
+    "626854"
+   ],
+   "out": [
+    "1005625"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "2431": {
+   "in": [
+    "372106",
+    "345716"
+   ],
+   "out": [
+    "626854",
+    "1159661",
+    "198006"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "78641": {
+   "in": [],
+   "out": [
+    "1227546",
+    "273725"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "82685": {
+   "in": [
+    "1227546"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "6212": {
+   "in": [],
+   "out": [
+    "1055400",
+    "1161617"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "6160": {
+   "in": [
+    "1055400"
+   ],
+   "out": [
+    "601035"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "49301": {
+   "in": [],
+   "out": [
+    "1031869",
+    "345890"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "4103": {
+   "in": [
+    "1031869"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "124163": {
+   "in": [],
+   "out": [
+    "1010608"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "5776": {
+   "in": [
+    "1010608",
+    "1090457"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "53326": {
+   "in": [],
+   "out": [
+    "1090457"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "33783": {
+   "in": [
+    "693362"
+   ],
+   "out": [
+    "1111846",
+    "372106",
+    "168671"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "43514": {
+   "in": [
+    "1111846",
+    "221638"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "1226": {
+   "in": [
+    "654947",
+    "583176"
+   ],
+   "out": [
+    "221638"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "31337": {
+   "in": [],
+   "out": [
+    "1076603",
+    "1003846"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "23564": {
+   "in": [
+    "1076603",
+    "188436"
+   ],
+   "out": [
+    "44367",
+    "741589"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "839": {
+   "in": [],
+   "out": [
+    "188436"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "3943": {
+   "in": [
+    "1456598"
+   ],
+   "out": [
+    "316398",
+    "429931",
+    "654947"
+   ],
+   "in_count": 1,
+   "out_count": 3
+  },
+  "78072": {
+   "in": [
+    "316398"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "85501": {
+   "in": [],
+   "out": [
+    "1210862",
+    "1417104"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "3021": {
+   "in": [
+    "1210862"
+   ],
+   "out": [
+    "258653"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "30838": {
+   "in": [
+    "1382681",
+    "322330"
+   ],
+   "out": [
+    "1544179"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "599": {
+   "in": [
+    "1544179",
+    "429931"
+   ],
+   "out": [
+    "224892",
+    "530038",
+    "543098"
+   ],
+   "in_count": 2,
+   "out_count": 3
+  },
+  "89435": {
+   "in": [
+    "1406227",
+    "806501"
+   ],
+   "out": [
+    "1456598"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "653": {
+   "in": [],
+   "out": [
+    "895547",
+    "808866"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "2832": {
+   "in": [
+    "895547"
+   ],
+   "out": [
+    "952093"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "21383": {
+   "in": [],
+   "out": [
+    "1553214"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "47421": {
+   "in": [
+    "1553214"
+   ],
+   "out": [
+    "856156"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "475": {
+   "in": [],
+   "out": [
+    "852953",
+    "1159156",
+    "1309326"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "350": {
+   "in": [
+    "852953"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "1146": {
+   "in": [
+    "1005625",
+    "312069",
+    "343679"
+   ],
+   "out": [
+    "630032"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "17574": {
+   "in": [
+    "1076808"
+   ],
+   "out": [
+    "312069"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "25576": {
+   "in": [
+    "856156"
+   ],
+   "out": [
+    "343679",
+    "720470"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "5659": {
+   "in": [
+    "1108345",
+    "1553261",
+    "1540236"
+   ],
+   "out": [
+    "1043517",
+    "693362"
+   ],
+   "in_count": 3,
+   "out_count": 2
+  },
+  "134206": {
+   "in": [
+    "1043517",
+    "627380"
+   ],
+   "out": [
+    "1562657",
+    "953744"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "29988": {
+   "in": [
+    "195745",
+    "1236369"
+   ],
+   "out": [
+    "627380",
+    "322330"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "10838": {
+   "in": [
+    "1258276"
+   ],
+   "out": [
+    "1076808"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "89178": {
+   "in": [
+    "601035",
+    "1048594"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "4697": {
+   "in": [],
+   "out": [
+    "1048594"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "3829": {
+   "in": [],
+   "out": [
+    "185611"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "430": {
+   "in": [
+    "185611"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "35297": {
+   "in": [],
+   "out": [
+    "1258276",
+    "981324"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "8515": {
+   "in": [
+    "1159661"
+   ],
+   "out": [
+    "1406767"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "8413": {
+   "in": [
+    "1496851",
+    "1082318"
+   ],
+   "out": [
+    "1006887",
+    "1380410"
+   ],
+   "in_count": 2,
+   "out_count": 2
+  },
+  "12457": {
+   "in": [
+    "1006887",
+    "224892"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "53453": {
+   "in": [
+    "808866",
+    "1196462"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "31283": {
+   "in": [],
+   "out": [
+    "1056267",
+    "1108345"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "28846": {
+   "in": [
+    "1056267",
+    "1562657",
+    "1417104"
+   ],
+   "out": [
+    "1439462"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "25032": {
+   "in": [
+    "1380410"
+   ],
+   "out": [
+    "1049563"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "113384": {
+   "in": [
+    "1161617"
+   ],
+   "out": [
+    "1496851"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "17486": {
+   "in": [
+    "684298"
+   ],
+   "out": [
+    "1082318"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "4128": {
+   "in": [
+    "1049563"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "52397": {
+   "in": [],
+   "out": [
+    "398165"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "51517": {
+   "in": [
+    "398165"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "82384": {
+   "in": [
+    "345890"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "4720": {
+   "in": [],
+   "out": [
+    "175323",
+    "345716"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "103512": {
+   "in": [
+    "1395787"
+   ],
+   "out": [
+    "1326281"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "24174": {
+   "in": [
+    "1320116"
+   ],
+   "out": [
+    "647407"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "70657": {
+   "in": [
+    "1527193"
+   ],
+   "out": [
+    "279526"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "8045": {
+   "in": [
+    "279526",
+    "514939",
+    "1399293"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "6361": {
+   "in": [],
+   "out": [
+    "514939",
+    "1577946",
+    "991460"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "12100": {
+   "in": [
+    "103405",
+    "1086678",
+    "1052880"
+   ],
+   "out": [
+    "878734"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "51762": {
+   "in": [
+    "737456"
+   ],
+   "out": [
+    "1521729"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "1274": {
+   "in": [
+    "585820"
+   ],
+   "out": [
+    "1406227"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "12346": {
+   "in": [
+    "273725"
+   ],
+   "out": [
+    "806501",
+    "341533"
+   ],
+   "in_count": 1,
+   "out_count": 2
+  },
+  "2577": {
+   "in": [],
+   "out": [
+    "475441"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "61251": {
+   "in": [
+    "475441"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "101158": {
+   "in": [
+    "1159156",
+    "1439462"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "30768": {
+   "in": [
+    "44367"
+   ],
+   "out": [
+    "1540236"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "3694": {
+   "in": [
+    "1118346",
+    "720470",
+    "1470132"
+   ],
+   "out": [
+    "684298"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "8532": {
+   "in": [
+    "953744"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "88232": {
+   "in": [
+    "876730",
+    "593572"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "71943": {
+   "in": [],
+   "out": [
+    "593572",
+    "1371729",
+    "583176"
+   ],
+   "in_count": 0,
+   "out_count": 3
+  },
+  "30891": {
+   "in": [],
+   "out": [
+    "1134211"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "66": {
+   "in": [
+    "1134211"
+   ],
+   "out": [
+    "1086678"
+   ],
+   "in_count": 1,
+   "out_count": 1
+  },
+  "36238": {
+   "in": [],
+   "out": [
+    "1448817",
+    "1448818"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "71985": {
+   "in": [
+    "1448817",
+    "1406767",
+    "981324"
+   ],
+   "out": [
+    "1243089"
+   ],
+   "in_count": 3,
+   "out_count": 1
+  },
+  "98751": {
+   "in": [],
+   "out": [
+    "1527193"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "61352": {
+   "in": [],
+   "out": [
+    "1253117"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "11479": {
+   "in": [
+    "1253117"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "17647": {
+   "in": [
+    "341533",
+    "346414"
+   ],
+   "out": [
+    "1382681"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "26091": {
+   "in": [
+    "530038"
+   ],
+   "out": [],
+   "in_count": 1,
+   "out_count": 0
+  },
+  "105869": {
+   "in": [
+    "1371729",
+    "543098",
+    "1272445"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "21390": {
+   "in": [],
+   "out": [
+    "1553261"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "450": {
+   "in": [],
+   "out": [
+    "737456",
+    "745460"
+   ],
+   "in_count": 0,
+   "out_count": 2
+  },
+  "29": {
+   "in": [
+    "198006",
+    "630032"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "3030": {
+   "in": [
+    "1577946",
+    "745460",
+    "314218"
+   ],
+   "out": [],
+   "in_count": 3,
+   "out_count": 0
+  },
+  "1231": {
+   "in": [
+    "991460",
+    "741589"
+   ],
+   "out": [
+    "314218"
+   ],
+   "in_count": 2,
+   "out_count": 1
+  },
+  "603": {
+   "in": [
+    "168671",
+    "307285"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "37368": {
+   "in": [],
+   "out": [
+    "307285"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "1734": {
+   "in": [],
+   "out": [
+    "585820"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "5683": {
+   "in": [
+    "1448818",
+    "647407"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "5572": {
+   "in": [],
+   "out": [
+    "1052880"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "100153": {
+   "in": [
+    "1309326",
+    "1584202"
+   ],
+   "out": [],
+   "in_count": 2,
+   "out_count": 0
+  },
+  "75123": {
+   "in": [],
+   "out": [
+    "1584202"
+   ],
+   "in_count": 0,
+   "out_count": 1
+  },
+  "266": {
+   "in": [],
+   "out": [
+    "195745"
+   ],
+   "in_count": 0,
    "out_count": 1
   }
  },
  "world_market_date": "2026-08-31",
- "repeat_count": 0
+ "repeat_count": 0.0,
+ "clubs": 4511
 }

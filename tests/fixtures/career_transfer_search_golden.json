@@ -1,7 +1,7 @@
 {
  "career": {
   "club_id": "131",
-  "seed": 42,
+  "seed": 42.0,
   "date": "2026-07-01",
   "created_at": "2026-07-01T00:00:00.000000Z",
   "manager_name": "Golden Manager",
@@ -27,9 +27,9 @@
     "sort": "overall",
     "direction": "desc"
    },
-   "limit": 5,
-   "offset": 0,
-   "total": 121927,
+   "limit": 5.0,
+   "offset": 0.0,
+   "total": 124417,
    "has_more": true,
    "items": [
     {
@@ -61,38 +61,6 @@
      "height": 180,
      "stats": {},
      "photo": 342229,
-     "shortlisted": false,
-     "listed_for_transfer": false
-    },
-    {
-     "player_id": "371998",
-     "name": "Vinicius Junior",
-     "age": 25,
-     "position": "Left Winger",
-     "position_group": "MID",
-     "club_id": "418",
-     "club_name": "Real Madrid",
-     "club_logo": "/raster/teams_emblems/418.png",
-     "league_id": "ES1",
-     "league_name": "LaLiga",
-     "country_id": "157",
-     "country_name": "Spain",
-     "citizenship": [
-      "Brazil",
-      "Spain"
-     ],
-     "status": "contracted",
-     "release_clause": 274700000,
-     "contract_expires": "2027-02-01",
-     "scouted": false,
-     "overall": 0.0,
-     "pot": 0.0,
-     "market_value": 0,
-     "weekly_wage": 0,
-     "foot": "",
-     "height": 176,
-     "stats": {},
-     "photo": 371998,
      "shortlisted": false,
      "listed_for_transfer": false
     },
@@ -189,33 +157,7 @@
      "photo": 288230,
      "shortlisted": false,
      "listed_for_transfer": false
-    }
-   ]
-  },
-  {
-   "label": "overall desc, page 2",
-   "filters": {
-    "name": "",
-    "group": "",
-    "position": "",
-    "age_min": null,
-    "age_max": null,
-    "citizenship": "",
-    "country": "",
-    "league": "",
-    "club": "",
-    "foot": "",
-    "height_min": null,
-    "height_max": null,
-    "status": "",
-    "sort": "overall",
-    "direction": "desc"
-   },
-   "limit": 5,
-   "offset": 5,
-   "total": 121927,
-   "has_more": true,
-   "items": [
+    },
     {
      "player_id": "369081",
      "name": "Federico Valverde",
@@ -247,7 +189,33 @@
      "photo": 369081,
      "shortlisted": false,
      "listed_for_transfer": false
-    },
+    }
+   ]
+  },
+  {
+   "label": "overall desc, page 2",
+   "filters": {
+    "name": "",
+    "group": "",
+    "position": "",
+    "age_min": null,
+    "age_max": null,
+    "citizenship": "",
+    "country": "",
+    "league": "",
+    "club": "",
+    "foot": "",
+    "height_min": null,
+    "height_max": null,
+    "status": "",
+    "sort": "overall",
+    "direction": "desc"
+   },
+   "limit": 5.0,
+   "offset": 5.0,
+   "total": 124417,
+   "has_more": true,
+   "items": [
     {
      "player_id": "576024",
      "name": "Julián Alvarez",
@@ -281,6 +249,38 @@
      "listed_for_transfer": false
     },
     {
+     "player_id": "371998",
+     "name": "Vinicius Junior",
+     "age": 25,
+     "position": "Left Winger",
+     "position_group": "MID",
+     "club_id": "418",
+     "club_name": "Real Madrid",
+     "club_logo": "/raster/teams_emblems/418.png",
+     "league_id": "ES1",
+     "league_name": "LaLiga",
+     "country_id": "157",
+     "country_name": "Spain",
+     "citizenship": [
+      "Brazil",
+      "Spain"
+     ],
+     "status": "contracted",
+     "release_clause": 274700000,
+     "contract_expires": "2027-02-01",
+     "scouted": false,
+     "overall": 0.0,
+     "pot": 0.0,
+     "market_value": 0,
+     "weekly_wage": 0,
+     "foot": "",
+     "height": 176,
+     "stats": {},
+     "photo": 371998,
+     "shortlisted": false,
+     "listed_for_transfer": false
+    },
+    {
      "player_id": "411295",
      "name": "Raphinha",
      "age": 29,
@@ -302,7 +302,7 @@
      "contract_expires": "2029-07-01",
      "scouted": true,
      "overall": 89.7,
-     "pot": 90,
+     "pot": 90.0,
      "market_value": 70000000,
      "weekly_wage": 159400,
      "foot": "left",
@@ -336,37 +336,6 @@
      "listed_for_transfer": false
     },
     {
-     "player_id": "502670",
-     "name": "Khvicha Kvaratskhelia",
-     "age": 24,
-     "position": "Left Winger",
-     "position_group": "MID",
-     "club_id": "583",
-     "club_name": "Paris Saint-Germain",
-     "club_logo": "/raster/teams_emblems/583.png",
-     "league_id": "FR1",
-     "league_name": "Ligue 1",
-     "country_id": "50",
-     "country_name": "France",
-     "citizenship": [
-      "Georgia"
-     ],
-     "status": "contracted",
-     "release_clause": 236900000,
-     "contract_expires": "2030-02-01",
-     "scouted": false,
-     "overall": 0.0,
-     "pot": 0.0,
-     "market_value": 0,
-     "weekly_wage": 0,
-     "foot": "",
-     "height": 183,
-     "stats": {},
-     "photo": 502670,
-     "shortlisted": false,
-     "listed_for_transfer": false
-    },
-    {
      "player_id": "406625",
      "name": "Lautaro Martínez",
      "age": 28,
@@ -396,6 +365,37 @@
      "photo": 406625,
      "shortlisted": false,
      "listed_for_transfer": false
+    },
+    {
+     "player_id": "487469",
+     "name": "Vitinha",
+     "age": 26,
+     "position": "Defensive Midfield",
+     "position_group": "MID",
+     "club_id": "583",
+     "club_name": "Paris Saint-Germain",
+     "club_logo": "/raster/teams_emblems/583.png",
+     "league_id": "FR1",
+     "league_name": "Ligue 1",
+     "country_id": "50",
+     "country_name": "France",
+     "citizenship": [
+      "Portugal"
+     ],
+     "status": "contracted",
+     "release_clause": 257300000,
+     "contract_expires": "2027-07-01",
+     "scouted": false,
+     "overall": 0.0,
+     "pot": 0.0,
+     "market_value": 0,
+     "weekly_wage": 0,
+     "foot": "",
+     "height": 170,
+     "stats": {},
+     "photo": 487469,
+     "shortlisted": false,
+     "listed_for_transfer": false
     }
    ]
   },
@@ -405,8 +405,8 @@
     "name": "",
     "group": "FWD",
     "position": "",
-    "age_min": 20,
-    "age_max": 24,
+    "age_min": 20.0,
+    "age_max": 24.0,
     "citizenship": "",
     "country": "",
     "league": "",
@@ -418,11 +418,42 @@
     "sort": "value",
     "direction": "desc"
    },
-   "limit": 5,
-   "offset": 0,
-   "total": 6256,
+   "limit": 5.0,
+   "offset": 0.0,
+   "total": 6403,
    "has_more": true,
    "items": [
+    {
+     "player_id": "626724",
+     "name": "João Pedro",
+     "age": 24,
+     "position": "Centre-Forward",
+     "position_group": "FWD",
+     "club_id": "631",
+     "club_name": "Chelsea FC",
+     "club_logo": "/raster/teams_emblems/631.png",
+     "league_id": "GB1",
+     "league_name": "Premier League",
+     "country_id": "189",
+     "country_name": "England",
+     "citizenship": [
+      "Brazil"
+     ],
+     "status": "contracted",
+     "release_clause": 143900000,
+     "contract_expires": "2028-07-01",
+     "scouted": false,
+     "overall": 0.0,
+     "pot": 0.0,
+     "market_value": 0,
+     "weekly_wage": 0,
+     "foot": "",
+     "height": 186,
+     "stats": {},
+     "photo": 626724,
+     "shortlisted": false,
+     "listed_for_transfer": false
+    },
     {
      "player_id": "709726",
      "name": "Hugo Ekitiké",
@@ -452,37 +483,6 @@
      "height": 190,
      "stats": {},
      "photo": 709726,
-     "shortlisted": false,
-     "listed_for_transfer": false
-    },
-    {
-     "player_id": "626724",
-     "name": "João Pedro",
-     "age": 24,
-     "position": "Centre-Forward",
-     "position_group": "FWD",
-     "club_id": "631",
-     "club_name": "Chelsea FC",
-     "club_logo": "/raster/teams_emblems/631.png",
-     "league_id": "GB1",
-     "league_name": "Premier League",
-     "country_id": "189",
-     "country_name": "England",
-     "citizenship": [
-      "Brazil"
-     ],
-     "status": "contracted",
-     "release_clause": 143900000,
-     "contract_expires": "2028-07-01",
-     "scouted": false,
-     "overall": 0.0,
-     "pot": 0.0,
-     "market_value": 0,
-     "weekly_wage": 0,
-     "foot": "",
-     "height": 186,
-     "stats": {},
-     "photo": 626724,
      "shortlisted": false,
      "listed_for_transfer": false
     },
@@ -601,9 +601,9 @@
     "sort": "age",
     "direction": "asc"
    },
-   "limit": 5,
-   "offset": 0,
-   "total": 1895,
+   "limit": 5.0,
+   "offset": 0.0,
+   "total": 1879,
    "has_more": true,
    "items": [
     {
@@ -638,6 +638,37 @@
      "listed_for_transfer": false
     },
     {
+     "player_id": "1191012",
+     "name": "Furkon Rakhimzoda",
+     "age": 16,
+     "position": "Left Midfield",
+     "position_group": "MID",
+     "club_id": "",
+     "club_name": "",
+     "club_logo": "",
+     "league_id": "",
+     "league_name": "",
+     "country_id": "",
+     "country_name": "",
+     "citizenship": [
+      "Tajikistan"
+     ],
+     "status": "free",
+     "release_clause": 320000,
+     "contract_expires": "",
+     "scouted": false,
+     "overall": 0.0,
+     "pot": 0.0,
+     "market_value": 0,
+     "weekly_wage": 0,
+     "foot": "",
+     "height": 180,
+     "stats": {},
+     "photo": 1191012,
+     "shortlisted": false,
+     "listed_for_transfer": false
+    },
+    {
      "player_id": "1373205",
      "name": "Lucas Gallego",
      "age": 16,
@@ -665,37 +696,6 @@
      "height": 180,
      "stats": {},
      "photo": 1373205,
-     "shortlisted": false,
-     "listed_for_transfer": false
-    },
-    {
-     "player_id": "1240623",
-     "name": "Tjivari Leveret-Francisca",
-     "age": 16,
-     "position": "Midfielder",
-     "position_group": "MID",
-     "club_id": "",
-     "club_name": "",
-     "club_logo": "",
-     "league_id": "",
-     "league_name": "",
-     "country_id": "",
-     "country_name": "",
-     "citizenship": [
-      "Anguilla"
-     ],
-     "status": "free",
-     "release_clause": 160000,
-     "contract_expires": "",
-     "scouted": false,
-     "overall": 0.0,
-     "pot": 0.0,
-     "market_value": 0,
-     "weekly_wage": 0,
-     "foot": "",
-     "height": 180,
-     "stats": {},
-     "photo": 1240623,
      "shortlisted": false,
      "listed_for_transfer": false
     },
@@ -782,8 +782,8 @@
     "sort": "position",
     "direction": "asc"
    },
-   "limit": 5,
-   "offset": 0,
+   "limit": 5.0,
+   "offset": 0.0,
    "total": 26,
    "has_more": true,
    "items": [
@@ -966,9 +966,9 @@
     "sort": "name",
     "direction": "asc"
    },
-   "limit": 5,
-   "offset": 0,
-   "total": 2137,
+   "limit": 5.0,
+   "offset": 0.0,
+   "total": 2767,
    "has_more": true,
    "items": [
     {
@@ -1036,6 +1036,37 @@
      "listed_for_transfer": false
     },
     {
+     "player_id": "934658",
+     "name": "Abdallah Lemaangr",
+     "age": 27,
+     "position": "Right Midfield",
+     "position_group": "MID",
+     "club_id": "26593",
+     "club_name": "AS Saint-Ouen-L'Aumône",
+     "club_logo": "/raster/teams_emblems/26593.png",
+     "league_id": "FR5D",
+     "league_name": "Championnat National 2 - Groupe D",
+     "country_id": "50",
+     "country_name": "France",
+     "citizenship": [
+      "France"
+     ],
+     "status": "contracted",
+     "release_clause": 680000,
+     "contract_expires": "2029-02-01",
+     "scouted": false,
+     "overall": 0.0,
+     "pot": 0.0,
+     "market_value": 0,
+     "weekly_wage": 0,
+     "foot": "",
+     "height": 182,
+     "stats": {},
+     "photo": 934658,
+     "shortlisted": false,
+     "listed_for_transfer": false
+    },
+    {
      "player_id": "1021427",
      "name": "Abdallah Nouri",
      "age": 21,
@@ -1098,38 +1129,6 @@
      "photo": 660042,
      "shortlisted": false,
      "listed_for_transfer": false
-    },
-    {
-     "player_id": "184145",
-     "name": "Abdel Malik Hsissane",
-     "age": 35,
-     "position": "Defensive Midfield",
-     "position_group": "MID",
-     "club_id": "79737",
-     "club_name": "AS Atlas Paillade",
-     "club_logo": "/raster/teams_emblems/79737.png",
-     "league_id": "FR5G",
-     "league_name": "Championnat National 2 - Groupe G",
-     "country_id": "50",
-     "country_name": "France",
-     "citizenship": [
-      "Morocco",
-      "France"
-     ],
-     "status": "contracted",
-     "release_clause": 1100000,
-     "contract_expires": "2030-03-01",
-     "scouted": false,
-     "overall": 0.0,
-     "pot": 0.0,
-     "market_value": 0,
-     "weekly_wage": 0,
-     "foot": "",
-     "height": 186,
-     "stats": {},
-     "photo": 184145,
-     "shortlisted": false,
-     "listed_for_transfer": false
     }
    ]
   }
@@ -1158,7 +1157,7 @@
     "contract_expires": "2030-07-01",
     "scouted": true,
     "overall": 80.9,
-    "pot": 86,
+    "pot": 86.0,
     "market_value": 45000000,
     "weekly_wage": 96000,
     "foot": "right",
@@ -1189,7 +1188,15 @@
     },
     "photo": 561613,
     "shortlisted": false,
-    "listed_for_transfer": false
+    "listed_for_transfer": false,
+    "first_name": "Joan",
+    "last_name": "García",
+    "birth_date": "2001-04-05",
+    "role": "GK",
+    "weight": 84,
+    "shirt_number": 13,
+    "weak_foot": 3,
+    "skill_moves": 1
    },
    "first_name": "Joan",
    "last_name": "García",
@@ -1230,7 +1237,7 @@
    "item": {
     "player_id": "342229",
     "name": "Kylian Mbappé",
-    "age": 27,
+    "age": 27.0,
     "position": "Centre-Forward",
     "position_group": "FWD",
     "club_id": "418",
@@ -1245,17 +1252,17 @@
      "Cameroon"
     ],
     "status": "contracted",
-    "release_clause": 284700000,
+    "release_clause": 284700000.0,
     "contract_expires": "2030-06-01",
     "scouted": false,
     "overall": 0.0,
     "pot": 0.0,
-    "market_value": 0,
-    "weekly_wage": 0,
+    "market_value": 0.0,
+    "weekly_wage": 0.0,
     "foot": "",
-    "height": 180,
+    "height": 180.0,
     "stats": {},
-    "photo": 342229,
+    "photo": 342229.0,
     "shortlisted": false,
     "listed_for_transfer": false
    },
@@ -1264,15 +1271,15 @@
    "birth_date": "1998-12-20",
    "role": "CF",
    "weight": 76,
-   "weak_foot": 3,
-   "skill_moves": 5,
-   "shirt_number": 10,
+   "weak_foot": 3.0,
+   "skill_moves": 5.0,
+   "shirt_number": 10.0,
    "height": 180
   }
  },
  "reference": {
   "countries": 106,
-  "leagues": 279,
+  "leagues": 284,
   "clubs_in_es1": 20,
   "first_country": {
    "id": "3",

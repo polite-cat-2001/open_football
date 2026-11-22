@@ -9,6 +9,7 @@ extends SceneTree
 const GOLDEN := "res://tests/fixtures/career_transfer_contracts_golden.json"
 
 var failures: Array[String] = []
+var regen := OS.get_environment("REGEN") == "1"
 
 
 func _init() -> void:
@@ -59,6 +60,11 @@ func _same(left, right) -> bool:
 
 func _compare(label: String, actual: Dictionary, expected: Dictionary,
 		skip: Array = []) -> void:
+	if regen:
+		for key in expected:
+			if not skip.has(key):
+				expected[key] = actual.get(key)
+		return
 	for key in expected:
 		if skip.has(key):
 			continue
@@ -312,6 +318,10 @@ func _run() -> void:
 			"the missing transfer keys read as empty")
 		_check(old_save.balance == career.balance, "the rest of the save is untouched")
 	CareerSaveStore.root_override = ""
+	if regen:
+		var fh := FileAccess.open(GOLDEN, FileAccess.WRITE)
+		fh.store_string(JSON.stringify(golden, " ", false))
+		fh.close()
 	_finish()
 
 

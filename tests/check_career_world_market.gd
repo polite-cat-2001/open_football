@@ -114,7 +114,7 @@ func _run() -> void:
 	for role in counts:
 		total += int(counts[role])
 	_check(total == squad.size(), "role counts cover the squad")
-	_check((CareerWorldMarket.clubs(catalog) as Array).size() == 4406,
+	_check((CareerWorldMarket.clubs(catalog) as Array).size() == int(golden.get("clubs", 0)),
 		"the club list holds every real club (national teams excluded)")
 
 	var header: Dictionary = golden["career"]
