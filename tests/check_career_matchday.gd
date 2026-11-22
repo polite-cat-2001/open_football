@@ -47,13 +47,14 @@ func _run() -> void:
 
 	var league_clubs := catalog.all_teams_for_league(career.league_id)
 	var strengths := _strengths(catalog, league_clubs)
-	_check(CareerSeason.advance_to(career, "2026-07-08", league_clubs, strengths),
-		"the calendar advances to the match day: " + CareerSeason.last_error)
 	var fixture := CareerSeason.next_fixture(career)
 	_check(not fixture.is_empty(), "the career club has a fixture")
 	if fixture.is_empty():
 		_finish()
 		return
+	_check(CareerSeason.advance_to(career, str(fixture.get("date", "")),
+		league_clubs, strengths),
+		"the calendar advances to the match day: " + CareerSeason.last_error)
 
 	var clubs := {}
 	for club_id in [str(fixture.get("home", "")), str(fixture.get("away", ""))]:
@@ -72,7 +73,8 @@ func _run() -> void:
 
 	_check(not CareerSeason.play_next_match(career, league_clubs, strengths).is_empty(),
 		"the match is played: " + CareerSeason.last_error)
-	_check(career.date == "2026-07-09", "the career date moves past the match day")
+	_check(career.date == CareerSeason.add_days(str(fixture.get("date", "")), 1),
+		"the career date moves past the match day")
 	var fixture_id := str(fixture.get("id", ""))
 	var score = career.results.get(fixture_id)
 	_check(score is Dictionary, "the career club's fixture has a result")
@@ -139,8 +141,9 @@ func _run() -> void:
 	_check(delta_ok, "the table rows carry the position delta")
 
 	var fresh := CareerFactory.create(catalog, 131, "Golden Manager", 189, 42)
-	CareerSeason.advance_to(fresh, "2026-07-08", league_clubs, strengths)
 	var fresh_fixture := CareerSeason.next_fixture(fresh)
+	CareerSeason.advance_to(fresh, str(fresh_fixture.get("date", "")),
+		league_clubs, strengths)
 	var fresh_clubs := {}
 	for club_id in [
 			str(fresh_fixture.get("home", "")), str(fresh_fixture.get("away", ""))]:
@@ -157,7 +160,9 @@ func _run() -> void:
 	var reloaded := store.load_career(career.id)
 	_check(reloaded != null, "the career loads: " + store.last_error)
 	if reloaded != null:
-		_check(reloaded.date == "2026-07-09", "the reloaded career keeps the new date")
+		_check(reloaded.date == CareerSeason.add_days(
+			str(fresh_fixture.get("date", "")), 1),
+			"the reloaded career keeps the new date")
 		_check(reloaded.results.has(fixture_id), "the reloaded career keeps the result")
 		var state = reloaded.player_state.get(str(lineup["slots"][0]["player"]["id"]))
 		_check(state is Dictionary and int(state.get("stats", {}).get("apps", 0)) > 0,
@@ -182,7 +187,9 @@ func _check_hub_flow(catalog: TeamCatalog, league_clubs: Array,
 	_check(ui_career != null, "a career is created for the hub flow")
 	if ui_career == null:
 		return
-	CareerSeason.advance_to(ui_career, "2026-07-08", league_clubs, strengths)
+	var ui_fixture := CareerSeason.next_fixture(ui_career)
+	CareerSeason.advance_to(ui_career, str(ui_fixture.get("date", "")),
+		league_clubs, strengths)
 	var store := CareerSaveStore.new(_directory)
 	CareerSession.career = ui_career
 	CareerSession.catalog = catalog
@@ -215,7 +222,9 @@ func _check_hub_flow(catalog: TeamCatalog, league_clubs: Array,
 		"PLAY opens the matchday results")
 	var overlay = hub.get("_match_overlay")
 	_check(overlay != null and overlay.is_open(), "the match overlay is open")
-	_check(ui_career.date == "2026-07-09", "PLAY advances the career past the match")
+	_check(ui_career.date == CareerSeason.add_days(
+		str(ui_fixture.get("date", "")), 1),
+		"PLAY advances the career past the match")
 	nav.confirmed.emit()
 	for _index in range(4):
 		await process_frame
@@ -235,7 +244,9 @@ func _check_hub_flow(catalog: TeamCatalog, league_clubs: Array,
 		"the calendar returns after the match")
 
 	var sim_career := CareerFactory.create(catalog, 131, "Sim Manager", 189, 42)
-	CareerSeason.advance_to(sim_career, "2026-07-08", league_clubs, strengths)
+	var sim_fixture := CareerSeason.next_fixture(sim_career)
+	CareerSeason.advance_to(sim_career, str(sim_fixture.get("date", "")),
+		league_clubs, strengths)
 	CareerSession.career = sim_career
 	change_scene_to_file("res://scenes/career_hub.tscn")
 	for _index in range(14):
