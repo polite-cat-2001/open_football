@@ -81,6 +81,32 @@ func _run() -> void:
 	_check(champion_row is Array and (champion_row as Array).size() == 5
 		and float((champion_row as Array)[4]) > 0.0,
 		"the Champions League winner's season points rolled into the table")
+	var static_country: Dictionary = career.data.get("country_coefficients", {})
+	_check(is_equal_approx(CareerCountryCoefficients.coefficient(
+		static_country, "England"), 119.519),
+		"the static mode leaves the country ranking unchanged")
+	var dynamic := CareerFactory.create(catalog, CLUB, "Dynamic Country", 189, 42,
+		"real", "dynamic")
+	_check(dynamic != null, "a dynamic-country career is created: "
+		+ CareerFactory.last_error)
+	if dynamic != null:
+		var dynamic_block: Dictionary = dynamic.data.get("continental", {}).get(
+			dynamic.season_start, {})
+		var dynamic_results := {}
+		for fixture in dynamic.schedule:
+			if str(fixture.get("competition", "")) == "ucl":
+				dynamic_results[str(fixture.get("id", ""))] = CareerSeason.simulate(
+					dynamic.seed, fixture, ratings)
+		dynamic.data["results"] = dynamic_results
+		CareerContinental.finish(catalog, dynamic, dynamic_block, dynamic.seed)
+		var dynamic_country: Dictionary = dynamic.data.get(
+			"country_coefficients", {})
+		var england: Array = dynamic_country.get("England", [])
+		_check(england.size() == 5 and float(england[4]) > 0.0,
+			"the dynamic mode adds the new country points")
+		_check(not is_equal_approx(CareerCountryCoefficients.coefficient(
+			dynamic_country, "England"), 119.519),
+			"the dynamic country total rolled")
 	_finish()
 
 

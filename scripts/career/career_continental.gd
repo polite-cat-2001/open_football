@@ -354,7 +354,37 @@ static func finish(catalog: TeamCatalog, career: Career, block: Dictionary,
 		career.data["coefficients"] = CareerCoefficients.roll(table_data,
 			season_points)
 		block["season_points"] = season_points
+		if str(career.data.get("country_coefficients_mode", "static")) == "dynamic":
+			var country_points := _association_points(season_points)
+			var country_table = career.data.get("country_coefficients", {})
+			if not (country_table is Dictionary) or (country_table as Dictionary).is_empty():
+				country_table = CareerCountryCoefficients.table()
+			career.data["country_coefficients"] = CareerCountryCoefficients.roll(
+				country_table, country_points)
+			block["country_points"] = country_points
 	return champions
+
+
+static func _association_points(season_points: Dictionary) -> Dictionary:
+	var totals := {}
+	var teams := {}
+	var clubs = CareerCoefficients.data().get("clubs", {})
+	for club_id in season_points:
+		var entry = clubs.get(str(club_id), {})
+		if not (entry is Dictionary):
+			continue
+		var association := CareerCountryCoefficients.association_for_code(
+			str(entry.get("country", "")))
+		if association.is_empty():
+			continue
+		totals[association] = float(totals.get(association, 0.0)) \
+			+ float(season_points[club_id])
+		teams[association] = int(teams.get(association, 0)) + 1
+	var result := {}
+	for association in totals:
+		result[association] = float(totals[association]) \
+			/ float(maxi(1, int(teams[association])))
+	return result
 
 
 static func _play_knockout(catalog: TeamCatalog, table_rows: Array, seed: int,

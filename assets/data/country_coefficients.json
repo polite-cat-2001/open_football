@@ -1,0 +1,675 @@
+{
+ "season": "2026-27",
+ "source": "https://kassiesa.net/uefa/data/method5/crank2026.html",
+ "basis": "UEFA 5-year country ranking 2021-22 to 2025-26",
+ "checked": "2026-11-22",
+ "seasons": [
+  "2021-22",
+  "2022-23",
+  "2023-24",
+  "2024-25",
+  "2025-26"
+ ],
+ "associations": {
+  "England": {
+   "rank": 1,
+   "points": [
+    21.0,
+    23.0,
+    17.375,
+    29.464,
+    28.68
+   ],
+   "coefficient": 119.519,
+   "teams": 9
+  },
+  "Italy": {
+   "rank": 2,
+   "points": [
+    15.714,
+    22.357,
+    21.0,
+    21.875,
+    19.0
+   ],
+   "coefficient": 99.946,
+   "teams": 7
+  },
+  "Spain": {
+   "rank": 3,
+   "points": [
+    18.428,
+    16.571,
+    16.062,
+    23.892,
+    22.093
+   ],
+   "coefficient": 97.046,
+   "teams": 8
+  },
+  "Germany": {
+   "rank": 4,
+   "points": [
+    16.214,
+    17.125,
+    19.357,
+    18.421,
+    21.785
+   ],
+   "coefficient": 92.902,
+   "teams": 7
+  },
+  "France": {
+   "rank": 5,
+   "points": [
+    18.416,
+    12.583,
+    16.25,
+    17.928,
+    18.321
+   ],
+   "coefficient": 83.498,
+   "teams": 7
+  },
+  "Portugal": {
+   "rank": 6,
+   "points": [
+    12.916,
+    12.5,
+    11.0,
+    16.25,
+    20.5
+   ],
+   "coefficient": 73.166,
+   "teams": 5
+  },
+  "Netherlands": {
+   "rank": 7,
+   "points": [
+    19.2,
+    13.5,
+    10.0,
+    15.25,
+    9.979
+   ],
+   "coefficient": 67.929,
+   "teams": 6
+  },
+  "Belgium": {
+   "rank": 8,
+   "points": [
+    6.6,
+    14.2,
+    14.4,
+    15.65,
+    11.4
+   ],
+   "coefficient": 62.25,
+   "teams": 5
+  },
+  "Türkiye": {
+   "rank": 9,
+   "points": [
+    6.7,
+    11.8,
+    12.0,
+    10.3,
+    11.075
+   ],
+   "coefficient": 51.875,
+   "teams": 5
+  },
+  "Czechia": {
+   "rank": 10,
+   "points": [
+    6.7,
+    6.75,
+    13.5,
+    10.55,
+    11.025
+   ],
+   "coefficient": 48.525,
+   "teams": 5
+  },
+  "Greece": {
+   "rank": 11,
+   "points": [
+    8.0,
+    2.125,
+    11.4,
+    12.687,
+    14.2
+   ],
+   "coefficient": 48.412,
+   "teams": 5
+  },
+  "Poland": {
+   "rank": 12,
+   "points": [
+    4.625,
+    7.75,
+    6.875,
+    11.75,
+    15.75
+   ],
+   "coefficient": 46.75,
+   "teams": 4
+  },
+  "Denmark": {
+   "rank": 13,
+   "points": [
+    7.8,
+    5.9,
+    8.5,
+    7.656,
+    12.25
+   ],
+   "coefficient": 42.106,
+   "teams": 4
+  },
+  "Norway": {
+   "rank": 14,
+   "points": [
+    7.625,
+    5.75,
+    8.0,
+    11.812,
+    8.05
+   ],
+   "coefficient": 41.237,
+   "teams": 5
+  },
+  "Cyprus": {
+   "rank": 15,
+   "points": [
+    4.125,
+    5.1,
+    3.75,
+    10.562,
+    12.156
+   ],
+   "coefficient": 35.693,
+   "teams": 4
+  },
+  "Switzerland": {
+   "rank": 16,
+   "points": [
+    7.75,
+    8.5,
+    5.2,
+    7.05,
+    6.2
+   ],
+   "coefficient": 34.7,
+   "teams": 5
+  },
+  "Austria": {
+   "rank": 17,
+   "points": [
+    10.4,
+    4.9,
+    4.8,
+    9.65,
+    4.1
+   ],
+   "coefficient": 33.85,
+   "teams": 5
+  },
+  "Scotland": {
+   "rank": 18,
+   "points": [
+    7.9,
+    3.5,
+    6.4,
+    9.25,
+    5.0
+   ],
+   "coefficient": 32.05,
+   "teams": 5
+  },
+  "Sweden": {
+   "rank": 19,
+   "points": [
+    5.125,
+    6.25,
+    1.875,
+    11.375,
+    5.0
+   ],
+   "coefficient": 29.625,
+   "teams": 4
+  },
+  "Croatia": {
+   "rank": 20,
+   "points": [
+    6.0,
+    3.375,
+    5.875,
+    5.875,
+    7.031
+   ],
+   "coefficient": 28.156,
+   "teams": 4
+  },
+  "Israel": {
+   "rank": 21,
+   "points": [
+    6.75,
+    6.25,
+    8.75,
+    2.875,
+    2.875
+   ],
+   "coefficient": 27.5,
+   "teams": 4
+  },
+  "Hungary": {
+   "rank": 22,
+   "points": [
+    2.75,
+    5.875,
+    4.5,
+    6.625,
+    7.437
+   ],
+   "coefficient": 27.187,
+   "teams": 4
+  },
+  "Ukraine": {
+   "rank": 23,
+   "points": [
+    4.2,
+    5.7,
+    4.1,
+    3.6,
+    8.312
+   ],
+   "coefficient": 25.912,
+   "teams": 4
+  },
+  "Serbia": {
+   "rank": 24,
+   "points": [
+    9.5,
+    5.375,
+    1.4,
+    3.725,
+    5.75
+   ],
+   "coefficient": 25.75,
+   "teams": 4
+  },
+  "Romania": {
+   "rank": 25,
+   "points": [
+    2.25,
+    6.25,
+    3.25,
+    7.75,
+    5.75
+   ],
+   "coefficient": 25.25,
+   "teams": 4
+  },
+  "Slovenia": {
+   "rank": 26,
+   "points": [
+    3.0,
+    2.125,
+    3.875,
+    9.093,
+    6.375
+   ],
+   "coefficient": 24.468,
+   "teams": 4
+  },
+  "Azerbaijan": {
+   "rank": 27,
+   "points": [
+    4.375,
+    4.0,
+    5.875,
+    2.875,
+    5.812
+   ],
+   "coefficient": 22.937,
+   "teams": 4
+  },
+  "Russia": {
+   "rank": 28,
+   "points": [
+    5.3,
+    4.333,
+    4.333,
+    4.333,
+    4.333
+   ],
+   "coefficient": 22.632,
+   "teams": 0
+  },
+  "Slovakia": {
+   "rank": 29,
+   "points": [
+    4.125,
+    6.0,
+    5.0,
+    4.625,
+    2.625
+   ],
+   "coefficient": 22.375,
+   "teams": 4
+  },
+  "Bulgaria": {
+   "rank": 30,
+   "points": [
+    3.375,
+    4.5,
+    4.375,
+    3.625,
+    5.187
+   ],
+   "coefficient": 21.062,
+   "teams": 4
+  },
+  "Ireland": {
+   "rank": 31,
+   "points": [
+    2.875,
+    3.375,
+    1.5,
+    5.343,
+    4.25
+   ],
+   "coefficient": 17.343,
+   "teams": 4
+  },
+  "Iceland": {
+   "rank": 32,
+   "points": [
+    1.5,
+    3.0,
+    3.833,
+    4.562,
+    3.625
+   ],
+   "coefficient": 16.52,
+   "teams": 4
+  },
+  "Armenia": {
+   "rank": 33,
+   "points": [
+    1.875,
+    2.375,
+    2.25,
+    4.375,
+    4.187
+   ],
+   "coefficient": 15.062,
+   "teams": 4
+  },
+  "Moldova": {
+   "rank": 34,
+   "points": [
+    5.25,
+    3.75,
+    2.0,
+    2.125,
+    1.5
+   ],
+   "coefficient": 14.625,
+   "teams": 4
+  },
+  "Finland": {
+   "rank": 35,
+   "points": [
+    3.75,
+    2.625,
+    1.75,
+    2.25,
+    3.625
+   ],
+   "coefficient": 14.0,
+   "teams": 4
+  },
+  "Kosovo": {
+   "rank": 36,
+   "points": [
+    2.333,
+    2.875,
+    3.0,
+    2.0,
+    3.781
+   ],
+   "coefficient": 13.989,
+   "teams": 4
+  },
+  "Kazakhstan": {
+   "rank": 37,
+   "points": [
+    2.875,
+    1.125,
+    3.125,
+    3.0,
+    3.625
+   ],
+   "coefficient": 13.75,
+   "teams": 4
+  },
+  "Bosnia-Herzegovina": {
+   "rank": 38,
+   "points": [
+    1.625,
+    2.0,
+    2.25,
+    4.531,
+    3.312
+   ],
+   "coefficient": 13.718,
+   "teams": 4
+  },
+  "Latvia": {
+   "rank": 39,
+   "points": [
+    2.625,
+    2.75,
+    1.625,
+    3.875,
+    2.0
+   ],
+   "coefficient": 12.875,
+   "teams": 4
+  },
+  "Faroe Islands": {
+   "rank": 40,
+   "points": [
+    1.5,
+    2.25,
+    2.75,
+    1.5,
+    1.75
+   ],
+   "coefficient": 9.75,
+   "teams": 4
+  },
+  "Malta": {
+   "rank": 41,
+   "points": [
+    1.875,
+    2.625,
+    1.5,
+    1.0,
+    2.0
+   ],
+   "coefficient": 9.0,
+   "teams": 4
+  },
+  "Liechtenstein": {
+   "rank": 42,
+   "points": [
+    0.0,
+    6.5,
+    0.5,
+    0.5,
+    1.0
+   ],
+   "coefficient": 8.5,
+   "teams": 1
+  },
+  "Estonia": {
+   "rank": 43,
+   "points": [
+    3.666,
+    1.166,
+    0.125,
+    1.625,
+    1.625
+   ],
+   "coefficient": 8.207,
+   "teams": 4
+  },
+  "Albania": {
+   "rank": 44,
+   "points": [
+    1.625,
+    0.875,
+    2.125,
+    1.25,
+    2.25
+   ],
+   "coefficient": 8.125,
+   "teams": 4
+  },
+  "North Macedonia": {
+   "rank": 45,
+   "points": [
+    0.625,
+    1.625,
+    1.5,
+    0.666,
+    3.343
+   ],
+   "coefficient": 7.759,
+   "teams": 4
+  },
+  "Lithuania": {
+   "rank": 46,
+   "points": [
+    1.75,
+    2.375,
+    1.125,
+    1.375,
+    1.125
+   ],
+   "coefficient": 7.75,
+   "teams": 4
+  },
+  "Northern Ireland": {
+   "rank": 47,
+   "points": [
+    1.625,
+    1.25,
+    1.125,
+    1.5,
+    1.75
+   ],
+   "coefficient": 7.25,
+   "teams": 4
+  },
+  "Gibraltar": {
+   "rank": 48,
+   "points": [
+    1.25,
+    0.875,
+    0.166,
+    1.5,
+    3.333
+   ],
+   "coefficient": 7.124,
+   "teams": 3
+  },
+  "Andorra": {
+   "rank": 49,
+   "points": [
+    1.5,
+    0.666,
+    1.666,
+    1.0,
+    2.0
+   ],
+   "coefficient": 6.832,
+   "teams": 3
+  },
+  "Belarus": {
+   "rank": 50,
+   "points": [
+    0.25,
+    0.625,
+    1.75,
+    1.875,
+    2.125
+   ],
+   "coefficient": 6.625,
+   "teams": 4
+  },
+  "Luxembourg": {
+   "rank": 51,
+   "points": [
+    1.25,
+    1.125,
+    2.25,
+    1.25,
+    0.75
+   ],
+   "coefficient": 6.625,
+   "teams": 4
+  },
+  "Montenegro": {
+   "rank": 52,
+   "points": [
+    0.75,
+    1.0,
+    1.333,
+    2.5,
+    1.0
+   ],
+   "coefficient": 6.583,
+   "teams": 3
+  },
+  "Georgia": {
+   "rank": 53,
+   "points": [
+    1.25,
+    1.125,
+    1.25,
+    1.25,
+    1.125
+   ],
+   "coefficient": 6.0,
+   "teams": 4
+  },
+  "Wales": {
+   "rank": 54,
+   "points": [
+    1.5,
+    1.166,
+    0.625,
+    2.0,
+    0.333
+   ],
+   "coefficient": 5.624,
+   "teams": 3
+  },
+  "San Marino": {
+   "rank": 55,
+   "points": [
+    0.166,
+    0.833,
+    0.333,
+    0.666,
+    0.833
+   ],
+   "coefficient": 2.831,
+   "teams": 3
+  }
+ }
+}

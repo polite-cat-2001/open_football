@@ -15,7 +15,8 @@ static func create(
 	manager_name: String,
 	nationality_id: int,
 	seed := -1,
-	europe_mode := "none"
+	europe_mode := "none",
+	country_mode := "static"
 ) -> Career:
 	last_error = ""
 	var manager := manager_name.strip_edges()
@@ -98,7 +99,9 @@ static func create(
 		"stages_generated": stages_generated,
 		"competitions": competitions,
 		"europe_mode": europe_mode,
+		"country_coefficients_mode": country_mode,
 		"coefficients": CareerCoefficients.table(),
+		"country_coefficients": CareerCountryCoefficients.table(),
 		"continental": {season_start: continental} if not continental.is_empty() else {},
 		"seasons_completed": 0,
 		"schedule_version": SCHEDULE_VERSION,
