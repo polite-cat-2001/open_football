@@ -14,7 +14,8 @@ static var last_error := ""
 
 
 static func build(catalog: TeamCatalog, berths: Dictionary, seed: int,
-		title_holders: Dictionary = {}) -> Dictionary:
+		title_holders: Dictionary = {}, forced: Dictionary = {},
+		focus_club: String = "") -> Dictionary:
 	last_error = ""
 	var access = CareerBerths.access()
 	var uefa = access.get("uefa", {})
@@ -66,14 +67,23 @@ static func build(catalog: TeamCatalog, berths: Dictionary, seed: int,
 			ratings[str(club_id)] = float(
 				catalog.load_team_rating(int(club_id)).get("average", 55.0))
 	for comp in COMPETITIONS:
-		_build_competition(comp, state, uefa, seed, ratings)
+		_build_competition(comp, state, uefa, seed, ratings, forced)
 	var rebalanced := _rebalance_all(state, ratings)
-	var result := {"competitions": {}, "rebalanced": rebalanced}
+	var result := {"competitions": {}, "rebalanced": rebalanced,
+		"focus_fixtures": []}
 	for comp in COMPETITIONS:
 		result["competitions"][comp] = {
 			"league_phase": _unique(state[comp]["league"]),
 			"rounds": _rounds_report(state[comp]),
 		}
+	if not focus_club.is_empty():
+		for comp in COMPETITIONS:
+			for key in state[comp]["fixtures"]:
+				for fixture in state[comp]["fixtures"][key]:
+					var home := str((fixture as Dictionary).get("home", ""))
+					var away := str((fixture as Dictionary).get("away", ""))
+					if home == focus_club or away == focus_club:
+						result["focus_fixtures"].append(fixture)
 	return result
 
 
@@ -104,7 +114,7 @@ static func _add_to_league(state: Dictionary, comp: String, club_id: String) -> 
 
 
 static func _build_competition(comp: String, state: Dictionary, uefa: Dictionary,
-		seed: int, ratings: Dictionary) -> void:
+		seed: int, ratings: Dictionary, forced: Dictionary = {}) -> void:
 	for round in ROUNDS:
 		var incoming := _drop_downs_into(comp, round, state, uefa)
 		var direct: Dictionary = state[comp]["direct"].get(round, {})
@@ -135,7 +145,8 @@ static func _build_competition(comp: String, state: Dictionary, uefa: Dictionary
 				continue
 			state[comp]["entrants"][round] = state[comp]["entrants"].get(round, {})
 			state[comp]["entrants"][round][path] = entrants
-			var resolved := _play_tie(entrants, comp, round, path, seed, ratings)
+			var resolved := _play_tie(entrants, comp, round, path, seed, ratings,
+				forced)
 			winners_for_round[path] = resolved.get("winners", [])
 			losers_for_round[path] = resolved.get("losers", [])
 			state[comp]["fixtures"]["%s:%s" % [round, path]] = resolved.get("fixtures", [])
@@ -154,10 +165,14 @@ static func _build_competition(comp: String, state: Dictionary, uefa: Dictionary
 
 
 static func _play_tie(entrants: Array, comp: String, round: String, path: String,
-		seed: int, ratings: Dictionary) -> Dictionary:
+		seed: int, ratings: Dictionary, forced: Dictionary = {}) -> Dictionary:
 	var stage := {"rounds": [{"name": "tie", "legs": 2}]}
 	var prefix := "%s:%s:%s:" % [comp, round, path]
 	var fixtures := CareerBrackets.round_fixtures(stage, 0, entrants, [], prefix)
+	for fixture in fixtures:
+		fixture["europe"] = comp
+		fixture["qualifying_round"] = round
+		fixture["qualifying_path"] = path
 	var results := {}
 	for fixture in fixtures:
 		results[str(fixture.get("id", ""))] = CareerSeason.simulate(seed, fixture,
@@ -165,16 +180,31 @@ static func _play_tie(entrants: Array, comp: String, round: String, path: String
 	results = CareerBrackets.settle_ties(entrants, fixtures, results, seed)
 	var winners := CareerBrackets.round_winners(entrants, fixtures, results)
 	var losers: Array = []
-	for row in CareerBrackets.tie_results(entrants, fixtures, results):
+	var rows := CareerBrackets.tie_results(entrants, fixtures, results)
+	for index in range(rows.size()):
+		var row: Dictionary = rows[index]
 		if bool(row.get("bye", false)):
 			continue
-		var winner := _winner_of(row, results)
+		var first := str(row.get("first", ""))
+		var second := str(row.get("second", ""))
+		var key := _pair_key(first, second)
+		var winner := ""
+		if forced.has(key):
+			winner = str(forced[key])
+			if index < winners.size():
+				winners[index] = winner
+		else:
+			winner = _winner_of(row, results)
 		if winner.is_empty():
 			continue
-		for club_id in [row.get("first", ""), row.get("second", "")]:
-			if str(club_id) != winner and not str(club_id).is_empty():
-				losers.append(str(club_id))
+		for club_id in [first, second]:
+			if club_id != winner and not club_id.is_empty():
+				losers.append(club_id)
 	return {"winners": winners, "losers": losers, "fixtures": fixtures}
+
+
+static func _pair_key(first: String, second: String) -> String:
+	return first + "|" + second if first < second else second + "|" + first
 
 
 static func _winner_of(row: Dictionary, results: Dictionary) -> String:

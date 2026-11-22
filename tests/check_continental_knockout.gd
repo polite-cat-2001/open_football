@@ -107,6 +107,21 @@ func _run() -> void:
 		_check(not is_equal_approx(CareerCountryCoefficients.coefficient(
 			dynamic_country, "England"), 119.519),
 			"the dynamic country total rolled")
+	var tie_clubs: Array = ["583", "418", "131", "13"]
+	var tie_ratings := {}
+	for club_id in tie_clubs:
+		tie_ratings[club_id] = float(
+			catalog.load_team_rating(int(club_id)).get("average", 55.0))
+	var pairs := CareerBrackets.pairs(tie_clubs, 4)
+	var first_pair: Array = pairs[0]
+	var forced_winner := str(first_pair[1])
+	var key := CareerContinental._pair_key(str(first_pair[0]), forced_winner)
+	var tie := CareerContinental._play_tie(tie_clubs, "ucl", "q1", "main", 42,
+		tie_ratings, {key: forced_winner})
+	_check((tie.get("winners", []) as Array).has(forced_winner),
+		"a forced qualifier result becomes the tie winner")
+	_check((tie.get("losers", []) as Array).has(str(first_pair[0])),
+		"the other club is the tie loser")
 	_finish()
 
 
