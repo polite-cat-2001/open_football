@@ -23,23 +23,27 @@ static func access() -> Dictionary:
 
 
 static func for_country(country: String, rows: Array,
-		cups_by_label: Dictionary = {}) -> Dictionary:
+		cups_by_label: Dictionary = {}, rank_override := -1,
+		eps_override = null) -> Dictionary:
 	var data := access()
 	if data.is_empty():
 		return {}
 	var uefa = data.get("uefa", {})
-	if uefa is Dictionary and _rank_of(uefa, country) > 0:
-		return _uefa_for_country(uefa, country, rows, cups_by_label)
+	if uefa is Dictionary and (rank_override > 0 or _rank_of(uefa, country) > 0):
+		return _uefa_for_country(uefa, country, rows, cups_by_label,
+			rank_override, eps_override)
 	return _slots_for_country(data, country, rows, cups_by_label)
 
 
 static func _uefa_for_country(data: Dictionary, country: String, rows: Array,
-		cups_by_label: Dictionary) -> Dictionary:
-	var rank := _rank_of(data, country)
+		cups_by_label: Dictionary, rank_override := -1,
+		eps_override = null) -> Dictionary:
+	var rank := rank_override if rank_override > 0 else _rank_of(data, country)
 	var band := _band_for(data, rank)
 	if band.is_empty():
 		return {}
-	var eps := (data.get("eps", []) as Array).has(country)
+	var eps := bool(eps_override) if eps_override != null \
+		else (data.get("eps", []) as Array).has(country)
 	var cup_slot := _cup_slot(data, country)
 	var main_cup := str(cup_slot.get("main_cup", ""))
 	if main_cup.is_empty():

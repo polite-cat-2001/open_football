@@ -518,6 +518,31 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 			continue
 		for slot in conf.get("slots", []):
 			countries[str((slot as Dictionary).get("country", ""))] = true
+	var dynamic := str(career.data.get("country_coefficients_mode", "static")) == "dynamic"
+	var dynamic_ranks := {}
+	var dynamic_eps := {}
+	if dynamic:
+		var country_table = career.data.get("country_coefficients", {})
+		if country_table is Dictionary and not (country_table as Dictionary).is_empty():
+			var ranking := CareerCountryCoefficients.ranking(country_table)
+			for index in range(ranking.size()):
+				dynamic_ranks[CareerCountryCoefficients.access_name(
+					str(ranking[index]))] = index + 1
+			var scores: Array = []
+			for association in ranking:
+				var row = country_table[association]
+				var last := 0.0
+				if row is Array and not (row as Array).is_empty():
+					last = float((row as Array)[-1])
+				scores.append({"name": str(association), "score": last})
+			scores.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+				if not is_equal_approx(float(a.get("score", 0.0)),
+						float(b.get("score", 0.0))):
+					return float(a.get("score", 0.0)) > float(b.get("score", 0.0))
+				return str(a.get("name", "")) < str(b.get("name", "")))
+			for index in range(mini(2, scores.size())):
+				dynamic_eps[CareerCountryCoefficients.access_name(
+					str((scores[index] as Dictionary).get("name", "")))] = true
 	var country_keys := countries.keys()
 	country_keys.sort()
 	for name in country_keys:
@@ -537,7 +562,10 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 			var by_country = world_cups.get(career.season_start, {})
 			if by_country is Dictionary:
 				cup_map = by_country.get(name, {})
-		var block := CareerBerths.for_country(str(name), rows, cup_map)
+		var rank_override := int(dynamic_ranks.get(str(name), -1)) if dynamic else -1
+		var eps_override = dynamic_eps.has(str(name)) if dynamic else null
+		var block := CareerBerths.for_country(str(name), rows, cup_map,
+			rank_override, eps_override)
 		if not block.is_empty():
 			association_berths[str(name)] = block
 	if not association_berths.is_empty():

@@ -10,6 +10,14 @@ const PATH := "res://assets/data/country_coefficients.json"
 
 static var _data: Dictionary = {}
 
+# The country ranking page and the access list spell four associations differently.
+const NORMALIZE := {
+	"Czechia": "Czech Republic",
+	"Türkiye": "Turkey",
+	"Ireland": "Republic of Ireland",
+	"Bosnia-Herzegovina": "Bosnia and Herzegovina",
+}
+
 # Club country codes used by the club snapshot -> association names.
 const CODES := {
 	"Eng": "England", "Esp": "Spain", "Ita": "Italy", "Ger": "Germany",
@@ -98,3 +106,7 @@ static func roll(table_data: Dictionary,
 
 static func association_for_code(code: String) -> String:
 	return str(CODES.get(code, ""))
+
+
+static func access_name(association: String) -> String:
+	return str(NORMALIZE.get(association, association))
