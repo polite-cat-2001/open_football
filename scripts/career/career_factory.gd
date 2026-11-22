@@ -98,6 +98,7 @@ static func create(
 		"stages_generated": stages_generated,
 		"competitions": competitions,
 		"europe_mode": europe_mode,
+		"coefficients": CareerCoefficients.table(),
 		"continental": {season_start: continental} if not continental.is_empty() else {},
 		"seasons_completed": 0,
 		"schedule_version": SCHEDULE_VERSION,

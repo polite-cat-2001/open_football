@@ -59,6 +59,7 @@ static func play(catalog: TeamCatalog, table: Array, seed: int,
 			"name": str((ROUNDS[round_index] as Dictionary).get("name", "")),
 			"entrants": current.duplicate(),
 			"fixtures": fixtures,
+			"results": results,
 			"winners": winners,
 		})
 		current = winners

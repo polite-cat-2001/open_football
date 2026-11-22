@@ -298,55 +298,174 @@ static func finish(catalog: TeamCatalog, career: Career, block: Dictionary,
 		seed: int) -> Dictionary:
 	# Resolve every European competition of a finished season: use the career's
 	# own league-phase table where it was played, simulate the others from their
-	# fields, then play the knockout. The winners are stored in the block for the
-	# history and the next season's berths.
+	# fields, then play the knockout. The winners and the season's coefficient
+	# points are stored in the block; the five-season table rolls forward.
 	if block.is_empty():
 		return {}
 	var focus := CareerCompetitions._focus_competition(block, career.club_id)
 	var rules := {"method": "extra_time_pens", "away_goals": false}
 	var champions := {}
 	var runners_up := {}
+	var season_points := {}
 	for comp in COMPETITIONS:
 		var competition: Dictionary = block.get("competitions", {}).get(comp, {})
-		if competition.has("champion"):
-			champions[comp] = str(competition["champion"])
-			if competition.has("runner_up"):
-				runners_up[comp] = str(competition["runner_up"])
-			continue
 		var field: Array = competition.get("league_phase", [])
 		if field.size() != LEAGUE_SIZE:
 			continue
 		var table_rows: Array = []
+		var league_fixtures: Array = []
+		var league_results: Dictionary = career.results
+		var knockout_rounds: Array = []
+		var champion := str(competition.get("champion", ""))
 		if comp == focus:
 			table_rows = table(career, comp)
+			league_fixtures = _career_stage(career, comp, comp)
+			knockout_rounds = _career_rounds(career, comp)
+			if champion.is_empty():
+				var played := _play_knockout(catalog, table_rows, seed, rules)
+				if played.is_empty():
+					continue
+				champion = str(played.get("winner", ""))
+				knockout_rounds = played.get("rounds", [])
+				competition["knockout"] = knockout_rounds
 		else:
-			table_rows = _simulated_table(catalog, competition, field, seed, comp)
-		if table_rows.size() < 24:
+			var simulated := _simulated_table(catalog, competition, field, seed, comp)
+			table_rows = simulated.get("table", [])
+			league_fixtures = simulated.get("fixtures", [])
+			league_results = simulated.get("results", {})
+			var played := _play_knockout(catalog, table_rows, seed, rules)
+			if played.is_empty():
+				continue
+			champion = str(played.get("winner", ""))
+			knockout_rounds = played.get("rounds", [])
+			competition["knockout"] = knockout_rounds
+		if champion.is_empty():
 			continue
-		var ordered: Array = []
-		for row in table_rows:
-			ordered.append(str(row.get("id", "")))
-		var played := CareerKnockout.play(catalog, ordered, seed, rules)
-		if played.is_empty():
-			continue
-		champions[comp] = str(played.get("winner", ""))
-		var rounds: Array = played.get("rounds", [])
-		if not rounds.is_empty():
-			var final_round: Dictionary = rounds[-1]
-			var final_fixtures: Array = final_round.get("fixtures", [])
-			if not final_fixtures.is_empty():
-				var final: Dictionary = final_fixtures[0]
-				var winner := str(champions[comp])
-				runners_up[comp] = str(final.get("away", "")) \
-					if str(final.get("home", "")) == winner else str(final.get("home", ""))
-		competition["knockout"] = rounds
+		champions[comp] = champion
+		runners_up[comp] = _runner_up(champion, knockout_rounds)
+		_award_points(comp, table_rows, league_fixtures, league_results,
+			knockout_rounds, season_points)
 	block["champions"] = champions
 	block["runners_up"] = runners_up
+	if not season_points.is_empty():
+		var table_data = career.data.get("coefficients", {})
+		if not (table_data is Dictionary) or (table_data as Dictionary).is_empty():
+			table_data = CareerCoefficients.table()
+		career.data["coefficients"] = CareerCoefficients.roll(table_data,
+			season_points)
+		block["season_points"] = season_points
 	return champions
 
 
+static func _play_knockout(catalog: TeamCatalog, table_rows: Array, seed: int,
+		rules: Dictionary) -> Dictionary:
+	if table_rows.size() < 24:
+		return {}
+	var ordered: Array = []
+	for row in table_rows:
+		ordered.append(str(row.get("id", "")))
+	return CareerKnockout.play(catalog, ordered, seed, rules)
+
+
+static func _career_stage(career: Career, competition: String, stage: String) -> Array:
+	var rows: Array = []
+	for fixture in career.schedule:
+		if str(fixture.get("competition", "")) == competition \
+				and str(fixture.get("stage", "")) == stage:
+			rows.append(fixture)
+	return rows
+
+
+static func _career_rounds(career: Career, comp: String) -> Array:
+	var names := {1: "playoff", 2: "r16", 3: "qf", 4: "semi", 5: "final"}
+	var rounds: Array = []
+	for stage_round in range(1, 6):
+		var fixtures: Array = []
+		for fixture in career.schedule:
+			if str(fixture.get("stage", "")) == "euro:" + comp \
+					and int(fixture.get("stage_round", 0)) == stage_round:
+				fixtures.append(fixture)
+		if fixtures.is_empty():
+			continue
+		rounds.append({
+			"name": str(names[stage_round]),
+			"fixtures": fixtures,
+			"results": career.results,
+		})
+	return rounds
+
+
+static func _runner_up(champion: String, knockout_rounds: Array) -> String:
+	if knockout_rounds.is_empty():
+		return ""
+	var final_round: Dictionary = knockout_rounds[-1]
+	var fixtures: Array = final_round.get("fixtures", [])
+	if fixtures.is_empty():
+		return ""
+	var final: Dictionary = fixtures[0]
+	var home := str(final.get("home", ""))
+	var away := str(final.get("away", ""))
+	if home == champion:
+		return away
+	if away == champion:
+		return home
+	return ""
+
+
+static func _award_points(comp: String, table_rows: Array, league_fixtures: Array,
+		league_results: Dictionary, knockout_rounds: Array,
+		season_points: Dictionary) -> void:
+	var ranks := {}
+	for index in range(table_rows.size()):
+		ranks[str((table_rows[index] as Dictionary).get("id", ""))] = index + 1
+	var stats := {}
+	for fixture in league_fixtures:
+		_add_result(stats, fixture, league_results)
+	for round in knockout_rounds:
+		var name := str((round as Dictionary).get("name", ""))
+		if name == "playoff":
+			continue
+		var round_results: Dictionary = (round as Dictionary).get("results", {})
+		for fixture in (round as Dictionary).get("fixtures", []):
+			_add_result(stats, fixture, round_results)
+			for club_id in [str(fixture.get("home", "")), str(fixture.get("away", ""))]:
+				var row: Dictionary = stats.get(club_id, {"wins": 0, "draws": 0,
+					"reached": {}})
+				(row["reached"] as Dictionary)[name] = true
+				stats[club_id] = row
+	for club_id in ranks:
+		var row: Dictionary = stats.get(club_id, {"wins": 0, "draws": 0,
+			"reached": {}})
+		var points := CareerCoefficients.season_points(comp, int(ranks[club_id]),
+			int(row.get("wins", 0)), int(row.get("draws", 0)),
+			row.get("reached", {}))
+		season_points[club_id] = float(season_points.get(club_id, 0.0)) + points
+
+
+static func _add_result(stats: Dictionary, fixture: Dictionary,
+		results: Dictionary) -> void:
+	var result = results.get(str(fixture.get("id", "")))
+	if not (result is Dictionary):
+		return
+	var home := str(fixture.get("home", ""))
+	var away := str(fixture.get("away", ""))
+	var home_goals := int(result.get("home", 0))
+	var away_goals := int(result.get("away", 0))
+	var home_row: Dictionary = stats.get(home, {"wins": 0, "draws": 0, "reached": {}})
+	var away_row: Dictionary = stats.get(away, {"wins": 0, "draws": 0, "reached": {}})
+	if home_goals > away_goals:
+		home_row["wins"] = int(home_row.get("wins", 0)) + 1
+	elif home_goals < away_goals:
+		away_row["wins"] = int(away_row.get("wins", 0)) + 1
+	else:
+		home_row["draws"] = int(home_row.get("draws", 0)) + 1
+		away_row["draws"] = int(away_row.get("draws", 0)) + 1
+	stats[home] = home_row
+	stats[away] = away_row
+
+
 static func _simulated_table(catalog: TeamCatalog, competition: Dictionary,
-		field: Array, seed: int, comp: String) -> Array:
+		field: Array, seed: int, comp: String) -> Dictionary:
 	var fixtures: Array = []
 	var draw: Array = competition.get("draw", [])
 	var rounds := int(competition.get("round_count", 8))
@@ -361,7 +480,8 @@ static func _simulated_table(catalog: TeamCatalog, competition: Dictionary,
 				"round": index / per_round + 1, "stage_round": index / per_round + 1,
 			})
 	else:
-		var drawn := CareerDraw.league_phase(catalog, field, seed, comp)
+		var drawn := CareerDraw.league_phase(catalog, field, seed, comp,
+			competition.get("coefficients", {}))
 		for index in range(drawn.size()):
 			var row: Dictionary = drawn[index]
 			fixtures.append({
@@ -377,7 +497,11 @@ static func _simulated_table(catalog: TeamCatalog, competition: Dictionary,
 	var results := {}
 	for fixture in fixtures:
 		results[str(fixture.get("id", ""))] = CareerSeason.simulate(seed, fixture, ratings)
-	return CareerStages.table(fixtures, results, field)
+	return {
+		"table": CareerStages.table(fixtures, results, field),
+		"fixtures": fixtures,
+		"results": results,
+	}
 
 
 static func _rounds_report(state: Dictionary) -> Dictionary:

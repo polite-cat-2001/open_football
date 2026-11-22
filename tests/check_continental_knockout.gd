@@ -75,6 +75,12 @@ func _run() -> void:
 		"the Europa League winner enters the Champions League")
 	_check((state["uel"]["league"] as Array).has("3"),
 		"the Conference League winner enters the Europa League")
+	var coefficients: Dictionary = career.data.get("coefficients", {})
+	_check(coefficients.size() >= 300, "the career coefficient table is loaded")
+	var champion_row = coefficients.get(str(champions.get("ucl", "")), [])
+	_check(champion_row is Array and (champion_row as Array).size() == 5
+		and float((champion_row as Array)[4]) > 0.0,
+		"the Champions League winner's season points rolled into the table")
 	_finish()
 
 

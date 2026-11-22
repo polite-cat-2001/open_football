@@ -43,7 +43,7 @@ static var _budget := 0
 
 
 static func league_phase(catalog: TeamCatalog, club_ids: Array, seed: int,
-		competition := "ucl") -> Array:
+		competition := "ucl", rankings: Dictionary = {}) -> Array:
 	last_error = ""
 	var clubs: Array = []
 	for club_id in club_ids:
@@ -56,7 +56,8 @@ static func league_phase(catalog: TeamCatalog, club_ids: Array, seed: int,
 	var format: Dictionary = FORMATS.get(competition, FORMATS["ucl"])
 	var pattern_key := str(format.get("pattern", "4x9"))
 	_prepare(pattern_key, int(format.get("size", 9)))
-	var pots := _split_pots(clubs, int(format.get("pots", 4)), int(format.get("size", 9)))
+	var pots := _split_pots(clubs, int(format.get("pots", 4)),
+		int(format.get("size", 9)), rankings)
 	var countries := {}
 	for club_id in clubs:
 		countries[club_id] = str(
@@ -79,8 +80,19 @@ static func league_phase(catalog: TeamCatalog, club_ids: Array, seed: int,
 	return []
 
 
-static func _split_pots(clubs: Array, pots: int, size: int) -> Array:
-	var ranked := CareerCoefficients.sorted_clubs(clubs)
+static func _split_pots(clubs: Array, pots: int, size: int,
+		rankings: Dictionary = {}) -> Array:
+	var ranked: Array
+	if rankings.is_empty():
+		ranked = CareerCoefficients.sorted_clubs(clubs)
+	else:
+		ranked = clubs.duplicate()
+		ranked.sort_custom(func(a: String, b: String) -> bool:
+			var left := CareerCoefficients.total(rankings, a)
+			var right := CareerCoefficients.total(rankings, b)
+			if not is_equal_approx(left, right):
+				return left > right
+			return a < b)
 	var result: Array = []
 	for pot in range(pots):
 		var group: Array = []

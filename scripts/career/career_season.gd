@@ -552,6 +552,12 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 			if not built_continental.is_empty():
 				continental[new_start] = built_continental
 				career.data["continental"] = continental
+	var new_block: Dictionary = career.data.get("continental", {}).get(new_start, {})
+	var rankings = career.data.get("coefficients", {})
+	if not new_block.is_empty() and rankings is Dictionary and not rankings.is_empty():
+		new_block["coefficients"] = rankings
+		for comp in new_block.get("competitions", {}):
+			new_block["competitions"][comp]["coefficients"] = rankings
 	var built := CareerCompetitions.build_season(catalog, career.league_id,
 		next_ids_unique, new_start, history,
 		career.data.get("continental", {}).get(new_start, {}), career.club_id,
