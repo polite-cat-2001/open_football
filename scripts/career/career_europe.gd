@@ -9,6 +9,7 @@ extends RefCounted
 const PATH := "res://assets/data/europe_2026_27.json"
 const MODES := ["real", "simulated", "none"]
 const COMPETITIONS := ["ucl", "uel", "uecl"]
+const ROUNDS := {"ucl": 8, "uel": 8, "uecl": 6}
 
 static var last_error := ""
 static var _data: Dictionary = {}
@@ -69,8 +70,23 @@ static func block() -> Dictionary:
 		competitions[comp] = {
 			"league_phase": fields.get(comp, []),
 			"rounds": {},
+			"draw": draw(comp),
+			"round_count": int(ROUNDS.get(comp, 8)),
+			"substitutions": {},
 		}
-	return {"competitions": competitions, "rebalanced": {}, "source": "uefa_2026_27"}
+	return {"competitions": competitions, "rebalanced": {},
+		"source": "uefa_2026_27"}
+
+
+static func draw(comp: String) -> Array:
+	var result: Array = []
+	var rows = data().get("draw", {})
+	if not (rows is Dictionary):
+		return result
+	for row in rows.get(comp.to_upper(), []):
+		if row is Array and row.size() == 2:
+			result.append({"home": str(int(row[0])), "away": str(int(row[1]))})
+	return result
 
 
 static func first_season(mode: String, focus_club: String) -> Dictionary:
@@ -141,6 +157,9 @@ static func _place_club(block_data: Dictionary, club_id: String) -> String:
 	var field: Array = competitions[target]["league_phase"]
 	var weakest := _weakest(field)
 	field[field.find(weakest)] = club_id
+	var substitutions: Dictionary = competitions[target].get("substitutions", {})
+	substitutions[weakest] = club_id
+	competitions[target]["substitutions"] = substitutions
 	return target
 
 
@@ -179,5 +198,5 @@ static func _duplicates(field: Array) -> bool:
 static func _ids(values: Array) -> Array:
 	var result: Array = []
 	for value in values:
-		result.append(str(value))
+		result.append(str(int(value)))
 	return result

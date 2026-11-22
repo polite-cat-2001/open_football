@@ -548,7 +548,8 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 				career.data["continental"] = continental
 	var built := CareerCompetitions.build_season(catalog, career.league_id,
 		next_ids_unique, new_start, history,
-		career.data.get("continental", {}).get(new_start, {}), career.club_id)
+		career.data.get("continental", {}).get(new_start, {}), career.club_id,
+		career.seed)
 	career.data["schedule"] = built.get("schedule", [])
 	career.data["stages_generated"] = built.get("stages_generated", {})
 	career.data["competitions"] = built.get("competitions", [])

@@ -66,8 +66,9 @@ static func create(
 				return null
 		else:
 			europe_mode = "none"
+	var career_seed := seed if seed >= 0 else Career.random_seed()
 	var built := CareerCompetitions.build_season(catalog, league_id, league_ids,
-		season_start, {}, continental, str(club_id))
+		season_start, {}, continental, str(club_id), career_seed)
 	var schedule: Array = built.get("schedule", [])
 	var stages_generated: Dictionary = built.get("stages_generated", {})
 	var competitions: Array = built.get("competitions", [])
@@ -76,7 +77,7 @@ static func create(
 	var career := Career.new({
 		"version": Career.SAVE_VERSION,
 		"id": Career.random_id(),
-		"seed": seed if seed >= 0 else Career.random_seed(),
+		"seed": career_seed,
 		"date": season_start,
 		"season_start": season_start,
 		"created_at": now,

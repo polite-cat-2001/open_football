@@ -28,7 +28,8 @@ static func records() -> Dictionary:
 
 static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Array,
 		season_start: String, history: Dictionary = {},
-		continental: Dictionary = {}, focus_club: String = "") -> Dictionary:
+		continental: Dictionary = {}, focus_club: String = "",
+		seed: int = 0) -> Dictionary:
 	# The league is planned first, cups after it; both obey the rest rule, so a
 	# cup never lands next to a league round. A country without cup data keeps
 	# the old league-only schedule untouched.
@@ -115,11 +116,13 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 	var euro_comp := _focus_competition(continental, focus_club)
 	if not euro_comp.is_empty():
 		var window := _euro_window(season_start)
+		var comp_block: Dictionary = continental.get("competitions", {}).get(
+			euro_comp, {})
 		requests.append({
 			"id": "euro:" + euro_comp, "priority": EURO_PRIORITY,
 			"start": str(window.get("start", season_start)),
 			"end": str(window.get("end", season_start)),
-			"days": EURO_ROUNDS,
+			"days": _euro_rounds(comp_block, euro_comp),
 		})
 	var plan := {}
 	if requests.size() > 1:
@@ -137,8 +140,8 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 		var dates = plan.get("euro:" + euro_comp, [])
 		var comp_block: Dictionary = continental.get("competitions", {}).get(
 			euro_comp, {})
-		schedule.append_array(_euro_fixtures(catalog,
-			comp_block.get("league_phase", []), euro_comp, dates, base))
+		schedule.append_array(_euro_fixtures(catalog, comp_block, euro_comp,
+			dates, base, seed))
 	_sort(schedule)
 	return {
 		"schedule": schedule,
@@ -529,8 +532,37 @@ static func _euro_window(season_start: String) -> Dictionary:
 	}
 
 
-static func _euro_fixtures(catalog: TeamCatalog, clubs: Array, comp: String,
-		dates: Array, base: int) -> Array:
+static func _euro_rounds(block: Dictionary, comp: String) -> int:
+	var count := int(block.get("round_count", 0))
+	if count > 0:
+		return count
+	return 6 if comp == "uecl" else EURO_ROUNDS
+
+
+static func _euro_fixtures(catalog: TeamCatalog, block: Dictionary, comp: String,
+		dates: Array, base: int, seed: int = 0) -> Array:
+	var clubs: Array = block.get("league_phase", [])
+	var real: Array = block.get("draw", [])
+	var rounds := _euro_rounds(block, comp)
+	if not real.is_empty():
+		var substitutions: Dictionary = block.get("substitutions", {})
+		var per_round := maxi(1, real.size() / rounds)
+		var drawn: Array = []
+		for index in range(real.size()):
+			var row: Dictionary = real[index]
+			var home := str(substitutions.get(str(row.get("home", "")),
+				str(row.get("home", ""))))
+			var away := str(substitutions.get(str(row.get("away", "")),
+				str(row.get("away", ""))))
+			var round_index := mini(index / per_round, rounds - 1)
+			drawn.append({
+				"id": "%s:l%02d-%02d" % [comp, round_index + 1, index % per_round],
+				"round": base + round_index + 1, "stage_round": round_index + 1,
+				"date": str(dates[round_index]) if round_index < dates.size() else "",
+				"home": home, "away": away,
+				"stage": comp, "competition": comp, "group": -1,
+			})
+		return drawn
 	var teams: Array = []
 	var seen := {}
 	for club_id in clubs:
@@ -540,6 +572,22 @@ static func _euro_fixtures(catalog: TeamCatalog, clubs: Array, comp: String,
 			teams.append(key)
 	if teams.size() < 2:
 		return []
+	if teams.size() == 36 and rounds == 8:
+		var drawn := CareerDraw.league_phase(catalog, teams, seed)
+		if drawn.size() == 144:
+			var fixtures: Array = []
+			for index in range(drawn.size()):
+				var round_index := index / 18
+				var date := str(dates[round_index]) if round_index < dates.size() else ""
+				var fixture: Dictionary = drawn[index]
+				fixtures.append({
+					"id": "%s:l%02d-%02d" % [comp, round_index + 1, index % 18],
+					"round": base + round_index + 1, "stage_round": round_index + 1,
+					"date": date, "home": str(fixture.get("home", "")),
+					"away": str(fixture.get("away", "")),
+					"stage": comp, "competition": comp, "group": -1,
+				})
+			return fixtures
 	teams.sort_custom(func(a: String, b: String) -> bool:
 		var left := float(catalog.load_team_rating(int(a)).get("average", 55.0))
 		var right := float(catalog.load_team_rating(int(b)).get("average", 55.0))
@@ -553,7 +601,8 @@ static func _euro_fixtures(catalog: TeamCatalog, clubs: Array, comp: String,
 	for club_id in teams:
 		home_count[club_id] = 0
 	var fixtures: Array = []
-	for round in range(EURO_ROUNDS):
+	var target_home := rounds / 2
+	for round in range(rounds):
 		var date := str(dates[round]) if round < dates.size() else ""
 		for index in range(rotation.size() / 2):
 			var first := str(rotation[index])
@@ -574,17 +623,17 @@ static func _euro_fixtures(catalog: TeamCatalog, clubs: Array, comp: String,
 		var next: Array = [rotation[0], rotation[-1]]
 		next.append_array(rotation.slice(1, rotation.size() - 1))
 		rotation = next
-	# The circle gives every club eight opponents; the orientation is repaired
-	# so every club has exactly four home games.
+	# The circle gives every club the right number of opponents; the orientation
+	# is repaired so every club has an even home split.
 	for guard in range(200):
 		var over := ""
 		var under := ""
 		for club_id in teams:
-			if not club_id.is_empty() and int(home_count.get(club_id, 0)) > 4:
+			if not club_id.is_empty() and int(home_count.get(club_id, 0)) > target_home:
 				over = club_id
 				break
 		for club_id in teams:
-			if not club_id.is_empty() and int(home_count.get(club_id, 0)) < 4:
+			if not club_id.is_empty() and int(home_count.get(club_id, 0)) < target_home:
 				under = club_id
 				break
 		if over.is_empty() or under.is_empty():

@@ -161,7 +161,9 @@ func _run() -> void:
 			sim_career.season_start, {})
 		var comp := _competition_of(block.get("competitions", {}), str(OUT_FIELD))
 		_check(not comp.is_empty(), "the simulated career club is in a field")
-		_check(not comp.is_empty() and _euro_fixtures(sim_career, comp, str(OUT_FIELD)).size() == 8,
+		var expected_rounds := int(CareerEurope.ROUNDS.get(comp, 8))
+		_check(not comp.is_empty()
+			and _euro_fixtures(sim_career, comp, str(OUT_FIELD)).size() == expected_rounds,
 			"the simulated league phase is scheduled")
 
 	_finish()
