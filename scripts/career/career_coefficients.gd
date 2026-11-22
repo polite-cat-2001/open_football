@@ -38,6 +38,16 @@ static func points(club_id: String) -> Array:
 	return []
 
 
+static func country_part(club_id: String) -> float:
+	var clubs = data().get("clubs", {})
+	if not (clubs is Dictionary):
+		return 0.0
+	var entry = clubs.get(str(club_id), {})
+	if entry is Dictionary:
+		return float(entry.get("country_part", 0.0))
+	return 0.0
+
+
 static func table() -> Dictionary:
 	var result := {}
 	var clubs = data().get("clubs", {})
@@ -75,7 +85,7 @@ static func total(table_data: Dictionary, club_id: String) -> float:
 	var total_points := 0.0
 	for value in row:
 		total_points += float(value)
-	return total_points
+	return maxf(total_points, country_part(club_id))
 
 
 static func season_points(competition: String, league_rank: int, wins: int,

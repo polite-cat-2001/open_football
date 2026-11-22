@@ -67,6 +67,12 @@ func _run() -> void:
 		2.5), "the Conference League league phase has a minimum")
 	_check(is_equal_approx(CareerCoefficients.season_points("ucl", 25, 0, 0, {}),
 		6.0), "the Champions League league phase starts at six points")
+	_check(is_equal_approx(CareerCoefficients.coefficient("1003"), 23.903),
+		"a low English club is lifted to the country part")
+	_check(is_equal_approx(CareerCoefficients.country_part("1003"), 23.903),
+		"the country part is stored")
+	_check(is_equal_approx(CareerCoefficients.total({"1003": [1.0, 1.0, 1.0, 1.0, 1.0]},
+		"1003"), 23.903), "the rolling total keeps the country minimum")
 
 	print("== check_club_coefficients: ",
 		"PASS" if failures.is_empty() else "FAIL", " (", failures.size(), " failures) ==")
