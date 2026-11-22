@@ -25,6 +25,7 @@ static func tick(career: Career, catalog: TeamCatalog, today := "") -> Dictionar
 
 	# The tick is the calendar step, so every sub-step sees the same day.
 	career.data["date"] = reference
+	CareerEurope.simulate_due(career, catalog, reference)
 
 	var previous_incoming := career.incoming_market_date
 	if previous_incoming.is_empty():

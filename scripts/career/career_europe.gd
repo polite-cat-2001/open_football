@@ -89,6 +89,41 @@ static func draw(comp: String) -> Array:
 	return result
 
 
+static func simulate_due(career: Career, catalog: TeamCatalog, today: String) -> void:
+	# Matches in the knockout that do not involve the career club are simulated as
+	# soon as their date passes, so the bracket advances while the season is still
+	# running even if the career club is already out. The player's own matches are
+	# left for the match screen.
+	var due: Array = []
+	for fixture in career.schedule:
+		if not str(fixture.get("stage", "")).begins_with("euro:"):
+			continue
+		if str(fixture.get("date", "")) > today:
+			continue
+		if career.results.has(str(fixture.get("id", ""))):
+			continue
+		var home := str(fixture.get("home", ""))
+		var away := str(fixture.get("away", ""))
+		if home == career.club_id or away == career.club_id:
+			continue
+		due.append(fixture)
+	if due.is_empty():
+		return
+	var cache := {}
+	for fixture in due:
+		var home := str(fixture.get("home", ""))
+		var away := str(fixture.get("away", ""))
+		if not cache.has(home):
+			cache[home] = float(
+				catalog.load_team_rating(int(home)).get("average", 55.0))
+		if not cache.has(away):
+			cache[away] = float(
+				catalog.load_team_rating(int(away)).get("average", 55.0))
+		career.data["results"][str(fixture.get("id", ""))] = \
+			CareerSeason.simulate(career.seed, fixture, cache)
+	ensure_knockout(career)
+
+
 static func ensure_knockout(career: Career) -> void:
 	# Add the knockout rounds of the career club's competition after its league
 	# phase is complete. One round is added at a time; the next one waits for the
