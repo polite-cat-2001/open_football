@@ -23,6 +23,61 @@ static func season() -> String:
 	return str(data().get("season", ""))
 
 
+static func seasons() -> Array:
+	var value = data().get("seasons", [])
+	return value if value is Array else []
+
+
+static func points(club_id: String) -> Array:
+	var clubs = data().get("clubs", {})
+	if not (clubs is Dictionary):
+		return []
+	var entry = clubs.get(str(club_id), {})
+	if entry is Dictionary and entry.get("points") is Array:
+		return entry["points"]
+	return []
+
+
+static func table() -> Dictionary:
+	var result := {}
+	var clubs = data().get("clubs", {})
+	if not (clubs is Dictionary):
+		return result
+	for club_id in clubs:
+		var entry = clubs[club_id]
+		if entry is Dictionary and entry.get("points") is Array:
+			result[str(club_id)] = (entry["points"] as Array).duplicate()
+	return result
+
+
+static func roll(table_data: Dictionary, season_points: Dictionary) -> Dictionary:
+	# Add one season and drop the oldest, so the ranking always covers five.
+	var result := {}
+	for club_id in table_data:
+		var row = table_data[club_id]
+		var next: Array = []
+		if row is Array:
+			for index in range(1, 5):
+				next.append(float(row[index]) if index < (row as Array).size() else 0.0)
+		else:
+			next = [0.0, 0.0, 0.0, 0.0]
+		next.append(float(season_points.get(str(club_id), 0.0)))
+		result[str(club_id)] = next
+	for club_id in season_points:
+		if not result.has(str(club_id)):
+			result[str(club_id)] = [0.0, 0.0, 0.0, 0.0,
+				float(season_points[club_id])]
+	return result
+
+
+static func total(table_data: Dictionary, club_id: String) -> float:
+	var row = table_data.get(str(club_id), [])
+	var total_points := 0.0
+	for value in row:
+		total_points += float(value)
+	return total_points
+
+
 static func coefficient(club_id: String) -> float:
 	var clubs = data().get("clubs", {})
 	if not (clubs is Dictionary):
