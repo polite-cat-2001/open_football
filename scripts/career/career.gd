@@ -489,6 +489,12 @@ static func from_save(raw: Dictionary) -> Career:
 			berths[str(season)] = by_country
 		payload["berths"] = berths
 
+	if payload.has("continental") and payload["continental"] is Dictionary:
+		var continental := {}
+		for season in payload["continental"]:
+			continental[str(season)] = _continental_block(payload["continental"][season])
+		payload["continental"] = continental
+
 	if payload.has("results") and payload["results"] is Dictionary:
 		var normalized := {}
 		for fixture_id in payload["results"]:
@@ -624,6 +630,44 @@ static func _negotiation_map(value) -> Dictionary:
 			_int_fields(copy, ["counter_offers", "rounds"])
 			out[str(player_id)] = copy
 	return out
+
+
+static func _continental_block(value) -> Dictionary:
+	if not (value is Dictionary):
+		return {}
+	var copy: Dictionary = (value as Dictionary).duplicate(true)
+	var competitions := {}
+	var source_competitions = copy.get("competitions", {})
+	if source_competitions is Dictionary:
+		for comp in source_competitions:
+			var entry = source_competitions[comp]
+			if not (entry is Dictionary):
+				continue
+			var rounds := {}
+			var source_rounds = entry.get("rounds", {})
+			if source_rounds is Dictionary:
+				for round in source_rounds:
+					var paths := {}
+					for path in source_rounds[round]:
+						var item = source_rounds[round][path]
+						if not (item is Dictionary):
+							continue
+						paths[str(path)] = {
+							"entrants": _string_array(item.get("entrants")),
+							"winners": _string_array(item.get("winners")),
+							"losers": _string_array(item.get("losers")),
+						}
+					rounds[str(round)] = paths
+			competitions[str(comp)] = {
+				"league_phase": _string_array(entry.get("league_phase")),
+				"rounds": rounds,
+			}
+	var rebalanced := {}
+	var source_rebalanced = copy.get("rebalanced", {})
+	if source_rebalanced is Dictionary:
+		for comp in source_rebalanced:
+			rebalanced[str(comp)] = _as_int(source_rebalanced[comp], 0)
+	return {"competitions": competitions, "rebalanced": rebalanced}
 
 
 static func _berth_block(value) -> Dictionary:

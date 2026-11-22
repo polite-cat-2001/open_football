@@ -1133,7 +1133,203 @@
     "league_phase": 36
    },
    "note": "Sizes are the published 2026-27 list (Russia suspended, both title holders already qualified). Every round is even, so losers = teams/2."
-  }
+  },
+  "drop_downs": [
+   {
+    "from": "UCL",
+    "round": "q1",
+    "to": "UECL",
+    "entry": "q2",
+    "path": "champions",
+    "count": 12,
+    "quote": "12 teams eliminated from Champions League first qualifying round",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
+   },
+   {
+    "from": "UCL",
+    "round": "q2",
+    "path_from": "champions",
+    "to": "UEL",
+    "entry": "q3",
+    "path": "champions",
+    "count": 12,
+    "quote": "12 losers from Champions League second qualifying round (Champions Path)",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
+   },
+   {
+    "from": "UCL",
+    "round": "q2",
+    "path_from": "league",
+    "to": "UEL",
+    "entry": "q3",
+    "path": "main",
+    "count": 2,
+    "quote": "2 losers from Champions League second qualifying round (League Path)",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
+   },
+   {
+    "from": "UCL",
+    "round": "q3",
+    "path_from": "champions",
+    "to": "UEL",
+    "entry": "playoff_round",
+    "path": "main",
+    "count": 6,
+    "quote": "6 losers from Champions League third qualifying round (Champions Path)",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
+   },
+   {
+    "from": "UCL",
+    "round": "q3",
+    "path_from": "league",
+    "to": "UEL",
+    "entry": "league_phase",
+    "path": null,
+    "count": 4,
+    "quote": "4 losers from Champions League third qualifying round (League Path)",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
+   },
+   {
+    "from": "UCL",
+    "round": "playoff_round",
+    "path_from": "champions",
+    "to": "UEL",
+    "entry": "league_phase",
+    "path": null,
+    "count": 5,
+    "quote": "5 losers from Champions League play-off round (Champions Path)",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
+   },
+   {
+    "from": "UCL",
+    "round": "playoff_round",
+    "path_from": "league",
+    "to": "UEL",
+    "entry": "league_phase",
+    "path": null,
+    "count": 2,
+    "quote": "2 losers from Champions League play-off round (League Path)",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
+   },
+   {
+    "from": "UEL",
+    "round": "q1",
+    "to": "UECL",
+    "entry": "q2",
+    "path": "league",
+    "count": 6,
+    "quote": "6 teams eliminated from Europa League first qualifying round",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
+   },
+   {
+    "from": "UEL",
+    "round": "q2",
+    "to": "UECL",
+    "entry": "q3",
+    "path": "league",
+    "count": 9,
+    "quote": "9 teams eliminated from Europa League second qualifying round",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
+   },
+   {
+    "from": "UEL",
+    "round": "q3",
+    "path_from": "champions",
+    "to": "UECL",
+    "entry": "playoff_round",
+    "path": "champions",
+    "count": 6,
+    "quote": "6 teams eliminated from Europa League third qualifying round (Champions Path)",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
+   },
+   {
+    "from": "UEL",
+    "round": "q3",
+    "path_from": "main",
+    "to": "UECL",
+    "entry": "playoff_round",
+    "path": "league",
+    "count": 7,
+    "quote": "7 teams eliminated from Europa League third qualifying round (League Path)",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
+   },
+   {
+    "from": "UEL",
+    "round": "playoff_round",
+    "to": "UECL",
+    "entry": "league_phase",
+    "path": null,
+    "count": 12,
+    "quote": "12 teams eliminated from Europa League play-off round",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
+   }
+  ],
+  "rebalancing": {
+   "rule": "When a title holder is already qualified its berth is not wasted: the best-coefficient club still in the qualifying rounds is pulled into the league phase and the hole behind it is filled from the round below.",
+   "entries": [
+    {
+     "trigger": "UCL title holder already qualified",
+     "moved": "Shakhtar Donetsk (Ukraine, association 23 champion)",
+     "from": "q2_champions",
+     "to": "league_phase",
+     "quote": "as the domestic champions with the highest club coefficient among the clubs that would otherwise have entered the Champions Path of the qualifying phase or play-off round, entered the league phase instead of the Champions Path second qualifying round."
+    },
+    {
+     "trigger": "UCL title holder already qualified",
+     "moved": "Slovan Bratislava and Celje",
+     "from": "q1_champions",
+     "to": "q2_champions",
+     "quote": "as the two clubs with the highest club coefficient that would otherwise have entered the Champions Path first qualifying round, entered the Champions Path second qualifying round."
+    },
+    {
+     "trigger": "UEL title holder already qualified",
+     "moved": "Sporting CP (Portugal, association 7 runner-up)",
+     "from": "q3_league",
+     "to": "league_phase",
+     "quote": "as the club with the highest club coefficient among all clubs that would otherwise have entered either the Champions Path or the League Path of the qualifying phase or play-off round, entered the league phase instead of the League Path third qualifying round."
+    },
+    {
+     "trigger": "UEL title holder already qualified",
+     "moved": "Bodo/Glimt and Olympiacos",
+     "from": "q2_league",
+     "to": "q3_league",
+     "quote": "as the two clubs with the highest club coefficient that would otherwise have entered the League Path second qualifying round, entered the League Path third qualifying round."
+    }
+   ],
+   "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Distribution",
+   "knock_on": "Every promotion leaves a hole filled from the round below, so the league phase stays at 36 and every qualifying round stays even. Loser counts in drop_downs are post-rebalancing."
+  },
+  "title_holders": {
+   "ucl_winner": {
+    "rule": "Champions League winner gets a league-phase berth if not already qualified through the domestic league.",
+    "quote": "The winners of the 2025-26 UEFA Champions League and 2025-26 UEFA Europa League were each given an additional entry if they did not qualify for the 2026-27 UEFA Champions League through their domestic league.",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League#Association_team_allocation",
+    "actual_2026_27": "Paris Saint-Germain qualified as Ligue 1 champions, so the slot was rebalanced (see rebalancing)."
+   },
+   "uel_winner": {
+    "rule": "Europa League winner gets a Champions League league-phase berth if not already qualified through the domestic league.",
+    "actual_2026_27": "Aston Villa qualified 4th in the Premier League, so the slot was rebalanced."
+   },
+   "uecl_winner": {
+    "rule": "Conference League winner gets a Europa League league-phase berth if not already qualified for the Champions League or Europa League.",
+    "quote": "The title holders of the 2025-26 UEFA Conference League received an entry into the Europa League (if they did not qualify for the Champions League or Europa League via league position).",
+    "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Association_team_allocation",
+    "actual_2026_27": "Crystal Palace entered the Europa League league phase as CON."
+   }
+  },
+  "traps": [
+   "Use the coefficient snapshot that matches the season, not the live one. The 2026-27 access list uses the ranking finished at the end of 2024-25; the live 2026-27 table on the UEFA_coefficient page feeds 2028-29.",
+   "Russia is 26th with 0 teams. Do not allocate its berth: the slot is absorbed by pushing the association-23 champion up a round.",
+   "Liechtenstein has no league and no Champions League entrant: exactly one club, the cup winner, into UECL Q2.",
+   "Team numbers per association are fixed first; the entry round is what moves. A cup winner already qualified for the Champions League frees its Europa League slot, and it cascades down the league table.",
+   "Round names are path-specific. There is no single UEL Q3: it is Q3 Champions Path (12) plus Q3 Main Path (14). UECL Q2/Q3/play-off each split into Champions Path and League Path (the same path is called Main Path in some sections of the same page).",
+   "Champions Path losers from UCL Q3 go to the Europa League play-off round, but League Path losers from the same UCL Q3 go straight to the Europa League league phase. Same round, different destination.",
+   "UCL Q1 losers do not all land in UECL Q2: the published list gave two of them a bye to UECL Q3 Champions Path because the Champions Path above them had been thinned by rebalancing.",
+   "A cup runner-up gets nothing unless the winner's slot cascades."
+  ],
+  "suspended": [
+   "Russia"
+  ]
  },
  "conmebol": {
   "id": "CONMEBOL",

@@ -193,6 +193,34 @@ func _run() -> void:
 			"the background world table is stored")
 		_check(career.data.get("world_cups", {}).size() >= 1,
 			"the background cup winners are stored")
+		var continental: Dictionary = career.data.get("continental", {}).get(
+			career.season_start, {})
+		var competitions: Dictionary = continental.get("competitions", {})
+		for comp in ["ucl", "uel", "uecl"]:
+			var league: Array = competitions.get(comp, {}).get("league_phase", [])
+			var unique := {}
+			for club_id in league:
+				unique[str(club_id)] = true
+			_check(league.size() == 36 and unique.size() == 36,
+				"%s league phase has 36 distinct clubs: %d" % [comp, league.size()])
+		var ucl_q1: Array = competitions.get("ucl", {}).get(
+			"rounds", {}).get("q1", {}).get("champions", {}).get("losers", [])
+		var uecl_q2: Array = competitions.get("uecl", {}).get(
+			"rounds", {}).get("q2", {}).get("champions", {}).get("entrants", [])
+		var dropped := 0
+		for club_id in ucl_q1:
+			if uecl_q2.has(str(club_id)):
+				dropped += 1
+		_check(dropped > 0, "Champions League q1 losers drop into the Conference q2")
+		var seen := {}
+		var repeated: Array = []
+		for comp in ["ucl", "uel", "uecl"]:
+			for club_id in competitions.get(comp, {}).get("league_phase", []):
+				if seen.has(str(club_id)):
+					repeated.append("%s:%s,%s" % [club_id, seen[str(club_id)], comp])
+				seen[str(club_id)] = comp
+		_check(repeated.is_empty(),
+			"no club is in two league phases: " + str(repeated.slice(0, 3)))
 
 	_finish()
 

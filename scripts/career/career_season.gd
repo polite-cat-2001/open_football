@@ -539,6 +539,13 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 		var all_berths: Dictionary = career.data.get("berths", {})
 		all_berths[new_start] = association_berths
 		career.data["berths"] = all_berths
+		var continental: Dictionary = career.data.get("continental", {})
+		if not continental.has(new_start):
+			var built_continental := CareerContinental.build(catalog,
+				association_berths, career.seed)
+			if not built_continental.is_empty():
+				continental[new_start] = built_continental
+				career.data["continental"] = continental
 	var built := CareerCompetitions.build_season(catalog, career.league_id,
 		next_ids_unique, new_start, history)
 	career.data["schedule"] = built.get("schedule", [])
