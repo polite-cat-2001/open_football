@@ -22,6 +22,12 @@ func _check(condition: bool, message: String) -> void:
 		print("  FAIL: ", message)
 
 
+func _result(fixture: Dictionary) -> Dictionary:
+	var home := str(fixture.get("home", ""))
+	var away := str(fixture.get("away", ""))
+	return {"home": 2, "away": 0} if home < away else {"home": 0, "away": 2}
+
+
 func _run() -> void:
 	var catalog := TeamCatalog.new()
 	_check(catalog.load_data_root(), "catalog opens the database: " + catalog.error)
@@ -91,7 +97,7 @@ func _run() -> void:
 			break
 		for fixture in pending:
 			career.data["results"][str(fixture.get("id", ""))] = \
-				CareerSeason.simulate(42, fixture, {})
+				_result(fixture)
 	var rounds_seen := {}
 	var cup_total := 0
 	for fixture in career.schedule:
@@ -167,7 +173,7 @@ func _run() -> void:
 				break
 			for fixture in pending:
 				career.data["results"][str(fixture.get("id", ""))] = \
-					CareerSeason.simulate(42, fixture, {})
+					_result(fixture)
 		_check(not CareerCompetitions.winner_of(career, "ESPSC").is_empty(),
 			"the Supercopa has a winner")
 		var reloaded := Career.from_save(career.to_save())
@@ -221,6 +227,22 @@ func _run() -> void:
 				seen[str(club_id)] = comp
 		_check(repeated.is_empty(),
 			"no club is in two league phases: " + str(repeated.slice(0, 3)))
+		var player_comp := ""
+		for comp in ["ucl", "uel", "uecl"]:
+			if (competitions.get(comp, {}).get("league_phase", []) as Array).has(
+					career.club_id):
+				player_comp = comp
+		_check(not player_comp.is_empty(),
+			"the career club qualifies for a league phase")
+		if not player_comp.is_empty():
+			var player_euro := 0
+			for fixture in career.schedule:
+				if str(fixture.get("competition", "")) == player_comp \
+						and (str(fixture.get("home", "")) == career.club_id
+							or str(fixture.get("away", "")) == career.club_id):
+					player_euro += 1
+			_check(player_euro == 8,
+				"the career club has eight league-phase fixtures: %d" % player_euro)
 
 	_finish()
 

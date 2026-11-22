@@ -251,6 +251,21 @@ static func _rebalance_all(state: Dictionary, ratings: Dictionary) -> Dictionary
 	return changed
 
 
+static func table(career: Career, competition: String) -> Array:
+	var fixtures: Array = []
+	var ids := {}
+	for fixture in career.schedule:
+		if str(fixture.get("competition", "")) != competition \
+				or str(fixture.get("stage", "")) != competition:
+			continue
+		fixtures.append(fixture)
+		ids[str(fixture.get("home", ""))] = true
+		ids[str(fixture.get("away", ""))] = true
+	var club_ids := ids.keys()
+	club_ids.sort()
+	return CareerStages.table(fixtures, career.results, club_ids)
+
+
 static func _rounds_report(state: Dictionary) -> Dictionary:
 	var report := {}
 	for round in state.get("entrants", {}):

@@ -1328,5 +1328,15 @@
  ],
  "suspended": [
   "Russia"
- ]
+ ],
+ "windows": {
+  "league_phase": {
+   "start_md": "09-15",
+   "end_md": "01-31"
+  },
+  "knockout": {
+   "start_md": "02-10",
+   "end_md": "05-30"
+  }
+ }
 }

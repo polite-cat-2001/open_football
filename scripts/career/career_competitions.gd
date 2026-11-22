@@ -9,6 +9,8 @@ const REST_DAYS := 3
 const LEAGUE_PRIORITY := 3
 const CUP_PRIORITY := 1
 const SUPER_PRIORITY := 4
+const EURO_PRIORITY := 5
+const EURO_ROUNDS := 8
 
 static var last_error := ""
 static var _records: Dictionary = {}
@@ -25,7 +27,8 @@ static func records() -> Dictionary:
 
 
 static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Array,
-		season_start: String, history: Dictionary = {}) -> Dictionary:
+		season_start: String, history: Dictionary = {},
+		continental: Dictionary = {}, focus_club: String = "") -> Dictionary:
 	# The league is planned first, cups after it; both obey the rest rule, so a
 	# cup never lands next to a league round. A country without cup data keeps
 	# the old league-only schedule untouched.
@@ -109,6 +112,15 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 			"start": start, "end": end, "days": _total_days(rounds),
 		})
 
+	var euro_comp := _focus_competition(continental, focus_club)
+	if not euro_comp.is_empty():
+		var window := _euro_window(season_start)
+		requests.append({
+			"id": "euro:" + euro_comp, "priority": EURO_PRIORITY,
+			"start": str(window.get("start", season_start)),
+			"end": str(window.get("end", season_start)),
+			"days": EURO_ROUNDS,
+		})
 	var plan := {}
 	if requests.size() > 1:
 		plan = CareerCalendar.joint_plan(requests, IntlCalendar.rules(), "world",
@@ -121,6 +133,12 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 			continue
 		entry["dates"] = plan.get(str(entry.get("id", "")), [])
 		_append_round(schedule, entry, 0, entry.get("entrants", []), base)
+	if not euro_comp.is_empty():
+		var dates = plan.get("euro:" + euro_comp, [])
+		var comp_block: Dictionary = continental.get("competitions", {}).get(
+			euro_comp, {})
+		schedule.append_array(_euro_fixtures(catalog,
+			comp_block.get("league_phase", []), euro_comp, dates, base))
 	_sort(schedule)
 	return {
 		"schedule": schedule,
@@ -484,6 +502,132 @@ static func _tier_allowed(league: Dictionary, tiers: Array) -> bool:
 		if int(tier) == int(league.get("tier", 0)):
 			return true
 	return false
+
+
+static func _focus_competition(continental: Dictionary, club_id: String) -> String:
+	if club_id.is_empty():
+		return ""
+	var competitions: Dictionary = continental.get("competitions", {})
+	for comp in ["ucl", "uel", "uecl"]:
+		var block: Dictionary = competitions.get(comp, {})
+		if (block.get("league_phase", []) as Array).has(club_id):
+			return comp
+	return ""
+
+
+static func _euro_window(season_start: String) -> Dictionary:
+	var uefa = CareerBerths.access().get("uefa", {})
+	var windows = uefa.get("windows", {})
+	var league = windows.get("league_phase", {})
+	var year := int(CareerSearch.date_parts(season_start)[0])
+	var reference := str(season_start).substr(5)
+	return {
+		"start": CareerCalendar.stage_date(year,
+			str(league.get("start_md", "09-15")), reference),
+		"end": CareerCalendar.stage_date(year,
+			str(league.get("end_md", "01-31")), reference),
+	}
+
+
+static func _euro_fixtures(catalog: TeamCatalog, clubs: Array, comp: String,
+		dates: Array, base: int) -> Array:
+	var teams: Array = []
+	var seen := {}
+	for club_id in clubs:
+		var key := str(club_id)
+		if not seen.has(key):
+			seen[key] = true
+			teams.append(key)
+	if teams.size() < 2:
+		return []
+	teams.sort_custom(func(a: String, b: String) -> bool:
+		var left := float(catalog.load_team_rating(int(a)).get("average", 55.0))
+		var right := float(catalog.load_team_rating(int(b)).get("average", 55.0))
+		if not is_equal_approx(left, right):
+			return left > right
+		return a < b)
+	if teams.size() % 2 == 1:
+		teams.append("")
+	var rotation := teams.duplicate()
+	var home_count := {}
+	for club_id in teams:
+		home_count[club_id] = 0
+	var fixtures: Array = []
+	for round in range(EURO_ROUNDS):
+		var date := str(dates[round]) if round < dates.size() else ""
+		for index in range(rotation.size() / 2):
+			var first := str(rotation[index])
+			var second := str(rotation[rotation.size() - 1 - index])
+			if first.is_empty() or second.is_empty():
+				continue
+			var home := first
+			if int(home_count.get(first, 0)) > int(home_count.get(second, 0)):
+				home = second
+			var away := second if home == first else first
+			home_count[home] = int(home_count.get(home, 0)) + 1
+			fixtures.append({
+				"id": "%s:l%02d-%02d" % [comp, round + 1, index],
+				"round": base + round + 1, "stage_round": round + 1,
+				"date": date, "home": home, "away": away,
+				"stage": comp, "competition": comp, "group": -1,
+			})
+		var next: Array = [rotation[0], rotation[-1]]
+		next.append_array(rotation.slice(1, rotation.size() - 1))
+		rotation = next
+	# The circle gives every club eight opponents; the orientation is repaired
+	# so every club has exactly four home games.
+	for guard in range(200):
+		var over := ""
+		var under := ""
+		for club_id in teams:
+			if not club_id.is_empty() and int(home_count.get(club_id, 0)) > 4:
+				over = club_id
+				break
+		for club_id in teams:
+			if not club_id.is_empty() and int(home_count.get(club_id, 0)) < 4:
+				under = club_id
+				break
+		if over.is_empty() or under.is_empty():
+			break
+		var home_map := {}
+		for fixture in fixtures:
+			var home := str(fixture.get("home", ""))
+			var list: Array = home_map.get(home, [])
+			list.append(fixture)
+			home_map[home] = list
+		var path := _flip_path(over, under, home_map)
+		if path.is_empty():
+			break
+		for fixture in path:
+			var home := str(fixture.get("home", ""))
+			var away := str(fixture.get("away", ""))
+			fixture["home"] = away
+			fixture["away"] = home
+			home_count[home] = int(home_count[home]) - 1
+			home_count[away] = int(home_count[away]) + 1
+	return fixtures
+
+
+static func _flip_path(start: String, goal: String, home_map: Dictionary) -> Array:
+	var stack: Array = [{"team": start, "path": []}]
+	var visited := {start: true}
+	while not stack.is_empty():
+		var item: Dictionary = stack.pop_back()
+		var team := str(item.get("team", ""))
+		var path: Array = item.get("path", [])
+		for fixture in home_map.get(team, []):
+			var away := str(fixture.get("away", ""))
+			if away == goal:
+				var result := path.duplicate()
+				result.append(fixture)
+				return result
+			if visited.has(away):
+				continue
+			visited[away] = true
+			var next_path := path.duplicate()
+			next_path.append(fixture)
+			stack.append({"team": away, "path": next_path})
+	return []
 
 
 static func _sort(schedule: Array) -> void:
