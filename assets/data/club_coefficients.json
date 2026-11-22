@@ -1,0 +1,2222 @@
+{
+ "season": "2026-27",
+ "source": "https://kassiesa.net/uefa/data/method5/trank2026.html",
+ "basis": "UEFA 5-year club ranking 2021-22 to 2025-26; total points",
+ "checked": "2026-11-22",
+ "clubs": {
+  "2864": {
+   "name": "Bayern Munich",
+   "source_name": "Bayern München",
+   "country": "Ger",
+   "coefficient": 147.5
+  },
+  "1863": {
+   "name": "Real Madrid",
+   "source_name": "Real Madrid",
+   "country": "Esp",
+   "coefficient": 144.5
+  },
+  "936": {
+   "name": "Paris Saint-Germain",
+   "source_name": "Paris Saint-Germain",
+   "country": "Fra",
+   "coefficient": 132.0
+  },
+  "623": {
+   "name": "Liverpool FC",
+   "source_name": "Liverpool",
+   "country": "Eng",
+   "coefficient": 130.0
+  },
+  "2281": {
+   "name": "Inter Milan",
+   "source_name": "Internazionale",
+   "country": "Ita",
+   "coefficient": 127.0
+  },
+  "621": {
+   "name": "Manchester City",
+   "source_name": "Manchester City",
+   "country": "Eng",
+   "coefficient": 125.5
+  },
+  "620": {
+   "name": "Arsenal FC",
+   "source_name": "Arsenal",
+   "country": "Eng",
+   "coefficient": 119.0
+  },
+  "1864": {
+   "name": "FC Barcelona",
+   "source_name": "FC Barcelona",
+   "country": "Esp",
+   "coefficient": 113.25
+  },
+  "2867": {
+   "name": "Bayer 04 Leverkusen",
+   "source_name": "Bayer Leverkusen",
+   "country": "Ger",
+   "coefficient": 105.0
+  },
+  "1940": {
+   "name": "Atlético Madrid C",
+   "source_name": "Atlético Madrid",
+   "country": "Esp",
+   "coefficient": 104.75
+  },
+  "2865": {
+   "name": "Borussia Dortmund",
+   "source_name": "Borussia Dortmund",
+   "country": "Ger",
+   "coefficient": 100.75
+  },
+  "622": {
+   "name": "Chelsea FC",
+   "source_name": "Chelsea",
+   "country": "Eng",
+   "coefficient": 99.25
+  },
+  "2283": {
+   "name": "AS Roma",
+   "source_name": "AS Roma",
+   "country": "Ita",
+   "coefficient": 97.75
+  },
+  "1247": {
+   "name": "SL Benfica",
+   "source_name": "Benfica",
+   "country": "Por",
+   "coefficient": 90.0
+  },
+  "1246": {
+   "name": "Sporting CP",
+   "source_name": "Sporting Braga",
+   "country": "Por",
+   "coefficient": 63.75
+  },
+  "2286": {
+   "name": "Atalanta BC",
+   "source_name": "Atalanta",
+   "country": "Ita",
+   "coefficient": 84.0
+  },
+  "632": {
+   "name": "Aston Villa",
+   "source_name": "Aston Villa",
+   "country": "Eng",
+   "coefficient": 83.0
+  },
+  "2869": {
+   "name": "Eintracht Frankfurt",
+   "source_name": "Eintracht Frankfurt",
+   "country": "Ger",
+   "coefficient": 83.0
+  },
+  "625": {
+   "name": "Tottenham Hotspur",
+   "source_name": "Tottenham Hotspur",
+   "country": "Eng",
+   "coefficient": 82.0
+  },
+  "1245": {
+   "name": "FC Porto",
+   "source_name": "FC Porto",
+   "country": "Por",
+   "coefficient": 80.75
+  },
+  "624": {
+   "name": "Manchester United",
+   "source_name": "Manchester United",
+   "country": "Eng",
+   "coefficient": 76.5
+  },
+  "2288": {
+   "name": "ACF Fiorentina",
+   "source_name": "Fiorentina",
+   "country": "Ita",
+   "coefficient": 76.25
+  },
+  "2415": {
+   "name": "Club Brugge KV",
+   "source_name": "Club Brugge",
+   "country": "Bel",
+   "coefficient": 75.25
+  },
+  "1868": {
+   "name": "Real Betis Balompié",
+   "source_name": "Real Betis",
+   "country": "Esp",
+   "coefficient": 74.5
+  },
+  "2282": {
+   "name": "Juventus FC",
+   "source_name": "Juventus",
+   "country": "Ita",
+   "coefficient": 72.25
+  },
+  "1191": {
+   "name": "PSV Eindhoven",
+   "source_name": "PSV Eindhoven",
+   "country": "Ned",
+   "coefficient": 71.25
+  },
+  "1192": {
+   "name": "Feyenoord Rotterdam",
+   "source_name": "Feyenoord",
+   "country": "Ned",
+   "coefficient": 71.0
+  },
+  "640": {
+   "name": "West Ham United",
+   "source_name": "West Ham United",
+   "country": "Eng",
+   "coefficient": 69.0
+  },
+  "940": {
+   "name": "LOSC Lille",
+   "source_name": "Lille OSC",
+   "country": "Fra",
+   "coefficient": 68.75
+  },
+  "2285": {
+   "name": "AC Milan",
+   "source_name": "AC Milan",
+   "country": "Ita",
+   "coefficient": 66.0
+  },
+  "939": {
+   "name": "Olympique Lyon",
+   "source_name": "Olympique Lyon",
+   "country": "Fra",
+   "coefficient": 65.75
+  },
+  "1553": {
+   "name": "FK Bodø/Glimt",
+   "source_name": "Bodø/Glimt",
+   "country": "Nor",
+   "coefficient": 64.0
+  },
+  "2287": {
+   "name": "SSC Napoli",
+   "source_name": "Napoli",
+   "country": "Ita",
+   "coefficient": 63.0
+  },
+  "1194": {
+   "name": "AZ Alkmaar",
+   "source_name": "AZ Alkmaar",
+   "country": "Ned",
+   "coefficient": 62.875
+  },
+  "3087": {
+   "name": "Olympiacos Piraeus",
+   "source_name": "Olympiakos Piraeus",
+   "country": "Gre",
+   "coefficient": 62.25
+  },
+  "2866": {
+   "name": "RB Leipzig",
+   "source_name": "RB Leipzig",
+   "country": "Ger",
+   "coefficient": 61.0
+  },
+  "3984": {
+   "name": "Rangers FC",
+   "source_name": "Glasgow Rangers",
+   "country": "Sco",
+   "coefficient": 59.25
+  },
+  "1866": {
+   "name": "Villarreal CF",
+   "source_name": "Villarreal",
+   "country": "Esp",
+   "coefficient": 59.0
+  },
+  "2289": {
+   "name": "SS Lazio",
+   "source_name": "Lazio",
+   "country": "Ita",
+   "coefficient": 59.0
+  },
+  "1193": {
+   "name": "Ajax Amsterdam",
+   "source_name": "Ajax",
+   "country": "Ned",
+   "coefficient": 58.25
+  },
+  "3070": {
+   "name": "Fenerbahce",
+   "source_name": "Fenerbahçe",
+   "country": "Tur",
+   "coefficient": 57.75
+  },
+  "1867": {
+   "name": "Real Sociedad",
+   "source_name": "Real Sociedad",
+   "country": "Esp",
+   "coefficient": 57.0
+  },
+  "2871": {
+   "name": "SC Freiburg",
+   "source_name": "SC Freiburg",
+   "country": "Ger",
+   "coefficient": 56.5
+  },
+  "1393": {
+   "name": "Shakhtar Donetsk",
+   "source_name": "Shakhtar Donetsk",
+   "country": "Ukr",
+   "coefficient": 56.25
+  },
+  "937": {
+   "name": "AS Monaco",
+   "source_name": "AS Monaco",
+   "country": "Fra",
+   "coefficient": 56.0
+  },
+  "942": {
+   "name": "Olympique Marseille",
+   "source_name": "Olympique Marseille",
+   "country": "Fra",
+   "coefficient": 54.0
+  },
+  "3069": {
+   "name": "Galatasaray",
+   "source_name": "Galatasaray",
+   "country": "Tur",
+   "coefficient": 53.5
+  },
+  "1811": {
+   "name": "Ferencvárosi TC",
+   "source_name": "Ferencváros",
+   "country": "Hun",
+   "coefficient": 51.25
+  },
+  "3396": {
+   "name": "FC Viktoria Plzen",
+   "source_name": "Viktoria Plzen",
+   "country": "Cze",
+   "coefficient": 50.5
+  },
+  "3117": {
+   "name": "FC Midtjylland",
+   "source_name": "FC Midtjylland",
+   "country": "Den",
+   "coefficient": 48.25
+  },
+  "3089": {
+   "name": "PAOK Thessaloniki",
+   "source_name": "PAOK Thessaloniki",
+   "country": "Gre",
+   "coefficient": 48.25
+  },
+  "2417": {
+   "name": "Union Saint-Gilloise",
+   "source_name": "Union Saint-Gilloise",
+   "country": "Bel",
+   "coefficient": 48.0
+  },
+  "1657": {
+   "name": "Red Star Belgrade",
+   "source_name": "Red Star Belgrade",
+   "country": "Srb",
+   "coefficient": 46.5
+  },
+  "3165": {
+   "name": "GNK Dinamo Zagreb",
+   "source_name": "Dinamo Zagreb",
+   "country": "Cro",
+   "coefficient": 46.5
+  },
+  "2742": {
+   "name": "Red Bull Salzburg",
+   "source_name": "FC Salzburg",
+   "country": "Aut",
+   "coefficient": 45.0
+  },
+  "3985": {
+   "name": "Celtic FC",
+   "source_name": "Celtic",
+   "country": "Sco",
+   "coefficient": 44.0
+  },
+  "3394": {
+   "name": "SK Slavia Prague",
+   "source_name": "Slavia Praha",
+   "country": "Cze",
+   "coefficient": 44.0
+  },
+  "2182": {
+   "name": "Qarabağ FK",
+   "source_name": "Qarabag FK",
+   "country": "Azb",
+   "coefficient": 42.75
+  },
+  "2419": {
+   "name": "KAA Gent",
+   "source_name": "AA Gent",
+   "country": "Bel",
+   "coefficient": 39.0
+  },
+  "1873": {
+   "name": "Sevilla FC",
+   "source_name": "Sevilla",
+   "country": "Esp",
+   "coefficient": 39.0
+  },
+  "1869": {
+   "name": "Athletic Bilbao",
+   "source_name": "Athletic Bilbao",
+   "country": "Esp",
+   "coefficient": 38.75
+  },
+  "3395": {
+   "name": "AC Sparta Prague",
+   "source_name": "Sparta Praha",
+   "country": "Cze",
+   "coefficient": 38.25
+  },
+  "2074": {
+   "name": "Slovan Bratislava",
+   "source_name": "Slovan Bratislava",
+   "country": "Svk",
+   "coefficient": 36.0
+  },
+  "941": {
+   "name": "Stade Rennais FC",
+   "source_name": "Stade Rennais",
+   "country": "Fra",
+   "coefficient": 35.0
+  },
+  "1454": {
+   "name": "FC Basel 1893",
+   "source_name": "FC Basel",
+   "country": "Sui",
+   "coefficient": 34.5
+  },
+  "3482": {
+   "name": "Legia Warszawa",
+   "source_name": "Legia Warsaw",
+   "country": "Pol",
+   "coefficient": 32.5
+  },
+  "1781": {
+   "name": "Maccabi Tel Aviv",
+   "source_name": "Maccabi Tel-Aviv",
+   "country": "Isr",
+   "coefficient": 32.5
+  },
+  "1689": {
+   "name": "Djurgårdens IF",
+   "source_name": "Djurgårdens IF",
+   "country": "Swe",
+   "coefficient": 32.0
+  },
+  "2290": {
+   "name": "Bologna FC 1909",
+   "source_name": "Bologna",
+   "country": "Ita",
+   "coefficient": 30.75
+  },
+  "2418": {
+   "name": "RSC Anderlecht",
+   "source_name": "Anderlecht",
+   "country": "Bel",
+   "coefficient": 30.75
+  },
+  "626": {
+   "name": "Newcastle United",
+   "source_name": "Newcastle United",
+   "country": "Eng",
+   "coefficient": 29.75
+  },
+  "2745": {
+   "name": "Rapid Vienna",
+   "source_name": "Rapid Wien",
+   "country": "Aut",
+   "coefficient": 29.75
+  },
+  "1453": {
+   "name": "BSC Young Boys",
+   "source_name": "Young Boys",
+   "country": "Sui",
+   "coefficient": 29.5
+  },
+  "3088": {
+   "name": "Panathinaikos",
+   "source_name": "Panathinaikos",
+   "country": "Gre",
+   "coefficient": 29.25
+  },
+  "2416": {
+   "name": "KRC Genk",
+   "source_name": "Racing Genk",
+   "country": "Bel",
+   "coefficient": 29.0
+  },
+  "3237": {
+   "name": "Ludogorets Razgrad",
+   "source_name": "Ludogorets Razgrad",
+   "country": "Bul",
+   "coefficient": 28.75
+  },
+  "2743": {
+   "name": "SK Sturm Graz",
+   "source_name": "Sturm Graz",
+   "country": "Aut",
+   "coefficient": 28.0
+  },
+  "2868": {
+   "name": "VfB Stuttgart",
+   "source_name": "VfB Stuttgart",
+   "country": "Ger",
+   "coefficient": 27.5
+  },
+  "3476": {
+   "name": "Lech Poznan",
+   "source_name": "Lech Poznan",
+   "country": "Pol",
+   "coefficient": 27.25
+  },
+  "1157": {
+   "name": "FCSB",
+   "source_name": "FCSB",
+   "country": "Rom",
+   "coefficient": 25.5
+  },
+  "2100": {
+   "name": "Pafos FC",
+   "source_name": "Pafos FC",
+   "country": "Cyp",
+   "coefficient": 24.125
+  },
+  "3090": {
+   "name": "AEK Athens",
+   "source_name": "AEK Athens",
+   "country": "Gre",
+   "coefficient": 24.0
+  },
+  "630": {
+   "name": "Nottingham Forest",
+   "source_name": "Nottingham Forest",
+   "country": "Eng",
+   "coefficient": 23.0
+  },
+  "631": {
+   "name": "Crystal Palace",
+   "source_name": "Crystal Palace",
+   "country": "Eng",
+   "coefficient": 21.88
+  },
+  "627": {
+   "name": "Brighton & Hove Albion",
+   "source_name": "Brighton & Hove Albion",
+   "country": "Eng",
+   "coefficient": 16.0
+  },
+  "596": {
+   "name": "Leicester City",
+   "source_name": "Leicester City",
+   "country": "Eng",
+   "coefficient": 13.0
+  },
+  "3602": {
+   "name": "NK Celje",
+   "source_name": "NK Celje",
+   "country": "Slo",
+   "coefficient": 23.0
+  },
+  "2876": {
+   "name": "1.FC Union Berlin",
+   "source_name": "Union Berlin",
+   "country": "Ger",
+   "coefficient": 23.0
+  },
+  "3478": {
+   "name": "Raków Częstochowa",
+   "source_name": "Raków Czestochowa",
+   "country": "Pol",
+   "coefficient": 22.25
+  },
+  "1879": {
+   "name": "Rayo Vallecano",
+   "source_name": "Rayo Vallecano",
+   "country": "Esp",
+   "coefficient": 22.0
+  },
+  "3479": {
+   "name": "Jagiellonia Bialystok",
+   "source_name": "Jagiellonia Bialystok",
+   "country": "Pol",
+   "coefficient": 22.0
+  },
+  "1658": {
+   "name": "FK Partizan Belgrade",
+   "source_name": "Partizan Belgrade",
+   "country": "Srb",
+   "coefficient": 22.0
+  },
+  "1555": {
+   "name": "Molde FK",
+   "source_name": "Molde FK",
+   "country": "Nor",
+   "coefficient": 21.75
+  },
+  "938": {
+   "name": "RC Strasbourg Alsace",
+   "source_name": "RC Strasbourg",
+   "country": "Fra",
+   "coefficient": 21.5
+  },
+  "2101": {
+   "name": "Omonia Nicosia",
+   "source_name": "Omonia Nicosia",
+   "country": "Cyp",
+   "coefficient": 21.25
+  },
+  "1455": {
+   "name": "FC Lugano",
+   "source_name": "FC Lugano",
+   "country": "Sui",
+   "coefficient": 21.25
+  },
+  "2744": {
+   "name": "LASK",
+   "source_name": "LASK",
+   "country": "Aut",
+   "coefficient": 21.0
+  },
+  "2102": {
+   "name": "AEK Larnaca",
+   "source_name": "AEK Larnaca",
+   "country": "Cyp",
+   "coefficient": 20.25
+  },
+  "945": {
+   "name": "OGC Nice",
+   "source_name": "OGC Nice",
+   "country": "Fra",
+   "coefficient": 20.0
+  },
+  "4311": {
+   "name": "FC Sheriff Tiraspol",
+   "source_name": "Sheriff Tiraspol",
+   "country": "Mol",
+   "coefficient": 20.0
+  },
+  "3073": {
+   "name": "Basaksehir FK",
+   "source_name": "Istanbul Basaksehir",
+   "country": "Tur",
+   "coefficient": 19.5
+  },
+  "1870": {
+   "name": "Celta de Vigo",
+   "source_name": "Celta de Vigo",
+   "country": "Esp",
+   "coefficient": 16.25
+  },
+  "1883": {
+   "name": "Girona FC",
+   "source_name": "Girona FC",
+   "country": "Esp",
+   "coefficient": 8.0
+  },
+  "1880": {
+   "name": "CA Osasuna",
+   "source_name": "Osasuna",
+   "country": "Esp",
+   "coefficient": 2.5
+  },
+  "3946": {
+   "name": "Shamrock Rovers",
+   "source_name": "Shamrock Rovers",
+   "country": "Irl",
+   "coefficient": 19.375
+  },
+  "1250": {
+   "name": "Vitória Guimarães SC",
+   "source_name": "Vitória Guimarães",
+   "country": "Por",
+   "coefficient": 18.75
+  },
+  "3166": {
+   "name": "HNK Rijeka",
+   "source_name": "NK Rijeka",
+   "country": "Cro",
+   "coefficient": 18.625
+  },
+  "2872": {
+   "name": "1.FSV Mainz 05",
+   "source_name": "FSV Mainz 05",
+   "country": "Ger",
+   "coefficient": 17.5
+  },
+  "2885": {
+   "name": "1.FC Heidenheim 1846",
+   "source_name": "1.FC Heidenheim",
+   "country": "Ger",
+   "coefficient": 8.12
+  },
+  "2870": {
+   "name": "TSG 1899 Hoffenheim",
+   "source_name": "1899 Hoffenheim",
+   "country": "Ger",
+   "coefficient": 7.0
+  },
+  "2874": {
+   "name": "1.FC Köln",
+   "source_name": "1.FC Köln",
+   "country": "Ger",
+   "coefficient": 6.0
+  },
+  "2882": {
+   "name": "VfL Wolfsburg",
+   "source_name": "VfL Wolfsburg",
+   "country": "Ger",
+   "coefficient": 8.0
+  },
+  "3603": {
+   "name": "NK Olimpija Ljubljana",
+   "source_name": "Olimpija Ljubljana",
+   "country": "Slo",
+   "coefficient": 18.375
+  },
+  "1394": {
+   "name": "Dynamo Kyiv",
+   "source_name": "Dynamo Kyiv",
+   "country": "Ukr",
+   "coefficient": 17.5
+  },
+  "1160": {
+   "name": "CFR Cluj",
+   "source_name": "CFR Cluj",
+   "country": "Rom",
+   "coefficient": 17.5
+  },
+  "1782": {
+   "name": "Maccabi Haifa",
+   "source_name": "Maccabi Haifa",
+   "country": "Isr",
+   "coefficient": 17.5
+  },
+  "949": {
+   "name": "Stade Brestois 29",
+   "source_name": "Stade Brestois",
+   "country": "Fra",
+   "coefficient": 16.75
+  },
+  "943": {
+   "name": "RC Lens",
+   "source_name": "RC Lens",
+   "country": "Fra",
+   "coefficient": 12.5
+  },
+  "946": {
+   "name": "FC Toulouse",
+   "source_name": "Toulouse FC",
+   "country": "Fra",
+   "coefficient": 10.0
+  },
+  "932": {
+   "name": "FC Nantes",
+   "source_name": "FC Nantes",
+   "country": "Fra",
+   "coefficient": 8.0
+  },
+  "3071": {
+   "name": "Besiktas JK",
+   "source_name": "Besiktas",
+   "country": "Tur",
+   "coefficient": 15.5
+  },
+  "1688": {
+   "name": "Malmö FF",
+   "source_name": "Malmö FF",
+   "country": "Swe",
+   "coefficient": 15.0
+  },
+  "2104": {
+   "name": "APOEL Nicosia",
+   "source_name": "APOEL Nicosia",
+   "country": "Cyp",
+   "coefficient": 14.75
+  },
+  "1257": {
+   "name": "CD Santa Clara",
+   "source_name": "CD Santa Clara",
+   "country": "Por",
+   "coefficient": 5.0
+  },
+  "1256": {
+   "name": "FC Arouca",
+   "source_name": "FC Arouca",
+   "country": "Por",
+   "coefficient": 2.0
+  },
+  "1254": {
+   "name": "Gil Vicente FC",
+   "source_name": "Gil Vicente",
+   "country": "Por",
+   "coefficient": 2.5
+  },
+  "1302": {
+   "name": "FC Paços de Ferreira",
+   "source_name": "Paços de Ferreira",
+   "country": "Por",
+   "coefficient": 2.5
+  },
+  "3203": {
+   "name": "HJK Helsinki",
+   "source_name": "HJK Helsinki",
+   "country": "Fin",
+   "coefficient": 14.0
+  },
+  "1783": {
+   "name": "Hapoel Beer Sheva",
+   "source_name": "Hapoel Beer-Sheva",
+   "country": "Isr",
+   "coefficient": 14.0
+  },
+  "4482": {
+   "name": "FC Drita",
+   "source_name": "FC Drita",
+   "country": "Kos",
+   "coefficient": 13.625
+  },
+  "1201": {
+   "name": "Go Ahead Eagles",
+   "source_name": "Go Ahead Eagles",
+   "country": "Ned",
+   "coefficient": 6.5
+  },
+  "1196": {
+   "name": "FC Utrecht",
+   "source_name": "FC Utrecht",
+   "country": "Ned",
+   "coefficient": 3.0
+  },
+  "1195": {
+   "name": "FC Twente Enschede",
+   "source_name": "FC Twente Enschede",
+   "country": "Ned",
+   "coefficient": 13.5
+  },
+  "1176": {
+   "name": "Vitesse Arnhem",
+   "source_name": "Vitesse Arnhem",
+   "country": "Ned",
+   "coefficient": 9.0
+  },
+  "4462": {
+   "name": "Lincoln Red Imps FC",
+   "source_name": "Lincoln Red Imps",
+   "country": "Gib",
+   "coefficient": 13.5
+  },
+  "2422": {
+   "name": "Cercle Brugge",
+   "source_name": "Cercle Brugge",
+   "country": "Bel",
+   "coefficient": 12.75
+  },
+  "2159": {
+   "name": "FC RFS",
+   "source_name": "RFS Riga",
+   "country": "Lat",
+   "coefficient": 12.5
+  },
+  "1460": {
+   "name": "Servette FC",
+   "source_name": "Servette FC Genève",
+   "country": "Sui",
+   "coefficient": 12.5
+  },
+  "1735": {
+   "name": "FC Astana",
+   "source_name": "FK Astana",
+   "country": "Kaz",
+   "coefficient": 12.5
+  },
+  "2424": {
+   "name": "Royal Antwerp FC",
+   "source_name": "Royal Antwerp",
+   "country": "Bel",
+   "coefficient": 12.5
+  },
+  "3076": {
+   "name": "Samsunspor",
+   "source_name": "Samsunspor",
+   "country": "Tur",
+   "coefficient": 11.125
+  },
+  "1557": {
+   "name": "SK Brann",
+   "source_name": "SK Brann Bergen",
+   "country": "Nor",
+   "coefficient": 12.25
+  },
+  "322": {
+   "name": "Breidablik Kópavogur",
+   "source_name": "Breidablik",
+   "country": "Isl",
+   "coefficient": 12.0
+  },
+  "411": {
+   "name": "FK Zalgiris Vilnius",
+   "source_name": "Zalgiris Vilnius",
+   "country": "Lit",
+   "coefficient": 12.0
+  },
+  "1400": {
+   "name": "Zorya Lugansk",
+   "source_name": "Zorya Luhansk",
+   "country": "Ukr",
+   "coefficient": 12.0
+  },
+  "2755": {
+   "name": "Spartak Moscow",
+   "source_name": "Spartak Moscow",
+   "country": "Rus",
+   "coefficient": 12.0
+  },
+  "321": {
+   "name": "Víkingur Reykjavík",
+   "source_name": "Vikingur Reykjavik",
+   "country": "Isl",
+   "coefficient": 11.75
+  },
+  "4022": {
+   "name": "Kelty Hearts FC",
+   "source_name": "Hearts FC",
+   "country": "Sco",
+   "coefficient": 11.5
+  },
+  "1739": {
+   "name": "Kairat Almaty",
+   "source_name": "Kairat Almaty",
+   "country": "Kaz",
+   "coefficient": 11.0
+  },
+  "1694": {
+   "name": "IF Elfsborg",
+   "source_name": "IF Elfsborg",
+   "country": "Swe",
+   "coefficient": 11.0
+  },
+  "3072": {
+   "name": "Trabzonspor",
+   "source_name": "Trabzonspor",
+   "country": "Tur",
+   "coefficient": 11.0
+  },
+  "2381": {
+   "name": "Shkendija Tetovo",
+   "source_name": "Shkendija Tetovo",
+   "country": "Mac",
+   "coefficient": 10.875
+  },
+  "2194": {
+   "name": "FC Noah Yerevan",
+   "source_name": "FC Noah",
+   "country": "Arm",
+   "coefficient": 10.75
+  },
+  "1155": {
+   "name": "Universitatea Craiova",
+   "source_name": "Universitatea Craiova",
+   "country": "Rom",
+   "coefficient": 10.5
+  },
+  "2158": {
+   "name": "Riga FC",
+   "source_name": "Riga FC",
+   "country": "Lat",
+   "coefficient": 10.5
+  },
+  "2221": {
+   "name": "KÍ Klaksvík",
+   "source_name": "KI Klaksvik",
+   "country": "Far",
+   "coefficient": 10.5
+  },
+  "2078": {
+   "name": "Spartak Trnava",
+   "source_name": "Spartak Trnava",
+   "country": "Svk",
+   "coefficient": 10.5
+  },
+  "3079": {
+   "name": "Konyaspor",
+   "source_name": "Konyaspor",
+   "country": "Tur",
+   "coefficient": 2.0
+  },
+  "1456": {
+   "name": "FC Lausanne-Sport",
+   "source_name": "Lausanne Sports",
+   "country": "Sui",
+   "coefficient": 10.0
+  },
+  "1695": {
+   "name": "BK Häcken",
+   "source_name": "BK Häcken",
+   "country": "Swe",
+   "coefficient": 10.0
+  },
+  "3989": {
+   "name": "Aberdeen FC",
+   "source_name": "Aberdeen",
+   "country": "Sco",
+   "coefficient": 10.0
+  },
+  "4484": {
+   "name": "FC Ballkani",
+   "source_name": "FC Ballkani",
+   "country": "Kos",
+   "coefficient": 10.0
+  },
+  "3167": {
+   "name": "HNK Hajduk Split",
+   "source_name": "Hajduk Split",
+   "country": "Cro",
+   "coefficient": 10.0
+  },
+  "2196": {
+   "name": "FC Pyunik Yerevan",
+   "source_name": "Pyunik Yerevan",
+   "country": "Arm",
+   "coefficient": 10.0
+  },
+  "3604": {
+   "name": "NK Maribor",
+   "source_name": "NK Maribor",
+   "country": "Slo",
+   "coefficient": 10.0
+  },
+  "762": {
+   "name": "FC Flora Tallinn",
+   "source_name": "Flora Tallinn",
+   "country": "Est",
+   "coefficient": 10.0
+  },
+  "3397": {
+   "name": "SK Sigma Olomouc",
+   "source_name": "Sigma Olomouc",
+   "country": "Cze",
+   "coefficient": 6.62
+  },
+  "3399": {
+   "name": "FC Banik Ostrava",
+   "source_name": "Baník Ostrava",
+   "country": "Cze",
+   "coefficient": 4.5
+  },
+  "3403": {
+   "name": "FK Mlada Boleslav",
+   "source_name": "Mladá Boleslav",
+   "country": "Cze",
+   "coefficient": 4.0
+  },
+  "3408": {
+   "name": "Bohemians Prague 1905",
+   "source_name": "Bohemians Praha",
+   "country": "Cze",
+   "coefficient": 1.5
+  },
+  "3407": {
+   "name": "1.FC Slovacko",
+   "source_name": "1.FC Slovácko",
+   "country": "Cze",
+   "coefficient": 5.5
+  },
+  "3400": {
+   "name": "FK Jablonec",
+   "source_name": "FK Jablonec",
+   "country": "Cze",
+   "coefficient": 5.0
+  },
+  "3091": {
+   "name": "Aris Thessaloniki",
+   "source_name": "Aris Thessaloniki",
+   "country": "Gre",
+   "coefficient": 7.0
+  },
+  "3119": {
+   "name": "Bröndby IF",
+   "source_name": "Brøndby IF",
+   "country": "Den",
+   "coefficient": 9.5
+  },
+  "3959": {
+   "name": "Linfield FC",
+   "source_name": "Linfield Belfast",
+   "country": "Nir",
+   "coefficient": 9.5
+  },
+  "2746": {
+   "name": "Austria Vienna",
+   "source_name": "Austria Wien",
+   "country": "Aut",
+   "coefficient": 9.5
+  },
+  "3488": {
+   "name": "Wisla Kraków",
+   "source_name": "Wisla Kraków",
+   "country": "Pol",
+   "coefficient": 2.5
+  },
+  "3493": {
+   "name": "Slask Wroclaw",
+   "source_name": "Slask Wroclaw",
+   "country": "Pol",
+   "coefficient": 4.0
+  },
+  "3486": {
+   "name": "Pogon Szczecin",
+   "source_name": "Pogon Szczecin",
+   "country": "Pol",
+   "coefficient": 5.0
+  },
+  "3494": {
+   "name": "Lechia Gdansk",
+   "source_name": "Lechia Gdansk",
+   "country": "Pol",
+   "coefficient": 1.5
+  },
+  "3956": {
+   "name": "Larne FC",
+   "source_name": "Larne FC",
+   "country": "Nir",
+   "coefficient": 9.0
+  },
+  "4312": {
+   "name": "FC Petrocub Hincesti",
+   "source_name": "Petrocub Hîncesti",
+   "country": "Mol",
+   "coefficient": 9.0
+  },
+  "476": {
+   "name": "The New Saints",
+   "source_name": "The New Saints",
+   "country": "Wal",
+   "coefficient": 9.0
+  },
+  "4365": {
+   "name": "Hamrun Spartans",
+   "source_name": "Hamrun Spartans",
+   "country": "Mlt",
+   "coefficient": 8.5
+  },
+  "1464": {
+   "name": "FC Vaduz",
+   "source_name": "FC Vaduz",
+   "country": "Lie",
+   "coefficient": 8.5
+  },
+  "3122": {
+   "name": "Silkeborg IF",
+   "source_name": "Silkeborg IF",
+   "country": "Den",
+   "coefficient": 8.0
+  },
+  "3120": {
+   "name": "FC Nordsjaelland",
+   "source_name": "FC Nordsjælland",
+   "country": "Den",
+   "coefficient": 7.0
+  },
+  "3123": {
+   "name": "Viborg FF",
+   "source_name": "Viborg FF",
+   "country": "Den",
+   "coefficient": 2.5
+  },
+  "3125": {
+   "name": "Randers FC",
+   "source_name": "Randers FC",
+   "country": "Den",
+   "coefficient": 7.0
+  },
+  "1556": {
+   "name": "Rosenborg BK",
+   "source_name": "Rosenborg BK",
+   "country": "Nor",
+   "coefficient": 7.0
+  },
+  "1563": {
+   "name": "Fredrikstad FK",
+   "source_name": "Fredrikstad FK",
+   "country": "Nor",
+   "coefficient": 2.5
+  },
+  "1560": {
+   "name": "Tromsø IL",
+   "source_name": "Tromsø IL",
+   "country": "Nor",
+   "coefficient": 2.0
+  },
+  "1561": {
+   "name": "Lillestrøm SK",
+   "source_name": "Lillestrøm SK",
+   "country": "Nor",
+   "coefficient": 2.0
+  },
+  "1627": {
+   "name": "FK TSC Backa Topola",
+   "source_name": "TSC Backa Topola",
+   "country": "Srb",
+   "coefficient": 8.125
+  },
+  "4412": {
+   "name": "F91 Dudelange",
+   "source_name": "F91 Dudelange",
+   "country": "Lux",
+   "coefficient": 8.0
+  },
+  "1737": {
+   "name": "Tobol Kostanay",
+   "source_name": "Tobol Kustanai",
+   "country": "Kaz",
+   "coefficient": 8.0
+  },
+  "2754": {
+   "name": "Zenit St. Petersburg",
+   "source_name": "Zenit St. Petersburg",
+   "country": "Rus",
+   "coefficient": 8.0
+  },
+  "3947": {
+   "name": "St. Patrick's Athletic",
+   "source_name": "St. Patrick's Athletic",
+   "country": "Irl",
+   "coefficient": 7.5
+  },
+  "4314": {
+   "name": "FC Milsami Orhei",
+   "source_name": "Milsami Orhei",
+   "country": "Mol",
+   "coefficient": 7.5
+  },
+  "789": {
+   "name": "Kalev Tallinn",
+   "source_name": "Kalev Tallinn",
+   "country": "Est",
+   "coefficient": 1.0
+  },
+  "761": {
+   "name": "Paide Linnameeskond",
+   "source_name": "Paide Linnameeskond",
+   "country": "Est",
+   "coefficient": 7.5
+  },
+  "4436": {
+   "name": "Inter Club d'Escaldes",
+   "source_name": "Inter Club d'Escaldes",
+   "country": "And",
+   "coefficient": 7.5
+  },
+  "4495": {
+   "name": "Buducnost Podgorica",
+   "source_name": "Buducnost Podgorica",
+   "country": "Mon",
+   "coefficient": 7.5
+  },
+  "391": {
+   "name": "FK Partizani",
+   "source_name": "Partizani Tirana",
+   "country": "Alb",
+   "coefficient": 7.5
+  },
+  "3168": {
+   "name": "NK Osijek",
+   "source_name": "NK Osijek",
+   "country": "Cro",
+   "coefficient": 7.5
+  },
+  "2105": {
+   "name": "Aris Limassol",
+   "source_name": "Aris Limassol",
+   "country": "Cyp",
+   "coefficient": 6.5
+  },
+  "2103": {
+   "name": "Apollon Limassol",
+   "source_name": "Apollon Limassol",
+   "country": "Cyp",
+   "coefficient": 6.5
+  },
+  "2107": {
+   "name": "Anorthosis Famagusta",
+   "source_name": "Anorthosis Famagusta",
+   "country": "Cyp",
+   "coefficient": 5.0
+  },
+  "2106": {
+   "name": "AEL Limassol",
+   "source_name": "AEL Limassol",
+   "country": "Cyp",
+   "coefficient": 2.0
+  },
+  "3238": {
+   "name": "Levski Sofia",
+   "source_name": "Levski Sofia",
+   "country": "Bul",
+   "coefficient": 7.0
+  },
+  "3987": {
+   "name": "Hibernian FC",
+   "source_name": "Hibernian",
+   "country": "Sco",
+   "coefficient": 7.0
+  },
+  "2195": {
+   "name": "FC Ararat-Armenia",
+   "source_name": "Ararat-Armenia",
+   "country": "Arm",
+   "coefficient": 7.0
+  },
+  "1814": {
+   "name": "Puskás Akadémia FC",
+   "source_name": "Puskás Akadémia",
+   "country": "Hun",
+   "coefficient": 7.0
+  },
+  "2223": {
+   "name": "HB Tórshavn",
+   "source_name": "HB Torshavn",
+   "country": "Far",
+   "coefficient": 7.0
+  },
+  "1457": {
+   "name": "FC St. Gallen 1879",
+   "source_name": "FC Sankt Gallen",
+   "country": "Sui",
+   "coefficient": 4.0
+  },
+  "1463": {
+   "name": "FC Zürich",
+   "source_name": "FC Zürich",
+   "country": "Sui",
+   "coefficient": 5.0
+  },
+  "1459": {
+   "name": "FC Luzern",
+   "source_name": "FC Luzern",
+   "country": "Sui",
+   "coefficient": 4.0
+  },
+  "2747": {
+   "name": "Wolfsberger AC",
+   "source_name": "Wolfsberger AC",
+   "country": "Aut",
+   "coefficient": 5.0
+  },
+  "4405": {
+   "name": "FC Differdange 03",
+   "source_name": "Differdange 03",
+   "country": "Lux",
+   "coefficient": 6.5
+  },
+  "4331": {
+   "name": "Dinamo Minsk",
+   "source_name": "Dinamo Minsk",
+   "country": "Bls",
+   "coefficient": 6.5
+  },
+  "394": {
+   "name": "KF Vllaznia",
+   "source_name": "Vllaznia Shkodër",
+   "country": "Alb",
+   "coefficient": 6.5
+  },
+  "412": {
+   "name": "FK Panevezys",
+   "source_name": "FK Panevezys",
+   "country": "Lit",
+   "coefficient": 6.5
+  },
+  "2184": {
+   "name": "Neftchi PFK",
+   "source_name": "Neftchi Baku",
+   "country": "Azb",
+   "coefficient": 6.5
+  },
+  "3239": {
+   "name": "CSKA Sofia",
+   "source_name": "CSKA 1948 Sofia",
+   "country": "Bul",
+   "coefficient": 3.5
+  },
+  "3990": {
+   "name": "Dundee United FC",
+   "source_name": "Dundee United",
+   "country": "Sco",
+   "coefficient": 4.0
+  },
+  "3993": {
+   "name": "Kilmarnock FC",
+   "source_name": "Kilmarnock",
+   "country": "Sco",
+   "coefficient": 2.5
+  },
+  "3991": {
+   "name": "St. Mirren FC",
+   "source_name": "St. Mirren",
+   "country": "Sco",
+   "coefficient": 2.0
+  },
+  "3988": {
+   "name": "Motherwell FC",
+   "source_name": "Motherwell",
+   "country": "Sco",
+   "coefficient": 1.5
+  },
+  "3995": {
+   "name": "St. Johnstone FC",
+   "source_name": "St. Johnstone",
+   "country": "Sco",
+   "coefficient": 2.5
+  },
+  "4337": {
+   "name": "Neman Grodno",
+   "source_name": "Neman Grodno",
+   "country": "Bls",
+   "coefficient": 6.0
+  },
+  "2183": {
+   "name": "Sabah FK",
+   "source_name": "Sabah FK",
+   "country": "Azb",
+   "coefficient": 6.0
+  },
+  "2225": {
+   "name": "Víkingur Gøta",
+   "source_name": "Víkingur",
+   "country": "Far",
+   "coefficient": 6.0
+  },
+  "410": {
+   "name": "FK Kauno Zalgiris",
+   "source_name": "Kauno Zalgiris",
+   "country": "Lit",
+   "coefficient": 6.0
+  },
+  "1687": {
+   "name": "Hammarby IF",
+   "source_name": "Hammarby IF",
+   "country": "Swe",
+   "coefficient": 6.0
+  },
+  "4492": {
+   "name": "FK Sutjeska Niksic",
+   "source_name": "Sutjeska Niksic",
+   "country": "Mon",
+   "coefficient": 6.0
+  },
+  "4447": {
+   "name": "La Fiorita 1967",
+   "source_name": "La Fiorita",
+   "country": "Sma",
+   "coefficient": 6.0
+  },
+  "2075": {
+   "name": "DAC Dunajska Streda",
+   "source_name": "DAC Dunajska Streda",
+   "country": "Svk",
+   "coefficient": 6.0
+  },
+  "456": {
+   "name": "Dinamo Batumi",
+   "source_name": "Dinamo Batumi",
+   "country": "Geo",
+   "coefficient": 6.0
+  },
+  "1167": {
+   "name": "Sepsi OSK Sf. Gheorghe",
+   "source_name": "Sepsi OSK",
+   "country": "Rom",
+   "coefficient": 6.0
+  },
+  "1697": {
+   "name": "Kalmar FF",
+   "source_name": "Kalmar FF",
+   "country": "Swe",
+   "coefficient": 1.5
+  },
+  "3169": {
+   "name": "NK Varazdin",
+   "source_name": "NK Varazdin",
+   "country": "Cro",
+   "coefficient": 1.5
+  },
+  "1785": {
+   "name": "Beitar Jerusalem",
+   "source_name": "Beitar Jerusalem",
+   "country": "Isr",
+   "coefficient": 3.5
+  },
+  "2185": {
+   "name": "Zira FC",
+   "source_name": "Zira FK",
+   "country": "Azb",
+   "coefficient": 5.5
+  },
+  "4496": {
+   "name": "FK Decic Tuzi",
+   "source_name": "Decic Tuzi",
+   "country": "Mon",
+   "coefficient": 5.5
+  },
+  "4333": {
+   "name": "Torpedo-BelAZ Zhodino",
+   "source_name": "Torpedo Zhodino",
+   "country": "Bls",
+   "coefficient": 5.5
+  },
+  "460": {
+   "name": "FC Dila Gori",
+   "source_name": "Dila Gori",
+   "country": "Geo",
+   "coefficient": 5.5
+  },
+  "2076": {
+   "name": "MSK Zilina",
+   "source_name": "MSK Zilina",
+   "country": "Svk",
+   "coefficient": 5.5
+  },
+  "4368": {
+   "name": "Hibernians FC",
+   "source_name": "Hibernians FC",
+   "country": "Mlt",
+   "coefficient": 5.5
+  },
+  "1659": {
+   "name": "FK Vojvodina Novi Sad",
+   "source_name": "Vojvodina Novi Sad",
+   "country": "Srb",
+   "coefficient": 5.5
+  },
+  "1797": {
+   "name": "Videoton FC Fehérvár",
+   "source_name": "FC Fehérvár",
+   "country": "Hun",
+   "coefficient": 5.5
+  },
+  "1788": {
+   "name": "Maccabi Petah Tikva",
+   "source_name": "Maccabi Petah-Tikva",
+   "country": "Isr",
+   "coefficient": 2.0
+  },
+  "4334": {
+   "name": "BATE Borisov",
+   "source_name": "BATE Borisov",
+   "country": "Bls",
+   "coefficient": 5.5
+  },
+  "4373": {
+   "name": "Gzira United FC",
+   "source_name": "Gzira United",
+   "country": "Mlt",
+   "coefficient": 5.5
+  },
+  "1786": {
+   "name": "Maccabi Netanya",
+   "source_name": "Maccabi Netanya",
+   "country": "Isr",
+   "coefficient": 1.5
+  },
+  "1765": {
+   "name": "FC Ashdod",
+   "source_name": "MS Ashdod",
+   "country": "Isr",
+   "coefficient": 1.5
+  },
+  "1817": {
+   "name": "Paksi FC",
+   "source_name": "Paksi FC",
+   "country": "Hun",
+   "coefficient": 4.5
+  },
+  "1795": {
+   "name": "Kecskeméti TE",
+   "source_name": "Kecskeméti TE",
+   "country": "Hun",
+   "coefficient": 1.5
+  },
+  "1821": {
+   "name": "Zalaegerszegi TE FC",
+   "source_name": "Zalaegerszegi TE",
+   "country": "Hun",
+   "coefficient": 1.5
+  },
+  "1820": {
+   "name": "Kisvárda FC",
+   "source_name": "Kisvárda FC",
+   "country": "Hun",
+   "coefficient": 2.0
+  },
+  "1812": {
+   "name": "Újpest FC",
+   "source_name": "Újpest TE",
+   "country": "Hun",
+   "coefficient": 2.0
+  },
+  "1395": {
+   "name": "Polissya Zhytomyr",
+   "source_name": "Polissya Zhytomyr",
+   "country": "Ukr",
+   "coefficient": 4.0
+  },
+  "1409": {
+   "name": "FC Oleksandriya",
+   "source_name": "FC Oleksandriya",
+   "country": "Ukr",
+   "coefficient": 1.5
+  },
+  "1401": {
+   "name": "Kryvbas Kryvyi Rig",
+   "source_name": "Kryvbas Kryviy Rih",
+   "country": "Ukr",
+   "coefficient": 2.5
+  },
+  "1410": {
+   "name": "SC Poltava",
+   "source_name": "Vorskla Poltava",
+   "country": "Ukr",
+   "coefficient": 4.5
+  },
+  "1399": {
+   "name": "Kolos Kovalivka",
+   "source_name": "Kolos Kovalivka",
+   "country": "Ukr",
+   "coefficient": 2.0
+  },
+  "1666": {
+   "name": "FK Radnicki 1923 Kragujevac",
+   "source_name": "Radnicki 1923",
+   "country": "Srb",
+   "coefficient": 3.0
+  },
+  "1664": {
+   "name": "FK Novi Pazar",
+   "source_name": "Novi Pazar",
+   "country": "Srb",
+   "coefficient": 1.5
+  },
+  "1663": {
+   "name": "FK Radnicki Nis",
+   "source_name": "Radnicki Nis",
+   "country": "Srb",
+   "coefficient": 1.5
+  },
+  "1159": {
+   "name": "FC Universitatea Cluj",
+   "source_name": "Universitatea Cluj",
+   "country": "Rom",
+   "coefficient": 1.5
+  },
+  "1166": {
+   "name": "Corvinul Hunedoara",
+   "source_name": "Corvinul Hunedoara",
+   "country": "Rom",
+   "coefficient": 2.0
+  },
+  "1162": {
+   "name": "FCV Farul Constanta",
+   "source_name": "Farul Constanta",
+   "country": "Rom",
+   "coefficient": 2.5
+  },
+  "459": {
+   "name": "Iberia 1999 Tbilisi",
+   "source_name": "Iberia 1999",
+   "country": "Geo",
+   "coefficient": 5.0
+  },
+  "4438": {
+   "name": "Atlètic Club d'Escaldes",
+   "source_name": "Atlètic Club d'Escaldes",
+   "country": "And",
+   "coefficient": 5.0
+  },
+  "4463": {
+   "name": "St Joseph's FC",
+   "source_name": "St Joseph's FC",
+   "country": "Gib",
+   "coefficient": 5.0
+  },
+  "4440": {
+   "name": "FC Santa Coloma",
+   "source_name": "UE Santa Coloma",
+   "country": "And",
+   "coefficient": 3.5
+  },
+  "2198": {
+   "name": "FC Urartu Yerevan",
+   "source_name": "Urartu FC",
+   "country": "Arm",
+   "coefficient": 5.0
+  },
+  "2224": {
+   "name": "B36 Tórshavn",
+   "source_name": "B36 Torshavn",
+   "country": "Far",
+   "coefficient": 5.0
+  },
+  "457": {
+   "name": "Dinamo Tbilisi",
+   "source_name": "Dinamo Tbilisi",
+   "country": "Geo",
+   "coefficient": 5.0
+  },
+  "2197": {
+   "name": "Alashkert Yerevan FC",
+   "source_name": "Alashkert FC",
+   "country": "Arm",
+   "coefficient": 5.0
+  },
+  "3605": {
+   "name": "FC Koper",
+   "source_name": "NK Koper",
+   "country": "Slo",
+   "coefficient": 3.0
+  },
+  "3608": {
+   "name": "NK Bravo",
+   "source_name": "NK Bravo",
+   "country": "Slo",
+   "coefficient": 1.5
+  },
+  "3607": {
+   "name": "NK Radomlje",
+   "source_name": "NK Domzale",
+   "country": "Slo",
+   "coefficient": 3.0
+  },
+  "2189": {
+   "name": "Araz-Nakhchivan",
+   "source_name": "Araz Nakhchivan",
+   "country": "Azb",
+   "coefficient": 2.0
+  },
+  "2187": {
+   "name": "Sumgayit PFC",
+   "source_name": "Sumgayit FK",
+   "country": "Azb",
+   "coefficient": 3.0
+  },
+  "2759": {
+   "name": "Lokomotiv Moscow",
+   "source_name": "Lokomotiv Moscow",
+   "country": "Rus",
+   "coefficient": 3.0
+  },
+  "2771": {
+   "name": "FC Sochi",
+   "source_name": "FC Sochi",
+   "country": "Rus",
+   "coefficient": 2.0
+  },
+  "2760": {
+   "name": "Rubin Kazan",
+   "source_name": "Rubin Kazan",
+   "country": "Rus",
+   "coefficient": 2.0
+  },
+  "388": {
+   "name": "KF Egnatia",
+   "source_name": "Egnatia Rrogozhinë",
+   "country": "Alb",
+   "coefficient": 4.5
+  },
+  "4313": {
+   "name": "FC Zimbru Chisinau",
+   "source_name": "Zimbru Chisinau",
+   "country": "Mol",
+   "coefficient": 4.5
+  },
+  "458": {
+   "name": "Torpedo Kutaisi",
+   "source_name": "Torpedo Kutaisi",
+   "country": "Geo",
+   "coefficient": 4.5
+  },
+  "324": {
+   "name": "Valur Reykjavík",
+   "source_name": "Valur Reykjavik",
+   "country": "Isl",
+   "coefficient": 4.5
+  },
+  "1738": {
+   "name": "FC Aktobe",
+   "source_name": "FK Aktobe",
+   "country": "Kaz",
+   "coefficient": 4.5
+  },
+  "1736": {
+   "name": "Ordabasy Shymkent",
+   "source_name": "Ordabasy Shymkent",
+   "country": "Kaz",
+   "coefficient": 4.5
+  },
+  "2160": {
+   "name": "FK Auda",
+   "source_name": "FK Auda",
+   "country": "Lat",
+   "coefficient": 4.5
+  },
+  "4469": {
+   "name": "FC Magpies",
+   "source_name": "FCB Magpies",
+   "country": "Gib",
+   "coefficient": 4.5
+  },
+  "4451": {
+   "name": "SP Tre Penne",
+   "source_name": "Tre Penne",
+   "country": "Sma",
+   "coefficient": 4.5
+  },
+  "2181": {
+   "name": "Valmiera FC",
+   "source_name": "Valmieras FK",
+   "country": "Lat",
+   "coefficient": 4.5
+  },
+  "2079": {
+   "name": "FC Kosice",
+   "source_name": "FC Kosice",
+   "country": "Svk",
+   "coefficient": 1.5
+  },
+  "2081": {
+   "name": "MFK Ruzomberok",
+   "source_name": "MFK Ruzomberok",
+   "country": "Svk",
+   "coefficient": 4.0
+  },
+  "3242": {
+   "name": "Arda Kardzhali",
+   "source_name": "Arda Kardzhali",
+   "country": "Bul",
+   "coefficient": 4.0
+  },
+  "3246": {
+   "name": "Cherno More Varna",
+   "source_name": "Cherno More Varna",
+   "country": "Bul",
+   "coefficient": 3.0
+  },
+  "3241": {
+   "name": "Botev Plovdiv",
+   "source_name": "Botev Plovdiv",
+   "country": "Bul",
+   "coefficient": 3.5
+  },
+  "3244": {
+   "name": "Lokomotiv Plovdiv",
+   "source_name": "Lokomotiv Plovdiv",
+   "country": "Bul",
+   "coefficient": 2.0
+  },
+  "3950": {
+   "name": "Shelbourne FC",
+   "source_name": "Shelbourne",
+   "country": "Irl",
+   "coefficient": 4.0
+  },
+  "4366": {
+   "name": "Floriana FC",
+   "source_name": "Floriana",
+   "country": "Mlt",
+   "coefficient": 4.0
+  },
+  "3949": {
+   "name": "Derry City",
+   "source_name": "Derry City",
+   "country": "Irl",
+   "coefficient": 4.0
+  },
+  "393": {
+   "name": "KF Tirana",
+   "source_name": "KF Tirana",
+   "country": "Alb",
+   "coefficient": 4.0
+  },
+  "3966": {
+   "name": "Crusaders FC",
+   "source_name": "Crusaders Belfast",
+   "country": "Nir",
+   "coefficient": 4.0
+  },
+  "2161": {
+   "name": "FK Liepaja",
+   "source_name": "FK Liepaja",
+   "country": "Lat",
+   "coefficient": 4.0
+  },
+  "3210": {
+   "name": "Ilves Tampere",
+   "source_name": "Ilves Tampere",
+   "country": "Fin",
+   "coefficient": 3.5
+  },
+  "327": {
+   "name": "KA Akureyri",
+   "source_name": "KA Akureyri",
+   "country": "Isl",
+   "coefficient": 3.5
+  },
+  "4483": {
+   "name": "FC Prishtina",
+   "source_name": "FC Prishtina",
+   "country": "Kos",
+   "coefficient": 3.5
+  },
+  "3961": {
+   "name": "Cliftonville FC",
+   "source_name": "Cliftonville",
+   "country": "Nir",
+   "coefficient": 3.5
+  },
+  "4369": {
+   "name": "Birkirkara FC",
+   "source_name": "Birkirkara",
+   "country": "Mlt",
+   "coefficient": 3.5
+  },
+  "4411": {
+   "name": "Racing FC Union Luxembourg",
+   "source_name": "Racing Union Luxembourg",
+   "country": "Lux",
+   "coefficient": 3.5
+  },
+  "4485": {
+   "name": "KF Llapi",
+   "source_name": "KF Llapi",
+   "country": "Kos",
+   "coefficient": 3.5
+  },
+  "483": {
+   "name": "Connah's Quay Nomads",
+   "source_name": "Connah's Quay",
+   "country": "Wal",
+   "coefficient": 3.5
+  },
+  "3954": {
+   "name": "Dundalk FC",
+   "source_name": "Dundalk",
+   "country": "Irl",
+   "coefficient": 3.5
+  },
+  "397": {
+   "name": "KF Laçi",
+   "source_name": "KF Laçi",
+   "country": "Alb",
+   "coefficient": 3.5
+  },
+  "4426": {
+   "name": "CS Fola Esch",
+   "source_name": "CS Fola Esch",
+   "country": "Lux",
+   "coefficient": 3.5
+  },
+  "3952": {
+   "name": "Sligo Rovers",
+   "source_name": "Sligo Rovers",
+   "country": "Irl",
+   "coefficient": 3.0
+  },
+  "325": {
+   "name": "KR Reykjavík",
+   "source_name": "KR Reykjavik",
+   "country": "Isl",
+   "coefficient": 1.0
+  },
+  "329": {
+   "name": "FH Hafnarfjördur",
+   "source_name": "FH Hafnarfjardar",
+   "country": "Isl",
+   "coefficient": 1.5
+  },
+  "2199": {
+   "name": "FC Ararat Yerevan",
+   "source_name": "Ararat Yerevan",
+   "country": "Arm",
+   "coefficient": 2.5
+  },
+  "4409": {
+   "name": "FC Progrès Niederkorn",
+   "source_name": "Progrès Niederkorn",
+   "country": "Lux",
+   "coefficient": 3.0
+  },
+  "492": {
+   "name": "Bala Town",
+   "source_name": "Bala Town",
+   "country": "Wal",
+   "coefficient": 3.0
+  },
+  "4415": {
+   "name": "Swift Hesperange",
+   "source_name": "Swift Hesperange",
+   "country": "Lux",
+   "coefficient": 3.0
+  },
+  "4464": {
+   "name": "Europa FC",
+   "source_name": "Europa FC",
+   "country": "Gib",
+   "coefficient": 3.0
+  },
+  "414": {
+   "name": "FK Suduva Marijampole",
+   "source_name": "Suduva Marijampole",
+   "country": "Lit",
+   "coefficient": 3.0
+  },
+  "3208": {
+   "name": "SJK Seinäjoki",
+   "source_name": "SJK Seinäjoki",
+   "country": "Fin",
+   "coefficient": 2.5
+  },
+  "3205": {
+   "name": "FC Inter Turku",
+   "source_name": "Inter Turku",
+   "country": "Fin",
+   "coefficient": 2.0
+  },
+  "4486": {
+   "name": "FC Malisheva",
+   "source_name": "KF Malisheva",
+   "country": "Kos",
+   "coefficient": 2.0
+  },
+  "4488": {
+   "name": "KF Dukagjini",
+   "source_name": "KF Dukagjini",
+   "country": "Kos",
+   "coefficient": 1.5
+  },
+  "4487": {
+   "name": "SC Gjilani",
+   "source_name": "SC Gjilani",
+   "country": "Kos",
+   "coefficient": 2.0
+  },
+  "1753": {
+   "name": "Shakhter Karaganda",
+   "source_name": "Shakhtyor Karaganda",
+   "country": "Kaz",
+   "coefficient": 2.5
+  },
+  "1661": {
+   "name": "FK Zeleznicar Pancevo",
+   "source_name": "Zeljeznicar Sarajevo",
+   "country": "Bos",
+   "coefficient": 2.5
+  },
+  "639": {
+   "name": "Hull City",
+   "source_name": "Tuzla City",
+   "country": "Bos",
+   "coefficient": 1.5
+  },
+  "2166": {
+   "name": "BFC Daugavpils",
+   "source_name": "BFC Daugavpils",
+   "country": "Lat",
+   "coefficient": 1.0
+  },
+  "4404": {
+   "name": "FC UNA Strassen",
+   "source_name": "UNA Strassen",
+   "country": "Lux",
+   "coefficient": 2.5
+  },
+  "477": {
+   "name": "Haverfordwest County",
+   "source_name": "Haverfordwest County",
+   "country": "Wal",
+   "coefficient": 2.5
+  },
+  "4446": {
+   "name": "Tre Fiori FC",
+   "source_name": "Tre Fiori",
+   "country": "Sma",
+   "coefficient": 2.5
+  },
+  "4332": {
+   "name": "Dynamo Brest",
+   "source_name": "Dynamo Brest",
+   "country": "Bls",
+   "coefficient": 2.5
+  },
+  "495": {
+   "name": "Newtown AFC",
+   "source_name": "Newtown",
+   "country": "Wal",
+   "coefficient": 2.5
+  },
+  "416": {
+   "name": "FC Hegelmann",
+   "source_name": "FC Hegelmann",
+   "country": "Lit",
+   "coefficient": 2.0
+  },
+  "478": {
+   "name": "Penybont FC",
+   "source_name": "Penybont",
+   "country": "Wal",
+   "coefficient": 2.0
+  },
+  "2222": {
+   "name": "NSÍ Runavík",
+   "source_name": "NSI Runavik",
+   "country": "Far",
+   "coefficient": 2.0
+  },
+  "2383": {
+   "name": "Sileks Kratovo",
+   "source_name": "Sileks Kratovo",
+   "country": "Mac",
+   "coefficient": 2.0
+  },
+  "4494": {
+   "name": "FK Mornar Bar",
+   "source_name": "Mornar Bar",
+   "country": "Mon",
+   "coefficient": 2.0
+  },
+  "3958": {
+   "name": "Glentoran FC",
+   "source_name": "Glentoran",
+   "country": "Nir",
+   "coefficient": 2.0
+  },
+  "4364": {
+   "name": "Sliema Wanderers",
+   "source_name": "Sliema Wanderers",
+   "country": "Mlt",
+   "coefficient": 1.5
+  },
+  "4370": {
+   "name": "Marsaxlokk FC",
+   "source_name": "Marsaxlokk",
+   "country": "Mlt",
+   "coefficient": 1.0
+  },
+  "4375": {
+   "name": "Balzan FC",
+   "source_name": "Balzan FC",
+   "country": "Mlt",
+   "coefficient": 1.5
+  },
+  "4372": {
+   "name": "Mosta FC",
+   "source_name": "Mosta FC",
+   "country": "Mlt",
+   "coefficient": 1.0
+  },
+  "763": {
+   "name": "JK Trans Narva",
+   "source_name": "Trans Narva",
+   "country": "Est",
+   "coefficient": 1.0
+  },
+  "2382": {
+   "name": "Vardar Skopje",
+   "source_name": "Vardar Skopje",
+   "country": "Mac",
+   "coefficient": 1.5
+  },
+  "2385": {
+   "name": "Tikves Kavadarci",
+   "source_name": "Tikves Kavadarci",
+   "country": "Mac",
+   "coefficient": 1.0
+  },
+  "415": {
+   "name": "FK Banga Gargzdai",
+   "source_name": "Banga Gargzdai",
+   "country": "Lit",
+   "coefficient": 1.5
+  },
+  "413": {
+   "name": "FA Siauliai",
+   "source_name": "FA Siauliai",
+   "country": "Lit",
+   "coefficient": 1.0
+  },
+  "3960": {
+   "name": "Dungannon Swifts FC",
+   "source_name": "Dungannon Swifts",
+   "country": "Nir",
+   "coefficient": 1.5
+  },
+  "465": {
+   "name": "FC Spaeri Tbilisi",
+   "source_name": "Spaeri Tbilisi",
+   "country": "Geo",
+   "coefficient": 1.5
+  },
+  "479": {
+   "name": "Caernarfon Town",
+   "source_name": "Caernarfon Town",
+   "country": "Wal",
+   "coefficient": 1.5
+  },
+  "4363": {
+   "name": "FC Gomel 2",
+   "source_name": "FC Gomel",
+   "country": "Bls",
+   "coefficient": 1.5
+  },
+  "3957": {
+   "name": "Coleraine FC",
+   "source_name": "Coleraine",
+   "country": "Nir",
+   "coefficient": 1.0
+  },
+  "4466": {
+   "name": "Mons Calpe SC",
+   "source_name": "Mons Calpe",
+   "country": "Gib",
+   "coefficient": 1.0
+  },
+  "4338": {
+   "name": "Isloch Minsk Region",
+   "source_name": "Isloch Minsk Raion",
+   "country": "Bls",
+   "coefficient": 1.0
+  },
+  "4500": {
+   "name": "Arsenal Tivat",
+   "source_name": "Arsenal Tivat",
+   "country": "Mon",
+   "coefficient": 1.0
+  },
+  "4506": {
+   "name": "FK Iskra Danilovgrad",
+   "source_name": "Iskra Danilovgrad",
+   "country": "Mon",
+   "coefficient": 1.0
+  },
+  "4504": {
+   "name": "FK Podgorica",
+   "source_name": "FK Podgorica",
+   "country": "Mon",
+   "coefficient": 1.0
+  },
+  "4453": {
+   "name": "SS Cosmos",
+   "source_name": "Cosmos",
+   "country": "Sma",
+   "coefficient": 1.0
+  }
+ }
+}
