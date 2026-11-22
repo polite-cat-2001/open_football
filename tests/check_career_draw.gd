@@ -33,6 +33,14 @@ func _pots(field: Array) -> Dictionary:
 	return pots
 
 
+func _pots6(field: Array) -> Dictionary:
+	var ranked := CareerCoefficients.sorted_clubs(field)
+	var pots := {}
+	for index in range(ranked.size()):
+		pots[str(ranked[index])] = mini(index / 6, 5)
+	return pots
+
+
 func _countries(catalog: TeamCatalog, field: Array) -> Dictionary:
 	var result := {}
 	for club_id in field:
@@ -41,7 +49,8 @@ func _countries(catalog: TeamCatalog, field: Array) -> Dictionary:
 
 
 func _verify(draw: Array, field: Array, rounds: int, home_split: int,
-		countries: Dictionary, pots: Dictionary, label: String) -> void:
+		countries: Dictionary, pots: Dictionary, label: String,
+		per_pot_target: int = 2) -> void:
 	var expected := 18 * rounds
 	_check(draw.size() == expected, "%s: %d fixtures (%d)" % [label, expected, draw.size()])
 	if draw.size() != expected:
@@ -77,10 +86,18 @@ func _verify(draw: Array, field: Array, rounds: int, home_split: int,
 		if int(home.get(key, 0)) != home_split or int(away.get(key, 0)) != home_split:
 			bad.append("home:" + key)
 		if not pots.is_empty():
-			var per_pot := [0, 0, 0, 0]
+			var per_pot := {}
 			for other in opponents.get(key, {}):
-				per_pot[int(pots.get(str(other), 0))] += 1
-			if per_pot != [2, 2, 2, 2]:
+				var pot := int(pots.get(str(other), 0))
+				per_pot[pot] = int(per_pot.get(pot, 0)) + 1
+			var max_pot := 0
+			for value in pots.values():
+				max_pot = maxi(max_pot, int(value))
+			var ok := per_pot.size() == max_pot + 1
+			for value in per_pot.values():
+				if int(value) != per_pot_target:
+					ok = false
+			if not ok:
 				bad.append("pots:" + key)
 		if not countries.is_empty():
 			var per_country := {}
@@ -117,6 +134,10 @@ func _run() -> void:
 		_check(CareerDraw.last_error.is_empty(),
 			"the draw engine converges: " + CareerDraw.last_error)
 		_verify(drawn, synthetic, 8, 4, {}, pots, "engine")
+		var uecl := CareerDraw.league_phase(catalog, synthetic, 42, "uecl")
+		_check(CareerDraw.last_error.is_empty(),
+			"the UECL draw engine converges: " + CareerDraw.last_error)
+		_verify(uecl, synthetic, 6, 3, {}, _pots6(synthetic), "uecl engine", 1)
 		_check(unique.size() == 36, "the engine field has 36 associations")
 	else:
 		_check(false, "a synthetic 36-association field is built: %d" % synthetic.size())

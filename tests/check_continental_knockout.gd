@@ -1,0 +1,84 @@
+extends SceneTree
+# Headless check for the season-end European resolution: every competition gets a
+# champion from its league-phase table and the knockout bracket, the focus
+# competition uses the results actually played in the career, and the other
+# competitions are simulated from their fields. Also checks that the knockout
+# stores five rounds and that the champion is one of the field clubs.
+#
+# Run:  godot --headless --path . -s res://tests/check_continental_knockout.gd
+
+const CLUB := 583
+
+var failures: Array[String] = []
+
+
+func _init() -> void:
+	call_deferred("_run")
+
+
+func _check(condition: bool, message: String) -> void:
+	if condition:
+		print("  ok: ", message)
+	else:
+		failures.append(message)
+		print("  FAIL: ", message)
+
+
+func _run() -> void:
+	var catalog := TeamCatalog.new()
+	_check(catalog.load_data_root(), "catalog opens the database: " + catalog.error)
+	if not catalog.is_loaded():
+		_finish()
+		return
+	var career := CareerFactory.create(catalog, CLUB, "Europe Finish", 189, 42, "real")
+	_check(career != null, "a real-mode career is created: " + CareerFactory.last_error)
+	if career == null:
+		_finish()
+		return
+	var block: Dictionary = career.data.get("continental", {}).get(
+		career.season_start, {})
+	_check(not block.is_empty(), "the season has a European block")
+	if block.is_empty():
+		_finish()
+		return
+	var ratings := {}
+	for club_id in CareerEurope.fields().get("ucl", []):
+		ratings[str(club_id)] = float(
+			catalog.load_team_rating(int(club_id)).get("average", 55.0))
+	var results := {}
+	for fixture in career.schedule:
+		if str(fixture.get("competition", "")) == "ucl":
+			results[str(fixture.get("id", ""))] = CareerSeason.simulate(
+				career.seed, fixture, ratings)
+	career.data["results"] = results
+	var champions := CareerContinental.finish(catalog, career, block, career.seed)
+	_check(champions.size() == 3, "three European champions: %d" % champions.size())
+	var fields := CareerEurope.fields()
+	for comp in ["ucl", "uel", "uecl"]:
+		var champion := str(champions.get(comp, ""))
+		_check(not champion.is_empty(), "%s has a champion" % comp)
+		_check((fields.get(comp, []) as Array).has(champion),
+			"%s champion is from its field" % comp)
+		var knockout: Array = block.get("competitions", {}).get(comp, {}).get(
+			"knockout", [])
+		_check(knockout.size() == 5, "%s has five knockout rounds: %d"
+			% [comp, knockout.size()])
+	var state := {}
+	for comp in ["ucl", "uel", "uecl"]:
+		state[comp] = {"clubs": {}, "league": [], "paths": {}, "direct": {}}
+	state["ucl"]["clubs"]["1"] = true
+	CareerContinental._apply_title_holders(state, {
+		"ucl": "1", "uel": "2", "uecl": "3"})
+	_check(not (state["ucl"]["league"] as Array).has("1"),
+		"an already qualified title holder gets no second place")
+	_check((state["ucl"]["league"] as Array).has("2"),
+		"the Europa League winner enters the Champions League")
+	_check((state["uel"]["league"] as Array).has("3"),
+		"the Conference League winner enters the Europa League")
+	_finish()
+
+
+func _finish() -> void:
+	print("== check_continental_knockout: ",
+		"PASS" if failures.is_empty() else "FAIL", " (", failures.size(), " failures) ==")
+	quit(0 if failures.is_empty() else 1)

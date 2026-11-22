@@ -572,9 +572,9 @@ static func _euro_fixtures(catalog: TeamCatalog, block: Dictionary, comp: String
 			teams.append(key)
 	if teams.size() < 2:
 		return []
-	if teams.size() == 36 and rounds == 8:
-		var drawn := CareerDraw.league_phase(catalog, teams, seed)
-		if drawn.size() == 144:
+	if teams.size() == 36:
+		var drawn := CareerDraw.league_phase(catalog, teams, seed, comp)
+		if drawn.size() == 18 * rounds:
 			var fixtures: Array = []
 			for index in range(drawn.size()):
 				var round_index := index / 18

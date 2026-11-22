@@ -13,7 +13,8 @@ const LEAGUE_SIZE := 36
 static var last_error := ""
 
 
-static func build(catalog: TeamCatalog, berths: Dictionary, seed: int) -> Dictionary:
+static func build(catalog: TeamCatalog, berths: Dictionary, seed: int,
+		title_holders: Dictionary = {}) -> Dictionary:
 	last_error = ""
 	var access = CareerBerths.access()
 	var uefa = access.get("uefa", {})
@@ -58,6 +59,7 @@ static func build(catalog: TeamCatalog, berths: Dictionary, seed: int) -> Dictio
 				list.append(club_id)
 				bucket[path] = list
 				state[comp]["direct"][slot] = bucket
+	_apply_title_holders(state, title_holders)
 	var ratings := {}
 	for comp in COMPETITIONS:
 		for club_id in state[comp]["clubs"]:
@@ -73,6 +75,32 @@ static func build(catalog: TeamCatalog, berths: Dictionary, seed: int) -> Dictio
 			"rounds": _rounds_report(state[comp]),
 		}
 	return result
+
+
+static func _apply_title_holders(state: Dictionary, holders: Dictionary) -> void:
+	if holders.is_empty():
+		return
+	var used := {}
+	for comp in COMPETITIONS:
+		for club_id in state[comp]["clubs"]:
+			used[str(club_id)] = true
+	var ucl := str(holders.get("ucl", ""))
+	var uel := str(holders.get("uel", ""))
+	var uecl := str(holders.get("uecl", ""))
+	if not ucl.is_empty() and not used.has(ucl):
+		_add_to_league(state, "ucl", ucl)
+		used[ucl] = true
+	if not uel.is_empty() and not used.has(uel):
+		_add_to_league(state, "ucl", uel)
+		used[uel] = true
+	if not uecl.is_empty() and not used.has(uecl):
+		_add_to_league(state, "uel", uecl)
+
+
+static func _add_to_league(state: Dictionary, comp: String, club_id: String) -> void:
+	state[comp]["clubs"][club_id] = true
+	state[comp]["paths"][club_id] = "main"
+	state[comp]["league"].append(club_id)
 
 
 static func _build_competition(comp: String, state: Dictionary, uefa: Dictionary,
@@ -264,6 +292,87 @@ static func table(career: Career, competition: String) -> Array:
 	var club_ids := ids.keys()
 	club_ids.sort()
 	return CareerStages.table(fixtures, career.results, club_ids)
+
+
+static func finish(catalog: TeamCatalog, career: Career, block: Dictionary,
+		seed: int) -> Dictionary:
+	# Resolve every European competition of a finished season: use the career's
+	# own league-phase table where it was played, simulate the others from their
+	# fields, then play the knockout. The winners are stored in the block for the
+	# history and the next season's berths.
+	if block.is_empty():
+		return {}
+	var focus := CareerCompetitions._focus_competition(block, career.club_id)
+	var rules := {"method": "extra_time_pens", "away_goals": false}
+	var champions := {}
+	var runners_up := {}
+	for comp in COMPETITIONS:
+		var competition: Dictionary = block.get("competitions", {}).get(comp, {})
+		var field: Array = competition.get("league_phase", [])
+		if field.size() != LEAGUE_SIZE:
+			continue
+		var table_rows: Array = []
+		if comp == focus:
+			table_rows = table(career, comp)
+		else:
+			table_rows = _simulated_table(catalog, competition, field, seed, comp)
+		if table_rows.size() < 24:
+			continue
+		var ordered: Array = []
+		for row in table_rows:
+			ordered.append(str(row.get("id", "")))
+		var played := CareerKnockout.play(catalog, ordered, seed, rules)
+		if played.is_empty():
+			continue
+		champions[comp] = str(played.get("winner", ""))
+		var rounds: Array = played.get("rounds", [])
+		if not rounds.is_empty():
+			var final_round: Dictionary = rounds[-1]
+			var final_fixtures: Array = final_round.get("fixtures", [])
+			if not final_fixtures.is_empty():
+				var final: Dictionary = final_fixtures[0]
+				var winner := str(champions[comp])
+				runners_up[comp] = str(final.get("away", "")) \
+					if str(final.get("home", "")) == winner else str(final.get("home", ""))
+		competition["knockout"] = rounds
+	block["champions"] = champions
+	block["runners_up"] = runners_up
+	return champions
+
+
+static func _simulated_table(catalog: TeamCatalog, competition: Dictionary,
+		field: Array, seed: int, comp: String) -> Array:
+	var fixtures: Array = []
+	var draw: Array = competition.get("draw", [])
+	var rounds := int(competition.get("round_count", 8))
+	if not draw.is_empty():
+		var per_round := maxi(1, draw.size() / rounds)
+		for index in range(draw.size()):
+			var row: Dictionary = draw[index]
+			fixtures.append({
+				"id": "sim:%s:%02d-%02d" % [comp, index / per_round, index % per_round],
+				"home": str(row.get("home", "")),
+				"away": str(row.get("away", "")),
+				"round": index / per_round + 1, "stage_round": index / per_round + 1,
+			})
+	else:
+		var drawn := CareerDraw.league_phase(catalog, field, seed, comp)
+		for index in range(drawn.size()):
+			var row: Dictionary = drawn[index]
+			fixtures.append({
+				"id": "sim:%s:%03d" % [comp, index],
+				"home": str(row.get("home", "")),
+				"away": str(row.get("away", "")),
+				"round": index / 18 + 1, "stage_round": index / 18 + 1,
+			})
+	var ratings := {}
+	for club_id in field:
+		ratings[str(club_id)] = float(
+			catalog.load_team_rating(int(club_id)).get("average", 55.0))
+	var results := {}
+	for fixture in fixtures:
+		results[str(fixture.get("id", ""))] = CareerSeason.simulate(seed, fixture, ratings)
+	return CareerStages.table(fixtures, results, field)
 
 
 static func _rounds_report(state: Dictionary) -> Dictionary:

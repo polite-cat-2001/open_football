@@ -386,6 +386,10 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 	var review: Dictionary = transition_data["review"]
 	var table: Array = review.get("standings", [])
 	var next_block: Dictionary = review.get("next", {})
+	var old_continental: Dictionary = career.data.get("continental", {}).get(
+		career.season_start, {})
+	if not old_continental.is_empty():
+		CareerContinental.finish(catalog, career, old_continental, career.seed)
 	var champion := {}
 	var own := {}
 	if not table.is_empty():
@@ -542,7 +546,8 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 		var continental: Dictionary = career.data.get("continental", {})
 		if not continental.has(new_start):
 			var built_continental := CareerContinental.build(catalog,
-				association_berths, career.seed)
+				association_berths, career.seed,
+				old_continental.get("champions", {}))
 			if not built_continental.is_empty():
 				continental[new_start] = built_continental
 				career.data["continental"] = continental
