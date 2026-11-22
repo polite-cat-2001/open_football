@@ -658,16 +658,18 @@ static func _continental_block(value) -> Dictionary:
 							"losers": _string_array(item.get("losers")),
 						}
 					rounds[str(round)] = paths
-			competitions[str(comp)] = {
-				"league_phase": _string_array(entry.get("league_phase")),
-				"rounds": rounds,
-			}
+			var normalized: Dictionary = (entry as Dictionary).duplicate(true)
+			normalized["league_phase"] = _string_array(entry.get("league_phase"))
+			normalized["rounds"] = rounds
+			competitions[str(comp)] = normalized
 	var rebalanced := {}
 	var source_rebalanced = copy.get("rebalanced", {})
 	if source_rebalanced is Dictionary:
 		for comp in source_rebalanced:
 			rebalanced[str(comp)] = _as_int(source_rebalanced[comp], 0)
-	return {"competitions": competitions, "rebalanced": rebalanced}
+	copy["competitions"] = competitions
+	copy["rebalanced"] = rebalanced
+	return copy
 
 
 static func _berth_block(value) -> Dictionary:
