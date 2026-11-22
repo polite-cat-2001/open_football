@@ -182,8 +182,8 @@ func _run() -> void:
 				"the competition history survives the save")
 		var season_berths: Dictionary = career.data.get("berths", {}).get(
 			career.season_start, {})
-		_check(season_berths.size() >= 50,
-			"the next season has the UEFA field: %d associations" % season_berths.size())
+		_check(season_berths.size() >= 90,
+			"the next season has the continental field: %d associations" % season_berths.size())
 		var berth_block: Dictionary = season_berths.get("Spain", {})
 		_check(str(berth_block.get("association", "")) == "Spain",
 			"the next season has Spanish berths")

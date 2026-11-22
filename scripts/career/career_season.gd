@@ -459,7 +459,10 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 			continue
 		if str(entry.get("winner", "")).is_empty():
 			continue
-		cups_by_label[str(entry.get("label", ""))] = str(entry.get("winner", ""))
+		cups_by_label[str(entry.get("label", ""))] = {
+			"winner": str(entry.get("winner", "")),
+			"runner_up": str(entry.get("runner_up", "")),
+		}
 	var world_seasons: Dictionary = career.data.get("world_seasons", {})
 	if not world_seasons.has(career.season_start):
 		world_seasons[career.season_start] = CareerWorld.world_season(catalog,
@@ -496,8 +499,25 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 		if not name.is_empty() and not top_by_country.has(name):
 			top_by_country[name] = str(league.get("id", ""))
 	var association_berths := {}
-	for row in CareerBerths.access().get("coefficients", []):
-		var name := str((row as Dictionary).get("association", ""))
+	var countries := {}
+	var access := CareerBerths.access()
+	var uefa = access.get("uefa", {})
+	if uefa is Dictionary:
+		for row in uefa.get("coefficients", []):
+			countries[str((row as Dictionary).get("association", ""))] = true
+	for key in access:
+		if str(key) == "uefa":
+			continue
+		var conf = access[key]
+		if not (conf is Dictionary):
+			continue
+		for slot in conf.get("slots", []):
+			countries[str((slot as Dictionary).get("country", ""))] = true
+	var country_keys := countries.keys()
+	country_keys.sort()
+	for name in country_keys:
+		if str(name).is_empty():
+			continue
 		var rows: Array = []
 		if name == country:
 			rows = berth_rows
@@ -512,9 +532,9 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 			var by_country = world_cups.get(career.season_start, {})
 			if by_country is Dictionary:
 				cup_map = by_country.get(name, {})
-		var block := CareerBerths.for_country(name, rows, cup_map)
+		var block := CareerBerths.for_country(str(name), rows, cup_map)
 		if not block.is_empty():
-			association_berths[name] = block
+			association_berths[str(name)] = block
 	if not association_berths.is_empty():
 		var all_berths: Dictionary = career.data.get("berths", {})
 		all_berths[new_start] = association_berths

@@ -94,6 +94,29 @@ func _run() -> void:
 		and _clubs(liechtenstein, "uecl") == ["7"],
 		"Liechtenstein sends only its cup winner to the Conference League")
 
+	var brazil := CareerBerths.for_country("Brazil", rows,
+		{"Copa do Brasil": {"winner": "19", "runner_up": "18"}})
+	_check(int(_counts(brazil).get("libertadores", 0)) == 7,
+		"Brazil has seven Libertadores berths")
+	_check(int(_counts(brazil).get("sudamericana", 0)) == 6,
+		"Brazil has six Sudamericana berths")
+	_check(_clubs(brazil, "libertadores").has("19"),
+		"the Copa do Brasil winner enters the Libertadores")
+	_check(not _clubs(brazil, "sudamericana").has("1"),
+		"a Libertadores club is not repeated in the Sudamericana")
+	var egypt := CareerBerths.for_country("Egypt", rows,
+		{"Egypt Cup": {"winner": "19", "runner_up": "18"}})
+	_check(int(_counts(egypt).get("champions_league", 0)) == 2
+		and int(_counts(egypt).get("confederation_cup", 0)) == 2,
+		"Egypt has two Champions League and two Confederation Cup berths")
+	_check(_clubs(egypt, "confederation_cup").has("18"),
+		"the Egyptian cup runner-up enters the Confederation Cup")
+	var zealand := CareerBerths.for_country("New Zealand", rows,
+		{"Chatham Cup": "19"})
+	_check(zealand.get("berths", []).size() == 1
+		and _clubs(zealand, "champions_league") == ["1"],
+		"OFC sends one league champion per association")
+
 	var catalog := TeamCatalog.new()
 	_check(catalog.load_data_root(), "catalog opens the database: " + catalog.error)
 	for country in ["England", "Italy", "Spain", "Germany", "France"]:

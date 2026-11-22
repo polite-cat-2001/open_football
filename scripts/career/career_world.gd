@@ -99,8 +99,18 @@ static func world_cups(catalog: TeamCatalog, season_start: String,
 	# played, so its real winner and runner-up are not simulated twice.
 	var access := CareerBerths.access()
 	var associations := {}
-	for row in access.get("coefficients", []):
-		associations[str((row as Dictionary).get("association", ""))] = true
+	var uefa = access.get("uefa", {})
+	if uefa is Dictionary:
+		for row in uefa.get("coefficients", []):
+			associations[str((row as Dictionary).get("association", ""))] = true
+	for key in access:
+		if str(key) == "uefa":
+			continue
+		var conf = access[key]
+		if not (conf is Dictionary):
+			continue
+		for slot in conf.get("slots", []):
+			associations[str((slot as Dictionary).get("country", ""))] = true
 	var cups := {}
 	for cup_id in CareerCompetitions.records():
 		var record: Dictionary = CareerCompetitions.records()[cup_id]
@@ -113,7 +123,10 @@ static func world_cups(catalog: TeamCatalog, season_start: String,
 		if result.is_empty():
 			continue
 		var by_label: Dictionary = cups.get(country, {})
-		by_label[str(record.get("label", cup_id))] = str(result.get("winner", ""))
+		by_label[str(record.get("label", cup_id))] = {
+			"winner": str(result.get("winner", "")),
+			"runner_up": str(result.get("runner_up", "")),
+		}
 		cups[country] = by_label
 	return cups
 
