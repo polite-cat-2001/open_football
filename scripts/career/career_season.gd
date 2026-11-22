@@ -453,6 +453,38 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 		})
 	career.data["competition_history"] = archive
 	history["cups"] = archive
+	var cups_by_label := {}
+	for entry in career.data.get("competitions", []):
+		if not (entry is Dictionary) or str(entry.get("kind", "")) != "cup":
+			continue
+		if str(entry.get("winner", "")).is_empty():
+			continue
+		cups_by_label[str(entry.get("label", ""))] = str(entry.get("winner", ""))
+	var world_seasons: Dictionary = career.data.get("world_seasons", {})
+	if not world_seasons.has(career.season_start):
+		world_seasons[career.season_start] = CareerWorld.world_season(catalog,
+			career.season_start, career.seed, career.league_id)
+		career.data["world_seasons"] = world_seasons
+	var old_league_id := str(review.get("league", {}).get("id", career.league_id))
+	var old_league := catalog.league_by_id(old_league_id)
+	var country_id := int(old_league.get("country_id", 0))
+	var country := str(catalog.country_by_id(country_id).get("name", ""))
+	var top_league_id := ""
+	for league in catalog.career_leagues():
+		if int(league.get("country_id", 0)) == country_id \
+				and int(league.get("tier", 0)) == 1:
+			top_league_id = str(league.get("id", ""))
+			break
+	var berth_rows: Array = []
+	if top_league_id == old_league_id:
+		berth_rows = table
+	else:
+		berth_rows = world_seasons.get(career.season_start, {}).get(top_league_id, [])
+	var berths := CareerBerths.for_country(country, berth_rows, cups_by_label)
+	if not berths.is_empty():
+		var all_berths: Dictionary = career.data.get("berths", {})
+		all_berths[new_start] = berths
+		career.data["berths"] = all_berths
 	var built := CareerCompetitions.build_season(catalog, career.league_id,
 		next_ids_unique, new_start, history)
 	career.data["schedule"] = built.get("schedule", [])

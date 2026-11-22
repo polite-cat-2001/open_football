@@ -9,14 +9,15 @@ extends RefCounted
 static func league_season(catalog: TeamCatalog, league_id: String,
 		season_start: String, seed: int) -> Dictionary:
 	var format = LeagueRegulations.record(league_id).get("format")
-	if not (format is Dictionary):
-		return {}
 	var ids: Array = []
 	for team in catalog.all_teams_for_league(league_id):
 		ids.append(str(team.get("id", "")))
 	if ids.is_empty():
 		return {}
 	ids.sort()
+	var clubs := {}
+	for club_id in ids:
+		clubs[str(club_id)] = {"id": str(club_id), "name": str(club_id)}
 	var built := CareerFactory.season_schedule(league_id, ids, season_start)
 	if not (built.get("schedule") is Array) or (built["schedule"] as Array).is_empty():
 		return {}
@@ -40,17 +41,51 @@ static func league_season(catalog: TeamCatalog, league_id: String,
 				CareerSeason.simulate(seed, fixture, {})
 	var stages := {}
 	var decided := {}
-	for stage in CareerStages.stages(format):
-		var stage_id := str(stage.get("id", ""))
-		if str(stage.get("kind", "")) == "knockout":
-			decided[stage_id] = CareerFactory.stage_decided(world, stage_id)
-		else:
-			stages[stage_id] = CareerFactory.stage_table(world, {}, stage_id)
+	if format is Dictionary:
+		for stage in CareerStages.stages(format):
+			var stage_id := str(stage.get("id", ""))
+			if str(stage.get("kind", "")) == "knockout":
+				decided[stage_id] = CareerFactory.stage_decided(world, stage_id)
+			else:
+				stages[stage_id] = CareerFactory.stage_table(world, {}, stage_id)
 	return {
-		"table": CareerFactory.season_table(world, {}),
+		"table": CareerFactory.season_table(world, clubs),
 		"stages": stages,
 		"decided": decided,
 	}
+
+
+static func world_season(catalog: TeamCatalog, season_start: String, seed: int,
+		skip_league := "", league_ids: Array = []) -> Dictionary:
+	# One background table per top league. The career's own league is skipped:
+	# its table is the one the career actually played. A league list is only for
+	# tests; the real run walks every top tier.
+	var wanted := {}
+	for league_id in league_ids:
+		wanted[str(league_id)] = true
+	var tables := {}
+	for league in catalog.career_leagues():
+		if int(league.get("tier", 0)) != 1:
+			continue
+		var league_id := str(league.get("id", ""))
+		if league_id.is_empty() or league_id == skip_league:
+			continue
+		if not wanted.is_empty() and not wanted.has(league_id):
+			continue
+		var season := league_season(catalog, league_id, season_start, seed)
+		if season.is_empty():
+			continue
+		var rows: Array = []
+		for row in season.get("table", []):
+			rows.append({
+				"club_id": str(row.get("club_id", row.get("id", ""))),
+				"position": int(row.get("position", 0)),
+				"points": int(row.get("points", 0)),
+				"played": int(row.get("played", 0)),
+			})
+		if not rows.is_empty():
+			tables[league_id] = rows
+	return tables
 
 
 static func promoted_clubs(catalog: TeamCatalog, league_id: String,

@@ -452,6 +452,53 @@ static func from_save(raw: Dictionary) -> Career:
 			competitions.append(entry)
 		payload["competitions"] = competitions
 
+	if payload.has("world_seasons") and payload["world_seasons"] is Dictionary:
+		var worlds := {}
+		for season in payload["world_seasons"]:
+			var tables = payload["world_seasons"][season]
+			if not (tables is Dictionary):
+				continue
+			var league_tables := {}
+			for league_id in tables:
+				var rows: Array = []
+				for row in tables[league_id]:
+					if not (row is Dictionary):
+						continue
+					rows.append({
+						"club_id": str(row.get("club_id", "")),
+						"position": _as_int(row.get("position"), 0),
+						"points": _as_int(row.get("points"), 0),
+						"played": _as_int(row.get("played"), 0),
+					})
+				league_tables[str(league_id)] = rows
+			worlds[str(season)] = league_tables
+		payload["world_seasons"] = worlds
+
+	if payload.has("berths") and payload["berths"] is Dictionary:
+		var berths := {}
+		for season in payload["berths"]:
+			var block = payload["berths"][season]
+			if not (block is Dictionary):
+				continue
+			var copy: Dictionary = (block as Dictionary).duplicate(true)
+			copy["association"] = str(copy.get("association", ""))
+			copy["rank"] = _as_int(copy.get("rank"), 0)
+			copy["eps"] = bool(copy.get("eps", false))
+			var entries: Array = []
+			for entry in copy.get("berths", []):
+				if not (entry is Dictionary):
+					continue
+				entries.append({
+					"competition": str(entry.get("competition", "")),
+					"entry": str(entry.get("entry", "")),
+					"path": str(entry.get("path", "")),
+					"club_id": str(entry.get("club_id", "")),
+					"source": str(entry.get("source", "")),
+				})
+			copy["berths"] = entries
+			berths[str(season)] = copy
+		payload["berths"] = berths
+
 	if payload.has("results") and payload["results"] is Dictionary:
 		var normalized := {}
 		for fixture_id in payload["results"]:
