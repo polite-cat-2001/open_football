@@ -576,8 +576,16 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 		if not continental.has(new_start):
 			var built_continental := CareerContinental.build(catalog,
 				association_berths, career.seed,
-				old_continental.get("champions", {}))
+				old_continental.get("champions", {}),
+				career.data.get("europe_forced", {}), career.club_id)
 			if not built_continental.is_empty():
+				var focus_fixtures: Array = built_continental.get(
+					"focus_fixtures", [])
+				if not focus_fixtures.is_empty():
+					built_continental["qualifying_pending"] = true
+					built_continental["qualifying_focus"] = career.club_id
+					built_continental["qualifying_competition"] = str(
+						(focus_fixtures[0] as Dictionary).get("europe", ""))
 				continental[new_start] = built_continental
 				career.data["continental"] = continental
 	var new_block: Dictionary = career.data.get("continental", {}).get(new_start, {})
@@ -586,13 +594,21 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 		new_block["coefficients"] = rankings
 		for comp in new_block.get("competitions", {}):
 			new_block["competitions"][comp]["coefficients"] = rankings
+	var schedule_block: Dictionary = career.data.get("continental", {}).get(
+		new_start, {})
+	var pending := bool(schedule_block.get("qualifying_pending", false))
+	if pending:
+		schedule_block = {}
 	var built := CareerCompetitions.build_season(catalog, career.league_id,
-		next_ids_unique, new_start, history,
-		career.data.get("continental", {}).get(new_start, {}), career.club_id,
+		next_ids_unique, new_start, history, schedule_block, career.club_id,
 		career.seed)
 	career.data["schedule"] = built.get("schedule", [])
 	career.data["stages_generated"] = built.get("stages_generated", {})
 	career.data["competitions"] = built.get("competitions", [])
+	if pending:
+		CareerEurope.qualifying_fixtures(career, catalog)
+	else:
+		CareerEurope.ensure_league_phase(career, catalog)
 	career.data["schedule_version"] = CareerFactory.SCHEDULE_VERSION
 	career.data["results"] = {}
 	CareerSquad.rollover_values(career, CareerSquad.roster(

@@ -10,6 +10,15 @@ const PATH := "res://assets/data/europe_2026_27.json"
 const MODES := ["real", "simulated", "none"]
 const COMPETITIONS := ["ucl", "uel", "uecl"]
 const ROUNDS := {"ucl": 8, "uel": 8, "uecl": 6}
+const QUALIFYING_ORDER := ["q1", "q2", "q3", "playoff_round"]
+const QUALIFYING_WINDOWS := {
+	"ucl": {"q1": ["07-07", "07-15"], "q2": ["07-21", "07-29"],
+		"q3": ["08-04", "08-11"], "playoff_round": ["08-18", "08-26"]},
+	"uel": {"q1": ["07-09", "07-16"], "q2": ["07-23", "07-30"],
+		"q3": ["08-06", "08-13"], "playoff_round": ["08-20", "08-27"]},
+	"uecl": {"q1": ["07-09", "07-16"], "q2": ["07-23", "07-30"],
+		"q3": ["08-06", "08-13"], "playoff_round": ["08-20", "08-27"]},
+}
 
 static var last_error := ""
 static var _data: Dictionary = {}
@@ -122,6 +131,264 @@ static func simulate_due(career: Career, catalog: TeamCatalog, today: String) ->
 		career.data["results"][str(fixture.get("id", ""))] = \
 			CareerSeason.simulate(career.seed, fixture, cache)
 	ensure_knockout(career)
+
+
+static func qualifying_fixtures(career: Career, catalog: TeamCatalog) -> Array:
+	# Add the next qualifying round of the career club to the schedule. One round
+	# at a time: the next one waits for the current one to be played.
+	var block := _season_block(career)
+	if not bool(block.get("qualifying_pending", false)):
+		return []
+	var focus := str(block.get("qualifying_focus", career.club_id))
+	var rows: Array = block.get("focus_fixtures", [])
+	if rows.is_empty():
+		return []
+	var comp := str(block.get("qualifying_competition", ""))
+	var by_round := {}
+	for fixture in rows:
+		var round := str((fixture as Dictionary).get("qualifying_round", ""))
+		if round.is_empty():
+			continue
+		var list: Array = by_round.get(round, [])
+		list.append(fixture)
+		by_round[round] = list
+		if comp.is_empty():
+			comp = str((fixture as Dictionary).get("europe", ""))
+	if comp.is_empty():
+		return []
+	for round in QUALIFYING_ORDER:
+		if not by_round.has(round):
+			continue
+		var group: Array = by_round[round]
+		var present := true
+		var played := true
+		for fixture in group:
+			var key := str((fixture as Dictionary).get("id", ""))
+			if not _has_fixture(career, key):
+				present = false
+			if not career.results.has(key):
+				played = false
+		if present:
+			if played:
+				continue
+			return []
+		var dates := _qualifying_dates(career, comp, round, group.size())
+		var base := _max_round(career)
+		var round_index := QUALIFYING_ORDER.find(round)
+		for fixture in group:
+			var copy: Dictionary = (fixture as Dictionary).duplicate()
+			copy["competition"] = comp
+			copy["stage"] = "euroq:" + comp
+			copy["stage_round"] = round_index + 1
+			copy["round"] = base + round_index * 2 + int(copy.get("leg", 0)) + 1
+			copy["date"] = dates[mini(int(copy.get("leg", 0)), dates.size() - 1)]
+			career.schedule.append(copy)
+		_sort_schedule(career)
+		return group
+	return []
+
+
+static func ensure_qualifying(career: Career, catalog: TeamCatalog) -> void:
+	# Resolve the career club's qualifying round when both legs are played, store
+	# the actual winner in the forced map, and rebuild the field around it. The
+	# next round (or the league phase) is added here.
+	var block := _season_block(career)
+	if not bool(block.get("qualifying_pending", false)):
+		return
+	var comp := str(block.get("qualifying_competition", ""))
+	if comp.is_empty():
+		qualifying_fixtures(career, catalog)
+		return
+	var fixtures: Array = []
+	for fixture in career.schedule:
+		if str(fixture.get("stage", "")) == "euroq:" + comp:
+			fixtures.append(fixture)
+	if fixtures.is_empty():
+		qualifying_fixtures(career, catalog)
+		return
+	var by_round := {}
+	for fixture in fixtures:
+		var round := int(fixture.get("stage_round", 0))
+		var list: Array = by_round.get(round, [])
+		list.append(fixture)
+		by_round[round] = list
+	for round_index in range(1, QUALIFYING_ORDER.size() + 1):
+		if not by_round.has(round_index):
+			qualifying_fixtures(career, catalog)
+			return
+		var group: Array = by_round[round_index]
+		for fixture in group:
+			if not career.results.has(str(fixture.get("id", ""))):
+				return
+		var focus := str(block.get("qualifying_focus", career.club_id))
+		var own: Array = []
+		var opponent := ""
+		for fixture in group:
+			var home := str(fixture.get("home", ""))
+			var away := str(fixture.get("away", ""))
+			if home == focus or away == focus:
+				own.append(fixture)
+				opponent = away if home == focus else home
+		if own.is_empty():
+			_rebuild(career, catalog, block, comp)
+			return
+		var pair := _pair_key(focus, opponent)
+		var forced: Dictionary = career.data.get("europe_forced", {})
+		if forced.has(pair):
+			continue
+		var entrants: Array = [focus, opponent]
+		var settled := CareerBrackets.settle_ties(entrants, own, career.results,
+			career.seed, {"method": "extra_time_pens", "away_goals": false})
+		career.data["results"] = settled
+		var winners := CareerBrackets.round_winners(entrants, own,
+			career.results)
+		if winners.is_empty():
+			return
+		forced[pair] = str(winners[0])
+		career.data["europe_forced"] = forced
+		_rebuild(career, catalog, block, comp)
+		return
+	qualifying_fixtures(career, catalog)
+
+
+static func ensure_league_phase(career: Career, catalog: TeamCatalog) -> void:
+	# Add the focus competition's league-phase fixtures once the field is final.
+	var block := _season_block(career)
+	if bool(block.get("qualifying_pending", false)):
+		return
+	var comp := CareerCompetitions._focus_competition(block, career.club_id)
+	if comp.is_empty():
+		return
+	for fixture in career.schedule:
+		if str(fixture.get("competition", "")) == comp \
+				and str(fixture.get("stage", "")) == comp:
+			return
+	var competition: Dictionary = block.get("competitions", {}).get(comp, {})
+	var rounds := int(competition.get("round_count", ROUNDS.get(comp, 8)))
+	var dates := _league_phase_dates(career, rounds)
+	var base := _max_round(career)
+	var fixtures := CareerCompetitions._euro_fixtures(catalog, competition, comp,
+		dates, base, career.seed)
+	if fixtures.is_empty():
+		return
+	career.schedule.append_array(fixtures)
+	_sort_schedule(career)
+
+
+static func _rebuild(career: Career, catalog: TeamCatalog, block: Dictionary,
+		current_comp: String) -> void:
+	var berths = career.data.get("berths", {}).get(career.season_start, {})
+	if not (berths is Dictionary) or (berths as Dictionary).is_empty():
+		return
+	var old := _season_block(career)
+	var built := CareerContinental.build(catalog, berths, career.seed,
+		old.get("champions", {}), career.data.get("europe_forced", {}),
+		career.club_id)
+	if built.is_empty():
+		return
+	built["coefficients"] = old.get("coefficients", {})
+	built["qualifying_focus"] = career.club_id
+	var new_focus: Array = built.get("focus_fixtures", [])
+	if not new_focus.is_empty():
+		built["qualifying_competition"] = str(
+			(new_focus[0] as Dictionary).get("europe", current_comp))
+	else:
+		built["qualifying_competition"] = current_comp
+	var focus_comp := CareerCompetitions._focus_competition(built, career.club_id)
+	if focus_comp.is_empty():
+		var pending := false
+		for fixture in new_focus:
+			var key := str((fixture as Dictionary).get("id", ""))
+			if not _has_fixture(career, key) or not career.results.has(key):
+				pending = true
+				break
+		built["qualifying_pending"] = pending
+	else:
+		built["qualifying_pending"] = false
+		built["qualifying_competition"] = focus_comp
+	career.data["continental"][career.season_start] = built
+	if bool(built.get("qualifying_pending", false)):
+		qualifying_fixtures(career, catalog)
+	else:
+		ensure_league_phase(career, catalog)
+
+
+static func _season_block(career: Career) -> Dictionary:
+	var blocks = career.data.get("continental", {})
+	if not (blocks is Dictionary):
+		return {}
+	var block = blocks.get(career.season_start, {})
+	return block if block is Dictionary else {}
+
+
+static func _has_fixture(career: Career, fixture_id: String) -> bool:
+	for fixture in career.schedule:
+		if str(fixture.get("id", "")) == fixture_id:
+			return true
+	return false
+
+
+static func _pair_key(first: String, second: String) -> String:
+	return first + "|" + second if first < second else second + "|" + first
+
+
+static func _max_round(career: Career) -> int:
+	var value := 0
+	for fixture in career.schedule:
+		value = maxi(value, int(fixture.get("round", 0)))
+	return value
+
+
+static func _qualifying_dates(career: Career, comp: String, round: String,
+		count: int) -> Array:
+	var windows: Dictionary = QUALIFYING_WINDOWS.get(comp,
+		QUALIFYING_WINDOWS["ucl"])
+	var window = windows.get(round, [])
+	if not (window is Array) or (window as Array).size() < 2:
+		return []
+	var year := int(str(career.season_start).substr(0, 4))
+	var start := "%04d-%s" % [year, str(window[0])]
+	var end := "%04d-%s" % [year, str(window[1])]
+	return _rest_dates(career, start, end, count)
+
+
+static func _league_phase_dates(career: Career, count: int) -> Array:
+	var year := int(str(career.season_start).substr(0, 4))
+	var start := "%04d-09-15" % year
+	var end := "%04d-01-31" % (year + 1)
+	return _rest_dates(career, start, end, count)
+
+
+static func _rest_dates(career: Career, start: String, end: String,
+		count: int) -> Array:
+	var busy := {}
+	for fixture in career.schedule:
+		busy[str(fixture.get("date", ""))] = true
+	var ideal := CareerCalendar.round_dates(start, end, count,
+		IntlCalendar.rules(), "world", busy)
+	var dates: Array = []
+	for date in ideal:
+		var chosen := str(date)
+		for step in range(0, 29):
+			var found := false
+			for offset in ([0] if step == 0 else [step, -step]):
+				var candidate := CareerSeason.add_days(str(date), offset)
+				if candidate < start or candidate > end or busy.has(candidate):
+					continue
+				var ok := true
+				for other in busy:
+					if absi(CareerSeason.days_between(candidate, str(other))) < 3:
+						ok = false
+						break
+				if ok:
+					chosen = candidate
+					found = true
+					break
+			if found:
+				break
+		dates.append(chosen)
+		busy[chosen] = true
+	return dates
 
 
 static func ensure_knockout(career: Career) -> void:
