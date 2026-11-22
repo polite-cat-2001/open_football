@@ -155,6 +155,88 @@ static func winner_of(career: Career, competition_id: String) -> String:
 	return ""
 
 
+static func simulate_cup(catalog: TeamCatalog, record: Dictionary, cup_id: String,
+		seed: int) -> Dictionary:
+	# A background cup: the same bracket and tie-break as a career cup, but all
+	# rounds are played at once. Used to find every association's cup winner for
+	# the European berths.
+	var country_id := _country_id(catalog, str(record.get("country", "")))
+	if country_id <= 0:
+		return {}
+	var field := _field_for_record(catalog, country_id, record)
+	if field.size() < 2:
+		return {}
+	var rounds := _rounds(field.size(), record)
+	var entrants := field
+	var results := {}
+	var stage := {"rounds": rounds}
+	var runner := ""
+	var strengths := {}
+	for club_id in field:
+		strengths[str(club_id)] = float(
+			catalog.load_team_rating(int(club_id)).get("average", 55.0))
+	for index in range(rounds.size()):
+		var fixtures := CareerBrackets.round_fixtures(stage, index, entrants, [],
+			"%s:" % cup_id)
+		if fixtures.is_empty():
+			break
+		for fixture in fixtures:
+			results[str(fixture.get("id", ""))] = \
+				CareerSeason.simulate(seed, fixture, strengths)
+		results = CareerBrackets.settle_ties(entrants, fixtures, results, seed,
+			record.get("tiebreak", {}))
+		var winners := CareerBrackets.round_winners(entrants, fixtures, results)
+		if winners.size() <= 1:
+			for club_id in entrants:
+				if str(club_id) != str(winners[0]):
+					runner = str(club_id)
+					break
+			entrants = winners
+			break
+		entrants = winners
+	if entrants.is_empty():
+		return {}
+	return {"winner": str(entrants[0]), "runner_up": runner}
+
+
+static func _country_id(catalog: TeamCatalog, country: String) -> int:
+	for item in catalog.countries():
+		if str(item.get("name", "")) == country:
+			return int(item.get("id", 0))
+	return 0
+
+
+static func _field_for_record(catalog: TeamCatalog, country_id: int,
+		record: Dictionary) -> Array:
+	var allowed := {}
+	for tier in record.get("tiers", []):
+		allowed[int(tier)] = true
+	var target := int(record.get("field_size", 0))
+	var ids := {}
+	var leagues: Array = []
+	for item in catalog.career_leagues():
+		if int(item.get("country_id", 0)) == country_id:
+			leagues.append(item)
+	leagues.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("tier", 0)) < int(b.get("tier", 0)))
+	for item in leagues:
+		if not allowed.is_empty() and not allowed.has(int(item.get("tier", 0))):
+			continue
+		for team in catalog.all_teams_for_league(str(item.get("id", ""))):
+			ids[str(team.get("id", ""))] = true
+		if allowed.is_empty() and target > 0 and ids.size() >= target:
+			break
+	if ids.is_empty():
+		# Liechtenstein's clubs play in the Swiss leagues; the team's own country
+		# is the only way to find them.
+		for club in catalog.career_clubs():
+			if int(club.get("country_id", 0)) == country_id:
+				ids[str(club.get("id", ""))] = true
+	var field := ids.keys()
+	field.sort()
+	return field
+
+
 static func _ensure_cup(career: Career, entry: Dictionary) -> bool:
 	var rounds: Array = entry.get("rounds", [])
 	var competition_id := str(entry.get("id", ""))

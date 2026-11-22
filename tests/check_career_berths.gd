@@ -81,6 +81,19 @@ func _run() -> void:
 	_check(_clubs(england_qualified, "uecl") == ["7"],
 		"an already-qualified EFL Cup winner cascades the Conference place")
 
+	var bosnia := CareerBerths.for_country("Bosnia and Herzegovina", rows,
+		{"Bosnia and Herzegovina Football Cup": "19"})
+	_check(int(_counts(bosnia).get("ucl", 0)) == 1
+		and int(_counts(bosnia).get("uecl", 0)) == 3,
+		"Bosnia: one Champions League and three Conference places")
+	_check(_clubs(bosnia, "uecl").has("19"),
+		"the Bosnian cup winner enters the Conference League")
+	var liechtenstein := CareerBerths.for_country("Liechtenstein", [],
+		{"Liechtenstein Cup": "7"})
+	_check(liechtenstein.get("berths", []).size() == 1
+		and _clubs(liechtenstein, "uecl") == ["7"],
+		"Liechtenstein sends only its cup winner to the Conference League")
+
 	var catalog := TeamCatalog.new()
 	_check(catalog.load_data_root(), "catalog opens the database: " + catalog.error)
 	for country in ["England", "Italy", "Spain", "Germany", "France"]:

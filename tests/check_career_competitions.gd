@@ -180,14 +180,19 @@ func _run() -> void:
 				"the season with tables and berths round-trips exactly")
 			_check(reloaded.data.get("competition_history", []).size() >= 1,
 				"the competition history survives the save")
-		var berth_block: Dictionary = career.data.get("berths", {}).get(
+		var season_berths: Dictionary = career.data.get("berths", {}).get(
 			career.season_start, {})
+		_check(season_berths.size() >= 50,
+			"the next season has the UEFA field: %d associations" % season_berths.size())
+		var berth_block: Dictionary = season_berths.get("Spain", {})
 		_check(str(berth_block.get("association", "")) == "Spain",
 			"the next season has Spanish berths")
 		_check(berth_block.get("berths", []).size() == 8,
 			"Spain has eight UEFA berths: %d" % berth_block.get("berths", []).size())
 		_check(career.data.get("world_seasons", {}).size() >= 1,
 			"the background world table is stored")
+		_check(career.data.get("world_cups", {}).size() >= 1,
+			"the background cup winners are stored")
 
 	_finish()
 

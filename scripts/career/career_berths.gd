@@ -35,6 +35,11 @@ static func for_country(country: String, rows: Array,
 		return {}
 	var eps := (data.get("eps", []) as Array).has(country)
 	var cup_slot := _cup_slot(data, country)
+	var main_cup := str(cup_slot.get("main_cup", ""))
+	if main_cup.is_empty():
+		for label in cups_by_label:
+			main_cup = str(label)
+			break
 	var positions: Array = []
 	for row in rows:
 		positions.append(str((row as Dictionary).get("club_id", row.get("id", ""))))
@@ -58,26 +63,38 @@ static func for_country(country: String, rows: Array,
 	for slot in band.get("uel", []):
 		if str(slot.get("slot", "")) != "cup_winner":
 			continue
-		var winner := str(cups_by_label.get(str(cup_slot.get("main_cup", "")), ""))
+		var winner := str(cups_by_label.get(main_cup, ""))
 		_add_club_or_next(berths, "uel", slot, winner, positions, assigned, "cup")
-	var uecl_slot: Dictionary = {}
+	var uecl_cup: Dictionary = {}
+	for slot in band.get("uecl", []):
+		if str(slot.get("slot", "")) == "cup_winner":
+			uecl_cup = slot
+	if not uecl_cup.is_empty():
+		var winner := str(cups_by_label.get(main_cup, ""))
+		_add_club_or_next(berths, "uecl", uecl_cup, winner, positions, assigned,
+			"cup")
+	var uecl_slots: Array = []
 	for slot in band.get("uecl", []):
 		if _slot_index(str(slot.get("slot", ""))) > 0:
-			uecl_slot = slot
-			break
-	if not uecl_slot.is_empty():
-		var index := _slot_index(str(uecl_slot.get("slot", ""))) + shift
+			uecl_slots.append(slot)
+	if not uecl_slots.is_empty():
 		var second := str(cups_by_label.get(str(cup_slot.get("second_cup", "")), ""))
-		if not second.is_empty() and not assigned.has(second):
+		var used_second := false
+		if not second.is_empty() and not assigned.has(second) and uecl_cup.is_empty():
 			assigned[second] = true
+			used_second = true
 			berths.append({
 				"competition": "uecl",
 				"entry": _round_of(str(cup_slot.get("second_entry", "uecl_playoff_round")), "uecl"),
 				"path": str(cup_slot.get("second_path", "league")),
 				"club_id": second, "source": "second_cup",
 			})
-		else:
-			_add_position(berths, "uecl", uecl_slot, index, positions, assigned)
+		for slot_index in range(uecl_slots.size()):
+			if slot_index == 0 and used_second:
+				continue
+			var slot: Dictionary = uecl_slots[slot_index]
+			var slot_position := _slot_index(str(slot.get("slot", ""))) + shift
+			_add_position(berths, "uecl", slot, slot_position, positions, assigned)
 	return {
 		"association": country, "rank": rank, "eps": eps,
 		"berths": berths,

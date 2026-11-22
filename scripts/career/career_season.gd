@@ -480,10 +480,44 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 		berth_rows = table
 	else:
 		berth_rows = world_seasons.get(career.season_start, {}).get(top_league_id, [])
-	var berths := CareerBerths.for_country(country, berth_rows, cups_by_label)
-	if not berths.is_empty():
+	var world_cups: Dictionary = career.data.get("world_cups", {})
+	if not world_cups.has(career.season_start):
+		var simulated := CareerWorld.world_cups(catalog, career.season_start,
+			career.seed)
+		simulated[country] = cups_by_label
+		world_cups[career.season_start] = simulated
+		career.data["world_cups"] = world_cups
+	var top_by_country := {}
+	for league in catalog.career_leagues():
+		if int(league.get("tier", 0)) != 1:
+			continue
+		var name := str(catalog.country_by_id(
+			int(league.get("country_id", 0))).get("name", ""))
+		if not name.is_empty() and not top_by_country.has(name):
+			top_by_country[name] = str(league.get("id", ""))
+	var association_berths := {}
+	for row in CareerBerths.access().get("coefficients", []):
+		var name := str((row as Dictionary).get("association", ""))
+		var rows: Array = []
+		if name == country:
+			rows = berth_rows
+		else:
+			var top_id := str(top_by_country.get(name, ""))
+			if not top_id.is_empty():
+				rows = world_seasons.get(career.season_start, {}).get(top_id, [])
+		var cup_map: Dictionary = {}
+		if name == country:
+			cup_map = cups_by_label
+		else:
+			var by_country = world_cups.get(career.season_start, {})
+			if by_country is Dictionary:
+				cup_map = by_country.get(name, {})
+		var block := CareerBerths.for_country(name, rows, cup_map)
+		if not block.is_empty():
+			association_berths[name] = block
+	if not association_berths.is_empty():
 		var all_berths: Dictionary = career.data.get("berths", {})
-		all_berths[new_start] = berths
+		all_berths[new_start] = association_berths
 		career.data["berths"] = all_berths
 	var built := CareerCompetitions.build_season(catalog, career.league_id,
 		next_ids_unique, new_start, history)

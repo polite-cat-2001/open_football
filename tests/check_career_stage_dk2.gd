@@ -48,8 +48,9 @@ func _run() -> void:
 		_finish()
 		return
 
-	for guard in range(12):
+	for guard in range(14):
 		CareerFactory.ensure_stages(career)
+		CareerCompetitions.ensure(career)
 		if not (career.data.get("results") is Dictionary):
 			career.data["results"] = {}
 		var pending := []

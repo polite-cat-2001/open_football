@@ -121,8 +121,12 @@ func _run() -> void:
 
 	_check(CareerSeason.next_season(career, catalog, transition),
 		"the next ARGC season starts: " + CareerSeason.last_error)
-	_check(career.schedule.size() == 480,
-		"the next season rebuilds both 240-fixture regular phases")
+	var league_next := 0
+	for fixture in career.schedule:
+		if str(fixture.get("stage", "")) in ["apertura_regular", "clausura_regular"]:
+			league_next += 1
+	_check(league_next == 480,
+		"the next season rebuilds both 240-fixture regular phases: %d" % league_next)
 	_check(career.data.get("stages_generated", {}).has("apertura_regular")
 		and career.data.get("stages_generated", {}).has("clausura_regular"),
 		"the next season marks both regular phases")

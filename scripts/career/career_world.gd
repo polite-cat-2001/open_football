@@ -28,6 +28,10 @@ static func league_season(catalog: TeamCatalog, league_id: String,
 		"stages_generated": built.get("stages_generated", {}),
 		"results": {},
 	})
+	var strengths := {}
+	for club_id in ids:
+		strengths[str(club_id)] = float(
+			catalog.load_team_rating(int(club_id)).get("average", 55.0))
 	for guard in range(64):
 		CareerFactory.ensure_stages(world)
 		var pending: Array = []
@@ -38,7 +42,7 @@ static func league_season(catalog: TeamCatalog, league_id: String,
 			break
 		for fixture in pending:
 			world.data["results"][str(fixture.get("id", ""))] = \
-				CareerSeason.simulate(seed, fixture, {})
+				CareerSeason.simulate(seed, fixture, strengths)
 	var stages := {}
 	var decided := {}
 	if format is Dictionary:
@@ -86,6 +90,32 @@ static func world_season(catalog: TeamCatalog, season_start: String, seed: int,
 		if not rows.is_empty():
 			tables[league_id] = rows
 	return tables
+
+
+static func world_cups(catalog: TeamCatalog, season_start: String,
+		seed: int) -> Dictionary:
+	# Cup winners for every UEFA association, needed by the berth map. The
+	# career's own country is overwritten with the cups the career actually
+	# played, so its real winner and runner-up are not simulated twice.
+	var access := CareerBerths.access()
+	var associations := {}
+	for row in access.get("coefficients", []):
+		associations[str((row as Dictionary).get("association", ""))] = true
+	var cups := {}
+	for cup_id in CareerCompetitions.records():
+		var record: Dictionary = CareerCompetitions.records()[cup_id]
+		if str(record.get("kind", "")) != "cup":
+			continue
+		var country := str(record.get("country", ""))
+		if not associations.has(country):
+			continue
+		var result := CareerCompetitions.simulate_cup(catalog, record, cup_id, seed)
+		if result.is_empty():
+			continue
+		var by_label: Dictionary = cups.get(country, {})
+		by_label[str(record.get("label", cup_id))] = str(result.get("winner", ""))
+		cups[country] = by_label
+	return cups
 
 
 static func promoted_clubs(catalog: TeamCatalog, league_id: String,

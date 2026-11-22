@@ -225,6 +225,1123 @@
    "tiebreak": {
     "method": "pens"
    }
+  },
+  "NETHERLANDSCUP": {
+   "kind": "cup",
+   "label": "KNVB Cup",
+   "country": "Netherlands",
+   "field_size": 64,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_KNVB_Cup",
+   "confidence": "medium",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "09-02",
+   "end_md": "04-19"
+  },
+  "PORTUGALCUP": {
+   "kind": "cup",
+   "label": "Taça de Portugal",
+   "country": "Portugal",
+   "field_size": 149,
+   "two_legged": [
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Ta%C3%A7a_de_Portugal",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-30",
+   "end_md": "05-24"
+  },
+  "TURKEYCUP": {
+   "kind": "cup",
+   "label": "Turkish Cup (Ziraat Türkiye Kupası)",
+   "country": "Turkey",
+   "field_size": 155,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://tr.wikipedia.org/wiki/2025-26_T%C3%BCrkiye_Kupas%C4%B1",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "09-02",
+   "end_md": "05-22"
+  },
+  "BRAZILCUP": {
+   "kind": "cup",
+   "label": "Copa do Brasil",
+   "country": "Brazil",
+   "field_size": 92,
+   "two_legged": [
+    "qf",
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Copa_do_Brasil",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "02-18",
+   "end_md": "12-21"
+  },
+  "ARGENTINACUP": {
+   "kind": "cup",
+   "label": "Copa Argentina",
+   "country": "Argentina",
+   "field_size": 64,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Copa_Argentina",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "01-22",
+   "end_md": "11-05"
+  },
+  "MEXICOCUP": {
+   "kind": "cup",
+   "label": "Copa MX",
+   "country": "Mexico",
+   "field_size": 2020,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/Copa_MX",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled."
+  },
+  "USACUP": {
+   "kind": "cup",
+   "label": "U.S. Open Cup",
+   "country": "USA",
+   "field_size": 96,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_U.S._Open_Cup",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "03-18",
+   "end_md": "10-01"
+  },
+  "JAPANCUP": {
+   "kind": "cup",
+   "label": "Emperor's Cup",
+   "country": "Japan",
+   "field_size": 88,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Emperor%27s_Cup",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "05-24",
+   "end_md": "11-22"
+  },
+  "CHINACUP": {
+   "kind": "cup",
+   "label": "Chinese FA Cup",
+   "country": "China",
+   "field_size": 64,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Chinese_FA_Cup",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "03-14",
+   "end_md": "12-06"
+  },
+  "EGYPTCUP": {
+   "kind": "cup",
+   "label": "Egypt Cup",
+   "country": "Egypt",
+   "field_size": 72,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Egypt_Cup",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "10-03",
+   "end_md": "05-10"
+  },
+  "SAUDIARABIACUP": {
+   "kind": "cup",
+   "label": "King's Cup",
+   "country": "Saudi Arabia",
+   "field_size": 32,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_King%27s_Cup_(Saudi_Arabia)",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-31",
+   "end_md": "05-08"
+  },
+  "AUSTRALIACUP": {
+   "kind": "cup",
+   "label": "Australia Cup",
+   "country": "Australia",
+   "field_size": 718,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Australia_Cup",
+   "confidence": "high",
+   "note": " Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "01-31",
+   "end_md": "10-04"
+  },
+  "ALBANIACUP": {
+   "kind": "cup",
+   "label": "Kupa e Shqipërisë",
+   "country": "Albania",
+   "field_size": 42,
+   "two_legged": [
+    "qf",
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Albanian_Cup",
+   "confidence": "high",
+   "note": "42 teams; final 13 May 2026. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "10-01",
+   "end_md": "05-13"
+  },
+  "ANDORRACUP": {
+   "kind": "cup",
+   "label": "Copa Constitució",
+   "country": "Andorra",
+   "field_size": 12,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2026_Copa_Constituci%C3%B3",
+   "confidence": "high",
+   "note": "Calendar-year season; first round 11 Jan, final 23 May 2026. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "01-11",
+   "end_md": "05-23"
+  },
+  "ARMENIACUP": {
+   "kind": "cup",
+   "label": "Armenian Cup (Hayastani Ankakhutyan Gavath)",
+   "country": "Armenia",
+   "field_size": 20,
+   "two_legged": [
+    "qf",
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Armenian_Cup",
+   "confidence": "medium",
+   "note": "Each QF and SF tie is listed with two match dates a month apart (QF 3–5 Mar + 1–2 Apr, SF 15–16 Apr + 29 Apr), i.e. two legs; the page does not label the legs explicitly. Final traditionally on 9 May, here 14 May 2026. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "09-16",
+   "end_md": "05-14"
+  },
+  "AUSTRIACUP": {
+   "kind": "cup",
+   "label": "ÖFB-Cup",
+   "country": "Austria",
+   "field_size": 64,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Austrian_Cup",
+   "confidence": "high",
+   "note": "Final 1 May 2026 at Wörthersee Stadion, Klagenfurt (neutral). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "07-25",
+   "end_md": "05-01"
+  },
+  "AZERBAIJANCUP": {
+   "kind": "cup",
+   "label": "Azərbaycan Kuboku",
+   "country": "Azerbaijan",
+   "field_size": 34,
+   "two_legged": [
+    "qf",
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Azerbaijan_Cup",
+   "confidence": "medium",
+   "note": "Quarter-finals and semi-finals are played over two legs (match boxes carry 'First leg' and an aggregate score); all earlier rounds single. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "10-09",
+   "end_md": "05-13"
+  },
+  "BELARUSCUP": {
+   "kind": "cup",
+   "label": "Kubak Belarusi",
+   "country": "Belarus",
+   "field_size": 16,
+   "two_legged": [
+    "qf",
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Belarusian_Cup",
+   "confidence": "medium",
+   "note": "The infobox gives 3 May 2025 as the start, the prose 3 April 2025 (first-round draw 23 April) - start month uncertain by one month. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "04-03",
+   "end_md": "05-16"
+  },
+  "BELGIUMCUP": {
+   "kind": "cup",
+   "label": "Croky Cup (Beker van België)",
+   "country": "Belgium",
+   "field_size": 301,
+   "two_legged": [
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Belgian_Cup",
+   "confidence": "medium",
+   "note": "Season page says only 'qualify for the 2026-27 UEFA Europa League'; the round (play-off) comes from the 2026-27 access list. Final at King Baudouin Stadium, Brussels. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "07-19",
+   "end_md": "05-14"
+  },
+  "BULGARIACUP": {
+   "kind": "cup",
+   "label": "Kupa na Bũlgariya",
+   "country": "Bulgaria",
+   "field_size": 47,
+   "two_legged": [
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Bulgarian_Cup",
+   "confidence": "high",
+   "note": "Semi-finals over first and second legs; everything else one-legged. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "10-11",
+   "end_md": "05-20"
+  },
+  "CROATIACUP": {
+   "kind": "cup",
+   "label": "Hrvatski nogometni kup (SuperSport HNK)",
+   "country": "Croatia",
+   "field_size": 48,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Croatian_Football_Cup",
+   "confidence": "medium",
+   "note": "All 2025-26 rounds are single matches: the calendar lists one date per round and 4 QF / 2 SF fixtures. Historically the QF and SF were two-legged - do not carry that assumption over. Final 13 May 2026 at Opus Arena, Osijek (host chosen in advance). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-27",
+   "end_md": "05-13"
+  },
+  "CYPRUSCUP": {
+   "kind": "cup",
+   "label": "Kypriako Kypello (Cypriot Cup)",
+   "country": "Cyprus",
+   "field_size": 28,
+   "two_legged": [
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Cypriot_Cup",
+   "confidence": "medium",
+   "note": "Season page says the winner enters 'the first qualifying round of the 2026-27 UEFA Europa League'; the 2026-27 access list puts Cyprus (rank 19) in the second qualifying round - both are cited, the access list is used here. Final at GSP Stadium, Nicosia (29 May 2026). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "10-01",
+   "end_md": "05-29"
+  },
+  "CZECHREPUBLICCUP": {
+   "kind": "cup",
+   "label": "MOL Cup (Pohár FAČR)",
+   "country": "Czech Republic",
+   "field_size": 135,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Czech_Cup",
+   "confidence": "medium",
+   "note": "Season page names the competition but not the round; play-off round comes from the 2026-27 access list (Czech Republic rank 9). Cup winner Karviná was later disqualified for match-fixing, so the berth cascaded. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "07-20",
+   "end_md": "05-20"
+  },
+  "DENMARKCUP": {
+   "kind": "cup",
+   "label": "Oddset Pokalen (DBU Pokalen)",
+   "country": "Denmark",
+   "field_size": 104,
+   "two_legged": [
+    "qf",
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Danish_Cup",
+   "confidence": "high",
+   "note": "Both QF and SF are two-legged; final 14 May 2026 at Parken Stadium, Copenhagen. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-05",
+   "end_md": "05-14"
+  },
+  "ESTONIACUP": {
+   "kind": "cup",
+   "label": "Eesti Karikas (Estonian Cup)",
+   "country": "Estonia",
+   "field_size": 71,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Estonian_Cup",
+   "confidence": "medium",
+   "note": "Season page names no European round for the winner; Conference League Q1 comes from the 2026-27 access list (Estonia rank 45). Final 23 May 2026. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "06-10",
+   "end_md": "05-23"
+  },
+  "FAROEISLANDSCUP": {
+   "kind": "cup",
+   "label": "Løgmanssteypið",
+   "country": "Faroe Islands",
+   "field_size": 15,
+   "two_legged": [
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Faroe_Islands_Cup",
+   "confidence": "medium",
+   "note": "Only the semis are two-legged; the final is played on 31 October 2025 at Tórsvøllur (long gap after the June semis). Berth round from the 2026-27 access list (rank 40). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "04-07",
+   "end_md": "10-31"
+  },
+  "FINLANDCUP": {
+   "kind": "cup",
+   "label": "Suomen Cup (Finnish Cup)",
+   "country": "Finland",
+   "field_size": 420,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Finnish_Cup",
+   "confidence": "medium",
+   "note": "400+ entrants, 10 rounds in a calendar-year season. Season page names no European round; Conference League Q2 from the 2026-27 access list (rank 38). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "02-07",
+   "end_md": "09-20"
+  },
+  "GEORGIACUP": {
+   "kind": "cup",
+   "label": "Sakartvelos Tasi (Davit Kipiani Cup)",
+   "country": "Georgia",
+   "field_size": 32,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Georgian_Cup",
+   "confidence": "medium",
+   "note": "Calendar-year season: 4 May - 10 December 2025. Access list puts Georgia (rank 50) in Conference League Q1. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "05-04",
+   "end_md": "12-10"
+  },
+  "GIBRALTARCUP": {
+   "kind": "cup",
+   "label": "Rock Cup",
+   "country": "Gibraltar",
+   "field_size": 12,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Peninsula_Rock_Cup",
+   "confidence": "medium",
+   "note": "Very short window (31 Jan - 14 Mar 2026), played at Europa Point Stadium. Berth round from the 2026-27 access list (Gibraltar rank 54). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "01-31",
+   "end_md": "03-14"
+  },
+  "GREECECUP": {
+   "kind": "cup",
+   "label": "Kypello Elladas (Betsson Greek Cup)",
+   "country": "Greece",
+   "field_size": 31,
+   "two_legged": [
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Greek_Football_Cup",
+   "confidence": "medium",
+   "note": "New-format season: single qualifying round, then a 5-matchday league phase (top 4 to the QF, 5th-12th to one-legged play-offs), then QF one leg, SF two legs. Season page says only 'Europa League'; play-off round from the 2026-27 access list (Greece rank 12). Final 25 April 2026 at Panthessaliko Stadium, Volos. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-18",
+   "end_md": "04-25"
+  },
+  "HUNGARYCUP": {
+   "kind": "cup",
+   "label": "MOL Magyar Kupa",
+   "country": "Hungary",
+   "field_size": 144,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Magyar_Kupa",
+   "confidence": "high",
+   "note": "8 rounds, 2 August 2025 - 9 May 2026, final at Puskás Aréna. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-02",
+   "end_md": "05-09"
+  },
+  "ICELANDCUP": {
+   "kind": "cup",
+   "label": "Bikarkeppni karla (Icelandic Cup)",
+   "country": "Iceland",
+   "field_size": 74,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Icelandic_Men%27s_Football_Cup",
+   "confidence": "medium",
+   "note": "Calendar-year, 28 Mar - 22 Aug 2025, final at Laugardalsvöllur. Season page names no European round; Europa League Q1 from the 2026-27 access list (Iceland rank 33). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "03-28",
+   "end_md": "08-22"
+  },
+  "ISRAELCUP": {
+   "kind": "cup",
+   "label": "Gvia HaMedina (Israel State Cup)",
+   "country": "Israel",
+   "field_size": 186,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Israel_State_Cup",
+   "confidence": "medium",
+   "note": "Season page states no European round; Europa League Q2 from the 2026-27 access list (Israel rank 18). Final 26 May 2026 at Teddy Stadium, Jerusalem. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-29",
+   "end_md": "05-26"
+  },
+  "KAZAKHSTANCUP": {
+   "kind": "cup",
+   "label": "Kazakhstan Cup",
+   "country": "Kazakhstan",
+   "field_size": 30,
+   "two_legged": [
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Kazakhstan_Cup",
+   "confidence": "medium",
+   "note": "Calendar-year: prelim 15 Mar, R16 12-13 Apr, QF 14 May, SF two legs (25 Jun / 30 Aug), final 4 Oct 2025. Berth round from the 2026-27 access list (rank 39). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "03-15",
+   "end_md": "10-04"
+  },
+  "KOSOVOCUP": {
+   "kind": "cup",
+   "label": "Kupa e Kosovës",
+   "country": "Kosovo",
+   "field_size": 32,
+   "two_legged": [
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Kosovar_Cup",
+   "confidence": "high",
+   "note": "Round of 32 3-5 Dec 2025, R16 Feb, QF Mar, SF two-legged (8/22 Apr), final 21 May 2026. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "12-03",
+   "end_md": "05-21"
+  },
+  "LATVIACUP": {
+   "kind": "cup",
+   "label": "Latvijas Kauss",
+   "country": "Latvia",
+   "field_size": 49,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Latvian_Football_Cup",
+   "confidence": "medium",
+   "note": "Calendar-year, every round single-legged, final 29 October 2025 at Skonto Stadium, Riga. Season page says only 'Conference League'; Q2 from the 2026-27 access list (Latvia rank 36). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "05-02",
+   "end_md": "10-29"
+  },
+  "LITHUANIACUP": {
+   "kind": "cup",
+   "label": "Lithuanian Football Cup (LFF Taurė)",
+   "country": "Lithuania",
+   "field_size": 50,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025_Lithuanian_Football_Cup",
+   "confidence": "high",
+   "note": "Calendar-year season (Apr-Sep). Final is a single match at a neutral ground (2025: Central Stadium of Jonava). Winner also enters the Lithuanian Supercup. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "04-11",
+   "end_md": "09-28"
+  },
+  "LUXEMBOURGCUP": {
+   "kind": "cup",
+   "label": "Luxembourg Cup (Coupe de Luxembourg)",
+   "country": "Luxembourg",
+   "field_size": 100,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Luxembourg_Cup",
+   "confidence": "high",
+   "note": "Single final at the Stade de Luxembourg (neutral). Rounds: preliminary, 1st, 2nd, round of 32, round of 16, quarter-finals, semi-finals, final. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "09-03",
+   "end_md": "05-29"
+  },
+  "MALTACUP": {
+   "kind": "cup",
+   "label": "Maltese FA Trophy",
+   "country": "Malta",
+   "field_size": 13,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Maltese_FA_Trophy",
+   "confidence": "high",
+   "note": "Infobox gives 6 December 2025 – 24 May 2026; the 2026 final match box is dated 23 May 2026. Single final at the National Stadium, Ta' Qali. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "12-06",
+   "end_md": "05-23"
+  },
+  "MOLDOVACUP": {
+   "kind": "cup",
+   "label": "Moldovan Cup (Cupa Moldovei)",
+   "country": "Moldova",
+   "field_size": 37,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Moldovan_Cup",
+   "confidence": "high",
+   "note": "Single final at the Zimbru Stadium, Chișinău. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "09-03",
+   "end_md": "05-23"
+  },
+  "MONTENEGROCUP": {
+   "kind": "cup",
+   "label": "Montenegrin Cup",
+   "country": "Montenegro",
+   "field_size": 16,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Montenegrin_Cup",
+   "confidence": "high",
+   "note": "16 clubs, the round of 16 drawn in mid-October is the first round. (The infobox match count of 17 does not match a plain 16-team bracket.) Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "10-22",
+   "end_md": "05-28"
+  },
+  "NORTHMACEDONIACUP": {
+   "kind": "cup",
+   "label": "Macedonian Football Cup",
+   "country": "North Macedonia",
+   "field_size": 29,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Macedonian_Football_Cup",
+   "confidence": "medium",
+   "note": "Dates from the infobox (26 August 2025 – 20 May 2026). The cup article states no European round; it follows the UEFA access list (low-ranked association, Conference League qualifying). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-26",
+   "end_md": "05-20"
+  },
+  "NORTHERNIRELANDCUP": {
+   "kind": "cup",
+   "label": "Irish Cup",
+   "country": "Northern Ireland",
+   "field_size": 3,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Irish_Cup",
+   "confidence": "high",
+   "note": "Replays abolished from the whole competition in 2014; level ties go to extra time and penalties. Both semi-finals and the final are usually at Windsor Park. Berth passes to the 3rd-placed league club if the winner is already qualified or unlicensed. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-09",
+   "end_md": "05-02"
+  },
+  "NORWAYCUP": {
+   "kind": "cup",
+   "label": "Norwegian Football Cup (NM Cupen)",
+   "country": "Norway",
+   "field_size": 80,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Norwegian_Football_Cup",
+   "confidence": "high",
+   "note": "2025-26 was the first season of the new autumn-spring format (previously a calendar-year cup ending in Nov/Dec). Transitional entry: Eliteserien clubs joined at the third round, and the winner was due to play a Europa League play-off against the 2025 cup winner (cancelled as Bodø/Glimt won both). Final at Ullevaal Stadion. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-13",
+   "end_md": "05-09"
+  },
+  "POLANDCUP": {
+   "kind": "cup",
+   "label": "Polish Cup (Puchar Polski)",
+   "country": "Poland",
+   "field_size": 70,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Polish_Cup",
+   "confidence": "high",
+   "note": "Every tie is a single game at the lower-league club's ground; the final is a single match at the Stadion Narodowy since 2007 (two-legged finals were 2002-2006 only). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-05",
+   "end_md": "05-02"
+  },
+  "IRELANDCUP": {
+   "kind": "cup",
+   "label": "FAI Cup",
+   "country": "Ireland",
+   "field_size": 44,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2026_FAI_Cup",
+   "confidence": "high",
+   "note": "Calendar-year season; first round in May, single final in November (Aviva Stadium). Rounds decided on the day by extra time and penalties. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "05-10",
+   "end_md": "11-08"
+  },
+  "ROMANIACUP": {
+   "kind": "cup",
+   "label": "Cupa României",
+   "country": "Romania",
+   "field_size": 171,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Cupa_Rom%C3%A2niei",
+   "confidence": "high",
+   "note": "Group stage = four groups (A-D) with the top two reaching the quarter-finals; in 2025-26 the quarter-finals and semi-finals were single legs, but the FRF may choose two legs for round of 16/quarter/semi in other years. Single final at a pre-established venue (normally Bucharest). Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "07-30",
+   "end_md": "05-13"
+  },
+  "RUSSIACUP": {
+   "kind": "cup",
+   "label": "Russian Cup",
+   "country": "Russia",
+   "field_size": 104,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Russian_Cup",
+   "confidence": "high",
+   "note": "The final is a single match marketed as the 'Superfinal' (2026: Luzhniki, 24 May). Earlier editions (2010-11) used a two-legged final; not current. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "07-29",
+   "end_md": "05-24"
+  },
+  "SANMARINOCUP": {
+   "kind": "cup",
+   "label": "Coppa Titano",
+   "country": "San Marino",
+   "field_size": 15,
+   "two_legged": [
+    "qf",
+    "semi"
+   ],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Coppa_Titano",
+   "confidence": "high",
+   "note": "Only the final is a single match (23 May 2026, San Marino Stadium, Serravalle); the three earlier rounds are two-legged. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "09-23",
+   "end_md": "05-23"
+  },
+  "SCOTLANDCUP": {
+   "kind": "cup",
+   "label": "Scottish Cup",
+   "country": "Scotland",
+   "field_size": 132,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Scottish_Cup",
+   "confidence": "medium",
+   "note": "Dates from the season infobox and SFA calendar (preliminary round one 9 Aug 2025, final 23 May 2026 at Hampden Park). All ties decided on the day (extra time/penalties); no replays. The Scottish League Cup is the second cup and is covered in league-cups.json. The cup article does not state the European round — play-off round follows from Scotland's association ranking in the UEFA access list. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-09",
+   "end_md": "05-23"
+  },
+  "SERBIACUP": {
+   "kind": "cup",
+   "label": "Serbian Cup (Kup Srbije)",
+   "country": "Serbia",
+   "field_size": 36,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Serbian_Cup",
+   "confidence": "medium",
+   "note": "Single final at a neutral ground (2026: Lagator Stadium, Loznica). Berth wording is the cup article's own ('a spot in the UEFA Europa League qualifying round'); the exact round follows the UEFA access list. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "09-10",
+   "end_md": "05-13"
+  },
+  "SLOVAKIACUP": {
+   "kind": "cup",
+   "label": "Slovak Cup (Slovnaft Cup)",
+   "country": "Slovakia",
+   "field_size": 292,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Slovak_Cup",
+   "confidence": "high",
+   "note": "Dates from the infobox (18 July 2025 – 1 May 2026). Single final. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "07-18",
+   "end_md": "05-01"
+  },
+  "SLOVENIACUP": {
+   "kind": "cup",
+   "label": "Slovenian Football Cup (Pokal Slovenije)",
+   "country": "Slovenia",
+   "field_size": 32,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Slovenian_Football_Cup",
+   "confidence": "medium",
+   "note": "No dates in the infobox. Earliest regional preliminary match listed is 9 August 2025; the national round of 32 was 21-30 October 2025; final 13 May 2026. Berth wording is competition-level only — the cup article states no round. Group phases, replays and early amateur rounds are not modelled.",
+   "end_md": "05-13"
+  },
+  "SWEDENCUP": {
+   "kind": "cup",
+   "label": "Svenska Cupen",
+   "country": "Sweden",
+   "field_size": 96,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Svenska_Cupen",
+   "confidence": "high",
+   "note": "Window spans 12 months: 7 May 2025 (first knockout rounds) to 14 May 2026 (final); group stage Feb-Mar 2026, quarter-finals/semi-finals/final in spring. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "05-07",
+   "end_md": "05-14"
+  },
+  "SWITZERLANDCUP": {
+   "kind": "cup",
+   "label": "Swiss Cup (Schweizer Cup)",
+   "country": "Switzerland",
+   "field_size": 64,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Swiss_Cup",
+   "confidence": "medium",
+   "note": "Single final at the Wankdorf, Bern. The cup article states no European round; competition-level berth only. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-15",
+   "end_md": "05-24"
+  },
+  "UKRAINECUP": {
+   "kind": "cup",
+   "label": "Ukrainian Cup",
+   "country": "Ukraine",
+   "field_size": 68,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Ukrainian_Cup",
+   "confidence": "high",
+   "note": "Infobox gives 8 August 2025 (qualification round 8-10 August). Single final in Lviv (neutral); wartime venue restrictions apply to eastern clubs. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-08",
+   "end_md": "05-20"
+  },
+  "WALESCUP": {
+   "kind": "cup",
+   "label": "Welsh Cup (JD Welsh Cup)",
+   "country": "Wales",
+   "field_size": 100,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Welsh_Cup",
+   "confidence": "high",
+   "note": "First qualifying round ties on 25-27 July 2025; final 12 April 2026 at Rodney Parade, Newport (neutral). Round structure: 1st/2nd qualifying, 1st/2nd/3rd/4th round, quarter-finals, semi-finals, final. Welsh clubs playing in the English pyramid are excluded. The Welsh League Cup is the second cup and is covered in league-cups.json. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "07-25",
+   "end_md": "04-12"
+  },
+  "REPUBLICOFIRELANDCUP": {
+   "kind": "cup",
+   "label": "FAI Cup",
+   "country": "Republic of Ireland",
+   "field_size": 44,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2026_FAI_Cup",
+   "confidence": "high",
+   "note": "Calendar-year season; first round in May, single final in November (Aviva Stadium). Rounds decided on the day by extra time and penalties. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "05-10",
+   "end_md": "11-08"
+  },
+  "BOSNIAANDHERZEGOVINACUP": {
+   "kind": "cup",
+   "label": "Bosnia and Herzegovina Football Cup",
+   "country": "Bosnia and Herzegovina",
+   "field_size": 32,
+   "two_legged": [
+    "qf",
+    "semi"
+   ],
+   "final_legs": 2,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Bosnia_and_Herzegovina_Football_Cup",
+   "confidence": "high",
+   "note": "32 clubs; quarter-finals, semi-finals and final are two-legged. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "10-28",
+   "end_md": "05-13"
+  },
+  "LIECHTENSTEINCUP": {
+   "kind": "cup",
+   "label": "Liechtenstein Cup",
+   "country": "Liechtenstein",
+   "field_size": 7,
+   "two_legged": [],
+   "final_legs": 1,
+   "champion": "winner",
+   "tiebreak": {
+    "method": "extra_time_pens",
+    "away_goals": false
+   },
+   "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Liechtenstein_Cup",
+   "confidence": "high",
+   "note": "Seven senior clubs (reserve teams excluded); single-leg knockout. Group phases, replays and early amateur rounds are not modelled.",
+   "start_md": "08-12",
+   "end_md": "05-05"
   }
  }
 }

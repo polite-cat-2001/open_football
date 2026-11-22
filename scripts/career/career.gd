@@ -480,23 +480,13 @@ static func from_save(raw: Dictionary) -> Career:
 			var block = payload["berths"][season]
 			if not (block is Dictionary):
 				continue
-			var copy: Dictionary = (block as Dictionary).duplicate(true)
-			copy["association"] = str(copy.get("association", ""))
-			copy["rank"] = _as_int(copy.get("rank"), 0)
-			copy["eps"] = bool(copy.get("eps", false))
-			var entries: Array = []
-			for entry in copy.get("berths", []):
-				if not (entry is Dictionary):
-					continue
-				entries.append({
-					"competition": str(entry.get("competition", "")),
-					"entry": str(entry.get("entry", "")),
-					"path": str(entry.get("path", "")),
-					"club_id": str(entry.get("club_id", "")),
-					"source": str(entry.get("source", "")),
-				})
-			copy["berths"] = entries
-			berths[str(season)] = copy
+			var by_country := {}
+			if block.has("association"):
+				by_country[str(block.get("association", ""))] = _berth_block(block)
+			else:
+				for name in block:
+					by_country[str(name)] = _berth_block(block[name])
+			berths[str(season)] = by_country
 		payload["berths"] = berths
 
 	if payload.has("results") and payload["results"] is Dictionary:
@@ -634,6 +624,28 @@ static func _negotiation_map(value) -> Dictionary:
 			_int_fields(copy, ["counter_offers", "rounds"])
 			out[str(player_id)] = copy
 	return out
+
+
+static func _berth_block(value) -> Dictionary:
+	if not (value is Dictionary):
+		return {}
+	var copy: Dictionary = (value as Dictionary).duplicate(true)
+	copy["association"] = str(copy.get("association", ""))
+	copy["rank"] = _as_int(copy.get("rank"), 0)
+	copy["eps"] = bool(copy.get("eps", false))
+	var entries: Array = []
+	for entry in copy.get("berths", []):
+		if not (entry is Dictionary):
+			continue
+		entries.append({
+			"competition": str(entry.get("competition", "")),
+			"entry": str(entry.get("entry", "")),
+			"path": str(entry.get("path", "")),
+			"club_id": str(entry.get("club_id", "")),
+			"source": str(entry.get("source", "")),
+		})
+	copy["berths"] = entries
+	return copy
 
 
 static func _delta_map(value) -> Dictionary:

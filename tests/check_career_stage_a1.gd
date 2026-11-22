@@ -57,6 +57,17 @@ func _run() -> void:
 		if not (career.data.get("results") is Dictionary):
 			career.data["results"] = {}
 		career.data["results"][str(fixture.get("id", ""))] = _result(fixture)
+	for guard in range(8):
+		CareerCompetitions.ensure(career)
+		var pending_cup := []
+		for fixture in career.schedule:
+			if str(fixture.get("competition", career.league_id)) != career.league_id \
+					and not career.results.has(str(fixture.get("id", ""))):
+				pending_cup.append(fixture)
+		if pending_cup.is_empty():
+			break
+		for fixture in pending_cup:
+			career.data["results"][str(fixture.get("id", ""))] = _result(fixture)
 	var before: int = career.schedule.size()
 	CareerFactory.ensure_stages(career)
 	_check(career.schedule.size() == before + 60,

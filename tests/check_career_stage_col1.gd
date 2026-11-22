@@ -121,8 +121,12 @@ func _run() -> void:
 			"two promoted clubs replace them")
 		_check(CareerSeason.next_season(career, catalog, transition),
 			"the next Colombian season starts: " + CareerSeason.last_error)
-		_check(career.schedule.size() == 342,
-			"the next season rebuilds both regular phases: %d" % career.schedule.size())
+		var league_next := 0
+		for fixture in career.schedule:
+			if str(fixture.get("stage", "")) in ["apertura_regular", "finalizacion_regular"]:
+				league_next += 1
+		_check(league_next == 342,
+			"the next season rebuilds both regular phases: %d" % league_next)
 
 	_finish()
 
