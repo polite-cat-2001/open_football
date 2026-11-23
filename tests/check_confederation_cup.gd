@@ -141,7 +141,60 @@ func _run() -> void:
 		and not str(other_state.get("champion", "")).is_empty(),
 		"an unplayed cup resolves in one pass")
 	_check(_all_results(other_state, outside), "every simulated tie has a result")
+
+	# Libertadores: eight groups of four, then the round of 16 and up.
+	var group_entries: Dictionary = {}
+	for index in range(32):
+		group_entries[field[index]] = "group_stage"
+	var group_focus: String = field[3]
+	var group_career := _career(group_focus)
+	var group_block := CareerConfederation.build(catalog, "CONMEBOL",
+		{"libertadores": group_entries}, "2026-12-20", group_focus)
+	_check(not group_block.is_empty(), "the Libertadores builds")
+	group_career.data["continental"] = {"2026-12-20": {
+		"confederations": {"CONMEBOL": group_block}}}
+	CareerConfederation.ensure(group_career, catalog)
+	var group_state: Dictionary = group_block["competitions"]["libertadores"]
+	var group_index := 3
+	var group_fixtures: Array = group_state["fixtures"][str(group_index)]
+	_check(group_fixtures.size() == 96, "eight groups of four play 96 matches")
+	var focus_group_matches := 0
+	for fixture in group_fixtures:
+		if str(fixture.get("home", "")) == group_focus \
+				or str(fixture.get("away", "")) == group_focus:
+			focus_group_matches += 1
+	_check(focus_group_matches == 6, "the career club plays six group matches")
+	_check(group_fixtures.size() - focus_group_matches
+		== _simulated(group_career, group_fixtures),
+		"the other group matches are simulated")
+	_check(int(group_state.get("round_index", -1)) == group_index,
+		"the group table waits for the career club")
+
+	var group_guard := 0
+	while not bool(group_state.get("done", false)) and group_guard < 16:
+		group_guard += 1
+		for fixture in group_career.schedule:
+			if group_career.results.has(str(fixture.get("id", ""))):
+				continue
+			var home := str(fixture.get("home", ""))
+			group_career.data["results"][str(fixture.get("id", ""))] = \
+				{"home": 3, "away": 0} if home == group_focus \
+				else {"home": 0, "away": 3}
+		CareerConfederation.ensure(group_career, catalog)
+	_check(bool(group_state.get("done", false)), "the Libertadores reaches its final")
+	_check(str(group_state.get("champion", "")) == group_focus,
+		"the group winner goes on to win the cup")
+	_check((group_state["entrants"]["7"] as Array).size() == 2,
+		"the final is played by the two semi-final winners")
 	_finish()
+
+
+func _simulated(career: Career, fixtures: Array) -> int:
+	var count := 0
+	for fixture in fixtures:
+		if career.results.has(str(fixture.get("id", ""))):
+			count += 1
+	return count
 
 
 func _play_next(career: Career, home: int, away: int) -> void:

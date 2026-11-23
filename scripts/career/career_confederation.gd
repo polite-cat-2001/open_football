@@ -20,6 +20,20 @@ const FORMATS := {
 			{"name": "final", "legs": 1, "window": ["05-30", "05-30"]},
 		],
 	},
+	"CONMEBOL:libertadores": {
+		"label": "Copa Libertadores",
+		"rounds": [
+			{"name": "first_stage", "legs": 1, "window": ["02-03", "02-12"]},
+			{"name": "second_stage", "legs": 2, "window": ["02-17", "02-26"]},
+			{"name": "third_stage", "legs": 2, "window": ["03-03", "03-12"]},
+			{"name": "group_stage", "legs": 0, "window": ["04-07", "05-28"],
+				"groups": {"count": 8, "size": 4, "rounds": 6, "advance": 2}},
+			{"name": "round_of_16", "legs": 2, "window": ["08-11", "08-19"]},
+			{"name": "quarter_final", "legs": 2, "window": ["09-15", "09-23"]},
+			{"name": "semi_final", "legs": 2, "window": ["10-20", "10-28"]},
+			{"name": "final", "legs": 1, "window": ["11-28", "11-28"]},
+		],
+	},
 }
 
 const FIRST_SEASON_PATH := "res://assets/data/continental_2026.json"
@@ -199,51 +213,182 @@ static func _advance(career: Career, conf_block: Dictionary,
 		var index := int(state["round_index"])
 		var round: Dictionary = rounds[index]
 		var name := str(round.get("name", "r%d" % (index + 1)))
+		var is_group := round.has("groups")
 		var fixtures: Array = state.get("fixtures", {}).get(str(index), [])
 		if fixtures.is_empty():
 			var entrants: Array = _entrants(state, index, name)
 			if entrants.size() < 2:
-				state["done"] = true
-				return
-			var legs := maxi(1, int(round.get("legs", 1)))
-			var size := CareerBrackets.round_size(entrants.size())
-			var stage := {"rounds": [{"name": name, "legs": legs}]}
-			var created := CareerBrackets.round_fixtures(stage, 0, entrants,
-				_round_dates(career, round, legs), prefix, size)
+				# A round without its direct entrants is skipped; a lone club
+				# carries over to the next one.
+				if entrants.size() == 1:
+					state["carry"] = entrants
+				state["round_index"] = index + 1
+				continue
 			state["entrants"][str(index)] = entrants
-			state["sizes"][str(index)] = size
-			state["fixtures"][str(index)] = created
-			var results: Dictionary = career.results
-			for fixture in created:
-				fixture["competition"] = competition
-				fixture["stage"] = competition
-				fixture["stage_round"] = index + 1
-				fixture["confederation"] = confederation.to_upper()
-				if _has_focus(career, fixture):
-					career.schedule.append(fixture)
-				else:
-					results[str(fixture["id"])] = CareerSeason.simulate(career.seed,
-						fixture, state.get("ratings", {}))
-			career.data["results"] = results
-			CareerEurope._sort_schedule(career)
-			fixtures = created
+			if is_group:
+				entrants = _snake(entrants, state.get("ratings", {}),
+					int(round["groups"].get("count", 1)))
+				fixtures = _group_fixtures(career, round, entrants, prefix)
+			else:
+				var legs := maxi(1, int(round.get("legs", 1)))
+				var size := CareerBrackets.round_size(entrants.size())
+				state["sizes"][str(index)] = size
+				fixtures = CareerBrackets.round_fixtures(
+					{"rounds": [{"name": name, "legs": legs}]}, 0, entrants,
+					_round_dates(career, round, legs), prefix, size)
+			state["fixtures"][str(index)] = fixtures
+			_register(career, confederation, competition, index, fixtures,
+				state.get("ratings", {}))
 		if not _all_played(career, fixtures):
 			return
 		var entrants_now: Array = state.get("entrants", {}).get(str(index), [])
-		var size_now := int(state.get("sizes", {}).get(str(index),
-			CareerBrackets.round_size(entrants_now.size())))
-		career.data["results"] = CareerBrackets.settle_ties(entrants_now, fixtures,
-			career.results, career.seed, {}, size_now)
-		var winners := CareerBrackets.round_winners(entrants_now, fixtures,
-			career.results, size_now)
-		state["winners"] = winners
+		var next_entrants: Array = []
+		if is_group:
+			next_entrants = _group_advancers(career, round, entrants_now,
+				state["fixtures"][str(index)])
+		else:
+			var size_now := int(state.get("sizes", {}).get(str(index),
+				CareerBrackets.round_size(entrants_now.size())))
+			career.data["results"] = CareerBrackets.settle_ties(entrants_now,
+				fixtures, career.results, career.seed, {}, size_now)
+			next_entrants = CareerBrackets.round_winners(entrants_now, fixtures,
+				career.results, size_now)
+		state["winners"] = next_entrants
 		if index == rounds.size() - 1:
 			state["done"] = true
-			state["champion"] = str(winners[0]) if not winners.is_empty() else ""
-			state["runner_up"] = _final_loser(entrants_now, fixtures, size_now,
-				state["champion"])
+			state["champion"] = str(next_entrants[0]) if not next_entrants.is_empty() else ""
+			state["runner_up"] = _final_loser(entrants_now, fixtures,
+				int(state.get("sizes", {}).get(str(index), 0)), state["champion"])
 			return
 		state["round_index"] = index + 1
+	if int(state.get("round_index", 0)) >= rounds.size():
+		state["done"] = true
+
+
+static func _register(career: Career, confederation: String, competition: String,
+		index: int, fixtures: Array, ratings: Dictionary) -> void:
+	var results: Dictionary = career.results
+	for fixture in fixtures:
+		fixture["competition"] = competition
+		fixture["stage"] = competition
+		fixture["stage_round"] = index + 1
+		fixture["confederation"] = confederation.to_upper()
+		if _has_focus(career, fixture):
+			career.schedule.append(fixture)
+		else:
+			results[str(fixture["id"])] = CareerSeason.simulate(career.seed,
+				fixture, ratings)
+	career.data["results"] = results
+	CareerEurope._sort_schedule(career)
+
+
+static func _snake(entrants: Array, ratings: Dictionary, count: int) -> Array:
+	# Pot draw: the strongest clubs spread over the groups, the next band again
+	# from group zero. The groups see a balanced field instead of one strong group.
+	if count < 2:
+		return entrants
+	var ordered: Array = entrants.duplicate()
+	ordered.sort_custom(func(a: String, b: String) -> bool:
+		if not is_equal_approx(float(ratings.get(a, 55.0)),
+				float(ratings.get(b, 55.0))):
+			return float(ratings.get(a, 55.0)) > float(ratings.get(b, 55.0))
+		return a < b)
+	var groups: Array = []
+	for group in range(count):
+		groups.append([])
+	for index in range(ordered.size()):
+		(groups[index % count] as Array).append(ordered[index])
+	var draw: Array = []
+	for group in range(count):
+		draw.append_array(groups[group])
+	return draw
+
+
+static func _group_fixtures(career: Career, round: Dictionary, entrants: Array,
+		prefix: String) -> Array:
+	var spec: Dictionary = round["groups"]
+	var size := maxi(2, int(spec.get("size", 4)))
+	var sizes := _group_layout(entrants.size(), size,
+		int(spec.get("count", 1)))
+	var window := _window(career, round)
+	var stage := {
+		"kind": "group", "id": prefix + str(round.get("name", "group_stage")),
+		"rounds": int(spec.get("rounds", size - 1)),
+		"groups": {"sizes": sizes},
+	}
+	var busy := {}
+	for fixture in career.schedule:
+		busy[str(fixture.get("date", ""))] = true
+	return CareerStages.build_stage(stage, entrants, str(window[0]),
+		str(window[1]), [], "world", busy)
+
+
+static func _group_layout(clubs: int, size: int, hint: int) -> Array:
+	# Even groups, never larger than `size`: a short field loses a club per
+	# extra group rather than a whole group.
+	var count := clampi(clubs / size, 1, maxi(1, hint))
+	if count * size < clubs:
+		count = mini(maxi(1, hint), int(ceil(float(clubs) / float(size))))
+	var sizes: Array = []
+	var remaining := clubs
+	for group in range(count):
+		var take := mini(size, remaining - (count - group - 1))
+		sizes.append(maxi(2, take))
+		remaining -= take
+	return sizes
+
+
+static func _group_advancers(career: Career, round: Dictionary, entrants: Array,
+		fixtures: Array) -> Array:
+	var spec: Dictionary = round["groups"]
+	var size := maxi(2, int(spec.get("size", 4)))
+	var advance := maxi(1, int(spec.get("advance", 2)))
+	var sizes := _group_layout(entrants.size(), size,
+		int(spec.get("count", 1)))
+	var winners: Array = []
+	var runners: Array = []
+	var start := 0
+	for group in range(sizes.size()):
+		var count := int(sizes[group])
+		var ids: Array = []
+		var group_fixtures: Array = []
+		for index in range(start, mini(entrants.size(), start + count)):
+			ids.append(str(entrants[index]))
+		for fixture in fixtures:
+			if int(fixture.get("group", -1)) == group:
+				group_fixtures.append(fixture)
+		start += count
+		var rows := CareerStages.table(group_fixtures, career.results, ids)
+		if rows.is_empty():
+			continue
+		winners.append(str(rows[0].get("id", "")))
+		if advance >= 2 and rows.size() > 1:
+			runners.append(str(rows[1].get("id", "")))
+	if winners.is_empty():
+		return []
+	if runners.size() != winners.size() or advance < 2:
+		return winners
+	# The bracket pairs first with last: winner i meets runner-up i+1.
+	var draw: Array = []
+	draw.resize(winners.size() * 2)
+	for index in range(winners.size()):
+		draw[index] = winners[index]
+		draw[draw.size() - 1 - index] = runners[(index + 1) % runners.size()]
+	return draw
+
+
+static func _window(career: Career, round: Dictionary) -> Array:
+	var window = round.get("window", [])
+	if not (window is Array) or (window as Array).size() < 2:
+		return [str(career.season_start), str(career.season_start)]
+	var year := int(str(career.season_start).substr(0, 4))
+	var start := "%04d-%s" % [year, str(window[0])]
+	if start < career.season_start:
+		start = "%04d-%s" % [year + 1, str(window[0])]
+	var end_year := int(start.substr(0, 4))
+	if str(window[1]) < str(window[0]):
+		end_year += 1
+	return [start, "%04d-%s" % [end_year, str(window[1])]]
 
 
 static func _entrants(state: Dictionary, index: int, name: String) -> Array:
@@ -251,6 +396,10 @@ static func _entrants(state: Dictionary, index: int, name: String) -> Array:
 	var entrants: Array = []
 	if index > 0:
 		entrants = (state.get("winners", []) as Array).duplicate()
+	var carry = state.get("carry", [])
+	if carry is Array and not (carry as Array).is_empty():
+		entrants.append_array(carry)
+		state.erase("carry")
 	for club_id in entries:
 		if str(entries[club_id]) == name:
 			entrants.append(str(club_id))
