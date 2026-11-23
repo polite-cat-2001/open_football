@@ -23,7 +23,8 @@ const FORMATS := {
 	"AFC:acl_elite": {
 		"label": "AFC Champions League Elite",
 		"rounds": [
-			{"name": "playoff", "legs": 1, "window": ["08-11", "08-12"]},
+			{"name": "playoff", "legs": 1, "window": ["08-11", "08-12"],
+				"drop": {"to": "acl_two", "entry": "group_stage", "count": 4}},
 			{"name": "league_stage", "legs": 0, "window": ["09-14", "05-01"],
 				"groups": {"count": 2, "size": 16, "rounds": 8, "advance": 8},
 				"regions": true},
@@ -40,8 +41,10 @@ const FORMATS := {
 	"AFC:acl_two": {
 		"label": "AFC Champions League Two",
 		"rounds": [
-			{"name": "preliminary", "legs": 1, "window": ["08-12", "08-20"]},
+			{"name": "preliminary", "legs": 1, "window": ["08-12", "08-20"],
+				"drop": {"to": "afc_challenge_league", "entry": "group_stage", "count": 2}},
 			{"name": "group_stage", "legs": 0, "window": ["09-15", "05-15"],
+				"wait_for": {"competition": "acl_elite", "round": "playoff"},
 				"groups": {"count": 2, "size": 16, "rounds": 6, "advance": 4},
 				"regions": true},
 			{"name": "round_of_16", "legs": 2, "window": ["02-01", "02-12"],
@@ -59,6 +62,7 @@ const FORMATS := {
 		"rounds": [
 			{"name": "preliminary", "legs": 1, "window": ["08-12", "08-20"]},
 			{"name": "group_stage", "legs": 0, "window": ["10-01", "04-15"],
+				"wait_for": {"competition": "acl_two", "round": "preliminary"},
 				"groups": {"count": 2, "size": 14, "rounds": 6, "advance": 4},
 				"regions": true},
 			{"name": "quarter_final", "legs": 2, "window": ["02-15", "02-26"],
