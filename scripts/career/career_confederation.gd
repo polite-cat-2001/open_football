@@ -43,7 +43,7 @@ const FORMATS := {
 		"label": "AFC Champions League Two",
 		"rounds": [
 			{"name": "preliminary", "legs": 1, "window": ["08-12", "08-20"],
-				"drop": {"to": "afc_challenge_league", "entry": "group_stage", "count": 2}},
+				"drop": {"to": "afc_challenge_league", "entry": "group_stage", "count": 3}},
 			{"name": "group_stage", "legs": 0, "window": ["09-15", "05-15"],
 				"wait_for": {"competition": "acl_elite", "round": "playoff"},
 				"groups": {"count": 2, "size": 16, "rounds": 6, "advance": 4},
@@ -350,6 +350,9 @@ static func _advance(career: Career, conf_block: Dictionary,
 				fixtures = CareerBrackets.round_fixtures(
 					{"rounds": [{"name": name, "legs": legs}]}, 0, entrants,
 					_round_dates(career, round, legs), prefix, size)
+			if bool(round.get("neutral", false)):
+				for fixture in fixtures:
+					fixture["neutral"] = true
 			state["fixtures"][str(index)] = fixtures
 			_register(career, confederation, competition, index, fixtures,
 				state.get("ratings", {}))

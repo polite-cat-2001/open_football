@@ -408,32 +408,32 @@
    "afc_challenge_league": {
     "label": "AFC Challenge League",
     "entries": {
-     "2468": "west_group",
-     "7142": "west_group",
-     "50276": "east_group",
-     "26645": "east_group",
-     "26199": "east_pre",
-     "25654": "east_pre",
-     "40508": "east_pre",
-     "40090": "west_group",
-     "16439": "west_group",
-     "28022": "west_group",
-     "1316": "west_pre",
-     "66588": "west_pre",
-     "7481": "west_pre",
-     "48712": "west_pre",
-     "7790": "west_pre",
-     "18778": "west_pre",
-     "44455": "west_pre",
-     "3943": "west_pre",
-     "17": "west_pre",
-     "1195": "west_pre",
-     "601": "east_group",
-     "3030": "east_pre",
-     "2428": "east_pre",
-     "8445": "east_pre",
-     "85287": "east_pre",
-     "26184": "east_pre"
+     "2468": "group_stage",
+     "7142": "group_stage",
+     "50276": "group_stage",
+     "26645": "group_stage",
+     "26199": "preliminary",
+     "25654": "preliminary",
+     "40508": "preliminary",
+     "40090": "group_stage",
+     "16439": "group_stage",
+     "28022": "group_stage",
+     "1316": "preliminary",
+     "66588": "preliminary",
+     "7481": "preliminary",
+     "48712": "preliminary",
+     "7790": "preliminary",
+     "18778": "preliminary",
+     "44455": "preliminary",
+     "3943": "preliminary",
+     "17": "preliminary",
+     "1195": "preliminary",
+     "601": "group_stage",
+     "3030": "preliminary",
+     "2428": "preliminary",
+     "8445": "preliminary",
+     "85287": "preliminary",
+     "26184": "preliminary"
     },
     "regions": {
      "west": [
@@ -712,7 +712,7 @@
       "count": 2
      }
     ],
-    "slots_from_drop": 2
+    "slots_from_drop": 3
    }
   }
  }

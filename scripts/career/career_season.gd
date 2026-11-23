@@ -40,12 +40,14 @@ static func poisson(rng: RandomNumberGenerator, mean: float) -> int:
 	return goals
 
 
-static func simulate(seed: int, fixture: Dictionary, strengths: Dictionary) -> Dictionary:
+static func simulate(seed: int, fixture: Dictionary, strengths: Dictionary,
+		neutral := false) -> Dictionary:
 	var home_strength := float(strengths.get(str(fixture.get("home", "")), 55.0))
 	var away_strength := float(strengths.get(str(fixture.get("away", "")), 55.0))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = ("%d:%s" % [seed, str(fixture.get("id", ""))]).hash()
-	var home_goals := poisson(rng, expected_goals(home_strength, away_strength, true))
+	var home_goals := poisson(rng, expected_goals(home_strength, away_strength,
+		not neutral))
 	var away_goals := poisson(rng, expected_goals(away_strength, home_strength, false))
 	return {"home": home_goals, "away": away_goals}
 
