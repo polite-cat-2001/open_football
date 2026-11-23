@@ -28,6 +28,7 @@ var failures: Array[String] = []
 var golden: Dictionary = {}
 var catalog: TeamCatalog
 var header: Dictionary = {}
+var regen := OS.get_environment("REGEN") == "1"
 
 
 func _init() -> void:
@@ -77,6 +78,14 @@ func _same(left, right) -> bool:
 
 
 func _compare(label: String, actual, expected, skip: Array = []) -> void:
+	if regen:
+		if expected is Array and actual is Array:
+			(expected as Array).clear()
+			(expected as Array).append_array(actual)
+		elif expected is Dictionary and actual is Dictionary:
+			for key in actual:
+				expected[key] = actual[key]
+		return
 	if expected is Array:
 		var arrays_ok := _same(actual, expected)
 		_check(arrays_ok, label)
@@ -113,6 +122,10 @@ func _run() -> void:
 	_scenario_report()
 	_scenario_network()
 	_scenario_old_save()
+	if regen:
+		var fh := FileAccess.open(GOLDEN, FileAccess.WRITE)
+		fh.store_string(JSON.stringify(golden, " ", false))
+		fh.close()
 	_finish()
 
 
@@ -142,6 +155,10 @@ func _snapshot(career: Career) -> Dictionary:
 
 
 func _compare_scouts(label: String, scouts: Array, expected: Array) -> void:
+	if regen:
+		(expected as Array).clear()
+		(expected as Array).append_array(scouts)
+		return
 	_check(scouts.size() == expected.size(), "%s: %d scouts" % [label, expected.size()])
 	for index in range(mini(scouts.size(), expected.size())):
 		var keys := ["id", "name", "nationality", "nationality_id", "experience",
@@ -159,6 +176,11 @@ func _compare_scouts(label: String, scouts: Array, expected: Array) -> void:
 
 
 func _compare_task(label: String, actual, expected) -> void:
+	if regen:
+		if expected is Dictionary and actual is Dictionary:
+			for key in actual:
+				expected[key] = actual[key]
+		return
 	if expected == null:
 		_check(actual == null, label + " is empty")
 		return
@@ -169,6 +191,16 @@ func _compare_task(label: String, actual, expected) -> void:
 
 
 func _compare_entries(label: String, entries: Array, expected: Array) -> void:
+	if regen:
+		var rows: Array = []
+		for entry in entries:
+			var copy: Dictionary = (entry as Dictionary).duplicate(true)
+			if not copy.has("player_id"):
+				copy["player_id"] = (copy.get("player", {}) as Dictionary).get("player_id")
+			rows.append(copy)
+		(expected as Array).clear()
+		(expected as Array).append_array(rows)
+		return
 	_check(entries.size() == expected.size(),
 		"%s: %d entries" % [label, expected.size()])
 	for index in range(mini(entries.size(), expected.size())):
@@ -463,6 +495,8 @@ func _scenario_network() -> void:
 	var remaining: Array = []
 	for entry in block["recommendations"]:
 		remaining.append(entry["player"]["player_id"])
+	if regen:
+		expected["remove"]["candidate_ids"] = remaining
 	_check(_same(remaining, expected["remove"]["candidate_ids"]),
 		"the removed player leaves the list newest first")
 	_compare_task("task after remove", block["scouts"][1]["task"], expected["remove"]["task"])
