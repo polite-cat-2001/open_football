@@ -142,9 +142,43 @@ func _run() -> void:
 	await _frames(2)
 	_check(creation.get("_nationality_index") != nationality_before,
 		"Right also cycles the manager nationality")
+
+	var europe_row: CareerRow = creation.get("_europe_row")
+	var ranking_row: CareerRow = creation.get("_ranking_row")
+	nav.moved.emit(Vector2i.DOWN)
+	await _frames(2)
+	_check(europe_row.has_focus(), "Down moves to the European cups row")
+	_check(europe_row.visible, "a UEFA club offers the European cups option")
+	_check(europe_row.title_text == "REAL 2026-27",
+		"the first season starts with the real 2026-27 field")
+	nav.moved.emit(Vector2i.RIGHT)
+	await _frames(2)
+	_check(europe_row.title_text == "SIMULATED",
+		"Right cycles the European cups mode")
+	nav.moved.emit(Vector2i.DOWN)
+	await _frames(2)
+	_check(ranking_row.has_focus(), "Down moves to the country ranking row")
+	_check(ranking_row.title_text == "STATIC", "the country ranking starts static")
+	nav.moved.emit(Vector2i.RIGHT)
+	await _frames(2)
+	_check(ranking_row.title_text == "DYNAMIC", "Right cycles the country ranking")
 	nav.moved.emit(Vector2i.DOWN)
 	await _frames(2)
 	_check(cta.has_focus(), "Down reaches the start career tile")
+
+	# The Europe-only options follow the club's country.
+	var countries: Array = creation.get("_countries")
+	_check(creation.select_country_by_id(26), "a non-UEFA country can be picked")
+	var country_index := int(creation.get("_country_index"))
+	if country_index < countries.size() \
+			and str(countries[country_index].get("name", "")) == "Brazil":
+		_check(not europe_row.visible and not ranking_row.visible,
+			"a non-UEFA club hides the Europe-only options")
+		_check(creation.select_country_by_id(189), "the UEFA country can be picked again")
+		creation.select_club_by_id(11)
+		await _frames(2)
+		_check(europe_row.visible and ranking_row.visible,
+			"a UEFA club shows the Europe-only options again")
 	nav.confirmed.emit()
 	await _frames(40)
 	_check(current_scene != null and current_scene.name == "CareerHub",
@@ -157,6 +191,10 @@ func _run() -> void:
 		_check(saved.club_id == "11", "the saved career keeps the club")
 		_check(saved.manager.name == "Golden Manager", "the saved career keeps the manager")
 		_check(saved.seed >= 0, "the saved career keeps its seed")
+		_check(str(saved.data.get("europe_mode", "")) == "simulated",
+			"the saved career keeps the chosen European cups mode")
+		_check(str(saved.data.get("country_coefficients_mode", "")) == "dynamic",
+			"the saved career keeps the chosen country ranking mode")
 
 	CareerSession.clear()
 	change_scene_to_file(LOAD)

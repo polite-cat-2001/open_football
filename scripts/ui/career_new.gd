@@ -8,6 +8,10 @@ const CLUB_STEP_HEIGHT := 820.0
 const NAME_MAX := 48
 const FIELD_ORDER := ["country", "team", "competition"]
 const CLUB_INFO := preload("res://scripts/ui/career_club_info.gd")
+const EUROPE_MODES := ["real", "simulated", "none"]
+const EUROPE_LABELS := {"real": "REAL 2026-27", "simulated": "SIMULATED", "none": "OFF"}
+const COUNTRY_MODES := ["static", "dynamic"]
+const COUNTRY_LABELS := {"static": "STATIC", "dynamic": "DYNAMIC"}
 
 @onready var panel_wrap: Control = $Design/PanelWrap
 @onready var hints: UiHintsBar = $Design/PanelWrap/Hints
@@ -44,6 +48,10 @@ var _name_row: UiFormRow
 var _nat_row: CareerRow
 var _nat_prev: Button
 var _nat_next: Button
+var _europe_row: CareerRow
+var _ranking_row: CareerRow
+var _europe_index := 0
+var _ranking_index := 0
 var _cta: BentoTile
 var _step_animating := false
 var _recap_panel: Panel
@@ -152,6 +160,13 @@ func _build_manager_step() -> void:
 	_step_manager.add_child(_nat_row)
 	_nat_prev = _make_nat_arrow(-1)
 	_nat_next = _make_nat_arrow(1)
+
+	_europe_row = _make_row("European cups")
+	_europe_row.pressed.connect(func() -> void: _cycle_europe(1))
+	_step_manager.add_child(_europe_row)
+	_ranking_row = _make_row("Country ranking")
+	_ranking_row.pressed.connect(func() -> void: _cycle_ranking(1))
+	_step_manager.add_child(_ranking_row)
 
 	_cta = BentoTile.new()
 	_cta.name = "StartTile"
@@ -451,7 +466,37 @@ func _refresh_nationality() -> void:
 	if _nat_prev != null:
 		_nat_prev.visible = _countries.size() > 1
 		_nat_next.visible = _countries.size() > 1
+	_refresh_options()
 	_refresh_cta()
+
+
+func _refresh_options() -> void:
+	# Both options only matter for a UEFA club; hide them for the rest of the world.
+	var uefa := _country_is_uefa()
+	_europe_row.visible = uefa
+	_ranking_row.visible = uefa
+	if not uefa:
+		return
+	_europe_row.set_content(EUROPE_LABELS[EUROPE_MODES[_europe_index]],
+		"EUROPEAN CUPS", "", "", "")
+	_ranking_row.set_content(COUNTRY_LABELS[COUNTRY_MODES[_ranking_index]],
+		"COUNTRY RANKING", "", "", "")
+
+
+func _country_is_uefa() -> bool:
+	if _countries.is_empty():
+		return false
+	return CareerEurope.uefa_association(str(_countries[_country_index].get("name", "")))
+
+
+func _cycle_europe(delta: int) -> void:
+	_europe_index = posmod(_europe_index + delta, EUROPE_MODES.size())
+	_refresh_options()
+
+
+func _cycle_ranking(delta: int) -> void:
+	_ranking_index = posmod(_ranking_index + delta, COUNTRY_MODES.size())
+	_refresh_options()
 
 
 func _refresh_cta() -> void:
@@ -488,11 +533,16 @@ func _show_manager_step() -> void:
 		return
 	_animate_step(_step_manager, func() -> void:
 		_step = "manager"
-		_rows = [_name_row, _nat_row, _cta]
 		_focus_index = 0
 		_refresh_step_tabs()
 		hints.setup(_gamepad_hints() if UiNav.using_gamepad() else _keyboard_hints())
 		_refresh_recap()
+		_rows = [_name_row, _nat_row]
+		if _europe_row.visible:
+			_rows.append(_europe_row)
+			_rows.append(_ranking_row)
+		_rows.append(_cta)
+		_layout_manager_step()
 		_name_row.grab_focus()
 	)
 
@@ -590,7 +640,14 @@ func _layout_manager_step() -> void:
 		_nat_prev.size = Vector2(36.0, 40.0)
 		_nat_next.position = Vector2(main_width - 54.0, 12.0)
 		_nat_next.size = Vector2(36.0, 40.0)
-	_cta.set_base_rect(Rect2(Vector2(0.0, 180.0), Vector2(main_width, 112.0)),
+	var next_y := 180.0
+	for row in [_europe_row, _ranking_row]:
+		if not row.visible:
+			continue
+		row.position = Vector2(0.0, next_y)
+		row.size = Vector2(main_width, 64.0)
+		next_y += 74.0
+	_cta.set_base_rect(Rect2(Vector2(0.0, next_y), Vector2(main_width, 112.0)),
 		Vector2.ZERO)
 	_recap_panel.position = Vector2(main_width + UiTokens.GAP, 0.0)
 	_recap_panel.size = Vector2(recap_width, 340.0)
@@ -634,6 +691,10 @@ func _on_nav_moved(direction: Vector2i) -> void:
 			_countries.size()
 		)
 		_refresh_nationality()
+	elif focused == _europe_row:
+		_cycle_europe(1 if direction == Vector2i.RIGHT else -1)
+	elif focused == _ranking_row:
+		_cycle_ranking(1 if direction == Vector2i.RIGHT else -1)
 
 
 func _on_nav_confirmed() -> void:
@@ -645,6 +706,10 @@ func _on_nav_confirmed() -> void:
 	var focused := get_viewport().gui_get_focus_owner()
 	if focused == _name_row:
 		_open_name()
+	elif focused == _europe_row:
+		_cycle_europe(1)
+	elif focused == _ranking_row:
+		_cycle_ranking(1)
 	elif focused == _cta and not _cta.disabled:
 		_create_career()
 
@@ -692,8 +757,14 @@ func _create_career() -> void:
 	hints.set_status("Creating career...", false)
 	var club_id := int(_clubs[_club_index].get("id", 0))
 	var nationality_id := int(_countries[_nationality_index].get("id", 0))
+	var europe_mode := "none"
+	var country_mode := "static"
+	if _country_is_uefa():
+		europe_mode = EUROPE_MODES[_europe_index]
+		country_mode = COUNTRY_MODES[_ranking_index]
 	var career := CareerFactory.create(
-		_catalog, club_id, _manager_name, nationality_id, fixed_seed)
+		_catalog, club_id, _manager_name, nationality_id, fixed_seed,
+		europe_mode, country_mode)
 	if career == null:
 		hints.set_status(CareerFactory.last_error, true)
 		return
@@ -717,7 +788,7 @@ func _keyboard_hints() -> Array:
 		]
 	return [
 		{"keys": ["UP", "DOWN"], "label": "move"},
-		{"keys": ["LEFT", "RIGHT"], "label": "nationality"},
+		{"keys": ["LEFT", "RIGHT"], "label": "change"},
 		{"keys": ["ENTER"], "label": "select"},
 		{"keys": ["ESC"], "label": "back"},
 	]
@@ -733,7 +804,7 @@ func _gamepad_hints() -> Array:
 		]
 	return [
 		{"keys": ["D-PAD"], "label": "move"},
-		{"keys": ["LEFT", "RIGHT"], "label": "nationality"},
+		{"keys": ["LEFT", "RIGHT"], "label": "change"},
 		{"keys": ["A"], "label": "select"},
 		{"keys": ["B"], "label": "back"},
 	]
