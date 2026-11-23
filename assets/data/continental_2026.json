@@ -167,5 +167,553 @@
     "missing": []
    }
   }
+ },
+ "AFC": {
+  "season": "2026-27",
+  "competitions": {
+   "acl_elite": {
+    "label": "AFC Champions League Elite",
+    "entries": {
+     "18487": "league_stage",
+     "18544": "league_stage",
+     "1114": "league_stage",
+     "26069": "league_stage",
+     "2150": "league_stage",
+     "60529": "league_stage",
+     "16214": "league_stage",
+     "656": "league_stage",
+     "6297": "league_stage",
+     "10775": "league_stage",
+     "1076": "league_stage",
+     "12935": "league_stage",
+     "13306": "league_stage",
+     "23805": "league_stage",
+     "8023": "playoff",
+     "2524": "playoff",
+     "3718": "playoff",
+     "15795": "playoff",
+     "2241": "league_stage",
+     "3958": "league_stage",
+     "6632": "league_stage",
+     "593": "league_stage",
+     "6502": "league_stage",
+     "6499": "league_stage",
+     "311": "league_stage",
+     "25449": "league_stage",
+     "27092": "league_stage",
+     "35387": "league_stage",
+     "27190": "league_stage",
+     "3176": "league_stage",
+     "5551": "league_stage",
+     "15817": "league_stage",
+     "596": "playoff",
+     "21459": "playoff",
+     "875": "playoff",
+     "81455": "playoff"
+    },
+    "regions": {
+     "west": [
+      "18487",
+      "18544",
+      "1114",
+      "26069",
+      "2150",
+      "60529",
+      "16214",
+      "656",
+      "6297",
+      "10775",
+      "1076",
+      "12935",
+      "13306",
+      "23805",
+      "8023",
+      "2524",
+      "3718",
+      "15795"
+     ],
+     "east": [
+      "2241",
+      "3958",
+      "6632",
+      "593",
+      "6502",
+      "6499",
+      "311",
+      "25449",
+      "27092",
+      "35387",
+      "27190",
+      "3176",
+      "5551",
+      "15817",
+      "596",
+      "21459",
+      "875",
+      "81455"
+     ]
+    },
+    "missing": []
+   },
+   "acl_two": {
+    "label": "AFC Champions League Two",
+    "entries": {
+     "2524": "group_stage",
+     "15795": "group_stage",
+     "28844": "group_stage",
+     "161": "group_stage",
+     "3229": "group_stage",
+     "34744": "group_stage",
+     "20591": "group_stage",
+     "13593": "group_stage",
+     "13592": "group_stage",
+     "34836": "group_stage",
+     "28035": "group_stage",
+     "14099": "preliminary",
+     "45321": "preliminary",
+     "875": "group_stage",
+     "21459": "group_stage",
+     "23568": "group_stage",
+     "6500": "group_stage",
+     "25444": "group_stage",
+     "3183": "group_stage",
+     "7006": "group_stage",
+     "62736": "group_stage",
+     "57443": "group_stage",
+     "4131": "group_stage",
+     "6731": "group_stage",
+     "15979": "group_stage",
+     "34329": "group_stage",
+     "25383": "group_stage",
+     "16043": "group_stage",
+     "91194": "preliminary",
+     "106490": "preliminary",
+     "26351": "group_stage",
+     "83266": "group_stage",
+     "122768": "group_stage",
+     "15926": "preliminary",
+     "84412": "preliminary"
+    },
+    "regions": {
+     "west": [
+      "2524",
+      "15795",
+      "28844",
+      "161",
+      "3229",
+      "34744",
+      "20591",
+      "13593",
+      "13592",
+      "34836",
+      "28035",
+      "14099",
+      "45321",
+      "26351",
+      "83266",
+      "122768",
+      "15926",
+      "84412"
+     ],
+     "east": [
+      "875",
+      "21459",
+      "23568",
+      "6500",
+      "25444",
+      "3183",
+      "7006",
+      "62736",
+      "57443",
+      "4131",
+      "6731",
+      "15979",
+      "34329",
+      "25383",
+      "16043",
+      "91194",
+      "106490"
+     ]
+    },
+    "missing": [
+     {
+      "region": "west",
+      "stage": "group_stage",
+      "country": "Bahrain",
+      "club": "Al-Muharraq"
+     },
+     {
+      "region": "west",
+      "stage": "group_stage",
+      "country": "Bahrain",
+      "club": "Al-Khalidiya"
+     },
+     {
+      "region": "west",
+      "stage": "group_stage",
+      "country": "Kuwait",
+      "club": "Al-Kuwait"
+     },
+     {
+      "region": "west",
+      "stage": "preliminary",
+      "country": "Turkmenistan",
+      "club": "Arkadag"
+     },
+     {
+      "region": "west",
+      "stage": "preliminary",
+      "country": "Kuwait",
+      "club": "Al-Arabi"
+     }
+    ],
+    "replacements": [
+     {
+      "missing": "Al-Muharraq",
+      "association": "Bahrain",
+      "club_id": "26351",
+      "rating": 71.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Al-Khalidiya",
+      "association": "Bahrain",
+      "club_id": "83266",
+      "rating": 71.1,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Al-Kuwait",
+      "association": "Kuwait",
+      "club_id": "122768",
+      "rating": 71.2,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Arkadag",
+      "association": "Turkmenistan",
+      "club_id": "15926",
+      "rating": 66.9,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Al-Arabi",
+      "association": "Kuwait",
+      "club_id": "84412",
+      "rating": 66.9,
+      "reason": "no league in the database"
+     }
+    ]
+   },
+   "afc_challenge_league": {
+    "label": "AFC Challenge League",
+    "entries": {
+     "2468": "west_group",
+     "7142": "west_group",
+     "50276": "east_group",
+     "26645": "east_group",
+     "26199": "east_pre",
+     "25654": "east_pre",
+     "40508": "east_pre",
+     "40090": "west_group",
+     "16439": "west_group",
+     "28022": "west_group",
+     "1316": "west_pre",
+     "66588": "west_pre",
+     "7481": "west_pre",
+     "48712": "west_pre",
+     "7790": "west_pre",
+     "18778": "west_pre",
+     "44455": "west_pre",
+     "3943": "west_pre",
+     "17": "west_pre",
+     "1195": "west_pre",
+     "601": "east_group",
+     "3030": "east_pre",
+     "2428": "east_pre",
+     "8445": "east_pre",
+     "85287": "east_pre",
+     "26184": "east_pre"
+    },
+    "regions": {
+     "west": [
+      "2468",
+      "7142",
+      "40090",
+      "16439",
+      "28022",
+      "1316",
+      "66588",
+      "7481",
+      "48712",
+      "7790",
+      "18778",
+      "44455",
+      "3943",
+      "17",
+      "1195"
+     ],
+     "east": [
+      "50276",
+      "26645",
+      "26199",
+      "25654",
+      "40508",
+      "601",
+      "3030",
+      "2428",
+      "8445",
+      "85287",
+      "26184"
+     ]
+    },
+    "missing": [
+     {
+      "stage": "west_group",
+      "country": "Kuwait",
+      "club": "Al-Arabi"
+     },
+     {
+      "stage": "west_group",
+      "country": "Turkmenistan",
+      "club": "Ahal"
+     },
+     {
+      "stage": "west_group",
+      "country": "Kuwait",
+      "club": "Al-Qadsia"
+     },
+     {
+      "stage": "west_group",
+      "country": "Tajikistan",
+      "club": "Istiklol"
+     },
+     {
+      "stage": "west_pre",
+      "country": "Tajikistan",
+      "club": "Regar-TadAZ"
+     },
+     {
+      "stage": "west_pre",
+      "country": "Kyrgyzstan",
+      "club": "Dordoi Bishkek"
+     },
+     {
+      "stage": "west_pre",
+      "country": "Kyrgyzstan",
+      "club": "Muras United"
+     },
+     {
+      "stage": "west_pre",
+      "country": "Bangladesh",
+      "club": "Fortis"
+     },
+     {
+      "stage": "west_pre",
+      "country": "Bangladesh",
+      "club": "Bangladesh Police"
+     },
+     {
+      "stage": "west_pre",
+      "country": "Syria",
+      "club": "Al-Ittihad Ahli"
+     },
+     {
+      "stage": "west_pre",
+      "country": "Syria",
+      "club": "Homs Al-Fidaa"
+     },
+     {
+      "stage": "west_pre",
+      "country": "Maldives",
+      "club": "Maziya"
+     },
+     {
+      "stage": "west_pre",
+      "country": "Bhutan",
+      "club": "Paro"
+     },
+     {
+      "stage": "west_pre",
+      "country": "Afghanistan",
+      "club": "Abu Muslim"
+     },
+     {
+      "stage": "east_group",
+      "country": "Philippines",
+      "club": "One Taguig"
+     },
+     {
+      "stage": "east_pre",
+      "country": "Mongolia",
+      "club": "Ulaanbaatar"
+     },
+     {
+      "stage": "east_pre",
+      "country": "Mongolia",
+      "club": "Central Stallions"
+     },
+     {
+      "stage": "east_pre",
+      "country": "Laos",
+      "club": "Ezra"
+     },
+     {
+      "stage": "east_pre",
+      "country": "Brunei",
+      "club": "Kasuka"
+     },
+     {
+      "stage": "east_pre",
+      "country": "Timor-Leste",
+      "club": "Karketu Dili"
+     }
+    ],
+    "replacements": [
+     {
+      "missing": "Ahal",
+      "association": "Turkmenistan",
+      "club_id": "40090",
+      "rating": 71.2,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Al-Qadsia",
+      "association": "Kuwait",
+      "club_id": "16439",
+      "rating": 71.2,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Istiklol",
+      "association": "Tajikistan",
+      "club_id": "28022",
+      "rating": 71.2,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Regar-TadAZ",
+      "association": "Tajikistan",
+      "club_id": "1316",
+      "rating": 65.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Dordoi Bishkek",
+      "association": "Kyrgyzstan",
+      "club_id": "66588",
+      "rating": 65.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Muras United",
+      "association": "Kyrgyzstan",
+      "club_id": "7481",
+      "rating": 65.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Fortis",
+      "association": "Bangladesh",
+      "club_id": "48712",
+      "rating": 65.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Bangladesh Police",
+      "association": "Bangladesh",
+      "club_id": "7790",
+      "rating": 65.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Al-Ittihad Ahli",
+      "association": "Syria",
+      "club_id": "18778",
+      "rating": 65.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Homs Al-Fidaa",
+      "association": "Syria",
+      "club_id": "44455",
+      "rating": 65.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Maziya",
+      "association": "Maldives",
+      "club_id": "3943",
+      "rating": 65.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Paro",
+      "association": "Bhutan",
+      "club_id": "17",
+      "rating": 65.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Abu Muslim",
+      "association": "Afghanistan",
+      "club_id": "1195",
+      "rating": 65.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "One Taguig",
+      "association": "Philippines",
+      "club_id": "601",
+      "rating": 69.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Ulaanbaatar",
+      "association": "Mongolia",
+      "club_id": "3030",
+      "rating": 66.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Central Stallions",
+      "association": "Mongolia",
+      "club_id": "2428",
+      "rating": 66.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Ezra",
+      "association": "Laos",
+      "club_id": "8445",
+      "rating": 66.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Kasuka",
+      "association": "Brunei",
+      "club_id": "85287",
+      "rating": 66.0,
+      "reason": "no league in the database"
+     },
+     {
+      "missing": "Karketu Dili",
+      "association": "Timor-Leste",
+      "club_id": "26184",
+      "rating": 66.0,
+      "reason": "no league in the database"
+     }
+    ],
+    "drop_downs": [
+     {
+      "from": "acl_two",
+      "round": "preliminary",
+      "to": "group_stage",
+      "count": 2
+     }
+    ],
+    "slots_from_drop": 2
+   }
+  }
  }
 }

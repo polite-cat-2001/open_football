@@ -20,6 +20,55 @@ const FORMATS := {
 			{"name": "final", "legs": 1, "window": ["05-30", "05-30"]},
 		],
 	},
+	"AFC:acl_elite": {
+		"label": "AFC Champions League Elite",
+		"rounds": [
+			{"name": "playoff", "legs": 1, "window": ["08-11", "08-12"]},
+			{"name": "league_stage", "legs": 0, "window": ["09-14", "05-01"],
+				"groups": {"count": 2, "size": 16, "rounds": 8, "advance": 8},
+				"regions": true},
+			{"name": "round_of_16", "legs": 1, "window": ["02-10", "02-20"],
+				"region_bracket": true},
+			{"name": "quarter_final", "legs": 1, "window": ["03-03", "03-12"],
+				"region_bracket": true},
+			{"name": "semi_final", "legs": 1, "window": ["04-07", "04-16"],
+				"region_bracket": true},
+			{"name": "final", "legs": 1, "merge": true, "neutral": true,
+				"window": ["05-01", "05-02"]},
+		],
+	},
+	"AFC:acl_two": {
+		"label": "AFC Champions League Two",
+		"rounds": [
+			{"name": "preliminary", "legs": 1, "window": ["08-12", "08-20"]},
+			{"name": "group_stage", "legs": 0, "window": ["09-15", "05-15"],
+				"groups": {"count": 2, "size": 16, "rounds": 6, "advance": 4},
+				"regions": true},
+			{"name": "round_of_16", "legs": 2, "window": ["02-01", "02-12"],
+				"region_bracket": true},
+			{"name": "quarter_final", "legs": 2, "window": ["03-01", "03-12"],
+				"region_bracket": true},
+			{"name": "semi_final", "legs": 2, "window": ["04-01", "04-15"],
+				"region_bracket": true},
+			{"name": "final", "legs": 1, "merge": true, "neutral": true,
+				"window": ["05-15", "05-16"]},
+		],
+	},
+	"AFC:afc_challenge_league": {
+		"label": "AFC Challenge League",
+		"rounds": [
+			{"name": "preliminary", "legs": 1, "window": ["08-12", "08-20"]},
+			{"name": "group_stage", "legs": 0, "window": ["10-01", "04-15"],
+				"groups": {"count": 2, "size": 14, "rounds": 6, "advance": 4},
+				"regions": true},
+			{"name": "quarter_final", "legs": 2, "window": ["02-15", "02-26"],
+				"region_bracket": true},
+			{"name": "semi_final", "legs": 2, "window": ["03-15", "03-26"],
+				"region_bracket": true},
+			{"name": "final", "legs": 1, "merge": true, "neutral": true,
+				"window": ["05-10", "05-11"]},
+		],
+	},
 	"CONMEBOL:libertadores": {
 		"label": "Copa Libertadores",
 		"rounds": [
@@ -110,6 +159,7 @@ static func first_season(confederation: String, season_start: String) -> Diction
 		competitions[competition] = {
 			"entries": entry.get("entries", {}),
 			"missing": entry.get("missing", []),
+			"regions": entry.get("regions", {}),
 			"label": str(entry.get("label", competition)),
 		}
 	return {
@@ -126,11 +176,14 @@ static func build_first_season(catalog: TeamCatalog, confederation: String,
 		return {}
 	var entries := {}
 	var missing := {}
+	var regions := {}
 	for competition in source["competitions"]:
 		var entry: Dictionary = source["competitions"][competition]
 		entries[competition] = entry.get("entries", {})
 		missing[competition] = entry.get("missing", [])
-	var block := build(catalog, confederation, entries, season_start, focus_club)
+		regions[competition] = entry.get("regions", {})
+	var block := build(catalog, confederation, entries, season_start, focus_club,
+		regions)
 	if block.is_empty():
 		return {}
 	block["first_season"] = source.get("season", "")
@@ -162,7 +215,8 @@ static func earliest_start(confederation: String, season_start: String) -> Strin
 
 
 static func build(catalog: TeamCatalog, confederation: String, entries: Dictionary,
-		season_start: String, focus_club: String) -> Dictionary:
+		season_start: String, focus_club: String,
+		regions_by_competition: Dictionary = {}) -> Dictionary:
 	# `entries` maps competition id -> {club_id: entry round}. The caller resolves
 	# the clubs (the real first-season field or the season's berth map).
 	last_error = ""
@@ -183,6 +237,7 @@ static func build(catalog: TeamCatalog, confederation: String, entries: Dictiona
 			"rounds": FORMATS[format_key(confederation, competition)].get("rounds", []),
 			"entries": clubs,
 			"ratings": ratings,
+			"regions": _region_map(regions_by_competition.get(competition, {})),
 			"round_index": 0,
 			"entrants": {},
 			"sizes": {},
@@ -205,6 +260,7 @@ static func build(catalog: TeamCatalog, confederation: String, entries: Dictiona
 		"season": season_start,
 		"competitions": competitions,
 		"focus": focus,
+		"regions": regions_by_competition,
 	}
 
 
@@ -234,12 +290,30 @@ static func _advance(career: Career, conf_block: Dictionary,
 		var name := str(round.get("name", "r%d" % (index + 1)))
 		var is_group := round.has("groups")
 		var is_playoff := round.has("playoff")
+		var is_region_group := is_group and bool(round.get("regions", false))
+		var is_region_round := bool(round.get("region_bracket", false))
+		var is_merge := bool(round.get("merge", false))
+		if is_region_round:
+			if not _region_round(career, confederation, competition, state, round,
+					index, prefix, conf_block):
+				return
+			state["round_index"] = index + 1
+			continue
+		if is_merge:
+			var merged: Array = []
+			for region in state.get("region_entrants", {}):
+				var list: Array = state["region_entrants"][region]
+				if not list.is_empty():
+					merged.append(str(list[0]))
+			state["winners"] = merged
 		var fixtures: Array = state.get("fixtures", {}).get(str(index), [])
 		if fixtures.is_empty():
 			if round.has("wait_for") and not _waiting_done(conf_block, round["wait_for"]):
 				return
 			var entrants: Array = _playoff_entrants(state) if is_playoff \
 				else _entrants(state, index, name)
+			if is_region_group:
+				entrants = _order_by_region(entrants, state.get("regions", {}))
 			if entrants.size() < 2:
 				# A round without its direct entrants is skipped; a lone club
 				# carries over to the next one.
@@ -249,9 +323,13 @@ static func _advance(career: Career, conf_block: Dictionary,
 				continue
 			state["entrants"][str(index)] = entrants
 			if is_group:
-				entrants = _snake(entrants, state.get("ratings", {}),
-					int(round["groups"].get("count", 1)))
-				fixtures = _group_fixtures(career, round, entrants, prefix)
+				if is_region_group:
+					fixtures = _group_fixtures(career, round, entrants, prefix,
+						_region_sizes(entrants, state.get("regions", {})))
+				else:
+					entrants = _snake(entrants, state.get("ratings", {}),
+						int(round["groups"].get("count", 1)))
+					fixtures = _group_fixtures(career, round, entrants, prefix)
 			else:
 				var legs := maxi(1, int(round.get("legs", 1)))
 				var size := CareerBrackets.round_size(entrants.size())
@@ -270,14 +348,23 @@ static func _advance(career: Career, conf_block: Dictionary,
 			var resolved := _group_advancers(career, round, entrants_now,
 				state["fixtures"][str(index)])
 			state["tables"] = resolved.get("tables", {})
-			var following: Dictionary = rounds[index + 1] if index + 1 < rounds.size() else {}
-			if following.has("playoff"):
-				state["group_winners"] = resolved.get("winners", [])
-				state["group_runners"] = resolved.get("runners", [])
-				state["playoff_incoming"] = state.get("incoming", [])
+			if is_region_group:
+				var by_region := {}
+				var order := ["west", "east"]
+				var groups: Array = resolved.get("groups", [])
+				for group_index in range(mini(groups.size(), order.size())):
+					by_region[order[group_index]] = groups[group_index]
+				state["region_entrants"] = by_region
 				next_entrants = []
 			else:
-				next_entrants = resolved.get("draw", [])
+				var following: Dictionary = rounds[index + 1] if index + 1 < rounds.size() else {}
+				if following.has("playoff"):
+					state["group_winners"] = resolved.get("winners", [])
+					state["group_runners"] = resolved.get("runners", [])
+					state["playoff_incoming"] = state.get("incoming", [])
+					next_entrants = []
+				else:
+					next_entrants = resolved.get("draw", [])
 		else:
 			var size_now := int(state.get("sizes", {}).get(str(index),
 				CareerBrackets.round_size(entrants_now.size())))
@@ -340,11 +427,11 @@ static func _snake(entrants: Array, ratings: Dictionary, count: int) -> Array:
 
 
 static func _group_fixtures(career: Career, round: Dictionary, entrants: Array,
-		prefix: String) -> Array:
+		prefix: String, sizes_override: Array = []) -> Array:
 	var spec: Dictionary = round["groups"]
 	var size := maxi(2, int(spec.get("size", 4)))
-	var sizes := _group_layout(entrants.size(), size,
-		int(spec.get("count", 1)))
+	var sizes := sizes_override if not sizes_override.is_empty() \
+		else _group_layout(entrants.size(), size, int(spec.get("count", 1)))
 	var window := _window(career, round)
 	var stage := {
 		"kind": "group", "id": prefix + str(round.get("name", "group_stage")),
@@ -383,6 +470,7 @@ static func _group_advancers(career: Career, round: Dictionary, entrants: Array,
 	var winners: Array = []
 	var runners: Array = []
 	var tables := {}
+	var ordered_groups: Array = []
 	var start := 0
 	for group in range(sizes.size()):
 		var count := int(sizes[group])
@@ -396,6 +484,10 @@ static func _group_advancers(career: Career, round: Dictionary, entrants: Array,
 		start += count
 		var rows := CareerStages.table(group_fixtures, career.results, ids)
 		tables[str(group)] = rows
+		var advancers: Array = []
+		for rank in range(mini(advance, rows.size())):
+			advancers.append(str(rows[rank].get("id", "")))
+		ordered_groups.append(advancers)
 		if rows.is_empty():
 			continue
 		winners.append(str(rows[0].get("id", "")))
@@ -408,7 +500,85 @@ static func _group_advancers(career: Career, round: Dictionary, entrants: Array,
 		for index in range(winners.size()):
 			draw[index] = winners[index]
 			draw[draw.size() - 1 - index] = runners[(index + 1) % runners.size()]
-	return {"draw": draw, "winners": winners, "runners": runners, "tables": tables}
+	return {"draw": draw, "winners": winners, "runners": runners, "tables": tables,
+		"groups": ordered_groups}
+
+
+static func _region_map(value) -> Dictionary:
+	var map := {}
+	if value is Dictionary:
+		for region in value:
+			var list = value[region]
+			if list is Array:
+				for club_id in list:
+					map[str(club_id)] = str(region)
+	return map
+
+
+static func _order_by_region(entrants: Array, regions_map: Dictionary) -> Array:
+	var ordered: Array = []
+	for region in ["west", "east"]:
+		for club_id in entrants:
+			if str(regions_map.get(str(club_id), "")) == region:
+				ordered.append(str(club_id))
+	for club_id in entrants:
+		if not ordered.has(str(club_id)):
+			ordered.append(str(club_id))
+	return ordered
+
+
+static func _region_sizes(entrants: Array, regions_map: Dictionary) -> Array:
+	var sizes: Array = []
+	for region in ["west", "east"]:
+		var count := 0
+		for club_id in entrants:
+			if str(regions_map.get(str(club_id), "")) == region:
+				count += 1
+		if count > 0:
+			sizes.append(count)
+	return sizes
+
+
+static func _region_round(career: Career, confederation: String, competition: String,
+		state: Dictionary, round: Dictionary, index: int, prefix: String,
+		conf_block: Dictionary) -> bool:
+	# A knockout round played as two independent regional brackets.
+	var legs := maxi(1, int(round.get("legs", 1)))
+	var stored: Dictionary = state.get("fixtures", {}).get(str(index), {})
+	if stored.is_empty():
+		var source: Dictionary = state.get("region_entrants", {})
+		if source.is_empty():
+			return false
+		var dates := _round_dates(career, round, legs)
+		var created := {}
+		for region in source:
+			var entrants: Array = source[region]
+			if entrants.size() < 2:
+				continue
+			var size := CareerBrackets.round_size(entrants.size())
+			created[region] = CareerBrackets.round_fixtures(
+				{"rounds": [{"name": "r", "legs": legs}]}, 0, entrants, dates,
+				prefix + region + ":", size)
+		state["fixtures"][str(index)] = created
+		stored = created
+		if stored.is_empty():
+			return false
+		for region in stored:
+			_register(career, confederation, competition, index, stored[region],
+				state.get("ratings", {}))
+	for region in stored:
+		if not _all_played(career, stored[region]):
+			return false
+	var next := {}
+	for region in stored:
+		var entrants: Array = state.get("region_entrants", {}).get(region, [])
+		var size := CareerBrackets.round_size(entrants.size())
+		career.data["results"] = CareerBrackets.settle_ties(entrants,
+			stored[region], career.results, career.seed, {}, size)
+		next[region] = CareerBrackets.round_winners(entrants, stored[region],
+			career.results, size)
+	state["region_entrants"] = next
+	return true
 
 
 static func _playoff_entrants(state: Dictionary) -> Array:
