@@ -66,6 +66,11 @@ MATERIALS = {
     7: ("kit",       None),      # None — рисуем сами, см. build_kit_image
 }
 
+# Причёски оригинала — отдельные объекты, которые original вешает на узел neck
+# (humanoidbase.cpp:145-167,425-427). Текстуру цвета волос рантайм подменяет.
+HAIR_STYLES = ("bald", "short01", "short02", "medium01", "medium02", "long01")
+HAIR_TEXTURE = "objects/players/textures/hair/darkblonde.png"
+
 # Плоский двухцветный кит. Цвета нейтральные: ничей клуб не угадывается.
 KIT_SIZE = 512
 KIT_SHIRT = (0.16, 0.28, 0.62)      # рубашка и гетры
@@ -196,15 +201,8 @@ def load_materials(data_dir, objects):
     return out
 
 
-def build_part(obj, weights, mats, materials):
-    """Один объект оригинала → меш в нашем ресте, с UV, весами и материалом."""
-    verts = [unpose_vertex(co, weights.get(i, []), mats)
-             for i, co in enumerate(obj["verts"])]
-
-    # Префикс обязателен: объект оригинала `body` называется как кость `body`,
-    # и glTF в таком случае переименовывает КОСТЬ (в body_2) — контракт скелета
-    # падает на ровном месте.
-    name = "part_" + obj["name"]
+def make_part_object(name, verts, obj, material):
+    """Меш из вершин/граней/UV одного объекта .ase — без весов."""
     mesh = bpy.data.meshes.new(name)
     mesh.from_pydata([tuple(v) for v in verts], [], obj["faces"])
     mesh.validate()
@@ -219,6 +217,20 @@ def build_part(obj, weights, mats, materials):
     mesh.update()
     ob = bpy.data.objects.new(name, mesh)
     bpy.context.collection.objects.link(ob)
+    if material is not None:
+        ob.data.materials.append(material)
+    return ob
+
+
+def build_part(obj, weights, mats, materials):
+    """Один объект оригинала → меш в нашем ресте, с UV, весами и материалом."""
+    verts = [unpose_vertex(co, weights.get(i, []), mats)
+             for i, co in enumerate(obj["verts"])]
+
+    # Префикс обязателен: объект оригинала `body` называется как кость `body`,
+    # и glTF в таком случае переименовывает КОСТЬ (в body_2) — контракт скелета
+    # падает на ровном месте.
+    ob = make_part_object("part_" + obj["name"], verts, obj, materials.get(obj["material"]))
 
     groups = {}
     for vi, bones in weights.items():
@@ -228,10 +240,64 @@ def build_part(obj, weights, mats, materials):
                 groups[name] = ob.vertex_groups.new(name=name)
             groups[name].add([vi], weight, "REPLACE")
 
-    material = materials.get(obj["material"])
-    if material is not None:
-        ob.data.materials.append(material)
     return ob
+
+
+def build_hair(data_dir, arm_obj):
+    """[объект] — шесть причёсок, жёстко посаженных на кость neck.
+
+    Оригинал вешает причёску отдельным узлом и каждый кадр копирует ему
+    ориентацию и позицию шеи (humanoidbase.cpp:425-427), то есть вершины
+    причёски живут в системе шеи. Наш аналог: v_rest = rest_neck · v_local и
+    вес 1.0 на neck, тогда LBS даёт pose · rest⁻¹ · (rest · v) = pose · v —
+    ровно та же жёсткая посадка.
+    """
+    rest = arm_obj.data.bones["neck"].matrix_local
+    path = os.path.join(data_dir, "media", HAIR_TEXTURE.replace("/", os.sep))
+    if os.path.exists(path):
+        material = make_material("gpf_hair", bpy.data.images.load(path))
+    else:
+        print("!! нет текстуры %s — причёски останутся серыми" % path)
+        material = bpy.data.materials.new("gpf_hair")
+
+    parts = []
+    for style in HAIR_STYLES:
+        src = os.path.join(data_dir, "media", "objects", "players", "hairstyles",
+                           style + ".ase")
+        if not os.path.exists(src):
+            print("!! нет причёски %s" % src)
+            continue
+        for obj in (o for o in ase.parse_ase(src) if o["verts"]):
+            verts = [rest @ Vector(co) for co in obj["verts"]]
+            ob = make_part_object("part_hair_" + style, verts, obj, material)
+            ob.parent = arm_obj
+            ob.modifiers.new("Armature", "ARMATURE").object = arm_obj
+            ob.vertex_groups.new(name="neck").add(
+                list(range(len(verts))), 1.0, "REPLACE")
+            parts.append(ob)
+    return parts
+
+
+def report_hair(parts):
+    """Причёска обязана сесть на голову; числами это видно сразу."""
+    by_name = {p.name: p for p in parts}
+    head = by_name.get("part_head")
+    if head is None:
+        return
+    co = [v.co for v in head.data.vertices]
+    lo = Vector((min(c.x for c in co), min(c.y for c in co), min(c.z for c in co)))
+    hi = Vector((max(c.x for c in co), max(c.y for c in co), max(c.z for c in co)))
+    print("\nголова в ресте: Z %.3f..%.3f, глубина Y %.3f..%.3f" % (lo.z, hi.z, lo.y, hi.y))
+    for name in sorted(n for n in by_name if n.startswith("part_hair_")):
+        co = [v.co for v in by_name[name].data.vertices]
+        hlo = min(c.z for c in co)
+        hhi = max(c.z for c in co)
+        if name == "part_hair_bald":
+            # 2-см заглушка «лысый» на самой шее — в кадре её не видно, так и надо.
+            print("  %-24s Z %.3f..%.3f  заглушка «без волос»" % (name, hlo, hhi))
+            continue
+        ok = hlo >= lo.z - 0.02 and hi.z - 0.02 <= hhi <= hi.z + 0.06
+        print("  %-24s Z %.3f..%.3f  %s" % (name, hlo, hhi, "OK" if ok else "!! МИМО ГОЛОВЫ"))
 
 
 def report_fit(parts):
@@ -292,6 +358,7 @@ def assemble(data_dir, verbose=True):
             used = sorted({JOINT_BONES[j] for b in weights.values() for j, _ in b})
             print("%-13s %6d %6d  %s" % (obj["name"], len(obj["verts"]),
                                          len(obj["faces"]), ", ".join(used)))
+    parts += build_hair(data_dir, arm_obj)
     return arm_obj, parts
 
 
@@ -308,15 +375,17 @@ def main():
 
     ok = blockout.check_rest(arm_obj)
 
-    lo = min(min(v.co.z for v in p.data.vertices) for p in parts)
-    hi = max(max(v.co.z for v in p.data.vertices) for p in parts)
-    width = max(max(abs(v.co.x) for v in p.data.vertices) for p in parts) * 2
+    body_parts = [p for p in parts if not p.name.startswith("part_hair_")]
+    lo = min(min(v.co.z for v in p.data.vertices) for p in body_parts)
+    hi = max(max(v.co.z for v in p.data.vertices) for p in body_parts)
+    width = max(max(abs(v.co.x) for v in p.data.vertices) for p in body_parts) * 2
     print("\nгабарит в ресте: низ %.3f / верх %.3f / рост %.3f м, ширина %.3f м"
           % (lo, hi, hi - lo, width))
     print("полигонов: %d, вершин: %d"
           % (sum(len(p.data.polygons) for p in parts),
              sum(len(p.data.vertices) for p in parts)))
     report_fit(parts)
+    report_hair(parts)
 
     bpy.ops.object.select_all(action="DESELECT")
     for p in parts:

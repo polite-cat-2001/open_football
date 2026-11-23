@@ -96,8 +96,8 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	hud.visible = not _replay_mode and not is_taker_menu_open()
 	var park_text := "F2 unpark opponents" if bool(snap.get("debug_park_opponents", false)) \
 		else "F2 park opponents"
-	var camera_text := "V broadcast cam" if stadium_camera else "V stadium cam"
-	hud.text = "%s\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   F4 new match   F5 skip to break   %s   %s   F1 light: %s" % [
+	var camera_text := "F6 broadcast cam" if stadium_camera else "F6 stadium cam"
+	hud.text = "%s\nArrows move   E sprint   S pass   D shot   W through   A high   C dribble   Q switch   match ~%d min\nD+C curl   D+Q chip   double-E knock-on   P pen   Alt+P defend pen   F free kick   Y corner   G goal kick   O throw-in   Tab taker   F4 new match   F5 skip to break   %s   %s   F7 pitch   F8 time: %s" % [
 		status,
 		match_minutes,
 		park_text,

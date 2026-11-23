@@ -82,6 +82,8 @@ func _ready() -> void:
 	actors.set_match_kits(ShellState.match_package)
 	environment_view.setup(runtime, $Sun, $FillLight)
 	goal_nets.setup(runtime, environment_view)
+	goal_nets.set_light_tint(environment_view.lighting_net_tint())
+	goal_nets.set_frame_night(environment_view.lighting_name() == "Night")
 	camera_rig.setup(camera, actors)
 	hud.setup(runtime)
 	if not ShellState.controllers.is_empty() \
@@ -1091,13 +1093,19 @@ func _handle_key(key_event: InputEventKey) -> void:
 		if key_event.pressed and key_event.keycode in [KEY_SPACE, KEY_ESCAPE, KEY_ENTER]:
 			replay.finish()
 		return
-	if key_event.keycode == KEY_V:
+	if key_event.keycode == KEY_F6:
 		if key_event.pressed:
 			camera_rig.toggle()
 		return
-	if key_event.keycode == KEY_F1:
+	if key_event.keycode == KEY_F7:
+		if key_event.pressed:
+			environment_view.regenerate_pitch()
+		return
+	if key_event.keycode == KEY_F8:
 		if key_event.pressed:
 			environment_view.cycle_lighting()
+			goal_nets.set_light_tint(environment_view.lighting_net_tint())
+			goal_nets.set_frame_night(environment_view.lighting_name() == "Night")
 		return
 	var shootout_running := bool(runtime.get_snapshot().get("shootout_active", false))
 	if key_event.keycode == KEY_F3:

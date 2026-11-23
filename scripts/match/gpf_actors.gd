@@ -16,6 +16,28 @@ const NAMEPLATE_NORMAL_COLOR := Color(0.90, 0.94, 1.0)
 const NAMEPLATE_CONTROLLED_COLOR := Color(1.0, 0.84, 0.18)
 const NAMEPLATE_HEIGHT := 2.25
 
+# Player look. The snapshot only has team + last name, so skin/hair/height are
+# looked up in the package's squad rows under that key.
+const SKIN_PATH := "res://assets/models/players/skin%02d.png"
+const HAIR_PATH := "res://assets/models/players/hair/%s.png"
+# Keepers and officials wear their own fullbody textures, authored for the same
+# UV layout as the kit atlas (humanoidbase.cpp:109-133).
+const ROLE_KIT_PATHS := {
+	"goalkeeper": "res://assets/models/players/goalie_kit.png",
+	"official": "res://assets/models/players/referee_kit.png",
+}
+const HAIR_STYLES := ["bald", "short01", "short02", "medium01", "medium02", "long01"]
+const HAIR_COLORS := ["black", "blonde", "brown", "darkblonde", "red"]
+# The original's base model is 1.92 m and it scales it by height / 1.92
+# (humanoidbase.cpp:102,312-314).
+const DEFAULT_HEIGHT := 1.92
+const DEFAULT_APPEARANCE := {
+	"skin_color": 1,
+	"hair_style": "short01",
+	"hair_color": "darkblonde",
+	"height": 1.8,
+}
+
 # Referee card prop. The original draws media/objects/officials/{yellow,red}card.ase
 # (a 0.1104 x 0.02 x 0.1539 m box, plain-coloured textures) at the elbow bone.
 # The bridge relays that geometry's exact transform, so this is the same prop.
@@ -44,6 +66,10 @@ var controlled_ids: Dictionary = {}
 var labels_visible := true
 var team_kits: Dictionary = {}
 
+var _appearance: Dictionary = {}
+var _skin_materials: Dictionary = {}
+var _hair_materials: Dictionary = {}
+var _role_kits: Dictionary = {}
 var _runtime: Node
 var _reticle: MeshInstance3D
 
@@ -58,15 +84,39 @@ func setup(runtime: Node) -> void:
 
 func set_match_kits(package: Dictionary) -> void:
 	team_kits.clear()
+	_appearance.clear()
 	for side in 2:
 		var team: Dictionary = package.get("home" if side == 0 else "away", {})
 		var kit = team.get("kit", {})
 		if kit is Dictionary and not (kit as Dictionary).is_empty():
 			team_kits[side] = (kit as Dictionary).duplicate(true)
-	for id in actor_bodies:
-		var body: Node3D = actor_bodies[id]
+		for player in team.get("players", []):
+			var style := String(player.get("hair_style", "short01"))
+			# Same rule as the C++ package loader (gpf_runtime_node.cpp:138-141):
+			# a height outside 1.4..2.3 m falls back to 1.8.
+			var height := float(player.get("height", 1.8))
+			if height < 1.4 or height > 2.3:
+				height = 1.8
+			# shortcut: two players with the same surname in one squad collide;
+			# team + last name is enough today.
+			_appearance["%d|%s" % [side, String(player.get("last_name", ""))]] = {
+				"skin_color": int(player.get("skin_color", 1)),
+				"hair_style": style if HAIR_STYLES.has(style) else "short01",
+				"hair_color": String(player.get("hair_color", "darkblonde")),
+				"height": height,
+			}
+	for entry in actors:
+		var body: Node3D = actor_bodies.get(int(entry.get("id", -1)))
 		if body != null and is_instance_valid(body):
-			_apply_kit(body, _team_of_id(int(id)))
+			_apply_kit(body, entry)
+			_apply_appearance(body, entry)
+
+
+# Officials carry neither team nor a name and the snapshot has no appearance
+# fields, so they fall back to DEFAULT_APPEARANCE.
+func appearance_for(entry: Dictionary) -> Dictionary:
+	var key := "%d|%s" % [int(entry.get("team", -1)), String(entry.get("name", ""))]
+	return _appearance.get(key, DEFAULT_APPEARANCE)
 
 
 func count() -> int:
@@ -155,7 +205,8 @@ func _spawn_entry(entry: Dictionary) -> void:
 	if bone_indices.is_empty():
 		for i in skeleton.get_bone_count():
 			bone_indices[skeleton.get_bone_name(i)] = i
-	_apply_kit(body, int(entry.get("team", -1)))
+	_apply_kit(body, entry)
+	_apply_appearance(body, entry)
 	skeletons[id] = skeleton
 	actor_bodies[id] = body
 	_build_nameplate(body, id, entry)
@@ -178,18 +229,26 @@ func apply_pose(id: int, player: Dictionary) -> void:
 	var skeleton: Skeleton3D = skeletons.get(id)
 	if skeleton == null:
 		return
+	var body: Node3D = actor_bodies.get(id)
+	var model_scale: float = body.scale.x if body != null else 1.0
 	var bones: Array = player.get("bones", [])
 	for bone in bones:
 		var name: String = bone.get("name", "")
 		var idx: int = bone_indices.get(name, -1)
 		if idx < 0:
 			continue
-		skeleton.set_bone_pose_position(idx, bone.get("pos", Vector3.ZERO))
+		var position: Vector3 = bone.get("pos", Vector3.ZERO)
+		# The root bone carries the world position; the body scale shrinks the
+		# model only, exactly like the original scales vertices, not the actor
+		# (humanoidbase.cpp:312-314,426).
+		if name == "player" and not is_equal_approx(model_scale, 1.0):
+			position /= model_scale
+		skeleton.set_bone_pose_position(idx, position)
 		skeleton.set_bone_pose_rotation(idx, bone.get("rot", Quaternion.IDENTITY))
 	var label: Label3D = player_labels.get(id)
 	if label != null:
 		var pos: Vector3 = player.get("pos", Vector3.ZERO)
-		label.position = Vector3(pos.x, pos.y, NAMEPLATE_HEIGHT)
+		label.position = Vector3(pos.x / model_scale, pos.y / model_scale, NAMEPLATE_HEIGHT)
 
 
 func sync_ball(snap: Dictionary) -> void:
@@ -361,7 +420,14 @@ func _build_nameplate(body: Node3D, id: int, entry: Dictionary) -> void:
 	player_labels[id] = label
 
 
-func _apply_kit(body: Node3D, team: int) -> void:
+# The kit is picked by role first: the original gives every keeper and official
+# their own fullbody texture, and only field players wear the team kit.
+func _apply_kit(body: Node3D, entry: Dictionary) -> void:
+	var role := String(entry.get("role", ""))
+	if ROLE_KIT_PATHS.has(role):
+		_apply_role_kit(body, role)
+		return
+	var team := int(entry.get("team", -1))
 	var kit = team_kits.get(team, {})
 	if kit is Dictionary and not (kit as Dictionary).is_empty():
 		if KitTexture.apply_to_body(body, kit):
@@ -369,8 +435,87 @@ func _apply_kit(body: Node3D, team: int) -> void:
 	KitTexture.apply_color_to_body(body, TEAM_COLORS.get(team, Color.WHITE))
 
 
-func _team_of_id(id: int) -> int:
-	for entry in actors:
-		if int(entry.get("id", -1)) == id:
-			return int(entry.get("team", -1))
-	return -1
+func _apply_role_kit(body: Node3D, role: String) -> void:
+	for mesh in body.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := mesh as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		for surface in mesh_instance.mesh.get_surface_count():
+			var source: Material = mesh_instance.mesh.surface_get_material(surface)
+			if source == null or source.resource_name != "gpf_kit":
+				continue
+			mesh_instance.set_surface_override_material(surface,
+				_role_kit_material(role, source))
+
+
+# Cache one material per role, like the skin/hair overrides: duplicate the shipped
+# gpf_kit material (double-sided, filtering) and swap only the texture.
+func _role_kit_material(role: String, source: Material) -> Material:
+	if not _role_kits.has(role):
+		var material := source.duplicate() as StandardMaterial3D
+		if material == null:
+			return source
+		var texture := load(ROLE_KIT_PATHS[role]) as Texture2D
+		if texture != null:
+			material.albedo_texture = texture
+		_role_kits[role] = material
+	return _role_kits[role]
+
+
+# Skin and hair are recoloured by swapping the glb material's albedo texture, the
+# same way the original does it, and all six hairstyles ship in one glb where the
+# player wears exactly one.
+func _apply_appearance(body: Node3D, entry: Dictionary) -> void:
+	var look := appearance_for(entry)
+	body.scale = Vector3.ONE * (float(look["height"]) / DEFAULT_HEIGHT)
+	var hair_node := "part_hair_" + String(look["hair_style"])
+	for mesh in body.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := mesh as MeshInstance3D
+		if mesh_instance == null or mesh_instance.mesh == null:
+			continue
+		var node_name := String(mesh_instance.name)
+		if node_name.begins_with("part_hair_"):
+			mesh_instance.visible = node_name == hair_node
+			if not mesh_instance.visible:
+				continue
+		for surface in mesh_instance.mesh.get_surface_count():
+			var source: Material = mesh_instance.mesh.surface_get_material(surface)
+			if source == null:
+				continue
+			match source.resource_name:
+				"gpf_skin", "gpf_arm", "gpf_knee":
+					mesh_instance.set_surface_override_material(surface,
+						_skin_material(int(look["skin_color"]), source))
+				"gpf_hair":
+					mesh_instance.set_surface_override_material(surface,
+						_hair_material(String(look["hair_color"]), source))
+
+
+# The override keeps every property of the shipped glb material (double-sided,
+# filtering, flags) and swaps only the albedo texture, like the original swaps
+# the diffuse resource. Cached per skin index / hair colour, not per player.
+func _skin_material(index: int, source: Material) -> Material:
+	index = clampi(index, 1, 4)
+	if not _skin_materials.has(index):
+		var material := source.duplicate() as StandardMaterial3D
+		if material == null:
+			return source
+		material.albedo_texture = load(SKIN_PATH % index) as Texture2D
+		_skin_materials[index] = material
+	return _skin_materials[index]
+
+
+func _hair_material(color_name: String, source: Material) -> Material:
+	if not HAIR_COLORS.has(color_name):
+		color_name = String(DEFAULT_APPEARANCE["hair_color"])
+	if not _hair_materials.has(color_name):
+		var material := source.duplicate() as StandardMaterial3D
+		if material == null:
+			return source
+		material.albedo_texture = load(HAIR_PATH % color_name) as Texture2D
+		# Hair is a thin open shell: a single-sided source must not hide its
+		# inner faces, while an already double-sided source is left as shipped.
+		if material.cull_mode == BaseMaterial3D.CULL_BACK:
+			material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_hair_materials[color_name] = material
+	return _hair_materials[color_name]

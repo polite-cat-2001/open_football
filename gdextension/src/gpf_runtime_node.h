@@ -184,7 +184,7 @@ public:
     PackedInt32Array debug_get_plan_order(int team_id);
     PackedVector3Array get_goal_net_positions(int goal) const;
     PackedInt32Array get_goal_net_edges() const;
-    Ref<Image> generate_pitch_texture(int width, int height) const;
+    Dictionary generate_pitch_maps(int width, int height, const Ref<Image> &grass, const Ref<Image> &overlay) const;
     Dictionary get_player_pose(int player_id) const;
     Array get_player_ids() const;
     Array debug_get_formation(int team_id) const;

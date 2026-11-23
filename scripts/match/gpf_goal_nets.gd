@@ -9,6 +9,7 @@ var goal_net_meshes: Array[MeshInstance3D] = []
 var goal_net_edges: PackedInt32Array
 var goal_net_positions_cache: Array = []
 var goal_net_material: Material
+var _frame_materials: Array[StandardMaterial3D] = []
 
 var _runtime: Node
 
@@ -41,6 +42,21 @@ func update() -> void:
 		var positions: PackedVector3Array = _runtime.get_goal_net_positions(goal)
 		goal_net_positions_cache.append(positions)
 		draw(goal, positions)
+
+
+func set_light_tint(color: Color) -> void:
+	var material := goal_net_material as StandardMaterial3D
+	if material != null:
+		material.albedo_color = color
+
+
+# The imported frame is white but the floodlights leave its crossbar black from
+# some angles; a slight night emission keeps the goal readable.
+func set_frame_night(enabled: bool) -> void:
+	for material in _frame_materials:
+		material.emission_enabled = enabled
+		material.emission = Color(0.55, 0.60, 0.70)
+		material.emission_energy_multiplier = 0.6
 
 
 func get_positions() -> Array:
@@ -105,6 +121,15 @@ func _build_goal_frames(environment: Node3D) -> void:
 		# rendered from the C++ NetSim positions instead.
 		mesh_instance.visible = is_frame
 		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if is_frame:
+			for surface in mesh_instance.mesh.get_surface_count():
+				var source := mesh_instance.mesh.surface_get_material(surface)
+				if source == null:
+					continue
+				var frame_material := source.duplicate() as StandardMaterial3D
+				if frame_material != null:
+					mesh_instance.set_surface_override_material(surface, frame_material)
+					_frame_materials.append(frame_material)
 
 
 func _redraw(goal: int) -> void:

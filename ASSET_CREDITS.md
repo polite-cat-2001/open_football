@@ -47,6 +47,10 @@
 - Источник: та же GameplayFootball, Apache 2.0 (лицензия там же). Геометрия и веса —
   `data/media/objects/players/models/fullbody.ase`, текстуры кожи, бутс и подошв —
   `data/media/objects/players/textures/{skin.jpg,shoe.jpg,shoe_sole.jpg}`.
+- Причёски — `data/media/objects/players/hairstyles/{bald,short01,short02,medium01,medium02,long01}.ase`,
+  цвета волос — `data/media/objects/players/textures/hair/{black,blonde,brown,darkblonde,red}.png`;
+  варианты кожи — `data/media/objects/players/textures/skin01..04.png`, киты вратаря и судьи —
+  `goalie_kit.png` и `referee_kit.png`. Копии текстур для рантайма лежат в `assets/models/players/`.
 - Собирается `tools/build_gpf_fullbody.py` из локальной копии оригинала (в репозиторий
   сам `.ase` не кладётся, только результат сборки).
 - Кит (футболка/шорты/гетры) **не из оригинала**: клубные формы `databases/default/images_teams/`

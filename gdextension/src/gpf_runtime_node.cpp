@@ -288,7 +288,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("debug_get_plan", "team_id"), &GpfRuntimeNode::debug_get_plan);
     ClassDB::bind_method(D_METHOD("get_goal_net_positions", "goal"), &GpfRuntimeNode::get_goal_net_positions);
     ClassDB::bind_method(D_METHOD("get_goal_net_edges"), &GpfRuntimeNode::get_goal_net_edges);
-    ClassDB::bind_method(D_METHOD("generate_pitch_texture", "width", "height"), &GpfRuntimeNode::generate_pitch_texture);
+    ClassDB::bind_method(D_METHOD("generate_pitch_maps", "width", "height", "grass", "overlay"), &GpfRuntimeNode::generate_pitch_maps);
     ClassDB::bind_method(D_METHOD("get_player_pose", "player_id"), &GpfRuntimeNode::get_player_pose);
     ClassDB::bind_method(D_METHOD("get_player_ids"), &GpfRuntimeNode::get_player_ids);
     ClassDB::bind_method(D_METHOD("debug_get_formation", "team_id"), &GpfRuntimeNode::debug_get_formation);
@@ -2399,8 +2399,9 @@ PackedInt32Array GpfRuntimeNode::get_goal_net_edges() const {
     return edges;
 }
 
-Ref<Image> GpfRuntimeNode::generate_pitch_texture(int width, int height) const {
-    return ProceduralPitch::generate(width, height);
+Dictionary GpfRuntimeNode::generate_pitch_maps(int width, int height, const Ref<Image> &grass,
+        const Ref<Image> &overlay) const {
+    return ProceduralPitch::generate_maps(width, height, grass, overlay);
 }
 
 Dictionary GpfRuntimeNode::get_player_pose(int player_id) const {

@@ -58,15 +58,51 @@ func _run() -> void:
 	var old_lighting: int = int(environment.get("lighting_index"))
 	scene.call("_input", _key(KEY_F1))
 	await process_frame
-	_check(int(environment.get("lighting_index")) != old_lighting, "F1 cycles lighting presets")
+	_check(int(environment.get("lighting_index")) == old_lighting,
+		"F1 no longer changes the lighting")
+	scene.call("_input", _key(KEY_F8))
+	await process_frame
+	_check(int(environment.get("lighting_index")) != old_lighting, "F8 cycles the time of day")
 	var preset_map: Dictionary = environment.get_script().get_script_constant_map()
 	var presets: Array = preset_map.get("LIGHTING_PRESETS", [])
 	var preset_names: Array = []
 	for preset in presets:
 		preset_names.append(String(preset.get("name", "")))
-	_check(presets.size() == 3 and not preset_names.has("Night"),
-		"Night preset is disabled")
-	_check(scene.get_node_or_null("Floodlights") == null, "floodlights and panels are removed")
+	_check(preset_names == ["Noon", "Afternoon", "Sunset", "Night"],
+		"four presets: Noon, Afternoon, Sunset, Night")
+	var stadium_node := environment.get_node_or_null("Stadium") as Node3D
+	environment.call("set_lighting_by_name", "Night")
+	await process_frame
+	var floods: Node3D = null
+	if stadium_node != null:
+		floods = stadium_node.get_node_or_null("Floodlights") as Node3D
+	var panels: Array = []
+	if floods != null:
+		panels = floods.find_children("*", "MeshInstance3D", true, false)
+	_check(floods != null and floods.visible and panels.size() == 4,
+		"Night shows four floodlight fixtures")
+	var panel_material: Material = (panels[0] as MeshInstance3D).material_override if panels.size() > 0 else null
+	_check(panel_material is StandardMaterial3D
+		and (panel_material as StandardMaterial3D).shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED
+		and (panel_material as StandardMaterial3D).emission_enabled,
+		"floodlight fixtures are unshaded emitters")
+	var flood_lights: Array = environment.get("flood_lights")
+	var lit_fills := 0
+	var shadowed := 0
+	for light in flood_lights:
+		if light.visible:
+			lit_fills += 1
+		if light is SpotLight3D and (light as SpotLight3D).shadow_enabled:
+			shadowed += 1
+	_check(flood_lights.size() == 4 and lit_fills == 4 and shadowed == 1,
+		"Night adds four floodlight cones, one casts the shadow")
+	environment.call("set_lighting_by_name", "Afternoon")
+	await process_frame
+	lit_fills = 0
+	for light in flood_lights:
+		if light.visible:
+			lit_fills += 1
+	_check(not floods.visible and lit_fills == 0, "other presets hide the floodlights")
 	var replay_banner := replay.get("replay_banner") as Label
 	_check(replay_banner != null and not replay_banner.visible
 		and runtime.has_method("set_replay_active"), "replay overlay and pause hook are ready")
@@ -162,13 +198,19 @@ func _run() -> void:
 		and pitch_surface != null and pitch_surface.mesh.get_surface_count() == 1,
 		"imported pitch is merged into one themed surface")
 	environment.call("set_pitch_theme", "wet")
-	var wet_pitch := pitch_materials[0] as StandardMaterial3D
-	_check(wet_pitch != null and wet_pitch.roughness < 0.5, "wet pitch theme changes roughness")
+	var wet_pitch := pitch_materials[0] as ShaderMaterial
+	_check(wet_pitch != null and float(wet_pitch.get_shader_parameter("pitch_roughness")) < 0.5,
+		"wet pitch theme changes roughness")
+	_check(wet_pitch != null and wet_pitch.get_shader_parameter("albedo_map") != null
+		and wet_pitch.get_shader_parameter("detail_albedo") != null
+		and wet_pitch.get_shader_parameter("detail_normal") != null
+		and float(wet_pitch.get_shader_parameter("detail_strength")) > 0.0,
+		"pitch material carries the detail layer")
 	environment.call("set_pitch_theme", "dry")
-	scene.call("_input", _key(KEY_V))
+	scene.call("_input", _key(KEY_F6))
 	await process_frame
 	_check(bool(camera_rig.get("stadium")), "V switches to the stadium camera")
-	scene.call("_input", _key(KEY_V))
+	scene.call("_input", _key(KEY_F6))
 	await process_frame
 	_check(not bool(camera_rig.get("stadium")), "V returns to the broadcast camera")
 

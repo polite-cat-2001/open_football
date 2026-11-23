@@ -194,6 +194,10 @@ func _spawn_body(team: int, raw_position: Vector2, yaw: float) -> void:
 	body.position = Vector3(raw_position.x, raw_position.y, 0.0)
 	body.rotation.z = yaw
 	body.scale = Vector3.ONE * PLAYER_SCALE
+	# All six hairstyles ship in one glb; the menu diorama stays bald rather than
+	# stacking them (the match picks one per player, see GpfActors).
+	for hair in body.find_children("part_hair_*", "MeshInstance3D", true, false):
+		hair.visible = false
 	var skeletons := body.find_children("*", "Skeleton3D", true, false)
 	if not skeletons.is_empty():
 		var skeleton := skeletons[0] as Skeleton3D

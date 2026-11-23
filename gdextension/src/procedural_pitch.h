@@ -1,8 +1,7 @@
 #pragma once
 
 #include <godot_cpp/classes/image.hpp>
-#include <godot_cpp/classes/image_texture.hpp>
-#include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
 
 namespace godot {
 
@@ -23,8 +22,15 @@ namespace PitchConstants {
 
 class ProceduralPitch {
 public:
+    // Legacy debug match (match_node.cpp): flat noise + drawn lines.
     static Ref<Image> generate(int width = 2048, int height = 2048);
-    
+
+    // Port of src/onthepitch/proceduralpitch.cpp (GeneratePitch + CreateChunk):
+    // albedo = seamless tile + two perlin layers + sine canals + radial AO +
+    // overlay.png lines; normal = 11 m mow stripes + grass grain; roughness =
+    // perlin sheen. Sizes: albedo width x height, normal 2/3, roughness 1/3.
+    static Dictionary generate_maps(int width, int height, const Ref<Image> &grass, const Ref<Image> &overlay);
+
 private:
     static float perlin(float x, float y, int seed = 0);
     static float fade(float t);
