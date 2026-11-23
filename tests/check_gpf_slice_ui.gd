@@ -94,8 +94,8 @@ func _run() -> void:
 			lit_fills += 1
 		if light is SpotLight3D and (light as SpotLight3D).shadow_enabled:
 			shadowed += 1
-	_check(flood_lights.size() == 4 and lit_fills == 4 and shadowed == 1,
-		"Night adds four floodlight cones, one casts the shadow")
+	_check(flood_lights.size() == 4 and lit_fills == 4 and shadowed == 0,
+		"Night floodlights are fill; the sun casts the shadow")
 	environment.call("set_lighting_by_name", "Afternoon")
 	await process_frame
 	lit_fills = 0

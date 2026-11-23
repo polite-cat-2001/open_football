@@ -114,16 +114,16 @@ const LIGHTING_PRESETS := [
 	{
 		"name": "Night",
 		"net_tint": Color(0.35, 0.4, 0.5, 0.38),
-		"sun_pos": Vector3(0.20, 1.20, 0.20),
+		"sun_pos": Vector3(0.70, 0.70, 0.55),
 		"sun_color": Color(0.85, 0.90, 1.00),
 		"sun_energy": 0.65,
 		# The roof blocks the key on the stands; a cool ambient/fill lift keeps the
 		# bowl readable while the four cones keep the pitch and its shadows.
 		"ambient": 0.34,
 		"ambient_color": Color(0.20, 0.24, 0.34),
-		"fill_energy": 0.22,
+		"fill_energy": 0.32,
 		"fill_color": Color(0.80, 0.88, 1.00),
-		"exposure": 1.05,
+		"exposure": 1.0,
 		"sky_top": Color(0.015, 0.03, 0.08),
 		"sky_horizon": Color(0.05, 0.09, 0.17),
 		"ground_horizon": Color(0.02, 0.025, 0.04),
@@ -154,6 +154,7 @@ var floodlights: Node3D
 var flood_lights: Array[Light3D] = []
 var goal_lights: Array[SpotLight3D] = []
 var _seat_materials: Array[StandardMaterial3D] = []
+var _stadium_meshes: Array[MeshInstance3D] = []
 
 var _runtime: Node
 var _pitch_grass: Image
@@ -260,8 +261,8 @@ func _build_world_environment(sun: DirectionalLight3D, fill: DirectionalLight3D)
 		spot.spot_range = 220.0
 		spot.spot_angle = 55.0
 		spot.spot_angle_attenuation = 1.0
-		# One shadowed bank; four shadow directions read as four suns.
-		spot.shadow_enabled = i == 0
+		# The floodlights are fill; the low night key sun casts the single shadow.
+		spot.shadow_enabled = false
 		# The Environment basis mirrors raw space (det -1); the rig lives beside
 		# it in world space, like the Sun and FillLight in the slice scene.
 		get_parent().add_child(spot)
@@ -333,6 +334,12 @@ func _apply_lighting() -> void:
 		flood.visible = floodlit
 	for lamp in goal_lights:
 		lamp.visible = floodlit
+	# At night the key sun sits above the roof, so the bowl would throw a huge
+	# "night sun" shadow across the pitch. Floodlights would never do that;
+	# players, ball and props keep casting their shadows.
+	for mesh in _stadium_meshes:
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if floodlit \
+			else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	# The crowd/seat texture is near-black; at night it reads as a void. Lift the
 	# albedo instead of adding more lights (the fixtures are already lit).
 	for seat in _seat_materials:
@@ -358,6 +365,46 @@ func _build_environment() -> void:
 		add_child(pitch_root)
 		_apply_pitch_texture(pitch_root)
 
+	# The apron outside the grass reads as an athletics track. The stadium's own
+	# floor there is concrete and read as a black band behind the goals at night.
+	var apron := MeshInstance3D.new()
+	apron.name = "TrackApron"
+	var apron_mesh := PlaneMesh.new()
+	apron_mesh.size = Vector2(160.0, 118.0)
+	apron.mesh = apron_mesh
+	apron.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var apron_material := StandardMaterial3D.new()
+	var grain := FastNoiseLite.new()
+	grain.frequency = 1.4
+	grain.fractal_octaves = 3
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(0.38, 0.38, 0.38))
+	ramp.set_color(1, Color.WHITE)
+	var grain_texture := NoiseTexture2D.new()
+	grain_texture.width = 512
+	grain_texture.height = 512
+	grain_texture.seamless = true
+	grain_texture.noise = grain
+	grain_texture.color_ramp = ramp
+	var grain_normal := NoiseTexture2D.new()
+	grain_normal.width = 256
+	grain_normal.height = 256
+	grain_normal.seamless = true
+	grain_normal.noise = grain
+	grain_normal.as_normal_map = true
+	grain_normal.bump_strength = 8.0
+	apron_material.albedo_texture = grain_texture
+	apron_material.albedo_color = Color(0.62, 0.30, 0.15)
+	apron_material.uv1_scale = Vector3(60.0, 60.0, 1.0)
+	apron_material.roughness = 0.9
+	apron_material.roughness_texture = grain_texture
+	apron_material.normal_enabled = true
+	apron_material.normal_texture = grain_normal
+	apron_material.normal_scale = 0.8
+	apron.material_override = apron_material
+	apron.position = Vector3(0.0, 0.004, 0.0)
+	get_parent().add_child(apron)
+
 
 func _fix_stadium_materials(root: Node3D) -> void:
 	for node in root.find_children("*", "MeshInstance3D", true, false):
@@ -365,6 +412,7 @@ func _fix_stadium_materials(root: Node3D) -> void:
 		if mesh_instance.mesh == null:
 			continue
 		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		_stadium_meshes.append(mesh_instance)
 		for surface in mesh_instance.mesh.get_surface_count():
 			var source := mesh_instance.mesh.surface_get_material(surface)
 			if source == null:
