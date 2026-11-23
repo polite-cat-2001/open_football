@@ -27,6 +27,7 @@ static func tick(career: Career, catalog: TeamCatalog, today := "") -> Dictionar
 	career.data["date"] = reference
 	CareerEurope.simulate_due(career, catalog, reference)
 	CareerEurope.ensure_qualifying(career, catalog)
+	CareerConfederation.ensure(career, catalog)
 
 	var previous_incoming := career.incoming_market_date
 	if previous_incoming.is_empty():

@@ -22,7 +22,11 @@ const FORMATS := {
 	},
 }
 
+const FIRST_SEASON_PATH := "res://assets/data/continental_2026.json"
+
 static var last_error := ""
+static var _first_season: Dictionary = {}
+static var _countries: Dictionary = {}
 
 
 static func format_key(confederation: String, competition: String) -> String:
@@ -31,6 +35,98 @@ static func format_key(confederation: String, competition: String) -> String:
 
 static func has_format(confederation: String, competition: String) -> bool:
 	return FORMATS.has(format_key(confederation, competition))
+
+
+static func supports(confederation: String) -> bool:
+	for key in FORMATS:
+		if str(key).begins_with(confederation.to_upper() + ":"):
+			return true
+	return false
+
+
+static func confederation_of(country: String) -> String:
+	# The confederation a national association belongs to, from the access lists.
+	if _countries.is_empty():
+		for key in CareerBerths.access():
+			var conf = CareerBerths.access()[key]
+			if not (conf is Dictionary) or str(key).to_lower() == "uefa":
+				continue
+			for slot in conf.get("slots", []):
+				var name := str((slot as Dictionary).get("country", ""))
+				if not name.is_empty():
+					_countries[name] = str(conf.get("id", key)).to_upper()
+	return str(_countries.get(country, ""))
+
+
+static func first_season(confederation: String, season_start: String) -> Dictionary:
+	# The 2026 field of a calendar-year confederation, used by the first career
+	# season. Clubs are already database ids; `missing` lists the real entrants
+	# whose association has no league in the database.
+	if _first_season.is_empty():
+		if not FileAccess.file_exists(FIRST_SEASON_PATH):
+			return {}
+		var raw = JSON.parse_string(FileAccess.get_file_as_string(FIRST_SEASON_PATH))
+		if not (raw is Dictionary):
+			return {}
+		_first_season = raw
+	var block = _first_season.get(confederation.to_upper(), {})
+	if not (block is Dictionary) or block.is_empty():
+		return {}
+	var competitions := {}
+	for competition in block.get("competitions", {}):
+		var entry: Dictionary = block["competitions"][competition]
+		competitions[competition] = {
+			"entries": entry.get("entries", {}),
+			"missing": entry.get("missing", []),
+			"label": str(entry.get("label", competition)),
+		}
+	return {
+		"season": str(block.get("season", "")),
+		"competitions": competitions,
+		"first_season_of": season_start,
+	}
+
+
+static func build_first_season(catalog: TeamCatalog, confederation: String,
+		season_start: String, focus_club: String) -> Dictionary:
+	var source := first_season(confederation, season_start)
+	if source.is_empty():
+		return {}
+	var entries := {}
+	var missing := {}
+	for competition in source["competitions"]:
+		var entry: Dictionary = source["competitions"][competition]
+		entries[competition] = entry.get("entries", {})
+		missing[competition] = entry.get("missing", [])
+	var block := build(catalog, confederation, entries, season_start, focus_club)
+	if block.is_empty():
+		return {}
+	block["first_season"] = source.get("season", "")
+	for competition in missing:
+		if block["competitions"].has(competition):
+			block["competitions"][competition]["missing"] = missing[competition]
+	return block
+
+
+static func earliest_start(confederation: String, season_start: String) -> String:
+	# The first round of any of the confederation's cups, for the season window.
+	var year := int(str(season_start).substr(0, 4))
+	var best := ""
+	for key in FORMATS:
+		if not str(key).begins_with(confederation.to_upper() + ":"):
+			continue
+		var rounds: Array = FORMATS[key].get("rounds", [])
+		if rounds.is_empty():
+			continue
+		var window = (rounds[0] as Dictionary).get("window", [])
+		if not (window is Array) or (window as Array).size() < 2:
+			continue
+		var value := "%04d-%s" % [year, str(window[0])]
+		if value < season_start:
+			value = "%04d-%s" % [year + 1, str(window[0])]
+		if best.is_empty() or value < best:
+			best = value
+	return best
 
 
 static func build(catalog: TeamCatalog, confederation: String, entries: Dictionary,

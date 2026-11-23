@@ -56,10 +56,20 @@ static func create(
 	var season_start := LeagueRegulations.nearest_boundary(league_id, Career.START_DATE)
 	if season_start.is_empty():
 		season_start = Career.START_DATE
+	var country_name := str(catalog.country_by_id(
+		int(catalog.league_by_id(league_id).get("country_id", 0))).get("name", ""))
+	var confederation := CareerConfederation.confederation_of(country_name)
+	if not confederation.is_empty():
+		# The club's continental cup may start before the league: open the season
+		# early enough for it, like the European window does.
+		var continental_start := CareerConfederation.earliest_start(confederation,
+			season_start)
+		if not continental_start.is_empty():
+			var wished := CareerSeason.add_days(continental_start, -7)
+			if wished < season_start:
+				season_start = wished
 	var continental := {}
 	if europe_mode != "none":
-		var country_name := str(catalog.country_by_id(
-			int(catalog.league_by_id(league_id).get("country_id", 0))).get("name", ""))
 		if CareerEurope.uefa_association(country_name):
 			continental = CareerEurope.first_season(europe_mode, str(club_id))
 			if not CareerEurope.last_error.is_empty():
@@ -67,6 +77,10 @@ static func create(
 				return null
 		else:
 			europe_mode = "none"
+	var confederation_block := {}
+	if not confederation.is_empty():
+		confederation_block = CareerConfederation.build_first_season(catalog,
+			confederation, season_start, str(club_id))
 	var career_seed := seed if seed >= 0 else Career.random_seed()
 	var built := CareerCompetitions.build_season(catalog, league_id, league_ids,
 		season_start, {}, continental, str(club_id), career_seed)
@@ -75,6 +89,11 @@ static func create(
 	var competitions: Array = built.get("competitions", [])
 
 	var now := Career.utc_now()
+	var continental_data := continental
+	if not confederation_block.is_empty():
+		if continental_data.is_empty():
+			continental_data = {}
+		continental_data["confederations"] = {confederation: confederation_block}
 	var career := Career.new({
 		"version": Career.SAVE_VERSION,
 		"id": Career.random_id(),
@@ -102,13 +121,15 @@ static func create(
 		"country_coefficients_mode": country_mode,
 		"coefficients": CareerCoefficients.table(),
 		"country_coefficients": CareerCountryCoefficients.table(),
-		"continental": {season_start: continental} if not continental.is_empty() else {},
+		"continental": {season_start: continental_data} if not continental_data.is_empty() else {},
 		"seasons_completed": 0,
 		"schedule_version": SCHEDULE_VERSION,
 		"incoming_market_date": season_start,
 		"last_tick_date": season_start,
 	})
 	CareerSquad.ensure_finances(career, squad)
+	if not confederation_block.is_empty():
+		CareerConfederation.ensure(career, catalog)
 	return career
 
 

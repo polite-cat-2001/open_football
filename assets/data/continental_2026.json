@@ -1,0 +1,43 @@
+{
+ "checked": "2026-11-21",
+ "_comment": "First-season continental fields. The career opens after the 2026 calendar year of CONMEBOL/CONCACAF/OFC has started, so the first career season replays the 2026 edition as its own first edition, shifted into the career season. Clubs are Transfermarkt ids from open_football.sqlite; an association whose league is not in the database is listed under `missing` and the field is shorter by that club. Sources: the 2026 competition pages on Wikipedia (see docs/research/competition-formats/access-world.json for the access rules).",
+ "CONCACAF": {
+  "season": "2026",
+  "competitions": {
+   "champions_cup": {
+    "label": "CONCACAF Champions Cup",
+    "entries": {
+     "68653": "round_of_16",
+     "6478": "round_of_16",
+     "9636": "round_of_16",
+     "1804": "round_of_16",
+     "69261": "round_of_16",
+     "94560": "round_one",
+     "79097": "round_one",
+     "68029": "round_one",
+     "18577": "round_one",
+     "1708": "round_one",
+     "1061": "round_one",
+     "3631": "round_one",
+     "2407": "round_one",
+     "3711": "round_one",
+     "7055": "round_one",
+     "7633": "round_one",
+     "25467": "round_one",
+     "114977": "round_one",
+     "6321": "round_one",
+     "51772": "round_one",
+     "51828": "round_one",
+     "63966": "round_one"
+    },
+    "missing": [
+     {"association": "Dominican Republic", "club": "O&M", "reason": "no Dominican league in the database"},
+     {"association": "Trinidad and Tobago", "club": "Defence Force", "reason": "no Trinidadian league in the database"},
+     {"association": "Guatemala", "club": "Xelajú", "reason": "no Guatemalan league in the database"},
+     {"association": "Honduras", "club": "Real España", "reason": "no Honduran league in the database"},
+     {"association": "Honduras", "club": "Olimpia", "reason": "no Honduran league in the database"}
+    ]
+   }
+  }
+ }
+}

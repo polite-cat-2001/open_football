@@ -588,6 +588,17 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 						(focus_fixtures[0] as Dictionary).get("europe", ""))
 				continental[new_start] = built_continental
 				career.data["continental"] = continental
+		var confederation_fields := _confederation_fields(association_berths)
+		if not confederation_fields.is_empty():
+			var season_block: Dictionary = continental.get(new_start, {})
+			season_block["confederations"] = season_block.get("confederations", {})
+			for conf in confederation_fields:
+				var built_conf := CareerConfederation.build(catalog, conf,
+					confederation_fields[conf], new_start, career.club_id)
+				if not built_conf.is_empty():
+					season_block["confederations"][conf] = built_conf
+			continental[new_start] = season_block
+			career.data["continental"] = continental
 	var new_block: Dictionary = career.data.get("continental", {}).get(new_start, {})
 	var rankings = career.data.get("coefficients", {})
 	if not new_block.is_empty() and rankings is Dictionary and not rankings.is_empty():
@@ -627,6 +638,35 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 		"league_id": career.league_id,
 	})
 	return true
+
+
+static func _confederation_fields(berths: Dictionary) -> Dictionary:
+	# Berth map -> {confederation: {competition: {club_id: entry round}}}. Only
+	# the confederations with a modelled format are taken.
+	var result := {}
+	for country in berths:
+		var block = berths[country]
+		if not (block is Dictionary):
+			continue
+		var conf := str(block.get("confederation", "")).to_upper()
+		if not CareerConfederation.supports(conf):
+			continue
+		for berth in block.get("berths", []):
+			if not (berth is Dictionary):
+				continue
+			var competition := str(berth.get("competition", ""))
+			if not CareerConfederation.has_format(conf, competition):
+				continue
+			var club_id := str(berth.get("club_id", ""))
+			if club_id.is_empty():
+				continue
+			if not result.has(conf):
+				result[conf] = {}
+			if not (result[conf] as Dictionary).has(competition):
+				result[conf][competition] = {}
+			if not (result[conf][competition] as Dictionary).has(club_id):
+				result[conf][competition][club_id] = str(berth.get("entry", ""))
+	return result
 
 
 static func _journal(career: Career, kind: String, payload: Dictionary) -> void:
