@@ -90,4 +90,40 @@ func _run() -> void:
 
 	# The next season builds the field from the season's berths, not the asset.
 	CareerFactory.create(catalog, GALAXY, "Other", 189, 7)
+
+	# Libertadores: a Brazilian club starts in the 2026 group stage.
+	var flamengo := CareerFactory.create(catalog, 614, "South Tester", 189, 7)
+	_check(flamengo != null, "the Flamengo career is created: " + CareerFactory.last_error)
+	if flamengo == null:
+		_finish()
+		return
+	var south_block: Dictionary = flamengo.data.get("continental", {}).get(
+		flamengo.season_start, {})
+	var south: Dictionary = south_block.get("confederations", {}).get("CONMEBOL", {})
+	var liber: Dictionary = south.get("competitions", {}).get("libertadores", {})
+	_check(not liber.is_empty(), "the first season holds the Libertadores")
+	if liber.is_empty():
+		_finish()
+		return
+	_check((liber.get("entries", {}) as Dictionary).size() == 47,
+		"the 2026 Libertadores field has the 47 clubs")
+	_check(str(south.get("focus", "")) == "libertadores",
+		"Flamengo's competition is the focus")
+	var group_legs := 0
+	for fixture in flamengo.schedule:
+		if str(fixture.get("confederation", "")) != "CONMEBOL":
+			continue
+		var home2 := str(fixture.get("home", ""))
+		var away2 := str(fixture.get("away", ""))
+		if home2 == flamengo.club_id or away2 == flamengo.club_id:
+			group_legs += 1
+	_check(group_legs == 6, "the group stage schedules six Flamengo matches")
+	_check(_has_date(flamengo, "2027-"), "the cup plays inside the 2027 season")
 	_finish()
+
+
+func _has_date(career: Career, prefix: String) -> bool:
+	for fixture in career.schedule:
+		if str(fixture.get("date", "")).begins_with(prefix):
+			return true
+	return false

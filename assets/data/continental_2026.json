@@ -39,5 +39,63 @@
     ]
    }
   }
+ },
+ "CONMEBOL": {
+  "season": "2026",
+  "competitions": {
+   "libertadores": {
+    "label": "Copa Libertadores",
+    "entries": {
+     "333": "group_stage",
+     "928": "group_stage",
+     "288": "group_stage",
+     "12179": "group_stage",
+     "1418": "group_stage",
+     "189": "group_stage",
+     "42208": "group_stage",
+     "6878": "group_stage",
+     "614": "group_stage",
+     "199": "group_stage",
+     "1023": "group_stage",
+     "609": "group_stage",
+     "3876": "group_stage",
+     "2462": "group_stage",
+     "11004": "group_stage",
+     "3277": "group_stage",
+     "11648": "group_stage",
+     "11854": "group_stage",
+     "19309": "group_stage",
+     "9855": "group_stage",
+     "1214": "group_stage",
+     "9875": "group_stage",
+     "6593": "group_stage",
+     "28999": "group_stage",
+     "866": "group_stage",
+     "861": "group_stage",
+     "43146": "group_stage",
+     "26468": "group_stage",
+     "1030": "second_stage",
+     "23171": "second_stage",
+     "537": "second_stage",
+     "10010": "second_stage",
+     "11470": "second_stage",
+     "6368": "second_stage",
+     "10503": "second_stage",
+     "10093": "second_stage",
+     "3523": "second_stage",
+     "11855": "second_stage",
+     "1450": "second_stage",
+     "10663": "second_stage",
+     "14682": "second_stage",
+     "5570": "first_stage",
+     "17584": "first_stage",
+     "17484": "first_stage",
+     "184": "first_stage",
+     "17428": "first_stage",
+     "13297": "first_stage"
+    },
+    "missing": []
+   }
+  }
  }
 }
