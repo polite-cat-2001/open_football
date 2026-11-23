@@ -61,7 +61,8 @@ const FORMATS := {
 	"AFC:afc_challenge_league": {
 		"label": "AFC Challenge League",
 		"rounds": [
-			{"name": "preliminary", "legs": 1, "window": ["08-12", "08-20"]},
+			{"name": "preliminary", "legs": 1, "window": ["08-12", "08-20"],
+				"region_bracket": true},
 			{"name": "group_stage", "legs": 0, "window": ["10-01", "04-15"],
 				"wait_for": {"competition": "acl_two", "round": "preliminary"},
 				"groups": {"count": 2, "size": 14, "rounds": 6, "advance": 4},
