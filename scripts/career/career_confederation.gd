@@ -25,13 +25,31 @@ const FORMATS := {
 		"rounds": [
 			{"name": "first_stage", "legs": 1, "window": ["02-03", "02-12"]},
 			{"name": "second_stage", "legs": 2, "window": ["02-17", "02-26"]},
-			{"name": "third_stage", "legs": 2, "window": ["03-03", "03-12"]},
+			{"name": "third_stage", "legs": 2, "window": ["03-03", "03-12"],
+				"drop": {"to": "sudamericana", "entry": "group_stage", "count": 4}},
 			{"name": "group_stage", "legs": 0, "window": ["04-07", "05-28"],
-				"groups": {"count": 8, "size": 4, "rounds": 6, "advance": 2}},
+				"groups": {"count": 8, "size": 4, "rounds": 6, "advance": 2},
+				"drop": {"to": "sudamericana", "entry": "playoff", "count": 8}},
 			{"name": "round_of_16", "legs": 2, "window": ["08-11", "08-19"]},
 			{"name": "quarter_final", "legs": 2, "window": ["09-15", "09-23"]},
 			{"name": "semi_final", "legs": 2, "window": ["10-20", "10-28"]},
 			{"name": "final", "legs": 1, "window": ["11-28", "11-28"]},
+		],
+	},
+	"CONMEBOL:sudamericana": {
+		"label": "Copa Sudamericana",
+		"rounds": [
+			{"name": "first_stage", "legs": 1, "window": ["03-03", "03-05"]},
+			{"name": "group_stage", "legs": 0, "window": ["04-07", "05-28"],
+				"groups": {"count": 8, "size": 4, "rounds": 6, "advance": 2},
+				"wait_for": {"competition": "libertadores", "round": "third_stage"}},
+			{"name": "knockout_playoffs", "legs": 2, "window": ["07-21", "07-30"],
+				"playoff": true,
+				"wait_for": {"competition": "libertadores", "round": "group_stage"}},
+			{"name": "round_of_16", "legs": 2, "window": ["08-11", "08-19"]},
+			{"name": "quarter_final", "legs": 2, "window": ["09-15", "09-17"]},
+			{"name": "semi_final", "legs": 2, "window": ["10-13", "10-21"]},
+			{"name": "final", "legs": 1, "window": ["11-21", "11-21"]},
 		],
 	},
 }
@@ -169,6 +187,7 @@ static func build(catalog: TeamCatalog, confederation: String, entries: Dictiona
 			"entrants": {},
 			"sizes": {},
 			"fixtures": {},
+			"incoming": [],
 			"winners": [],
 			"champion": "",
 			"runner_up": "",
@@ -214,9 +233,13 @@ static func _advance(career: Career, conf_block: Dictionary,
 		var round: Dictionary = rounds[index]
 		var name := str(round.get("name", "r%d" % (index + 1)))
 		var is_group := round.has("groups")
+		var is_playoff := round.has("playoff")
 		var fixtures: Array = state.get("fixtures", {}).get(str(index), [])
 		if fixtures.is_empty():
-			var entrants: Array = _entrants(state, index, name)
+			if round.has("wait_for") and not _waiting_done(conf_block, round["wait_for"]):
+				return
+			var entrants: Array = _playoff_entrants(state) if is_playoff \
+				else _entrants(state, index, name)
 			if entrants.size() < 2:
 				# A round without its direct entrants is skipped; a lone club
 				# carries over to the next one.
@@ -244,8 +267,17 @@ static func _advance(career: Career, conf_block: Dictionary,
 		var entrants_now: Array = state.get("entrants", {}).get(str(index), [])
 		var next_entrants: Array = []
 		if is_group:
-			next_entrants = _group_advancers(career, round, entrants_now,
+			var resolved := _group_advancers(career, round, entrants_now,
 				state["fixtures"][str(index)])
+			state["tables"] = resolved.get("tables", {})
+			var following: Dictionary = rounds[index + 1] if index + 1 < rounds.size() else {}
+			if following.has("playoff"):
+				state["group_winners"] = resolved.get("winners", [])
+				state["group_runners"] = resolved.get("runners", [])
+				state["playoff_incoming"] = state.get("incoming", [])
+				next_entrants = []
+			else:
+				next_entrants = resolved.get("draw", [])
 		else:
 			var size_now := int(state.get("sizes", {}).get(str(index),
 				CareerBrackets.round_size(entrants_now.size())))
@@ -253,7 +285,10 @@ static func _advance(career: Career, conf_block: Dictionary,
 				fixtures, career.results, career.seed, {}, size_now)
 			next_entrants = CareerBrackets.round_winners(entrants_now, fixtures,
 				career.results, size_now)
+			if is_playoff:
+				state["carry"] = state.get("group_winners", [])
 		state["winners"] = next_entrants
+		_drop(career, conf_block, round, state, index)
 		if index == rounds.size() - 1:
 			state["done"] = true
 			state["champion"] = str(next_entrants[0]) if not next_entrants.is_empty() else ""
@@ -339,7 +374,7 @@ static func _group_layout(clubs: int, size: int, hint: int) -> Array:
 
 
 static func _group_advancers(career: Career, round: Dictionary, entrants: Array,
-		fixtures: Array) -> Array:
+		fixtures: Array) -> Dictionary:
 	var spec: Dictionary = round["groups"]
 	var size := maxi(2, int(spec.get("size", 4)))
 	var advance := maxi(1, int(spec.get("advance", 2)))
@@ -347,6 +382,7 @@ static func _group_advancers(career: Career, round: Dictionary, entrants: Array,
 		int(spec.get("count", 1)))
 	var winners: Array = []
 	var runners: Array = []
+	var tables := {}
 	var start := 0
 	for group in range(sizes.size()):
 		var count := int(sizes[group])
@@ -359,22 +395,106 @@ static func _group_advancers(career: Career, round: Dictionary, entrants: Array,
 				group_fixtures.append(fixture)
 		start += count
 		var rows := CareerStages.table(group_fixtures, career.results, ids)
+		tables[str(group)] = rows
 		if rows.is_empty():
 			continue
 		winners.append(str(rows[0].get("id", "")))
 		if advance >= 2 and rows.size() > 1:
 			runners.append(str(rows[1].get("id", "")))
-	if winners.is_empty():
-		return []
-	if runners.size() != winners.size() or advance < 2:
-		return winners
-	# The bracket pairs first with last: winner i meets runner-up i+1.
-	var draw: Array = []
-	draw.resize(winners.size() * 2)
-	for index in range(winners.size()):
-		draw[index] = winners[index]
-		draw[draw.size() - 1 - index] = runners[(index + 1) % runners.size()]
-	return draw
+	var draw: Array = winners.duplicate()
+	if not winners.is_empty() and runners.size() == winners.size() and advance >= 2:
+		# The bracket pairs first with last: winner i meets runner-up i+1.
+		draw.resize(winners.size() * 2)
+		for index in range(winners.size()):
+			draw[index] = winners[index]
+			draw[draw.size() - 1 - index] = runners[(index + 1) % runners.size()]
+	return {"draw": draw, "winners": winners, "runners": runners, "tables": tables}
+
+
+static func _playoff_entrants(state: Dictionary) -> Array:
+	var entrants: Array = []
+	entrants.append_array(state.get("playoff_incoming", []))
+	entrants.append_array(state.get("group_runners", []))
+	var ratings: Dictionary = state.get("ratings", {})
+	entrants.sort_custom(func(a: String, b: String) -> bool:
+		if not is_equal_approx(float(ratings.get(a, 55.0)),
+				float(ratings.get(b, 55.0))):
+			return float(ratings.get(a, 55.0)) > float(ratings.get(b, 55.0))
+		return a < b)
+	return entrants
+
+
+static func _waiting_done(conf_block: Dictionary, spec: Dictionary) -> bool:
+	var source = conf_block.get("competitions", {}).get(
+		str(spec.get("competition", "")), {})
+	if not (source is Dictionary) or (source as Dictionary).is_empty():
+		return true
+	if bool(source.get("done", false)):
+		return true
+	var wanted := str(spec.get("round", ""))
+	var rounds: Array = source.get("rounds", [])
+	for index in range(rounds.size()):
+		if str((rounds[index] as Dictionary).get("name", "")) == wanted:
+			return int(source.get("round_index", 0)) > index
+	return true
+
+
+static func _drop(career: Career, conf_block: Dictionary, round: Dictionary,
+		state: Dictionary, index: int) -> void:
+	if not round.has("drop"):
+		return
+	var rule: Dictionary = round["drop"]
+	var dest = conf_block.get("competitions", {}).get(str(rule.get("to", "")), {})
+	if not (dest is Dictionary) or (dest as Dictionary).is_empty() \
+			or bool(dest.get("done", false)):
+		return
+	var entry := str(rule.get("entry", "group_stage"))
+	var clubs: Array = []
+	if entry == "playoff":
+		# The third-placed team of every group goes down.
+		for group in state.get("tables", {}):
+			var rows: Array = state["tables"][group]
+			if rows.size() >= 3:
+				clubs.append(str(rows[2].get("id", "")))
+	else:
+		clubs = _round_losers(career, state, index)
+	var count := int(rule.get("count", 0))
+	if count > 0 and clubs.size() > count:
+		clubs = clubs.slice(0, count)
+	if entry == "playoff":
+		var incoming: Array = dest.get("incoming", [])
+		for club in clubs:
+			if not incoming.has(club):
+				incoming.append(club)
+		dest["incoming"] = incoming
+		return
+	if not (dest as Dictionary).has("entries"):
+		return
+	for club in clubs:
+		if not (dest["entries"] as Dictionary).has(club):
+			dest["entries"][club] = entry
+
+
+static func _round_losers(career: Career, state: Dictionary, index: int) -> Array:
+	var entrants: Array = state.get("entrants", {}).get(str(index), [])
+	var fixtures: Array = state.get("fixtures", {}).get(str(index), [])
+	var size := int(state.get("sizes", {}).get(str(index),
+		CareerBrackets.round_size(entrants.size())))
+	var winners: Array = state.get("winners", [])
+	var losers: Array = []
+	var winner_index := 0
+	for row in CareerBrackets.tie_results(entrants, fixtures, career.results, size):
+		if bool(row.get("bye", false)):
+			winner_index += 1
+			continue
+		var winner := str(winners[winner_index]) if winner_index < winners.size() else ""
+		winner_index += 1
+		for key in ["first", "second"]:
+			var club := str(row.get(key, ""))
+			if not club.is_empty() and club != winner:
+				losers.append(club)
+				break
+	return losers
 
 
 static func _window(career: Career, round: Dictionary) -> Array:

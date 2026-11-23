@@ -119,6 +119,56 @@ func _run() -> void:
 			group_legs += 1
 	_check(group_legs == 6, "the group stage schedules six Flamengo matches")
 	_check(_has_date(flamengo, "2027-"), "the cup plays inside the 2027 season")
+
+	# Sudamericana: River Plate starts in the group stage, the Libertadores runs
+	# beside it and sends its losers down.
+	var river := CareerFactory.create(catalog, 209, "Cup Tester", 189, 7)
+	_check(river != null, "the River Plate career is created: " + CareerFactory.last_error)
+	if river == null:
+		_finish()
+		return
+	var river_block: Dictionary = river.data.get("continental", {}).get(
+		river.season_start, {}).get("confederations", {}).get("CONMEBOL", {})
+	var competitions: Dictionary = river_block.get("competitions", {})
+	_check(competitions.has("sudamericana"), "the first season holds the Sudamericana")
+	var sa: Dictionary = competitions.get("sudamericana", {})
+	_check((sa.get("entries", {}) as Dictionary).size() == 48,
+		"44 clubs plus the four Libertadores third-stage losers")
+	_check(str(river_block.get("focus", "")) == "sudamericana",
+		"River Plate's competition is the focus")
+	_check(bool(competitions.get("libertadores", {}).get("done", false)),
+		"the Libertadores runs beside it")
+	var sa_groups: Array = sa.get("entrants", {}).get("1", [])
+	_check(sa_groups.size() == 32,
+		"the group stage fills to 32 with the Libertadores third-stage losers")
+	var sa_legs := 0
+	for fixture in river.schedule:
+		if str(fixture.get("confederation", "")) != "CONMEBOL":
+			continue
+		if str(fixture.get("stage", "")) != "sudamericana":
+			continue
+		var home3 := str(fixture.get("home", ""))
+		var away3 := str(fixture.get("away", ""))
+		if home3 == river.club_id or away3 == river.club_id:
+			sa_legs += 1
+	_check(sa_legs == 6, "the Sudamericana group stage schedules six River matches")
+	var sa_guard := 0
+	while not bool(sa.get("done", false)) and sa_guard < 20:
+		sa_guard += 1
+		for fixture in river.schedule:
+			if river.results.has(str(fixture.get("id", ""))):
+				continue
+			if str(fixture.get("stage", "")) != "sudamericana":
+				continue
+			var home4 := str(fixture.get("home", ""))
+			river.data["results"][str(fixture.get("id", ""))] = \
+				{"home": 2, "away": 0} if home4 == river.club_id \
+				else {"home": 0, "away": 2}
+		CareerConfederation.ensure(river, catalog)
+	_check(bool(sa.get("done", false)), "the Sudamericana reaches its final")
+	_check(not str(sa.get("champion", "")).is_empty(), "a Sudamericana champion is stored")
+	_check((sa["entrants"]["2"] as Array).size() == 16,
+		"the play-off takes the eight group runners-up and the eight Libertadores thirds")
 	_finish()
 
 

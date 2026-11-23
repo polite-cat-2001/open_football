@@ -31,11 +31,31 @@
      "63966": "round_one"
     },
     "missing": [
-     {"association": "Dominican Republic", "club": "O&M", "reason": "no Dominican league in the database"},
-     {"association": "Trinidad and Tobago", "club": "Defence Force", "reason": "no Trinidadian league in the database"},
-     {"association": "Guatemala", "club": "Xelajú", "reason": "no Guatemalan league in the database"},
-     {"association": "Honduras", "club": "Real España", "reason": "no Honduran league in the database"},
-     {"association": "Honduras", "club": "Olimpia", "reason": "no Honduran league in the database"}
+     {
+      "association": "Dominican Republic",
+      "club": "O&M",
+      "reason": "no Dominican league in the database"
+     },
+     {
+      "association": "Trinidad and Tobago",
+      "club": "Defence Force",
+      "reason": "no Trinidadian league in the database"
+     },
+     {
+      "association": "Guatemala",
+      "club": "Xelajú",
+      "reason": "no Guatemalan league in the database"
+     },
+     {
+      "association": "Honduras",
+      "club": "Real España",
+      "reason": "no Honduran league in the database"
+     },
+     {
+      "association": "Honduras",
+      "club": "Olimpia",
+      "reason": "no Honduran league in the database"
+     }
     ]
    }
   }
@@ -93,6 +113,56 @@
      "184": "first_stage",
      "17428": "first_stage",
      "13297": "first_stage"
+    },
+    "missing": []
+   },
+   "sudamericana": {
+    "label": "Copa Sudamericana",
+    "entries": {
+     "209": "group_stage",
+     "1444": "group_stage",
+     "19775": "group_stage",
+     "1775": "group_stage",
+     "11831": "group_stage",
+     "25184": "group_stage",
+     "585": "group_stage",
+     "210": "group_stage",
+     "8793": "group_stage",
+     "330": "group_stage",
+     "221": "group_stage",
+     "978": "group_stage",
+     "92979": "first_stage",
+     "8056": "first_stage",
+     "30854": "first_stage",
+     "17422": "first_stage",
+     "1037": "first_stage",
+     "6363": "first_stage",
+     "6536": "first_stage",
+     "17482": "first_stage",
+     "8172": "first_stage",
+     "2352": "first_stage",
+     "6495": "first_stage",
+     "2350": "first_stage",
+     "36020": "first_stage",
+     "87068": "first_stage",
+     "17426": "first_stage",
+     "8781": "first_stage",
+     "17427": "first_stage",
+     "7098": "first_stage",
+     "14545": "first_stage",
+     "629": "first_stage",
+     "17479": "first_stage",
+     "2734": "first_stage",
+     "76945": "first_stage",
+     "2729": "first_stage",
+     "2619": "first_stage",
+     "18074": "first_stage",
+     "14758": "first_stage",
+     "37535": "first_stage",
+     "45193": "first_stage",
+     "14596": "first_stage",
+     "531": "first_stage",
+     "42918": "first_stage"
     },
     "missing": []
    }
