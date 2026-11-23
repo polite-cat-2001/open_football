@@ -11,6 +11,19 @@ static func bracket_size(count: int) -> int:
 	return size
 
 
+static func round_size(count: int) -> int:
+	# A round pairs every entrant: even fields have no byes, an odd field gives
+	# the middle seed a bye. `bracket_size` pads to a full power of two instead,
+	# which is only right for a single-elimination bracket.
+	return count if count % 2 == 0 else count + 1
+
+
+static func _round_size(entrants: Array, size: int) -> int:
+	if size >= entrants.size() and size > 0:
+		return size
+	return bracket_size(entrants.size())
+
+
 static func pairs(entrants: Array, size: int) -> Array:
 	var result: Array = []
 	for index in range(size / 2):
@@ -26,15 +39,15 @@ static func pairs(entrants: Array, size: int) -> Array:
 
 
 static func round_fixtures(stage: Dictionary, round_index: int, entrants: Array,
-		dates: Array, prefix := "") -> Array:
+		dates: Array, prefix := "", size := 0) -> Array:
 	var rounds = stage.get("rounds", [])
 	if round_index < 0 or round_index >= (rounds as Array).size():
 		return []
 	var spec: Dictionary = rounds[round_index]
 	var legs := int(spec.get("legs", 1))
 	var name := str(spec.get("name", "r%d" % (round_index + 1)))
-	var size := bracket_size(entrants.size())
-	var ties := pairs(entrants, size)
+	var resolved := _round_size(entrants, size)
+	var ties := pairs(entrants, resolved)
 	var fixtures: Array = []
 	for tie_index in range(ties.size()):
 		var first = ties[tie_index][0]
@@ -60,9 +73,9 @@ static func round_fixtures(stage: Dictionary, round_index: int, entrants: Array,
 
 
 static func round_winners(entrants: Array, fixtures: Array,
-		results: Dictionary) -> Array:
+		results: Dictionary, size := 0) -> Array:
 	var winners: Array = []
-	for row in tie_results(entrants, fixtures, results):
+	for row in tie_results(entrants, fixtures, results, size):
 		if bool(row.get("bye", false)):
 			winners.append(str(row.first))
 			continue
@@ -89,14 +102,14 @@ static func round_winners(entrants: Array, fixtures: Array,
 
 
 static func settle_ties(entrants: Array, fixtures: Array, results: Dictionary,
-		seed: int, rules: Dictionary = {}) -> Dictionary:
+		seed: int, rules: Dictionary = {}, size := 0) -> Dictionary:
 	# A level tie is decided by the competition's tie-break: away goals first
 	# (two-legged ties only), then the extra-time method, then penalties. The
 	# extra time and shootout are written into the last leg's result.
 	var method := str(rules.get("method", "extra_time_pens"))
 	var away_goals := bool(rules.get("away_goals", false))
 	var away_extra := bool(rules.get("away_goals_extra_time", true))
-	for row in tie_results(entrants, fixtures, results):
+	for row in tie_results(entrants, fixtures, results, size):
 		if bool(row.get("bye", false)):
 			continue
 		if int(row.get("played", 0)) < (row.get("legs", []) as Array).size():
@@ -187,11 +200,11 @@ static func shootout(seed: int) -> Dictionary:
 
 
 static func tie_results(entrants: Array, fixtures: Array,
-		results: Dictionary) -> Array:
+		results: Dictionary, size := 0) -> Array:
 	if entrants.is_empty():
 		return []
-	var size := bracket_size(entrants.size())
-	var ties := pairs(entrants, size)
+	var resolved := _round_size(entrants, size)
+	var ties := pairs(entrants, resolved)
 	var rows: Array = []
 	for tie_index in range(ties.size()):
 		var first = ties[tie_index][0]
