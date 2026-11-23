@@ -24,6 +24,7 @@ const FORMATS := {
 		"label": "AFC Champions League Elite",
 		"rounds": [
 			{"name": "playoff", "legs": 1, "window": ["08-11", "08-12"],
+				"region_bracket": true,
 				"drop": {"to": "acl_two", "entry": "group_stage", "count": 4}},
 			{"name": "league_stage", "legs": 0, "window": ["09-14", "05-01"],
 				"groups": {"count": 2, "size": 16, "rounds": 8, "advance": 8},
@@ -298,6 +299,14 @@ static func _advance(career: Career, conf_block: Dictionary,
 		var is_region_round := bool(round.get("region_bracket", false))
 		var is_merge := bool(round.get("merge", false))
 		if is_region_round:
+			if state.get("region_entrants", {}).is_empty():
+				var direct: Array = _entrants(state, index, name)
+				if direct.size() < 2:
+					state["round_index"] = index + 1
+					continue
+				state["entrants"][str(index)] = direct
+				state["region_entrants"] = _split_regions(direct,
+					state.get("regions", {}), state.get("ratings", {}))
 			if not _region_round(career, confederation, competition, state, round,
 					index, prefix, conf_block):
 				return
@@ -531,6 +540,28 @@ static func _order_by_region(entrants: Array, regions_map: Dictionary) -> Array:
 	return ordered
 
 
+static func _split_regions(entrants: Array, regions_map: Dictionary,
+		ratings: Dictionary) -> Dictionary:
+	var split := {}
+	for region in ["west", "east"]:
+		var list: Array = []
+		for club_id in entrants:
+			if str(regions_map.get(str(club_id), "")) == region:
+				list.append(str(club_id))
+		if not list.is_empty():
+			list.sort_custom(func(a: String, b: String) -> bool:
+				if not is_equal_approx(float(ratings.get(a, 55.0)),
+						float(ratings.get(b, 55.0))):
+					return float(ratings.get(a, 55.0)) > float(ratings.get(b, 55.0))
+				return a < b)
+			split[region] = list
+	if split.is_empty():
+		for club_id in entrants:
+			split["west"] = split.get("west", [])
+			(split["west"] as Array).append(str(club_id))
+	return split
+
+
 static func _region_sizes(entrants: Array, regions_map: Dictionary) -> Array:
 	var sizes: Array = []
 	for region in ["west", "east"]:
@@ -582,6 +613,10 @@ static func _region_round(career: Career, confederation: String, competition: St
 		next[region] = CareerBrackets.round_winners(entrants, stored[region],
 			career.results, size)
 	state["region_entrants"] = next
+	var all: Array = []
+	for region in next:
+		all.append_array(next[region])
+	state["winners"] = all
 	return true
 
 
