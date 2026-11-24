@@ -348,6 +348,31 @@ func _sync_roster() -> void:
 	actors.sync_roster(ids)
 
 
+# The local human whose action is charging. The same C++ source covers open play
+# and set-piece kicks (HumanController::GetChargeRatio); the penalty reticle's
+# `set_piece_charge` is a separate value and must not gate this bar.
+func _update_charge_bar(snap: Dictionary, poses: Dictionary) -> void:
+	var ratio := float(snap.get("charge_ratio", 0.0))
+	var player_id := int(snap.get("charge_player_id", -1))
+	if ratio <= 0.0 or player_id < 0:
+		hud.set_charge(0.0, Vector2.ZERO)
+		return
+	var pose: Dictionary = poses.get(player_id, {})
+	var root: Vector3 = pose.get("pos", Vector3.INF)
+	if not root.is_finite():
+		hud.set_charge(0.0, Vector2.ZERO)
+		return
+	# Raw C++ (x length, y width, z height) -> the actors' world basis. Set pieces
+	# anchor above the head because the close camera cuts the feet; open play
+	# anchors on the ground under the player.
+	var set_piece := bool(snap.get("in_set_piece", false))
+	var anchor := actors.global_transform * Vector3(root.x, root.y, 2.45 if set_piece else 0.0)
+	if camera.is_position_behind(anchor):
+		hud.set_charge(0.0, Vector2.ZERO)
+		return
+	hud.set_charge(ratio, camera.unproject_position(anchor), set_piece)
+
+
 func _process(delta: float) -> void:
 	if not started:
 		return
@@ -397,6 +422,7 @@ func _process(delta: float) -> void:
 	actors.set_labels_visible(not camera_rig.stadium)
 	hud.apply_snapshot(snap, actors.get_controlled(), actors.count(), camera_rig.stadium,
 		environment_view.lighting_name())
+	_update_charge_bar(snap, poses)
 
 	frames += 1
 	if shot_path != "" and not shot_taken and frames >= shot_frame:

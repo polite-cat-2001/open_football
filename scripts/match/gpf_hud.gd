@@ -19,6 +19,7 @@ const TV_LOGO := "res://assets/gpf/media/menu/tvlogo.png"
 var hud: Label
 var scoreboard: MatchScoreboard
 var tv_logo: TextureRect
+var charge_bar: ChargeBar
 var taker_hint: Label
 var substitution_notice: Label
 var _sub_notice_counter := -1
@@ -41,6 +42,7 @@ var root_layer: CanvasLayer
 
 var _runtime: Node
 var _replay_mode := false
+var _chrome_visible := true
 
 
 func setup(runtime: Node) -> void:
@@ -68,6 +70,7 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	var on_break := bool(snap.get("phase_break_pending", false)) \
 		or bool(snap.get("phase_break", false))
 	var chrome_visible := _replay_mode or not (bool(snap.get("paused", false)) or on_break)
+	_chrome_visible = chrome_visible
 	if scoreboard != null:
 		scoreboard.apply(int(snap.get("score0", 0)), int(snap.get("score1", 0)),
 			_format_clock(int(snap.get("match_time_ms", 0))))
@@ -114,7 +117,28 @@ func set_replay_mode(active: bool) -> void:
 	_replay_mode = active
 	if hud != null:
 		hud.visible = not active and not is_taker_menu_open()
+	if charge_bar != null:
+		charge_bar.visible = false
 	_refresh_message_visibility()
+
+
+# The bar is screen-space: gpf_slice projects an anchor point and pushes it here
+# every frame. Set pieces anchor above the striker's head (the close camera puts
+# the feet at the bottom edge); open play anchors under the feet.
+func set_charge(ratio: float, screen_pos: Vector2, above_head := false) -> void:
+	if charge_bar == null:
+		return
+	var show := ratio > 0.01 and screen_pos.is_finite() and _chrome_visible \
+		and not _replay_mode
+	charge_bar.visible = show
+	if show:
+		charge_bar.set_ratio(ratio)
+		var view := get_viewport().get_visible_rect().size
+		var offset := Vector2(-ChargeBar.BAR_W * 0.5, -16.0 if above_head else 14.0)
+		var pos := screen_pos + offset
+		pos.x = clampf(pos.x, 8.0, view.x - ChargeBar.BAR_W - 8.0)
+		pos.y = clampf(pos.y, 8.0, view.y - ChargeBar.BAR_H - 8.0)
+		charge_bar.position = pos.round()
 
 
 func set_match_package(package: Dictionary) -> void:
@@ -126,6 +150,8 @@ func reset() -> void:
 	close_taker_menu(false)
 	_hint_player_id = -2
 	set_replay_mode(false)
+	if charge_bar != null:
+		charge_bar.visible = false
 	_sub_notice_counter = -1
 	if substitution_notice != null:
 		substitution_notice.visible = false
@@ -456,6 +482,10 @@ func _build_hud() -> void:
 	tv_logo.offset_bottom = 62.0
 	tv_logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(tv_logo)
+
+	charge_bar = ChargeBar.new()
+	charge_bar.name = "ChargeBar"
+	layer.add_child(charge_bar)
 
 	hud = Label.new()
 	hud.position = Vector2(24, 64)

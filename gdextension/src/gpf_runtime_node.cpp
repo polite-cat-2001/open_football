@@ -1926,6 +1926,36 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
         presentation->GetType() != e_SetPiece_KickOff;
     result["set_piece_taker_menu_available"] = is_set_piece_taker_menu_available();
     result["set_piece_taker_menu_open"] = match->IsSetPieceTakerMenuOpen();
+    // Open-play action charge of the local human: the HUD paints a bar under the
+    // charging player's feet. Set pieces carry their own charge above.
+    float charge_ratio = 0.0f;
+    int charge_player_id = -1;
+    for (int team_id = 0; team_id < 2; ++team_id) {
+        Team *team = match->GetTeam(team_id);
+        if (!team) {
+            continue;
+        }
+        std::vector<Player *> team_players;
+        match->GetActiveTeamPlayers(team_id, team_players);
+        for (size_t i = 0; i < team_players.size(); ++i) {
+            Player *player = team_players[i];
+            if (!is_local_human_player(player)) {
+                continue;
+            }
+            HumanGamer *gamer = team->GetHumanGamerControllingPlayer(player);
+            HumanController *controller = gamer ? gamer->GetHumanController() : nullptr;
+            if (!controller) {
+                continue;
+            }
+            const float ratio = controller->GetChargeRatio();
+            if (ratio > charge_ratio) {
+                charge_ratio = ratio;
+                charge_player_id = player->GetID();
+            }
+        }
+    }
+    result["charge_ratio"] = charge_ratio;
+    result["charge_player_id"] = charge_player_id;
     const RefereeBuffer &referee_buffer = match->GetRefereeBuffer();
     result["referee_active"] = referee_buffer.active;
     result["referee_set_piece"] = (int)referee_buffer.desiredSetPiece;
