@@ -292,7 +292,8 @@ static func _super_entry(record: Dictionary, competition_id: String,
 	var entrants := _super_entrants(record, history)
 	if entrants.size() < teams:
 		return {}
-	var rounds: Array = [{"name": "final", "legs": 1}]
+	var legs := maxi(1, int(record.get("final_legs", 1)))
+	var rounds: Array = [{"name": "final", "legs": legs}]
 	if teams >= 4:
 		rounds = [{"name": "semi", "legs": 1}, {"name": "final", "legs": 1}]
 	return {

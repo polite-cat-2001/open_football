@@ -56,8 +56,6 @@ def main() -> None:
             cup = row.get("super_cup")
             if country in have or not isinstance(cup, dict):
                 continue
-            if str(cup.get("format", "")) == "mini_tournament":
-                continue
             text = (str(cup.get("note", "")) + " " + str(cup.get("quote", ""))).lower()
             if any(word in text for word in SKIP_WORDS):
                 continue
@@ -78,8 +76,13 @@ def main() -> None:
             while key in competitions:
                 key = f"{base}{suffix}"
                 suffix += 1
+            cup_id = next((cid for cid, value in competitions.items()
+                           if str(value.get("country", "")) == country
+                           and str(value.get("kind", "")) == "cup"), "")
             competitions[key] = {
                 "kind": "super_cup", "label": name, "country": country,
+                "teams": max(2, int(cup.get("teams", 2))),
+                "cup": cup_id,
                 "start_md": start_md, "end_md": start_md, "final_legs": legs,
                 "champion": "winner", "source": str(cup.get("source", "")),
                 "confidence": str(cup.get("confidence", "")),
