@@ -117,6 +117,10 @@ func _run() -> void:
 				or (ball_material != null and ball_material.albedo_texture != null)
 	_check(ball_shadow, "ball casts a shadow")
 	_check(ball_textured, "ball uses the original ball texture")
+	var scoreboard := scene.get_node_or_null("Hud/HudOverlay/Scoreboard") as MatchScoreboard
+	_check(scoreboard != null and scoreboard.home_crest != null
+		and scoreboard.away_crest != null and scoreboard.clock_text.length() == 5,
+		"the scoreboard reads the package crests and the snapshot clock")
 	var nameplates: Dictionary = actors.get("player_labels")
 	var controlled_id := int(actors.get("controlled_id"))
 	var controlled_label := nameplates.get(controlled_id) as Label3D

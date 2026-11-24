@@ -85,6 +85,7 @@ func _ready() -> void:
 	goal_nets.set_frame_night(environment_view.lighting_name() == "Night")
 	camera_rig.setup(camera, actors)
 	hud.setup(runtime)
+	hud.set_match_package(ShellState.match_package)
 	if not ShellState.controllers.is_empty() \
 			and str(ShellState.controllers[0].get("kind", "keyboard")) == "gamepad":
 		hud.set_taker_hint_key("Select")

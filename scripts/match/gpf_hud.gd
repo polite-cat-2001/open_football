@@ -4,15 +4,6 @@ extends Node
 # overlay. The phase break is not drawn here: it reuses the design-system pause
 # screen (GpfPauseMenu.open_break). The end-of-match screens live in GpfMatchOver.
 
-const PHASE_NAMES := [
-	"PRE-MATCH",
-	"1ST HALF",
-	"2ND HALF",
-	"EXTRA TIME 1",
-	"EXTRA TIME 2",
-	"PENALTIES",
-]
-
 const SET_PIECE_NAMES := [
 	"",
 	"KICKOFF",
@@ -23,8 +14,11 @@ const SET_PIECE_NAMES := [
 	"PENALTY",
 ]
 
+const TV_LOGO := "res://assets/gpf/media/menu/tvlogo.png"
+
 var hud: Label
-var score_hud: Label
+var scoreboard: MatchScoreboard
+var tv_logo: TextureRect
 var taker_hint: Label
 var substitution_notice: Label
 var _sub_notice_counter := -1
@@ -71,20 +65,15 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	if hud == null:
 		return
 	var status := _status_text(snap, display_player_id)
-	if score_hud != null:
-		# The shootout HUD is the two circles rows; no match clock or score.
-		score_hud.visible = not bool(snap.get("shootout_active", false))
-		var phase_text := _phase_name(int(snap.get("match_phase", 0)))
-		if bool(snap.get("game_over", false)):
-			phase_text = "FULL TIME"
-		elif bool(snap.get("phase_break_pending", false)) or bool(snap.get("phase_break", false)):
-			phase_text = "BREAK"
-		score_hud.text = "%d : %d    %s    %s" % [
-			int(snap.get("score0", 0)),
-			int(snap.get("score1", 0)),
-			_format_clock(int(snap.get("match_time_ms", 0))),
-			phase_text,
-		]
+	var on_break := bool(snap.get("phase_break_pending", false)) \
+		or bool(snap.get("phase_break", false))
+	var chrome_visible := _replay_mode or not (bool(snap.get("paused", false)) or on_break)
+	if scoreboard != null:
+		scoreboard.apply(int(snap.get("score0", 0)), int(snap.get("score1", 0)),
+			_format_clock(int(snap.get("match_time_ms", 0))))
+		scoreboard.visible = chrome_visible
+	if tv_logo != null:
+		tv_logo.visible = chrome_visible
 	var duration := 1.0
 	if _runtime != null:
 		duration = float(_runtime.get("match_duration"))
@@ -125,9 +114,12 @@ func set_replay_mode(active: bool) -> void:
 	_replay_mode = active
 	if hud != null:
 		hud.visible = not active and not is_taker_menu_open()
-	if score_hud != null:
-		score_hud.visible = not active
 	_refresh_message_visibility()
+
+
+func set_match_package(package: Dictionary) -> void:
+	if scoreboard != null:
+		scoreboard.set_teams(package.get("home", {}), package.get("away", {}))
 
 
 func reset() -> void:
@@ -429,12 +421,6 @@ func _format_clock(milliseconds: int) -> String:
 	return "%02d:%02d" % [total_seconds / 60, total_seconds % 60]
 
 
-func _phase_name(phase: int) -> String:
-	if phase >= 0 and phase < PHASE_NAMES.size():
-		return PHASE_NAMES[phase]
-	return "PHASE %d" % phase
-
-
 func _set_piece_name(piece: int) -> String:
 	if piece > 0 and piece < SET_PIECE_NAMES.size():
 		return SET_PIECE_NAMES[piece]
@@ -452,13 +438,24 @@ func _build_hud() -> void:
 	layer.name = "HudOverlay"
 	add_child(layer)
 
-	score_hud = Label.new()
-	score_hud.position = Vector2(24, 14)
-	score_hud.add_theme_font_size_override("font_size", 34)
-	score_hud.add_theme_color_override("font_color", Color(0.97, 0.97, 0.97))
-	score_hud.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-	score_hud.add_theme_constant_override("outline_size", 5)
-	layer.add_child(score_hud)
+	scoreboard = MatchScoreboard.new()
+	scoreboard.name = "Scoreboard"
+	scoreboard.position = Vector2(24, 14)
+	layer.add_child(scoreboard)
+
+	tv_logo = TextureRect.new()
+	tv_logo.name = "TvLogo"
+	tv_logo.texture = load(TV_LOGO) as Texture2D
+	tv_logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tv_logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tv_logo.anchor_left = 1.0
+	tv_logo.anchor_right = 1.0
+	tv_logo.offset_left = -120.0
+	tv_logo.offset_right = -24.0
+	tv_logo.offset_top = 14.0
+	tv_logo.offset_bottom = 62.0
+	tv_logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(tv_logo)
 
 	hud = Label.new()
 	hud.position = Vector2(24, 64)

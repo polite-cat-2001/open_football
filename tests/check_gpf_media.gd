@@ -140,10 +140,15 @@ const ADBOARDS := [
 
 # Фазы 8 и 10: текстуры меню, гербы команд/соревнований, шрифты. Сюда не едут.
 const FORBIDDEN_DIRS := [
-	"menu",
 	"fonts",
 	"blunted",
 	"objects/players/textures",
+]
+
+# Ticket 07 pulls exactly one menu texture into the broadcast HUD: the TV bug.
+# Everything else under menu/ still belongs to phases 8 and 10.
+const MENU := [
+	"menu/tvlogo.png",
 ]
 
 var _fails := 0
@@ -197,6 +202,15 @@ func _initialize() -> void:
 	for name in ADBOARDS:
 		ads.append("textures/adboards/%s" % name)
 	_expect_files("адборды", ads)
+	_expect_files("ТВ-лого", MENU)
+
+	var menu_dir := "%s/menu" % MEDIA
+	if DirAccess.dir_exists_absolute(menu_dir):
+		for name in DirAccess.get_files_at(menu_dir):
+			if name.ends_with(".import") or name.ends_with(".uid"):
+				continue
+			if not ("menu/" + name) in MENU:
+				_fail("лишняя текстура меню: %s" % name)
 
 	for dir in FORBIDDEN_DIRS:
 		if DirAccess.dir_exists_absolute("%s/%s" % [MEDIA, dir]):

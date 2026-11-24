@@ -70,6 +70,18 @@ static func national_icon() -> Texture2D:
 	return load_texture("media/textures/nationalteams.png")
 
 
+# A team dict from the match package: prefer the path it carries, fall back to
+# the imported crest by database id (the package path mirrors the original tree).
+static func package_crest(team: Dictionary) -> Texture2D:
+	var texture := usable_texture(
+		load_texture_mipmapped(str(team.get("logo_url", ""))))
+	var team_id := int(team.get("database_id", 0))
+	if texture == null and team_id > 0:
+		texture = usable_texture(
+			load_texture_mipmapped("databases/default/images_teams/%d.png" % team_id))
+	return texture
+
+
 static func usable_texture(texture: Texture2D) -> Texture2D:
 	# When a specific image is missing the data tree returns the original orange
 	# placeholder; the design-system cards prefer their glyph fallback
