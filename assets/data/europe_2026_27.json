@@ -3,7 +3,7 @@
  "source": "Wikipedia 2026-27 UEFA Champions League / Europa League / Conference League league-phase tables",
  "checked": "2026-11-22",
  "competitions": {
-  "UCL": [
+  "CL": [
    "583",
    "418",
    "11",
@@ -41,7 +41,7 @@
    "1082",
    "540"
   ],
-  "UEL": [
+  "EL": [
    "294",
    "989",
    "279",
@@ -79,7 +79,7 @@
    "238",
    "53453"
   ],
-  "UECL": [
+  "UCOL": [
    "2790",
    "265",
    "317",
@@ -119,7 +119,7 @@
   ]
  },
  "replacements": {
-  "UECL": [
+  "UCOL": [
    {
     "missing": "Borac Banja Luka",
     "missing_coefficient": 13.125,
@@ -130,7 +130,7 @@
   ]
  },
  "draw": {
-  "UCL": [
+  "CL": [
    [
     2441,
     413
@@ -708,7 +708,7 @@
     46
    ]
   ],
-  "UEL": [
+  "EL": [
    [
     53453,
     197
@@ -1286,7 +1286,7 @@
     279
    ]
   ],
-  "UECL": [
+  "UCOL": [
    [
     2790,
     159

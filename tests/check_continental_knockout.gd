@@ -42,19 +42,19 @@ func _run() -> void:
 		_finish()
 		return
 	var ratings := {}
-	for club_id in CareerEurope.fields().get("ucl", []):
+	for club_id in CareerEurope.fields().get("CL", []):
 		ratings[str(club_id)] = float(
 			catalog.load_team_rating(int(club_id)).get("average", 55.0))
 	var results := {}
 	for fixture in career.schedule:
-		if str(fixture.get("competition", "")) == "ucl":
+		if str(fixture.get("competition", "")) == "CL":
 			results[str(fixture.get("id", ""))] = CareerSeason.simulate(
 				career.seed, fixture, ratings)
 	career.data["results"] = results
 	var champions := CareerContinental.finish(catalog, career, block, career.seed)
 	_check(champions.size() == 3, "three European champions: %d" % champions.size())
 	var fields := CareerEurope.fields()
-	for comp in ["ucl", "uel", "uecl"]:
+	for comp in ["CL", "EL", "UCOL"]:
 		var champion := str(champions.get(comp, ""))
 		_check(not champion.is_empty(), "%s has a champion" % comp)
 		_check((fields.get(comp, []) as Array).has(champion),
@@ -64,20 +64,20 @@ func _run() -> void:
 		_check(knockout.size() == 5, "%s has five knockout rounds: %d"
 			% [comp, knockout.size()])
 	var state := {}
-	for comp in ["ucl", "uel", "uecl"]:
+	for comp in ["CL", "EL", "UCOL"]:
 		state[comp] = {"clubs": {}, "league": [], "paths": {}, "direct": {}}
-	state["ucl"]["clubs"]["1"] = true
+	state["CL"]["clubs"]["1"] = true
 	CareerContinental._apply_title_holders(state, {
-		"ucl": "1", "uel": "2", "uecl": "3"})
-	_check(not (state["ucl"]["league"] as Array).has("1"),
+		"CL": "1", "EL": "2", "UCOL": "3"})
+	_check(not (state["CL"]["league"] as Array).has("1"),
 		"an already qualified title holder gets no second place")
-	_check((state["ucl"]["league"] as Array).has("2"),
+	_check((state["CL"]["league"] as Array).has("2"),
 		"the Europa League winner enters the Champions League")
-	_check((state["uel"]["league"] as Array).has("3"),
+	_check((state["EL"]["league"] as Array).has("3"),
 		"the Conference League winner enters the Europa League")
 	var coefficients: Dictionary = career.data.get("coefficients", {})
 	_check(coefficients.size() >= 300, "the career coefficient table is loaded")
-	var champion_row = coefficients.get(str(champions.get("ucl", "")), [])
+	var champion_row = coefficients.get(str(champions.get("CL", "")), [])
 	_check(champion_row is Array and (champion_row as Array).size() == 5
 		and float((champion_row as Array)[4]) > 0.0,
 		"the Champions League winner's season points rolled into the table")
@@ -94,7 +94,7 @@ func _run() -> void:
 			dynamic.season_start, {})
 		var dynamic_results := {}
 		for fixture in dynamic.schedule:
-			if str(fixture.get("competition", "")) == "ucl":
+			if str(fixture.get("competition", "")) == "CL":
 				dynamic_results[str(fixture.get("id", ""))] = CareerSeason.simulate(
 					dynamic.seed, fixture, ratings)
 		dynamic.data["results"] = dynamic_results
@@ -116,7 +116,7 @@ func _run() -> void:
 	var first_pair: Array = pairs[0]
 	var forced_winner := str(first_pair[1])
 	var key := CareerContinental._pair_key(str(first_pair[0]), forced_winner)
-	var tie := CareerContinental._play_tie(tie_clubs, "ucl", "q1", "main", 42,
+	var tie := CareerContinental._play_tie(tie_clubs, "CL", "q1", "main", 42,
 		tie_ratings, {key: forced_winner})
 	_check((tie.get("winners", []) as Array).has(forced_winner),
 		"a forced qualifier result becomes the tie winner")

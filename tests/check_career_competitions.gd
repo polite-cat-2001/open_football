@@ -53,7 +53,7 @@ func _run() -> void:
 		"the league and one cup are installed: %d" % entries.size())
 	var cup: Dictionary = {}
 	for entry in entries:
-		if str(entry.get("id", "")) == "ESCUP":
+		if str(entry.get("id", "")) == "CDR":
 			cup = entry
 	_check(not cup.is_empty(), "the Copa del Rey is in the save")
 	if cup.is_empty():
@@ -69,7 +69,7 @@ func _run() -> void:
 	var cup_fixtures := []
 	var league_dates := {}
 	for fixture in career.schedule:
-		if str(fixture.get("competition", "")) == "ESCUP":
+		if str(fixture.get("competition", "")) == "CDR":
 			cup_fixtures.append(fixture)
 		elif str(fixture.get("competition", "")) == "ES1":
 			league_dates[str(fixture.get("date", ""))] = true
@@ -101,13 +101,13 @@ func _run() -> void:
 	var rounds_seen := {}
 	var cup_total := 0
 	for fixture in career.schedule:
-		if str(fixture.get("competition", "")) != "ESCUP":
+		if str(fixture.get("competition", "")) != "CDR":
 			continue
 		cup_total += 1
 		rounds_seen[int(fixture.get("stage_round", 0))] = true
 	_check(cup_total == 155, "the 154-club knockout includes the two-legged semis: %d" % cup_total)
 	_check(rounds_seen.size() == 8, "all eight cup rounds are generated")
-	_check(not CareerCompetitions.winner_of(career, "ESCUP").is_empty(),
+	_check(not CareerCompetitions.winner_of(career, "CDR").is_empty(),
 		"the cup has a winner")
 	_check(CareerSeason.next_fixture(career).is_empty(),
 		"the cup completes together with the league")
@@ -129,7 +129,7 @@ func _run() -> void:
 	if loaded != null:
 		var loaded_cup := 0
 		for fixture in loaded.schedule:
-			if str(fixture.get("competition", "")) == "ESCUP":
+			if str(fixture.get("competition", "")) == "CDR":
 				loaded_cup += 1
 		_check(loaded_cup == 155, "the cup fixtures survive the save: %d" % loaded_cup)
 		_check(loaded.data.get("competitions", []).size() == 2,
@@ -143,14 +143,14 @@ func _run() -> void:
 			"the next Spanish season starts: " + CareerSeason.last_error)
 		var next_cup := 0
 		for fixture in career.schedule:
-			if str(fixture.get("competition", "")) == "ESCUP":
+			if str(fixture.get("competition", "")) == "CDR":
 				next_cup += 1
 		_check(next_cup == 26, "the next season installs a fresh cup: %d" % next_cup)
 		_check(career.data.get("competitions", []).size() == 3,
 			"the next season keeps the list and adds the super cup")
 		var super_cup: Dictionary = {}
 		for item in career.data.get("competitions", []):
-			if str(item.get("id", "")) == "ESPSC":
+			if str(item.get("id", "")) == "SUC":
 				super_cup = item
 		_check(not super_cup.is_empty(), "the Supercopa is installed in the second season")
 		if not super_cup.is_empty():
@@ -166,7 +166,7 @@ func _run() -> void:
 			CareerCompetitions.ensure(career)
 			var pending := []
 			for fixture in career.schedule:
-				if str(fixture.get("competition", "")) == "ESPSC" \
+				if str(fixture.get("competition", "")) == "SUC" \
 						and not career.results.has(str(fixture.get("id", ""))):
 					pending.append(fixture)
 			if pending.is_empty():
@@ -174,13 +174,13 @@ func _run() -> void:
 			for fixture in pending:
 				career.data["results"][str(fixture.get("id", ""))] = \
 					_result(fixture)
-		_check(not CareerCompetitions.winner_of(career, "ESPSC").is_empty(),
+		_check(not CareerCompetitions.winner_of(career, "SUC").is_empty(),
 			"the Supercopa has a winner")
 		var reloaded := Career.from_save(career.to_save())
 		_check(reloaded != null, "the season with a super cup saves and loads")
 		if reloaded != null:
-			_check(CareerCompetitions.winner_of(reloaded, "ESPSC")
-				== CareerCompetitions.winner_of(career, "ESPSC"),
+			_check(CareerCompetitions.winner_of(reloaded, "SUC")
+				== CareerCompetitions.winner_of(career, "SUC"),
 				"the super cup winner survives the save")
 			_check(reloaded.to_save() == career.to_save(),
 				"the season with tables and berths round-trips exactly")
@@ -202,16 +202,16 @@ func _run() -> void:
 		var continental: Dictionary = career.data.get("continental", {}).get(
 			career.season_start, {})
 		var competitions: Dictionary = continental.get("competitions", {})
-		for comp in ["ucl", "uel", "uecl"]:
+		for comp in ["CL", "EL", "UCOL"]:
 			var league: Array = competitions.get(comp, {}).get("league_phase", [])
 			var unique := {}
 			for club_id in league:
 				unique[str(club_id)] = true
 			_check(league.size() == 36 and unique.size() == 36,
 				"%s league phase has 36 distinct clubs: %d" % [comp, league.size()])
-		var ucl_q1: Array = competitions.get("ucl", {}).get(
+		var ucl_q1: Array = competitions.get("CL", {}).get(
 			"rounds", {}).get("q1", {}).get("champions", {}).get("losers", [])
-		var uecl_q2: Array = competitions.get("uecl", {}).get(
+		var uecl_q2: Array = competitions.get("UCOL", {}).get(
 			"rounds", {}).get("q2", {}).get("champions", {}).get("entrants", [])
 		var dropped := 0
 		for club_id in ucl_q1:
@@ -220,7 +220,7 @@ func _run() -> void:
 		_check(dropped > 0, "Champions League q1 losers drop into the Conference q2")
 		var seen := {}
 		var repeated: Array = []
-		for comp in ["ucl", "uel", "uecl"]:
+		for comp in ["CL", "EL", "UCOL"]:
 			for club_id in competitions.get(comp, {}).get("league_phase", []):
 				if seen.has(str(club_id)):
 					repeated.append("%s:%s,%s" % [club_id, seen[str(club_id)], comp])
@@ -228,7 +228,7 @@ func _run() -> void:
 		_check(repeated.is_empty(),
 			"no club is in two league phases: " + str(repeated.slice(0, 3)))
 		var player_comp := ""
-		for comp in ["ucl", "uel", "uecl"]:
+		for comp in ["CL", "EL", "UCOL"]:
 			if (competitions.get(comp, {}).get("league_phase", []) as Array).has(
 					career.club_id):
 				player_comp = comp

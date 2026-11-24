@@ -50,14 +50,14 @@ func _run() -> void:
 	_check(not spain.is_empty(), "Spain has a berth list")
 	_check(bool(spain.get("eps", false)), "Spain gets the EPS Champions League place")
 	var counts := _counts(spain)
-	_check(int(counts.get("ucl", 0)) == 5 and int(counts.get("uel", 0)) == 2
-		and int(counts.get("uecl", 0)) == 1,
+	_check(int(counts.get("CL", 0)) == 5 and int(counts.get("EL", 0)) == 2
+		and int(counts.get("UCOL", 0)) == 1,
 		"Spain: five Champions League, two Europa, one Conference")
-	_check(_clubs(spain, "ucl") == ["1", "2", "3", "4", "5"],
+	_check(_clubs(spain, "CL") == ["1", "2", "3", "4", "5"],
 		"the Champions League places are the top five")
-	_check(_clubs(spain, "uel").has("6") and _clubs(spain, "uel").has("19"),
+	_check(_clubs(spain, "EL").has("6") and _clubs(spain, "EL").has("19"),
 		"the sixth club and the cup winner enter the Europa League")
-	_check(_clubs(spain, "uecl") == ["7"],
+	_check(_clubs(spain, "UCOL") == ["7"],
 		"the seventh club enters the Conference League")
 	var all_ids := {}
 	for entry in spain.get("berths", []):
@@ -65,44 +65,44 @@ func _run() -> void:
 	_check(all_ids.size() == 8, "no club gets two berths")
 
 	var cascade := CareerBerths.for_country("Spain", rows, {"Copa del Rey": "3"})
-	_check(_clubs(cascade, "uel") == ["6", "7"],
+	_check(_clubs(cascade, "EL") == ["6", "7"],
 		"a cup winner already in the Champions League cascades the Europa place")
-	_check(_clubs(cascade, "uecl") == ["8"],
+	_check(_clubs(cascade, "UCOL") == ["8"],
 		"the Conference place cascades to the next club")
 
 	var england := CareerBerths.for_country("England", rows,
 		{"FA Cup": "19", "EFL Cup": "18"})
-	_check(int(_counts(england).get("uecl", 0)) == 1,
+	_check(int(_counts(england).get("UCOL", 0)) == 1,
 		"England's second cup does not add a berth")
-	_check(_clubs(england, "uecl") == ["18"],
+	_check(_clubs(england, "UCOL") == ["18"],
 		"the EFL Cup winner takes the Conference place")
 	var england_qualified := CareerBerths.for_country("England", rows,
 		{"FA Cup": "19", "EFL Cup": "3"})
-	_check(_clubs(england_qualified, "uecl") == ["7"],
+	_check(_clubs(england_qualified, "UCOL") == ["7"],
 		"an already-qualified EFL Cup winner cascades the Conference place")
 
 	var bosnia := CareerBerths.for_country("Bosnia and Herzegovina", rows,
 		{"Bosnia and Herzegovina Football Cup": "19"})
-	_check(int(_counts(bosnia).get("ucl", 0)) == 1
-		and int(_counts(bosnia).get("uecl", 0)) == 3,
+	_check(int(_counts(bosnia).get("CL", 0)) == 1
+		and int(_counts(bosnia).get("UCOL", 0)) == 3,
 		"Bosnia: one Champions League and three Conference places")
-	_check(_clubs(bosnia, "uecl").has("19"),
+	_check(_clubs(bosnia, "UCOL").has("19"),
 		"the Bosnian cup winner enters the Conference League")
 	var liechtenstein := CareerBerths.for_country("Liechtenstein", [],
 		{"Liechtenstein Cup": "7"})
 	_check(liechtenstein.get("berths", []).size() == 1
-		and _clubs(liechtenstein, "uecl") == ["7"],
+		and _clubs(liechtenstein, "UCOL") == ["7"],
 		"Liechtenstein sends only its cup winner to the Conference League")
 
 	var brazil := CareerBerths.for_country("Brazil", rows,
 		{"Copa do Brasil": {"winner": "19", "runner_up": "18"}})
-	_check(int(_counts(brazil).get("libertadores", 0)) == 7,
+	_check(int(_counts(brazil).get("CLI", 0)) == 7,
 		"Brazil has seven Libertadores berths")
-	_check(int(_counts(brazil).get("sudamericana", 0)) == 6,
+	_check(int(_counts(brazil).get("CS", 0)) == 6,
 		"Brazil has six Sudamericana berths")
-	_check(_clubs(brazil, "libertadores").has("19"),
+	_check(_clubs(brazil, "CLI").has("19"),
 		"the Copa do Brasil winner enters the Libertadores")
-	_check(not _clubs(brazil, "sudamericana").has("1"),
+	_check(not _clubs(brazil, "CS").has("1"),
 		"a Libertadores club is not repeated in the Sudamericana")
 	var egypt := CareerBerths.for_country("Egypt", rows,
 		{"Egypt Cup": {"winner": "19", "runner_up": "18"}})
@@ -126,8 +126,8 @@ func _run() -> void:
 		_check(not block.is_empty(), "%s has berths" % country)
 		if country != "England" and country != "Spain":
 			var simple := _counts(block)
-			_check(int(simple.get("ucl", 0)) == 4 and int(simple.get("uel", 0)) == 2
-				and int(simple.get("uecl", 0)) == 1,
+			_check(int(simple.get("CL", 0)) == 4 and int(simple.get("EL", 0)) == 2
+				and int(simple.get("UCOL", 0)) == 1,
 				"%s: four Champions League, two Europa, one Conference" % country)
 	if catalog.is_loaded():
 		var world := CareerWorld.world_season(catalog, "2026-08-15", 42, "",

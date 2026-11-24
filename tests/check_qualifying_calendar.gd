@@ -38,13 +38,13 @@ func _run() -> void:
 		career.season_start, {})
 	block["qualifying_pending"] = true
 	block["qualifying_focus"] = CLUB
-	block["qualifying_competition"] = "ucl"
+	block["qualifying_competition"] = "CL"
 	block["focus_fixtures"] = [
 		{"id": "q:q1:main:tie:00:0", "home": CLUB, "away": OPPONENT,
-			"tie": "tie:00", "leg": 0, "europe": "ucl",
+			"tie": "tie:00", "leg": 0, "europe": "CL",
 			"qualifying_round": "q1", "qualifying_path": "main"},
 		{"id": "q:q1:main:tie:00:1", "home": OPPONENT, "away": CLUB,
-			"tie": "tie:00", "leg": 1, "europe": "ucl",
+			"tie": "tie:00", "leg": 1, "europe": "CL",
 			"qualifying_round": "q1", "qualifying_path": "main"},
 	]
 	career.data["continental"][career.season_start] = block
@@ -52,7 +52,7 @@ func _run() -> void:
 	_check(added.size() == 2, "the first qualifying round has two legs")
 	var scheduled: Array = []
 	for fixture in career.schedule:
-		if str(fixture.get("stage", "")) == "euroq:ucl":
+		if str(fixture.get("stage", "")) == "euroq:CL":
 			scheduled.append(fixture)
 	_check(scheduled.size() == 2, "both legs are in the schedule")
 	var dates: Array = []
@@ -74,17 +74,17 @@ func _run() -> void:
 	_check(league != null, "a no-Europe career is created: "
 		+ CareerFactory.last_error)
 	if league != null:
-		var field: Array = CareerEurope.fields().get("ucl", [])
+		var field: Array = CareerEurope.fields().get("CL", [])
 		var league_block := {
 			"qualifying_pending": false,
-			"competitions": {"ucl": {"league_phase": field, "round_count": 8,
+			"competitions": {"CL": {"league_phase": field, "round_count": 8,
 				"coefficients": {}}},
 		}
 		league.data["continental"][league.season_start] = league_block
 		CareerEurope.ensure_league_phase(league, catalog)
 		var count := 0
 		for fixture in league.schedule:
-			if str(fixture.get("competition", "")) == "ucl":
+			if str(fixture.get("competition", "")) == "CL":
 				count += 1
 		_check(count == 144, "the league phase has 144 fixtures: %d" % count)
 	_finish()

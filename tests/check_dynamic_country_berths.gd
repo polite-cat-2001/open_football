@@ -31,7 +31,7 @@ func _rows() -> Array:
 func _ucl_count(block: Dictionary) -> int:
 	var count := 0
 	for berth in block.get("berths", []):
-		if str((berth as Dictionary).get("competition", "")) == "ucl":
+		if str((berth as Dictionary).get("competition", "")) == "CL":
 			count += 1
 	return count
 

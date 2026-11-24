@@ -4,7 +4,7 @@ extends RefCounted
 # Career.to_save/from_save) as its storage, so a prototype save loads without
 # conversion and unknown fields survive a save round-trip.
 
-const SAVE_VERSION := 1
+const SAVE_VERSION := 2
 const START_DATE := "2026-07-01"
 const DEFAULT_FORMATION := "4-3-3"
 

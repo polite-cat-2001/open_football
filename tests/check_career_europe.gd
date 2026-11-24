@@ -59,18 +59,18 @@ func _run() -> void:
 	var fields := CareerEurope.fields()
 	_check(fields.size() == 3, "the asset has three competitions")
 	var all := {}
-	for comp in ["ucl", "uel", "uecl"]:
+	for comp in ["CL", "EL", "UCOL"]:
 		var field: Array = fields.get(comp, [])
 		_check(field.size() == 36, "%s has 36 clubs: %d" % [comp, field.size()])
 		for club_id in field:
 			all[str(club_id)] = true
 	_check(all.size() == 108, "the three fields have no shared club: %d" % all.size())
-	_check(CareerEurope.replacements().has("uecl"),
+	_check(CareerEurope.replacements().has("UCOL"),
 		"the missing Borac Banja Luka is recorded as a replacement")
 
 	var real := CareerEurope.first_season("real", str(IN_FIELD))
 	_check(not real.is_empty(), "real mode builds a block: " + CareerEurope.last_error)
-	_check(_competition_of(real.get("competitions", {}), str(IN_FIELD)) == "ucl",
+	_check(_competition_of(real.get("competitions", {}), str(IN_FIELD)) == "CL",
 		"real mode leaves the career club in its published competition")
 	var absent := CareerEurope.first_season("real", str(OUT_FIELD))
 	_check(_competition_of(absent.get("competitions", {}), str(OUT_FIELD)).is_empty(),
@@ -86,7 +86,7 @@ func _run() -> void:
 	var chosen := ""
 	var chosen_diff := INF
 	var coefficient := CareerCoefficients.coefficient(str(OUT_FIELD))
-	for comp in ["ucl", "uel", "uecl"]:
+	for comp in ["CL", "EL", "UCOL"]:
 		var diff := absf(_average(before[comp]) - coefficient)
 		if diff < chosen_diff:
 			chosen_diff = diff
@@ -105,21 +105,21 @@ func _run() -> void:
 	_check(removed == weakest, "the weakest club by coefficient is replaced")
 
 	var swapped := CareerEurope.block()
-	var ucl: Array = swapped["competitions"]["ucl"]["league_phase"]
-	var uel: Array = swapped["competitions"]["uel"]["league_phase"]
+	var ucl: Array = swapped["competitions"]["CL"]["league_phase"]
+	var uel: Array = swapped["competitions"]["EL"]["league_phase"]
 	var first := str(ucl[0])
 	var second := str(uel[0])
-	_check(CareerEurope.swap(swapped, "ucl", first, "uel", second),
+	_check(CareerEurope.swap(swapped, "CL", first, "EL", second),
 		"two clubs from different competitions swap")
-	_check(swapped["competitions"]["ucl"]["league_phase"].has(second)
-		and not swapped["competitions"]["ucl"]["league_phase"].has(first),
+	_check(swapped["competitions"]["CL"]["league_phase"].has(second)
+		and not swapped["competitions"]["CL"]["league_phase"].has(first),
 		"the first club moves to the second competition")
-	_check(swapped["competitions"]["uel"]["league_phase"].has(first)
-		and not swapped["competitions"]["uel"]["league_phase"].has(second),
+	_check(swapped["competitions"]["EL"]["league_phase"].has(first)
+		and not swapped["competitions"]["EL"]["league_phase"].has(second),
 		"the second club moves to the first competition")
-	_check(not CareerEurope.swap(swapped, "ucl", first, "ucl", second),
+	_check(not CareerEurope.swap(swapped, "CL", first, "CL", second),
 		"the same competition is rejected")
-	_check(not CareerEurope.swap(swapped, "ucl", "999999999", "uel", second),
+	_check(not CareerEurope.swap(swapped, "CL", "999999999", "EL", second),
 		"a club outside the field is rejected")
 
 	var catalog := TeamCatalog.new()
@@ -133,7 +133,7 @@ func _run() -> void:
 	if career == null:
 		_finish()
 		return
-	var euro := _euro_fixtures(career, "ucl", str(IN_FIELD))
+	var euro := _euro_fixtures(career, "CL", str(IN_FIELD))
 	_check(euro.size() == 8, "the career club has eight league-phase fixtures: %d" % euro.size())
 	var home := 0
 	var opponents := {}
@@ -148,9 +148,9 @@ func _run() -> void:
 	var none := CareerFactory.create(catalog, IN_FIELD, "No Europe", 189, 42, "none")
 	_check(none != null, "a no-Europe career is created: " + CareerFactory.last_error)
 	if none != null:
-		_check(_euro_fixtures(none, "ucl", str(IN_FIELD)).is_empty()
-			and _euro_fixtures(none, "uel", str(IN_FIELD)).is_empty()
-			and _euro_fixtures(none, "uecl", str(IN_FIELD)).is_empty(),
+		_check(_euro_fixtures(none, "CL", str(IN_FIELD)).is_empty()
+			and _euro_fixtures(none, "EL", str(IN_FIELD)).is_empty()
+			and _euro_fixtures(none, "UCOL", str(IN_FIELD)).is_empty(),
 			"no European fixtures are scheduled")
 
 	var sim_career := CareerFactory.create(catalog, OUT_FIELD, "Sim Europe", 189, 42,

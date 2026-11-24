@@ -51,35 +51,35 @@ static func _uefa_for_country(data: Dictionary, country: String, rows: Array,
 	var positions := _positions(rows)
 	var assigned := {}
 	var berths: Array = []
-	for slot in band.get("ucl", []):
+	for slot in band.get("CL", []):
 		var index := _slot_index(str(slot.get("slot", "")))
 		if index > 0:
-			_add_position(berths, "ucl", slot, index, positions, assigned)
+			_add_position(berths, "CL", slot, index, positions, assigned)
 	if eps:
 		var extra := 0
-		for slot in band.get("ucl", []):
+		for slot in band.get("CL", []):
 			extra = maxi(extra, _slot_index(str(slot.get("slot", ""))))
-		_add_position(berths, "ucl",
+		_add_position(berths, "CL",
 			{"entry": "league_phase", "path": null}, extra + 1, positions, assigned)
 	var shift := 1 if eps else 0
-	for slot in band.get("uel", []):
+	for slot in band.get("EL", []):
 		var index := _slot_index(str(slot.get("slot", "")))
 		if index > 0:
-			_add_position(berths, "uel", slot, index + shift, positions, assigned)
-	for slot in band.get("uel", []):
+			_add_position(berths, "EL", slot, index + shift, positions, assigned)
+	for slot in band.get("EL", []):
 		if str(slot.get("slot", "")) != "cup_winner":
 			continue
-		_add_club_or_next(berths, "uel", slot, _cup_winner(cups_by_label, main_cup),
+		_add_club_or_next(berths, "EL", slot, _cup_winner(cups_by_label, main_cup),
 			positions, assigned, "cup")
 	var uecl_cup: Dictionary = {}
-	for slot in band.get("uecl", []):
+	for slot in band.get("UCOL", []):
 		if str(slot.get("slot", "")) == "cup_winner":
 			uecl_cup = slot
 	if not uecl_cup.is_empty():
-		_add_club_or_next(berths, "uecl", uecl_cup,
+		_add_club_or_next(berths, "UCOL", uecl_cup,
 			_cup_winner(cups_by_label, main_cup), positions, assigned, "cup")
 	var uecl_slots: Array = []
-	for slot in band.get("uecl", []):
+	for slot in band.get("UCOL", []):
 		if _slot_index(str(slot.get("slot", ""))) > 0:
 			uecl_slots.append(slot)
 	if not uecl_slots.is_empty():
@@ -90,8 +90,8 @@ static func _uefa_for_country(data: Dictionary, country: String, rows: Array,
 			assigned[second] = true
 			used_second = true
 			berths.append({
-				"competition": "uecl",
-				"entry": _round_of(str(cup_slot.get("second_entry", "uecl_playoff_round")), "uecl"),
+				"competition": "UCOL",
+				"entry": str(cup_slot.get("second_entry", "playoff_round")),
 				"path": str(cup_slot.get("second_path", "league")),
 				"club_id": second, "source": "second_cup",
 			})
@@ -100,7 +100,7 @@ static func _uefa_for_country(data: Dictionary, country: String, rows: Array,
 				continue
 			var slot: Dictionary = uecl_slots[slot_index]
 			var slot_position := _slot_index(str(slot.get("slot", ""))) + shift
-			_add_position(berths, "uecl", slot, slot_position, positions, assigned)
+			_add_position(berths, "UCOL", slot, slot_position, positions, assigned)
 	return {
 		"association": country, "rank": rank, "eps": eps,
 		"berths": berths,

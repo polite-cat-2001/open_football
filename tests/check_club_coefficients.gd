@@ -55,17 +55,17 @@ func _run() -> void:
 	_check(is_equal_approx(CareerCoefficients.total(rolled, "27"), 20.0),
 		"the total is the sum of the five seasons")
 	var reached_all := {"r16": true, "qf": true, "semi": true, "final": true}
-	_check(is_equal_approx(CareerCoefficients.season_points("ucl", 1, 8, 0,
+	_check(is_equal_approx(CareerCoefficients.season_points("CL", 1, 8, 0,
 		reached_all), 34.0), "a perfect Champions League run scores 34")
-	_check(is_equal_approx(CareerCoefficients.season_points("uel", 1, 6, 0,
+	_check(is_equal_approx(CareerCoefficients.season_points("EL", 1, 6, 0,
 		{"r16": true}), 19.0), "a Europa League run adds its round bonus")
-	_check(is_equal_approx(CareerCoefficients.season_points("uecl", 25, 3, 1,
+	_check(is_equal_approx(CareerCoefficients.season_points("UCOL", 25, 3, 1,
 		{"r16": true, "qf": true}), 8.0), "the Conference League uses half-point rounds")
-	_check(is_equal_approx(CareerCoefficients.season_points("uel", 36, 0, 0, {}),
+	_check(is_equal_approx(CareerCoefficients.season_points("EL", 36, 0, 0, {}),
 		3.0), "the Europa League league phase has a minimum")
-	_check(is_equal_approx(CareerCoefficients.season_points("uecl", 36, 0, 0, {}),
+	_check(is_equal_approx(CareerCoefficients.season_points("UCOL", 36, 0, 0, {}),
 		2.5), "the Conference League league phase has a minimum")
-	_check(is_equal_approx(CareerCoefficients.season_points("ucl", 25, 0, 0, {}),
+	_check(is_equal_approx(CareerCoefficients.season_points("CL", 25, 0, 0, {}),
 		6.0), "the Champions League league phase starts at six points")
 	_check(is_equal_approx(CareerCoefficients.coefficient("1003"), 23.903),
 		"a low English club is lifted to the country part")

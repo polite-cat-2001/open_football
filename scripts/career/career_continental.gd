@@ -7,7 +7,7 @@ extends RefCounted
 # slots are not filled in the first career season.
 
 const ROUNDS := ["q1", "q2", "q3", "playoff_round"]
-const COMPETITIONS := ["ucl", "uel", "uecl"]
+const COMPETITIONS := ["CL", "EL", "UCOL"]
 const LEAGUE_SIZE := 36
 
 static var last_error := ""
@@ -94,17 +94,17 @@ static func _apply_title_holders(state: Dictionary, holders: Dictionary) -> void
 	for comp in COMPETITIONS:
 		for club_id in state[comp]["clubs"]:
 			used[str(club_id)] = true
-	var ucl := str(holders.get("ucl", ""))
-	var uel := str(holders.get("uel", ""))
-	var uecl := str(holders.get("uecl", ""))
+	var ucl := str(holders.get("CL", ""))
+	var uel := str(holders.get("EL", ""))
+	var uecl := str(holders.get("UCOL", ""))
 	if not ucl.is_empty() and not used.has(ucl):
-		_add_to_league(state, "ucl", ucl)
+		_add_to_league(state, "CL", ucl)
 		used[ucl] = true
 	if not uel.is_empty() and not used.has(uel):
-		_add_to_league(state, "ucl", uel)
+		_add_to_league(state, "CL", uel)
 		used[uel] = true
 	if not uecl.is_empty() and not used.has(uecl):
-		_add_to_league(state, "uel", uecl)
+		_add_to_league(state, "EL", uecl)
 
 
 static func _add_to_league(state: Dictionary, comp: String, club_id: String) -> void:
@@ -232,11 +232,11 @@ static func _drop_downs_into(comp: String, round: String, state: Dictionary,
 		uefa: Dictionary) -> Dictionary:
 	var incoming := {}
 	for rule in uefa.get("drop_downs", []):
-		if str(rule.get("to", "")).to_lower() != comp:
+		if str(rule.get("to", "")) != comp:
 			continue
 		if str(rule.get("entry", "")) != round:
 			continue
-		var source := str(rule.get("from", "")).to_lower()
+		var source := str(rule.get("from", ""))
 		if not state.has(source):
 			continue
 		var source_round := str(rule.get("round", ""))

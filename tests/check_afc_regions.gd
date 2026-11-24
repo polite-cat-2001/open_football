@@ -61,11 +61,11 @@ func _run() -> void:
 	var focus: String = field[3]
 	var career := _career(focus)
 	var block := CareerConfederation.build(catalog, "AFC",
-		{"acl_elite": entries}, "2026-12-20", focus, {"acl_elite": regions})
+		{"ACLE": entries}, "2026-12-20", focus, {"ACLE": regions})
 	_check(not block.is_empty(), "the AFC competition builds")
 	career.data["continental"] = {"2026-12-20": {"confederations": {"AFC": block}}}
 	CareerConfederation.ensure(career, catalog)
-	var state: Dictionary = block["competitions"]["acl_elite"]
+	var state: Dictionary = block["competitions"]["ACLE"]
 	var group_index := 1
 	var groups: Array = state["fixtures"][str(group_index)]
 	_check(groups.size() == 2 * 8 * 8, "two 16-club groups play 8 rounds")

@@ -26,7 +26,7 @@ func _check(condition: bool, message: String) -> void:
 func _round(career: Career, round_index: int) -> Array:
 	var rows: Array = []
 	for fixture in career.schedule:
-		if str(fixture.get("stage", "")) == "euro:ucl" \
+		if str(fixture.get("stage", "")) == "euro:CL" \
 				and int(fixture.get("stage_round", 0)) == round_index:
 			rows.append(fixture)
 	return rows
@@ -44,12 +44,12 @@ func _run() -> void:
 		_finish()
 		return
 	var ratings := {}
-	for club_id in CareerEurope.fields().get("ucl", []):
+	for club_id in CareerEurope.fields().get("CL", []):
 		ratings[str(club_id)] = float(
 			catalog.load_team_rating(int(club_id)).get("average", 55.0))
 	var results := {}
 	for fixture in career.schedule:
-		if str(fixture.get("competition", "")) == "ucl":
+		if str(fixture.get("competition", "")) == "CL":
 			results[str(fixture.get("id", ""))] = CareerSeason.simulate(
 				career.seed, fixture, ratings)
 	career.data["results"] = results
@@ -77,7 +77,7 @@ func _run() -> void:
 	_check(rounds == 5, "all five rounds exist after the club is out: %d" % rounds)
 	var block: Dictionary = career.data.get("continental", {}).get(
 		career.season_start, {})
-	var competition: Dictionary = block.get("competitions", {}).get("ucl", {})
+	var competition: Dictionary = block.get("competitions", {}).get("CL", {})
 	_check(not str(competition.get("champion", "")).is_empty(),
 		"the champion is decided without the season-end resolver")
 	_check(str(competition.get("champion", "")) != str(CLUB),

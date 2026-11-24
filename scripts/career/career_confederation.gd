@@ -10,7 +10,7 @@ extends RefCounted
 # keyed by the confederation id (CONMEBOL, CONCACAF, AFC, ...).
 
 const FORMATS := {
-	"CONCACAF:champions_cup": {
+	"CONCACAF:CCL": {
 		"label": "CONCACAF Champions Cup",
 		"rounds": [
 			{"name": "round_one", "legs": 2, "window": ["02-03", "02-26"]},
@@ -20,12 +20,12 @@ const FORMATS := {
 			{"name": "final", "legs": 1, "window": ["05-30", "05-30"]},
 		],
 	},
-	"AFC:acl_elite": {
+	"AFC:ACLE": {
 		"label": "AFC Champions League Elite",
 		"rounds": [
 			{"name": "playoff", "legs": 1, "window": ["08-11", "08-12"],
 				"region_bracket": true,
-				"drop": {"to": "acl_two", "entry": "group_stage", "count": 4}},
+				"drop": {"to": "ACL2", "entry": "group_stage", "count": 4}},
 			{"name": "league_stage", "legs": 0, "window": ["09-14", "05-01"],
 				"groups": {"count": 2, "size": 16, "rounds": 8, "advance": 8},
 				"regions": true},
@@ -39,13 +39,13 @@ const FORMATS := {
 				"window": ["05-01", "05-02"]},
 		],
 	},
-	"AFC:acl_two": {
+	"AFC:ACL2": {
 		"label": "AFC Champions League Two",
 		"rounds": [
 			{"name": "preliminary", "legs": 1, "window": ["08-12", "08-20"],
-				"drop": {"to": "afc_challenge_league", "entry": "group_stage", "count": 3}},
+				"drop": {"to": "AFCP", "entry": "group_stage", "count": 3}},
 			{"name": "group_stage", "legs": 0, "window": ["09-15", "05-15"],
-				"wait_for": {"competition": "acl_elite", "round": "playoff"},
+				"wait_for": {"competition": "ACLE", "round": "playoff"},
 				"groups": {"count": 2, "size": 16, "rounds": 6, "advance": 8},
 				"regions": true},
 			{"name": "round_of_16", "legs": 2, "window": ["02-01", "02-12"],
@@ -58,13 +58,13 @@ const FORMATS := {
 				"window": ["05-15", "05-16"]},
 		],
 	},
-	"AFC:afc_challenge_league": {
+	"AFC:AFCP": {
 		"label": "AFC Challenge League",
 		"rounds": [
 			{"name": "preliminary", "legs": 1, "window": ["08-12", "08-20"],
 				"region_bracket": true},
 			{"name": "group_stage", "legs": 0, "window": ["10-01", "04-15"],
-				"wait_for": {"competition": "acl_two", "round": "preliminary"},
+				"wait_for": {"competition": "ACL2", "round": "preliminary"},
 				"groups": {"count": 2, "size": 14, "rounds": 6, "advance": 4},
 				"regions": true},
 			{"name": "quarter_final", "legs": 2, "window": ["02-15", "02-26"],
@@ -75,38 +75,38 @@ const FORMATS := {
 				"window": ["05-10", "05-11"]},
 		],
 	},
-	"CONMEBOL:libertadores": {
+	"CONMEBOL:CLI": {
 		"label": "Copa Libertadores",
 		"rounds": [
 			{"name": "first_stage", "legs": 1, "window": ["02-03", "02-12"]},
 			{"name": "second_stage", "legs": 2, "window": ["02-17", "02-26"]},
 			{"name": "third_stage", "legs": 2, "window": ["03-03", "03-12"],
-				"drop": {"to": "sudamericana", "entry": "group_stage", "count": 4}},
+				"drop": {"to": "CS", "entry": "group_stage", "count": 4}},
 			{"name": "group_stage", "legs": 0, "window": ["04-07", "05-28"],
 				"groups": {"count": 8, "size": 4, "rounds": 6, "advance": 2},
-				"drop": {"to": "sudamericana", "entry": "playoff", "count": 8}},
+				"drop": {"to": "CS", "entry": "playoff", "count": 8}},
 			{"name": "round_of_16", "legs": 2, "window": ["08-11", "08-19"]},
 			{"name": "quarter_final", "legs": 2, "window": ["09-15", "09-23"]},
 			{"name": "semi_final", "legs": 2, "window": ["10-20", "10-28"]},
 			{"name": "final", "legs": 1, "window": ["11-28", "11-28"]},
 		],
 	},
-	"CONMEBOL:recopa": {
+	"CONMEBOL:RECO": {
 		"label": "Recopa Sudamericana",
 		"rounds": [
 			{"name": "final", "legs": 2, "window": ["02-10", "02-24"]},
 		],
 	},
-	"CONMEBOL:sudamericana": {
+	"CONMEBOL:CS": {
 		"label": "Copa Sudamericana",
 		"rounds": [
 			{"name": "first_stage", "legs": 1, "window": ["03-03", "03-05"]},
 			{"name": "group_stage", "legs": 0, "window": ["04-07", "05-28"],
 				"groups": {"count": 8, "size": 4, "rounds": 6, "advance": 2},
-				"wait_for": {"competition": "libertadores", "round": "third_stage"}},
+				"wait_for": {"competition": "CLI", "round": "third_stage"}},
 			{"name": "knockout_playoffs", "legs": 2, "window": ["07-21", "07-30"],
 				"playoff": true,
-				"wait_for": {"competition": "libertadores", "round": "group_stage"}},
+				"wait_for": {"competition": "CLI", "round": "group_stage"}},
 			{"name": "round_of_16", "legs": 2, "window": ["08-11", "08-19"]},
 			{"name": "quarter_final", "legs": 2, "window": ["09-15", "09-17"]},
 			{"name": "semi_final", "legs": 2, "window": ["10-13", "10-21"]},

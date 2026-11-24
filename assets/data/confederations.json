@@ -394,7 +394,7 @@
    {
     "rank_from": 1,
     "rank_to": 4,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "league_phase",
@@ -416,7 +416,7 @@
       "path": null
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "5th",
       "entry": "league_phase",
@@ -428,7 +428,7 @@
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "6th",
       "entry": "playoff_round",
@@ -445,7 +445,7 @@
    {
     "rank_from": 5,
     "rank_to": 5,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "league_phase",
@@ -467,7 +467,7 @@
       "path": "league"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "5th",
       "entry": "league_phase",
@@ -479,7 +479,7 @@
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "6th",
       "entry": "playoff_round",
@@ -495,7 +495,7 @@
    {
     "rank_from": 6,
     "rank_to": 6,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "league_phase",
@@ -512,7 +512,7 @@
       "path": "league"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "4th",
       "entry": "q2",
@@ -524,7 +524,7 @@
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "5th",
       "entry": "q2",
@@ -541,7 +541,7 @@
    {
     "rank_from": 7,
     "rank_to": 7,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "league_phase",
@@ -553,7 +553,7 @@
       "path": "league"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "3rd",
       "entry": "q2",
@@ -565,7 +565,7 @@
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "4th",
       "entry": "q2",
@@ -583,7 +583,7 @@
    {
     "rank_from": 8,
     "rank_to": 9,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "league_phase",
@@ -595,7 +595,7 @@
       "path": "league"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "3rd",
       "entry": "q2",
@@ -607,7 +607,7 @@
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "4th",
       "entry": "q2",
@@ -624,7 +624,7 @@
    {
     "rank_from": 10,
     "rank_to": 10,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "league_phase",
@@ -636,7 +636,7 @@
       "path": "league"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "3rd",
       "entry": "q2",
@@ -648,7 +648,7 @@
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "4th",
       "entry": "q2",
@@ -666,7 +666,7 @@
    {
     "rank_from": 11,
     "rank_to": 12,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "playoff_round",
@@ -678,7 +678,7 @@
       "path": "league"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "3rd",
       "entry": "q2",
@@ -690,7 +690,7 @@
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "4th",
       "entry": "q2",
@@ -707,7 +707,7 @@
    {
     "rank_from": 13,
     "rank_to": 14,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "playoff_round",
@@ -719,14 +719,14 @@
       "path": "league"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "cup_winner",
       "entry": "q3",
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "3rd",
       "entry": "q2",
@@ -749,7 +749,7 @@
    {
     "rank_from": 15,
     "rank_to": 15,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "q2",
@@ -761,14 +761,14 @@
       "path": "league"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "cup_winner",
       "entry": "q3",
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "3rd",
       "entry": "q2",
@@ -790,21 +790,21 @@
    {
     "rank_from": 16,
     "rank_to": 20,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "q2",
       "path": "champions"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "cup_winner",
       "entry": "q2",
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "2nd",
       "entry": "q2",
@@ -826,21 +826,21 @@
    {
     "rank_from": 21,
     "rank_to": 22,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "q2",
       "path": "champions"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "cup_winner",
       "entry": "q1",
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "2nd",
       "entry": "q2",
@@ -862,21 +862,21 @@
    {
     "rank_from": 23,
     "rank_to": 29,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "q1",
       "path": "champions"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "cup_winner",
       "entry": "q1",
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "2nd",
       "entry": "q2",
@@ -899,21 +899,21 @@
    {
     "rank_from": 30,
     "rank_to": 33,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "q1",
       "path": "champions"
      }
     ],
-    "uel": [
+    "EL": [
      {
       "slot": "cup_winner",
       "entry": "q1",
       "path": "main"
      }
     ],
-    "uecl": [
+    "UCOL": [
      {
       "slot": "2nd",
       "entry": "q2",
@@ -935,15 +935,15 @@
    {
     "rank_from": 34,
     "rank_to": 44,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "q1",
       "path": "champions"
      }
     ],
-    "uel": [],
-    "uecl": [
+    "EL": [],
+    "UCOL": [
      {
       "slot": "cup_winner",
       "entry": "q2",
@@ -969,15 +969,15 @@
    {
     "rank_from": 45,
     "rank_to": 50,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "q1",
       "path": "champions"
      }
     ],
-    "uel": [],
-    "uecl": [
+    "EL": [],
+    "UCOL": [
      {
       "slot": "cup_winner",
       "entry": "q1",
@@ -1002,15 +1002,15 @@
    {
     "rank_from": 51,
     "rank_to": 55,
-    "ucl": [
+    "CL": [
      {
       "slot": "champion",
       "entry": "q1",
       "path": "champions"
      }
     ],
-    "uel": [],
-    "uecl": [
+    "EL": [],
+    "UCOL": [
      {
       "slot": "cup_winner",
       "entry": "q1",
@@ -1041,7 +1041,7 @@
     "main_cup": "FA Cup",
     "entry": "uel_league_phase",
     "second_cup": "EFL Cup",
-    "second_entry": "uecl_playoff_round",
+    "second_entry": "playoff_round",
     "second_path": "league",
     "quote": "7 domestic cup winners from associations 1-7 ... 5 domestic league sixth-placed teams from associations 1-5 (EFL Cup winners for England)",
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution",
@@ -1104,7 +1104,7 @@
    }
   ],
   "entry_round_sizes": {
-   "ucl": {
+   "CL": {
     "q1": 28,
     "q2_champions": 24,
     "q2_league": 4,
@@ -1114,7 +1114,7 @@
     "playoff_league": 4,
     "league_phase": 36
    },
-   "uel": {
+   "EL": {
     "q1": 12,
     "q2": 18,
     "q3_champions": 12,
@@ -1122,7 +1122,7 @@
     "playoff": 24,
     "league_phase": 36
    },
-   "uecl": {
+   "UCOL": {
     "q1": 52,
     "q2_champions": 12,
     "q2_league": 86,
@@ -1136,9 +1136,9 @@
   },
   "drop_downs": [
    {
-    "from": "UCL",
+    "from": "CL",
     "round": "q1",
-    "to": "UECL",
+    "to": "UCOL",
     "entry": "q2",
     "path": "champions",
     "count": 12,
@@ -1146,10 +1146,10 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
    },
    {
-    "from": "UCL",
+    "from": "CL",
     "round": "q2",
     "path_from": "champions",
-    "to": "UEL",
+    "to": "EL",
     "entry": "q3",
     "path": "champions",
     "count": 12,
@@ -1157,10 +1157,10 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
    },
    {
-    "from": "UCL",
+    "from": "CL",
     "round": "q2",
     "path_from": "league",
-    "to": "UEL",
+    "to": "EL",
     "entry": "q3",
     "path": "main",
     "count": 2,
@@ -1168,10 +1168,10 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
    },
    {
-    "from": "UCL",
+    "from": "CL",
     "round": "q3",
     "path_from": "champions",
-    "to": "UEL",
+    "to": "EL",
     "entry": "playoff_round",
     "path": "main",
     "count": 6,
@@ -1179,10 +1179,10 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
    },
    {
-    "from": "UCL",
+    "from": "CL",
     "round": "q3",
     "path_from": "league",
-    "to": "UEL",
+    "to": "EL",
     "entry": "league_phase",
     "path": null,
     "count": 4,
@@ -1190,10 +1190,10 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
    },
    {
-    "from": "UCL",
+    "from": "CL",
     "round": "playoff_round",
     "path_from": "champions",
-    "to": "UEL",
+    "to": "EL",
     "entry": "league_phase",
     "path": null,
     "count": 5,
@@ -1201,10 +1201,10 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
    },
    {
-    "from": "UCL",
+    "from": "CL",
     "round": "playoff_round",
     "path_from": "league",
-    "to": "UEL",
+    "to": "EL",
     "entry": "league_phase",
     "path": null,
     "count": 2,
@@ -1212,9 +1212,9 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Europa_League#Distribution"
    },
    {
-    "from": "UEL",
+    "from": "EL",
     "round": "q1",
-    "to": "UECL",
+    "to": "UCOL",
     "entry": "q2",
     "path": "league",
     "count": 6,
@@ -1222,9 +1222,9 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
    },
    {
-    "from": "UEL",
+    "from": "EL",
     "round": "q2",
-    "to": "UECL",
+    "to": "UCOL",
     "entry": "q3",
     "path": "league",
     "count": 9,
@@ -1232,10 +1232,10 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
    },
    {
-    "from": "UEL",
+    "from": "EL",
     "round": "q3",
     "path_from": "champions",
-    "to": "UECL",
+    "to": "UCOL",
     "entry": "playoff_round",
     "path": "champions",
     "count": 6,
@@ -1243,10 +1243,10 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
    },
    {
-    "from": "UEL",
+    "from": "EL",
     "round": "q3",
     "path_from": "main",
-    "to": "UECL",
+    "to": "UCOL",
     "entry": "playoff_round",
     "path": "league",
     "count": 7,
@@ -1254,9 +1254,9 @@
     "source": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Conference_League#Distribution"
    },
    {
-    "from": "UEL",
+    "from": "EL",
     "round": "playoff_round",
-    "to": "UECL",
+    "to": "UCOL",
     "entry": "league_phase",
     "path": null,
     "count": 12,
@@ -1385,7 +1385,7 @@
   "slots": [
    {
     "country": "Brazil",
-    "libertadores": [
+    "CLI": [
      {
       "slot": "cup_winner",
       "entry": "group_stage",
@@ -1420,7 +1420,7 @@
       "note": "berth 7"
      }
     ],
-    "sudamericana": [
+    "CS": [
      {
       "slot": "league_1st_not_qualified",
       "entry": "group_stage"
@@ -1450,7 +1450,7 @@
    },
    {
     "country": "Argentina",
-    "libertadores": [
+    "CLI": [
      {
       "slot": "apertura_champion",
       "entry": "group_stage",
@@ -1482,7 +1482,7 @@
       "note": "berth 6"
      }
     ],
-    "sudamericana": [
+    "CS": [
      {
       "slot": "aggregate_1st_not_qualified",
       "entry": "group_stage"
@@ -1512,7 +1512,7 @@
    },
    {
     "country": "Bolivia",
-    "libertadores": [
+    "CLI": [
      {
       "slot": "league_1st",
       "entry": "group_stage"
@@ -1531,7 +1531,7 @@
       "entry": "first_stage"
      }
     ],
-    "sudamericana": [
+    "CS": [
      {
       "slot": "1st_not_qualified",
       "entry": "first_stage"
@@ -1552,7 +1552,7 @@
    },
    {
     "country": "Chile",
-    "libertadores": [
+    "CLI": [
      {
       "slot": "league_1st",
       "entry": "group_stage"
@@ -1571,7 +1571,7 @@
       "note": "Copa Chile"
      }
     ],
-    "sudamericana": [
+    "CS": [
      {
       "slot": "1st_not_qualified",
       "entry": "first_stage"
@@ -1592,7 +1592,7 @@
    },
    {
     "country": "Colombia",
-    "libertadores": [
+    "CLI": [
      {
       "slot": "apertura_champion",
       "entry": "group_stage"
@@ -1610,7 +1610,7 @@
       "entry": "second_stage"
      }
     ],
-    "sudamericana": [
+    "CS": [
      {
       "slot": "1st_not_qualified",
       "entry": "first_stage"
@@ -1631,7 +1631,7 @@
    },
    {
     "country": "Ecuador",
-    "libertadores": [
+    "CLI": [
      {
       "slot": "league_1st",
       "entry": "group_stage"
@@ -1650,7 +1650,7 @@
       "note": "Copa Ecuador"
      }
     ],
-    "sudamericana": [
+    "CS": [
      {
       "slot": "1st_not_qualified",
       "entry": "first_stage"
@@ -1671,7 +1671,7 @@
    },
    {
     "country": "Paraguay",
-    "libertadores": [
+    "CLI": [
      {
       "slot": "champion_better_aggregate",
       "entry": "group_stage",
@@ -1691,7 +1691,7 @@
       "note": "Copa Paraguay; 2026 went to the runners-up because the cup winners were relegated"
      }
     ],
-    "sudamericana": [
+    "CS": [
      {
       "slot": "1st_not_qualified",
       "entry": "first_stage"
@@ -1712,7 +1712,7 @@
    },
    {
     "country": "Peru",
-    "libertadores": [
+    "CLI": [
      {
       "slot": "league_1st",
       "entry": "group_stage"
@@ -1730,7 +1730,7 @@
       "entry": "first_stage"
      }
     ],
-    "sudamericana": [
+    "CS": [
      {
       "slot": "1st_not_qualified",
       "entry": "first_stage"
@@ -1751,7 +1751,7 @@
    },
    {
     "country": "Uruguay",
-    "libertadores": [
+    "CLI": [
      {
       "slot": "league_champion",
       "entry": "group_stage"
@@ -1769,7 +1769,7 @@
       "entry": "first_stage"
      }
     ],
-    "sudamericana": [
+    "CS": [
      {
       "slot": "1st_not_qualified",
       "entry": "first_stage"
@@ -1790,7 +1790,7 @@
    },
    {
     "country": "Venezuela",
-    "libertadores": [
+    "CLI": [
      {
       "slot": "grand_final_champion",
       "entry": "group_stage"
@@ -1808,7 +1808,7 @@
       "entry": "first_stage"
      }
     ],
-    "sudamericana": [
+    "CS": [
      {
       "slot": "1st_not_qualified",
       "entry": "first_stage"
@@ -1855,12 +1855,12 @@
    }
   ],
   "qualifying_window": {
-   "libertadores": {
+   "CLI": {
     "from": "2026-02-03",
     "to": "2026-03-12",
     "note": "first stage 3-5 / 10-12 Feb, second stage 17-19 / 24-26 Feb, third stage 3-5 / 10-12 Mar; group stage 7 Apr - 28 May; final 28 Nov"
    },
-   "sudamericana": {
+   "CS": {
     "from": "2026-03-03",
     "to": "2026-03-05",
     "note": "single-leg first stage; group stage 7 Apr - 28 May; knockout play-offs 21-30 Jul; final 21 Nov"
@@ -2143,7 +2143,7 @@
   "slots": [
    {
     "country": "Saudi Arabia",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "league_stage"
@@ -2165,7 +2165,7 @@
       "entry": "playoff"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_6th",
       "entry": "group_stage",
@@ -2175,7 +2175,7 @@
    },
    {
     "country": "Japan",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "league_stage"
@@ -2199,7 +2199,7 @@
       "note": "Gamba Osaka as 2025-26 ACL Two winners"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "cup_winner",
       "entry": "group_stage",
@@ -2209,7 +2209,7 @@
    },
    {
     "country": "South Korea",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "league_stage"
@@ -2228,7 +2228,7 @@
       "entry": "playoff"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_6th",
       "entry": "group_stage"
@@ -2237,7 +2237,7 @@
    },
    {
     "country": "China",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "league_stage"
@@ -2248,7 +2248,7 @@
       "note": "Chinese FA Cup; the cup berth is an Elite berth, not ACL Two"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_2nd",
       "entry": "group_stage"
@@ -2257,7 +2257,7 @@
    },
    {
     "country": "Qatar",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "league_stage"
@@ -2272,7 +2272,7 @@
       "note": "Amir of Qatar Cup"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_3rd",
       "entry": "group_stage"
@@ -2281,7 +2281,7 @@
    },
    {
     "country": "United Arab Emirates",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "league_stage"
@@ -2299,7 +2299,7 @@
       "entry": "playoff"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_5th",
       "entry": "group_stage",
@@ -2309,7 +2309,7 @@
    },
    {
     "country": "Iran",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "league_stage"
@@ -2319,7 +2319,7 @@
       "entry": "league_stage"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_4th",
       "entry": "group_stage",
@@ -2330,7 +2330,7 @@
    },
    {
     "country": "Uzbekistan",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "league_stage"
@@ -2341,7 +2341,7 @@
       "note": "Uzbekistan Cup"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_3rd",
       "entry": "group_stage"
@@ -2350,13 +2350,13 @@
    },
    {
     "country": "Iraq",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "league_stage"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_2nd",
       "entry": "group_stage",
@@ -2366,7 +2366,7 @@
    },
    {
     "country": "Australia",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "regular_season_1st",
       "entry": "league_stage",
@@ -2377,7 +2377,7 @@
       "entry": "playoff"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_4th",
       "entry": "group_stage",
@@ -2387,13 +2387,13 @@
    },
    {
     "country": "Malaysia",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "league_stage"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_2nd",
       "entry": "group_stage",
@@ -2403,13 +2403,13 @@
    },
    {
     "country": "Vietnam",
-    "acl_elite": [
+    "ACLE": [
      {
       "slot": "league_1st",
       "entry": "playoff"
      }
     ],
-    "acl_two": [
+    "ACL2": [
      {
       "slot": "league_2nd",
       "entry": "group_stage"
@@ -2448,12 +2448,12 @@
    }
   ],
   "qualifying_window": {
-   "acl_elite": {
+   "ACLE": {
     "from": "2026-08-11",
     "to": "2026-08-11",
     "note": "single-leg play-off round; league stage 14 Sep 2026 - 1 May 2027"
    },
-   "acl_two": {
+   "ACL2": {
     "from": "2026-08-12",
     "to": "2026-08-31",
     "note": "single-leg preliminary stage; group stage 15 Sep 2026 - 15 May 2027"
@@ -2683,7 +2683,7 @@
   "slots": [
    {
     "country": "Mexico",
-    "champions_cup": [
+    "CCL": [
      {
       "slot": "liga_mx_champion_higher_aggregate",
       "entry": "round_of_16",
@@ -2713,7 +2713,7 @@
    },
    {
     "country": "United States",
-    "champions_cup": [
+    "CCL": [
      {
       "slot": "mls_cup_winner",
       "entry": "round_of_16",
@@ -2752,7 +2752,7 @@
    },
    {
     "country": "Canada",
-    "champions_cup": [
+    "CCL": [
      {
       "slot": "canadian_championship_winner",
       "entry": "round_one"
@@ -2774,7 +2774,7 @@
    },
    {
     "country": "Costa Rica",
-    "champions_cup": [
+    "CCL": [
      {
       "slot": "central_american_cup_champion",
       "entry": "round_of_16",
@@ -2788,7 +2788,7 @@
    },
    {
     "country": "Honduras",
-    "champions_cup": [
+    "CCL": [
      {
       "slot": "central_american_cup_semi_finalist",
       "entry": "round_one"
@@ -2801,7 +2801,7 @@
    },
    {
     "country": "Panama",
-    "champions_cup": [
+    "CCL": [
      {
       "slot": "central_american_cup_play_in_winner",
       "entry": "round_one"
@@ -2810,7 +2810,7 @@
    },
    {
     "country": "Guatemala",
-    "champions_cup": [
+    "CCL": [
      {
       "slot": "central_american_cup_runner_up",
       "entry": "round_one"
@@ -2819,7 +2819,7 @@
    },
    {
     "country": "Jamaica",
-    "champions_cup": [
+    "CCL": [
      {
       "slot": "caribbean_cup_champion",
       "entry": "round_of_16",
@@ -2829,7 +2829,7 @@
    },
    {
     "country": "Dominican Republic",
-    "champions_cup": [
+    "CCL": [
      {
       "slot": "caribbean_cup_runner_up",
       "entry": "round_one"
@@ -2838,7 +2838,7 @@
    },
    {
     "country": "Trinidad and Tobago",
-    "champions_cup": [
+    "CCL": [
      {
       "slot": "caribbean_cup_third_place",
       "entry": "round_one"

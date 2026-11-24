@@ -47,7 +47,7 @@ func _run() -> void:
 	var loaded := store.load_career(prototype_id)
 	_check(loaded != null, "a prototype save loads without conversion: " + store.last_error)
 	if loaded != null:
-		_check(loaded.version == 1, "the prototype version is accepted")
+		_check(loaded.version == 2, "the save version is accepted")
 		_check(loaded.club_id == "11", "the prototype club id is preserved")
 		_check(loaded.player_ids.size() == 29, "the prototype squad is preserved")
 		_check(loaded.manager.name == "Алексей Смирнов", "the prototype manager is preserved")
@@ -76,12 +76,12 @@ func _run() -> void:
 			_check(read_back.schedule.size() == 406, "the schedule survives the round-trip")
 
 		var wrong_version := career.to_save()
-		wrong_version["version"] = 2
+		wrong_version["version"] = 3
 		_write("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", JSON.stringify(wrong_version))
 		var rejected := store.load_career("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 		_check(rejected == null, "a save with a different version is rejected")
 		_check(store.last_error_kind == "version", "the rejection is reported as a version error")
-		_check(store.last_error.contains("version 2"), "the error names the found version")
+		_check(store.last_error.contains("version 3"), "the error names the found version")
 
 		var missing_version := career.to_save()
 		missing_version.erase("version")

@@ -512,7 +512,7 @@ static func _focus_competition(continental: Dictionary, club_id: String) -> Stri
 	if club_id.is_empty():
 		return ""
 	var competitions: Dictionary = continental.get("competitions", {})
-	for comp in ["ucl", "uel", "uecl"]:
+	for comp in ["CL", "EL", "UCOL"]:
 		var block: Dictionary = competitions.get(comp, {})
 		if (block.get("league_phase", []) as Array).has(club_id):
 			return comp
@@ -537,7 +537,7 @@ static func _euro_rounds(block: Dictionary, comp: String) -> int:
 	var count := int(block.get("round_count", 0))
 	if count > 0:
 		return count
-	return 6 if comp == "uecl" else EURO_ROUNDS
+	return 6 if comp == "UCOL" else EURO_ROUNDS
 
 
 static func _euro_fixtures(catalog: TeamCatalog, block: Dictionary, comp: String,

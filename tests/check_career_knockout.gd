@@ -27,7 +27,7 @@ func _run() -> void:
 	if not catalog.is_loaded():
 		_finish()
 		return
-	var table: Array = CareerEurope.fields().get("ucl", [])
+	var table: Array = CareerEurope.fields().get("CL", [])
 	_check(table.size() == 36, "the league table has 36 clubs")
 	if table.size() != 36:
 		_finish()

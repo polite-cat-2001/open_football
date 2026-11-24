@@ -27,7 +27,7 @@ func _check(condition: bool, message: String) -> void:
 func _round(career: Career, round_index: int) -> Array:
 	var rows: Array = []
 	for fixture in career.schedule:
-		if str(fixture.get("stage", "")) == "euro:ucl" \
+		if str(fixture.get("stage", "")) == "euro:CL" \
 				and int(fixture.get("stage_round", 0)) == round_index:
 			rows.append(fixture)
 	return rows
@@ -45,20 +45,20 @@ func _run() -> void:
 		_finish()
 		return
 	var ratings := {}
-	for club_id in CareerEurope.fields().get("ucl", []):
+	for club_id in CareerEurope.fields().get("CL", []):
 		ratings[str(club_id)] = float(
 			catalog.load_team_rating(int(club_id)).get("average", 55.0))
 	var results := {}
 	var last_league_date := ""
 	for fixture in career.schedule:
-		if str(fixture.get("competition", "")) == "ucl":
+		if str(fixture.get("competition", "")) == "CL":
 			results[str(fixture.get("id", ""))] = CareerSeason.simulate(
 				career.seed, fixture, ratings)
 			last_league_date = maxi_date(last_league_date, str(fixture.get("date", "")))
 	career.data["results"] = results
 	var block: Dictionary = career.data.get("continental", {}).get(
 		career.season_start, {})
-	var competition: Dictionary = block.get("competitions", {}).get("ucl", {})
+	var competition: Dictionary = block.get("competitions", {}).get("CL", {})
 	for round_index in range(SIZES.size()):
 		CareerSeason.next_fixture(career)
 		var fixtures := _round(career, round_index + 1)
@@ -76,7 +76,7 @@ func _run() -> void:
 	CareerSeason.next_fixture(career)
 	_check(not str(competition.get("champion", "")).is_empty(),
 		"the final stores the champion")
-	_check((CareerEurope.fields().get("ucl", []) as Array).has(
+	_check((CareerEurope.fields().get("CL", []) as Array).has(
 		str(competition.get("champion", ""))), "the champion is from the field")
 	_finish()
 

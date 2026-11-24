@@ -8,7 +8,7 @@ extends SceneTree
 #
 # Run:  godot --headless --path . -s res://tests/check_career_draw.gd
 
-const EXPECTED := {"ucl": [144, 8, 4], "uel": [144, 8, 4], "uecl": [108, 6, 3]}
+const EXPECTED := {"CL": [144, 8, 4], "EL": [144, 8, 4], "UCOL": [108, 6, 3]}
 
 var failures: Array[String] = []
 
@@ -117,7 +117,7 @@ func _run() -> void:
 		_finish()
 		return
 	var fields := CareerEurope.fields()
-	for comp in ["ucl", "uel", "uecl"]:
+	for comp in ["CL", "EL", "UCOL"]:
 		var field: Array = fields.get(comp, [])
 		var expected: Array = EXPECTED[comp]
 		_check(field.size() == 36, "%s field has 36 clubs" % comp)
@@ -134,7 +134,7 @@ func _run() -> void:
 		_check(CareerDraw.last_error.is_empty(),
 			"the draw engine converges: " + CareerDraw.last_error)
 		_verify(drawn, synthetic, 8, 4, {}, pots, "engine")
-		var uecl := CareerDraw.league_phase(catalog, synthetic, 42, "uecl")
+		var uecl := CareerDraw.league_phase(catalog, synthetic, 42, "UCOL")
 		_check(CareerDraw.last_error.is_empty(),
 			"the UECL draw engine converges: " + CareerDraw.last_error)
 		_verify(uecl, synthetic, 6, 3, {}, _pots6(synthetic), "uecl engine", 1)

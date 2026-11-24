@@ -29,9 +29,9 @@ const PATTERNS := {
 	],
 }
 const FORMATS := {
-	"ucl": {"pattern": "4x9", "pots": 4, "size": 9},
-	"uel": {"pattern": "4x9", "pots": 4, "size": 9},
-	"uecl": {"pattern": "6x6", "pots": 6, "size": 6},
+	"CL": {"pattern": "4x9", "pots": 4, "size": 9},
+	"EL": {"pattern": "4x9", "pots": 4, "size": 9},
+	"UCOL": {"pattern": "6x6", "pots": 6, "size": 6},
 }
 const SIZE := 36
 const ATTEMPTS := 60
@@ -43,7 +43,7 @@ static var _budget := 0
 
 
 static func league_phase(catalog: TeamCatalog, club_ids: Array, seed: int,
-		competition := "ucl", rankings: Dictionary = {}) -> Array:
+		competition := "CL", rankings: Dictionary = {}) -> Array:
 	last_error = ""
 	var clubs: Array = []
 	for club_id in club_ids:
@@ -53,7 +53,7 @@ static func league_phase(catalog: TeamCatalog, club_ids: Array, seed: int,
 	if clubs.size() != SIZE:
 		last_error = "the league phase needs 36 clubs, got %d" % clubs.size()
 		return []
-	var format: Dictionary = FORMATS.get(competition, FORMATS["ucl"])
+	var format: Dictionary = FORMATS.get(competition, FORMATS["CL"])
 	var pattern_key := str(format.get("pattern", "4x9"))
 	_prepare(pattern_key, int(format.get("size", 9)))
 	var pots := _split_pots(clubs, int(format.get("pots", 4)),

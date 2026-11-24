@@ -8,15 +8,15 @@ extends RefCounted
 
 const PATH := "res://assets/data/europe_2026_27.json"
 const MODES := ["real", "simulated", "none"]
-const COMPETITIONS := ["ucl", "uel", "uecl"]
-const ROUNDS := {"ucl": 8, "uel": 8, "uecl": 6}
+const COMPETITIONS := ["CL", "EL", "UCOL"]
+const ROUNDS := {"CL": 8, "EL": 8, "UCOL": 6}
 const QUALIFYING_ORDER := ["q1", "q2", "q3", "playoff_round"]
 const QUALIFYING_WINDOWS := {
-	"ucl": {"q1": ["07-07", "07-15"], "q2": ["07-21", "07-29"],
+	"CL": {"q1": ["07-07", "07-15"], "q2": ["07-21", "07-29"],
 		"q3": ["08-04", "08-11"], "playoff_round": ["08-18", "08-26"]},
-	"uel": {"q1": ["07-09", "07-16"], "q2": ["07-23", "07-30"],
+	"EL": {"q1": ["07-09", "07-16"], "q2": ["07-23", "07-30"],
 		"q3": ["08-06", "08-13"], "playoff_round": ["08-20", "08-27"]},
-	"uecl": {"q1": ["07-09", "07-16"], "q2": ["07-23", "07-30"],
+	"UCOL": {"q1": ["07-09", "07-16"], "q2": ["07-23", "07-30"],
 		"q3": ["08-06", "08-13"], "playoff_round": ["08-20", "08-27"]},
 }
 
@@ -46,7 +46,7 @@ static func fields() -> Dictionary:
 	for comp in competitions:
 		var field = competitions[comp]
 		if field is Array:
-			result[str(comp).to_lower()] = _ids(field)
+			result[str(comp)] = _ids(field)
 	return result
 
 
@@ -56,7 +56,7 @@ static func replacements() -> Dictionary:
 	if not (rows is Dictionary):
 		return result
 	for comp in rows:
-		result[str(comp).to_lower()] = rows[comp]
+		result[str(comp)] = rows[comp]
 	return result
 
 
@@ -92,7 +92,7 @@ static func draw(comp: String) -> Array:
 	var rows = data().get("draw", {})
 	if not (rows is Dictionary):
 		return result
-	for row in rows.get(comp.to_upper(), []):
+	for row in rows.get(comp, []):
 		if row is Array and row.size() == 2:
 			result.append({"home": str(int(row[0])), "away": str(int(row[1]))})
 	return result
@@ -342,7 +342,7 @@ static func _max_round(career: Career) -> int:
 static func _qualifying_dates(career: Career, comp: String, round: String,
 		count: int) -> Array:
 	var windows: Dictionary = QUALIFYING_WINDOWS.get(comp,
-		QUALIFYING_WINDOWS["ucl"])
+		QUALIFYING_WINDOWS["CL"])
 	var window = windows.get(round, [])
 	if not (window is Array) or (window as Array).size() < 2:
 		return []

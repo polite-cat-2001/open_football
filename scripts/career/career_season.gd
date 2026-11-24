@@ -644,12 +644,12 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 
 
 const CHAMPION_BERTHS := {
-	"CONMEBOL:libertadores": ["libertadores", "group_stage"],
-	"CONMEBOL:sudamericana": ["libertadores", "group_stage"],
-	"CONCACAF:champions_cup": ["champions_cup", "round_of_16"],
-	"AFC:acl_elite": ["acl_elite", "league_stage"],
-	"AFC:acl_two": ["acl_elite", "playoff"],
-	"AFC:afc_challenge_league": ["acl_two", "group_stage"],
+	"CONMEBOL:CLI": ["CLI", "group_stage"],
+	"CONMEBOL:CS": ["CLI", "group_stage"],
+	"CONCACAF:CCL": ["CCL", "round_of_16"],
+	"AFC:ACLE": ["ACLE", "league_stage"],
+	"AFC:ACL2": ["ACLE", "playoff"],
+	"AFC:AFCP": ["ACL2", "group_stage"],
 }
 
 
@@ -701,13 +701,13 @@ static func _confederation_fields(berths: Dictionary,
 				result[conf][target][champion] = stage
 	# Recopa Sudamericana: the two CONMEBOL champions of the previous season.
 	var conmebol: Dictionary = old_block.get("CONMEBOL", {}).get("competitions", {})
-	var libertadores := str(conmebol.get("libertadores", {}).get("champion", ""))
-	var sudamericana := str(conmebol.get("sudamericana", {}).get("champion", ""))
+	var libertadores := str(conmebol.get("CLI", {}).get("champion", ""))
+	var sudamericana := str(conmebol.get("CS", {}).get("champion", ""))
 	if not libertadores.is_empty() and not sudamericana.is_empty() \
 			and libertadores != sudamericana:
 		if not result.has("CONMEBOL"):
 			result["CONMEBOL"] = {}
-		result["CONMEBOL"]["recopa"] = {
+		result["CONMEBOL"]["RECO"] = {
 			libertadores: "final", sudamericana: "final",
 		}
 	return result

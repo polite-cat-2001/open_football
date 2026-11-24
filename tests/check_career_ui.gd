@@ -257,7 +257,7 @@ func _run() -> void:
 		var bad_file := FileAccess.open(
 			_directory.path_join("dddddddddddddddddddddddddddddddd.json"), FileAccess.WRITE)
 		bad_file.store_string(JSON.stringify({
-			"version": 2,
+			"version": 1,
 			"id": "dddddddddddddddddddddddddddddddd",
 			"seed": 1,
 			"date": "2026-07-01",

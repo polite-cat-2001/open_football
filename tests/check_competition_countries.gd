@@ -27,11 +27,11 @@ func _run() -> void:
 		_finish()
 		return
 	var cases := [
-		{"league": "GB1", "cups": ["ENGFA", "ENGLC"]},
-		{"league": "L1", "cups": ["GERPOK"]},
-		{"league": "IT1", "cups": ["ITACOP"]},
-		{"league": "FR1", "cups": ["FRACOP"]},
-		{"league": "ES1", "cups": ["ESCUP"]},
+		{"league": "GB1", "cups": ["FAC", "CGB"]},
+		{"league": "L1", "cups": ["DFB"]},
+		{"league": "IT1", "cups": ["CIT"]},
+		{"league": "FR1", "cups": ["FRC"]},
+		{"league": "ES1", "cups": ["CDR"]},
 	]
 	for case in cases:
 		var league_id := str(case["league"])

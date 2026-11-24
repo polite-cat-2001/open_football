@@ -45,14 +45,14 @@ func _run() -> void:
 		if clubs.size() >= 36:
 			break
 	_check(clubs.size() == 36, "the synthetic field has 36 clubs: %d" % clubs.size())
-	var continental := {"competitions": {"ucl": {"league_phase": clubs}}}
+	var continental := {"competitions": {"CL": {"league_phase": clubs}}}
 	var built := CareerCompetitions.build_season(catalog, "ES1", league_ids,
 		"2026-08-15", {}, continental, clubs[0])
 	var schedule: Array = built.get("schedule", [])
 	var euro := []
 	var league_dates := {}
 	for fixture in schedule:
-		if str(fixture.get("competition", "")) == "ucl":
+		if str(fixture.get("competition", "")) == "CL":
 			euro.append(fixture)
 		elif str(fixture.get("competition", "")) == "ES1":
 			league_dates[str(fixture.get("date", ""))] = true
@@ -98,7 +98,7 @@ func _run() -> void:
 	for fixture in euro:
 		world.data["results"][str(fixture.get("id", ""))] = \
 			CareerSeason.simulate(7, fixture, {})
-	var table := CareerContinental.table(world, "ucl")
+	var table := CareerContinental.table(world, "CL")
 	_check(table.size() == 36, "the continental table has 36 rows")
 	_check(int(table[0].get("played", 0)) == 8,
 		"the continental table counts eight matches")

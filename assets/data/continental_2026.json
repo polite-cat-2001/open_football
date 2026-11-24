@@ -4,7 +4,7 @@
  "CONCACAF": {
   "season": "2026",
   "competitions": {
-   "champions_cup": {
+   "CCL": {
     "label": "CONCACAF Champions Cup",
     "entries": {
      "68653": "round_of_16",
@@ -63,7 +63,7 @@
  "CONMEBOL": {
   "season": "2026",
   "competitions": {
-   "libertadores": {
+   "CLI": {
     "label": "Copa Libertadores",
     "entries": {
      "333": "group_stage",
@@ -116,7 +116,7 @@
     },
     "missing": []
    },
-   "sudamericana": {
+   "CS": {
     "label": "Copa Sudamericana",
     "entries": {
      "209": "group_stage",
@@ -171,7 +171,7 @@
  "AFC": {
   "season": "2026-27",
   "competitions": {
-   "acl_elite": {
+   "ACLE": {
     "label": "AFC Champions League Elite",
     "entries": {
      "18487": "league_stage",
@@ -255,7 +255,7 @@
     },
     "missing": []
    },
-   "acl_two": {
+   "ACL2": {
     "label": "AFC Champions League Two",
     "entries": {
      "2524": "group_stage",
@@ -405,7 +405,7 @@
      }
     ]
    },
-   "afc_challenge_league": {
+   "AFCP": {
     "label": "AFC Challenge League",
     "entries": {
      "2468": "group_stage",

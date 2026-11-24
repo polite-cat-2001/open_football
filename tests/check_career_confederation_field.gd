@@ -47,14 +47,14 @@ func _run() -> void:
 	var confederations: Dictionary = block.get("confederations", {})
 	_check(confederations.has("CONCACAF"), "the first season holds the CONCACAF block")
 	var conf_block: Dictionary = confederations.get("CONCACAF", {})
-	var state: Dictionary = conf_block.get("competitions", {}).get("champions_cup", {})
+	var state: Dictionary = conf_block.get("competitions", {}).get("CCL", {})
 	_check(state.size() > 0, "the Champions Cup state exists")
 	if state.is_empty():
 		_finish()
 		return
 	_check((state["entries"] as Dictionary).size() == 22,
 		"the field holds the 22 clubs with a league in the database")
-	_check(str(conf_block.get("focus", "")) == "champions_cup",
+	_check(str(conf_block.get("focus", "")) == "CCL",
 		"the career club's competition is the focus")
 	_check((state.get("missing", []) as Array).size() == 5,
 		"the five entrants without a league are recorded")
@@ -100,14 +100,14 @@ func _run() -> void:
 	var south_block: Dictionary = flamengo.data.get("continental", {}).get(
 		flamengo.season_start, {})
 	var south: Dictionary = south_block.get("confederations", {}).get("CONMEBOL", {})
-	var liber: Dictionary = south.get("competitions", {}).get("libertadores", {})
+	var liber: Dictionary = south.get("competitions", {}).get("CLI", {})
 	_check(not liber.is_empty(), "the first season holds the Libertadores")
 	if liber.is_empty():
 		_finish()
 		return
 	_check((liber.get("entries", {}) as Dictionary).size() == 47,
 		"the 2026 Libertadores field has the 47 clubs")
-	_check(str(south.get("focus", "")) == "libertadores",
+	_check(str(south.get("focus", "")) == "CLI",
 		"Flamengo's competition is the focus")
 	var group_legs := 0
 	for fixture in flamengo.schedule:
@@ -130,13 +130,13 @@ func _run() -> void:
 	var river_block: Dictionary = river.data.get("continental", {}).get(
 		river.season_start, {}).get("confederations", {}).get("CONMEBOL", {})
 	var competitions: Dictionary = river_block.get("competitions", {})
-	_check(competitions.has("sudamericana"), "the first season holds the Sudamericana")
-	var sa: Dictionary = competitions.get("sudamericana", {})
+	_check(competitions.has("CS"), "the first season holds the Sudamericana")
+	var sa: Dictionary = competitions.get("CS", {})
 	_check((sa.get("entries", {}) as Dictionary).size() == 48,
 		"44 clubs plus the four Libertadores third-stage losers")
-	_check(str(river_block.get("focus", "")) == "sudamericana",
+	_check(str(river_block.get("focus", "")) == "CS",
 		"River Plate's competition is the focus")
-	_check(bool(competitions.get("libertadores", {}).get("done", false)),
+	_check(bool(competitions.get("CLI", {}).get("done", false)),
 		"the Libertadores runs beside it")
 	var sa_groups: Array = sa.get("entrants", {}).get("1", [])
 	_check(sa_groups.size() == 32,
@@ -145,7 +145,7 @@ func _run() -> void:
 	for fixture in river.schedule:
 		if str(fixture.get("confederation", "")) != "CONMEBOL":
 			continue
-		if str(fixture.get("stage", "")) != "sudamericana":
+		if str(fixture.get("stage", "")) != "CS":
 			continue
 		var home3 := str(fixture.get("home", ""))
 		var away3 := str(fixture.get("away", ""))
@@ -158,7 +158,7 @@ func _run() -> void:
 		for fixture in river.schedule:
 			if river.results.has(str(fixture.get("id", ""))):
 				continue
-			if str(fixture.get("stage", "")) != "sudamericana":
+			if str(fixture.get("stage", "")) != "CS":
 				continue
 			var home4 := str(fixture.get("home", ""))
 			river.data["results"][str(fixture.get("id", ""))] = \

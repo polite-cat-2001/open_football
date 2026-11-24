@@ -69,14 +69,14 @@ func _run() -> void:
 
 	var career := _career(focus)
 	var block := CareerConfederation.build(catalog, "CONCACAF",
-		{"champions_cup": direct}, "2026-12-20", focus)
+		{"CCL": direct}, "2026-12-20", focus)
 	_check(not block.is_empty(), "the CONCACAF competition builds")
-	_check(str(block.get("focus", "")) == "champions_cup",
+	_check(str(block.get("focus", "")) == "CCL",
 		"the career club's competition is the focus")
 	career.data["continental"] = {"2026-12-20": {"confederations": {"CONCACAF": block}}}
 
 	CareerConfederation.ensure(career, catalog)
-	var state: Dictionary = block["competitions"]["champions_cup"]
+	var state: Dictionary = block["competitions"]["CCL"]
 	_check(career.schedule.size() == 2, "the focus club gets its two round-one legs")
 	_check(int(state.get("round_index", -1)) == 0,
 		"the round waits for the focus club's results")
@@ -110,7 +110,11 @@ func _run() -> void:
 		for fixture in career.schedule:
 			if career.results.has(str(fixture.get("id", ""))):
 				continue
-			_play_fixture(career, fixture, 2, 0)
+			# Score for the focus club whichever leg it hosts, so the test does
+			# not depend on the seeded tie order.
+			var focus_home := str(fixture.get("home", "")) == focus
+			_play_fixture(career, fixture, 2 if focus_home else 0,
+				0 if focus_home else 2)
 		CareerConfederation.ensure(career, catalog)
 	_check(bool(state.get("done", false)), "the competition resolves to the final")
 	_check(_all_results(state, career), "every tie has a result")
@@ -132,11 +136,11 @@ func _run() -> void:
 	_check(not outside_id.is_empty(), "a club outside the field exists")
 	var outside := _career(outside_id)
 	var other := CareerConfederation.build(catalog, "CONCACAF",
-		{"champions_cup": direct}, "2026-12-20", "")
+		{"CCL": direct}, "2026-12-20", "")
 	_check(str(other.get("focus", "")).is_empty(), "no club means no focus")
 	outside.data["continental"] = {"2026-12-20": {"confederations": {"CONCACAF": other}}}
 	CareerConfederation.ensure(outside, catalog)
-	var other_state: Dictionary = other["competitions"]["champions_cup"]
+	var other_state: Dictionary = other["competitions"]["CCL"]
 	_check(bool(other_state.get("done", false))
 		and not str(other_state.get("champion", "")).is_empty(),
 		"an unplayed cup resolves in one pass")
@@ -149,12 +153,12 @@ func _run() -> void:
 	var group_focus: String = field[3]
 	var group_career := _career(group_focus)
 	var group_block := CareerConfederation.build(catalog, "CONMEBOL",
-		{"libertadores": group_entries}, "2026-12-20", group_focus)
+		{"CLI": group_entries}, "2026-12-20", group_focus)
 	_check(not group_block.is_empty(), "the Libertadores builds")
 	group_career.data["continental"] = {"2026-12-20": {
 		"confederations": {"CONMEBOL": group_block}}}
 	CareerConfederation.ensure(group_career, catalog)
-	var group_state: Dictionary = group_block["competitions"]["libertadores"]
+	var group_state: Dictionary = group_block["competitions"]["CLI"]
 	var group_index := 3
 	var group_fixtures: Array = group_state["fixtures"][str(group_index)]
 	_check(group_fixtures.size() == 96, "eight groups of four play 96 matches")

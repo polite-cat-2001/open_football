@@ -97,9 +97,9 @@ static func season_points(competition: String, league_rank: int, wins: int,
 	var match_points := 2.0 * float(wins) + float(draws)
 	var bonus := _rank_bonus(competition, league_rank)
 	var per_round := 0.5
-	if competition == "ucl":
+	if competition == "CL":
 		per_round = 1.5
-	elif competition == "uel":
+	elif competition == "EL":
 		per_round = 1.0
 	var knockout := 0.0
 	for round in ["r16", "qf", "semi", "final"]:
@@ -107,16 +107,16 @@ static func season_points(competition: String, league_rank: int, wins: int,
 			knockout += per_round
 	var total_points := match_points + bonus + knockout
 	var minimum := 0.0
-	if competition == "uel":
+	if competition == "EL":
 		minimum = 3.0
-	elif competition == "uecl":
+	elif competition == "UCOL":
 		minimum = 2.5
 	return maxf(total_points, minimum)
 
 
 static func _rank_bonus(competition: String, rank: int) -> float:
 	var position := clampi(rank, 1, 36)
-	if competition == "ucl":
+	if competition == "CL":
 		if position < 9:
 			return 12.0 - 0.25 * float(position - 1)
 		if position < 17:
@@ -124,7 +124,7 @@ static func _rank_bonus(competition: String, rank: int) -> float:
 		if position < 25:
 			return 8.0 - 0.25 * float(position - 17)
 		return 6.0
-	if competition == "uel":
+	if competition == "EL":
 		if position < 9:
 			return 6.0 - 0.25 * float(position - 1)
 		if position < 17:
