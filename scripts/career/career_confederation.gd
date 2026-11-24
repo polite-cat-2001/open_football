@@ -533,14 +533,23 @@ static func _region_map(value) -> Dictionary:
 
 
 static func _order_by_region(entrants: Array, regions_map: Dictionary) -> Array:
-	var ordered: Array = []
-	for region in ["west", "east"]:
-		for club_id in entrants:
-			if str(regions_map.get(str(club_id), "")) == region:
-				ordered.append(str(club_id))
+	var west: Array = []
+	var east: Array = []
+	var rest: Array = []
 	for club_id in entrants:
-		if not ordered.has(str(club_id)):
-			ordered.append(str(club_id))
+		var region := str(regions_map.get(str(club_id), ""))
+		if region == "west":
+			west.append(str(club_id))
+		elif region == "east":
+			east.append(str(club_id))
+		else:
+			rest.append(str(club_id))
+	# Clubs without a region (drop-downs from another competition) join the West
+	# block, which is where the AFC drop-downs come from.
+	var ordered: Array = []
+	ordered.append_array(west)
+	ordered.append_array(rest)
+	ordered.append_array(east)
 	return ordered
 
 
@@ -575,6 +584,13 @@ static func _region_sizes(entrants: Array, regions_map: Dictionary) -> Array:
 				count += 1
 		if count > 0:
 			sizes.append(count)
+	# Clubs without a region (drop-downs from another competition) are ordered
+	# last, so they extend the last group.
+	var assigned := 0
+	for size in sizes:
+		assigned += int(size)
+	if assigned < entrants.size() and not sizes.is_empty():
+		sizes[0] = int(sizes[0]) + entrants.size() - assigned
 	return sizes
 
 
