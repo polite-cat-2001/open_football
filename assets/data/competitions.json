@@ -2005,6 +2005,66 @@
    "source": "https://en.wikipedia.org/wiki/2025_Chatham_Cup",
    "confidence": "high",
    "note": "This is the national cup. 122 entrants, four knockout rounds before the National League clubs join; the winner gets no continental place."
+  },
+  "IRANSUP": {
+   "kind": "super_cup",
+   "label": "Iranian Super Cup",
+   "country": "Iran",
+   "start_md": "08-11",
+   "end_md": "08-11",
+   "final_legs": 1,
+   "champion": "winner",
+   "source": "",
+   "confidence": "medium",
+   "note": "super cup from the research; date from the source"
+  },
+  "IRAQSUP": {
+   "kind": "super_cup",
+   "label": "Iraqi Super Cup",
+   "country": "Iraq",
+   "start_md": "08-07",
+   "end_md": "08-07",
+   "final_legs": 1,
+   "champion": "winner",
+   "source": "",
+   "confidence": "medium",
+   "note": "super cup from the research; date from the source"
+  },
+  "THAISUP": {
+   "kind": "super_cup",
+   "label": "Thailand Champions Cup",
+   "country": "Thailand",
+   "start_md": "08-28",
+   "end_md": "08-28",
+   "final_legs": 1,
+   "champion": "winner",
+   "source": "",
+   "confidence": "medium",
+   "note": "super cup from the research; date from the source"
+  },
+  "UZBESUP": {
+   "kind": "super_cup",
+   "label": "Uzbekistan Super Cup",
+   "country": "Uzbekistan",
+   "start_md": "02-20",
+   "end_md": "02-20",
+   "final_legs": 1,
+   "champion": "winner",
+   "source": "",
+   "confidence": "medium",
+   "note": "super cup from the research; date from the source"
+  },
+  "UAESUP": {
+   "kind": "super_cup",
+   "label": "UAE Super Cup",
+   "country": "United Arab Emirates",
+   "start_md": "08-07",
+   "end_md": "08-07",
+   "final_legs": 1,
+   "champion": "winner",
+   "source": "",
+   "confidence": "medium",
+   "note": "super cup from the research; date from the source"
   }
  }
 }
