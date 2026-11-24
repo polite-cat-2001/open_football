@@ -46,7 +46,7 @@ const FORMATS := {
 				"drop": {"to": "afc_challenge_league", "entry": "group_stage", "count": 3}},
 			{"name": "group_stage", "legs": 0, "window": ["09-15", "05-15"],
 				"wait_for": {"competition": "acl_elite", "round": "playoff"},
-				"groups": {"count": 2, "size": 16, "rounds": 6, "advance": 4},
+				"groups": {"count": 2, "size": 16, "rounds": 6, "advance": 8},
 				"regions": true},
 			{"name": "round_of_16", "legs": 2, "window": ["02-01", "02-12"],
 				"region_bracket": true},
@@ -625,12 +625,17 @@ static func _region_round(career: Career, confederation: String, competition: St
 		if not _all_played(career, stored[region]):
 			return false
 	var next := {}
-	for region in stored:
-		var entrants: Array = state.get("region_entrants", {}).get(region, [])
+	for region in state.get("region_entrants", {}):
+		var entrants: Array = state["region_entrants"][region]
+		if entrants.size() == 1:
+			# A lone club has no tie: it walks into the next round.
+			next[region] = entrants
+			continue
+		var region_fixtures: Array = stored.get(region, [])
 		var size := CareerBrackets.round_size(entrants.size())
 		career.data["results"] = CareerBrackets.settle_ties(entrants,
-			stored[region], career.results, career.seed, {}, size)
-		next[region] = CareerBrackets.round_winners(entrants, stored[region],
+			region_fixtures, career.results, career.seed, {}, size)
+		next[region] = CareerBrackets.round_winners(entrants, region_fixtures,
 			career.results, size)
 	state["region_entrants"] = next
 	var all: Array = []
