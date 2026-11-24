@@ -119,8 +119,15 @@ static func league_logo(league: Dictionary) -> Texture2D:
 	return orange_fallback()
 
 
-static func team_logo(team: Dictionary) -> Texture2D:
-	# National teams have no club emblem. Use the country flag when the row
+static func tournament_logo(competition_id: String) -> Texture2D:
+	# Downloaded from Transfermarkt into the data root (gitignored); a missing
+	# file is a monogram in the UI, not a placeholder picture.
+	if competition_id.is_empty():
+		return null
+	return load_texture_mipmapped("raster/tournaments/%s.png" % competition_id)
+
+
+static func team_logo(team: Dictionary) -> Texture2D:	# National teams have no club emblem. Use the country flag when the row
 	# carries one, otherwise their own logo file from `logo_url`
 	# (databases/default/images_teams/national/<name>_logo.png).
 	if str(team.get("league_id", "")) == "NAT" and int(team.get("country_id", 0)) > 0:

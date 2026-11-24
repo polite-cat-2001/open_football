@@ -30,6 +30,7 @@ enum Zone { TABS, GRID }
 @onready var overlay: CareerHubOverlay = $Design/Overlay
 @onready var _match_overlay: CareerMatchOverlay = $Design/MatchOverlay
 @onready var plan_host: Control = $Design/PlanHost
+@onready var _intro: CareerTournamentIntro = $Design/TournamentIntro
 
 var _plan: GpfGamePlan
 var _plan_open := false
@@ -61,6 +62,8 @@ var _advancing := false
 var _advance_token := 0
 var _sim_start := ""
 var _sim_date := ""
+var _intro_queue: Array = []
+var _intro_target := ""
 var _match_day := false
 var _match_phase := ""
 var _match_setup: Dictionary = {}
@@ -100,6 +103,7 @@ func _ready() -> void:
 
 	overlay.z_index = 10
 	_match_overlay.z_index = 10
+	_intro.z_index = 12
 	plan_host.z_index = 10
 	hints.z_index = 20
 	hints.visible = true
@@ -250,6 +254,7 @@ func _layout() -> void:
 	# The overlay is a full shell replacement: it covers the tabs too, like the
 	# prototype hides the hub while a tournament/match screen is open.
 	overlay.layout_overlay(Rect2(panel_wrap.position, body.size))
+	_intro.layout_overlay(Rect2(panel_wrap.position, body.size))
 	_match_overlay.layout_overlay(Rect2(panel_wrap.position, body.size))
 
 
@@ -633,6 +638,8 @@ func _direction_action(direction: Vector2i) -> String:
 
 
 func _on_nav_moved(direction: Vector2i) -> void:
+	if _intro.is_open():
+		return
 	if _plan_open:
 		_plan_action(_direction_action(direction))
 		return
@@ -720,6 +727,9 @@ func _focus_grid_neighbour(direction: Vector2i) -> Control:
 
 
 func _on_nav_confirmed() -> void:
+	if _intro.is_open():
+		_close_intro()
+		return
 	if _plan_open:
 		_plan_action("confirm")
 		return
@@ -751,6 +761,9 @@ func _on_nav_confirmed() -> void:
 
 
 func _on_nav_cancelled() -> void:
+	if _intro.is_open():
+		_close_intro()
+		return
 	if _plan_open:
 		if not _plan_action("cancel"):
 			_close_plan_overlay()
@@ -780,6 +793,8 @@ func _on_nav_cancelled() -> void:
 
 
 func _on_nav_tab_previous(suppress_landing := true) -> void:
+	if _intro.is_open():
+		return
 	if _plan_open:
 		_plan_action("tab_prev")
 		return
@@ -796,6 +811,8 @@ func _on_nav_tab_previous(suppress_landing := true) -> void:
 
 
 func _on_nav_tab_next(suppress_landing := true) -> void:
+	if _intro.is_open():
+		return
 	if _plan_open:
 		_plan_action("tab_next")
 		return
@@ -943,6 +960,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _on_next_pressed() -> void:
+	if _intro.is_open():
+		return
 	if _advancing:
 		_stop_advance()
 		return
@@ -992,8 +1011,58 @@ func _run_advance(match_date: String, token: int) -> void:
 		if _sim_date > match_date:
 			_sim_date = match_date
 		_render_simulation()
+		var intros := CareerIntro.pending(_career, _sim_date, CareerSession.catalog)
+		if not intros.is_empty():
+			if UiTransition.instant:
+				for facts in intros:
+					CareerIntro.mark_seen(_career, str(facts.get("competition", "")))
+			else:
+				_pause_for_intro(intros, match_date)
+				return
 	if _advancing and _advance_token == token:
 		_commit_advance(_sim_date)
+
+
+func _pause_for_intro(intros: Array, target: String) -> void:
+	# The calendar stands on the day the club first reaches the tournament; the
+	# popup closes back into the same advance.
+	_intro_queue = intros
+	_intro_target = target
+	_commit_advance(_sim_date)
+	_show_intro()
+
+
+func _show_intro() -> void:
+	if _intro_queue.is_empty():
+		_resume_advance()
+		return
+	var facts: Dictionary = _intro_queue.pop_front()
+	CareerIntro.mark_seen(_career, str(facts.get("competition", "")))
+	_intro.setup(facts)
+	_intro.open()
+	_save()
+
+
+func _close_intro() -> void:
+	_intro.close()
+	_show_intro()
+
+
+func _resume_advance() -> void:
+	var target := _intro_target
+	_intro_target = ""
+	if target.is_empty() or target <= _career.date:
+		_apply_snapshot()
+		return
+	_sim_start = _career.date
+	_sim_date = _career.date
+	if UiTransition.instant:
+		_commit_advance(target)
+		return
+	_advancing = true
+	_advance_token += 1
+	_render_simulation()
+	_run_advance(target, _advance_token)
 
 
 func _stop_advance() -> void:

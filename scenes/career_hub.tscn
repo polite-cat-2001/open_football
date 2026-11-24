@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/career_hub.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_stage.tscn" id="2"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/ui_hints_bar.tscn" id="9"]
 [ext_resource type="Script" path="res://scripts/ui/career_hub_overlay.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/ui/career_match_overlay.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/ui/career_tournament_intro.gd" id="15"]
 [ext_resource type="Script" path="res://scripts/ui/career_squad_view.gd" id="12"]
 [ext_resource type="Script" path="res://scripts/ui/career_transfers_view.gd" id="13"]
 [ext_resource type="Script" path="res://scripts/ui/ui_breadcrumb.gd" id="14"]
@@ -165,6 +166,12 @@ layout_mode = 0
 offset_right = 1920.0
 offset_bottom = 1080.0
 script = ExtResource("10")
+
+[node name="TournamentIntro" type="Control" parent="Design"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+script = ExtResource("15")
 
 [node name="MatchOverlay" type="Control" parent="Design"]
 layout_mode = 0
