@@ -10,11 +10,16 @@ const PAD := 32.0
 const LOGO := 96.0
 const LINE_H := 26.0
 const LINE_GAP := 8.0
+const KINDS := {
+	"league": "LEAGUE", "cup": "KNOCKOUT CUP", "super_cup": "SUPER CUP",
+	"continental": "CONTINENTAL",
+}
 
 var _backdrop: ColorRect
 var _card: Panel
 var _logo: TextureRect
 var _monogram: Label
+var _eyebrow: Label
 var _title: Label
 var _lines: Array[Label] = []
 var _hint: Label
@@ -48,6 +53,8 @@ func _ready() -> void:
 	_monogram.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_monogram.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_card.add_child(_monogram)
+	_eyebrow = _label(14, UiTheme.inter(600), UiTokens.INK_2)
+	_card.add_child(_eyebrow)
 	_title = _label(30, UiTheme.inter(700), UiTokens.INK)
 	_card.add_child(_title)
 	_hint = _label(16, UiTheme.inter(600), UiTokens.INK_2)
@@ -68,6 +75,12 @@ func setup(facts: Dictionary) -> void:
 	_open = false
 	var competition := str(facts.get("competition", ""))
 	_title.text = str(facts.get("label", competition))
+	var parts: Array = []
+	var country := str(facts.get("country", ""))
+	if not country.is_empty():
+		parts.append(country.to_upper())
+	parts.append(str(KINDS.get(str(facts.get("kind", "")), "TOURNAMENT")))
+	_eyebrow.text = " · ".join(parts)
 	var texture := UiAssets.tournament_logo(competition)
 	_logo.texture = texture
 	_logo.visible = texture != null
@@ -122,7 +135,9 @@ func layout_overlay(area: Rect2) -> void:
 	_logo.size = Vector2(LOGO, LOGO)
 	_monogram.position = Vector2(PAD, PAD)
 	_monogram.size = Vector2(LOGO, LOGO)
-	_title.position = Vector2(PAD + LOGO + 24.0, PAD + LOGO / 2.0 - 22.0)
+	_eyebrow.position = Vector2(PAD + LOGO + 24.0, PAD + 16.0)
+	_eyebrow.size = Vector2(CARD_W - PAD * 2.0 - LOGO - 24.0, 18.0)
+	_title.position = Vector2(PAD + LOGO + 24.0, PAD + 38.0)
 	_title.size = Vector2(CARD_W - PAD * 2.0 - LOGO - 24.0, 44.0)
 	var y := PAD + LOGO + 24.0
 	for label in _lines:

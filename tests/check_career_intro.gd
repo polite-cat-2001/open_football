@@ -49,14 +49,15 @@ func _run() -> void:
 	_check(str(league.get("kind", "")) == "league", "a league is a league")
 	_check(str(league.get("label", "")) == "LaLiga", "the league label comes from the database")
 	var league_text := " | ".join(league.get("lines", []))
-	_check(league_text.contains("Relegation: 3"), "the league intro names the relegation slots")
+	_check(league_text.contains("Relegation: 3 clubs"),
+		"the league intro names the relegation slots")
 	_check(league_text.contains("Aug") and league_text.contains("May"),
 		"the league intro names the season window")
 
 	var cup := CareerIntro.facts(_career("131"), "CGB", catalog)
 	_check(str(cup.get("kind", "")) == "cup", "a cup is a cup")
 	var cup_text := " | ".join(cup.get("lines", []))
-	_check(cup_text.contains("knockout"), "the cup intro names the knockout")
+	_check(str(cup.get("country", "")) == "England", "the cup intro names the country")
 	_check(cup_text.contains("Two legs"), "the cup intro names the two-legged rounds")
 	_check(str(cup.get("label", "")) == "EFL Cup", "the cup label comes from the records")
 

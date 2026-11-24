@@ -254,7 +254,7 @@ func _layout() -> void:
 	# The overlay is a full shell replacement: it covers the tabs too, like the
 	# prototype hides the hub while a tournament/match screen is open.
 	overlay.layout_overlay(Rect2(panel_wrap.position, body.size))
-	_intro.layout_overlay(Rect2(panel_wrap.position, body.size))
+	_intro.layout_overlay(Rect2(Vector2.ZERO, UiTokens.DESIGN_SIZE))
 	_match_overlay.layout_overlay(Rect2(panel_wrap.position, body.size))
 
 
