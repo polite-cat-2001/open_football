@@ -1,15 +1,19 @@
 class_name GpfGoalNets
 extends Node3D
 # Goal presentation: the imported white frames (parented to the environment frame) and
-# the live net lines rendered from the original C++ NetSim node positions.
+# the live net rendered from the original C++ NetSim node positions as a lit,
+# textured triangle mesh (the original game's goalnetting material).
 
 const GOALS_SCENE := "res://assets/models/gpf_goals.glb"
+const NET_SHADER := "res://shaders/goal_net.gdshader"
 
 var goal_net_meshes: Array[MeshInstance3D] = []
-var goal_net_edges: PackedInt32Array
 var goal_net_positions_cache: Array = []
 var goal_net_material: Material
 var _frame_materials: Array[StandardMaterial3D] = []
+var _net_uvs := PackedVector2Array()
+var _net_indices := PackedInt32Array()
+var _net_drawn: Array = []
 
 var _runtime: Node
 
@@ -21,18 +25,20 @@ func setup(runtime: Node, environment: Node3D) -> void:
 
 
 func build_dynamic() -> void:
-	goal_net_edges = _runtime.get_goal_net_edges()
-	if goal_net_edges.is_empty():
-		push_warning("GpfRuntime returned no goal-net edges")
+	var layout: Dictionary = _runtime.get_goal_net_layout()
+	if layout.is_empty():
+		push_warning("GpfRuntime returned no goal-net layout")
 		return
+	_build_topology(layout)
 	for goal in 2:
 		var net := MeshInstance3D.new()
 		net.name = "GoalNet%d" % goal
-		net.mesh = ImmediateMesh.new()
+		net.mesh = ArrayMesh.new()
 		net.material_override = goal_net_material
 		net.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(net)
 		goal_net_meshes.append(net)
+		_net_drawn.append(null)
 		_redraw(goal)
 
 
@@ -42,12 +48,6 @@ func update() -> void:
 		var positions: PackedVector3Array = _runtime.get_goal_net_positions(goal)
 		goal_net_positions_cache.append(positions)
 		draw(goal, positions)
-
-
-func set_light_tint(color: Color) -> void:
-	var material := goal_net_material as StandardMaterial3D
-	if material != null:
-		material.albedo_color = color
 
 
 # The imported frame is white but the floodlights leave its crossbar black from
@@ -76,26 +76,59 @@ func draw(goal: int, positions: PackedVector3Array) -> void:
 		net.visible = false
 		return
 	net.visible = true
-	var mesh := net.mesh as ImmediateMesh
+	# The cloth only moves while the ball presses it; skip the upload otherwise.
+	if positions == _net_drawn[goal]:
+		return
+	if positions.size() != _net_uvs.size():
+		push_warning("Goal-net node count does not match the NetSim layout")
+		net.visible = false
+		return
+	_net_drawn[goal] = positions
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = positions
+	arrays[Mesh.ARRAY_TEX_UV] = _net_uvs
+	arrays[Mesh.ARRAY_INDEX] = _net_indices
+	var mesh := net.mesh as ArrayMesh
 	mesh.clear_surfaces()
-	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
-	var node_count := positions.size()
-	for k in range(goal_net_edges.size() / 2):
-		var a := goal_net_edges[k * 2]
-		var b := goal_net_edges[k * 2 + 1]
-		if a < 0 or b < 0 or a >= node_count or b >= node_count:
-			continue
-		mesh.surface_add_vertex(positions[a])
-		mesh.surface_add_vertex(positions[b])
-	mesh.surface_end()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
+
+# Mirrors netsim::BuildBoxNet's panel order (back, top, left, right) and its
+# node layout, one texture tile per cell as in the original goal net.
+func _build_topology(layout: Dictionary) -> void:
+	var panels: Array[Vector2i] = [
+		Vector2i(layout["width"], layout["height"]),
+		Vector2i(layout["width"], layout["depth"]),
+		Vector2i(layout["depth"], layout["height"]),
+		Vector2i(layout["depth"], layout["height"]),
+	]
+	var base := 0
+	for panel in panels:
+		var cols := panel.x + 1
+		for j in panel.y + 1:
+			for i in cols:
+				_net_uvs.append(Vector2(i, j))
+		for j in panel.y:
+			for i in panel.x:
+				var a := base + j * cols + i
+				_net_indices.append(a)
+				_net_indices.append(a + 1)
+				_net_indices.append(a + cols + 1)
+				_net_indices.append(a)
+				_net_indices.append(a + cols + 1)
+				_net_indices.append(a + cols)
+		base += cols * (panel.y + 1)
 
 
 func _build_material() -> void:
-	var net_material := StandardMaterial3D.new()
-	net_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	net_material.albedo_color = Color(0.9, 0.94, 1.0, 0.5)
-	net_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	net_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var shader := load(NET_SHADER) as Shader
+	if shader == null:
+		push_warning("Could not load the goal-net shader")
+		return
+	var net_material := ShaderMaterial.new()
+	net_material.shader = shader
+	net_material.set_shader_parameter("net_tint", Color(0.96, 0.98, 1.0))
 	goal_net_material = net_material
 
 

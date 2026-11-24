@@ -40,7 +40,6 @@ const FLOODLIGHT_CENTERS := [
 const LIGHTING_PRESETS := [
 	{
 		"name": "Noon",
-		"net_tint": Color(0.72, 0.75, 0.78, 0.45),
 		"sun_pos": Vector3(-0.30, 0.60, 1.10),
 		"sun_color": Color(1.00, 0.92, 0.80),
 		"sun_energy": 1.00,
@@ -63,7 +62,6 @@ const LIGHTING_PRESETS := [
 	},
 	{
 		"name": "Afternoon",
-		"net_tint": Color(0.62, 0.57, 0.52, 0.45),
 		"sun_pos": Vector3(0.90, 0.60, 0.90),
 		"sun_color": Color(1.0, 0.84, 0.65),
 		"sun_energy": 0.70,
@@ -86,7 +84,6 @@ const LIGHTING_PRESETS := [
 	},
 	{
 		"name": "Sunset",
-		"net_tint": Color(0.6, 0.46, 0.4, 0.42),
 		"sun_pos": Vector3(-1.10, 0.35, 0.80),
 		"sun_color": Color(1.0, 0.58, 0.34),
 		"sun_energy": 0.75,
@@ -113,7 +110,6 @@ const LIGHTING_PRESETS := [
 	},
 	{
 		"name": "Night",
-		"net_tint": Color(0.35, 0.4, 0.5, 0.38),
 		"sun_pos": Vector3(0.70, 0.70, 0.55),
 		"sun_color": Color(0.85, 0.90, 1.00),
 		"sun_energy": 0.65,
@@ -187,12 +183,6 @@ func cycle_lighting() -> void:
 
 func lighting_name() -> String:
 	return String(LIGHTING_PRESETS[lighting_index % LIGHTING_PRESETS.size()]["name"])
-
-
-# The live net is unshaded lines; tint it by hand so it reads with the preset.
-func lighting_net_tint() -> Color:
-	var preset: Dictionary = LIGHTING_PRESETS[lighting_index % LIGHTING_PRESETS.size()]
-	return preset.get("net_tint", Color(1.0, 1.0, 1.0, 0.5))
 
 
 func set_pitch_theme(theme: String) -> void:

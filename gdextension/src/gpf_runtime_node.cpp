@@ -288,6 +288,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("debug_get_plan", "team_id"), &GpfRuntimeNode::debug_get_plan);
     ClassDB::bind_method(D_METHOD("get_goal_net_positions", "goal"), &GpfRuntimeNode::get_goal_net_positions);
     ClassDB::bind_method(D_METHOD("get_goal_net_edges"), &GpfRuntimeNode::get_goal_net_edges);
+    ClassDB::bind_method(D_METHOD("get_goal_net_layout"), &GpfRuntimeNode::get_goal_net_layout);
     ClassDB::bind_method(D_METHOD("generate_pitch_maps", "width", "height", "grass", "overlay"), &GpfRuntimeNode::generate_pitch_maps);
     ClassDB::bind_method(D_METHOD("get_player_pose", "player_id"), &GpfRuntimeNode::get_player_pose);
     ClassDB::bind_method(D_METHOD("get_player_ids"), &GpfRuntimeNode::get_player_ids);
@@ -2397,6 +2398,16 @@ PackedInt32Array GpfRuntimeNode::get_goal_net_edges() const {
         edges[i] = source[i];
     }
     return edges;
+}
+
+Dictionary GpfRuntimeNode::get_goal_net_layout() const {
+    // The mesh renderer triangulates the NetSim node grid; these are the same
+    // divisions BuildBoxNet used, so the topology cannot drift from the nodes.
+    Dictionary layout;
+    layout["width"] = NET_WIDTH_DIV;
+    layout["height"] = NET_HEIGHT_DIV;
+    layout["depth"] = NET_DEPTH_DIV;
+    return layout;
 }
 
 Dictionary GpfRuntimeNode::generate_pitch_maps(int width, int height, const Ref<Image> &grass,

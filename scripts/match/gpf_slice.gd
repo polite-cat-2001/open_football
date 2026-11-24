@@ -82,7 +82,6 @@ func _ready() -> void:
 	actors.set_match_kits(ShellState.match_package)
 	environment_view.setup(runtime, $Sun, $FillLight)
 	goal_nets.setup(runtime, environment_view)
-	goal_nets.set_light_tint(environment_view.lighting_net_tint())
 	goal_nets.set_frame_night(environment_view.lighting_name() == "Night")
 	camera_rig.setup(camera, actors)
 	hud.setup(runtime)
@@ -1104,7 +1103,6 @@ func _handle_key(key_event: InputEventKey) -> void:
 	if key_event.keycode == KEY_F8:
 		if key_event.pressed:
 			environment_view.cycle_lighting()
-			goal_nets.set_light_tint(environment_view.lighting_net_tint())
 			goal_nets.set_frame_night(environment_view.lighting_name() == "Night")
 		return
 	var shootout_running := bool(runtime.get_snapshot().get("shootout_active", false))
