@@ -91,6 +91,12 @@ const FORMATS := {
 			{"name": "final", "legs": 1, "window": ["11-28", "11-28"]},
 		],
 	},
+	"CONMEBOL:recopa": {
+		"label": "Recopa Sudamericana",
+		"rounds": [
+			{"name": "final", "legs": 2, "window": ["02-10", "02-24"]},
+		],
+	},
 	"CONMEBOL:sudamericana": {
 		"label": "Copa Sudamericana",
 		"rounds": [

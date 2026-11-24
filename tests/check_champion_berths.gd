@@ -58,4 +58,8 @@ func _run() -> void:
 		"the Challenge champion enters the next ACL Two group stage")
 	_check(str(fields["CONCACAF"]["champions_cup"].get("666", "")) == "round_of_16",
 		"the CONCACAF champion enters the next round of 16")
+	var recopa: Dictionary = fields["CONMEBOL"].get("recopa", {})
+	_check(str(recopa.get("111", "")) == "final"
+		and str(recopa.get("222", "")) == "final",
+		"the two CONMEBOL champions play the Recopa Sudamericana")
 	_finish()

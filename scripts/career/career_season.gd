@@ -699,6 +699,17 @@ static func _confederation_fields(berths: Dictionary,
 				result[conf][target] = {}
 			if not (result[conf][target] as Dictionary).has(champion):
 				result[conf][target][champion] = stage
+	# Recopa Sudamericana: the two CONMEBOL champions of the previous season.
+	var conmebol: Dictionary = old_block.get("CONMEBOL", {}).get("competitions", {})
+	var libertadores := str(conmebol.get("libertadores", {}).get("champion", ""))
+	var sudamericana := str(conmebol.get("sudamericana", {}).get("champion", ""))
+	if not libertadores.is_empty() and not sudamericana.is_empty() \
+			and libertadores != sudamericana:
+		if not result.has("CONMEBOL"):
+			result["CONMEBOL"] = {}
+		result["CONMEBOL"]["recopa"] = {
+			libertadores: "final", sudamericana: "final",
+		}
 	return result
 
 
