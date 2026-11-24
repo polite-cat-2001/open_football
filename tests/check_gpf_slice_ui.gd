@@ -198,6 +198,21 @@ func _run() -> void:
 				textured += 1
 	_check(stadium_meshes.size() >= 31 and textured >= 31,
 		"stadium meshes carry baked textures (%d meshes, %d textured surfaces)" % [stadium_meshes.size(), textured])
+	var crowd: StandardMaterial3D = null
+	for node in stadium_meshes:
+		var mesh := node as MeshInstance3D
+		if mesh == null or mesh.mesh == null:
+			continue
+		for surface in mesh.mesh.get_surface_count():
+			var material: Material = mesh.get_surface_override_material(surface)
+			if material == null:
+				material = mesh.mesh.surface_get_material(surface)
+			var standard := material as StandardMaterial3D
+			if standard != null and GpfAssets.material_index(standard.resource_name) == 30:
+				crowd = standard
+	_check(crowd != null and crowd.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+		and crowd.normal_enabled and crowd.normal_texture != null,
+		"crowd material is alpha-cut with a normal map")
 	var pitch_node := scene.get_node_or_null("Environment/Pitch") as Node3D
 	var pitch_materials: Array = environment.get("pitch_materials")
 	var pitch_surface: MeshInstance3D = null
