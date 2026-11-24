@@ -590,7 +590,8 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 						(focus_fixtures[0] as Dictionary).get("europe", ""))
 				continental[new_start] = built_continental
 				career.data["continental"] = continental
-		var confederation_fields := _confederation_fields(association_berths)
+		var confederation_fields := _confederation_fields(association_berths,
+			old_continental)
 		if not confederation_fields.is_empty():
 			var season_block: Dictionary = continental.get(new_start, {})
 			season_block["confederations"] = season_block.get("confederations", {})
@@ -642,7 +643,18 @@ static func next_season(career: Career, catalog: TeamCatalog, transition_data: D
 	return true
 
 
-static func _confederation_fields(berths: Dictionary) -> Dictionary:
+const CHAMPION_BERTHS := {
+	"CONMEBOL:libertadores": ["libertadores", "group_stage"],
+	"CONMEBOL:sudamericana": ["libertadores", "group_stage"],
+	"CONCACAF:champions_cup": ["champions_cup", "round_of_16"],
+	"AFC:acl_elite": ["acl_elite", "league_stage"],
+	"AFC:acl_two": ["acl_elite", "playoff"],
+	"AFC:afc_challenge_league": ["acl_two", "group_stage"],
+}
+
+
+static func _confederation_fields(berths: Dictionary,
+		old_continental: Dictionary = {}) -> Dictionary:
 	# Berth map -> {confederation: {competition: {club_id: entry round}}}. Only
 	# the confederations with a modelled format are taken.
 	var result := {}
@@ -668,6 +680,25 @@ static func _confederation_fields(berths: Dictionary) -> Dictionary:
 				result[conf][competition] = {}
 			if not (result[conf][competition] as Dictionary).has(club_id):
 				result[conf][competition][club_id] = str(berth.get("entry", ""))
+	# Champions take their automatic berth in the next season, as in the rules.
+	var old_block: Dictionary = old_continental.get("confederations", {})
+	for conf in old_block:
+		var competitions: Dictionary = old_block[conf].get("competitions", {})
+		for competition in competitions:
+			var rule = CHAMPION_BERTHS.get("%s:%s" % [conf, competition])
+			if not (rule is Array):
+				continue
+			var champion := str(competitions[competition].get("champion", ""))
+			if champion.is_empty():
+				continue
+			var target := str(rule[0])
+			var stage := str(rule[1])
+			if not result.has(conf):
+				result[conf] = {}
+			if not (result[conf] as Dictionary).has(target):
+				result[conf][target] = {}
+			if not (result[conf][target] as Dictionary).has(champion):
+				result[conf][target][champion] = stage
 	return result
 
 
