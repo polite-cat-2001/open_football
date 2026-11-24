@@ -42,6 +42,9 @@ static func round_dates(start_date: String, end_date: String, rounds: int,
 	return dates
 
 
+static var last_compressed: Array = []
+
+
 static func joint_plan(requests: Array, rules: Array = [], scope := "world",
 		rest := 3) -> Dictionary:
 	# Every competition of the club is planned together. Higher priority picks
@@ -53,6 +56,7 @@ static func joint_plan(requests: Array, rules: Array = [], scope := "world",
 		if int(a.get("priority", 0)) != int(b.get("priority", 0)):
 			return int(a.get("priority", 0)) > int(b.get("priority", 0))
 		return str(a.get("id", "")) < str(b.get("id", "")))
+	last_compressed = []
 	var reserved: Array = []
 	var used := {}
 	var plan := {}
@@ -86,8 +90,13 @@ static func _free_slot(ideal: String, request: Dictionary, used: Dictionary,
 					break
 			if ok:
 				return candidate
-	# The window has no free day left: keep the ideal so the fixture still
-	# exists and the caller can report the compressed calendar.
+	# The window has no free day left: priority wins, so the fixture keeps its
+	# ideal day and the clash is reported instead of hidden.
+	last_compressed.append({
+		"id": str(request.get("id", "")),
+		"date": ideal,
+		"priority": int(request.get("priority", 0)),
+	})
 	return ideal
 
 
