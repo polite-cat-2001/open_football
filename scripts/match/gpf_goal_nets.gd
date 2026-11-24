@@ -153,7 +153,8 @@ func _build_goal_frames(environment: Node3D) -> void:
 		# gpf_goals.glb also contains the static net panels; the live net is
 		# rendered from the C++ NetSim positions instead.
 		mesh_instance.visible = is_frame
-		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if is_frame \
+			else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		if is_frame:
 			for surface in mesh_instance.mesh.get_surface_count():
 				var source := mesh_instance.mesh.surface_get_material(surface)

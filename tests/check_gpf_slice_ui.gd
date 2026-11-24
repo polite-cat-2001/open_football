@@ -108,10 +108,15 @@ func _run() -> void:
 		and runtime.has_method("set_replay_active"), "replay overlay and pause hook are ready")
 	var ball_node := actors.get("ball_root") as Node3D
 	var ball_shadow := false
+	var ball_textured := false
 	if ball_node != null:
 		for mesh in ball_node.find_children("*", "MeshInstance3D", true, false):
 			ball_shadow = ball_shadow or mesh.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			var ball_material := mesh.material_override as StandardMaterial3D
+			ball_textured = ball_textured \
+				or (ball_material != null and ball_material.albedo_texture != null)
 	_check(ball_shadow, "ball casts a shadow")
+	_check(ball_textured, "ball uses the original ball texture")
 	var nameplates: Dictionary = actors.get("player_labels")
 	var controlled_id := int(actors.get("controlled_id"))
 	var controlled_label := nameplates.get(controlled_id) as Label3D
@@ -164,14 +169,18 @@ func _run() -> void:
 	var goal_frames := scene.get_node_or_null("Environment/GoalFrames") as Node3D
 	var frame_count := 0
 	var hidden_count := 0
+	var frame_shadow := false
 	if goal_frames != null:
 		for node in goal_frames.find_children("*", "MeshInstance3D", true, false):
 			if node.visible:
 				frame_count += 1
+				frame_shadow = frame_shadow \
+					or (node as MeshInstance3D).cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			else:
 				hidden_count += 1
 	_check(goal_frames != null and frame_count == 1 and hidden_count == 1,
 		"imported goal frame is visible and static net is hidden")
+	_check(frame_shadow, "goal frame casts a shadow")
 
 	var stadium := scene.get_node_or_null("Environment/Stadium") as Node3D
 	_check(stadium != null and stadium.visible, "imported stadium is present")

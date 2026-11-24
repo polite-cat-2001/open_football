@@ -6,6 +6,7 @@ extends Node3D
 
 const BODY_SCENE := "res://assets/models/gpf_fullbody.glb"
 const BALL_SCENE := "res://assets/models/gpf_ball.glb"
+const BALL_TEXTURE := "res://assets/gpf/media/objects/balls/ball.jpg"
 
 const TEAM_COLORS := {
 	0: Color(0.12, 0.28, 0.95),
@@ -351,8 +352,17 @@ func _build_ball() -> void:
 	ball_root = ball_scene.instantiate()
 	if ball_root is GeometryInstance3D:
 		ball_root.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	var texture := load(BALL_TEXTURE) as Texture2D
+	var material: StandardMaterial3D
+	if texture != null:
+		material = StandardMaterial3D.new()
+		material.albedo_texture = texture
+		material.roughness = 0.35
+		material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	for mesh in ball_root.find_children("*", "MeshInstance3D", true, false):
 		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		if material != null:
+			mesh.material_override = material
 	add_child(ball_root)
 
 
