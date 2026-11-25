@@ -13,5 +13,6 @@
  "tournament.clause.two_legged_rounds": "The {rounds} are played over two matches — both scores are added up.",
  "tournament.clause.two_legged_final": "The final is also played over two matches.",
  "tournament.clause.neutral_venue": "The final is played at a neutral venue.",
- "tournament.clause.relegation_playoff": "The club just above the relegation places goes into a play-off."
+ "tournament.league.promotion": "Promotion places: {count}",
+ "tournament.league.relegation": "Relegation places: {count}"
 }

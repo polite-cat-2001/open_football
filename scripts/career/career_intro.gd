@@ -148,14 +148,24 @@ static func _league_lines(career: Career, league_id: String,
 		summary.append("%d matchdays" % rounds)
 	if not summary.is_empty():
 		lines.append(" · ".join(summary))
-	var relegation = league.get("relegation", {})
-	if relegation is Dictionary:
-		var slots := _int(relegation.get("slots"), 0)
-		if slots > 0:
-			lines.append("Relegation: %d club%s" % [slots,
-				"" if slots == 1 else "s"])
-		if bool(relegation.get("playoff", false)):
-			lines.append(UiText.t("tournament.clause.relegation_playoff"))
+	# Movement across the nearest boundaries: the pyramid numbers when the league
+	# is researched, the regulation record otherwise. A side with nothing to play
+	# for (the top flight above, the pyramid floor below) is simply not printed.
+	var up := 0
+	var down := 0
+	if CareerPyramids.has_record(league_id):
+		var level := int(CareerPyramids.record(league_id).get("level", 1))
+		if level > 1:
+			up = CareerPyramids.promotion_places(league_id)
+		down = CareerPyramids.relegation_places(league_id)
+	else:
+		var relegation = league.get("relegation", {})
+		if relegation is Dictionary:
+			down = _int(relegation.get("slots"), 0)
+	if up > 0:
+		lines.append(UiText.t("tournament.league.promotion", {"count": up}))
+	if down > 0:
+		lines.append(UiText.t("tournament.league.relegation", {"count": down}))
 	# The European places belong to the association's top flight; a second-tier
 	# club cannot take them, so the line would be a lie there.
 	var tier := 1

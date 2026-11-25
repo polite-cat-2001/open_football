@@ -4,8 +4,6 @@ extends RefCounted
 # Only the data the career shell needs today is built; later tickets extend it.
 
 const SCHEDULE_VERSION := 3
-const PROMOTION_PLACES := 3
-const RELEGATION_PLACES := 3
 static var last_error := ""
 
 
@@ -888,8 +886,8 @@ static func _season_state(career: Career, clubs: Dictionary) -> Dictionary:
 		"last_result": _last_result(career, clubs),
 		"form": _recent_form(career, clubs),
 		"standings": season_table(career, clubs),
-		"promotion_places": PROMOTION_PLACES,
-		"relegation_places": RELEGATION_PLACES,
+		"promotion_places": CareerPyramids.promotion_places(career.league_id),
+		"relegation_places": CareerPyramids.relegation_places(career.league_id),
 	}
 
 

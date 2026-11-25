@@ -1,5 +1,5 @@
 {
- "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league. AR3R merged into AR3F as one 37-club Torneo Federal A; a database rebuilt from the canon must move its 19 clubs into AR3F and drop the AR3R league. RLN3 (Regionalliga Nord) and RLW3 (Regionalliga West) were added from Transfermarkt (18 clubs each) to complete the five German fourth-tier leagues; the clubs, squads, logos and kits are in the database build of 2026-11-21. FR5A, FR5B, FR5C, FR5D and FR5H (the missing National 2 groups) were added from Transfermarkt on 2026-11-21; the level now has all eight groups in the database.",
+ "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league. AR3R merged into AR3F as one 37-club Torneo Federal A; a database rebuilt from the canon must move its 19 clubs into AR3F and drop the AR3R league. RLN3 (Regionalliga Nord) and RLW3 (Regionalliga West) were added from Transfermarkt (18 clubs each) to complete the five German fourth-tier leagues; the clubs, squads, logos and kits are in the database build of 2026-11-21. FR5A, FR5B, FR5C, FR5D and FR5H (the missing National 2 groups) were added from Transfermarkt on 2026-11-21; the level now has all eight groups in the database. `up_total`/`down_total` are the nominal number of clubs that change level each way, taken from each row's own note (the numeric columns mixed two conventions); `totals_source: unverified` means the note states a range, so the career keeps its fallback. `up_total`/`down_total` are the nominal number of clubs that change level each way, taken from each row's own note (the numeric columns mixed two conventions); `totals_source: unverified` means the note states a range, so the career keeps its fallback.",
  "_generated": "2026-11-20",
  "leagues": {
   "2DVB": {
@@ -5643,7 +5643,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Two clubs go up directly and the play-off winner is the third. Down: 10th directly, 9th through a one-off against that play-off's final loser. The published movement does not balance (3 up, 2 down) because the 2026-27 top-flight format is mid-reform; no source names a third relegated club. | balanced to keep league sizes after a source conflict."
+   "note": "Two clubs go up directly and the play-off winner is the third. Down: 10th directly, 9th through a one-off against that play-off's final loser. The published movement does not balance (3 up, 2 down) because the 2026-27 top-flight format is mid-reform; no source names a third relegated club. | balanced to keep league sizes after a source conflict.",
+   "up_total": 3,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Argentina",
@@ -5655,7 +5658,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "down: (a) last place of the three-season promedio (2024+2025+2026 regular phases, points / matches played; promoted clubs count from their promotion season) and (b) last place of the 2026 annual table (Apertura + Clausura regular phases). If the same club is last in both, it goes down by promedio and (b) passes to the 29th; ties in a relegation place are play-off matches. up: Primera Nacional final winner (zone winners, one-off final) + Torneo Reducido winner",
-   "note": "Exactly two down and two up every season, any club regardless of affiliation or geography. 2026: Estudiantes (RC) was last in both tables, went down by promedio (0.437), and the annual slot passed to Aldosivi (29th, 19 pts); Godoy Cruz went up as Primera Nacional champion. The general rule is last of the annual table, not always the penultimate: the 29th is the overlap case."
+   "note": "Exactly two down and two up every season, any club regardless of affiliation or geography. 2026: Estudiantes (RC) was last in both tables, went down by promedio (0.437), and the annual slot passed to Aldosivi (29th, 19 pts); Godoy Cruz went up as Primera Nacional champion. The general rule is last of the annual table, not always the penultimate: the 29th is the overlap case.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Argentina",
@@ -5667,7 +5673,10 @@
    "down_playoff": 0,
    "allocation": "by_affiliation",
    "selection": "down: bottom two of each of the two Primera Nacional zones (4 clubs), each sent to the level-3 branch of its AFA affiliation - Primera B Metropolitana if directly affiliated / Buenos Aires metropolitan area, Torneo Federal A if indirectly affiliated (regional leagues) / outside Greater Buenos Aires. up: Torneo Federal A champion + Torneo Federal A Revalida winner + Primera B Metropolitana champion + Primera B Metropolitana Reducido winner = 2 from each branch",
-   "note": "Totals are fixed (4 down, 4 up) but the per-branch split is not: 2026 sent 3 down to Primera B Metropolitana (Acassuso, San Miguel, Nueva Chicago) and 1 to Torneo Federal A (Guemes, Santiago del Estero). 2025 sent 3 to Primera B (Arsenal, Talleres (RdE), Defensores Unidos) and 1 to Federal A (Alvarado). Do not hardcode 2/2."
+   "note": "Totals are fixed (4 down, 4 up) but the per-branch split is not: 2026 sent 3 down to Primera B Metropolitana (Acassuso, San Miguel, Nueva Chicago) and 1 to Torneo Federal A (Guemes, Santiago del Estero). 2025 sent 3 to Primera B (Arsenal, Talleres (RdE), Defensores Unidos) and 1 to Federal A (Alvarado). Do not hardcode 2/2.",
+   "up_total": 4,
+   "down_total": 4,
+   "totals_source": "note"
   },
   {
    "country": "Armenia",
@@ -5679,7 +5688,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Premier League 12th is relegated. The First League sends up its highest-placed eligible club: reserve teams of Premier League clubs cannot be promoted and a licence is also required, so the promoted club is not necessarily the champion."
+   "note": "Premier League 12th is relegated. The First League sends up its highest-placed eligible club: reserve teams of Premier League clubs cannot be promoted and a licence is also required, so the promoted club is not necessarily the champion.",
+   "up_total": 1,
+   "down_total": 1,
+   "totals_source": "note"
   },
   {
    "country": "Australia",
@@ -5691,7 +5703,10 @@
    "down_playoff": 0,
    "allocation": "none",
    "selection": "bottom_n",
-   "note": "No sporting boundary exists. A-League Men is a closed, licence-based league (10 Australian + 2 New Zealand clubs) with no promotion to or relegation from it; entry is by APL licence, so NPL NSW and NPL Victoria cannot be promoted into it and its clubs cannot be relegated into them. Size is set administratively, not by results: Western United were removed by Football Australia before 2025-26 (13 -> 12), Auckland FC were added in 2024-25, and Canberra United's men's side is now targeted for 2028-29. The Australian Championship (16 NPL clubs, 4 groups, post-season spring competition) is a separate competition, not a tier, and confers no promotion."
+   "note": "No sporting boundary exists. A-League Men is a closed, licence-based league (10 Australian + 2 New Zealand clubs) with no promotion to or relegation from it; entry is by APL licence, so NPL NSW and NPL Victoria cannot be promoted into it and its clubs cannot be relegated into them. Size is set administratively, not by results: Western United were removed by Football Australia before 2025-26 (13 -> 12), Auckland FC were added in 2024-25, and Canberra United's men's side is now targeted for 2028-29. The Australian Championship (16 NPL clubs, 4 groups, post-season spring competition) is a separate competition, not a tier, and confers no promotion.",
+   "up_total": 0,
+   "down_total": 0,
+   "totals_source": "note"
   },
   {
    "country": "Belarus",
@@ -5703,7 +5718,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "15th and 16th relegated directly, 14th in a two-legged play-off against the First League 3rd. First League champion and runner-up go up directly; its 3rd takes the play-off. One place is contested, so exactly one of {Premier League 14th, First League 3rd} is in the top flight next season."
+   "note": "15th and 16th relegated directly, 14th in a two-legged play-off against the First League 3rd. First League champion and runner-up go up directly; its 3rd takes the play-off. One place is contested, so exactly one of {Premier League 14th, First League 3rd} is in the top flight next season.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Belgium",
@@ -5715,7 +5733,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "BE2 1st promotes directly; the 2nd-5th knockout play-off winner promotes directly too, with no further barrage against a BE1 club (that barrage existed only in the 2025-26 transition, when Lommel beat Dender). BE1 17th and 18th are relegated directly, no relegation play-off. Promotion needs a Division 1A licence, and a U23 reserve side can never be promoted, so an ineligible top-5 finisher is skipped and the next eligible club takes the play-off place. Decided on sporting merit, not geography: 2 up / 2 down keeps BE1 at 18 and BE2 at 15."
+   "note": "BE2 1st promotes directly; the 2nd-5th knockout play-off winner promotes directly too, with no further barrage against a BE1 club (that barrage existed only in the 2025-26 transition, when Lommel beat Dender). BE1 17th and 18th are relegated directly, no relegation play-off. Promotion needs a Division 1A licence, and a U23 reserve side can never be promoted, so an ineligible top-5 finisher is skipped and the next eligible club takes the play-off place. Decided on sporting merit, not geography: 2 up / 2 down keeps BE1 at 18 and BE2 at 15.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Belgium",
@@ -5727,7 +5748,10 @@
    "down_playoff": 0,
    "allocation": "by_affiliation",
    "selection": "bottom_n",
-   "note": "One promotion slot per wing: the BE3V (Voetbal Vlaanderen) champion goes up directly (up_playoff 0 for that wing), the BE3A (FFA / francophone) promotion-play-off winner goes up via play-off (up_playoff 1). BE2's bottom 2 are relegated directly into Eerste nationale, each into the wing it is affiliated to. Parallel-league sizes are fixed (16 VV, 12 FFA), so the wing split of the 2 relegated clubs is absorbed by conditional extra relegations from level 3: a VV-affiliated club coming down sends BE3V's 14th (and 13th if two come down) to Tweede afdeling, an FFA-affiliated club sends BE3A's 10th (relegation play-off 4th) down; BE3V always drops at least 2 (15th, 16th) and BE3A at least 2 (11th, 12th). Level 3 is therefore 28 clubs (16+12) and stays so; never move a club across wings to balance numbers."
+   "note": "One promotion slot per wing: the BE3V (Voetbal Vlaanderen) champion goes up directly (up_playoff 0 for that wing), the BE3A (FFA / francophone) promotion-play-off winner goes up via play-off (up_playoff 1). BE2's bottom 2 are relegated directly into Eerste nationale, each into the wing it is affiliated to. Parallel-league sizes are fixed (16 VV, 12 FFA), so the wing split of the 2 relegated clubs is absorbed by conditional extra relegations from level 3: a VV-affiliated club coming down sends BE3V's 14th (and 13th if two come down) to Tweede afdeling, an FFA-affiliated club sends BE3A's 10th (relegation play-off 4th) down; BE3V always drops at least 2 (15th, 16th) and BE3A at least 2 (11th, 12th). Level 3 is therefore 28 clubs (16+12) and stays so; never move a club across wings to balance numbers.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Bulgaria",
@@ -5739,7 +5763,10 @@
    "down_playoff": 2,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "First League 14th is relegated directly; 12th and 13th play single-match ties against the Second League 2nd and 3rd. The Second League champion goes up directly and takes the 14th's place. Two of the three places each way are decided by the same pair of play-offs."
+   "note": "First League 14th is relegated directly; 12th and 13th play single-match ties against the Second League 2nd and 3rd. The Second League champion goes up directly and takes the 14th's place. Two of the three places each way are decided by the same pair of play-offs.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Chile",
@@ -5751,7 +5778,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "up is the total and up_playoff the part decided by play-off: Liga de Ascenso champion direct, plus the winner of (runner-up vs 3rd-8th liguilla) over two legs. down=2, both direct from the Liga de Primera table. 16 - 2 + 2 = 16."
+   "note": "up is the total and up_playoff the part decided by play-off: Liga de Ascenso champion direct, plus the winner of (runner-up vs 3rd-8th liguilla) over two legs. down=2, both direct from the Liga de Primera table. 16 - 2 + 2 = 16.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Chile",
@@ -5763,7 +5793,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Only the Liga de Segunda champion goes up (the level-3 runner-up has no play-off), and only the last-placed Liga de Ascenso club comes down. 16 - 1 + 1 = 16 and 14 - 1 + 1 = 14."
+   "note": "Only the Liga de Segunda champion goes up (the level-3 runner-up has no play-off), and only the last-placed Liga de Ascenso club comes down. 16 - 1 + 1 = 16 and 14 - 1 + 1 = 14.",
+   "up_total": 1,
+   "down_total": 1,
+   "totals_source": "note"
   },
   {
    "country": "China",
@@ -5775,7 +5808,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "League One champion and runner-up up; CSL 15th and 16th down. No play-off at this boundary in 2026."
+   "note": "League One champion and runner-up up; CSL 15th and 16th down. No play-off at this boundary in 2026.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "China",
@@ -5787,7 +5823,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "other",
-   "note": "League Two promotion group: top 2 up directly, 3rd into a two-leg play-off. League One: 15th and 16th down directly, 14th into the same tie, so it can survive. Introduced for 2026 as '2 up / 2.5 down'; before that this boundary was 2 up / 2 down with no play-off (the last one was 2021)."
+   "note": "League Two promotion group: top 2 up directly, 3rd into a two-leg play-off. League One: 15th and 16th down directly, 14th into the same tie, so it can survive. Introduced for 2026 as '2 up / 2.5 down'; before that this boundary was 2 up / 2 down with no play-off (the last one was 2021).",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Chinese Taipei",
@@ -5799,7 +5838,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "other",
-   "note": "2026-27 only: the top flight expands for 2027-28, so League 2's top two are promoted and no TFPL club is relegated. The standing rule is 1 up (League 2 champion) + 1 shared two-legged play-off (League 2 runner-up v TFPL 7th), and 1 down (TFPL 8th) + that same play-off. Steady state (1 up / 1 down): the 2026-27 expansion (2 up / 0 down) is a one-off and is recorded in this note but not applied. The shared promotion/relegation play-off is not modelled either: its winner moves one club across and would change the roster size by one. Applying the expansion every season would grow the top flight until the second division is empty."
+   "note": "2026-27 only: the top flight expands for 2027-28, so League 2's top two are promoted and no TFPL club is relegated. The standing rule is 1 up (League 2 champion) + 1 shared two-legged play-off (League 2 runner-up v TFPL 7th), and 1 down (TFPL 8th) + that same play-off. Steady state (1 up / 1 down): the 2026-27 expansion (2 up / 0 down) is a one-off and is recorded in this note but not applied. The shared promotion/relegation play-off is not modelled either: its winner moves one club across and would change the roster size by one. Applying the expansion every season would grow the top flight until the second division is empty.",
+   "up_total": 1,
+   "down_total": 1,
+   "totals_source": "note"
   },
   {
    "country": "Colombia",
@@ -5811,7 +5853,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "promedio",
-   "note": "Down: the bottom two of the three-season average table (promedio), not the season table, so a bad single season may not relegate a club. Up: exactly two clubs, but only in the simplest scenarios are both decided by the table; in the main scenario one goes up through the grand final and the other through a two-legged play-off, so up_playoff is 1 (at most one place is a play-off)."
+   "note": "Down: the bottom two of the three-season average table (promedio), not the season table, so a bad single season may not relegate a club. Up: exactly two clubs, but only in the simplest scenarios are both decided by the table; in the main scenario one goes up through the grand final and the other through a two-legged play-off, so up_playoff is 1 (at most one place is a play-off).",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Croatia",
@@ -5823,7 +5868,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "One club each way, both direct: the Prva NL champion replaces the HNL's last-placed club. There is no promotion/relegation play-off between the two tiers; the play-off at this level is inside the Prva NL (15th v a 2. NL club)."
+   "note": "One club each way, both direct: the Prva NL champion replaces the HNL's last-placed club. There is no promotion/relegation play-off between the two tiers; the play-off at this level is inside the Prva NL (15th v a 2. NL club).",
+   "up_total": 1,
+   "down_total": 1,
+   "totals_source": "note"
   },
   {
    "country": "Cyprus",
@@ -5835,7 +5883,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Three direct places each way, decided by the second-phase tables: the bottom three of the First Division's relegation group go down, the top three of the Second Division's promotion round go up. No play-offs at this boundary."
+   "note": "Three direct places each way, decided by the second-phase tables: the bottom three of the First Division's relegation group go down, the top three of the Second Division's promotion round go up. No play-offs at this boundary.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Czech Republic",
@@ -5847,7 +5898,10 @@
    "down_playoff": 2,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Totals include the play-off places: 1 direct + 2 two-legged ties each way (Národní champion; 2nd and 3rd into the ties). Národní liga: champion up, 2nd and 3rd into two-leg play-outs. Chance Liga: 16th down, 15th and 14th into the same play-outs, 13th safe. Both ties two legs, no away-goals rule."
+   "note": "Totals include the play-off places: 1 direct + 2 two-legged ties each way (Národní champion; 2nd and 3rd into the ties). Národní liga: champion up, 2nd and 3rd into two-leg play-outs. Chance Liga: 16th down, 15th and 14th into the same play-outs, 13th safe. Both ties two legs, no away-goals rule.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Czech Republic",
@@ -5859,7 +5913,10 @@
    "down_playoff": 0,
    "allocation": "by_geography",
    "selection": "other",
-   "note": "Národní liga sends its bottom 2 down, each to ČFL or MSFL by regional affiliation (0-2 to either). Up: MSFL champion directly, ČFL only through a two-leg baráž between its group A and B winners. Net level-3 size is fixed at 32 + 18."
+   "note": "Národní liga sends its bottom 2 down, each to ČFL or MSFL by regional affiliation (0-2 to either). Up: MSFL champion directly, ČFL only through a two-leg baráž between its group A and B winners. Net level-3 size is fixed at 32 + 18.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Denmark",
@@ -5871,7 +5928,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Bottom two of the Superliga's qualifying playoff are relegated; top two of the 1. Division's promotion group are promoted. Both direct, no play-off."
+   "note": "Bottom two of the Superliga's qualifying playoff are relegated; top two of the 1. Division's promotion group are promoted. Both direct, no play-off.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Denmark",
@@ -5883,7 +5943,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Bottom two of the 1. Division's relegation group go down; top two of the 2. Division's promotion group go up. Direct."
+   "note": "Bottom two of the 1. Division's relegation group go down; top two of the 2. Division's promotion group go up. Direct.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Denmark",
@@ -5895,7 +5958,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Bottom two of the 2. Division's relegation group go down; top two of the 3. Division's promotion group go up. Direct."
+   "note": "Bottom two of the 2. Division's relegation group go down; top two of the 3. Division's promotion group go up. Direct.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Ecuador",
@@ -5907,7 +5973,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Two direct places each way, decided after the split: the top two of Serie B's promotion round go up, the bottom two of Serie A's relegation hexagonal go down. No play-offs. Reserve sides (Independiente Juniors) are ineligible for promotion."
+   "note": "Two direct places each way, decided after the split: the top two of Serie B's promotion round go up, the bottom two of Serie A's relegation hexagonal go down. No play-offs. Reserve sides (Independiente Juniors) are ineligible for promotion.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "England",
@@ -5919,7 +5988,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Championship: top 2 automatic, 3rd-8th play off for the 3rd place. Premier League: bottom 3 relegated."
+   "note": "Championship: top 2 automatic, 3rd-8th play off for the 3rd place. Premier League: bottom 3 relegated.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "England",
@@ -5931,7 +6003,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "League One: top 2 automatic, 3rd-6th play off for the 3rd place. Championship: bottom 3 relegated."
+   "note": "League One: top 2 automatic, 3rd-6th play off for the 3rd place. Championship: bottom 3 relegated.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "England",
@@ -5943,7 +6018,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "League Two: top 3 automatic, 4th-7th play off for the 4th place. League One: bottom 4 relegated."
+   "note": "League Two: top 3 automatic, 4th-7th play off for the 4th place. League One: bottom 4 relegated.",
+   "up_total": 4,
+   "down_total": 4,
+   "totals_source": "note"
   },
   {
    "country": "England",
@@ -5955,7 +6033,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "National League: champion + 2nd-7th play-off winner. League Two: bottom 2 relegated into the single national division."
+   "note": "National League: champion + 2nd-7th play-off winner. League Two: bottom 2 relegated into the single national division.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "England",
@@ -5967,7 +6048,10 @@
    "down_playoff": 0,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "Each level-6 division sends its champion plus one 2nd-7th play-off winner (4 up in total). The National League's bottom 4 are split between North and South by geography, and clubs are transferred between the two divisions to balance numbers."
+   "note": "Each level-6 division sends its champion plus one 2nd-7th play-off winner (4 up in total). The National League's bottom 4 are split between North and South by geography, and clubs are transferred between the two divisions to balance numbers.",
+   "up_total": 4,
+   "down_total": 4,
+   "totals_source": "note"
   },
   {
    "country": "Estonia",
@@ -5979,7 +6063,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Up: Esiliiga champion direct (licence required), runner-up in a two-legged play-off against the Meistriliiga 9th. Down: 10th direct, 9th through that same play-off. Reserve teams (U21) cannot be promoted, so the champion's place can pass down."
+   "note": "Up: Esiliiga champion direct (licence required), runner-up in a two-legged play-off against the Meistriliiga 9th. Down: 10th direct, 9th through that same play-off. Reserve teams (U21) cannot be promoted, so the champion's place can pass down.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Estonia",
@@ -5991,7 +6078,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Up: Esiliiga B 1st and 2nd direct, 3rd in a two-legged play-off against the Esiliiga 8th. Down: Esiliiga 10th and 9th direct, 8th through that same play-off. The Esiliiga B 9th also plays a separate play-off against the II liiga winner, below our floor."
+   "note": "Up: Esiliiga B 1st and 2nd direct, 3rd in a two-legged play-off against the Esiliiga 8th. Down: Esiliiga 10th and 9th direct, 8th through that same play-off. The Esiliiga B 9th also plays a separate play-off against the II liiga winner, below our floor.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Faroe Islands",
@@ -6003,7 +6093,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Two direct places each way: bottom two of the Premier League are relegated, top two of 1. deild promoted. No play-off (one existed from 1995 to 2005). Only non-reserve clubs can be promoted; if a relegated club already has a reserve side in 1. deild, that reserve side drops a division instead, which reprieves another club."
+   "note": "Two direct places each way: bottom two of the Premier League are relegated, top two of 1. deild promoted. No play-off (one existed from 1995 to 2005). Only non-reserve clubs can be promoted; if a relegated club already has a reserve side in 1. deild, that reserve side drops a division instead, which reprieves another club.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Finland",
@@ -6015,7 +6108,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Ykkösliiga: champion up, 2nd into a two-legged play-off. Veikkausliiga: 12th down, 11th into the same play-off."
+   "note": "Ykkösliiga: champion up, 2nd into a two-legged play-off. Veikkausliiga: 12th down, 11th into the same play-off.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Finland",
@@ -6027,7 +6123,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Ykkönen: promotion-round winner up, runner-up into a two-legged play-off against the Ykkösliiga 9th. Ykkösliiga: 10th down, 9th into that play-off."
+   "note": "Ykkönen: promotion-round winner up, runner-up into a two-legged play-off against the Ykkösliiga 9th. Ykkösliiga: 10th down, 9th into that play-off.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "France",
@@ -6039,7 +6138,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Ligue 2: top 2 promoted, 3rd-5th play a single-match bracket whose winner meets Ligue 1's 16th over two legs. Ligue 1: 17th-18th relegated directly, 16th in that two-leg play-off."
+   "note": "Ligue 2: top 2 promoted, 3rd-5th play a single-match bracket whose winner meets Ligue 1's 16th over two legs. Ligue 1: 17th-18th relegated directly, 16th in that two-leg play-off.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "France",
@@ -6051,7 +6153,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Ligue 3: top 2 promoted, 3rd-6th play a single-match bracket whose winner meets Ligue 2's 16th over two legs. Ligue 2: 17th-18th relegated directly, 16th in that play-off."
+   "note": "Ligue 3: top 2 promoted, 3rd-6th play a single-match bracket whose winner meets Ligue 2's 16th over two legs. Ligue 2: 17th-18th relegated directly, 16th in that play-off.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "France",
@@ -6063,7 +6168,10 @@
    "down_playoff": 0,
    "allocation": "by_geography",
    "selection": "other",
-   "note": "National 1 has 3 regional groups; each group winner is promoted (up=3). Ligue 3 relegates its bottom 3 (16th-18th) with no play-off."
+   "note": "National 1 has 3 regional groups; each group winner is promoted (up=3). Ligue 3 relegates its bottom 3 (16th-18th) with no play-off.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "France",
@@ -6075,7 +6183,10 @@
    "down_playoff": 0,
    "allocation": "by_geography",
    "selection": "other",
-   "note": "National 2 has 8 regional groups of 14; the 8 group winners are promoted. National 1 sends down the 15th and 16th of each of its 3 groups (6) plus the two worst 14th-placed teams (8 total)."
+   "note": "National 2 has 8 regional groups of 14; the 8 group winners are promoted. National 1 sends down the 15th and 16th of each of its 3 groups (6) plus the two worst 14th-placed teams (8 total).",
+   "up_total": 8,
+   "down_total": 8,
+   "totals_source": "note"
   },
   {
    "country": "Georgia",
@@ -6087,7 +6198,10 @@
    "down_playoff": 2,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "10-club divisions, four meetings each. Liga 2 champion up; 9th and 8th of Liga 1 meet the Liga 2 2nd and 3rd over two legs. 10th of Liga 1 goes down directly, and the Liga 2 last place drops to Liga 3."
+   "note": "10-club divisions, four meetings each. Liga 2 champion up; 9th and 8th of Liga 1 meet the Liga 2 2nd and 3rd over two legs. 10th of Liga 1 goes down directly, and the Liga 2 last place drops to Liga 3.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Germany",
@@ -6099,7 +6213,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "2. Bundesliga: champion and runner-up up, 3rd into the play-off. Bundesliga: 17th-18th down, 16th into the play-off. Both ties are two legs."
+   "note": "2. Bundesliga: champion and runner-up up, 3rd into the play-off. Bundesliga: 17th-18th down, 16th into the play-off. Both ties are two legs.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Germany",
@@ -6111,7 +6228,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "3. Liga: champion and runner-up up, 3rd into the play-off. 2. Bundesliga: 17th-18th down, 16th into the play-off."
+   "note": "3. Liga: champion and runner-up up, 3rd into the play-off. 2. Bundesliga: 17th-18th down, 16th into the play-off.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Germany",
@@ -6123,7 +6243,10 @@
    "down_playoff": 0,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "Level 4 is 5 regional leagues. Champions of Südwest and West go up directly; the third direct spot rotates yearly and is Nordost's in 2026-27; champions of Bayern and Nord play a two-leg play-off for the 4th place. 3. Liga relegates its bottom 4, each dropping into the Regionalliga of its region."
+   "note": "Level 4 is 5 regional leagues. Champions of Südwest and West go up directly; the third direct spot rotates yearly and is Nordost's in 2026-27; champions of Bayern and Nord play a two-leg play-off for the 4th place. 3. Liga relegates its bottom 4, each dropping into the Regionalliga of its region.",
+   "up_total": 4,
+   "down_total": 4,
+   "totals_source": "note"
   },
   {
    "country": "Greece",
@@ -6135,7 +6258,10 @@
    "down_playoff": 2,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Super League 2 promotes its top two directly, no play-off. Super League 1 decides both relegation places in the bottom-six play-outs, not by the regular-season table."
+   "note": "Super League 2 promotes its top two directly, no play-off. Super League 1 decides both relegation places in the bottom-six play-outs, not by the regular-season table.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Hongkong",
@@ -6147,7 +6273,10 @@
    "down_playoff": 0,
    "allocation": "by_licence",
    "selection": "bottom_n",
-   "note": "The Premier League bottom club is relegated and the First Division's top two are 'offered' promotion, but a Premier League place requires the HKFA club licence and a professional set-up, so in most seasons fewer clubs go up than are entitled to."
+   "note": "The Premier League bottom club is relegated and the First Division's top two are 'offered' promotion, but a Premier League place requires the HKFA club licence and a professional set-up, so in most seasons fewer clubs go up than are entitled to.",
+   "up_total": 1,
+   "down_total": 1,
+   "totals_source": "note"
   },
   {
    "country": "Hongkong",
@@ -6159,7 +6288,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "First Division: bottom two down. Second Division: top two of the Championship Group up, bottom two of the Challenging Group down."
+   "note": "First Division: bottom two down. Second Division: top two of the Championship Group up, bottom two of the Challenging Group down.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Hungary",
@@ -6171,7 +6303,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "NB II champion up; NB II runner-up meets the NB I 11th in one match. NB I 12th goes down directly. Both promotions are conditional on licensing."
+   "note": "NB II champion up; NB II runner-up meets the NB I 11th in one match. NB I 12th goes down directly. Both promotions are conditional on licensing.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Iceland",
@@ -6183,7 +6318,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "1. deild champion up, 2nd-5th play off for the second place; the Besta deild bottom two go down directly (Vestri and Afturelding in 2025)."
+   "note": "1. deild champion up, 2nd-5th play off for the second place; the Besta deild bottom two go down directly (Vestri and Afturelding in 2025).",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Iceland",
@@ -6195,7 +6333,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Two clubs move each way at every Icelandic boundary. No promotion play-off is documented at the 2. deild/1. deild line - the top two go up."
+   "note": "Two clubs move each way at every Icelandic boundary. No promotion play-off is documented at the 2. deild/1. deild line - the top two go up.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "India",
@@ -6207,7 +6348,10 @@
    "down_playoff": 0,
    "allocation": "by_licence",
    "selection": "bottom_n",
-   "note": "The IFL champion is promoted, but only if it takes up the slot and pays the ISL participation fee - Diamond Harbour won the 2025-26 IFL, were promoted, then failed to pay and lost the place. The ISL bottom club is relegated."
+   "note": "The IFL champion is promoted, but only if it takes up the slot and pays the ISL participation fee - Diamond Harbour won the 2025-26 IFL, were promoted, then failed to pay and lost the place. The ISL bottom club is relegated.",
+   "up_total": 1,
+   "down_total": 1,
+   "totals_source": "note"
   },
   {
    "country": "India",
@@ -6219,7 +6363,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "I-League 2 promotes two clubs to the IFL each season and loses two to I-League 3."
+   "note": "I-League 2 promotes two clubs to the IFL each season and loses two to I-League 3.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Indonesia",
@@ -6231,7 +6378,10 @@
    "down_playoff": 0,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "The bottom three of the Super League go down and are placed into the Championship's two geographical groups. Up: both group winners plus the winner of the runners-up play-off."
+   "note": "The bottom three of the Super League go down and are placed into the Championship's two geographical groups. Up: both group winners plus the winner of the runners-up play-off.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Indonesia",
@@ -6243,7 +6393,10 @@
    "down_playoff": 1,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "Championship: both 10th-placed clubs are relegated and the two 9th-placed clubs play off for a third relegation. Liga Nusantara sends two clubs up plus a play-off winner."
+   "note": "Championship: both 10th-placed clubs are relegated and the two 9th-placed clubs play off for a third relegation. Liga Nusantara sends two clubs up plus a play-off winner.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Iran",
@@ -6255,7 +6408,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Azadegan: top two up, 3rd into a two-legged tie with the Pro League 14th. Pro League: two bottom clubs down directly plus the 14th in that tie."
+   "note": "Azadegan: top two up, 3rd into a two-legged tie with the Pro League 14th. Pro League: two bottom clubs down directly plus the 14th in that tie.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Iran",
@@ -6267,7 +6423,10 @@
    "down_playoff": 0,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "League 2: both group winners promoted (they also play a final for the title), the two runners-up play off for a third place. Azadegan's bottom three go down and are placed into the two regional groups. League 2's own bottom two in each group (four) drop to League 3. | balanced to keep league sizes after a source conflict."
+   "note": "League 2: both group winners promoted (they also play a final for the title), the two runners-up play off for a third place. Azadegan's bottom three go down and are placed into the two regional groups. League 2's own bottom two in each group (four) drop to League 3. | balanced to keep league sizes after a source conflict.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Israel",
@@ -6279,7 +6438,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Liga Leumit's top two are promoted; the Premier League's bottom two are relegated. Both directions are decided purely by tables - no promotion/relegation play-off between the divisions in the current format."
+   "note": "Liga Leumit's top two are promoted; the Premier League's bottom two are relegated. Both directions are decided purely by tables - no promotion/relegation play-off between the divisions in the current format.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Italy",
@@ -6291,7 +6453,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Serie B: top 2 direct, 3rd-8th play off for the third place (3rd direct if 15+ points clear of 4th). Serie A: 18th-20th relegated directly, no play-out."
+   "note": "Serie B: top 2 direct, 3rd-8th play off for the third place (3rd direct if 15+ points clear of 4th). Serie A: 18th-20th relegated directly, no play-out.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Italy",
@@ -6303,7 +6468,10 @@
    "down_playoff": 1,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "Serie C: one direct promotion per group (3) plus the national play-off winner (1). Serie B: 18th-20th direct plus 16th v 17th play-out (skipped if 17th is 5+ points behind 16th, then 17th goes down). The four relegated clubs are placed into Serie C groups A/B/C by geography with no quota; 2026-27 was A 0, B 3, C 1."
+   "note": "Serie C: one direct promotion per group (3) plus the national play-off winner (1). Serie B: 18th-20th direct plus 16th v 17th play-out (skipped if 17th is 5+ points behind 16th, then 17th goes down). The four relegated clubs are placed into Serie C groups A/B/C by geography with no quota; 2026-27 was A 0, B 3, C 1.",
+   "up_total": 4,
+   "down_total": 4,
+   "totals_source": "note"
   },
   {
    "country": "Japan",
@@ -6315,7 +6483,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "J2: top two automatic, 3rd-6th play off for the third place. J1: bottom three relegated, no J1/J2 play-off since 2024."
+   "note": "J2: top two automatic, 3rd-6th play off for the third place. J1: bottom three relegated, no J1/J2 play-off since 2024.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Japan",
@@ -6327,7 +6498,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "J3: top two automatic, 3rd-6th play off for the third place (J2 licence required). J2: bottom three relegated."
+   "note": "J3: top two automatic, 3rd-6th play off for the third place (J2 licence required). J2: bottom three relegated.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Japan",
@@ -6339,7 +6513,10 @@
    "down_playoff": 1,
    "allocation": "by_licence",
    "selection": "bottom_n",
-   "note": "JFL champion replaces J3's 20th automatically if it holds a J3 licence; JFL runner-up plays the J3 19th-placed club if it holds one. If neither JFL club is licensed, nothing moves and J3 relegates nobody (so 0-2 down)."
+   "note": "JFL champion replaces J3's 20th automatically if it holds a J3 licence; JFL runner-up plays the J3 19th-placed club if it holds one. If neither JFL club is licensed, nothing moves and J3 relegates nobody (so 0-2 down).",
+   "up_total": 1,
+   "down_total": 1,
+   "totals_source": "note"
   },
   {
    "country": "Kazakhstan",
@@ -6351,7 +6528,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "2026: Premier League bottom two relegated (Zhetysu, Kaisar); the First League's top two are promoted in a normal season. 2025 -> 2026 was a one-off 1 down / 3 up because the Premier League expanded from 14 to 16."
+   "note": "2026: Premier League bottom two relegated (Zhetysu, Kaisar); the First League's top two are promoted in a normal season. 2025 -> 2026 was a one-off 1 down / 3 up because the Premier League expanded from 14 to 16.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Latvia",
@@ -6363,7 +6543,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Virsliga 10th is relegated directly and 9th plays a two-legged play-off against the 2nd-placed Future League club for the last place; the Future League champion is promoted directly. One shared play-off place, so the real movement is between 1+1 and 2+2 each way."
+   "note": "Virsliga 10th is relegated directly and 9th plays a two-legged play-off against the 2nd-placed Future League club for the last place; the Future League champion is promoted directly. One shared play-off place, so the real movement is between 1+1 and 2+2 each way.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Lithuania",
@@ -6375,7 +6558,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "I Lyga champion goes up, TOPLYGA 10th goes down directly; I Lyga 2nd meets TOPLYGA 9th over two legs for the second place, so only one of the two clubs in that tie plays in the top flight next season."
+   "note": "I Lyga champion goes up, TOPLYGA 10th goes down directly; I Lyga 2nd meets TOPLYGA 9th over two legs for the second place, so only one of the two clubs in that tie plays in the top flight next season.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Luxembourg",
@@ -6387,7 +6573,10 @@
    "down_playoff": 2,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "National Division: 15th and 16th down direct, 13th and 14th in two one-off ties. Division of Honour: top two up direct, 3rd and 4th in those ties. Four places, two of them contested; if both top-flight clubs win, only two clubs change level."
+   "note": "National Division: 15th and 16th down direct, 13th and 14th in two one-off ties. Division of Honour: top two up direct, 3rd and 4th in those ties. Four places, two of them contested; if both top-flight clubs win, only two clubs change level.",
+   "up_total": 4,
+   "down_total": 4,
+   "totals_source": "note"
   },
   {
    "country": "Malaysia",
@@ -6399,7 +6588,10 @@
    "down_playoff": 0,
    "allocation": "by_licence",
    "selection": "bottom_n",
-   "note": "A1 Semi-Pro: top two promoted. Super League: bottom two relegated. In practice the bottom places are decided by MFL licensing, not form - in both 2025-26 and 2026-27 clubs were ejected for failing the national licence - and reserve/feeder sides cannot go up."
+   "note": "A1 Semi-Pro: top two promoted. Super League: bottom two relegated. In practice the bottom places are decided by MFL licensing, not form - in both 2025-26 and 2026-27 clubs were ejected for failing the national licence - and reserve/feeder sides cannot go up.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Malta",
@@ -6411,7 +6603,10 @@
    "down_playoff": 2,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Challenge League top two go up. Premier League relegation is entirely play-off: the bottom two of the Opening Round and the bottom two of the Closing Round meet in a four-team knockout and the two losers go down."
+   "note": "Challenge League top two go up. Premier League relegation is entirely play-off: the bottom two of the Opening Round and the bottom two of the Closing Round meet in a four-team knockout and the two losers go down.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Malta",
@@ -6423,7 +6618,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "National Amateur League I top two go up; Challenge League bottom two go down into it."
+   "note": "National Amateur League I top two go up; Challenge League bottom two go down into it.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Mexico",
@@ -6435,7 +6633,10 @@
    "down_playoff": 0,
    "allocation": "none",
    "selection": "other",
-   "note": "No sporting route in either direction. Promotion and relegation were suspended in 2020; a CAS ruling of 4 Sep 2025 ordered their return from 2026-27, but Liga MX's new regulations (16 Jul 2026) formalised a closed league instead. Atlante's arrival in 2026-27 came from buying Mazatlán's franchise, not from promotion."
+   "note": "No sporting route in either direction. Promotion and relegation were suspended in 2020; a CAS ruling of 4 Sep 2025 ordered their return from 2026-27, but Liga MX's new regulations (16 Jul 2026) formalised a closed league instead. Atlante's arrival in 2026-27 came from buying Mazatlán's franchise, not from promotion.",
+   "up_total": 0,
+   "down_total": 0,
+   "totals_source": "note"
   },
   {
    "country": "Moldova",
@@ -6447,7 +6648,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Super Liga Phase I bottom two (7th and 8th) are relegated straight into Liga 1 Phase II; Liga 1 promotes its top two. No play-off."
+   "note": "Super Liga Phase I bottom two (7th and 8th) are relegated straight into Liga 1 Phase II; Liga 1 promotes its top two. No play-off.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Montenegro",
@@ -6459,7 +6663,10 @@
    "down_playoff": 2,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "1. CFL: 10th down direct; 9th and 8th play the 2. CFL 3rd and 2nd over two legs. 2. CFL: champion up direct, 2nd and 3rd in those ties. Three places, two contested."
+   "note": "1. CFL: 10th down direct; 9th and 8th play the 2. CFL 3rd and 2nd over two legs. 2. CFL: champion up direct, 2nd and 3rd in those ties. Three places, two contested.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Netherlands",
@@ -6471,7 +6678,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Eerste Divisie: champion and runner-up up direct, 3rd-8th into the nacompetitie. Eredivisie: 17th and 18th down direct, 16th into the nacompetitie. Three places, one contested; if the 16th survives, only two clubs change level. Jong teams cannot take the promotion place."
+   "note": "Eerste Divisie: champion and runner-up up direct, 3rd-8th into the nacompetitie. Eredivisie: 17th and 18th down direct, 16th into the nacompetitie. Three places, one contested; if the 16th survives, only two clubs change level. Jong teams cannot take the promotion place.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Netherlands",
@@ -6483,7 +6693,10 @@
    "down_playoff": 0,
    "allocation": "none",
    "selection": "other",
-   "note": "Closed by KNVB decision (June 2022): promotion and relegation between the Eerste and Tweede Divisie is suspended for first teams for 5-10 seasons. Only one exchange survives, between the lowest-ranked Jong team in the Eerste Divisie and the best reserve team in the Tweede Divisie."
+   "note": "Closed by KNVB decision (June 2022): promotion and relegation between the Eerste and Tweede Divisie is suspended for first teams for 5-10 seasons. Only one exchange survives, between the lowest-ranked Jong team in the Eerste Divisie and the best reserve team in the Tweede Divisie.",
+   "up_total": 0,
+   "down_total": 0,
+   "totals_source": "note"
   },
   {
    "country": "Netherlands",
@@ -6495,7 +6708,10 @@
    "down_playoff": 2,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "The two Derde Divisie champions (A and B) are promoted mandatorily. The Tweede Divisie 16th goes down direct; the 14th and 15th join the Derde Divisie period champions in a play-off for one further place, so the real totals move between 2 and 3 each way."
+   "note": "The two Derde Divisie champions (A and B) are promoted mandatorily. The Tweede Divisie 16th goes down direct; the 14th and 15th join the Derde Divisie period champions in a play-off for one further place, so the real totals move between 2 and 3 each way.",
+   "up_total": null,
+   "down_total": null,
+   "totals_source": "unverified"
   },
   {
    "country": "Nicaragua",
@@ -6507,7 +6723,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "average_table",
-   "note": "Liga Primera relegation comes from the aggregate table over Apertura + Clausura: last goes down, 9th plays the Ascenso runner-up over two legs. Ascenso champion goes up directly. Two places, one contested."
+   "note": "Liga Primera relegation comes from the aggregate table over Apertura + Clausura: last goes down, 9th plays the Ascenso runner-up over two legs. Ascenso champion goes up directly. Two places, one contested.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Northern Ireland",
@@ -6519,7 +6738,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Championship champion goes up directly, runner-up plays the Premiership 11th over two legs for the last place; 12th in the Premiership goes down directly. The play-off is shared, so exactly one of {11th, Championship runner-up} is in the top flight next season."
+   "note": "Championship champion goes up directly, runner-up plays the Premiership 11th over two legs for the last place; 12th in the Premiership goes down directly. The play-off is shared, so exactly one of {11th, Championship runner-up} is in the top flight next season.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Norway",
@@ -6531,7 +6753,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Eliteserien: 15th-16th direct, 14th in a two-legged play-off. OBOS: top 2 direct, 3rd-6th single-leg ladder; the ladder winner meets the Eliteserien 14th. One place is contested, so the loser stays at its level."
+   "note": "Eliteserien: 15th-16th direct, 14th in a two-legged play-off. OBOS: top 2 direct, 3rd-6th single-leg ladder; the ladder winner meets the Eliteserien 14th. One place is contested, so the loser stays at its level.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Norway",
@@ -6543,7 +6768,10 @@
    "down_playoff": 1,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "2. divisjon: the two avdeling winners go up direct; the two runners-up play off, and that winner meets the OBOS 14th (3 places, 1 contested). OBOS: 15th-16th direct down plus 14th in the play-off. The relegated/14th clubs are placed into 2. divisjon avdeling 1 or 2 by geography."
+   "note": "2. divisjon: the two avdeling winners go up direct; the two runners-up play off, and that winner meets the OBOS 14th (3 places, 1 contested). OBOS: 15th-16th direct down plus 14th in the play-off. The relegated/14th clubs are placed into 2. divisjon avdeling 1 or 2 by geography.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Norway",
@@ -6555,7 +6783,10 @@
    "down_playoff": 0,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "All six 3. divisjon group winners go up, one per group; NFF places them three into each 2. divisjon avdeling by geography. 2. divisjon's bottom three in each avdeling (six) go down and are placed into the six 3. divisjon groups by geography."
+   "note": "All six 3. divisjon group winners go up, one per group; NFF places them three into each 2. divisjon avdeling by geography. 2. divisjon's bottom three in each avdeling (six) go down and are placed into the six 3. divisjon groups by geography.",
+   "up_total": 6,
+   "down_total": 6,
+   "totals_source": "note"
   },
   {
    "country": "Paraguay",
@@ -6567,7 +6798,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "average_table",
-   "note": "Intermedia champion and runner-up are promoted directly. The two worst three-season points-per-game averages in the top flight are relegated, regardless of the single-season table (Rubio Ñu and San Lorenzo went down in 2026). No play-offs in either direction."
+   "note": "Intermedia champion and runner-up are promoted directly. The two worst three-season points-per-game averages in the top flight are relegated, regardless of the single-season table (Rubio Ñu and San Lorenzo went down in 2026). No play-offs in either direction.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Peru",
@@ -6579,7 +6813,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Liga 2 promotes through its play-offs: the champion (final winner) and the winner of a single runner-up match. Liga 1 relegates the bottom two of the season aggregate table (17th and 18th in 2025); a club can also lose its place administratively, as Binacional did in 2025."
+   "note": "Liga 2 promotes through its play-offs: the champion (final winner) and the winner of a single runner-up match. Liga 1 relegates the bottom two of the season aggregate table (17th and 18th in 2025); a club can also lose its place administratively, as Binacional did in 2025.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Peru",
@@ -6591,7 +6828,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "other",
-   "note": "Liga 3 promotes its two finalists, both via the knockout stage. Liga 2 relegates the bottom club of each of its two triangular relegation groups, so it is a group position rather than a division-wide bottom-n."
+   "note": "Liga 3 promotes its two finalists, both via the knockout stage. Liga 2 relegates the bottom club of each of its two triangular relegation groups, so it is a group position rather than a division-wide bottom-n.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Poland",
@@ -6603,7 +6843,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Ekstraklasa 16th-18th relegated. 1 Liga 1st-2nd promoted directly, 3rd-6th play off for the third place."
+   "note": "Ekstraklasa 16th-18th relegated. 1 Liga 1st-2nd promoted directly, 3rd-6th play off for the third place.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Poland",
@@ -6615,7 +6858,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "1 Liga 16th-18th relegated, so the league holds 18. 2 Liga 1st-2nd promoted directly, 3rd-6th play off for the third place."
+   "note": "1 Liga 16th-18th relegated, so the league holds 18. 2 Liga 1st-2nd promoted directly, 3rd-6th play off for the third place.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Poland",
@@ -6627,7 +6873,10 @@
    "down_playoff": 2,
    "allocation": "by_geography",
    "selection": "other",
-   "note": "Variable boundary: 4 is the floor, 6 the maximum. The champion of each of the four III-liga groups is promoted directly (4, no play-off). The four runners-up enter a two-round play-off: round 1 is a single match with the fixed bracket gr. I v gr. III and gr. IV v gr. II; round 2 is two legs against the 13th and 14th of 2 Liga (II-liga club hosts the second leg). Each tie won by a runner-up swaps one club, so 0-2 extra promotions and 0-2 extra relegations. Group placement is territorial by voivodeship, not a fixed membership; a group that receives a relegated II-liga club sends one extra club down to IV liga (5 instead of 4) to stay at 18."
+   "note": "Variable boundary: 4 is the floor, 6 the maximum. The champion of each of the four III-liga groups is promoted directly (4, no play-off). The four runners-up enter a two-round play-off: round 1 is a single match with the fixed bracket gr. I v gr. III and gr. IV v gr. II; round 2 is two legs against the 13th and 14th of 2 Liga (II-liga club hosts the second leg). Each tie won by a runner-up swaps one club, so 0-2 extra promotions and 0-2 extra relegations. Group placement is territorial by voivodeship, not a fixed membership; a group that receives a relegated II-liga club sends one extra club down to IV liga (5 instead of 4) to stay at 18.",
+   "up_total": null,
+   "down_total": null,
+   "totals_source": "unverified"
   },
   {
    "country": "Portugal",
@@ -6639,7 +6888,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "2 direct in each direction (top 2 of Liga Portugal 2 up, 17th-18th of the Primeira Liga down) plus one shared two-legged tie: 16th of the Primeira Liga v 3rd of Liga Portugal 2. One club moves through that tie, so 3 up and 3 down are not independent."
+   "note": "2 direct in each direction (top 2 of Liga Portugal 2 up, 17th-18th of the Primeira Liga down) plus one shared two-legged tie: 16th of the Primeira Liga v 3rd of Liga Portugal 2. One club moves through that tie, so 3 up and 3 down are not independent.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Portugal",
@@ -6651,7 +6903,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "2 direct (promotion-stage 1st and 2nd up; Liga Portugal 2 17th-18th down) plus one shared two-legged tie: 3rd of the Liga 3 promotion stage v 16th of Liga Portugal 2."
+   "note": "2 direct (promotion-stage 1st and 2nd up; Liga Portugal 2 17th-18th down) plus one shared two-legged tie: 3rd of the Liga 3 promotion stage v 16th of Liga Portugal 2.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Portugal",
@@ -6663,7 +6918,10 @@
    "down_playoff": 0,
    "allocation": "by_geography",
    "selection": "other",
-   "note": "Fixed 4/4, no play-off. Down from Liga 3: bottom 2 of each of its two relegation series. Up from the Campeonato de Portugal: top 2 of each of the two promotion groups (the groups are filled by the top 2 of each of the four geographic series). A club crossing this boundary is then placed in the north (Série A) or south (Série B) Liga 3 series, or in the Campeonato de Portugal series covering its district association."
+   "note": "Fixed 4/4, no play-off. Down from Liga 3: bottom 2 of each of its two relegation series. Up from the Campeonato de Portugal: top 2 of each of the two promotion groups (the groups are filled by the top 2 of each of the four geographic series). A club crossing this boundary is then placed in the north (Série A) or south (Série B) Liga 3 series, or in the Campeonato de Portugal series covering its district association.",
+   "up_total": 4,
+   "down_total": 4,
+   "totals_source": "note"
   },
   {
    "country": "Qatar",
@@ -6675,7 +6933,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "QSL2 champion goes up directly, runner-up plays the QSL 11th in a single match; QSL 12th goes down directly and 11th risks the same play-off, so exactly one of {QSL 11th, QSL2 runner-up} is in the top flight next season."
+   "note": "QSL2 champion goes up directly, runner-up plays the QSL 11th in a single match; QSL 12th goes down directly and 11th risks the same play-off, so exactly one of {QSL 11th, QSL2 runner-up} is in the top flight next season.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Romania",
@@ -6687,7 +6948,10 @@
    "down_playoff": 2,
    "allocation": "by_licence",
    "selection": "bottom_n",
-   "note": "Liga II play-off 1st and 2nd go up directly subject to eligibility; 3rd and 4th meet Liga I 13th and 14th in two-legged ties. Liga I 15th and 16th are relegated directly, 13th and 14th only if they lose. Promotion is closed to 12 of the 22 Liga II clubs in 2026-27 on legal-status/ownership grounds, so the direct places can pass down the play-off table. In 2026 only three clubs moved each way (two direct promotions plus Voluntari via the play-off)."
+   "note": "Liga II play-off 1st and 2nd go up directly subject to eligibility; 3rd and 4th meet Liga I 13th and 14th in two-legged ties. Liga I 15th and 16th are relegated directly, 13th and 14th only if they lose. Promotion is closed to 12 of the 22 Liga II clubs in 2026-27 on legal-status/ownership grounds, so the direct places can pass down the play-off table. In 2026 only three clubs moved each way (two direct promotions plus Voluntari via the play-off).",
+   "up_total": 4,
+   "down_total": 4,
+   "totals_source": "note"
   },
   {
    "country": "Saudi Arabia",
@@ -6699,7 +6963,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Pro League: bottom 3 (16th-18th) relegated directly, no play-off. First Division: top 2 direct, 3rd-6th play off for the third place (single-leg ties)."
+   "note": "Pro League: bottom 3 (16th-18th) relegated directly, no play-off. First Division: top 2 direct, 3rd-6th play off for the third place (single-leg ties).",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Scotland",
@@ -6711,7 +6978,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Championship champion goes up directly; 2nd-4th play a two-legged ladder and its winner meets the Premiership 11th over two legs. Premiership 12th goes down directly, 11th only through that same tie, so one place moves through it."
+   "note": "Championship champion goes up directly; 2nd-4th play a two-legged ladder and its winner meets the Premiership 11th over two legs. Premiership 12th goes down directly, 11th only through that same tie, so one place moves through it.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Scotland",
@@ -6723,7 +6993,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "League One champion up directly, 2nd-4th ladder winner meets the Championship 9th over two legs. Championship 10th down directly, 9th only through that tie."
+   "note": "League One champion up directly, 2nd-4th ladder winner meets the Championship 9th over two legs. Championship 10th down directly, 9th only through that tie.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Scotland",
@@ -6735,7 +7008,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "League Two champion up directly, 2nd-4th ladder winner meets League One 9th over two legs. League One 10th down directly, 9th only through that tie."
+   "note": "League Two champion up directly, 2nd-4th ladder winner meets League One 9th over two legs. League One 10th down directly, 9th only through that tie.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Senegal",
@@ -6747,7 +7023,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "No play-offs: Ligue 1's bottom two are replaced by Ligue 2's top two."
+   "note": "No play-offs: Ligue 1's bottom two are replaced by Ligue 2's top two.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Serbia",
@@ -6759,7 +7038,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "2026-27 only: the SuperLiga shrinks from 14 to 12, so four clubs (11th-14th) are relegated while the First League promotes only its top two. No play-off in either direction. From 2027-28 this should return to 2 up / 2 down. Steady state (2 up / 2 down): the game runs on the database snapshot of 14 clubs and must keep the roster size, so the one-off 2026-27 shrink (4 down / 2 up, 14 to 12) is recorded in this note but not applied. Applying it every season would shrink the league by two clubs a year."
+   "note": "2026-27 only: the SuperLiga shrinks from 14 to 12, so four clubs (11th-14th) are relegated while the First League promotes only its top two. No play-off in either direction. From 2027-28 this should return to 2 up / 2 down. Steady state (2 up / 2 down): the game runs on the database snapshot of 14 clubs and must keep the roster size, so the one-off 2026-27 shrink (4 down / 2 up, 14 to 12) is recorded in this note but not applied. Applying it every season would shrink the league by two clubs a year.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Slovakia",
@@ -6771,7 +7053,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "II. Liga champion up directly (subject to licence); 2nd plays the Niké liga 11th over two legs. Niké liga 12th goes down directly, 11th only through that same tie, so one place moves through it."
+   "note": "II. Liga champion up directly (subject to licence); 2nd plays the Niké liga 11th over two legs. Niké liga 12th goes down directly, 11th only through that same tie, so one place moves through it.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Slovenia",
@@ -6783,7 +7068,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "2. SNL champion up directly, runner-up in a two-legged tie against the PrvaLiga 9th. PrvaLiga 10th down directly, 9th only through that tie. One shared place."
+   "note": "2. SNL champion up directly, runner-up in a two-legged tie against the PrvaLiga 9th. PrvaLiga 10th down directly, 9th only through that tie. One shared place.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Sweden",
@@ -6795,7 +7083,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Superettan: top 2 direct, 3rd v 4th over two legs, that winner meets the Allsvenskan 14th over two legs. Allsvenskan: 15th-16th direct down, 14th only through the shared tie. One place moves through the play-off."
+   "note": "Superettan: top 2 direct, 3rd v 4th over two legs, that winner meets the Allsvenskan 14th over two legs. Allsvenskan: 15th-16th direct down, 14th only through the shared tie. One place moves through the play-off.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Sweden",
@@ -6807,7 +7098,10 @@
    "down_playoff": 2,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "Ettan: each division winner goes up directly (2); each runner-up plays one of Superettan's 13th/14th over two legs (2 more). Superettan: 15th-16th direct down, 13th-14th only through those two ties."
+   "note": "Ettan: each division winner goes up directly (2); each runner-up plays one of Superettan's 13th/14th over two legs (2 more). Superettan: 15th-16th direct down, 13th-14th only through those two ties.",
+   "up_total": 4,
+   "down_total": 4,
+   "totals_source": "note"
   },
   {
    "country": "Switzerland",
@@ -6819,7 +7113,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Challenge League champion up directly, runner-up in a two-legged tie against the Super League 11th. Super League 12th down directly, 11th only through that tie. One shared place."
+   "note": "Challenge League champion up directly, runner-up in a two-legged tie against the Super League 11th. Super League 12th down directly, 11th only through that tie. One shared place.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Switzerland",
@@ -6831,7 +7128,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "Simple 1-up/1-down: Promotion League champion (subject to licensing) replaces the Challenge League's bottom club. The Promotion League also relegates its bottom two to the regional 1. Liga Classic."
+   "note": "Simple 1-up/1-down: Promotion League champion (subject to licensing) replaces the Challenge League's bottom club. The Promotion League also relegates its bottom two to the regional 1. Liga Classic.",
+   "up_total": 1,
+   "down_total": 1,
+   "totals_source": "note"
   },
   {
    "country": "Thailand",
@@ -6843,7 +7143,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "playoff",
-   "note": "T2: champion and runner-up up directly, 3rd-6th play off for the third place. T1: bottom three relegated directly, no play-out."
+   "note": "T2: champion and runner-up up directly, 3rd-6th play off for the third place. T1: bottom three relegated directly, no play-out.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Ukraine",
@@ -6855,7 +7158,10 @@
    "down_playoff": 2,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Nominal shape is 2 direct + 2 play-off places each way (13th/14th vs 3rd/4th, two legs, plus 15th/16th down and champion/runner-up up). 2026-27 resolved as 3 up / 3 down: Bukovyna and Chornomorets up directly, Livyi Bereh won a play-off, Oleksandriya lost one; Poltava and Oleksandriya down, Rukh Lviv withdrew."
+   "note": "Nominal shape is 2 direct + 2 play-off places each way (13th/14th vs 3rd/4th, two legs, plus 15th/16th down and champion/runner-up up). 2026-27 resolved as 3 up / 3 down: Bukovyna and Chornomorets up directly, Livyi Bereh won a play-off, Oleksandriya lost one; Poltava and Oleksandriya down, Rukh Lviv withdrew.",
+   "up_total": null,
+   "down_total": null,
+   "totals_source": "unverified"
   },
   {
    "country": "Ukraine",
@@ -6867,7 +7173,10 @@
    "down_playoff": 0,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "Druha Liha's two group winners go up (reserve sides ineligible), and the relegated Persha Liha clubs are placed in group A or B by geography. Downwards this is nominal: the PFL has not relegated Druha Liha clubs by table position since 2006-07, and the Persha Liha's relegation play-offs are irregular and were cancelled in 2025-26 - clubs leave by losing professional status or withdrawing."
+   "note": "Druha Liha's two group winners go up (reserve sides ineligible), and the relegated Persha Liha clubs are placed in group A or B by geography. Downwards this is nominal: the PFL has not relegated Druha Liha clubs by table position since 2006-07, and the Persha Liha's relegation play-offs are irregular and were cancelled in 2025-26 - clubs leave by losing professional status or withdrawing.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "United Arab Emirates",
@@ -6879,7 +7188,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "First Division champion and runner-up go up; Pro League 13th and 14th go down. No play-off in either direction."
+   "note": "First Division champion and runner-up go up; Pro League 13th and 14th go down. No play-off in either direction.",
+   "up_total": 2,
+   "down_total": 2,
+   "totals_source": "note"
   },
   {
    "country": "Uruguay",
@@ -6891,7 +7203,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "bottom_n",
-   "note": "up is the total number of promotion slots and up_playoff is how many of them are decided by play-off: 2 direct (Segunda champion and runner-up) + 1 from the play-offs among 3rd-6th, which is why the Torneo Competencia winner matters. down=3, all direct from the Tabla de Descenso (two-season average), not from any single tournament table. 16 - 3 + 3 = 16 and 14 - 3 + 3 = 14, so sizes hold as long as the average table is computed on two seasons rather than on the current one."
+   "note": "up is the total number of promotion slots and up_playoff is how many of them are decided by play-off: 2 direct (Segunda champion and runner-up) + 1 from the play-offs among 3rd-6th, which is why the Torneo Competencia winner matters. down=3, all direct from the Tabla de Descenso (two-season average), not from any single tournament table. 16 - 3 + 3 = 16 and 14 - 3 + 3 = 14, so sizes hold as long as the average table is computed on two seasons rather than on the current one.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Uzbekistan",
@@ -6903,7 +7218,10 @@
    "down_playoff": 1,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Pro League 1st and 2nd up directly, 3rd into a single play-off at home against the Super League 12th; Super League bottom down directly. Counts flex: the Super League article says two or three clubs can be relegated, and promotion is voided if a reserve side wins the Pro League."
+   "note": "Pro League 1st and 2nd up directly, 3rd into a single play-off at home against the Super League 12th; Super League bottom down directly. Counts flex: the Super League article says two or three clubs can be relegated, and promotion is voided if a reserve side wins the Pro League.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Venezuela",
@@ -6915,7 +7233,10 @@
    "down_playoff": 0,
    "allocation": "free",
    "selection": "average_table",
-   "note": "One promotion place and one relegation place. Relegation is decided on an aggregate table covering Apertura and Clausura (2025: Yaracuyanos last; 2026: Anzoategui already down). The promoted club comes through the second tier's final, so it is a play-off winner in practice."
+   "note": "One promotion place and one relegation place. Relegation is decided on an aggregate table covering Apertura and Clausura (2025: Yaracuyanos last; 2026: Anzoategui already down). The promoted club comes through the second tier's final, so it is a play-off winner in practice.",
+   "up_total": 1,
+   "down_total": 1,
+   "totals_source": "note"
   },
   {
    "country": "Wales",
@@ -6927,7 +7248,10 @@
    "down_playoff": 1,
    "allocation": "by_geography",
    "selection": "bottom_n",
-   "note": "Cymru North and Cymru South each send their champion up (licence required). The two runners-up meet in a one-off; that winner then plays the Cymru Premier 14th for the last top-flight place, so exactly one of {14th, tier-2 play-off winner} is in the league next season. 15th and 16th are relegated directly and are placed in North or South by geography."
+   "note": "Cymru North and Cymru South each send their champion up (licence required). The two runners-up meet in a one-off; that winner then plays the Cymru Premier 14th for the last top-flight place, so exactly one of {14th, tier-2 play-off winner} is in the league next season. 15th and 16th are relegated directly and are placed in North or South by geography.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   }
  ],
  "conflicts": {

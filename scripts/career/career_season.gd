@@ -232,13 +232,20 @@ static func transition(catalog: TeamCatalog, career: Career) -> Dictionary:
 	var current_set := {}
 	for club_id in current_ids:
 		current_set[club_id] = true
+	# The movement is per league: the pyramid stores how many clubs really change
+	# level through each boundary, and a league without that research keeps the
+	# engine default.
 	var promoted: Array = []
 	if not above_league.is_empty():
-		for row in table.slice(0, mini(CareerFactory.PROMOTION_PLACES, table.size())):
+		var up_places := mini(CareerPyramids.promotion_places(career.league_id),
+			table.size())
+		for row in table.slice(0, up_places):
 			promoted.append(_row_ref(row))
 	var relegated: Array = []
 	if not below_league.is_empty():
-		for row in table.slice(maxi(0, table.size() - CareerFactory.RELEGATION_PLACES), table.size()):
+		var down_places := mini(CareerPyramids.relegation_places(career.league_id),
+			table.size())
+		for row in table.slice(maxi(0, table.size() - down_places), table.size()):
 			relegated.append(_row_ref(row))
 	var promoted_ids := {}
 	for row in promoted:
@@ -280,11 +287,17 @@ static func transition(catalog: TeamCatalog, career: Career) -> Dictionary:
 
 	var from_above: Array = []
 	if movement != "down" and not above.is_empty():
-		for club in above.slice(maxi(0, above.size() - CareerFactory.RELEGATION_PLACES), above.size()):
+		var above_down := mini(
+			CareerPyramids.relegation_places(str(above_league.get("id", ""))),
+			above.size())
+		for club in above.slice(maxi(0, above.size() - above_down), above.size()):
 			from_above.append(_club_ref(club))
 	var from_below: Array = []
 	if movement != "up" and not below.is_empty():
-		for club in below.slice(0, mini(CareerFactory.PROMOTION_PLACES, below.size())):
+		var below_up := mini(
+			CareerPyramids.promotion_places(str(below_league.get("id", ""))),
+			below.size())
+		for club in below.slice(0, below_up):
 			from_below.append(_club_ref(club))
 	var from_above_ids := {}
 	for club in from_above:
@@ -302,7 +315,10 @@ static func transition(catalog: TeamCatalog, career: Career) -> Dictionary:
 	if movement == "up":
 		next_league = above_league
 		next_above_league = above2_league
-		for club in above2.slice(maxi(0, above2.size() - CareerFactory.RELEGATION_PLACES), above2.size()):
+		var above2_down := mini(
+			CareerPyramids.relegation_places(str(above2_league.get("id", ""))),
+			above2.size())
+		for club in above2.slice(maxi(0, above2.size() - above2_down), above2.size()):
 			next_above.append(_club_ref(club))
 		next_below_league = league
 		next_below = promoted
@@ -316,7 +332,10 @@ static func transition(catalog: TeamCatalog, career: Career) -> Dictionary:
 		next_above_league = league
 		next_above = relegated
 		next_below_league = below2_league
-		for club in below2.slice(0, mini(CareerFactory.PROMOTION_PLACES, below2.size())):
+		var below2_up := mini(
+			CareerPyramids.promotion_places(str(below2_league.get("id", ""))),
+			below2.size())
+		for club in below2.slice(0, below2_up):
 			next_below.append(_club_ref(club))
 		for club in below_clubs:
 			if not from_below_ids.has(str(club.get("id", ""))):

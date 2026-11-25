@@ -53,8 +53,8 @@ func _run() -> void:
 		"the league reports its format")
 	_check(league_text.contains("Every club plays every other club"),
 		"the league intro explains the format: " + league_text)
-	_check(league_text.contains("Relegation: 3 clubs"),
-		"the league intro names the relegation slots")
+	_check(league_text.contains("Relegation places: 3"),
+		"the league intro names the relegation places")
 	_check(league_text.contains("Aug") and league_text.contains("May"),
 		"the league intro names the season window")
 
@@ -70,8 +70,9 @@ func _run() -> void:
 		"a league with unstated relegation still gets its text: " + lower_text)
 	_check(not lower_text.contains("Europe:"),
 		"a second-tier league does not claim European places")
-	_check(not lower_text.contains("Relegation"),
-		"an unknown relegation count is not invented")
+	_check(lower_text.contains("Promotion places: 3") and lower_text.contains(
+		"Relegation places: 3"),
+		"the pyramid numbers reach the card: " + lower_text)
 
 	var cup := CareerIntro.facts(_career("131"), "CGB", catalog)
 	_check(str(cup.get("kind", "")) == "cup", "a cup is a cup")
