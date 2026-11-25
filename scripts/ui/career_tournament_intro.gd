@@ -11,7 +11,7 @@ const LOGO := 96.0
 const LINE_H := 26.0
 const LINE_GAP := 8.0
 const KINDS := {
-	"league": "LEAGUE", "cup": "KNOCKOUT CUP", "super_cup": "SUPER CUP",
+	"league": "LEAGUE", "cup": "CUP", "super_cup": "SUPER CUP",
 	"continental": "CONTINENTAL",
 }
 

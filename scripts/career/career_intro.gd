@@ -1,9 +1,10 @@
 class_name CareerIntro
 extends RefCounted
 # The tournament intro the hub shows the first time the club reaches a
-# competition in this career. The text is assembled from the data the engine
-# already plays (LeagueRegulations, competitions.json, CareerConfederation.FORMATS),
-# so it cannot drift away from the format.
+# competition in this career. The rules text is a per-format sentence from the
+# locale catalogue (UiText), the numbers come from the data the engine plays
+# (LeagueRegulations, competitions.json, CareerConfederation.FORMATS), so neither
+# the wording nor the figures are written twice.
 
 const MONTHS := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
 	"Oct", "Nov", "Dec"]
@@ -11,6 +12,10 @@ const UEFA_LABELS := {
 	"CL": "UEFA Champions League", "EL": "UEFA Europa League",
 	"UCOL": "UEFA Conference League",
 }
+# The league phase sends the best eight straight to the round of 16 and the next
+# sixteen into a play-off round (career_europe.gd: table.slice(0, 24)).
+const LEAGUE_PHASE_DIRECT := 8
+const LEAGUE_PHASE_PLAYOFF := 16
 
 
 static func seen(career: Career) -> Array:
@@ -68,13 +73,20 @@ static func facts(career: Career, competition_id: String,
 	if records.has(competition_id):
 		var record: Dictionary = records[competition_id]
 		var kind := str(record.get("kind", "cup"))
+		if kind == "cup":
+			return {
+				"competition": competition_id, "kind": kind,
+				"format": "cup.knockout",
+				"country": str(record.get("country", "")),
+				"label": str(record.get("label", competition_id)),
+				"lines": _cup_lines(record),
+			}
 		return {
-			"competition": competition_id,
-			"kind": kind,
+			"competition": competition_id, "kind": kind,
+			"format": _super_cup_format(record),
 			"country": str(record.get("country", "")),
 			"label": str(record.get("label", competition_id)),
-			"lines": _cup_lines(career, record) if kind == "cup" \
-				else _super_cup_lines(record),
+			"lines": _super_cup_lines(record),
 		}
 	var league := LeagueRegulations.record(competition_id)
 	if not league.is_empty():
@@ -85,19 +97,30 @@ static func facts(career: Career, competition_id: String,
 			label = str(row.get("name", label))
 			country = str(catalog.country_by_id(int(row.get("country_id", 0)))
 				.get("name", ""))
+		var format_key := _league_format_key(str(league.get("phases", "")))
 		return {
-			"competition": competition_id,
-			"kind": "league",
-			"country": country,
-			"label": label,
-			"lines": _league_lines(career, competition_id, league, catalog),
+			"competition": competition_id, "kind": "league", "format": format_key,
+			"country": country, "label": label,
+			"lines": _league_lines(career, competition_id, league, catalog, format_key),
 		}
 	return _continental(career, competition_id)
 
 
+static func _league_format_key(phases: String) -> String:
+	match phases:
+		"split":
+			return "league.split"
+		"apertura_clausura":
+			return "league.apertura"
+		"other":
+			return "league.zones"
+		_:
+			return "league.single"
+
+
 static func _league_lines(career: Career, league_id: String,
-		league: Dictionary, catalog = null) -> Array:
-	var lines: Array = []
+		league: Dictionary, catalog, format_key: String) -> Array:
+	var lines: Array = [UiText.t("tournament." + format_key)]
 	var clubs := career.league_club_ids.size()
 	var rounds := 0
 	var seen_rounds := {}
@@ -113,16 +136,14 @@ static func _league_lines(career: Career, league_id: String,
 		summary.append("%d matchdays" % rounds)
 	if not summary.is_empty():
 		lines.append(" · ".join(summary))
-	var phases := _phase_text(str(league.get("phases", "")))
-	if not phases.is_empty():
-		lines.append(phases)
 	var relegation = league.get("relegation", {})
 	if relegation is Dictionary:
 		var slots := int(relegation.get("slots", 0))
 		if slots > 0:
-			lines.append("Relegation: %d club%s%s" % [slots,
-				"" if slots == 1 else "s",
-				" plus a play-off" if bool(relegation.get("playoff", false)) else ""])
+			lines.append("Relegation: %d club%s" % [slots,
+				"" if slots == 1 else "s"])
+		if bool(relegation.get("playoff", false)):
+			lines.append(UiText.t("tournament.clause.relegation_playoff"))
 	var europe := _europe_places(career, league_id, catalog)
 	if not europe.is_empty():
 		lines.append(europe)
@@ -130,16 +151,6 @@ static func _league_lines(career: Career, league_id: String,
 	if not window.is_empty():
 		lines.append(window)
 	return lines
-
-
-static func _phase_text(phases: String) -> String:
-	match phases:
-		"split":
-			return "Split after the regular phase into championship and relegation groups"
-		"apertura_clausura":
-			return "Two championships: Apertura and Clausura"
-		_:
-			return ""
 
 
 static func _europe_places(career: Career, league_id: String, catalog = null) -> String:
@@ -154,8 +165,7 @@ static func _europe_places(career: Career, league_id: String, catalog = null) ->
 		if not country.is_empty():
 			break
 	if country.is_empty():
-		var counts := _band_counts(league_id, catalog)
-		return _europe_text(counts)
+		return _europe_text(_band_counts(league_id, catalog))
 	var counts := {}
 	for berth in (block[country] as Dictionary).get("berths", []):
 		var competition := str((berth as Dictionary).get("competition", ""))
@@ -215,23 +225,33 @@ static func _competition_name(competition: String) -> String:
 	}.get(competition, competition))
 
 
-static func _cup_lines(career: Career, record: Dictionary) -> Array:
-	var lines: Array = []
-	var field := int(record.get("field_size", 0))
-	if field > 0:
-		lines.append("%d clubs" % field)
+static func _cup_lines(record: Dictionary) -> Array:
+	var lines: Array = [UiText.t("tournament.cup.knockout")]
 	var two_legged: Array = record.get("two_legged", [])
 	if not two_legged.is_empty():
 		var names: Array = []
 		for name in two_legged:
 			names.append(_round_name(str(name)))
-		lines.append("Two legs: " + ", ".join(names))
+		lines.append(UiText.t("tournament.clause.two_legged_rounds",
+			{"rounds": _join_names(names)}))
 	if int(record.get("final_legs", 1)) > 1:
-		lines.append("The final is played over two legs")
+		lines.append(UiText.t("tournament.clause.two_legged_final"))
+	var field := int(record.get("field_size", 0))
+	if field > 0:
+		lines.append("%d clubs" % field)
 	var window := _window(record.get("start_md", ""), record.get("end_md", ""))
 	if not window.is_empty():
 		lines.append(window)
 	return lines
+
+
+static func _join_names(names: Array) -> String:
+	if names.is_empty():
+		return ""
+	if names.size() == 1:
+		return str(names[0])
+	return "%s and %s" % [", ".join(names.slice(0, names.size() - 1)),
+		str(names[names.size() - 1])]
 
 
 static func _round_name(name: String) -> String:
@@ -251,13 +271,17 @@ static func _round_name(name: String) -> String:
 	return text
 
 
+static func _super_cup_format(record: Dictionary) -> String:
+	return "super_cup.mini" if int(record.get("teams", 2)) > 2 \
+		else "super_cup.match"
+
+
 static func _super_cup_lines(record: Dictionary) -> Array:
-	var teams := int(record.get("teams", 2))
-	var lines: Array = []
-	lines.append("%d clubs · %s" % [teams,
-		"mini-tournament" if teams > 2 else "one match"])
+	var lines: Array = [UiText.t("tournament." + _super_cup_format(record))]
 	if bool(record.get("neutral", false)):
-		lines.append("Played at a neutral venue")
+		lines.append(UiText.t("tournament.clause.neutral_venue"))
+	if int(record.get("final_legs", 1)) > 1:
+		lines.append(UiText.t("tournament.clause.two_legged_final"))
 	var window := _window(record.get("start_md", ""), record.get("end_md", ""))
 	if not window.is_empty():
 		lines.append(window)
@@ -270,49 +294,76 @@ static func _continental(career: Career, competition_id: String) -> Dictionary:
 		if str(key).ends_with(":" + competition_id):
 			confederation = str(key).get_slice(":", 0)
 	var label := str(UEFA_LABELS.get(competition_id, competition_id))
-	var lines: Array = []
 	var format: Dictionary = CareerConfederation.FORMATS.get(
 		"%s:%s" % [confederation, competition_id], {})
 	if format.is_empty():
-		# The UEFA competitions live in the access lists, not in FORMATS.
-		var sizes: Dictionary = {}
-		var uefa = CareerBerths.access().get("uefa", {})
-		if uefa is Dictionary:
-			sizes = uefa.get("entry_round_sizes", {})
-		var entry: Dictionary = sizes.get(competition_id, {})
-		if entry.is_empty():
-			return {"competition": competition_id, "kind": "continental",
-				"label": label, "lines": lines}
-		var rounds := int(CareerEurope.ROUNDS.get(competition_id, 8))
-		var size := int(entry.get("league_phase", 36))
-		lines.append("%d clubs · %d league-phase rounds" % [size, rounds])
-		lines.append("Knockout from the round of 16")
+		return _uefa_continental(competition_id, label)
+	label = str(format.get("label", competition_id))
+	return _continental_format(competition_id, label, format)
+
+
+static func _uefa_continental(competition_id: String, label: String) -> Dictionary:
+	# The UEFA competitions live in the access lists, not in FORMATS.
+	var lines: Array = []
+	var format_key := ""
+	var sizes: Dictionary = {}
+	var uefa = CareerBerths.access().get("uefa", {})
+	if uefa is Dictionary:
+		sizes = uefa.get("entry_round_sizes", {})
+	var entry: Dictionary = sizes.get(competition_id, {})
+	if not entry.is_empty():
+		format_key = "continental.league_phase"
+		lines.append(UiText.t("tournament." + format_key, {
+			"clubs": int(entry.get("league_phase", 36)),
+			"rounds": int(CareerEurope.ROUNDS.get(competition_id, 8)),
+			"direct": LEAGUE_PHASE_DIRECT,
+			"playoff": LEAGUE_PHASE_PLAYOFF,
+		}))
 		var window := _window(entry.get("start_md", "09-15"),
 			entry.get("end_md", "05-30"))
 		if not window.is_empty():
 			lines.append(window)
-		return {"competition": competition_id, "kind": "continental",
-			"label": label, "lines": lines}
-	label = str(format.get("label", competition_id))
-	for spec in format.get("rounds", []):
-		var round_spec: Dictionary = spec
-		var groups = round_spec.get("groups")
-		if groups is Dictionary:
-			var group: Dictionary = groups
-			lines.append("%d groups of %d · %d rounds" % [
-				int(group.get("count", 0)), int(group.get("size", 0)),
-				int(group.get("rounds", 0))])
-	for spec in format.get("rounds", []):
+	return {"competition": competition_id, "kind": "continental",
+		"format": format_key, "label": label, "lines": lines}
+
+
+static func _continental_format(competition_id: String, label: String,
+		format: Dictionary) -> Dictionary:
+	var rounds: Array = format.get("rounds", [])
+	var groups: Dictionary = {}
+	var neutral := false
+	var final_legs := 0
+	for spec in rounds:
 		var round_spec: Dictionary = spec
 		if round_spec.get("groups") is Dictionary:
-			continue
+			groups = round_spec["groups"]
 		if str(round_spec.get("name", "")) == "final":
-			lines.append("Single final")
+			final_legs = int(round_spec.get("legs", 1))
+			neutral = bool(round_spec.get("neutral", false))
+	var lines: Array = []
+	var format_key := ""
+	if not groups.is_empty():
+		format_key = "continental.groups"
+		lines.append(UiText.t("tournament." + format_key, {
+			"groups": int(groups.get("count", 0)),
+			"size": int(groups.get("size", 0)),
+			"advance": int(groups.get("advance", 0)),
+		}))
+	elif rounds.size() == 1 and final_legs > 1:
+		# A single two-legged final, e.g. the Recopa Sudamericana.
+		format_key = "cup.knockout"
+		lines.append(UiText.t("tournament." + format_key))
+		lines.append(UiText.t("tournament.clause.two_legged_final"))
+	else:
+		format_key = "continental.knockout"
+		lines.append(UiText.t("tournament." + format_key))
+	if neutral:
+		lines.append(UiText.t("tournament.clause.neutral_venue"))
 	var window := _window(_first_window(format, 0), _first_window(format, -1))
 	if not window.is_empty():
 		lines.append(window)
-	return {"competition": competition_id, "kind": "continental", "label": label,
-		"lines": lines}
+	return {"competition": competition_id, "kind": "continental",
+		"format": format_key, "label": label, "lines": lines}
 
 
 static func _first_window(format: Dictionary, index: int) -> String:

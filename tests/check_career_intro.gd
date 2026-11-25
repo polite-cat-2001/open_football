@@ -49,6 +49,10 @@ func _run() -> void:
 	_check(str(league.get("kind", "")) == "league", "a league is a league")
 	_check(str(league.get("label", "")) == "LaLiga", "the league label comes from the database")
 	var league_text := " | ".join(league.get("lines", []))
+	_check(str(league.get("format", "")) == "league.single",
+		"the league reports its format")
+	_check(league_text.contains("Every club plays every other club"),
+		"the league intro explains the format: " + league_text)
 	_check(league_text.contains("Relegation: 3 clubs"),
 		"the league intro names the relegation slots")
 	_check(league_text.contains("Aug") and league_text.contains("May"),
@@ -58,20 +62,20 @@ func _run() -> void:
 	_check(str(cup.get("kind", "")) == "cup", "a cup is a cup")
 	var cup_text := " | ".join(cup.get("lines", []))
 	_check(str(cup.get("country", "")) == "England", "the cup intro names the country")
-	_check(cup_text.contains("Two legs"), "the cup intro names the two-legged rounds")
+	_check(cup_text.contains("two matches"), "the cup intro explains the two-legged rounds")
 	_check(str(cup.get("label", "")) == "EFL Cup", "the cup label comes from the records")
 
 	var super_cup := CareerIntro.facts(_career("131"), "SUC", catalog)
 	var super_text := " | ".join(super_cup.get("lines", []))
-	_check(super_text.contains("4 clubs") and super_text.contains("mini-tournament"),
+	_check(super_text.contains("four-club mini-tournament"),
 		"the Supercopa intro names the mini-tournament: " + super_text)
 
 	var uefa := CareerIntro.facts(_career("131"), "CL", catalog)
 	var uefa_text := " | ".join(uefa.get("lines", []))
 	_check(str(uefa.get("label", "")) == "UEFA Champions League",
 		"the Champions League intro names the competition")
-	_check(uefa_text.contains("36 clubs") and uefa_text.contains("league-phase"),
-		"the Champions League intro names the league phase: " + uefa_text)
+	_check(uefa_text.contains("36 clubs") and uefa_text.contains("share one table"),
+		"the Champions League intro explains the league phase: " + uefa_text)
 
 	var afc := CareerIntro.facts(_career("131"), "ACLE", catalog)
 	var afc_text := " | ".join(afc.get("lines", []))

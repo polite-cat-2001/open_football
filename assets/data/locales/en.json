@@ -1,0 +1,17 @@
+{
+ "_comment": "Localised UI strings, flat key -> text. `{name}` placeholders are filled by UiText.t(). One file per locale; a missing key falls back to en. The tournament keys describe a FORMAT, not a tournament: the card adds the season's numbers.",
+ "tournament.league.single": "Every club plays every other club twice, home and away.",
+ "tournament.league.split": "One table first, then a split: the top half plays for the title, the bottom half for survival. Points carry over.",
+ "tournament.league.apertura": "Two championships in one year — Apertura and Clausura — each with its own table and its own champion.",
+ "tournament.league.zones": "The clubs are drawn into zones; the zone winners move on to the final stage.",
+ "tournament.cup.knockout": "A knockout: lose and you are out.",
+ "tournament.super_cup.match": "One match between the two clubs that won last season's trophies.",
+ "tournament.super_cup.mini": "A four-club mini-tournament: two semi-finals and a final.",
+ "tournament.continental.league_phase": "All {clubs} clubs share one table and play {rounds} matches each. The top {direct} go straight to the round of 16; the next {playoff} play an extra round.",
+ "tournament.continental.groups": "Clubs are drawn into {groups} groups of {size}; the best {advance} in each group move on to the knockout rounds.",
+ "tournament.continental.knockout": "A two-match knockout all the way to a single final.",
+ "tournament.clause.two_legged_rounds": "The {rounds} are played over two matches — both scores are added up.",
+ "tournament.clause.two_legged_final": "The final is also played over two matches.",
+ "tournament.clause.neutral_venue": "The final is played at a neutral venue.",
+ "tournament.clause.relegation_playoff": "The club just above the relegation places goes into a play-off."
+}
