@@ -53,18 +53,14 @@ func _run() -> void:
 		if teams.is_empty():
 			print("SKIP ", competition_id, " (no clubs)")
 			continue
-		# Some associations have their top flight split into separate phase rows
-		# (Liga 1 Clausura, Premier League Opening Round): a career there plays a
-		# phase, not a season, and the champion is decided by a knockout, so there
-		# is no season table to rank.
+		# A league whose champion comes from a knockout is ranked by its phases;
+		# keep the note for the report if the ranking still comes out empty.
 		var top_format = LeagueRegulations.record(str(league.get("id", ""))).get("format")
+		var knockout_champion := false
 		if top_format is Dictionary \
 				and str(top_format.get("champion", "")).begins_with("stage:"):
-			var champion_stage := _stage_kind(top_format,
-				str(top_format.get("champion", "")).substr(6))
-			if champion_stage == "knockout":
-				print("SKIP ", competition_id, " (phase competition, no season table)")
-				continue
+			knockout_champion = _stage_kind(top_format,
+				str(top_format.get("champion", "")).substr(6)) == "knockout"
 		var club_id := int((teams[0] as Dictionary).get("id", 0))
 		var career := CareerFactory.create(catalog, club_id, "Cup " + country, 189, 31)
 		if career == null:
@@ -115,6 +111,9 @@ func _run() -> void:
 			CareerSeason.advance_days(career, season_end)
 		var transition := CareerSeason.transition(catalog, career)
 		if transition.is_empty():
+			if knockout_champion and CareerSeason.last_error == "the season table is empty":
+				print("SKIP ", competition_id, " (no table behind the knockout champion)")
+				continue
 			print("FAIL ", competition_id, " (no transition: ", CareerSeason.last_error, ") days ", day)
 			failures.append(competition_id)
 			continue

@@ -592,9 +592,24 @@ static func season_table(career: Career, clubs: Dictionary) -> Array:
 	if format is Dictionary:
 		var champion := str(format.get("champion", ""))
 		if champion.begins_with("stage:"):
-			return stage_table(career, clubs, champion.substr(6))
+			var table := stage_table(career, clubs, champion.substr(6))
+			if not table.is_empty():
+				return table
+			# The champion comes from a knockout (Peru's playoff, Venezuela's
+			# final absoluta, Malta's title match): a bracket has no table, so the
+			# season is ranked by the aggregate of its phases, or by the regular
+			# stage, instead of nothing.
 		if format.get("aggregate") is Array:
-			return _aggregate_table(career, clubs, format)
+			var aggregate := _aggregate_table(career, clubs, format)
+			if not aggregate.is_empty():
+				return aggregate
+		for stage in CareerStages.stages(format):
+			var stage_spec: Dictionary = stage
+			if str(stage_spec.get("kind", "")) != "league":
+				continue
+			var regular := stage_table(career, clubs, str(stage_spec.get("id", "")))
+			if not regular.is_empty():
+				return regular
 	return standings(career, clubs)
 
 
