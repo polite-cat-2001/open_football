@@ -186,6 +186,12 @@ static func transition(catalog: TeamCatalog, career: Career) -> Dictionary:
 		var club := catalog.career_club(int(club_id))
 		if not club.is_empty():
 			clubs[club_id] = club
+	# A season cannot end with league matches unplayed: the advance stops when the
+	# career club has no fixture left, which can leave a few league rounds open
+	# (and a split format then never builds its championship stage). Play them,
+	# then build the late stage, so the ranking never runs against an empty table.
+	_play_remaining_league_fixtures(career, catalog, clubs)
+	CareerFactory.ensure_stages(career)
 	var table := CareerFactory.season_table(career, clubs)
 	if table.is_empty():
 		last_error = "the season table is empty"
@@ -730,6 +736,26 @@ static func _confederation_fields(berths: Dictionary,
 			libertadores: "final", sudamericana: "final",
 		}
 	return result
+
+
+static func _play_remaining_league_fixtures(career: Career, catalog: TeamCatalog,
+		clubs: Dictionary) -> void:
+	var pending: Array = []
+	for fixture in career.schedule:
+		if str(fixture.get("competition", career.league_id)) != career.league_id:
+			continue
+		if career.results.has(str(fixture.get("id", ""))):
+			continue
+		pending.append(fixture)
+	if pending.is_empty():
+		return
+	var ratings := {}
+	for club_id in clubs:
+		ratings[str(club_id)] = squad_strength(CareerSquad.roster(catalog, career,
+			int(club_id), false))
+	for fixture in pending:
+		career.data["results"][str(fixture.get("id", ""))] = simulate(career.seed,
+			fixture, ratings)
 
 
 static func _journal(career: Career, kind: String, payload: Dictionary) -> void:

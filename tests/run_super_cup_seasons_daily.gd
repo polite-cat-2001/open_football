@@ -9,6 +9,13 @@ const RETRY := ["Ecuador", "Peru", "Venezuela", "Bulgaria", "Cyprus", "Gibraltar
 	"Greece", "Iceland", "Israel", "Malta", "Moldova", "Northern Ireland", "Romania"]
 
 var failures: Array[String] = []
+
+func _stage_kind(format: Dictionary, stage_id: String) -> String:
+	for stage in format.get("stages", []):
+		if str((stage as Dictionary).get("id", "")) == stage_id:
+			return str((stage as Dictionary).get("kind", ""))
+	return ""
+
 var catalog: TeamCatalog
 
 
@@ -46,6 +53,18 @@ func _run() -> void:
 		if teams.is_empty():
 			print("SKIP ", competition_id, " (no clubs)")
 			continue
+		# Some associations have their top flight split into separate phase rows
+		# (Liga 1 Clausura, Premier League Opening Round): a career there plays a
+		# phase, not a season, and the champion is decided by a knockout, so there
+		# is no season table to rank.
+		var top_format = LeagueRegulations.record(str(league.get("id", ""))).get("format")
+		if top_format is Dictionary \
+				and str(top_format.get("champion", "")).begins_with("stage:"):
+			var champion_stage := _stage_kind(top_format,
+				str(top_format.get("champion", "")).substr(6))
+			if champion_stage == "knockout":
+				print("SKIP ", competition_id, " (phase competition, no season table)")
+				continue
 		var club_id := int((teams[0] as Dictionary).get("id", 0))
 		var career := CareerFactory.create(catalog, club_id, "Cup " + country, 189, 31)
 		if career == null:
@@ -99,6 +118,19 @@ func _run() -> void:
 			print("FAIL ", competition_id, " (no transition: ", CareerSeason.last_error, ") days ", day)
 			failures.append(competition_id)
 			continue
+		# Cup and continental rounds can appear after the league ends (they are
+		# created as the previous round's results land), so finish the club's
+		# remaining fixtures before the rollover.
+		var guard := 0
+		while guard < 20:
+			guard += 1
+			var pending := CareerSeason.next_fixture(career)
+			if pending.is_empty():
+				break
+			var pending_home := str(pending.get("home", ""))
+			career.data["results"][str(pending.get("id", ""))] = \
+				{"home": 2, "away": 0} if pending_home == str(club_id) \
+				else {"home": 0, "away": 2}
 		if not CareerSeason.next_season(career, catalog, transition):
 			print("FAIL ", competition_id, " (next season: ", CareerSeason.last_error, ")")
 			failures.append(competition_id)
