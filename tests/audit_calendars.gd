@@ -18,8 +18,11 @@ func _run() -> void:
 	var checked := 0
 	var tight_leagues: Array = []
 	var same_day_leagues: Array = []
+	var only: Array = OS.get_cmdline_user_args()
 	for league in catalog.career_leagues():
 		var league_id := str(league.get("id", ""))
+		if not only.is_empty() and not only.has(league_id):
+			continue
 		var teams: Array = catalog.all_teams_for_league(league_id)
 		if teams.is_empty():
 			continue
