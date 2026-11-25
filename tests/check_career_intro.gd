@@ -58,6 +58,21 @@ func _run() -> void:
 	_check(league_text.contains("Aug") and league_text.contains("May"),
 		"the league intro names the season window")
 
+	# A second-tier league: the relegation slots are null in the data and the
+	# association's European places do not belong to it.
+	var second: Array = catalog.all_teams_for_league("GB2")
+	var lower := _career(str((second[0] as Dictionary).get("id", "")))
+	lower.data["league_id"] = "GB2"
+	lower.data["league_club_ids"] = []
+	var lower_facts := CareerIntro.facts(lower, "GB2", catalog)
+	var lower_text := " | ".join(lower_facts.get("lines", []))
+	_check(lower_text.contains("Every club plays"),
+		"a league with unstated relegation still gets its text: " + lower_text)
+	_check(not lower_text.contains("Europe:"),
+		"a second-tier league does not claim European places")
+	_check(not lower_text.contains("Relegation"),
+		"an unknown relegation count is not invented")
+
 	var cup := CareerIntro.facts(_career("131"), "CGB", catalog)
 	_check(str(cup.get("kind", "")) == "cup", "a cup is a cup")
 	var cup_text := " | ".join(cup.get("lines", []))

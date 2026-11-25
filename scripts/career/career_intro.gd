@@ -18,6 +18,18 @@ const LEAGUE_PHASE_DIRECT := 8
 const LEAGUE_PHASE_PLAYOFF := 16
 
 
+static func _int(value, fallback: int) -> int:
+	# Several records state a number as null ("not in the source"); int(null)
+	# aborts the caller in GDScript, so every read goes through here.
+	if value == null:
+		return fallback
+	if value is int or value is float or value is bool:
+		return int(value)
+	if value is String and (value as String).is_valid_int():
+		return int(value)
+	return fallback
+
+
 static func seen(career: Career) -> Array:
 	var raw = career.data.get("seen_tournaments", [])
 	return raw if raw is Array else []
@@ -95,7 +107,7 @@ static func facts(career: Career, competition_id: String,
 		if catalog != null:
 			var row: Dictionary = catalog.league_by_id(competition_id)
 			label = str(row.get("name", label))
-			country = str(catalog.country_by_id(int(row.get("country_id", 0)))
+			country = str(catalog.country_by_id(_int(row.get("country_id"), 0))
 				.get("name", ""))
 		var format_key := _league_format_key(str(league.get("phases", "")))
 		return {
@@ -138,13 +150,18 @@ static func _league_lines(career: Career, league_id: String,
 		lines.append(" · ".join(summary))
 	var relegation = league.get("relegation", {})
 	if relegation is Dictionary:
-		var slots := int(relegation.get("slots", 0))
+		var slots := _int(relegation.get("slots"), 0)
 		if slots > 0:
 			lines.append("Relegation: %d club%s" % [slots,
 				"" if slots == 1 else "s"])
 		if bool(relegation.get("playoff", false)):
 			lines.append(UiText.t("tournament.clause.relegation_playoff"))
-	var europe := _europe_places(career, league_id, catalog)
+	# The European places belong to the association's top flight; a second-tier
+	# club cannot take them, so the line would be a lie there.
+	var tier := 1
+	if catalog != null:
+		tier = _int(catalog.league_by_id(league_id).get("tier"), 1)
+	var europe := "" if tier > 1 else _europe_places(career, league_id, catalog)
 	if not europe.is_empty():
 		lines.append(europe)
 	var window := _window(league.get("start_md", ""), league.get("end_md", ""))
@@ -179,7 +196,7 @@ static func _band_counts(league_id: String, catalog) -> Dictionary:
 	if catalog == null:
 		return {}
 	var row: Dictionary = catalog.league_by_id(league_id)
-	var country := str(catalog.country_by_id(int(row.get("country_id", 0)))
+	var country := str(catalog.country_by_id(_int(row.get("country_id"), 0))
 		.get("name", ""))
 	if country.is_empty():
 		return {}
@@ -189,12 +206,12 @@ static func _band_counts(league_id: String, catalog) -> Dictionary:
 	var rank := 0
 	for coefficient in uefa.get("coefficients", []):
 		if str((coefficient as Dictionary).get("association", "")) == country:
-			rank = int((coefficient as Dictionary).get("rank", 0))
+			rank = _int((coefficient as Dictionary).get("rank"), 0)
 			break
 	if rank <= 0:
 		return {}
 	for band in uefa.get("bands", []):
-		if rank < int(band.get("rank_from", 0)) or rank > int(band.get("rank_to", 0)):
+		if rank < _int(band.get("rank_from"), 0) or rank > _int(band.get("rank_to"), 0):
 			continue
 		var counts := {}
 		for competition in ["CL", "EL", "UCOL"]:
@@ -234,9 +251,9 @@ static func _cup_lines(record: Dictionary) -> Array:
 			names.append(_round_name(str(name)))
 		lines.append(UiText.t("tournament.clause.two_legged_rounds",
 			{"rounds": _join_names(names)}))
-	if int(record.get("final_legs", 1)) > 1:
+	if _int(record.get("final_legs"), 1) > 1:
 		lines.append(UiText.t("tournament.clause.two_legged_final"))
-	var field := int(record.get("field_size", 0))
+	var field := _int(record.get("field_size"), 0)
 	if field > 0:
 		lines.append("%d clubs" % field)
 	var window := _window(record.get("start_md", ""), record.get("end_md", ""))
@@ -272,7 +289,7 @@ static func _round_name(name: String) -> String:
 
 
 static func _super_cup_format(record: Dictionary) -> String:
-	return "super_cup.mini" if int(record.get("teams", 2)) > 2 \
+	return "super_cup.mini" if _int(record.get("teams"), 2) > 2 \
 		else "super_cup.match"
 
 
@@ -314,8 +331,8 @@ static func _uefa_continental(competition_id: String, label: String) -> Dictiona
 	if not entry.is_empty():
 		format_key = "continental.league_phase"
 		lines.append(UiText.t("tournament." + format_key, {
-			"clubs": int(entry.get("league_phase", 36)),
-			"rounds": int(CareerEurope.ROUNDS.get(competition_id, 8)),
+			"clubs": _int(entry.get("league_phase"), 36),
+			"rounds": _int(CareerEurope.ROUNDS.get(competition_id), 8),
 			"direct": LEAGUE_PHASE_DIRECT,
 			"playoff": LEAGUE_PHASE_PLAYOFF,
 		}))
@@ -338,16 +355,16 @@ static func _continental_format(competition_id: String, label: String,
 		if round_spec.get("groups") is Dictionary:
 			groups = round_spec["groups"]
 		if str(round_spec.get("name", "")) == "final":
-			final_legs = int(round_spec.get("legs", 1))
+			final_legs = _int(round_spec.get("legs"), 1)
 			neutral = bool(round_spec.get("neutral", false))
 	var lines: Array = []
 	var format_key := ""
 	if not groups.is_empty():
 		format_key = "continental.groups"
 		lines.append(UiText.t("tournament." + format_key, {
-			"groups": int(groups.get("count", 0)),
-			"size": int(groups.get("size", 0)),
-			"advance": int(groups.get("advance", 0)),
+			"groups": _int(groups.get("count"), 0),
+			"size": _int(groups.get("size"), 0),
+			"advance": _int(groups.get("advance"), 0),
 		}))
 	elif rounds.size() == 1 and final_legs > 1:
 		# A single two-legged final, e.g. the Recopa Sudamericana.

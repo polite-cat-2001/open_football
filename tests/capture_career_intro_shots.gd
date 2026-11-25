@@ -40,6 +40,15 @@ func _run() -> void:
 	await _frames(2)
 	for competition_id in TOURNAMENTS:
 		await _capture(career, catalog, str(competition_id))
+	# A second-tier club, so the Championship card shows its own season shape.
+	var championship: Array = catalog.all_teams_for_league("GB2")
+	if not championship.is_empty():
+		var club_id := int((championship[0] as Dictionary).get("id", 0))
+		var lower := CareerFactory.create(catalog, club_id, "Lower League", 189, 42)
+		if lower != null:
+			CareerSession.career = lower
+			await _capture(lower, catalog, "GB2")
+			CareerSession.career = career
 	print("captured the tournament intro")
 	CareerSaveStore.root_override = ""
 	CareerSession.clear()
