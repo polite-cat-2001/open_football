@@ -361,9 +361,7 @@ static func _league_phase_dates(career: Career, count: int) -> Array:
 
 static func _rest_dates(career: Career, start: String, end: String,
 		count: int) -> Array:
-	var busy := {}
-	for fixture in career.schedule:
-		busy[str(fixture.get("date", ""))] = true
+	var busy := CareerCalendar.busy_days(career.schedule)
 	var ideal := CareerCalendar.round_dates(start, end, count,
 		IntlCalendar.rules(), "world", busy)
 	var dates: Array = []
@@ -531,9 +529,7 @@ static func _knockout_dates(career: Career) -> Array:
 	var year := int(str(career.season_start).substr(0, 4)) + 1
 	var start := "%04d-02-15" % year
 	var end := "%04d-05-31" % year
-	var busy := {}
-	for fixture in career.schedule:
-		busy[str(fixture.get("date", ""))] = true
+	var busy := CareerCalendar.busy_days(career.schedule)
 	var ideal := CareerCalendar.round_dates(start, end, 9,
 		IntlCalendar.rules(), "world", busy)
 	var dates: Array = []

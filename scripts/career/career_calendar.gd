@@ -73,6 +73,20 @@ static func joint_plan(requests: Array, rules: Array = [], scope := "world",
 	return plan
 
 
+static func busy_days(schedule: Array, rest := 3) -> Dictionary:
+	# A day with a match plus the rest window around it (rest - 1 days each
+	# side). An allocator that only skips exact dates then still keeps the rule
+	# that a club never plays twice inside `rest` days.
+	var busy := {}
+	for fixture in schedule:
+		var date := str(fixture.get("date", ""))
+		if date.is_empty():
+			continue
+		for offset in range(1 - rest, rest):
+			busy[CareerSeason.add_days(date, offset)] = true
+	return busy
+
+
 static func _free_slot(ideal: String, request: Dictionary, used: Dictionary,
 		reserved: Array, rest: int) -> String:
 	for step in range(0, 29):

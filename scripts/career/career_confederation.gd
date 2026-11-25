@@ -461,9 +461,7 @@ static func _group_fixtures(career: Career, round: Dictionary, entrants: Array,
 		"rounds": int(spec.get("rounds", size - 1)),
 		"groups": {"sizes": sizes},
 	}
-	var busy := {}
-	for fixture in career.schedule:
-		busy[str(fixture.get("date", ""))] = true
+	var busy := CareerCalendar.busy_days(career.schedule)
 	return CareerStages.build_stage(stage, entrants, str(window[0]),
 		str(window[1]), [], "world", busy)
 
