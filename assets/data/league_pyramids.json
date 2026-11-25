@@ -1,5 +1,5 @@
 {
- "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league. AR3R merged into AR3F as one 37-club Torneo Federal A; a database rebuilt from the canon must move its 19 clubs into AR3F and drop the AR3R league. RLN3 (Regionalliga Nord) and RLW3 (Regionalliga West) were added from Transfermarkt (18 clubs each) to complete the five German fourth-tier leagues; the clubs, squads, logos and kits are in the database build of 2026-11-21. FR5A, FR5B, FR5C, FR5D and FR5H (the missing National 2 groups) were added from Transfermarkt on 2026-11-21; the level now has all eight groups in the database. `up_total`/`down_total` are the nominal number of clubs that change level each way, taken from each row's own note (the numeric columns mixed two conventions); `totals_source: unverified` means the note states a range, so the career keeps its fallback. `up_total`/`down_total` are the nominal number of clubs that change level each way, taken from each row's own note (the numeric columns mixed two conventions); `totals_source: unverified` means the note states a range, so the career keeps its fallback.",
+ "_comment": "League pyramid per league id: level, size, closed directions, format. Boundaries list how many clubs move between adjacent levels. Built from docs/research/pyramids/*.json, with closed flags derived from the game database topology. CL2Z (a 2-club zonal play-off group) was merged into CL2F as the 14-club level 3; a database rebuilt from the canon must move teams 20748 (Trasandino) and 64176 (General Velasquez) into CL2F and drop the CL2Z league. AR3R merged into AR3F as one 37-club Torneo Federal A; a database rebuilt from the canon must move its 19 clubs into AR3F and drop the AR3R league. RLN3 (Regionalliga Nord) and RLW3 (Regionalliga West) were added from Transfermarkt (18 clubs each) to complete the five German fourth-tier leagues; the clubs, squads, logos and kits are in the database build of 2026-11-21. FR5A, FR5B, FR5C, FR5D and FR5H (the missing National 2 groups) were added from Transfermarkt on 2026-11-21; the level now has all eight groups in the database. `up_total`/`down_total` are the nominal number of clubs that change level each way, taken from each row's own note (the numeric columns mixed two conventions); `totals_source: unverified` means the note states a range, so the career keeps its fallback. `up_total`/`down_total` are the nominal number of clubs that change level each way, taken from each row's own note (the numeric columns mixed two conventions); `totals_source: unverified` means the note states a range, so the career keeps its fallback. `up_total`/`down_total` are the nominal number of clubs that change level each way, taken from each row's own note (the numeric columns mixed two conventions); `totals_source: unverified` means the note states a range, so the career keeps its fallback.",
  "_generated": "2026-11-20",
  "leagues": {
   "2DVB": {
@@ -6873,10 +6873,10 @@
    "down_playoff": 2,
    "allocation": "by_geography",
    "selection": "other",
-   "note": "Variable boundary: 4 is the floor, 6 the maximum. The champion of each of the four III-liga groups is promoted directly (4, no play-off). The four runners-up enter a two-round play-off: round 1 is a single match with the fixed bracket gr. I v gr. III and gr. IV v gr. II; round 2 is two legs against the 13th and 14th of 2 Liga (II-liga club hosts the second leg). Each tie won by a runner-up swaps one club, so 0-2 extra promotions and 0-2 extra relegations. Group placement is territorial by voivodeship, not a fixed membership; a group that receives a relegated II-liga club sends one extra club down to IV liga (5 instead of 4) to stay at 18.",
-   "up_total": null,
-   "down_total": null,
-   "totals_source": "unverified"
+   "note": "Variable boundary: 4 is the floor, 6 the maximum. The champion of each of the four III-liga groups is promoted directly (4, no play-off). The four runners-up enter a two-round play-off: round 1 is a single match with the fixed bracket gr. I v gr. III and gr. IV v gr. II; round 2 is two legs against the 13th and 14th of 2 Liga (II-liga club hosts the second leg). Each tie won by a runner-up swaps one club, so 0-2 extra promotions and 0-2 extra relegations. Group placement is territorial by voivodeship, not a fixed membership; a group that receives a relegated II-liga club sends one extra club down to IV liga (5 instead of 4) to stay at 18. Audited total: the floor of the stated range.",
+   "up_total": 4,
+   "down_total": 4,
+   "totals_source": "note"
   },
   {
    "country": "Portugal",
@@ -7158,10 +7158,10 @@
    "down_playoff": 2,
    "allocation": "free",
    "selection": "playoff",
-   "note": "Nominal shape is 2 direct + 2 play-off places each way (13th/14th vs 3rd/4th, two legs, plus 15th/16th down and champion/runner-up up). 2026-27 resolved as 3 up / 3 down: Bukovyna and Chornomorets up directly, Livyi Bereh won a play-off, Oleksandriya lost one; Poltava and Oleksandriya down, Rukh Lviv withdrew.",
-   "up_total": null,
-   "down_total": null,
-   "totals_source": "unverified"
+   "note": "Nominal shape is 2 direct + 2 play-off places each way (13th/14th vs 3rd/4th, two legs, plus 15th/16th down and champion/runner-up up). 2026-27 resolved as 3 up / 3 down: Bukovyna and Chornomorets up directly, Livyi Bereh won a play-off, Oleksandriya lost one; Poltava and Oleksandriya down, Rukh Lviv withdrew. Audited total: the floor of the stated range.",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
   },
   {
    "country": "Ukraine",
@@ -7251,6 +7251,38 @@
    "note": "Cymru North and Cymru South each send their champion up (licence required). The two runners-up meet in a one-off; that winner then plays the Cymru Premier 14th for the last top-flight place, so exactly one of {14th, tier-2 play-off winner} is in the league next season. 15th and 16th are relegated directly and are placed in North or South by geography.",
    "up_total": 3,
    "down_total": 3,
+   "totals_source": "note"
+  },
+  {
+   "country": "Spain",
+   "upper": 1,
+   "lower": 2,
+   "up": 2,
+   "up_playoff": 1,
+   "down": 3,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "LaLiga 2: top two promoted directly, 3rd-6th play off for the third place. LaLiga: bottom three relegated, no play-out.",
+   "confidence": "high",
+   "up_total": 3,
+   "down_total": 3,
+   "totals_source": "note"
+  },
+  {
+   "country": "Spain",
+   "upper": 2,
+   "lower": 3,
+   "up": 4,
+   "up_playoff": 2,
+   "down": 4,
+   "down_playoff": 0,
+   "allocation": "free",
+   "selection": "bottom_n",
+   "note": "Primera Federación: the two group champions go up directly and the two play-off winners join them. LaLiga 2: the bottom four are relegated.",
+   "confidence": "high",
+   "up_total": 4,
+   "down_total": 4,
    "totals_source": "note"
   }
  ],

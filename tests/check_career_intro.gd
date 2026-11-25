@@ -73,6 +73,8 @@ func _run() -> void:
 	_check(lower_text.contains("Promotion places: 3") and lower_text.contains(
 		"Relegation places: 3"),
 		"the pyramid numbers reach the card: " + lower_text)
+	_check(lower_text.contains("One place is decided by a play-off"),
+		"the card names the single play-off place")
 
 	var cup := CareerIntro.facts(_career("131"), "CGB", catalog)
 	_check(str(cup.get("kind", "")) == "cup", "a cup is a cup")

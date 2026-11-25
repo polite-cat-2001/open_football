@@ -41,6 +41,14 @@ func _run() -> void:
 	for competition_id in TOURNAMENTS:
 		await _capture(career, catalog, str(competition_id))
 	# A second-tier club, so the Championship card shows its own season shape.
+	var segunda: Array = catalog.all_teams_for_league("ES2")
+	if not segunda.is_empty():
+		var spanish := CareerFactory.create(catalog,
+			int(str((segunda[0] as Dictionary).get("id", "0"))), "Segunda", 189, 42)
+		if spanish != null:
+			CareerSession.career = spanish
+			await _capture(spanish, catalog, "ES2")
+			CareerSession.career = career
 	var championship: Array = catalog.all_teams_for_league("GB2")
 	if not championship.is_empty():
 		var club_id := int((championship[0] as Dictionary).get("id", 0))

@@ -11,10 +11,12 @@ left without totals and the engine keeps its fallback.
 Every row balances (`up_total == down_total`) except Albania, whose own note records
 a published 3 up / 2 down that does not balance while the top flight is mid-reform.
 
-Rows audited: 105 of 108. Left without totals (variable or contradictory):
+Rows audited: 107 of 110. Left without totals (variable or contradictory):
   - Netherlands L3-4  (2-3 each way, depends on the play-off)
-  - Poland L3-4       (4 is the floor, 6 the maximum)
-  - Ukraine L1-2      (nominal 2+2, 2026-27 resolved as 3/3)
+
+Settled on the number the game needs: Poland L3-4 takes the floor of the 4-6
+range (4), Ukraine L1-2 the resolved 3/3 of 2026-27 (its own note says the nominal
+shape is 2 direct + 2 play-off places each way, but the season ran 3/3).
 """
 import io
 import json
@@ -107,6 +109,10 @@ TOTALS = {
     ("Peru", 2, 3): (2, 2),
     ("Poland", 1, 2): (3, 3),
     ("Poland", 2, 3): (3, 3),
+    ("Poland", 3, 4): (4, 4),
+    ("Spain", 1, 2): (3, 3),
+    ("Spain", 2, 3): (4, 4),
+    ("Ukraine", 1, 2): (3, 3),
     ("Portugal", 1, 2): (3, 3),
     ("Portugal", 2, 3): (3, 3),
     ("Portugal", 3, 4): (4, 4),

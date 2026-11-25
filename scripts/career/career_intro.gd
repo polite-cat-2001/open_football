@@ -166,6 +166,12 @@ static func _league_lines(career: Career, league_id: String,
 		lines.append(UiText.t("tournament.league.promotion", {"count": up}))
 	if down > 0:
 		lines.append(UiText.t("tournament.league.relegation", {"count": down}))
+	var playoffs := CareerPyramids.playoff_places(league_id, true) \
+		+ CareerPyramids.playoff_places(league_id, false)
+	if playoffs == 1:
+		lines.append(UiText.t("tournament.clause.one_playoff_place"))
+	elif playoffs > 1:
+		lines.append(UiText.t("tournament.clause.playoff_places"))
 	# The European places belong to the association's top flight; a second-tier
 	# club cannot take them, so the line would be a lie there.
 	var tier := 1

@@ -48,10 +48,20 @@ func _run() -> void:
 	_check(CareerPyramids.relegation_places("CLPD") == 2,
 		"the Chilean top flight really sends two clubs down")
 
-	# Spain has no audited boundaries: the engine default keeps a career moving.
-	_check(CareerPyramids.promotion_places("ES2") == CareerPyramids.DEFAULT
-		and CareerPyramids.relegation_places("ES2") == CareerPyramids.DEFAULT,
-		"a league without research keeps the engine default")
+	_check(CareerPyramids.promotion_places("ES2") == 3,
+		"LaLiga 2 promotes three clubs")
+	_check(CareerPyramids.relegation_places("ES2") == 4,
+		"LaLiga 2 sends four clubs down")
+	_check(CareerPyramids.relegation_places("ES1") == 3,
+		"LaLiga sends three clubs down")
+	_check(CareerPyramids.promotion_places("ES1") == 0,
+		"there is nothing above LaLiga")
+
+	# A league the pyramid does not know keeps the engine default, so a career
+	# never stalls on missing research.
+	_check(CareerPyramids.promotion_places("CLI") == CareerPyramids.DEFAULT
+		and CareerPyramids.relegation_places("CLI") == CareerPyramids.DEFAULT,
+		"an unknown league keeps the engine default")
 
 	var catalog := TeamCatalog.new()
 	_check(catalog.load_data_root(), "catalog opens the database: " + catalog.error)
