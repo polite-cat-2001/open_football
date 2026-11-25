@@ -42,7 +42,7 @@ static func promotion_places(league_id: String) -> int:
 	if level <= 1 or bool(row.get("closed_up", false)):
 		return 0
 	var edge := _boundary(str(row.get("country", "")), level - 1, level)
-	return _total(edge, "up_total")
+	return _total(edge, "up_total", "down_total")
 
 
 static func relegation_places(league_id: String) -> int:
@@ -54,7 +54,7 @@ static func relegation_places(league_id: String) -> int:
 		return 0
 	var level := int(row.get("level", 1))
 	var edge := _boundary(str(row.get("country", "")), level, level + 1)
-	return _total(edge, "down_total")
+	return _total(edge, "down_total", "up_total")
 
 
 static func playoff_places(league_id: String, upwards: bool) -> int:
@@ -81,10 +81,14 @@ static func _boundary(country: String, upper: int, lower: int) -> Dictionary:
 	return {}
 
 
-static func _total(edge: Dictionary, key: String) -> int:
+static func _total(edge: Dictionary, key: String, other: String) -> int:
+	# The two sides of a boundary must move the same number of clubs, otherwise
+	# the league above or below changes size every season. The audited data has
+	# one such case (Albania, mid-reform), so the smaller side wins.
 	if edge.is_empty():
 		return DEFAULT
 	var value = edge.get(key)
-	if value == null:
+	var mirror = edge.get(other)
+	if value == null or mirror == null:
 		return DEFAULT
-	return int(value)
+	return mini(int(value), int(mirror))

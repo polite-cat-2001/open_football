@@ -39,9 +39,8 @@ func _run() -> void:
 	_check(CareerPyramids.relegation_places("GB1") == 3,
 		"the Premier League sends three clubs down")
 
-	# A league whose boundaries are not symmetrical: three up, two down.
-	_check(CareerPyramids.promotion_places("ALB2") == 3,
-		"three clubs leave the Albanian second tier upwards")
+	# A league whose boundary is not symmetrical: the audited pair is 3 up / 2
+	# down, clamped to two so the top flight keeps its size.
 	_check(CareerPyramids.relegation_places("ALB2") == 0,
 		"the Albanian second tier is the pyramid floor")
 
@@ -56,6 +55,14 @@ func _run() -> void:
 		"LaLiga sends three clubs down")
 	_check(CareerPyramids.promotion_places("ES1") == 0,
 		"there is nothing above LaLiga")
+
+	# The two sides of a boundary move the same number of clubs, so no league
+	# changes size season after season. Albania is the one audited imbalance
+	# (3 up / 2 down mid-reform) and is clamped to the smaller side.
+	_check(CareerPyramids.promotion_places("ALB2") == 2,
+		"Albania promotes the number the top flight can take")
+	_check(CareerPyramids.relegation_places("ALB1") == 2,
+		"Albania relegates the same number")
 
 	# A league the pyramid does not know keeps the engine default, so a career
 	# never stalls on missing research.
