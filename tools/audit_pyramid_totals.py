@@ -11,8 +11,9 @@ left without totals and the engine keeps its fallback.
 Every row balances (`up_total == down_total`) except Albania, whose own note records
 a published 3 up / 2 down that does not balance while the top flight is mid-reform.
 
-Rows audited: 107 of 110. Left without totals (variable or contradictory):
-  - Netherlands L3-4  (2-3 each way, depends on the play-off)
+Rows audited: 110 of 110. The Dutch L3-4 row takes the floor of its 2-3 range:
+the database carries one Derde Divisie group, so two clubs each way keeps both
+divisions at their size.
 
 Settled on the number the game needs: Poland L3-4 takes the floor of the 4-6
 range (4), Ukraine L1-2 the resolved 3/3 of 2026-27 (its own note says the nominal
@@ -99,6 +100,7 @@ TOTALS = {
     ("Montenegro", 1, 2): (3, 3),
     ("Netherlands", 1, 2): (3, 3),
     ("Netherlands", 2, 3): (0, 0),
+    ("Netherlands", 3, 4): (2, 2),
     ("Nicaragua", 1, 2): (2, 2),
     ("Northern Ireland", 1, 2): (2, 2),
     ("Norway", 1, 2): (3, 3),

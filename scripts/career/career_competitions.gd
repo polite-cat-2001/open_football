@@ -61,11 +61,15 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 			})
 	else:
 		var window := LeagueRegulations.window_for_season(league_id, season_start)
+		# A club list with an odd size gets a bye slot, so the double
+		# round-robin has 2 * n rounds, not 2 * (n - 1); planning fewer dates
+		# left the last rounds without a day of their own.
+		var slots: int = int(club_ids.size()) + int(club_ids.size()) % 2
 		requests.append({
 			"id": "league", "priority": LEAGUE_PRIORITY,
 			"start": str(window.get("start", season_start)),
 			"end": str(window.get("end", season_start)),
-			"days": maxi(0, 2 * (club_ids.size() - 1)),
+			"days": maxi(0, 2 * (slots - 1)),
 		})
 
 	var year := int(CareerSearch.date_parts(season_start)[0])

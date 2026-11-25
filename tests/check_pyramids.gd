@@ -46,6 +46,12 @@ func _run() -> void:
 
 	_check(CareerPyramids.relegation_places("CLPD") == 2,
 		"the Chilean top flight really sends two clubs down")
+	# The Dutch L3-4 boundary is a 2-3 range in the data; the floor keeps both
+	# divisions at their size, since the database has one Derde Divisie group.
+	_check(CareerPyramids.promotion_places("NTD") == 0,
+		"promotion from the Tweede Divisie to the Eerste Divisie is closed")
+	_check(CareerPyramids.relegation_places("510") == 0,
+		"the lowest Dutch division is closed downwards")
 
 	_check(CareerPyramids.promotion_places("ES2") == 3,
 		"LaLiga 2 promotes three clubs")
