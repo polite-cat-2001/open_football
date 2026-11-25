@@ -2068,6 +2068,7 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["substitutions_max"] = maxSubstitutions;
     result["substitution_notice_counter"] = (int)match->GetSubstitutionNoticeCounter();
     Array substitution_notices;
+    Array substitution_notice_teams;
     const std::vector<SubstitutionNotice> &notices = match->GetSubstitutionNotices();
     for (size_t i = 0; i < notices.size(); ++i) {
         Team *notice_team = match->GetTeam(notices[i].teamID);
@@ -2076,8 +2077,10 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
         const std::string out_name = notice_out ? notice_out->GetPlayerData()->GetLastName() : std::string("?");
         const std::string in_name = notice_in ? notice_in->GetPlayerData()->GetLastName() : std::string("?");
         substitution_notices.append(String::utf8((out_name + " off, " + in_name + " on").c_str()));
+        substitution_notice_teams.append(notices[i].teamID);
     }
     result["substitution_notices"] = substitution_notices;
+    result["substitution_notice_teams"] = substitution_notice_teams;
     // On-screen match message (goal scorer, referee call). The host creates it
     // in Match::Process; a thin client re-creates it in ApplyRemoteSnapshot from
     // the relayed snapshot, so these getters are valid on both peers. Time is
@@ -2115,8 +2118,12 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["shootout_score1"] = match->GetShootoutScore(1);
     Array shootout_kicks0;
     Array shootout_kicks1;
-    for (int i = 0; i < 16; ++i) {
+    // Only the taken kicks: the HUD sizes its five-per-row display from the
+    // array length (a fixed 16 showed 16 circles, ticket 10).
+    for (int i = 0; i < match->GetShootoutKickCount(0); ++i) {
         shootout_kicks0.append(match->GetShootoutKickResult(0, i));
+    }
+    for (int i = 0; i < match->GetShootoutKickCount(1); ++i) {
         shootout_kicks1.append(match->GetShootoutKickResult(1, i));
     }
     result["shootout_kicks0"] = shootout_kicks0;

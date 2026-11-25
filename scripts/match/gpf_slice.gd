@@ -31,6 +31,7 @@ var game_plan: GpfGamePlan
 var _game_plan_layer: CanvasLayer
 var _roster_ids: Array = []
 var _roster_names: Dictionary = {}
+var _roster_teams: Dictionary = {}
 var _net_notice_ready_ms := 0
 var side_select_overlay: Control
 var _side_select_layer: CanvasLayer
@@ -87,11 +88,9 @@ func _ready() -> void:
 	hud.setup(runtime)
 	hud.set_net_client(bool(runtime.is_net_client()))
 	hud.set_match_package(ShellState.match_package)
-	if not ShellState.controllers.is_empty() \
-			and str(ShellState.controllers[0].get("kind", "keyboard")) == "gamepad":
-		hud.set_taker_hint_key("Select")
 	replay.setup(runtime, camera, actors, goal_nets, hud)
 	shootout.setup()
+	shootout.set_scoreboard(hud.scoreboard)
 	pause_menu.setup()
 	pause_menu.set_match(runtime, ShellState.match_package)
 	pause_menu.set_team(_pause_team(-1))
@@ -323,13 +322,16 @@ func _pick_controlled(ids: Array) -> int:
 func _remember_roster(ids: Array) -> void:
 	var roster: Array = []
 	var names := {}
+	var teams := {}
 	for entry in ids:
 		var id := int(entry.get("id", -1))
 		roster.append(id)
 		names[id] = str(entry.get("name", ""))
+		teams[id] = int(entry.get("team", -1))
 	roster.sort()
 	_roster_ids = roster
 	_roster_names = names
+	_roster_teams = teams
 
 
 func _sync_roster() -> void:
@@ -345,7 +347,11 @@ func _sync_roster() -> void:
 	if bool(runtime.is_net_client()) and Time.get_ticks_msec() >= _net_notice_ready_ms:
 		var lines := SUBSTITUTION_NOTICES.build_lines(previous_names, _roster_names)
 		if not lines.is_empty():
-			hud.show_substitution_notice(lines)
+			var changed := SUBSTITUTION_NOTICES.changed_ids(previous_names, _roster_names)
+			var teams: Array = []
+			for i in mini(changed["out"].size(), changed["in"].size()):
+				teams.append(int(_roster_teams.get(int(changed["in"][i]), -1)))
+			hud.show_substitution_notice(lines, teams)
 	actors.sync_roster(ids)
 
 
@@ -1133,6 +1139,12 @@ func _handle_key(key_event: InputEventKey) -> void:
 			environment_view.cycle_lighting()
 			goal_nets.set_frame_night(environment_view.lighting_name() == "Night")
 		return
+	# Alt+X hides only the dev text HUD; the design-system HUD (score, banners,
+	# substitutions, hints) stays on screen (ticket 10).
+	if key_event.keycode == KEY_X and key_event.alt_pressed:
+		if key_event.pressed:
+			hud.toggle_legacy_hud()
+		return
 	var shootout_running := bool(runtime.get_snapshot().get("shootout_active", false))
 	if key_event.keycode == KEY_F3:
 		if key_event.pressed and not shootout_running:
@@ -1213,6 +1225,7 @@ func _start_fresh_match() -> void:
 	actors.reset()
 	_roster_ids = []
 	_roster_names = {}
+	_roster_teams = {}
 	_net_notice_ready_ms = 0
 	if game_plan != null:
 		game_plan.clear_local_orders()

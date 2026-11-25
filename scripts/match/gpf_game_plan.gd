@@ -2227,6 +2227,16 @@ func _refresh_panel(panel: Dictionary, update_hints: bool = true) -> void:
 		bench_entries.sort_custom(func(a: int, b: int) -> bool:
 			return int(rank.get(int(entries[a].get("id", -1)), 10000 + a)) \
 				< int(rank.get(int(entries[b].get("id", -1)), 10000 + b)))
+	# Players who cannot be selected (already substituted out / sent off) go to
+	# the end, so the cursor never lands between them and the grid stays reachable.
+	var selectable_bench: Array = []
+	var unavailable_bench: Array = []
+	for index in bench_entries:
+		if _entry_selectable(entries[index]):
+			selectable_bench.append(index)
+		else:
+			unavailable_bench.append(index)
+	bench_entries = selectable_bench + unavailable_bench
 	panel["pitch_entries"] = pitch_entries
 	panel["bench_entries"] = bench_entries
 	panel["reserve_entries"] = reserve_entries

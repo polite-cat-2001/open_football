@@ -22,10 +22,11 @@ var hud: Label
 var scoreboard: MatchScoreboard
 var tv_logo: TextureRect
 var charge_bar: ChargeBar
-var taker_hint: Label
-var substitution_notice: Label
+var set_piece_hints: SetPieceHints
+var substitution_stack: SubstitutionStack
 var _sub_notice_counter := -1
-var _sub_notice_hide_ms := 0
+var _legacy_hidden := false
+var _force_hidden := false
 
 var event_banner: EventBanner
 var kickoff_banner: KickoffBanner
@@ -46,7 +47,6 @@ var _last_match_ms := 0
 var _player_names: Dictionary = {}
 
 var taker_menu: GpfSetPieceTakerMenu
-var _hint_player_id := -2
 
 var root_layer: CanvasLayer
 
@@ -76,7 +76,7 @@ func apply_snapshot(snap: Dictionary, display_player_id: int = -1,
 
 func update(snap: Dictionary, display_player_id: int, actor_count: int,
 		stadium_camera: bool, lighting_name: String) -> void:
-	_sync_taker_ui(snap)
+	_sync_taker_ui(snap, display_player_id)
 	_sync_substitution_notice(snap)
 	_sync_spam_message(snap)
 	_update_goal_log(snap)
@@ -86,8 +86,10 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	var status := _status_text(snap, display_player_id)
 	var on_break := bool(snap.get("phase_break_pending", false)) \
 		or bool(snap.get("phase_break", false))
-	var chrome_visible := _replay_mode or not (bool(snap.get("paused", false)) or on_break)
+	var paused := bool(snap.get("paused", false)) or on_break
+	var chrome_visible := _replay_mode or not paused
 	_chrome_visible = chrome_visible
+	root_layer.visible = not _force_hidden and not paused
 	if scoreboard != null:
 		scoreboard.apply(int(snap.get("score0", 0)), int(snap.get("score1", 0)),
 			_format_clock(int(snap.get("match_time_ms", 0))))
@@ -104,7 +106,7 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	var match_minutes := int(round(MatchPackage.minutes_from_duration(duration)))
 	# The ported taker overlay replaces the dev key legend while it is up: the
 	# original page draws over the pitch and has no second text block under it.
-	hud.visible = not _replay_mode and not is_taker_menu_open()
+	hud.visible = not _replay_mode and not is_taker_menu_open() and not _legacy_hidden
 	var park_text := "F2 unpark opponents" if bool(snap.get("debug_park_opponents", false)) \
 		else "F2 park opponents"
 	var camera_text := "F6 broadcast cam" if stadium_camera else "F6 stadium cam"
@@ -118,16 +120,34 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	# The control legend must fit 1280-wide screens too: wrap it to the
 	# viewport and push the taker hint below the wrapped block.
 	var viewport := get_viewport()
-	var view_width := viewport.get_visible_rect().size.x if viewport != null else 1920.0
+	var view := viewport.get_visible_rect().size if viewport != null else Vector2(1920, 1080)
+	var view_width := view.x
+	var view_height := view.y
 	hud.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hud.size = Vector2(maxf(320.0, view_width - 48.0), 0)
 	hud.size.y = hud.get_minimum_size().y
+	var stack_on := substitution_stack != null and substitution_stack.has_entries() \
+		and chrome_visible
 	var legend_top := 64.0
 	if scoreboard != null and scoreboard.visible:
 		legend_top += maxf(0.0, scoreboard.size.y - MatchScoreboard.PLATE_H)
+	if _shootout_active:
+		# The series dots hang under the scoreboard; the dev legend starts below
+		# them instead of drawing through the circles.
+		legend_top += ShootoutDots.HEIGHT + 10.0
+	if stack_on:
+		# The stack shares the scoreboard's top line; keep the dev text below it.
+		legend_top = maxf(legend_top, 14.0 + substitution_stack.size.y + 8.0)
 	hud.position = Vector2(24, legend_top)
-	if taker_hint != null:
-		taker_hint.position = Vector2(24, legend_top + hud.size.y + 6.0)
+	# The contextual plate lives on the right, vertically centred.
+	if set_piece_hints != null:
+		set_piece_hints.position = Vector2(
+			roundf(view_width - set_piece_hints.size.x - 24.0),
+			roundf((view_height - set_piece_hints.size.y) * 0.5))
+	if substitution_stack != null:
+		substitution_stack.position = Vector2(
+			roundf((view_width - substitution_stack.size.x) * 0.5), 14.0)
+		substitution_stack.visible = stack_on
 
 
 func set_replay_mode(active: bool) -> void:
@@ -140,6 +160,10 @@ func set_replay_mode(active: bool) -> void:
 		event_banner.present(false)
 	if kickoff_banner != null:
 		kickoff_banner.present(false)
+	if set_piece_hints != null:
+		set_piece_hints.visible = false
+	if substitution_stack != null:
+		substitution_stack.visible = false
 
 
 # The bar is screen-space: gpf_slice projects an anchor point and pushes it here
@@ -166,6 +190,10 @@ func set_match_package(package: Dictionary) -> void:
 		scoreboard.set_teams(package.get("home", {}), package.get("away", {}))
 	if kickoff_banner != null:
 		kickoff_banner.set_teams(package.get("home", {}), package.get("away", {}))
+	if substitution_stack != null:
+		substitution_stack.set_crests(
+			UiAssets.package_crest(package.get("home", {})),
+			UiAssets.package_crest(package.get("away", {})))
 	_player_names.clear()
 	for side in ["home", "away"]:
 		for player in package.get(side, {}).get("players", []):
@@ -179,7 +207,6 @@ func set_match_package(package: Dictionary) -> void:
 
 func reset() -> void:
 	close_taker_menu(false)
-	_hint_player_id = -2
 	set_replay_mode(false)
 	if charge_bar != null:
 		charge_bar.visible = false
@@ -187,9 +214,16 @@ func reset() -> void:
 		event_banner.present(false)
 	if kickoff_banner != null:
 		kickoff_banner.present(false)
+	if set_piece_hints != null:
+		set_piece_hints.visible = false
+	if substitution_stack != null:
+		substitution_stack.visible = false
 	_sub_notice_counter = -1
-	if substitution_notice != null:
-		substitution_notice.visible = false
+	_legacy_hidden = false
+	if substitution_stack != null:
+		substitution_stack.reset()
+	if set_piece_hints != null:
+		set_piece_hints.reset()
 	_spam_counter = -1
 	_spam_hide_at_ms = 0
 	_spam_active = false
@@ -206,9 +240,17 @@ func reset() -> void:
 	_last_score1 = 0
 
 
-func set_taker_hint_key(key_name: String) -> void:
-	if taker_hint != null:
-		taker_hint.text = "%s: change taker" % key_name
+# Alt+X hides only the old text HUD (legend + status); the design-system pieces
+# stay on screen (ticket 10).
+func toggle_legacy_hud() -> void:
+	_legacy_hidden = not _legacy_hidden
+	if hud != null:
+		hud.visible = not _legacy_hidden and not _replay_mode \
+			and not is_taker_menu_open()
+
+
+func is_legacy_hidden() -> bool:
+	return _legacy_hidden
 
 
 func is_taker_menu_open() -> bool:
@@ -338,7 +380,7 @@ func _controller_side(controller: Dictionary) -> String:
 	return "away" if str(controller.get("side", "home")) == "away" else "home"
 
 
-func _sync_taker_ui(snap: Dictionary) -> void:
+func _sync_taker_ui(snap: Dictionary, display_player_id: int) -> void:
 	if taker_menu != null and taker_menu.is_open():
 		# Auto-close on the strike / end of the set piece / losing the human
 		# taker, exactly like SetPieceTakerPage::Process(). If the bridge still
@@ -348,20 +390,57 @@ func _sync_taker_ui(snap: Dictionary) -> void:
 			and bool(snap.get("set_piece_local_taker", false))
 		if not still_taker:
 			taker_menu.close(false, bool(snap.get("set_piece_taker_menu_open", false)))
-	var hint_visible := bool(snap.get("set_piece_local_taker", false)) \
-		and (taker_menu == null or not taker_menu.is_open()) \
-		and not bool(snap.get("shootout_active", false)) \
-		and bool(snap.get("in_set_piece", false))
-	if taker_hint != null:
-		taker_hint.visible = hint_visible
-		if hint_visible:
-			var hud_player := int(snap.get("set_piece_hud_player", -1))
-			if hud_player != _hint_player_id:
-				_hint_player_id = hud_player
-				taker_hint.text = "Select: change taker" \
-					if _taker_owner_kind(snap) == "gamepad" else "Tab: change taker"
-		else:
-			_hint_player_id = -2
+	if set_piece_hints == null:
+		return
+	var rows: Array = []
+	var paused := bool(snap.get("paused", false)) \
+		or bool(snap.get("phase_break_pending", false)) \
+		or bool(snap.get("phase_break", false))
+	if bool(snap.get("in_set_piece", false)) \
+			and not bool(snap.get("shootout_active", false)) \
+			and not paused and not _replay_mode:
+		var piece := int(snap.get("referee_set_piece", 0))
+		if piece == 0:
+			piece = int(snap.get("set_piece_type", 0))
+		var role := int(snap.get("set_piece_role", 0))
+		if bool(snap.get("set_piece_local_taker", false)) \
+				and (taker_menu == null or not taker_menu.is_open()):
+			rows.append({"key": "Select" if _taker_owner_kind(snap) == "gamepad" else "Tab",
+				"label": "change taker"})
+		if role == 2:
+			rows.append({"key": "Arrows", "label": "dive"})
+		elif role == 1:
+			var keys := _action_keys(snap)
+			if piece == 6:
+				rows.append({"key": keys["shot"], "label": "shot"})
+			else:
+				rows.append({"key": keys["pass"], "label": "pass"})
+				rows.append({"key": keys["shot"], "label": "shot"})
+				rows.append({"key": keys["cross"], "label": "cross"})
+		elif piece == 6:
+			var human_team := _human_team_of(snap, display_player_id)
+			if human_team >= 0 and int(snap.get("referee_team", -1)) != human_team:
+				rows.append({"key": "Arrows", "label": "dive"})
+	set_piece_hints.set_hints(rows)
+	set_piece_hints.visible = not rows.is_empty()
+
+
+func _human_team_of(snap: Dictionary, display_player_id: int) -> int:
+	if _runtime != null:
+		# The selected player's team from the bridge roster; the raw human-team
+		# id is unreliable on a LAN host after controller rebinds.
+		for entry in _runtime.get_player_ids():
+			if int(entry.get("id", -1)) == display_player_id:
+				return int(entry.get("team", -1))
+	elif snap.has("human_team"):
+		return int(snap.get("human_team", -1))
+	return -1
+
+
+func _action_keys(snap: Dictionary) -> Dictionary:
+	if _taker_owner_kind(snap) == "gamepad":
+		return {"pass": "A", "shot": "X", "cross": "B"}
+	return {"pass": "S", "shot": "D", "cross": "A"}
 
 
 func _taker_owner_kind(snap: Dictionary) -> String:
@@ -372,19 +451,14 @@ func _taker_owner_kind(snap: Dictionary) -> String:
 	return "keyboard"
 
 
-func show_substitution_notice(lines: Array) -> void:
-	if substitution_notice == null or lines.is_empty():
+func show_substitution_notice(lines: Array, teams: Array = []) -> void:
+	if substitution_stack == null or lines.is_empty():
 		return
-	var text_lines := PackedStringArray()
-	for line in lines:
-		text_lines.append(str(line))
-	substitution_notice.text = "\n".join(text_lines)
-	substitution_notice.visible = true
-	_sub_notice_hide_ms = Time.get_ticks_msec() + 5000
+	substitution_stack.push_lines(lines, teams)
 
 
 func _sync_substitution_notice(snap: Dictionary) -> void:
-	if substitution_notice == null:
+	if substitution_stack == null:
 		return
 	var counter := int(snap.get("substitution_notice_counter", 0))
 	if _sub_notice_counter < 0:
@@ -395,12 +469,12 @@ func _sync_substitution_notice(snap: Dictionary) -> void:
 	elif counter != _sub_notice_counter:
 		if counter > _sub_notice_counter:
 			var notices: Array = snap.get("substitution_notices", [])
+			var notice_teams: Array = snap.get("substitution_notice_teams", [])
 			var start_index := maxi(_sub_notice_counter, 0)
 			var fresh := notices.slice(mini(start_index, notices.size()))
-			show_substitution_notice(fresh)
+			var fresh_teams := notice_teams.slice(mini(start_index, notice_teams.size()))
+			show_substitution_notice(fresh, fresh_teams)
 		_sub_notice_counter = counter
-	if substitution_notice.visible and Time.get_ticks_msec() > _sub_notice_hide_ms:
-		substitution_notice.visible = false
 
 
 # Original Match::Process draws one caption at 50% width / 5% height and hides
@@ -623,16 +697,7 @@ func _status_text(snap: Dictionary, display_player_id: int) -> String:
 	var piece := int(snap.get("referee_set_piece", 0))
 	var role := int(snap.get("set_piece_role", 0))
 	if bool(snap.get("in_set_piece", false)):
-		var human_team := -1
-		if _runtime != null:
-			# Use the selected player's team from the bridge roster; the raw
-			# human-team id is unreliable on a LAN host after controller rebinds.
-			for entry in _runtime.get_player_ids():
-				if int(entry.get("id", -1)) == display_player_id:
-					human_team = int(entry.get("team", -1))
-					break
-		elif snap.has("human_team"):
-			human_team = int(snap.get("human_team", -1))
+		var human_team := _human_team_of(snap, display_player_id)
 		if piece == 6 and human_team >= 0 \
 				and int(snap.get("referee_team", -1)) != human_team:
 			return "PENALTY - keeper: arrows to dive"
@@ -673,6 +738,7 @@ func _set_piece_name(piece: int) -> String:
 
 
 func set_visible(value: bool) -> void:
+	_force_hidden = not value
 	if root_layer != null:
 		root_layer.visible = value
 
@@ -714,35 +780,13 @@ func _build_hud() -> void:
 	hud.add_theme_constant_override("outline_size", 4)
 	layer.add_child(hud)
 
-	taker_hint = Label.new()
-	taker_hint.position = Vector2(24, 150)
-	taker_hint.add_theme_font_size_override("font_size", 18)
-	taker_hint.add_theme_color_override("font_color", Color(1.0, 0.86, 0.2))
-	taker_hint.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-	taker_hint.add_theme_constant_override("outline_size", 4)
-	taker_hint.text = "Tab: change taker"
-	taker_hint.visible = false
-	layer.add_child(taker_hint)
+	set_piece_hints = SetPieceHints.new()
+	set_piece_hints.name = "SetPieceHints"
+	layer.add_child(set_piece_hints)
 
-	substitution_notice = Label.new()
-	substitution_notice.anchor_left = 0.10
-	substitution_notice.anchor_right = 0.90
-	substitution_notice.anchor_top = 0.24
-	substitution_notice.anchor_bottom = 0.34
-	substitution_notice.offset_left = 0
-	substitution_notice.offset_right = 0
-	substitution_notice.offset_top = 0
-	substitution_notice.offset_bottom = 0
-	substitution_notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	substitution_notice.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	substitution_notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	substitution_notice.add_theme_font_size_override("font_size", 26)
-	substitution_notice.add_theme_color_override("font_color", Color(1.0, 0.88, 0.3))
-	substitution_notice.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-	substitution_notice.add_theme_constant_override("outline_size", 5)
-	substitution_notice.text = ""
-	substitution_notice.visible = false
-	layer.add_child(substitution_notice)
+	substitution_stack = SubstitutionStack.new()
+	substitution_stack.name = "SubstitutionStack"
+	layer.add_child(substitution_stack)
 
 	event_banner = EventBanner.new()
 	event_banner.name = "EventBanner"

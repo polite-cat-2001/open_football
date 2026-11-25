@@ -150,8 +150,9 @@ func _check_home_and_away() -> void:
 	fake.snapshot = _snapshot(12, 12, 0)
 	var hud := _make_hud(fake)
 	hud.update(fake.snapshot, 12, 0, false, "Afternoon")
-	var hint := hud.get("taker_hint") as Label
-	_check(hint != null and hint.visible, "home taker hint is visible")
+	var hints := hud.get("set_piece_hints") as SetPieceHints
+	_check(hints != null and hints.visible and hints.key_for("change taker") == "Tab",
+		"home taker hint is visible")
 	_check(bool(hud.toggle_taker_menu("keyboard", 0)), "home keyboard opens the menu")
 	var menu: GpfSetPieceTakerMenu = hud.get("taker_menu")
 	var texts := menu.button_texts()
@@ -258,8 +259,8 @@ func _check_two_players() -> void:
 	fake.snapshot = _snapshot(10, 10, 0)
 	hud = _make_hud(fake)
 	hud.update(fake.snapshot, 10, 0, false, "Afternoon")
-	var hint := hud.get("taker_hint") as Label
-	_check(hint != null and hint.text == "Tab: change taker",
+	var hints := hud.get("set_piece_hints") as SetPieceHints
+	_check(hints != null and hints.key_for("change taker") == "Tab",
 		"the home keyboard taker sees the Tab hint")
 	_check(not hud.toggle_taker_menu("gamepad", 3),
 		"the away pad cannot open the home taker's menu")
@@ -288,8 +289,9 @@ func _check_auto_close() -> void:
 	var hud := _make_hud(fake)
 	hud.update(fake.snapshot, 10, 0, false, "Afternoon")
 	_check(hud.toggle_taker_menu("keyboard", 0), "menu opens before the auto-close checks")
-	var hint := hud.get("taker_hint") as Label
-	_check(hint != null and hint.visible, "the hint is visible while the menu is closed")
+	var hints := hud.get("set_piece_hints") as SetPieceHints
+	_check(hints != null and hints.visible and hints.has_hint("change taker"),
+		"the hint is visible while the menu is closed")
 	hud.close_taker_menu(false)
 	hud.update(fake.snapshot, 10, 0, false, "Afternoon")
 	_check(hud.toggle_taker_menu("keyboard", 0), "menu opens again for the kick-key check")
@@ -380,8 +382,8 @@ func _check_real_away_runtime() -> void:
 
 	var hud := _make_hud(runtime)
 	hud.update(snap, taker, 0, false, "Afternoon")
-	var hint := hud.get("taker_hint") as Label
-	_check(hint != null and hint.visible and hint.text == "Tab: change taker",
+	var hints := hud.get("set_piece_hints") as SetPieceHints
+	_check(hints != null and hints.visible and hints.key_for("change taker") == "Tab",
 		"the away keyboard taker sees the Tab hint")
 	_check(hud.toggle_taker_menu("keyboard", 0),
 		"the away human opens the taker menu")

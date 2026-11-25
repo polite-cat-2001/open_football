@@ -121,6 +121,17 @@ func _run() -> void:
 	_check(scoreboard != null and scoreboard.home_crest != null
 		and scoreboard.away_crest != null and scoreboard.clock_text.length() == 5,
 		"the scoreboard reads the package crests and the snapshot clock")
+	var legacy := hud.get("hud") as Label
+	var alt_x := _key(KEY_X)
+	alt_x.alt_pressed = true
+	scene.call("_input", alt_x)
+	await process_frame
+	_check(hud.is_legacy_hidden() and not legacy.visible and scoreboard.visible,
+		"Alt+X hides the text HUD and keeps the scoreboard")
+	scene.call("_input", alt_x)
+	await process_frame
+	_check(not hud.is_legacy_hidden() and legacy.visible,
+		"Alt+X brings the text HUD back")
 	var nameplates: Dictionary = actors.get("player_labels")
 	var controlled_id := int(actors.get("controlled_id"))
 	var controlled_label := nameplates.get(controlled_id) as Label3D
@@ -283,9 +294,10 @@ func _run() -> void:
 		if bool(snap.get("in_set_piece", false)) and int(snap.get("referee_set_piece", 0)) == 3:
 			break
 	_check(bool(snap.get("set_piece_local_taker", false)), "free kick has a local taker")
-	var hint := hud.get("taker_hint") as Label
-	_check(hint != null and hint.visible and hint.text == "Tab: change taker",
-		"Tab hint is visible for the keyboard taker")
+	var hints := hud.get("set_piece_hints") as SetPieceHints
+	_check(hints != null and hints.visible and hints.key_for("change taker") == "Tab"
+		and hints.key_for("shot") == "D" and hints.key_for("cross") == "A",
+		"Tab and shot/cross hints are visible for the keyboard taker")
 	scene.call("_input", _key(KEY_TAB))
 	await process_frame
 	_check(hud.is_taker_menu_open(), "Tab opens the taker menu")

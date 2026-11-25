@@ -42,6 +42,7 @@ func _ready() -> void:
 	shootout = GpfShootoutView.new()
 	add_child(shootout)
 	shootout.setup()
+	shootout.set_scoreboard(hud.scoreboard)
 	pause_menu = GpfPauseMenu.new()
 	add_child(pause_menu)
 	pause_menu.setup()
@@ -156,6 +157,16 @@ func _build_states() -> Array:
 		"shootout_outcome": 1, "shootout_outcome_counter": 0,
 	}))
 
+	var shootout_sd := _base_state("SHOOTOUT SD")
+	states.append(_with(shootout_sd, {
+		"score0": 2, "score1": 2, "match_time_ms": 7200000, "match_phase": 5,
+		"shootout_active": true, "shootout_phase": 2,
+		"shootout_score0": 5, "shootout_score1": 4,
+		"shootout_kicks0": [1, 1, 1, 1, 1, 1],
+		"shootout_kicks1": [1, 1, 1, 1, 1, 0],
+		"shootout_outcome": 1, "shootout_outcome_counter": 0,
+	}))
+
 	var shootout_end := _base_state("SHOOTOUT END")
 	states.append(_with(shootout_end, {
 		"score0": 2, "score1": 2, "match_time_ms": 7200000, "match_phase": 5,
@@ -169,6 +180,7 @@ func _build_states() -> Array:
 	var pause := _base_state("PAUSE")
 	states.append(_with(pause, {
 		"score0": 1, "score1": 1, "match_time_ms": 3120000, "in_play": true,
+		"paused": true,
 	}))
 
 	var plan := _base_state("GAME PLAN")
@@ -201,7 +213,11 @@ func _build_states() -> Array:
 	states.append(_with(sub_notice, {
 		"score0": 1, "score1": 1, "match_time_ms": 1900000, "in_play": true,
 		"substitution_notice_counter": 1,
-		"substitution_notices": ["RIVERA off, KOVAL on"],
+		"substitution_notices": [
+			"RIVERA off, KOVAL on",
+			"VELASCO off, BRANDT on",
+			"DUARTE off, OKAFOR on",
+		],
 	}))
 
 	var card := _base_state("CARD")

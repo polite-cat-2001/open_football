@@ -122,14 +122,15 @@ func _check_synthetic_hud() -> void:
 	hud.apply_snapshot(updated, 7, 22, false, "Afternoon")
 	_check(banner.is_presented() and banner.card == "red", "a red card message shows the red chip")
 	_check(banner.text == "Foul! Red card", "repeated exclamation marks collapse to one")
-	var sub_notice := hud.get("substitution_notice") as Label
-	_check(sub_notice != null and sub_notice.visible
-		and sub_notice.text == "Jones off, Brown on",
-		"the substitution banner still works next to the message")
+	var sub_stack := hud.get("substitution_stack") as SubstitutionStack
+	_check(sub_stack != null and sub_stack.visible and sub_stack.entries.size() == 1
+		and sub_stack.entries[0]["out"] == "Jones" and sub_stack.entries[0]["in"] == "Brown",
+		"the substitution stack still works next to the message")
 
 	hud.reset()
 	_check(not banner.is_presented(), "reset hides the message")
-	_check(not sub_notice.visible, "reset hides the substitution banner")
+	_check(not sub_stack.visible and sub_stack.entries.is_empty(),
+		"reset hides the substitution stack")
 	hud.apply_snapshot(updated, 7, 22, false, "Afternoon")
 	_check(not banner.is_presented(),
 		"after reset the next snapshot is a new baseline (F4/new match)")

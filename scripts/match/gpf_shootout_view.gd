@@ -14,19 +14,13 @@ const PHASE_DECISIVE_CELEBRATION := 5
 const PHASE_FINISHED := 6
 const PHASE_TRANSITION := 7
 const OUTCOME_TEXT := {1: "GOAL", 2: "SAVE", 3: "MISS"}
-const CIRCLE_COLORS := {
-	0: Color(0.30, 0.32, 0.36, 0.92),
-	1: Color(0.20, 0.85, 0.35),
-	2: Color(0.92, 0.22, 0.20),
-}
-const CIRCLE_SIZE := 20.0
+const DOTS_POS := Vector2(24.0, 14.0 + MatchScoreboard.PLATE_H + 8.0)
 const BANNER_TIME := 1.2
 const FADE_TIME := 0.3
 
 var shootout_layer: CanvasLayer
-var shootout_home_row: HBoxContainer
-var shootout_away_row: HBoxContainer
-var shootout_circles := {0: [], 1: []}
+var shootout_dots: ShootoutDots
+var scoreboard: MatchScoreboard
 var shootout_banner: Label
 var shootout_fade: ColorRect
 var shootout_fade_tween: Tween
@@ -39,6 +33,12 @@ func setup() -> void:
 	_build_ui()
 
 
+# Rows hang under their own team in the scoreboard; without a board (ui_lab)
+# they keep the default left-aligned spot.
+func set_scoreboard(board: MatchScoreboard) -> void:
+	scoreboard = board
+
+
 func reset() -> void:
 	shootout_outcome_counter = 0
 	shootout_last_phase = -1
@@ -47,6 +47,8 @@ func reset() -> void:
 		shootout_layer.visible = false
 	if shootout_banner != null:
 		shootout_banner.visible = false
+	if shootout_dots != null:
+		shootout_dots.set_results([], [])
 	if shootout_fade_tween != null and shootout_fade_tween.is_valid():
 		shootout_fade_tween.kill()
 	if shootout_fade != null:
@@ -54,24 +56,20 @@ func reset() -> void:
 
 
 func update(snap: Dictionary, delta: float) -> void:
-	var active := bool(snap.get("shootout_active", false))
+	var active := bool(snap.get("shootout_active", false)) \
+		and not bool(snap.get("paused", false))
 	shootout_layer.visible = active
 	if not active:
 		return
 
 	var kicks0: Array = snap.get("shootout_kicks0", [])
 	var kicks1: Array = snap.get("shootout_kicks1", [])
-	var count := maxi(5, maxi(kicks0.size(), kicks1.size()))
-	_ensure_circles(0, count)
-	_ensure_circles(1, count)
-	for team in [0, 1]:
-		var results: Array = kicks0 if team == 0 else kicks1
-		for i in shootout_circles[team].size():
-			var value := int(results[i]) if i < results.size() else 0
-			var panel: Panel = shootout_circles[team][i]
-			var style := panel.get_theme_stylebox("panel") as StyleBoxFlat
-			if style != null:
-				style.bg_color = CIRCLE_COLORS.get(value, CIRCLE_COLORS[0])
+	if scoreboard != null:
+		shootout_dots.position = scoreboard.position \
+			+ Vector2(0.0, scoreboard.size.y + 8.0)
+		shootout_dots.set_row_lefts(scoreboard.team_outer_edge_x(0),
+			scoreboard.team_outer_edge_x(1) - ShootoutDots.WIDTH)
+	shootout_dots.set_results(kicks0, kicks1)
 
 	var counter := int(snap.get("shootout_outcome_counter", 0))
 	if counter != shootout_outcome_counter:
@@ -102,23 +100,6 @@ func update(snap: Dictionary, delta: float) -> void:
 		_fade_to(0.0, 0.4)
 
 
-func _ensure_circles(team: int, count: int) -> void:
-	var row: HBoxContainer = shootout_home_row if team == 0 else shootout_away_row
-	var circles: Array = shootout_circles[team]
-	while circles.size() < count:
-		var panel := Panel.new()
-		panel.custom_minimum_size = Vector2(CIRCLE_SIZE, CIRCLE_SIZE)
-		var style := StyleBoxFlat.new()
-		style.bg_color = CIRCLE_COLORS[0]
-		style.set_corner_radius_all(int(CIRCLE_SIZE * 0.5))
-		style.set_border_width_all(2)
-		style.border_color = Color(0, 0, 0, 0.7)
-		panel.add_theme_stylebox_override("panel", style)
-		row.add_child(panel)
-		circles.append(panel)
-	shootout_circles[team] = circles
-
-
 func _fade_to(alpha: float, duration: float = FADE_TIME) -> void:
 	if shootout_fade_tween != null and shootout_fade_tween.is_valid():
 		shootout_fade_tween.kill()
@@ -139,27 +120,9 @@ func _build_ui() -> void:
 	shootout_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
 	shootout_layer.add_child(shootout_fade)
 
-	shootout_home_row = HBoxContainer.new()
-	shootout_home_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	shootout_home_row.add_theme_constant_override("separation", 10)
-	# Full-width row with a fixed height: the bare center anchor + offset left
-	# the away row's top at the viewport edge, so it was rendered off-screen.
-	shootout_home_row.anchor_left = 0.0
-	shootout_home_row.anchor_right = 1.0
-	shootout_home_row.offset_top = 18
-	shootout_home_row.offset_bottom = 18 + CIRCLE_SIZE
-	shootout_layer.add_child(shootout_home_row)
-
-	shootout_away_row = HBoxContainer.new()
-	shootout_away_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	shootout_away_row.add_theme_constant_override("separation", 10)
-	shootout_away_row.anchor_left = 0.0
-	shootout_away_row.anchor_right = 1.0
-	shootout_away_row.anchor_top = 1.0
-	shootout_away_row.anchor_bottom = 1.0
-	shootout_away_row.offset_top = -18 - CIRCLE_SIZE
-	shootout_away_row.offset_bottom = -18
-	shootout_layer.add_child(shootout_away_row)
+	shootout_dots = ShootoutDots.new()
+	shootout_dots.position = DOTS_POS
+	shootout_layer.add_child(shootout_dots)
 
 	shootout_banner = Label.new()
 	shootout_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

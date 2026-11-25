@@ -39,11 +39,13 @@ func _run() -> void:
 	hud.set_match_package({
 		"home": {
 			"database_id": 3,
+			"short_name": "UNAM Pumas",
 			"logo_url": "databases/default/images_teams/3.png",
 			"color1": Vector3(0.2, 0.3, 0.9),
 		},
 		"away": {
 			"database_id": 8,
+			"short_name": "Atlas Guadalajara",
 			"logo_url": "databases/default/images_teams/8.png",
 			"color1": Vector3(0.9, 0.2, 0.2),
 		},
@@ -59,6 +61,10 @@ func _run() -> void:
 		"both crests come from the match package")
 	_check(board.home_crest != null and board.home_crest.get_image().has_mipmaps(),
 		"crests are mipmapped so the 180 px originals stay clean at 30 px")
+	_check(board.home_code == "UNA" and board.away_code == "ATL",
+		"the scoreboard shows a three-letter team code")
+	_check(board.team_outer_edge_x(0) < board.team_outer_edge_x(1),
+		"the home and away blocks sit on opposite sides")
 	_check(board.visible, "the scoreboard is up in open play")
 
 	# Red cards hang below the plate and push the dev legend down.

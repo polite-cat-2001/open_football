@@ -13,6 +13,10 @@ const DIVIDER_GAP := 12.0
 const CLOCK_W := 70.0
 const SCORE_SIZE := 26
 const CLOCK_SIZE := 26
+const CODE_W := 34.0
+const CODE_SIZE := 15
+const TEAM_GAP := 6.0
+const TEAM_BLOCK := CREST + TEAM_GAP + CODE_W
 const CARD_W := 9.0
 const CARD_H := 14.0
 const CARD_GAP := 3.0
@@ -25,11 +29,14 @@ var red_cards0 := 0
 var red_cards1 := 0
 var home_crest: Texture2D
 var away_crest: Texture2D
+var home_code := ""
+var away_code := ""
 var home_tint := Color(0.96, 0.97, 0.98, 0.14)
 var away_tint := Color(0.96, 0.97, 0.98, 0.14)
 
 var _score_font: Font = UiTheme.barlow(800)
 var _clock_font: Font = UiTheme.barlow(800)
+var _code_font: Font = UiTheme.barlow(700)
 var _plate := StyleBoxFlat.new()
 
 
@@ -38,7 +45,8 @@ func _ready() -> void:
 	# The crests are 180 px originals drawn at 30 px; mipmaps keep them from
 	# aliasing into noise.
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	size = Vector2(PAD * 2 + CREST * 2 + SCORE_W + GAP * 2 + DIVIDER_GAP * 2 + CLOCK_W, PLATE_H)
+	size = Vector2(PAD * 2 + TEAM_BLOCK * 2 + GAP * 2 + SCORE_W
+		+ DIVIDER_GAP * 2 + 1 + CLOCK_W, PLATE_H)
 	_plate.bg_color = Color(UiTokens.FOCUS_FILL, 0.92)
 	_plate.set_corner_radius_all(6)
 	_plate.border_width_bottom = 3
@@ -51,8 +59,17 @@ func set_teams(home: Dictionary, away: Dictionary) -> void:
 	away_crest = UiAssets.package_crest(away)
 	home_tint = _tint(home)
 	away_tint = _tint(away)
+	home_code = _code_for(home)
+	away_code = _code_for(away)
 	queue_redraw()
 
+
+# Dots edges: the left group starts at the plate's left edge, the right group
+# ends at the vertical divider before the clock.
+func team_outer_edge_x(team: int) -> float:
+	if team == 0:
+		return 0.0
+	return size.x - PAD - CLOCK_W - DIVIDER_GAP - 1.0
 
 func apply(new_score0: int, new_score1: int, new_clock: String) -> void:
 	if new_score0 == score0 and new_score1 == score1 and new_clock == clock_text:
@@ -79,17 +96,48 @@ func _draw() -> void:
 	_draw_cards(red_cards1, false)
 	var x := PAD
 	_draw_crest(home_crest, home_tint, Rect2(x, (PLATE_H - CREST) * 0.5, CREST, CREST))
-	x += CREST + GAP
+	x += CREST + TEAM_GAP
+	_draw_code(home_code, x)
+	x += CODE_W + GAP
 	draw_string(_score_font, Vector2(x, _baseline(_score_font, SCORE_SIZE)),
 		"%d - %d" % [score0, score1], HORIZONTAL_ALIGNMENT_CENTER, SCORE_W,
 		SCORE_SIZE, UiTokens.FOCUS_INK)
 	x += SCORE_W + GAP
+	_draw_code(away_code, x)
+	x += CODE_W + TEAM_GAP
 	_draw_crest(away_crest, away_tint, Rect2(x, (PLATE_H - CREST) * 0.5, CREST, CREST))
 	x += CREST + DIVIDER_GAP
 	draw_line(Vector2(x, 8.0), Vector2(x, PLATE_H - 8.0), Color(UiTokens.FOCUS_INK, 0.18), 1.0)
 	x += DIVIDER_GAP
 	draw_string(_clock_font, Vector2(x, _baseline(_clock_font, CLOCK_SIZE)),
 		clock_text, HORIZONTAL_ALIGNMENT_CENTER, CLOCK_W, CLOCK_SIZE, UiTokens.FOCUS_INK)
+
+
+func _draw_code(code: String, x: float) -> void:
+	if code.is_empty():
+		return
+	draw_string(_code_font, Vector2(x, _baseline(_code_font, CODE_SIZE)), code,
+		HORIZONTAL_ALIGNMENT_CENTER, CODE_W, CODE_SIZE, UiTokens.FOCUS_INK)
+
+
+# Broadcast three-letter code; the database has no code column, so take the
+# first three letters of the short name (FC Barcelona -> FCB) and fall back to
+# the full name when the short name is shorter (UP -> UNA for UNAM Pumas).
+func _code_for(team: Dictionary) -> String:
+	var letters := _letters(str(team.get("short_name", "")))
+	if letters.length() < 3:
+		letters = _letters(str(team.get("name", "")))
+	return letters.substr(0, 3)
+
+
+func _letters(value: String) -> String:
+	var letters := ""
+	var source := value.strip_edges().to_upper()
+	for i in source.length():
+		var ch := source.substr(i, 1)
+		if (ch >= "A" and ch <= "Z") or (ch >= "0" and ch <= "9"):
+			letters += ch
+	return letters
 
 
 func _tint(team: Dictionary) -> Color:

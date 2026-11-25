@@ -996,6 +996,9 @@ func _check_retired_player_visible() -> void:
 	var index := _find_entry(panel, 6)
 	_check(index >= 0 and _group(panel, 6) == "bench",
 		"the substituted-out player is still listed on the bench")
+	var listed_bench: Array = panel["bench_entries"]
+	_check(not listed_bench.is_empty() and int(listed_bench[-1]) == index,
+		"the unavailable player is moved to the end of the bench list")
 	_check(index >= 0
 		and not bool((panel["entries"] as Array)[index].get("selectable", true)),
 		"the substituted-out player is not selectable")
