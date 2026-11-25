@@ -291,9 +291,16 @@ static func _interzonal(group_a: Array, group_b: Array, rounds: int,
 static func _schedule(ids: Array, start_date: String, end_date: String,
 		stage: Dictionary, prefix: String, rules: Array, scope: String,
 		dates: Array = []) -> Array:
+	var rounds = stage.get("rounds")
+	if dates.is_empty() and (rounds is int or rounds is float) and int(rounds) > 0:
+		# A split season plays 17 rounds of the 34 a double round-robin holds, so
+		# the dates are spread over its own rounds: otherwise half a season is
+		# squeezed into twice as many match days and every club plays every other
+		# day.
+		dates = CareerCalendar.round_dates(start_date, end_date, int(rounds),
+			rules, scope)
 	var fixtures := CareerFactory.build_schedule(ids, start_date, end_date, rules,
 		scope, dates)
-	var rounds = stage.get("rounds")
 	if rounds is int or rounds is float:
 		var limit := int(rounds)
 		var filtered: Array = []

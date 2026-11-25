@@ -12,6 +12,8 @@ const CASES := [
 	{"league": "BRA1", "label": "Brazil"},
 	{"league": "JAP1", "label": "Japan"},
 	{"league": "SA1", "label": "Saudi Arabia"},
+	{"league": "MEXA", "label": "Liga MX Apertura"},
+	{"league": "EGY1", "label": "Egypt"},
 	{"club": "6502", "label": "an AFC club"},
 	{"club": "583", "label": "a UEFA club"},
 ]

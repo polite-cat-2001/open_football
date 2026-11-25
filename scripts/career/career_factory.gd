@@ -172,7 +172,7 @@ static func build_schedule(club_ids: Array, start_date := Career.START_DATE,
 	if not str(end_date).is_empty():
 		span = CareerSeason.days_between(start_date, str(end_date))
 	var planned := dates
-	if planned.size() < total_rounds:
+	if planned.is_empty():
 		planned = _round_dates(start_date, str(end_date), total_rounds, rules, scope)
 	for half in [0, 1]:
 		for round_index in range(rounds.size()):
