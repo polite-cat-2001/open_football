@@ -2,7 +2,9 @@ extends SceneTree
 # Headless golden check for the single dated tick (CareerAdvance): the ordered
 # incoming/world/contract/negotiation steps, the markers that make a repeated
 # tick empty, and the hub notices it returns.
-# Fixtures come from the prototype app (tmp/oracle_career_l2.py).
+# Fixtures come from the prototype app (tmp/oracle_career_l2.py). The offer part
+# depends on the whole club pool, so it goes stale after a league import: rebuild
+# it with `godot --headless --path . -s res://tests/regen_advance_tick_golden.gd`.
 #
 # Run:  godot --headless --path . -s res://tests/check_career_advance_tick.gd
 
