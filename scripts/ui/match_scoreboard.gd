@@ -13,10 +13,16 @@ const DIVIDER_GAP := 12.0
 const CLOCK_W := 70.0
 const SCORE_SIZE := 26
 const CLOCK_SIZE := 26
+const CARD_W := 9.0
+const CARD_H := 14.0
+const CARD_GAP := 3.0
+const CARD_STRIP := 17.0
 
 var score0 := 0
 var score1 := 1
 var clock_text := "00:00"
+var red_cards0 := 0
+var red_cards1 := 0
 var home_crest: Texture2D
 var away_crest: Texture2D
 var home_tint := Color(0.96, 0.97, 0.98, 0.14)
@@ -57,8 +63,20 @@ func apply(new_score0: int, new_score1: int, new_clock: String) -> void:
 	queue_redraw()
 
 
+func set_cards(new_red0: int, new_red1: int) -> void:
+	if new_red0 == red_cards0 and new_red1 == red_cards1:
+		return
+	red_cards0 = new_red0
+	red_cards1 = new_red1
+	# Cards hang below the plate; the control grows so they never cover a crest.
+	size.y = PLATE_H + (CARD_STRIP if red_cards0 + red_cards1 > 0 else 0.0)
+	queue_redraw()
+
+
 func _draw() -> void:
-	draw_style_box(_plate, Rect2(Vector2.ZERO, size))
+	draw_style_box(_plate, Rect2(0.0, 0.0, size.x, PLATE_H))
+	_draw_cards(red_cards0, true)
+	_draw_cards(red_cards1, false)
 	var x := PAD
 	_draw_crest(home_crest, home_tint, Rect2(x, (PLATE_H - CREST) * 0.5, CREST, CREST))
 	x += CREST + GAP
@@ -102,3 +120,15 @@ func _draw_crest(texture: Texture2D, tint: Color, rect: Rect2) -> void:
 	var scale := minf(rect.size.x / source.x, rect.size.y / source.y)
 	var drawn := source * scale
 	draw_texture_rect(texture, Rect2(rect.position + (rect.size - drawn) * 0.5, drawn), false)
+
+
+func _draw_cards(count: int, home: bool) -> void:
+	var shown := mini(count, 5)
+	if shown <= 0:
+		return
+	var width := shown * CARD_W + (shown - 1) * CARD_GAP
+	var start := PAD if home else size.x - PAD - width
+	for i in shown:
+		var card := Rect2(start + i * (CARD_W + CARD_GAP), PLATE_H + 2.0, CARD_W, CARD_H)
+		draw_rect(card, Color(0.92, 0.13, 0.16), true)
+		draw_rect(card, Color(0, 0, 0, 0.65), false, 1.0)

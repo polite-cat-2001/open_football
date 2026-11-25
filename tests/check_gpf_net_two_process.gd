@@ -7,6 +7,7 @@ extends SceneTree
 
 const DATA_ROOT := "C:/Users/Egor/Desktop/projects/GameplayFootball-of_port/data"
 const MatchPackageFixture := preload("res://tests/match_package_fixture.gd")
+const GpfHudScript := preload("res://scripts/match/gpf_hud.gd")
 const CLIENT_SCRIPT := "res://tests/gpf_net_client_probe.gd"
 const PORT_FIRST := 27951
 const PORT_TRIES := 20
@@ -384,6 +385,29 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		return
 	_check(true, "the client is rendering the live match")
 
+	# Red card relay (protocol v23): a second yellow on the home goalkeeper.
+	# Process the send-off before the message so its caption does not overwrite
+	# the goal announcement; the client's message snapshot then carries the card.
+	runtime.debug_give_yellow_card(0, true)
+	runtime.debug_give_yellow_card(0, true)
+	runtime.step_fixed(10)
+	var red_snap: Dictionary = runtime.get_snapshot()
+	var host_red_ids: Array = red_snap.get("red_card_ids0", [])
+	_check(int(red_snap.get("red_cards0", 0)) == 1,
+		"the host records the second-yellow red card")
+	var host_home_active := 0
+	for player in runtime.get_squad(0).get("players", []):
+		if bool(player.get("active", false)):
+			host_home_active += 1
+	_check(host_home_active == 10,
+		"the host has 10 active home players after the second yellow")
+	var host_home_goalie := false
+	for entry in runtime.get_player_ids():
+		if int(entry.get("team", -1)) == 0 and String(entry.get("role", "")) == "goalkeeper":
+			host_home_goalie = true
+	_check(host_home_goalie,
+		"the host has a home goalkeeper after the dismissal (ids=%s)" % [runtime.get_player_ids()])
+
 	# Relay an on-screen message through Match::SpamMessage while the client is
 	# live. A real forced goal would leave the host in a kickoff (the later
 	# penalty stage needs open play); the relay is the same snapshot path.
@@ -505,6 +529,41 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		not bool(pre_penalty.get("in_set_piece", true)),
 		"the host is in open play before the forced penalty")
 	runtime.debug_force_set_piece(6, 1)
+	var host_penalty_snap: Dictionary = runtime.get_snapshot()
+	for attempt in 600:
+		if bool(host_penalty_snap.get("in_set_piece", false)) \
+				and int(host_penalty_snap.get("set_piece_type", 0)) == 6:
+			break
+		runtime.step_fixed(5)
+		host_penalty_snap = runtime.get_snapshot()
+	_check(bool(host_penalty_snap.get("in_set_piece", false)),
+		"the host reached the live client penalty")
+	var host_ids: Array = runtime.get_human_player_ids()
+	var host_display := int(host_ids[0]) if not host_ids.is_empty() else -1
+	var host_hud: GpfHud = GpfHudScript.new()
+	get_root().add_child(host_hud)
+	host_hud.setup(runtime)
+	host_hud.apply_snapshot(host_penalty_snap, host_display, 22, false, "Afternoon")
+	var host_legend := host_hud.get("hud") as Label
+	var host_status := String(host_legend.text).get_slice("\n", 0) if host_legend != null else ""
+	var host_taker := int(host_penalty_snap.get("set_piece_taker", -1))
+	_check(host_taker > 0 and int(host_penalty_snap.get("referee_team", -1)) == 1,
+		"the host knows the client's penalty taker")
+	_check(not bool(host_penalty_snap.get("set_piece_human_taker", true)),
+		"the host is not the client's penalty taker")
+	_check(host_legend != null and host_status.contains("keeper"),
+		"the host defending the penalty gets the dive hint (status='%s' human_team=%s ref_team=%s piece=%s in_set=%s type=%s role=%s display=%s ids=%s)" % [
+			host_status, runtime.get_human_team_id(),
+			int(host_penalty_snap.get("referee_team", -1)),
+			int(host_penalty_snap.get("referee_set_piece", -1)),
+			bool(host_penalty_snap.get("in_set_piece", false)),
+			int(host_penalty_snap.get("set_piece_type", -1)),
+			int(host_penalty_snap.get("set_piece_role", -1)),
+			host_display, host_ids])
+	_check(not host_status.contains("S pass / D shot")
+		and not host_status.contains("arrows aim"),
+		"the host HUD does not ask the host to take the client's penalty")
+	host_hud.queue_free()
 
 	var got_result := _wait_until(_poll_client_result.bind(result_path), 30000, 50)
 
@@ -565,6 +624,26 @@ func _run(port: int, pid: int, result_path: String, running_path: String,
 		"the client message carries its display duration")
 	_check(bool(client_result.get("hud_message_visible", false)),
 		"the client HUD shows the relayed message")
+	_check(int(client_result.get("red_cards0", 0)) == 1,
+		"the client got the relayed red card")
+	var client_red_ids: Array = client_result.get("red_card_ids0", [])
+	_check(client_red_ids.size() == host_red_ids.size()
+		and (client_red_ids.is_empty() or int(client_red_ids[0]) == int(host_red_ids[0])),
+		"the relayed red-card id matches the host")
+	_check(int(client_result.get("board_red_cards0", -1)) == 1,
+		"the client scoreboard shows the red card")
+	_check(int(client_result.get("home_active", -1)) == 10,
+		"the client deactivated the sent-off player")
+	_check(bool(client_result.get("home_goalie", false)),
+		"the client has a home goalkeeper after the dismissal (ids=%s)" % [
+			client_result.get("home_ids", [])])
+	_check(String(client_result.get("penalty_status", "")).begins_with("PENALTY")
+		and not String(client_result.get("penalty_status", "")).contains("keeper"),
+		"the client's own penalty does not show the dive hint")
+	_check(int(client_result.get("set_piece_taker", -1)) > 0,
+		"the client knows its penalty taker")
+	_check(String(client_result.get("hud_status", "")).begins_with("LIVE"),
+		"the client status line is LIVE during open play")
 	_check(int(client_result.get("game_plan_fatigue", -1)) >= 0,
 		"the client Game Plan sees player fatigue")
 	_check(bool(client_result.get("referee_cards_present", false)),

@@ -59,71 +59,79 @@ func _check_synthetic_hud() -> void:
 	var base := _synthetic_snapshot()
 	hud.apply_snapshot(base, 7, 22, false, "Afternoon")
 	await process_frame
-	var message := hud.get("message_label") as Label
-	_check(message != null and not message.visible,
+	var banner := hud.get("event_banner") as EventBanner
+	_check(banner != null and not banner.is_presented(),
 		"the first snapshot is a baseline: an old message is not replayed")
-	_check(message != null and is_equal_approx(message.anchor_top, 0.085)
-		and is_equal_approx(message.anchor_left, 0.05),
-		"the message sits top-centre under the score line")
 
 	var counter_snap := base.duplicate(true)
 	counter_snap["spam_message_counter"] = 4
-	counter_snap["spam_message"] = "FOUL! YELLOW CARD"
+	counter_snap["spam_message"] = "foul! yellow card"
 	counter_snap["actual_time_ms"] = 2000
 	counter_snap["spam_message_time_ms"] = 3000
 	hud.apply_snapshot(counter_snap, 7, 22, false, "Afternoon")
-	_check(message.visible and message.text == "FOUL! YELLOW CARD",
-		"a new counter shows the message text")
+	_check(banner.is_presented() and banner.text == "Foul! Yellow card",
+		"the original lowercase caption is shown in sentence case")
+	_check(banner.card == "yellow", "a card message shows the yellow card chip")
+	var view := hud.get_viewport().get_visible_rect().size
+	_check(is_equal_approx(banner.position.y, roundf(view.y * 0.855)),
+		"the event banner sits low on the screen")
 	var legend := hud.get("hud") as Label
-	_check(legend != null and legend.position.y >= 130.0,
-		"the dev legend moves below an active message")
+	_check(legend != null and legend.position.y == 64.0,
+		"the dev legend stays at the top while the banner is up")
 
 	var same_counter := counter_snap.duplicate(true)
 	same_counter["spam_message"] = "SHOULD NOT REPLACE"
 	same_counter["actual_time_ms"] = 3000
 	hud.apply_snapshot(same_counter, 7, 22, false, "Afternoon")
-	_check(message.visible and message.text == "FOUL! YELLOW CARD",
+	_check(banner.is_presented() and banner.text == "Foul! Yellow card",
 		"the same counter never duplicates or replaces the message")
-
 	var shootout := same_counter.duplicate(true)
 	shootout["shootout_active"] = true
 	hud.apply_snapshot(shootout, 7, 22, false, "Afternoon")
-	_check(not message.visible, "the shootout circle rows suppress the message")
+	_check(not banner.is_presented(), "the shootout circle rows suppress the message")
 	shootout["shootout_active"] = false
 	hud.apply_snapshot(shootout, 7, 22, false, "Afternoon")
-	_check(message.visible, "the message returns after the shootout")
+	_check(banner.is_presented(), "the message returns after the shootout")
 
 	var expired := same_counter.duplicate(true)
 	expired["actual_time_ms"] = 5001
 	hud.apply_snapshot(expired, 7, 22, false, "Afternoon")
-	_check(not message.visible, "the message hides on actual_time_ms + duration")
+	_check(not banner.is_presented(), "the message hides on actual_time_ms + duration")
 	_check(legend != null and legend.position.y == 64.0,
-		"the dev legend returns once the message is gone")
+		"the dev legend stays put once the message is gone")
 
 	counter_snap["actual_time_ms"] = 6000
 	counter_snap["spam_message_counter"] = 5
 	counter_snap["spam_message"] = ""
 	hud.apply_snapshot(counter_snap, 7, 22, false, "Afternoon")
-	_check(not message.visible, "an empty relayed message does not show a caption")
+	_check(not banner.is_presented(), "an empty relayed message does not show a caption")
+
+	var adv := counter_snap.duplicate(true)
+	adv["spam_message_counter"] = 7
+	adv["spam_message"] = "advantage"
+	adv["actual_time_ms"] = 6100
+	hud.apply_snapshot(adv, 7, 22, false, "Afternoon")
+	_check(not banner.is_presented(), "the debug advantage notice is not shown")
 
 	var updated := base.duplicate(true)
 	updated["spam_message_counter"] = 6
-	updated["spam_message"] = "RED CARD!"
+	updated["spam_message"] = "foul! red card!!!"
 	updated["actual_time_ms"] = 7000
 	updated["substitution_notice_counter"] = 1
 	updated["substitution_notices"] = ["Jones off, Brown on"]
 	hud.apply_snapshot(updated, 7, 22, false, "Afternoon")
+	_check(banner.is_presented() and banner.card == "red", "a red card message shows the red chip")
+	_check(banner.text == "Foul! Red card", "repeated exclamation marks collapse to one")
 	var sub_notice := hud.get("substitution_notice") as Label
 	_check(sub_notice != null and sub_notice.visible
 		and sub_notice.text == "Jones off, Brown on",
 		"the substitution banner still works next to the message")
 
 	hud.reset()
-	_check(not message.visible and message.text == "",
-		"reset hides and clears the message")
+	_check(not banner.is_presented(), "reset hides the message")
 	_check(not sub_notice.visible, "reset hides the substitution banner")
 	hud.apply_snapshot(updated, 7, 22, false, "Afternoon")
-	_check(not message.visible,
+	_check(not banner.is_presented(),
 		"after reset the next snapshot is a new baseline (F4/new match)")
 	hud.queue_free()
 
@@ -187,12 +195,17 @@ func _check_bridge_messages() -> void:
 		and not bool((snap.get("referee_cards", {}).get("yellow", {})).get("visible", true))
 		and not bool((snap.get("referee_cards", {}).get("red", {})).get("visible", true)),
 		"the fresh match has no referee card")
+	_check(snap.has("red_cards0") and snap.has("red_cards1")
+		and snap.has("red_card_ids0") and snap.has("red_card_ids1")
+		and int(snap.get("red_cards0", -1)) == 0 and int(snap.get("red_cards1", -1)) == 0,
+		"the fresh match has no red cards")
 	_check(snap.has("referee_cards")
 		and (snap.get("referee_cards", {}).get("yellow", {}) as Dictionary).has("pos")
 		and (snap.get("referee_cards", {}).get("yellow", {}) as Dictionary).has("raised")
 		and (snap.get("referee_cards", {}).get("red", {}) as Dictionary).has("rot"),
 		"the bridge relays both referee card transforms")
-	var message := hud.get("message_label") as Label
+	var banner := hud.get("event_banner") as EventBanner
+	hud.set_match_package(package)
 
 	runtime.debug_set_ball(
 		Vector3(-54.6 * int(snap.get("team0_side", 1)), 3.4, 1.2),
@@ -202,7 +215,7 @@ func _check_bridge_messages() -> void:
 	for attempt in 400:
 		runtime.step_fixed(5)
 		goal_snap = runtime.get_snapshot()
-		if String(goal_snap.get("spam_message", "")) != "":
+		if bool(goal_snap.get("goal_scored", false)):
 			break
 	var goal_text := String(goal_snap.get("spam_message", ""))
 	var goal_counter := int(goal_snap.get("spam_message_counter", 0))
@@ -212,18 +225,32 @@ func _check_bridge_messages() -> void:
 		"the bridge relays the message duration")
 	_check(not goal_snap.has("player_condition"),
 		"the bridge sends no in-match fatigue/card block")
+	var scorer_id := int(goal_snap.get("last_goal_scorer", -1))
+	_check(scorer_id > 0, "the bridge relays the last goal scorer id")
+	var scorer_name := ""
+	for side in ["home", "away"]:
+		for player in package.get(side, {}).get("players", []):
+			if int(player.get("database_id", -1)) == scorer_id:
+				scorer_name = str(player.get("last_name", ""))
+	_check(not scorer_name.is_empty(),
+		"the goal scorer id resolves to a package player")
 
 	hud.apply_snapshot(goal_snap, controlled, 22, false, "Afternoon")
-	_check(message.visible and message.text == goal_text,
-		"the HUD shows the real goal message")
+	_check(banner.is_presented() and banner.goal and banner.title == "GOAL"
+		and banner.text == scorer_name,
+		"the goal banner shows GOAL and the scorer")
 	_check(hud.get("condition_panel") == null,
 		"the HUD never grew a fatigue/card block")
 
-	runtime.step_fixed(600)
-	var later: Dictionary = runtime.get_snapshot()
-	hud.apply_snapshot(later, controlled, 22, false, "Afternoon")
-	_check(not message.visible, "the real message expires on match time")
+	var kickoff: Dictionary = goal_snap
+	for attempt in 1200:
+		runtime.step_fixed(5)
+		kickoff = runtime.get_snapshot()
+		if not bool(kickoff.get("goal_scored", false)):
+			break
+	hud.apply_snapshot(kickoff, controlled, 22, false, "Afternoon")
+	_check(not banner.is_presented(), "the goal banner ends when play restarts")
 	hud.reset()
-	_check(not message.visible, "reset hides the real message")
+	_check(not banner.is_presented(), "reset hides the real message")
 	hud.queue_free()
 	runtime.stop_match()

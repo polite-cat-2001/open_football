@@ -246,6 +246,7 @@ public:
     // raw X = pitch length, raw Y = pitch width, raw Z = up.
     void debug_set_ball(const Vector3 &position, const Vector3 &momentum);
     void debug_set_last_touch_team(int team_id);
+    void debug_give_yellow_card(int team_id, bool prefer_goalie = false);
     // Test hook: feed Match::SpamMessage directly. The relay to a thin client
     // is the same one a real goal/referee call uses (snapshot message/counter),
     // without forcing a goal that would leave the match in a kickoff.

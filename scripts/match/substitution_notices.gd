@@ -25,6 +25,10 @@ static func changed_ids(previous: Dictionary, current: Dictionary) -> Dictionary
 
 static func build_lines(previous: Dictionary, current: Dictionary) -> Array:
 	var changed := changed_ids(previous, current)
+	# A send-off and an applied substitution can land in the same frame; only the
+	# 1:1 case can be paired into "X off, Y on" (the C++ relay covers the rest).
+	if changed["out"].size() != changed["in"].size():
+		return []
 	var out_names: Array = []
 	var in_names: Array = []
 	for id in changed["out"]:

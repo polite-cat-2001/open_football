@@ -108,6 +108,15 @@ func _active_ids(team_id: int) -> Array:
 	return ids
 
 
+func _active_count(team_id: int) -> int:
+	var count := 0
+	var squad: Dictionary = runtime.get_squad(team_id)
+	for player in squad.get("players", []):
+		if bool(player.get("active", false)):
+			count += 1
+	return count
+
+
 func _poll_connected() -> bool:
 	var info: Dictionary = runtime.net_lobby()
 	probe_result["local_id"] = info.get("local_id", -1)
@@ -145,13 +154,19 @@ func _poll_spam_message(baseline: int) -> bool:
 	last_snapshot = runtime.get_snapshot()
 	_apply_probe_hud(last_snapshot)
 	return int(last_snapshot.get("spam_message_counter", 0)) > baseline \
-		and String(last_snapshot.get("spam_message", "")) != ""
+		and String(last_snapshot.get("spam_message", "")).begins_with("GOAL")
 
 
 func _poll_paused() -> bool:
 	runtime.step_fixed(10)
 	last_snapshot = runtime.get_snapshot()
 	return bool(last_snapshot.get("paused", false))
+
+
+func _poll_red_card() -> bool:
+	runtime.step_fixed(10)
+	last_snapshot = runtime.get_snapshot()
+	return int(last_snapshot.get("red_cards0", 0)) > 0
 
 
 func _poll_resumed() -> bool:
@@ -281,6 +296,7 @@ func _run(address: String, port: int, running_marker: String = "",
 	hud.name = "ProbeHud"
 	get_root().add_child(hud)
 	hud.setup(runtime)
+	hud.set_net_client(bool(runtime.is_net_client()))
 
 	probe_result["stage"] = "remote-match"
 	var saw_remote := _wait_until(_poll_remote, 20000)
@@ -366,12 +382,17 @@ func _run(address: String, port: int, running_marker: String = "",
 				"the relayed message is the goal announcement: " + message_text)
 			_check(int(message_snap.get("spam_message_time_ms", 0)) > 0,
 				"the relayed message carries its display duration")
-			var message_label := hud.get("message_label") as Label
-			probe_result["hud_message_visible"] = message_label != null and message_label.visible
-			probe_result["hud_message_text"] = message_label.text if message_label != null else ""
-			_check(message_label != null and message_label.visible
-				and message_label.text == message_text,
-				"the client HUD shows the relayed message")
+			var banner: Node = hud.get("event_banner")
+			probe_result["hud_message_visible"] = banner != null and banner.visible
+			probe_result["hud_message_text"] = String(banner.get("text")) if banner != null else ""
+			var banner_text := String(banner.get("text")) if banner != null else ""
+			_check(banner != null and banner.visible
+				and banner_text.to_lower().begins_with("goal")
+				and banner_text.contains("Test scorer"),
+				"the client HUD shows the relayed event (text='%s')" % banner_text)
+			var legend := hud.get("hud") as Label
+			probe_result["hud_status"] = String(legend.text).get_slice("\n", 0) \
+				if legend != null else ""
 			# In-match fatigue is not drawn (original fidelity); the Game Plan
 			# reads it from get_squad() and must have valid values on the client.
 			var plan_fatigue := -1
@@ -392,6 +413,24 @@ func _run(address: String, port: int, running_marker: String = "",
 		if not _check(saw_pause, "client did not see the host pause"):
 			return false
 		_write_marker(pause_marker, "paused")
+		# Red card relay: the host gives it just before the pause; wait for the
+		# first snapshot that carries it (the pause can arrive via a message
+		# before the next state snapshot).
+		_check(_wait_until(_poll_red_card, 10000),
+			"client did not see the relayed red card")
+		_apply_probe_hud(last_snapshot)
+		probe_result["red_cards0"] = int(last_snapshot.get("red_cards0", 0))
+		probe_result["red_card_ids0"] = last_snapshot.get("red_card_ids0", [])
+		var red_board := hud.get("scoreboard") as MatchScoreboard
+		probe_result["board_red_cards0"] = red_board.red_cards0 if red_board != null else -1
+		probe_result["home_active"] = _active_count(0)
+		var home_goalie := false
+		for entry in runtime.get_player_ids():
+			if int(entry.get("team", -1)) == 0 \
+					and String(entry.get("role", "")) == "goalkeeper":
+				home_goalie = true
+		probe_result["home_goalie"] = home_goalie
+		probe_result["home_ids"] = runtime.get_player_ids()
 		# Wait for the host vote: one vote alone must not resume the match.
 		if not _check(_wait_until(_file_exists.bind(host_vote_marker), 15000),
 				"client did not see the host resume vote"):
@@ -478,10 +517,15 @@ func _run(address: String, port: int, running_marker: String = "",
 		var aim: Vector3 = penalty_snap.get("set_piece_aim_point", Vector3.ZERO)
 		probe_result["penalty_seen"] = penalty_seen
 		probe_result["penalty_role"] = penalty_snap.get("set_piece_role", -1)
+		probe_result["set_piece_taker"] = int(penalty_snap.get("set_piece_taker", -1))
 		probe_result["penalty_local_taker"] = penalty_snap.get("set_piece_local_taker", false)
 		probe_result["penalty_hud_player"] = penalty_snap.get("set_piece_hud_player", -1)
 		probe_result["penalty_human_id"] = int(runtime.get_human_player_id())
 		probe_result["penalty_aim_length"] = aim.length()
+		_apply_probe_hud(penalty_snap)
+		var penalty_legend := hud.get("hud") as Label
+		probe_result["penalty_status"] = String(penalty_legend.text).get_slice("\n", 0) \
+			if penalty_legend != null else ""
 		_check(penalty_seen, "client did not see the forced penalty")
 		_check(int(penalty_snap.get("set_piece_role", 0)) == 1,
 			"client is not the penalty kicker")

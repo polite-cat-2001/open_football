@@ -61,6 +61,22 @@ func _run() -> void:
 		"crests are mipmapped so the 180 px originals stay clean at 30 px")
 	_check(board.visible, "the scoreboard is up in open play")
 
+	# Red cards hang below the plate and push the dev legend down.
+	var cards := _snapshot()
+	cards["red_cards0"] = 1
+	cards["red_cards1"] = 2
+	hud.apply_snapshot(cards, 7, 22, false, "Afternoon")
+	var legend := hud.get("hud") as Label
+	_check(board.size.y == MatchScoreboard.PLATE_H + MatchScoreboard.CARD_STRIP,
+		"the scoreboard grows a strip for red cards")
+	_check(legend != null and legend.position.y == 64.0 + MatchScoreboard.CARD_STRIP,
+		"the dev legend moves below the red-card strip")
+	hud.apply_snapshot(_snapshot(), 7, 22, false, "Afternoon")
+	_check(board.size.y == MatchScoreboard.PLATE_H,
+		"the red-card strip disappears without cards")
+	_check(legend != null and legend.position.y == 64.0,
+		"the legend returns under the bare scoreboard")
+
 	var paused := _snapshot()
 	paused["paused"] = true
 	hud.apply_snapshot(paused, 7, 22, false, "Afternoon")

@@ -334,6 +334,7 @@ void GpfRuntimeNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_gamepad_axis", "slot", "axis", "value"), &GpfRuntimeNode::set_gamepad_axis);
     ClassDB::bind_method(D_METHOD("debug_set_ball", "position", "momentum"), &GpfRuntimeNode::debug_set_ball);
     ClassDB::bind_method(D_METHOD("debug_set_last_touch_team", "team_id"), &GpfRuntimeNode::debug_set_last_touch_team);
+    ClassDB::bind_method(D_METHOD("debug_give_yellow_card", "team_id", "prefer_goalie"), &GpfRuntimeNode::debug_give_yellow_card, DEFVAL(false));
     ClassDB::bind_method(D_METHOD("debug_spam_message", "text", "time_ms"), &GpfRuntimeNode::debug_spam_message);
     ClassDB::bind_method(D_METHOD("debug_force_set_piece", "set_piece_type", "team_id"), &GpfRuntimeNode::debug_force_set_piece);
     ClassDB::bind_method(D_METHOD("debug_force_shootout"), &GpfRuntimeNode::debug_force_shootout);
@@ -1522,9 +1523,12 @@ bool GpfRuntimeNode::is_local_human_player(Player *player) const {
     }
     // Local peer id is 0. Local 2P has both gamers owned by 0, so both teams'
     // selected players show; a LAN host only shows its own 0-owned selected
-    // player and hides the client's NetHIDDevice-owned one.
-    const int owner = team->GetControllingPeerId(player->GetID());
-    return owner >= 0 && owner == match->GetLocalPeerId();
+    // player and hides the client's NetHIDDevice-owned one. `player_owner_id`
+    // carries the 0 fallback for a local HumanGamer (GetControllingPeerId is -1).
+    const int owner = player_owner_id(player, team->GetID());
+    const int localPeer = match->GetLocalPeerId();
+    const int localId = localPeer >= 0 ? localPeer : 0;
+    return owner >= 0 && owner == localId;
 }
 
 int GpfRuntimeNode::player_owner_id(Player *player, int team_id) const {
@@ -1581,11 +1585,18 @@ int GpfRuntimeNode::get_human_team_id() const {
     if (!runtime_ready || !match) {
         return -1;
     }
+    // Derive from the same local-human list the HUD/actors use; the raw
+    // GetControllingPeerId is -1 for a local HumanGamer on the host.
+    const Array human_ids = get_human_player_ids();
+    if (human_ids.is_empty()) {
+        return -1;
+    }
+    const int human_id = (int)human_ids[0];
     for (int team_id = 0; team_id < 2; ++team_id) {
         std::vector<Player *> players;
         match->GetActiveTeamPlayers(team_id, players);
         for (size_t i = 0; i < players.size(); ++i) {
-            if (is_local_human_player(players[i])) {
+            if (players[i]->GetID() == human_id) {
                 return team_id;
             }
         }
@@ -1885,27 +1896,15 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["ended_in_regular_time"] = ended_in_regular_time;
     result["team0_side"] = (int)match->GetTeam(0)->GetSide();
     result["team1_side"] = (int)match->GetTeam(1)->GetSide();
-    Player *taker = match->GetTeam(0)->GetController()->GetPieceTaker();
-    result["set_piece_taker"] = taker ? taker->GetID() : -1;
-    result["set_piece_type"] = (int)match->GetTeam(0)->GetController()->GetSetPieceType();
     SetPiecePresentation *presentation = match->GetSetPiecePresentation();
-    // 2P: the HUD/aim data must describe the human whose team takes this set
-    // piece, not always the first human on the pitch.
+    Player *taker = presentation ? presentation->GetTaker() : nullptr;
+    result["set_piece_taker"] = taker ? taker->GetID() : -1;
+    result["set_piece_type"] = (int)match->GetSetPieceType();
+    // Prefer the local taker's HUD state (aim/role); otherwise the locally
+    // selected human describes the defender/keeper side.
     Player *hud_player = nullptr;
-    Player *set_piece_taker = presentation ? presentation->GetTaker() : nullptr;
-    if (!set_piece_taker) set_piece_taker = match->GetRefereeBuffer().taker;
-    if (set_piece_taker) {
-        Team *taker_team = set_piece_taker->GetTeam();
-        if (taker_team) {
-            std::vector<Player *> team_players;
-            match->GetActiveTeamPlayers(taker_team->GetID(), team_players);
-            for (size_t i = 0; i < team_players.size(); ++i) {
-                if (taker_team->IsHumanControlled(team_players[i]->GetID())) {
-                    hud_player = team_players[i];
-                    break;
-                }
-            }
-        }
+    if (presentation && presentation->IsLocalTaker()) {
+        hud_player = presentation->GetTaker();
     }
     if (!hud_player) {
         const int selected_id = get_human_player_id();
@@ -1916,8 +1915,7 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
         set_piece_hud = presentation->GetHudState(hud_player);
     }
     result["set_piece_hud_player"] = hud_player ? hud_player->GetID() : -1;
-    result["set_piece_human_taker"] = presentation && hud_player &&
-        presentation->GetTaker() == hud_player;
+    result["set_piece_human_taker"] = presentation && presentation->IsLocalTaker();
     result["presentation_type"] = presentation ? (int)presentation->GetType() : 0;
     result["set_piece_role"] = (int)set_piece_hud.role;
     result["set_piece_aim_point"] = to_godot(set_piece_hud.aimPoint);
@@ -1956,13 +1954,58 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     }
     result["charge_ratio"] = charge_ratio;
     result["charge_player_id"] = charge_player_id;
+    // Red cards per side for the scoreboard / kickoff banner. `cards` counts a
+    // yellow as 1 and a red as +3 (Player::GiveRedCard).
+    int red_cards[2] = {0, 0};
+    Array red_ids[2];
+    if (match->IsRemotePresentation()) {
+        // A thin client has no local card state; use the host's relayed list.
+        const std::vector<std::pair<int, int>> &remote = match->GetRemoteRedCards();
+        for (size_t i = 0; i < remote.size(); ++i) {
+            const int team = remote[i].first;
+            if (team < 0 || team > 1) {
+                continue;
+            }
+            ++red_cards[team];
+            red_ids[team].append(remote[i].second);
+        }
+    } else {
+        for (int team_id = 0; team_id < 2; ++team_id) {
+            Team *team = match->GetTeam(team_id);
+            if (!team) {
+                continue;
+            }
+            const std::vector<Player *> &all = team->GetAllPlayers();
+            for (size_t i = 0; i < all.size(); ++i) {
+                if (all[i] && all[i]->GetCards() >= 2) {
+                    ++red_cards[team_id];
+                    red_ids[team_id].append(all[i]->GetPlayerData()->GetDatabaseID());
+                }
+            }
+        }
+    }
+    result["red_cards0"] = red_cards[0];
+    result["red_cards1"] = red_cards[1];
+    result["red_card_ids0"] = red_ids[0];
+    result["red_card_ids1"] = red_ids[1];
     const RefereeBuffer &referee_buffer = match->GetRefereeBuffer();
-    result["referee_active"] = referee_buffer.active;
-    result["referee_set_piece"] = (int)referee_buffer.desiredSetPiece;
-    result["referee_team"] = (int)referee_buffer.teamID;
+    // The client never runs the referee; use the host's relayed prepare state
+    // (the local buffer keeps its constructor values on a remote presentation).
+    const bool remote_referee = match->IsRemotePresentation();
+    const bool remote_referee_ready = remote_referee && match->HasRemoteRefereeState();
+    result["referee_active"] = remote_referee
+        ? (remote_referee_ready && match->GetRemoteRefereeActive()) : referee_buffer.active;
+    result["referee_set_piece"] = remote_referee
+        ? (remote_referee_ready ? match->GetRemoteRefereeSetPiece() : 0)
+        : (int)referee_buffer.desiredSetPiece;
+    result["referee_team"] = remote_referee
+        ? (remote_referee_ready ? match->GetRemoteRefereeTeam() : -1)
+        : (int)referee_buffer.teamID;
     result["referee_end_phase"] = referee_buffer.endPhase;
     result["referee_stop_time"] = (int)referee_buffer.stopTime;
-    result["referee_prepare_time"] = (int)referee_buffer.prepareTime;
+    result["referee_prepare_time"] = remote_referee
+        ? (remote_referee_ready ? (int)match->GetRemoteRefereePrepareTime_ms() : 0)
+        : (int)referee_buffer.prepareTime;
     result["referee_start_time"] = (int)referee_buffer.startTime;
     result["referee_taker"] = referee_buffer.taker ? referee_buffer.taker->GetID() : -1;
     // Referee card presentation. The original Officials::Put() places the
@@ -2057,6 +2100,10 @@ Dictionary GpfRuntimeNode::get_snapshot() const {
     result["goal_scored"] = match->IsGoalScored();
     result["ball_in_goal"] = match->IsBallInGoal();
     result["last_goal_team"] = match->GetLastGoalTeamID();
+    // Database id (not Player::GetID(), which is a process-wide actor id): the
+    // Godot HUD keys its package names by database id.
+    result["last_goal_scorer"] = match->GetLastGoalScorer()
+        ? match->GetLastGoalScorer()->GetPlayerData()->GetDatabaseID() : -1;
     result["last_touch_team"] = match->GetLastTouchTeamID();
     result["ball_retainer"] = match->GetBallRetainer() ? match->GetBallRetainer()->GetID() : -1;
     result["restart_pos"] = to_godot(referee_buffer.restartPos);
@@ -2617,6 +2664,29 @@ void GpfRuntimeNode::debug_spam_message(const String &text, int time_ms) {
         return;
     }
     match->SpamMessage(text.utf8().get_data(), time_ms);
+}
+
+void GpfRuntimeNode::debug_give_yellow_card(int team_id, bool prefer_goalie) {
+    if (!runtime_ready || !match || team_id < 0 || team_id > 1) {
+        return;
+    }
+    Team *team = match->GetTeam(team_id);
+    if (!team) {
+        return;
+    }
+    std::vector<Player *> players;
+    match->GetActiveTeamPlayers(team_id, players);
+    Player *goalie = team->GetGoalie();
+    for (size_t i = 0; i < players.size(); ++i) {
+        if (!players[i] || !players[i]->GetPlayerData()) {
+            continue;
+        }
+        if ((players[i] == goalie) != prefer_goalie) {
+            continue;
+        }
+        players[i]->GiveYellowCard(match->GetActualTime_ms());
+        return;
+    }
 }
 
 void GpfRuntimeNode::debug_force_set_piece(int set_piece_type, int team_id) {

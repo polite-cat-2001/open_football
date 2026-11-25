@@ -16,6 +16,8 @@ const SET_PIECE_NAMES := [
 
 const TV_LOGO := "res://assets/gpf/media/menu/tvlogo.png"
 
+enum BannerMode { NONE, EVENT, GOAL, KICKOFF }
+
 var hud: Label
 var scoreboard: MatchScoreboard
 var tv_logo: TextureRect
@@ -25,15 +27,23 @@ var substitution_notice: Label
 var _sub_notice_counter := -1
 var _sub_notice_hide_ms := 0
 
-# Match message (goal scorer, referee call): the original draws one centred
-# caption at 5% height and hides it on messageCaptionRemoveTime_ms. Our score
-# line occupies that band, so the caption sits just below it (8.5%). The bridge
-# only has the display duration, so the HUD anchors it to actual_time_ms.
-var message_label: Label
+var event_banner: EventBanner
+var kickoff_banner: KickoffBanner
+var _last_score0 := 0
+var _last_score1 := 0
 var _spam_counter := -1
 var _spam_hide_at_ms := 0
 var _spam_active := false
+var _spam_text := ""
 var _shootout_active := false
+var _goal_log: Array[Dictionary] = []
+var _card_log: Array[Dictionary] = []
+var _red_ids: Array = [[], []]
+var _card_baseline := true
+var _score_baseline := true
+var _goal_seen := false
+var _last_match_ms := 0
+var _player_names: Dictionary = {}
 
 var taker_menu: GpfSetPieceTakerMenu
 var _hint_player_id := -2
@@ -43,12 +53,17 @@ var root_layer: CanvasLayer
 var _runtime: Node
 var _replay_mode := false
 var _chrome_visible := true
+var net_client := false
 
 
 func setup(runtime: Node) -> void:
 	_runtime = runtime
 	_build_hud()
 	_build_taker_menu()
+
+
+func set_net_client(value: bool) -> void:
+	net_client = value
 
 
 # Stable presentation seam: the HUD is a pure function of the snapshot. The
@@ -64,6 +79,8 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	_sync_taker_ui(snap)
 	_sync_substitution_notice(snap)
 	_sync_spam_message(snap)
+	_update_goal_log(snap)
+	_update_card_log(snap)
 	if hud == null:
 		return
 	var status := _status_text(snap, display_player_id)
@@ -74,9 +91,11 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 	if scoreboard != null:
 		scoreboard.apply(int(snap.get("score0", 0)), int(snap.get("score1", 0)),
 			_format_clock(int(snap.get("match_time_ms", 0))))
+		scoreboard.set_cards(int(snap.get("red_cards0", 0)), int(snap.get("red_cards1", 0)))
 		scoreboard.visible = chrome_visible
 	if tv_logo != null:
 		tv_logo.visible = chrome_visible
+	_sync_banners(snap, chrome_visible)
 	var duration := 1.0
 	if _runtime != null:
 		duration = float(_runtime.get("match_duration"))
@@ -97,17 +116,15 @@ func update(snap: Dictionary, display_player_id: int, actor_count: int,
 		lighting_name,
 	]
 	# The control legend must fit 1280-wide screens too: wrap it to the
-	# viewport and push the taker hint below the wrapped block. A visible match
-	# message sits under the score line, so the dev legend moves down while it
-	# is up instead of printing through the caption.
-	var view_width := get_viewport().get_visible_rect().size.x
+	# viewport and push the taker hint below the wrapped block.
+	var viewport := get_viewport()
+	var view_width := viewport.get_visible_rect().size.x if viewport != null else 1920.0
 	hud.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hud.size = Vector2(maxf(320.0, view_width - 48.0), 0)
 	hud.size.y = hud.get_minimum_size().y
 	var legend_top := 64.0
-	if _message_showing():
-		# Room for two wrapped caption lines plus a gap.
-		legend_top = maxf(64.0, message_label.position.y + 96.0)
+	if scoreboard != null and scoreboard.visible:
+		legend_top += maxf(0.0, scoreboard.size.y - MatchScoreboard.PLATE_H)
 	hud.position = Vector2(24, legend_top)
 	if taker_hint != null:
 		taker_hint.position = Vector2(24, legend_top + hud.size.y + 6.0)
@@ -119,7 +136,10 @@ func set_replay_mode(active: bool) -> void:
 		hud.visible = not active and not is_taker_menu_open()
 	if charge_bar != null:
 		charge_bar.visible = false
-	_refresh_message_visibility()
+	if event_banner != null:
+		event_banner.present(false)
+	if kickoff_banner != null:
+		kickoff_banner.present(false)
 
 
 # The bar is screen-space: gpf_slice projects an anchor point and pushes it here
@@ -144,6 +164,17 @@ func set_charge(ratio: float, screen_pos: Vector2, above_head := false) -> void:
 func set_match_package(package: Dictionary) -> void:
 	if scoreboard != null:
 		scoreboard.set_teams(package.get("home", {}), package.get("away", {}))
+	if kickoff_banner != null:
+		kickoff_banner.set_teams(package.get("home", {}), package.get("away", {}))
+	_player_names.clear()
+	for side in ["home", "away"]:
+		for player in package.get(side, {}).get("players", []):
+			var id := int(player.get("database_id", -1))
+			var name := str(player.get("last_name", ""))
+			if name.is_empty():
+				name = str(player.get("first_name", ""))
+			if id > 0:
+				_player_names[id] = name
 
 
 func reset() -> void:
@@ -152,16 +183,27 @@ func reset() -> void:
 	set_replay_mode(false)
 	if charge_bar != null:
 		charge_bar.visible = false
+	if event_banner != null:
+		event_banner.present(false)
+	if kickoff_banner != null:
+		kickoff_banner.present(false)
 	_sub_notice_counter = -1
 	if substitution_notice != null:
 		substitution_notice.visible = false
 	_spam_counter = -1
 	_spam_hide_at_ms = 0
 	_spam_active = false
+	_spam_text = ""
 	_shootout_active = false
-	if message_label != null:
-		message_label.text = ""
-	_refresh_message_visibility()
+	_goal_log.clear()
+	_card_log.clear()
+	_red_ids = [[], []]
+	_card_baseline = true
+	_score_baseline = true
+	_goal_seen = false
+	_last_match_ms = 0
+	_last_score0 = 0
+	_last_score1 = 0
 
 
 func set_taker_hint_key(key_name: String) -> void:
@@ -367,8 +409,6 @@ func _sync_substitution_notice(snap: Dictionary) -> void:
 # re-create the caption from the same counter, and the first snapshot of a
 # presentation is a baseline so a rejoin does not replay an old message.
 func _sync_spam_message(snap: Dictionary) -> void:
-	if message_label == null:
-		return
 	var counter := int(snap.get("spam_message_counter", 0))
 	var text := String(snap.get("spam_message", ""))
 	var now := int(snap.get("actual_time_ms", 0))
@@ -379,23 +419,196 @@ func _sync_spam_message(snap: Dictionary) -> void:
 		_spam_counter = counter
 	elif counter != _spam_counter:
 		_spam_counter = counter
+		# "advantage" is an original debug-only notice; the port does not show it.
+		if text.to_lower().strip_edges() == "advantage":
+			text = ""
 		if text != "":
-			message_label.text = text
+			_spam_text = text
 			_spam_active = true
 			_spam_hide_at_ms = now + maxi(0, int(snap.get("spam_message_time_ms", 3000)))
 	if _spam_active and now >= _spam_hide_at_ms:
 		_spam_active = false
-	_refresh_message_visibility()
+		_spam_text = ""
 
 
-func _refresh_message_visibility() -> void:
-	if message_label == null:
+# Goal log: one entry per goal, built from the same snapshot on every peer (no
+# extra network message). The minute is the match clock at the goal edge, so the
+# kickoff banner can list the scorers until play restarts.
+func _update_goal_log(snap: Dictionary) -> void:
+	var now_ms := int(snap.get("match_time_ms", 0))
+	var goal := bool(snap.get("goal_scored", false))
+	var score0 := int(snap.get("score0", 0))
+	var score1 := int(snap.get("score1", 0))
+	# A rejoin (or a new match) starts without a known previous score. Take the
+	# first snapshot as the baseline and skip the goal that is already in
+	# progress: guessing from 0:0 can put the goal on the wrong side.
+	if _score_baseline:
+		_score_baseline = false
+		_last_match_ms = now_ms
+		_last_score0 = score0
+		_last_score1 = score1
+		_goal_seen = goal
 		return
-	message_label.visible = _spam_active and not _replay_mode and not _shootout_active
+	if now_ms + 5000 < _last_match_ms and not goal:
+		_goal_log.clear()
+		_card_log.clear()
+		_red_ids = [[], []]
+		_card_baseline = true
+		_score_baseline = true
+		_spam_counter = -1
+		_spam_hide_at_ms = 0
+		_spam_active = false
+		_spam_text = ""
+	_last_match_ms = now_ms
+	if goal and not _goal_seen:
+		# The bridge never learns the host's goal team on a thin client (the
+		# C++ value stays 0), so use the score change there instead.
+		var team := -1 if net_client else int(snap.get("last_goal_team", -1))
+		if team < 0:
+			if score0 > _last_score0:
+				team = 0
+			elif score1 > _last_score1:
+				team = 1
+		_goal_log.append({
+			"team": team,
+			"name": _goal_scorer_name(snap),
+			"minute": maxi(1, now_ms / 60000 + 1),
+			"own_goal": _is_own_goal(),
+		})
+	elif goal and not _goal_log.is_empty() \
+			and String(_goal_log[-1].get("name", "")).is_empty():
+		# A thin client learns the scorer from the relayed goal caption, which may
+		# arrive a frame after the goal flag.
+		var entry := _goal_log[-1]
+		entry["name"] = _goal_scorer_name(snap)
+		if _is_own_goal():
+			entry["own_goal"] = true
+	_goal_seen = goal
+	_last_score0 = score0
+	_last_score1 = score1
 
 
-func _message_showing() -> bool:
-	return message_label != null and message_label.visible
+func _goal_scorer_name(snap: Dictionary) -> String:
+	var name := _player_name(int(snap.get("last_goal_scorer", -1)))
+	if not name.is_empty():
+		return name
+	# The host's goal caption carries the surname; the client has no scorer id.
+	if _spam_text.begins_with("OWN GOAL! ") and _spam_text.ends_with(" is so unlucky!"):
+		return _spam_text.trim_prefix("OWN GOAL! ").trim_suffix(" is so unlucky!")
+	if _spam_text.begins_with("GOAL for ") and _spam_text.ends_with(" scores!"):
+		var rest := _spam_text.trim_prefix("GOAL for ")
+		var bang := rest.find("! ")
+		if bang >= 0:
+			return rest.substr(bang + 2).trim_suffix(" scores!")
+	return ""
+
+
+func _is_own_goal() -> bool:
+	return _spam_text.contains("OWN GOAL")
+
+
+# Pre-kickoff scoreboard: from the moment the referee places the ball on the
+# centre spot (the prepare phase, a couple of seconds before the whistle) until
+# the kickoff is actually taken. `in_set_piece` only becomes true at the whistle,
+# so the prepare window is what makes the banner appear in time. A thin client
+# gets the host's prepare state relayed in the snapshot.
+func _is_kickoff_setup(snap: Dictionary) -> bool:
+	if bool(snap.get("in_set_piece", false)):
+		return int(snap.get("set_piece_type", 0)) == 1
+	if int(snap.get("referee_set_piece", 0)) != 1:
+		return false
+	return bool(snap.get("referee_active", false)) \
+		and int(snap.get("actual_time_ms", 0)) >= int(snap.get("referee_prepare_time", 0))
+
+
+func _sync_banners(snap: Dictionary, chrome_visible: bool) -> void:
+	var mode := BannerMode.NONE
+	if not _replay_mode and not _shootout_active and chrome_visible:
+		if _is_kickoff_setup(snap):
+			mode = BannerMode.KICKOFF
+		elif bool(snap.get("goal_scored", false)) and not _goal_log.is_empty():
+			mode = BannerMode.GOAL
+		elif _spam_active:
+			mode = BannerMode.EVENT
+	var viewport := get_viewport()
+	var view := viewport.get_visible_rect().size if viewport != null else Vector2(1920, 1080)
+	if event_banner != null:
+		if mode == BannerMode.GOAL:
+			var entry := _goal_log[-1]
+			event_banner.set_goal(String(entry.get("name", "")),
+				"%d'" % int(entry.get("minute", 0)),
+				bool(entry.get("own_goal", false)))
+		elif mode == BannerMode.EVENT:
+			event_banner.set_message(_spam_text)
+		var event_on := mode == BannerMode.GOAL or mode == BannerMode.EVENT
+		event_banner.present(event_on)
+		# The two banners share the bottom slot; a 240 ms crossfade would draw
+		# their texts on top of each other on the goal -> kickoff flip.
+		if mode == BannerMode.KICKOFF:
+			event_banner.modulate.a = 0.0
+		event_banner.position = Vector2(roundf((view.x - event_banner.size.x) * 0.5),
+			roundf(view.y * 0.855))
+	if kickoff_banner != null:
+		if mode == BannerMode.KICKOFF:
+			kickoff_banner.set_match(int(snap.get("score0", 0)),
+				int(snap.get("score1", 0)), _team_events(0), _team_events(1))
+		kickoff_banner.present(mode == BannerMode.KICKOFF)
+		if mode == BannerMode.GOAL or mode == BannerMode.EVENT:
+			kickoff_banner.modulate.a = 0.0
+		kickoff_banner.position = Vector2(
+			roundf((view.x - KickoffBanner.WIDTH) * 0.5),
+			roundf(view.y - kickoff_banner.size.y - 28.0))
+
+
+func _update_card_log(snap: Dictionary) -> void:
+	var now_ms := int(snap.get("match_time_ms", 0))
+	# shortcut: the minute is when the sent-off id first appears; the card show is
+	# delayed ~6 s in the original, so a card at 45:50 can read 46'. A card-time
+	# field on the wire would fix it.
+	if _card_baseline:
+		# A rejoin's first snapshot already carries the host's cards; record
+		# them without inventing a minute (the goal log has no history either).
+		_card_baseline = false
+		for team in 2:
+			var ids: Array = snap.get("red_card_ids0" if team == 0 else "red_card_ids1", [])
+			for raw_id in ids:
+				_red_ids[team].append(int(raw_id))
+		return
+	for team in 2:
+		var ids: Array = snap.get("red_card_ids0" if team == 0 else "red_card_ids1", [])
+		for raw_id in ids:
+			var player_id := int(raw_id)
+			if _red_ids[team].has(player_id):
+				continue
+			_red_ids[team].append(player_id)
+			_card_log.append({
+				"team": team,
+				"name": _player_name(player_id),
+				"minute": maxi(1, now_ms / 60000 + 1),
+			})
+
+
+# A team's kickoff-banner event lines: goals and red cards in match order.
+func _team_events(team: int) -> Array[Dictionary]:
+	var events: Array[Dictionary] = []
+	for entry in _goal_log:
+		if int(entry.get("team", -1)) == team:
+			var name := String(entry.get("name", ""))
+			if bool(entry.get("own_goal", false)):
+				name = (name + " (OG)") if not name.is_empty() else "OWN GOAL"
+			events.append({"minute": int(entry["minute"]),
+				"name": name, "card": false})
+	for entry in _card_log:
+		if int(entry.get("team", -1)) == team:
+			events.append({"minute": int(entry["minute"]),
+				"name": String(entry.get("name", "")), "card": true})
+	events.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a["minute"]) < int(b["minute"]))
+	return events
+
+
+func _player_name(player_id: int) -> String:
+	return str(_player_names.get(player_id, ""))
 
 
 func _status_text(snap: Dictionary, display_player_id: int) -> String:
@@ -412,10 +625,16 @@ func _status_text(snap: Dictionary, display_player_id: int) -> String:
 	if bool(snap.get("in_set_piece", false)):
 		var human_team := -1
 		if _runtime != null:
-			human_team = int(_runtime.get_human_team_id())
+			# Use the selected player's team from the bridge roster; the raw
+			# human-team id is unreliable on a LAN host after controller rebinds.
+			for entry in _runtime.get_player_ids():
+				if int(entry.get("id", -1)) == display_player_id:
+					human_team = int(entry.get("team", -1))
+					break
 		elif snap.has("human_team"):
 			human_team = int(snap.get("human_team", -1))
-		if piece == 6 and human_team >= 0 and int(snap.get("referee_team", -1)) != human_team:
+		if piece == 6 and human_team >= 0 \
+				and int(snap.get("referee_team", -1)) != human_team:
 			return "PENALTY - keeper: arrows to dive"
 		if role == 2:
 			return "PENALTY - keeper: arrows to dive"
@@ -525,26 +744,13 @@ func _build_hud() -> void:
 	substitution_notice.visible = false
 	layer.add_child(substitution_notice)
 
-	message_label = Label.new()
-	message_label.name = "MatchMessage"
-	message_label.anchor_left = 0.05
-	message_label.anchor_right = 0.95
-	message_label.anchor_top = 0.085
-	message_label.anchor_bottom = 0.085
-	message_label.offset_left = 0
-	message_label.offset_right = 0
-	message_label.offset_top = 0
-	message_label.offset_bottom = 64
-	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	message_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	message_label.add_theme_font_size_override("font_size", 30)
-	message_label.add_theme_color_override("font_color", Color(0.98, 0.98, 0.98))
-	message_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-	message_label.add_theme_constant_override("outline_size", 6)
-	message_label.text = ""
-	message_label.visible = false
-	layer.add_child(message_label)
+	event_banner = EventBanner.new()
+	event_banner.name = "EventBanner"
+	layer.add_child(event_banner)
+
+	kickoff_banner = KickoffBanner.new()
+	kickoff_banner.name = "KickoffBanner"
+	layer.add_child(kickoff_banner)
 
 
 func _build_taker_menu() -> void:
