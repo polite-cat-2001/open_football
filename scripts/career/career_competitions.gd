@@ -42,6 +42,9 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 		"label": str(league.get("name", league_id)),
 	}]
 	var requests: Array = []
+	# The season window every competition falls back to when its own dates are
+	# missing from the source.
+	var league_window := LeagueRegulations.window_for_season(league_id, season_start)
 	var format = LeagueRegulations.record(league_id).get("format")
 	if format is Dictionary:
 		var stages := CareerStages.stages(format)
@@ -83,9 +86,9 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 			if super_entry.is_empty():
 				continue
 			entries.append(super_entry)
-			var super_window := CareerCalendar.season_window(
+			var super_window := _window_or_league(CareerCalendar.season_window(
 				str(record.get("start_md", "")), str(record.get("end_md", "")),
-				season_start)
+				season_start), league_window, season_start)
 			requests.append({
 				"id": str(competition_id), "priority": SUPER_PRIORITY,
 				"start": str(super_window[0]), "end": str(super_window[1]),
@@ -100,9 +103,9 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 		if field.size() < 2:
 			continue
 		var rounds := _rounds(field.size(), record)
-		var cup_window := CareerCalendar.season_window(
+		var cup_window := _window_or_league(CareerCalendar.season_window(
 			str(record.get("start_md", "")), str(record.get("end_md", "")),
-			season_start)
+			season_start), league_window, season_start)
 		var start := str(cup_window[0])
 		var end := str(cup_window[1])
 		var entry := {
@@ -460,6 +463,18 @@ static func _rounds(count: int, record: Dictionary) -> Array:
 		rounds.append({"name": name, "legs": legs})
 		size /= 2
 	return rounds
+
+
+static func _window_or_league(window: Array, league_window: Dictionary,
+		season_start: String) -> Array:
+	# A record without its own dates (or with a truncated one) borrows the league
+	# calendar: the cup then runs inside the same season instead of losing its
+	# dates and landing on an empty day.
+	if window.size() >= 2 and not str(window[0]).is_empty() \
+			and not str(window[1]).is_empty():
+		return window
+	return [str(league_window.get("start", season_start)),
+		str(league_window.get("end", season_start))]
 
 
 static func _total_days(rounds: Array) -> int:

@@ -335,7 +335,9 @@
    },
    "source": "https://en.wikipedia.org/wiki/Copa_MX",
    "confidence": "high",
-   "note": " Group phases, replays and early amateur rounds are not modelled."
+   "note": "Group phases, replays and early amateur rounds are not modelled. Calendar window taken from the country's top league: the source did not state the cup's own dates.",
+   "start_md": "07-16",
+   "end_md": "04-26"
   },
   "MLSP": {
    "kind": "cup",
@@ -1211,8 +1213,9 @@
    },
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Slovenian_Football_Cup",
    "confidence": "medium",
-   "note": "No dates in the infobox. Earliest regional preliminary match listed is 9 August 2025; the national round of 32 was 21-30 October 2025; final 13 May 2026. Berth wording is competition-level only — the cup article states no round. Group phases, replays and early amateur rounds are not modelled.",
-   "end_md": "05-13"
+   "note": "No dates in the infobox. Earliest regional preliminary match listed is 9 August 2025; the national round of 32 was 21-30 October 2025; final 13 May 2026. Berth wording is competition-level only — the cup article states no round. Group phases, replays and early amateur rounds are not modelled. Calendar window taken from the country's top league: the source did not state the cup's own dates.",
+   "end_md": "05-22",
+   "start_md": "07-17"
   },
   "SEC": {
    "kind": "cup",
@@ -1344,14 +1347,14 @@
    "label": "Ethiopian Cup",
    "country": "Ethiopia",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "09-20",
+   "end_md": "07-08",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/Ethiopian_Cup ; https://www.rsssf.org/tablese/ethicuphist.html",
    "confidence": "low",
-   "note": "No season articles exist on Wikipedia, and no round dates are published; only the final result is recorded (RSSSF page last updated 26 Jul 2026, so the 2025-26 final was played before late July). Format/berth inferred from the standard Ethiopian pattern, not sourced."
+   "note": "No season articles exist on Wikipedia, and no round dates are published; only the final result is recorded (RSSSF page last updated 26 Jul 2026, so the 2025-26 final was played before late July). Format/berth inferred from the standard Ethiopian pattern, not sourced. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "GHANFACUP": {
    "kind": "cup",
@@ -1372,28 +1375,28 @@
    "label": "Libyan Cup",
    "country": "Libya",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "12-11",
+   "end_md": "08-12",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/Libyan_Cup ; https://www.rsssf.org/tablesl/libcuphist.html",
    "confidence": "low",
-   "note": "2023-24 edition was not played; the 2025 and 2026 finals were staged abroad in Cairo. No round dates published anywhere checked, so the window is left null."
+   "note": "2023-24 edition was not played; the 2025 and 2026 finals were staged abroad in Cairo. No round dates published anywhere checked, so the window is left null. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "MARP": {
    "kind": "cup",
    "label": "Throne Cup",
    "country": "Morocco",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "09-24",
+   "end_md": "05-23",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/Throne_Cup ; https://en.wikipedia.org/wiki/2023%E2%80%9324_Moroccan_Throne_Cup",
    "confidence": "medium",
-   "note": "Window is irregular: the 2023-24 edition played its quarter-finals on 14-15 June 2025, so a fixed annual window cannot be stated. Some rounds were two-legged in earlier periods; the current format is one-legged with a single final, usually at the Prince Moulay Abdellah Stadium in Rabat."
+   "note": "Window is irregular: the 2023-24 edition played its quarter-finals on 14-15 June 2025, so a fixed annual window cannot be stated. Some rounds were two-legged in earlier periods; the current format is one-legged with a single final, usually at the Prince Moulay Abdellah Stadium in Rabat. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "NIGEFEDECUP": {
    "kind": "cup",
@@ -1414,14 +1417,14 @@
    "label": "Coupe du Senegal",
    "country": "Senegal",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "10-25",
+   "end_md": "06-29",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://fr.wikipedia.org/wiki/Coupe_du_S%C3%A9n%C3%A9gal_de_football_2025-2026",
    "confidence": "medium",
-   "note": "Penalties decide drawn matches from the round of 32; extra time only from the semi-finals. The draw was on 16 January 2026 but the source gives no round dates, so no window is stated."
+   "note": "Penalties decide drawn matches from the round of 32; extra time only from the semi-finals. The draw was on 16 January 2026 but the source gives no round dates, so no window is stated. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "NEDC": {
    "kind": "cup",
@@ -1456,14 +1459,14 @@
    "label": "Uganda Cup",
    "country": "Uganda",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "08-28",
+   "end_md": "05-23",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/Uganda_Cup",
    "confidence": "low",
-   "note": "No season articles exist for recent editions and no round calendar is published; only the fact that recent finals were played in June (12 June 2022, Masindi) is documented. Format assumed single-leg knockout."
+   "note": "No season articles exist for recent editions and no round calendar is published; only the fact that recent finals were played in June (12 June 2022, Masindi) is documented. Format assumed single-leg knockout. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "BVC1": {
    "kind": "cup",
@@ -1588,8 +1591,8 @@
    "label": "Copa Primera",
    "country": "Nicaragua",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "07-17",
+   "end_md": "05-16",
    "two_legged": [
     "preliminary round 1",
     "preliminary round 2",
@@ -1602,21 +1605,21 @@
    "champion": "winner",
    "source": "https://es.wikipedia.org/wiki/Copa_Primera",
    "confidence": "medium",
-   "note": "Two legs in every round including the final, no neutral final. Played inside the split Apertura/Clausura season; the Wikipedia articles carry no per-season dates, so no window is given."
+   "note": "Two legs in every round including the final, no neutral final. Played inside the split Apertura/Clausura season; the Wikipedia articles carry no per-season dates, so no window is given. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "TORNDECOPA2": {
    "kind": "cup",
    "label": "Torneo de Copa",
    "country": "Panama",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "07-24",
+   "end_md": "05-31",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://es.wikipedia.org/wiki/Torneo_de_Copa_(Panamá)",
    "confidence": "low",
-   "note": "One edition per Apertura of the split season (2015-2021), so it is a half-season cup, not a full-year one. Dormant 2022-2025 and revived for 2026 as the Copa Rommel Fernández; no round dates are published on Wikipedia for any edition."
+   "note": "One edition per Apertura of the split season (2015-2021), so it is a half-season cup, not a full-year one. Dormant 2022-2025 and revived for 2026 as the Copa Rommel Fernández; no round dates are published on Wikipedia for any edition. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "PYC1": {
    "kind": "cup",
@@ -1637,8 +1640,8 @@
    "label": "Copa Bicentenario",
    "country": "Peru",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "01-30",
+   "end_md": "11-22",
    "two_legged": [
     "round of 16",
     "quarter-final",
@@ -1648,7 +1651,7 @@
    "champion": "winner",
    "source": "https://es.wikipedia.org/wiki/Copa_Bicentenario_(Perú)",
    "confidence": "medium",
-   "note": "Defunct: only two editions (2019, 2021); the FPF announced in 2023 that it would not run again and promised a new national cup from 2024 with a Libertadores berth, but no such competition is documented. It began in June, after the Liga1 Apertura, which is why no end date is given."
+   "note": "Defunct: only two editions (2019, 2021); the FPF announced in 2023 that it would not run again and promised a new national cup from 2024 with a Libertadores berth, but no such competition is documented. It began in June, after the Liga1 Apertura, which is why no end date is given. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "COPALUISVILL": {
    "kind": "cup",
@@ -1672,14 +1675,14 @@
    "label": "Copa AUF Uruguay",
    "country": "Uruguay",
    "tiers": [],
-   "start_md": "08-25",
-   "end_md": "11",
+   "start_md": "03-13",
+   "end_md": "11-29",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://es.wikipedia.org/wiki/Copa_AUF_Uruguay_2026 ; https://es.wikipedia.org/wiki/Copa_AUF_Uruguay",
    "confidence": "high",
-   "note": "Every knockout round is one match; both semi-finals and the final are at neutral venues. Start is exact (25 Aug, infobox); the closing date is only given as ''noviembre''."
+   "note": "Every knockout round is one match; both semi-finals and the final are at neutral venues. Start is exact (25 Aug, infobox); the closing date is only given as ''noviembre''. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "VEC1": {
    "kind": "cup",
@@ -1760,14 +1763,14 @@
    "label": "Piala Indonesia",
    "country": "Indonesia",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "09-04",
+   "end_md": "06-05",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/Piala_Indonesia",
    "confidence": "high",
-   "note": "Suspended after 2018-19; PSSI cited geography and calendar congestion in July 2025 (Antara headline above). Do not schedule a Piala Indonesia until a new edition is announced."
+   "note": "Suspended after 2018-19; PSSI cited geography and calendar congestion in July 2025 (Antara headline above). Do not schedule a Piala Indonesia until a new edition is announced. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "IRNP": {
    "kind": "cup",
@@ -1788,14 +1791,14 @@
    "label": "Iraq FA Cup",
    "country": "Iraq",
    "tiers": [],
-   "start_md": "10-17",
-   "end_md": "None",
+   "start_md": "08-14",
+   "end_md": "05-28",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/2025%E2%80%9326_Iraq_FA_Cup",
    "confidence": "high",
-   "note": "Abandoned: the round-of-16 draw was held on 18 May 2026 and the Iraq FA cancelled the tournament on 27 May 2026 because of a clash with the national team. No winner, no berth."
+   "note": "Abandoned: the round-of-16 draw was held on 18 May 2026 and the Iraq FA cancelled the tournament on 27 May 2026 because of a clash with the national team. No winner, no berth. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "JORDFACUP": {
    "kind": "cup",
@@ -1848,28 +1851,28 @@
    "label": "General Aung San Shield",
    "country": "Myanmar",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "08-28",
+   "end_md": "03-14",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/General_Aung_San_Shield",
    "confidence": "low",
-   "note": "No season article with dates; 22 teams and the two qualifying competitions come from the competition infobox. Berth round not stated."
+   "note": "No season article with dates; 22 teams and the two qualifying competitions come from the competition infobox. Berth round not stated. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "SULTQABOCUP": {
    "kind": "cup",
    "label": "Sultan Qaboos Cup",
    "country": "Oman",
    "tiers": [],
-   "start_md": "None",
-   "end_md": "None",
+   "start_md": "08-30",
+   "end_md": "05-31",
    "two_legged": [],
    "final_legs": 1,
    "champion": "winner",
    "source": "https://en.wikipedia.org/wiki/Sultan_Qaboos_Cup",
    "confidence": "low",
-   "note": "Competition infobox lists 32 teams and Al-Nahda as 2025-26 champion, but no season article (and no dates) exists; berth not verified."
+   "note": "Competition infobox lists 32 teams and Al-Nahda as 2025-26 champion, but no season article (and no dates) exists; berth not verified. Calendar window taken from the country's top league: the source did not state the cup's own dates."
   },
   "PHPO": {
    "kind": "cup",
