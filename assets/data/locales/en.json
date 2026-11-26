@@ -16,5 +16,6 @@
  "tournament.league.promotion": "Promotion places: {count}",
  "tournament.league.relegation": "Relegation places: {count}",
  "tournament.clause.one_playoff_place": "One place is decided by a play-off.",
- "tournament.clause.playoff_places": "Some places are decided by a play-off."
+ "tournament.clause.playoff_places": "Some places are decided by a play-off.",
+ "tournament.league.zones_table": "The clubs play in geographical zones; one combined table ranks every club."
 }

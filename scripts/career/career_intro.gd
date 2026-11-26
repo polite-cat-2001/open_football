@@ -91,7 +91,7 @@ static func facts(career: Career, competition_id: String,
 				"format": "cup.knockout",
 				"country": str(record.get("country", "")),
 				"label": str(record.get("label", competition_id)),
-				"lines": _cup_lines(record),
+				"lines": _cup_lines(record, _entry_size(career, competition_id)),
 			}
 		return {
 			"competition": competition_id, "kind": kind,
@@ -109,7 +109,7 @@ static func facts(career: Career, competition_id: String,
 			label = str(row.get("name", label))
 			country = str(catalog.country_by_id(_int(row.get("country_id"), 0))
 				.get("name", ""))
-		var format_key := _league_format_key(str(league.get("phases", "")))
+		var format_key := _league_format_key(league)
 		return {
 			"competition": competition_id, "kind": "league", "format": format_key,
 			"country": country, "label": label,
@@ -118,8 +118,19 @@ static func facts(career: Career, competition_id: String,
 	return _continental(career, competition_id)
 
 
-static func _league_format_key(phases: String) -> String:
-	match phases:
+static func _league_format_key(league: Dictionary) -> String:
+	# Zones that are the whole season (2DVB, LPL, AR3F) have their own text: the
+	# zones are not a route to a final stage, the combined table ranks everyone.
+	var format = league.get("format")
+	if format is Dictionary:
+		var stages := CareerStages.stages(format)
+		if stages.size() == 1 and str(format.get("champion", "")) == "none":
+			var first: Dictionary = stages[0]
+			var sizes = first.get("groups", {}).get("sizes", [])
+			if str(first.get("kind", "")) == "group" and sizes is Array \
+					and (sizes as Array).size() > 1:
+				return "league.zones_table"
+	match str(league.get("phases", "")):
 		"split":
 			return "league.split"
 		"apertura_clausura":
@@ -133,14 +144,19 @@ static func _league_format_key(phases: String) -> String:
 static func _league_lines(career: Career, league_id: String,
 		league: Dictionary, catalog, format_key: String) -> Array:
 	var lines: Array = [UiText.t("tournament." + format_key)]
-	var clubs := career.league_club_ids.size()
-	var rounds := 0
+	var clubs := 0
+	if league_id == str(career.league_id):
+		clubs = career.league_club_ids.size()
+	if clubs == 0 and catalog != null:
+		clubs = catalog.all_teams_for_league(league_id).size()
 	var seen_rounds := {}
 	for fixture in career.schedule:
-		if str(fixture.get("competition", league_id)) != league_id:
+		if str(fixture.get("competition", career.league_id)) != league_id:
 			continue
 		seen_rounds[int(fixture.get("round", 0))] = true
-	rounds = seen_rounds.size()
+	var rounds := seen_rounds.size()
+	if rounds == 0:
+		rounds = _format_matchdays(league, clubs)
 	var summary: Array = []
 	if clubs > 0:
 		summary.append("%d clubs" % clubs)
@@ -184,6 +200,19 @@ static func _league_lines(career: Career, league_id: String,
 	if not window.is_empty():
 		lines.append(window)
 	return lines
+
+
+static func _format_matchdays(league: Dictionary, clubs: int) -> int:
+	var total := 0
+	var format = league.get("format")
+	if format is Dictionary:
+		for stage in CareerStages.stages(format):
+			var count = stage.get("rounds", 0)
+			if count is int or count is float:
+				total += int(count)
+	if total > 0:
+		return total
+	return maxi(0, 2 * (clubs - 1))
 
 
 static func _europe_places(career: Career, league_id: String, catalog = null) -> String:
@@ -258,7 +287,16 @@ static func _competition_name(competition: String) -> String:
 	}.get(competition, competition))
 
 
-static func _cup_lines(record: Dictionary) -> Array:
+static func _entry_size(career: Career, competition_id: String) -> int:
+	# The card tells the club what it will actually meet: the bracket takes every
+	# club of the top tiers, which can be more than the research field size.
+	for entry in career.data.get("competitions", []):
+		if str(entry.get("id", "")) == competition_id:
+			return (entry.get("entrants", []) as Array).size()
+	return 0
+
+
+static func _cup_lines(record: Dictionary, entrants: int = 0) -> Array:
 	var lines: Array = [UiText.t("tournament.cup.knockout")]
 	var two_legged: Array = record.get("two_legged", [])
 	if not two_legged.is_empty():
@@ -269,7 +307,7 @@ static func _cup_lines(record: Dictionary) -> Array:
 			{"rounds": _join_names(names)}))
 	if _int(record.get("final_legs"), 1) > 1:
 		lines.append(UiText.t("tournament.clause.two_legged_final"))
-	var field := _int(record.get("field_size"), 0)
+	var field := entrants if entrants > 0 else _int(record.get("field_size"), 0)
 	if field > 0:
 		lines.append("%d clubs" % field)
 	var window := _window(record.get("start_md", ""), record.get("end_md", ""))

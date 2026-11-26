@@ -130,7 +130,38 @@ func _run() -> void:
 		_check(CareerIntro.pending(career, "2026-09-10", catalog).is_empty(),
 			"a seen competition is never introduced twice")
 		_check(CareerIntro.seen(career).has("CDR"), "the career remembers what it has seen")
+
+	# A real career: the card must name the field the bracket actually takes, not
+	# the research figure, and a season made of zones must not read as a single
+	# round-robin.
+	var russian := _first_career(catalog, "RU1")
+	if russian != null:
+		var rup := CareerIntro.facts(russian, "RUP", catalog)
+		var rup_text := " | ".join(rup.get("lines", []))
+		var rup_entrants := 0
+		for entry in russian.data.get("competitions", []):
+			if str(entry.get("id", "")) == "RUP":
+				rup_entrants = (entry.get("entrants", []) as Array).size()
+		_check(rup_entrants > 0 and rup_text.contains("%d clubs" % rup_entrants),
+			"the cup card names the field the bracket uses: " + rup_text)
+	var zonal := _first_career(catalog, "2DVB")
+	if zonal != null:
+		var zones := CareerIntro.facts(zonal, "2DVB", catalog)
+		var zones_text := " | ".join(zones.get("lines", []))
+		_check(str(zones.get("format", "")) == "league.zones_table",
+			"a zonal season reports the zones format")
+		_check(zones_text.contains("geographical zones")
+			and zones_text.contains("26 matchdays"),
+			"the zonal card explains the zones and its matchdays: " + zones_text)
 	_finish()
+
+
+func _first_career(catalog: TeamCatalog, league_id: String) -> Career:
+	var teams: Array = catalog.all_teams_for_league(league_id)
+	if teams.is_empty():
+		return null
+	return CareerFactory.create(catalog,
+		int(str((teams[0] as Dictionary).get("id", "0"))), "Intro", 189, 42)
 
 
 func _finish() -> void:
