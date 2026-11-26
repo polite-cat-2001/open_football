@@ -114,6 +114,30 @@ static func _free_slot(ideal: String, request: Dictionary, used: Dictionary,
 	return ideal
 
 
+static func season_window(start_md: String, end_md: String,
+		season_start: String) -> Array:
+	# The window of a competition inside one season. The start is anchored to the
+	# season's year, so a cup that opens in June for an August league stays in that
+	# summer; only when the whole window falls before the season does it move a
+	# year forward (a January super cup belongs to the season that opened in July).
+	if start_md.length() != 5 or end_md.length() != 5:
+		return ["", ""]
+	var year := int(str(season_start).substr(0, 4))
+	var start := "%04d-%s" % [year, start_md]
+	var end := _window_end(start, end_md)
+	if end < str(season_start):
+		start = "%04d-%s" % [year + 1, start_md]
+		end = _window_end(start, end_md)
+	return [start, end]
+
+
+static func _window_end(start: String, end_md: String) -> String:
+	var year := int(start.substr(0, 4))
+	if end_md <= start.substr(5):
+		year += 1
+	return "%04d-%s" % [year, end_md]
+
+
 static func stage_date(year: int, md: String, reference_md: String) -> String:
 	if md.length() != 5:
 		return ""

@@ -83,12 +83,12 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 			if super_entry.is_empty():
 				continue
 			entries.append(super_entry)
+			var super_window := CareerCalendar.season_window(
+				str(record.get("start_md", "")), str(record.get("end_md", "")),
+				season_start)
 			requests.append({
 				"id": str(competition_id), "priority": SUPER_PRIORITY,
-				"start": CareerCalendar.stage_date(year,
-					str(record.get("start_md", "")), str(season_start).substr(5)),
-				"end": CareerCalendar.stage_date(year,
-					str(record.get("end_md", "")), str(season_start).substr(5)),
+				"start": str(super_window[0]), "end": str(super_window[1]),
 				"days": _total_days(super_entry.get("rounds", [])),
 			})
 			continue
@@ -100,10 +100,11 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 		if field.size() < 2:
 			continue
 		var rounds := _rounds(field.size(), record)
-		var start := CareerCalendar.stage_date(year, str(record.get("start_md", "")),
-			str(season_start).substr(5))
-		var end := CareerCalendar.stage_date(year, str(record.get("end_md", "")),
-			str(season_start).substr(5))
+		var cup_window := CareerCalendar.season_window(
+			str(record.get("start_md", "")), str(record.get("end_md", "")),
+			season_start)
+		var start := str(cup_window[0])
+		var end := str(cup_window[1])
 		var entry := {
 			"id": str(competition_id), "kind": "cup",
 			"label": str(record.get("label", competition_id)),
