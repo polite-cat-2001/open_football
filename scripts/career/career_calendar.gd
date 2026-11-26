@@ -33,7 +33,42 @@ static func round_dates(start_date: String, end_date: String, rounds: int,
 					/ float(rounds - 1)))
 			dates.append(free[position])
 		return dates
-	# Not enough free days: keep the old even spread rather than dropping rounds.
+	# Not enough free days: a one-day gap is bad, two matches on one day are
+	# impossible, so the spread may take rest days but never a match day.
+	var pool: Array = []
+	for offset in range(span + 1):
+		var date := CareerSeason.add_days(start_date, offset)
+		if str(busy.get(date, "")) != "match":
+			pool.append(date)
+	if pool.size() >= rounds:
+		# Take the days farthest from any match and from each other: a dense
+		# window keeps the most rest it can instead of an even index spread that
+		# may land a day before a league round.
+		var match_days: Array = []
+		for key in busy:
+			if str(busy[key]) == "match":
+				match_days.append(str(key))
+		dates.clear()
+		for _round in range(rounds):
+			var best := ""
+			var best_gap := -1
+			for day in pool:
+				if dates.has(day):
+					continue
+				var gap := 99
+				for other in match_days:
+					gap = mini(gap, absi(CareerSeason.days_between(day, other)))
+				for other in dates:
+					gap = mini(gap, absi(CareerSeason.days_between(day, other)))
+				if gap > best_gap:
+					best = day
+					best_gap = gap
+			if best.is_empty():
+				break
+			dates.append(best)
+		dates.sort()
+		return dates
+	# Not enough days at all: keep the old even spread rather than dropping rounds.
 	for index in range(rounds):
 		var offset := 0
 		if rounds > 1:
@@ -82,8 +117,11 @@ static func busy_days(schedule: Array, rest := 3) -> Dictionary:
 		var date := str(fixture.get("date", ""))
 		if date.is_empty():
 			continue
+		busy[date] = "match"
 		for offset in range(1 - rest, rest):
-			busy[CareerSeason.add_days(date, offset)] = true
+			var day := CareerSeason.add_days(date, offset)
+			if str(busy.get(day, "")) != "match":
+				busy[day] = true
 	return busy
 
 

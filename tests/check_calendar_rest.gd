@@ -1,7 +1,7 @@
 extends SceneTree
 # Headless check for the calendar rest rule: a club never gets two fixtures
 # closer than three days, including the continental rounds that are built after
-# the league schedule.
+# the league schedule. A few dense continental windows only guard one match a day.
 #
 # Run:  godot --headless --path . -s res://tests/check_calendar_rest.gd
 
@@ -15,12 +15,18 @@ const CASES := [
 	{"league": "MEXA", "label": "Liga MX Apertura"},
 	{"league": "EGY1", "label": "Egypt"},
 	{"league": "NL1", "label": "Eredivisie (17 clubs)"},
-	# Libya is left out on purpose: 27 clubs need 54 rounds and its window
-	# cannot hold them with the rest rule, so a cup round can share a day with
-	# a league fixture. That is a data/format gap (the real league plays
-	# zones), not a scheduler fault; the wiki records it.
 	{"club": "6502", "label": "an AFC club"},
 	{"club": "583", "label": "a UEFA club"},
+]
+
+# A continental window can be too dense for both the league and the confederation
+# competition to keep three days of rest: these guard the hard rule (one match a
+# day) and the wiki records the tight pairs.
+const SAME_DAY_ONLY := [
+	{"league": "PR1C", "label": "Paraguay", "strict": false},
+	{"league": "ARGC", "label": "Argentina", "strict": false},
+	{"league": "EC1N", "label": "Ecuador", "strict": false},
+	{"league": "VZ1C", "label": "Venezuela", "strict": false},
 ]
 
 var failures: Array[String] = []
@@ -60,7 +66,9 @@ func _run() -> void:
 	if not _catalog.is_loaded():
 		_finish()
 		return
-	for case in CASES:
+	var cases: Array = CASES.duplicate()
+	cases.append_array(SAME_DAY_ONLY)
+	for case in cases:
 		var club_id := _club_of(case)
 		if club_id <= 0:
 			_check(false, "%s: no club to test" % case["label"])
@@ -87,7 +95,8 @@ func _run() -> void:
 				tight.append("%s -> %s" % [dates[index - 1], dates[index]])
 		_check(same_day.is_empty(), "%s: no club plays twice on one day %s" % [
 			case["label"], "" if same_day.is_empty() else str(same_day)])
-		_check(tight.is_empty(), "%s: %d fixtures, %d inside three days %s" % [
-			case["label"], dates.size(), tight.size(),
-			"" if tight.is_empty() else str(tight.slice(0, 3))])
+		if bool(case.get("strict", true)):
+			_check(tight.is_empty(), "%s: %d fixtures, %d inside three days %s" % [
+				case["label"], dates.size(), tight.size(),
+				"" if tight.is_empty() else str(tight.slice(0, 3))])
 	_finish()
