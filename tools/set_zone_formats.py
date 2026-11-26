@@ -29,6 +29,17 @@ DATABASE = ROOT / "data" / "databases" / "default" / "open_football.sqlite"
 # league id -> number of zones
 ZONES = {"2DVB": 4, "LPL": 2, "AR3F": 2}
 
+# The real competition continues after the zones; the engine plays the zones and
+# ranks them together, so the note says what is not modelled instead of pretending.
+NOTES = {
+    "2DVB": "The real 2. Division B continues with promotion play-offs; only the "
+            "zone table is modelled.",
+    "LPL": "The real two groups of 14 end in a final four; only the zone table "
+           "is modelled.",
+    "AR3F": "The real Torneo Federal A continues with the Campeonato and "
+            "Revalida paths; only the zone table is modelled.",
+}
+
 
 def split(total: int, zones: int) -> list:
     base, extra = divmod(total, zones)
@@ -72,8 +83,9 @@ def main() -> None:
             }],
             "note": ("Zonal regular season: %d clubs in %d zones of %s, %d rounds "
                      "each; the zones are geographical, so the season table is a "
-                     "combined ranking." % (total, zones,
-                                            "/".join(str(size) for size in sizes), rounds)),
+                     "combined ranking. %s" % (total, zones,
+                                               "/".join(str(size) for size in sizes),
+                                               rounds, NOTES[league_id])),
         }
         print("%-6s clubs %2d -> zones %s, %d rounds" % (
             league_id, total, sizes, rounds))

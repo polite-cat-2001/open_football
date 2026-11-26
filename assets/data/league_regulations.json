@@ -59,7 +59,7 @@
       }
      }
     ],
-    "note": "Zonal regular season: 59 clubs in 4 zones of 15/15/15/14, 26 rounds each; the zones are geographical, so the season table is a combined ranking."
+    "note": "Zonal regular season: 59 clubs in 4 zones of 15/15/15/14, 26 rounds each; the zones are geographical, so the season table is a combined ranking. The real 2. Division B continues with promotion play-offs; only the zone table is modelled."
    }
   },
   "510": {
@@ -442,7 +442,7 @@
       }
      }
     ],
-    "note": "Zonal regular season: 37 clubs in 2 zones of 19/18, 34 rounds each; the zones are geographical, so the season table is a combined ranking."
+    "note": "Zonal regular season: 37 clubs in 2 zones of 19/18, 34 rounds each; the zones are geographical, so the season table is a combined ranking. The real Torneo Federal A continues with the Campeonato and Revalida paths; only the zone table is modelled."
    }
   },
   "ARG2": {
@@ -5688,7 +5688,7 @@
       }
      }
     ],
-    "note": "Zonal regular season: 28 clubs in 2 zones of 14/14, 26 rounds each; the zones are geographical, so the season table is a combined ranking."
+    "note": "Zonal regular season: 28 clubs in 2 zones of 14/14, 26 rounds each; the zones are geographical, so the season table is a combined ranking. The real two groups of 14 end in a final four; only the zone table is modelled."
    }
   },
   "LTU2": {
