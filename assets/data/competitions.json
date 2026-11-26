@@ -2121,20 +2121,6 @@
    "confidence": "",
    "note": "super cup from the research"
   },
-  "PUSC": {
-   "kind": "super_cup",
-   "label": "Supercopa Peruana",
-   "country": "Peru",
-   "teams": 2,
-   "cup": "CBII",
-   "start_md": "01-23",
-   "end_md": "01-23",
-   "final_legs": 1,
-   "champion": "winner",
-   "source": "",
-   "confidence": "",
-   "note": "super cup from the research"
-  },
   "URSC": {
    "kind": "super_cup",
    "label": "Supercopa Uruguaya",
@@ -2611,5 +2597,8 @@
    "confidence": "high",
    "note": "super cup from the research"
   }
+ },
+ "_dropped": {
+  "PUSC": "Supercopa Peruana: the Copa Bicentenario it is paired with has not been played since 2021, so the super cup has no real participant."
  }
 }

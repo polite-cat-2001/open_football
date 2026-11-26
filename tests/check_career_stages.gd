@@ -79,6 +79,18 @@ func _run() -> void:
 	_check(str(bottom[0].id) == "C06" and int(bottom[0].points) == 60,
 		"the bottom group carries its own regular points")
 
+	var zonal_stage := {"id": "zones", "kind": "group", "rounds": 2,
+		"groups": {"sizes": [3, 3]}}
+	var zonal := CareerStages._group_schedule(zonal_stage, CLUBS,
+		"2026-08-01", "2026-09-01", [], "world", {},
+		["2026-08-01", "2026-08-08"])
+	var seen := {}
+	for fixture in zonal:
+		seen[str(fixture.get("home", ""))] = true
+		seen[str(fixture.get("away", ""))] = true
+	_check(seen.size() == CLUBS.size(),
+		"a club pool larger than the zone sizes joins the last zone instead of vanishing")
+
 	print("== check_career_stages: ", "PASS" if failures.is_empty() else "FAIL",
 		" (", failures.size(), " failures) ==")
 	quit(0 if failures.is_empty() else 1)

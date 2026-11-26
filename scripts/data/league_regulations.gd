@@ -70,10 +70,10 @@ static func window(league_id: String, year: int) -> Dictionary:
 
 
 static func window_for_season(league_id: String, season_start: String) -> Dictionary:
-	var parts := CareerSearch.date_parts(str(season_start))
-	if parts.is_empty():
-		return {}
-	return window(league_id, int(parts[0]))
+	# A season boundary sits in the gap before its window, so a calendar-year
+	# league's boundary (December 30) belongs to the next year's January-to-
+	# December season, not to the one that just ended.
+	return first_window_on_or_after(league_id, season_start)
 
 
 static func first_window_on_or_after(league_id: String, date: String) -> Dictionary:

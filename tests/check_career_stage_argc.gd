@@ -95,6 +95,13 @@ func _run() -> void:
 				and int(fixture.get("stage_round", 0)) == 4:
 			finals += 1
 	_check(finals == 1, "the Clausura bracket reaches a single final")
+	# The career also carries the domestic cup and the Libertadores: a season is
+	# complete only once every fixture is played, as the real advance does.
+	for _pass in range(6):
+		CareerCompetitions.ensure(career)
+		CareerFactory.ensure_stages(career)
+		if not CareerSeason._play_remaining_fixtures(career, catalog, {}):
+			break
 	_check(CareerSeason.next_fixture(career).is_empty(),
 		"the bracket rounds complete the season")
 

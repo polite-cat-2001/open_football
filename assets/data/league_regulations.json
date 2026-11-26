@@ -30,7 +30,37 @@
    "confidence": "high",
    "source": "https://en.wikipedia.org/wiki/2026–27_Russian_Premier_League",
    "note": "Window inherited from RU1; the season facts in that division's note were not re-checked for this league.",
-   "inherited_from": "RU1"
+   "inherited_from": "RU1",
+   "format": {
+    "season": "2026-27",
+    "start_md": "07-24",
+    "end_md": "05-29",
+    "champion": "none",
+    "stages": [
+     {
+      "id": "zones",
+      "kind": "group",
+      "label": "Zones",
+      "rounds": 26,
+      "start_md": "07-24",
+      "end_md": "05-29",
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "groups": {
+       "sizes": [
+        15,
+        15,
+        15,
+        14
+       ]
+      }
+     }
+    ],
+    "note": "Zonal regular season: 59 clubs in 4 zones of 15/15/15/14, 26 rounds each; the zones are geographical, so the season table is a combined ranking."
+   }
   },
   "510": {
    "start_md": "08-07",
@@ -385,7 +415,35 @@
    "confidence": "medium",
    "source": "https://es.wikipedia.org/wiki/Torneo_Federal_A_2026",
    "note": "Torneo Federal A, one competition of 37 clubs: primera fase in four zones from 20 March, then the Campeonato path (18 clubs, 1 August - 25 October, champion promoted) and the Reválida path (19 clubs plus the losers of the Campeonato path, to 29 November, its winner takes the second promotion). AR3R (the Reválida row) was merged into this one.",
-   "inherited_from": "ARGC"
+   "inherited_from": "ARGC",
+   "format": {
+    "season": "2026-27",
+    "start_md": "03-20",
+    "end_md": "11-29",
+    "champion": "none",
+    "stages": [
+     {
+      "id": "zones",
+      "kind": "group",
+      "label": "Zones",
+      "rounds": 34,
+      "start_md": "03-20",
+      "end_md": "11-29",
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "groups": {
+       "sizes": [
+        19,
+        18
+       ]
+      }
+     }
+    ],
+    "note": "Zonal regular season: 37 clubs in 2 zones of 19/18, 34 rounds each; the zones are geographical, so the season table is a combined ranking."
+   }
   },
   "ARG2": {
    "start_md": "02-13",
@@ -5603,7 +5661,35 @@
    "transfer_windows": [],
    "confidence": "low",
    "source": "https://en.wikipedia.org/wiki/2024%E2%80%9325_Libyan_Premier_League",
-   "note": "No 2025–26 or 2026–27 Libyan Premier League article exists; data is from 2024–25, which is NOT the 2026-27 calendar. That season ran 35 teams in four regional groups (postponed from 2 October to 11 December 2024) with championship/relegation groups, so the structure will likely differ. Relegation count varies per group; no tiebreak rules or transfer windows stated."
+   "note": "No 2025–26 or 2026–27 Libyan Premier League article exists; data is from 2024–25, which is NOT the 2026-27 calendar. That season ran 35 teams in four regional groups (postponed from 2 October to 11 December 2024) with championship/relegation groups, so the structure will likely differ. Relegation count varies per group; no tiebreak rules or transfer windows stated.",
+   "format": {
+    "season": "2026-27",
+    "start_md": "12-11",
+    "end_md": "08-12",
+    "champion": "none",
+    "stages": [
+     {
+      "id": "zones",
+      "kind": "group",
+      "label": "Zones",
+      "rounds": 26,
+      "start_md": "12-11",
+      "end_md": "08-12",
+      "entrants": [
+       {
+        "rule": "all"
+       }
+      ],
+      "groups": {
+       "sizes": [
+        14,
+        14
+       ]
+      }
+     }
+    ],
+    "note": "Zonal regular season: 28 clubs in 2 zones of 14/14, 26 rounds each; the zones are geographical, so the season table is a combined ranking."
+   }
   },
   "LTU2": {
    "start_md": "02-21",

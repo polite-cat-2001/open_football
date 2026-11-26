@@ -265,7 +265,9 @@ static func _stage_windows(format: Dictionary, season_start: String,
 	# cannot run through its own playoffs; a missing start follows the previous
 	# stage. Nothing here names a league.
 	var stages := CareerStages.stages(format)
-	var year := int(CareerSearch.date_parts(season_start)[0])
+	# The stages open with the league window, so a calendar-year league whose
+	# boundary falls in December places them in the following year.
+	var year := int(str(season_start_default).substr(0, 4))
 	var format_start := str(format.get("start_md", ""))
 	var starts: Array = []
 	var ends: Array = []
@@ -592,13 +594,15 @@ static func season_table(career: Career, clubs: Dictionary) -> Array:
 	if format is Dictionary:
 		var champion := str(format.get("champion", ""))
 		if champion.begins_with("stage:"):
-			var table := stage_table(career, clubs, champion.substr(6))
-			if not table.is_empty():
-				return table
-			# The champion comes from a knockout (Peru's playoff, Venezuela's
-			# final absoluta, Malta's title match): a bracket has no table, so the
-			# season is ranked by the aggregate of its phases, or by the regular
-			# stage, instead of nothing.
+			var stage_id := champion.substr(6)
+			# The champion comes from a knockout (Peru's playoff, Venezuela's final
+			# absoluta, Malta's title match) as often as from a league stage: a
+			# bracket has no table, so the season is ranked by the aggregate of its
+			# phases, or by the regular stage, instead of a two-club final.
+			if str(_stage_kind(format, stage_id)) != "knockout":
+				var table := stage_table(career, clubs, stage_id)
+				if not table.is_empty():
+					return table
 		if format.get("aggregate") is Array:
 			var aggregate := _aggregate_table(career, clubs, format)
 			if not aggregate.is_empty():
@@ -611,6 +615,13 @@ static func season_table(career: Career, clubs: Dictionary) -> Array:
 			if not regular.is_empty():
 				return regular
 	return standings(career, clubs)
+
+
+static func _stage_kind(format: Dictionary, stage_id: String) -> String:
+	for stage in CareerStages.stages(format):
+		if str(stage.get("id", "")) == stage_id:
+			return str(stage.get("kind", ""))
+	return ""
 
 
 static func _aggregate_table(career: Career, clubs: Dictionary,

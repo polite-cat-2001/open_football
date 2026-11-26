@@ -104,6 +104,13 @@ func _run() -> void:
 			break
 		for fixture in pending:
 			career.data["results"][str(fixture.get("id", ""))] = _result(fixture)
+	# The career also carries the domestic cup and the Libertadores: a season is
+	# complete only once every fixture is played, as the real advance does.
+	for _pass in range(6):
+		CareerCompetitions.ensure(career)
+		CareerFactory.ensure_stages(career)
+		if not CareerSeason._play_remaining_fixtures(career, catalog, {}):
+			break
 	_check(CareerSeason.next_fixture(career).is_empty(),
 		"the knockout rounds complete the Colombian season")
 

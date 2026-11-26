@@ -193,6 +193,13 @@ static func _group_schedule(stage: Dictionary, entrants: Array, start_date: Stri
 		var count := int(size)
 		groups.append(entrants.slice(index, index + count))
 		index += count
+	if index < entrants.size():
+		# The club pool can grow after the format was written: extra entrants join
+		# the last group instead of disappearing from the season.
+		if groups.is_empty():
+			groups.append(entrants.slice(index))
+		else:
+			(groups[-1] as Array).append_array(entrants.slice(index))
 	var rounds := int(stage.get("rounds", 0))
 	var schedule = stage.get("schedule", {})
 	var interzonal := 0

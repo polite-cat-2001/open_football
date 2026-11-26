@@ -134,6 +134,13 @@ static func build_season(catalog: TeamCatalog, league_id: String, club_ids: Arra
 		})
 	var plan := {}
 	if requests.size() > 1:
+		# A cup can open a day before the league season (Copa Argentina starts
+		# 01-22, its league 01-23). The career starts on the season boundary, so a
+		# round dated before it would never be reachable: the advance cannot move
+		# backwards. The plan opens with the season instead.
+		for request in requests:
+			if str(request.get("start", "")) < season_start:
+				request["start"] = season_start
 		plan = CareerCalendar.joint_plan(requests, IntlCalendar.rules(), "world",
 			REST_DAYS)
 	var built := CareerFactory.season_schedule(league_id, club_ids, season_start, plan)

@@ -125,7 +125,14 @@ static func next_season_start(career: Career) -> String:
 	# next boundary, not on the window's first matchday.
 	var parts := CareerSearch.date_parts(career.season_start)
 	if not parts.is_empty():
-		var next := LeagueRegulations.boundary(career.league_id, int(parts[0]) + 1)
+		# The boundary opens the window it precedes: for a calendar-year league
+		# the boundary of December 30 belongs to next year's season.
+		var year := int(parts[0])
+		var current := LeagueRegulations.window_for_season(career.league_id,
+			career.season_start)
+		if not current.is_empty():
+			year = int(str(current.get("start", "")).substr(0, 4))
+		var next := LeagueRegulations.boundary(career.league_id, year + 1)
 		if not next.is_empty():
 			return next
 	# Fallback for a league without a regulation: shift the year (Feb 29 falls
@@ -190,7 +197,15 @@ static func transition(catalog: TeamCatalog, career: Career) -> Dictionary:
 	# career club has no fixture left, which can leave a few league rounds open
 	# (and a split format then never builds its championship stage). Play them,
 	# then build the late stage, so the ranking never runs against an empty table.
-	_play_remaining_league_fixtures(career, catalog, clubs)
+	# Cup rounds appear as the previous round's results land, so the rest of the
+	# season is played in passes: play what exists, let the cups build the next
+	# round, repeat. Only then do the cups record their winners, which the next
+	# season's super cup needs.
+	for _pass in range(8):
+		CareerFactory.ensure_stages(career)
+		CareerCompetitions.ensure(career)
+		if not _play_remaining_fixtures(career, catalog, clubs):
+			break
 	CareerFactory.ensure_stages(career)
 	var table := CareerFactory.season_table(career, clubs)
 	if table.is_empty():
@@ -738,24 +753,32 @@ static func _confederation_fields(berths: Dictionary,
 	return result
 
 
-static func _play_remaining_league_fixtures(career: Career, catalog: TeamCatalog,
-		clubs: Dictionary) -> void:
+static func _play_remaining_fixtures(career: Career, catalog: TeamCatalog,
+		clubs: Dictionary) -> bool:
+	# Every competition, not just the league: the cup winners feed the super cups
+	# and the cup's own later rounds.
 	var pending: Array = []
 	for fixture in career.schedule:
-		if str(fixture.get("competition", career.league_id)) != career.league_id:
-			continue
 		if career.results.has(str(fixture.get("id", ""))):
 			continue
 		pending.append(fixture)
 	if pending.is_empty():
-		return
+		return false
 	var ratings := {}
 	for club_id in clubs:
 		ratings[str(club_id)] = squad_strength(CareerSquad.roster(catalog, career,
 			int(club_id), false))
 	for fixture in pending:
+		for side in ["home", "away"]:
+			var club_id := str(fixture.get(side, ""))
+			if club_id.is_empty() or ratings.has(club_id):
+				continue
+			ratings[club_id] = squad_strength(CareerSquad.roster(catalog, career,
+				int(club_id), false))
+	for fixture in pending:
 		career.data["results"][str(fixture.get("id", ""))] = simulate(career.seed,
 			fixture, ratings)
+	return true
 
 
 static func _journal(career: Career, kind: String, payload: Dictionary) -> void:
